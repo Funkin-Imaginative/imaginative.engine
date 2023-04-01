@@ -76,12 +76,25 @@ class MusicBeatState extends FlxState
 	}
 
     public static function switchState(nextState:FlxState) {
-
-        if (!FlxTransitionableState.skipNextTransIn) {
-            // RODNEY DO THIS
-        }
-
-        FlxG.switchState(nextState);
-
+        // Custom made Trans in
+		var curState:Dynamic = FlxG.state;
+		var leState:MusicBeatState = curState;
+		if(!FlxTransitionableState.skipNextTransIn) {
+			leState.openSubState(new CustomFadeTransition(0.6, false));
+			if(nextState == FlxG.state) {
+				CustomFadeTransition.finishCallback = function() {
+					FlxG.resetState();
+				};
+				//trace('resetted');
+			} else {
+				CustomFadeTransition.finishCallback = function() {
+					FlxG.switchState(nextState);
+				};
+				//trace('changed state');
+			}
+			return;
+		}
+		FlxTransitionableState.skipNextTransIn = false;
+		FlxG.switchState(nextState);
     }
 }
