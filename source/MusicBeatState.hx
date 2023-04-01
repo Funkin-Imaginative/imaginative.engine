@@ -6,11 +6,11 @@ import flixel.FlxG;
 import flixel.text.FlxText;
 
 import flixel.tweens.FlxTween;
-class MusicBeatState extends FlxState {
+class MusicBeatState extends FlxUIState {
 
 	override public function create() {
+        // THIS STUFF WILL HAPPEN BEFORE SUPER CREATE ON ANY STATE
 
-        // Create Menu Items Here
 
 
 		super.create();
@@ -19,4 +19,10 @@ class MusicBeatState extends FlxState {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 	}
+
+    public function beatHit():Void
+    {
+        //trace('Beat: ' + curBeat);
+        // Need to Code This
+    }
 }
