@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
+import flixel.util.FlxTimer;
 
 
 class TitleState extends FlxState {
@@ -23,7 +24,27 @@ class TitleState extends FlxState {
         titleLogo.animation.play('bumpin', true);
         titleLogo.angle = -10;
         add(titleLogo);
+        titleLogo.antialiasing = true;
 
+        enterText = new FlxSprite(0, 600);
+        enterText.frames = Paths.getSparrowAtlas('titleEnter');
+        enterText.animation.addByPrefix('idle', 'Press Enter to Begin0');
+        enterText.animation.addByPrefix('pressed', 'ENTER PRESSED0');
+        enterText.animation.play('idle');
+        enterText.screenCenter(X);
+        enterText.x += 210;
+        add(enterText);
+        enterText.antialiasing = true;
+
+        gfBop = new FlxSprite(550, -20);
+        gfBop.frames = Paths.getSparrowAtlas('gfDanceTitle');
+        gfBop.animation.addByPrefix('boppin', 'gfDance0', 24, true);
+        gfBop.animation.play('boppin', true);
+        gfBop.scale.x = 0.8;
+        gfBop.scale.y = 0.8;
+        add(gfBop);
+        gfBop.antialiasing = true;
+    
         exampleTxt = new FlxText(0, 0, FlxG.width, 'Press Enter to Start', 30);
         
 
@@ -31,7 +52,14 @@ class TitleState extends FlxState {
 
     override public function update(elapsed:Float) {
 
-        //trace("HELLO?!?!?!");
+        if (FlxG.keys.justPressed.ENTER) {
+            enterText.animation.play('pressed');
+            enterText.x += 6;
+            enterText.y += 6;
+            new FlxTimer().start(1, function (tmr:FlxTimer) {
+                FlxG.switchState(new PlayState());
+            });
+        }
 
         super.update(elapsed);
     }
