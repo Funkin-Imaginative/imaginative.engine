@@ -1,28 +1,29 @@
 package;
 
-//import animateatlas.AtlasFrameMaker; -- This is files that idk if Rods wants
-import flash.media.Sound;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
+import animateatlas.AtlasFrameMaker;
 import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import haxe.Json;
-import haxe.xml.Access;
-import lime.utils.Assets;
-import openfl.display.BitmapData;
+import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import openfl.geom.Rectangle;
+import flixel.math.FlxRect;
+import haxe.xml.Access;
 import openfl.system.System;
+import flixel.FlxG;
+import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+import lime.utils.Assets;
+import flixel.FlxSprite;
+#if sys
+import sys.io.File;
+import sys.FileSystem;
+#end
+import flixel.graphics.FlxGraphic;
+import openfl.display.BitmapData;
+import haxe.Json;
+
+import flash.media.Sound;
 
 using StringTools;
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 class Paths
 {
@@ -38,13 +39,14 @@ class Paths
 		'songs',
 		'music',
 		'sounds',
-		// 'shaders',
+		'shaders',
 		'videos',
 		'images',
 		'stages',
 		'weeks',
 		'fonts',
-		'scripts'
+		'scripts',
+		'achievements'
 	];
 	#end
 
@@ -300,7 +302,17 @@ class Paths
 
 	inline static public function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
+		#if MODS_ALLOWED
+		var imageLoaded:FlxGraphic = returnGraphic(key);
+		var xmlExists:Bool = false;
+		if(FileSystem.exists(modsXml(key))) {
+			xmlExists = true;
+		}
+
+		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), (xmlExists ? File.getContent(modsXml(key)) : file('images/$key.xml', library)));
+		#else
 		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
+		#end
 	}
 
 
@@ -330,6 +342,19 @@ class Paths
 	// completely rewritten asset loading? fuck!
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	public static function returnGraphic(key:String, ?library:String) {
+		#if MODS_ALLOWED
+		var modKey:String = modsImages(key);
+		if(FileSystem.exists(modKey)) {
+			if(!currentTrackedAssets.exists(modKey)) {
+				var newBitmap:BitmapData = BitmapData.fromFile(modKey);
+				var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(newBitmap, false, modKey);
+				newGraphic.persist = true;
+				currentTrackedAssets.set(modKey, newGraphic);
+			}
+			localTrackedAssets.push(modKey);
+			return currentTrackedAssets.get(modKey);
+		}
+		#end
 
 		var path = getPath('images/$key.png', IMAGE, library);
 		//trace(path);
