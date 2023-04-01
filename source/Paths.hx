@@ -26,7 +26,7 @@ import sys.io.File;
 
 class Paths
 {
-	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
+	inline public static var SOUND_EXT = "ogg";
 	inline public static var VIDEO_EXT = "mp4";
 
 	#if MODS_ALLOWED
@@ -183,9 +183,9 @@ class Paths
 	{
 		return getPath('shaders/$key.vert', TEXT, library);
 	}
-	inline static public function lua(key:String, ?library:String)
+	inline static public function hx(key:String, ?library:String)
 	{
-		return getPath('$key.lua', TEXT, library);
+		return getPath('$key.hx', TEXT, library);
 	}
 
 	static public function video(key:String)
