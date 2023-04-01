@@ -1,9 +1,7 @@
 package;
 
 import flixel.graphics.FlxGraphic;
-#if desktop
-import Discord.DiscordClient;
-#end
+#if desktop import Discord.DiscordClient; #end
 import WiggleEffect.WiggleEffectType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
