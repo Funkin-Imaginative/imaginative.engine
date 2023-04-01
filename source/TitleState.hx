@@ -6,14 +6,19 @@ import flixel.FlxState;
 import flixel.text.FlxText;
 
 class TitleState extends FlxState {
-	public var exampleTxt:FlxText;
+    private var titleLogo:FlxSprite;
+    public var exampleTxt:FlxText;
 
-	override public function create() {
-		super.create();
-		exampleTxt = new FlxText(0, 0, FlxG.width, 'Press Enter to Start', 30);
-	}
+    override public function create() {
+        super.create();
 
-	override public function update(elapsed:Float) {
-		super.update(elapsed);
-	}
+        
+
+        exampleTxt = new FlxText(0, 0, FlxG.width, 'Press Enter to Start', 30);
+
+    }
+
+    override public function update(elapsed:Float) {
+        super.update(elapsed);
+    }
 }
