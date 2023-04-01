@@ -20,11 +20,11 @@ class Preloader extends FlxBasePreloader {
         var ratio:Float = this._width / 2560; //This allows us to scale assets depending on the size of the screen.
          
         logo = new FlxSprite(0, 0, 'art');
-        logo.addChild(new Bitmap(new LogoImage(0,0))); //Sets the graphic of the sprite to a Bitmap object, which uses our embedded BitmapData class.
+        //logo.addChild(new Bitmap(new LogoImage(0,0))); //Sets the graphic of the sprite to a Bitmap object, which uses our embedded BitmapData class.
         logo.scale.x = logo.scale.y = ratio;
         logo.x = ((this._width) / 2) - ((logo.width) / 2);
         logo.y = (this._height / 2) - ((logo.height) / 2);
-        addChild(logo); //Adds the graphic to the NMEPreloader's buffer.
+        //addChild(logo); //Adds the graphic to the NMEPreloader's buffer.
          
         super.create();
     }

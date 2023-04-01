@@ -38,8 +38,8 @@ class Main extends Sprite {
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
 
-		fpsVar = new FPS(10, 3, 0xFFFFFF);
-		addChild(fpsVar);
+		//fpsVar = new FPS(10, 3, 0xFFFFFF);
+		//addChild(fpsVar);
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		// if (fpsVar != null)
