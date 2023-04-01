@@ -74,4 +74,14 @@ class MusicBeatState extends FlxState
 	{
 		
 	}
+
+    public static function switchState(nextState:FlxState) {
+
+        if (!FlxTransitionableState.skipNextTransIn) {
+            // RODNEY DO THIS
+        }
+
+        FlxG.switchState(nextState);
+
+    }
 }

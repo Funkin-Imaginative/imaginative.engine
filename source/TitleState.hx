@@ -57,10 +57,8 @@ class TitleState extends MusicBeatState {
         if (FlxG.keys.justPressed.ENTER) {
             enterText.animation.play('pressed');
             enterText.color = 0xFFFFFF;
-            enterText.x += 6;
-            enterText.y += 6;
             new FlxTimer().start(1, function (tmr:FlxTimer) {
-                FlxG.switchState(new PlayState());
+                MusicBeatState.switchState(new PlayState());
             });
         }
 
