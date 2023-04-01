@@ -334,7 +334,7 @@ class Controls extends FlxActionSet
 		for (action in digitalActions)
 			byName[action.name] = action;
 
-		setKeyboardScheme(scheme, false);
+		//setKeyboardScheme(scheme, false);
 	}
 	#else
 	public function new(name, scheme:KeyboardScheme = null)
@@ -627,7 +627,7 @@ class Controls extends FlxActionSet
 				action.remove(input);
 		}
 	}
-
+/*
 	public function setKeyboardScheme(scheme:KeyboardScheme, reset = true)
 	{
 		if (reset)
@@ -729,7 +729,7 @@ class Controls extends FlxActionSet
 		}
 		#end
 	}
-
+*/
 	function removeKeyboard()
 	{
 		for (action in this.digitalActions)
@@ -887,7 +887,7 @@ class Controls extends FlxActionSet
 		}
 		return list;
 	}
-
+/*
 	public function removeDevice(device:Device)
 	{
 		switch (device)
@@ -898,7 +898,7 @@ class Controls extends FlxActionSet
 				removeGamepad(id);
 		}
 	}
-
+*/
 	static function isDevice(input:FlxActionInput, device:Device)
 	{
 		return switch device

@@ -41,7 +41,7 @@ class PlayerSettings
 
 	public function setKeyboardScheme(scheme)
 	{
-		controls.setKeyboardScheme(scheme);
+		//controls.setKeyboardScheme(scheme);
 	}
 
 	/* 

@@ -69,10 +69,19 @@ using StringTools;
 
 class MusicBeatState extends FlxState
 {
+    public static var camBeat:FlxCamera;
 	
 	override public function create()
 	{
-		
+
+		camBeat = FlxG.camera;
+		var skip:Bool = FlxTransitionableState.skipNextTransOut;
+		super.create();
+
+
+        if(!skip) {
+			openSubState(new CustomFadeTransition(0.7, true));
+		}
 	}
 
     public static function switchState(nextState:FlxState) {
