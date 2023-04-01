@@ -7,7 +7,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxTimer;
 
 
-class TitleState extends FlxState {
+class TitleState extends MusicBeatState {
     private var titleLogo:FlxSprite;
     private var enterText:FlxSprite;
     private var gfBop:FlxSprite;
@@ -28,12 +28,14 @@ class TitleState extends FlxState {
 
         enterText = new FlxSprite(0, 600);
         enterText.frames = Paths.getSparrowAtlas('titleEnter');
-        enterText.animation.addByPrefix('idle', 'Press Enter to Begin0');
+        enterText.animation.addByPrefix('idle', 'ENTER IDLE0');
         enterText.animation.addByPrefix('pressed', 'ENTER PRESSED0');
+        enterText.animation.addByPrefix('freeze', 'ENTER FREEZE0');
         enterText.animation.play('idle');
         enterText.screenCenter(X);
         enterText.x += 210;
         add(enterText);
+        enterText.color = 0x00FFFF;
         enterText.antialiasing = true;
 
         gfBop = new FlxSprite(550, -20);
