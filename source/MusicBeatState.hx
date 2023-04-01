@@ -6,7 +6,8 @@ import flixel.FlxG;
 import flixel.text.FlxText;
 
 import flixel.tweens.FlxTween;
-class MainMenuState extends FlxState {
+class MusicBeatState extends FlxState {
+
 	override public function create() {
 
         // Create Menu Items Here

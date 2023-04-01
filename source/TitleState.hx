@@ -7,7 +7,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxTimer;
 
 
-class TitleState extends FlxState {
+class TitleState extends MusicBeatState {
     private var titleLogo:FlxSprite;
     private var enterText:FlxSprite;
     private var gfBop:FlxSprite;
