@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.util.FlxTimer;
+import flixel.input.keyboard.FlxKey;
 
 
 class TitleState extends MusicBeatState {
@@ -13,8 +14,11 @@ class TitleState extends MusicBeatState {
 	private var gfBop:FlxSprite;
 	public var exampleTxt:FlxText;
 
-	override public function create() {
+	public static var muteKeys:Array<FlxKey> = [FlxKey.NUMPADZERO];
+	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS];
+	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS];
 
+	override public function create() {
 
         FlxG.game.focusLostFramerate = 60;
 		//FlxG.sound.muteKeys = muteKeys;
