@@ -57,7 +57,7 @@ class TitleState extends FlxState {
             enterText.x += 6;
             enterText.y += 6;
             new FlxTimer().start(1, function (tmr:FlxTimer) {
-                FlxG.switchState(new PlayState());
+                FlxG.switchState(new MainMenuState());
             });
         }
 

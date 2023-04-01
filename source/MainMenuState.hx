@@ -6,8 +6,12 @@ import flixel.FlxG;
 import flixel.text.FlxText;
 
 import flixel.tweens.FlxTween;
-class PlayState extends FlxState {
+class MainMenuState extends FlxState {
 	override public function create() {
+
+        // Create Menu Items Here
+
+
 		super.create();
 	}
 
