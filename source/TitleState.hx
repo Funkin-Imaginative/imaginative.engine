@@ -29,7 +29,7 @@ class TitleState extends MusicBeatState {
 		enterText = new FlxSprite(0, 600);
 		enterText.frames = Paths.getSparrowAtlas('titleEnter');
 		enterText.animation.addByPrefix('idle', 'ENTER IDLE0');
-		enterText.animation.addByPrefix('pressed', 'ENTER PRESSED0');
+		enterText.animation.addByPrefix('pressed', 'ENTER PRESSED', 24, true);
 		enterText.animation.addByPrefix('freeze', 'ENTER FREEZE0');
 		enterText.animation.play('idle');
 		enterText.screenCenter(X);
@@ -46,6 +46,8 @@ class TitleState extends MusicBeatState {
 		gfBop.scale.y = 0.8;
 		add(gfBop);
 		gfBop.antialiasing = true;
+
+        Conductor.changeBPM(102);
 	
 		exampleTxt = new FlxText(0, 0, FlxG.width, 'Press Enter to Start', 30);
 		
@@ -64,4 +66,14 @@ class TitleState extends MusicBeatState {
 
 		super.update(elapsed);
 	}
+
+    var sickBeats:Int;
+    override public function beatHit() {
+
+        super.beatHit();
+
+        sickBeats++;
+
+        trace('BAP BOOP DUM IDIOT');
+    }
 }

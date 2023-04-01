@@ -69,6 +69,17 @@ using StringTools;
 
 class MusicBeatState extends FlxState
 {
+
+	private var curSection:Int = 0;
+	private var stepsToDo:Int = 0;
+
+	private var curStep:Int = 0;
+	private var curBeat:Int = 0;
+
+	private var curDecStep:Float = 0;
+	private var curDecBeat:Float = 0;
+	//private var controls(get, never):Controls;
+
     public static var camBeat:FlxCamera;
 	
 	override public function create()
@@ -105,5 +116,35 @@ class MusicBeatState extends FlxState
 		}
 		FlxTransitionableState.skipNextTransIn = false;
 		FlxG.switchState(nextState);
+    }
+
+    public function beatHit():Void
+    {
+        //trace('Beat: ' + curBeat);
+    }
+
+    public function stepHit():Void
+        {
+            if (curStep % 4 == 0)
+                beatHit();
+        }
+
+    override function update(elapsed:Float) {
+
+
+        var oldStep:Int = curStep;
+
+		//updateCurStep();
+		//updateBeat();
+
+		if (oldStep != curStep)
+		{
+			if(curStep > 0)
+				stepHit();
+		}
+
+		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
+
+
     }
 }
