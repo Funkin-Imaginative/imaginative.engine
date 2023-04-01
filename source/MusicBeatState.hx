@@ -1,75 +1,22 @@
 package;
 
-import flixel.graphics.FlxGraphic;
-#if desktop
-import Discord.DiscordClient;
-#end
-import WiggleEffect.WiggleEffectType;
-import flixel.FlxBasic;
-import flixel.FlxCamera;
+import Conductor.BPMChangeEvent;
 import flixel.FlxG;
-import flixel.FlxGame;
-import flixel.FlxObject;
-import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.FlxSubState;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.effects.FlxTrail;
-import flixel.addons.effects.FlxTrailArea;
-import flixel.addons.effects.chainable.FlxEffectSprite;
-import flixel.addons.effects.chainable.FlxWaveEffect;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.graphics.atlas.FlxAtlas;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
+import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
-import flixel.system.FlxSound;
-import flixel.text.FlxText;
+import flixel.util.FlxTimer;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
-import flixel.ui.FlxBar;
-import flixel.util.FlxCollision;
+import flixel.FlxSprite;
 import flixel.util.FlxColor;
-import flixel.util.FlxSort;
-import flixel.util.FlxStringUtil;
-import flixel.util.FlxTimer;
-import haxe.Json;
-import lime.utils.Assets;
-import openfl.Lib;
-import openfl.display.BlendMode;
-import openfl.display.StageQuality;
-import openfl.filters.BitmapFilter;
-import openfl.utils.Assets as OpenFlAssets;
-import flixel.group.FlxSpriteGroup;
-import flixel.input.keyboard.FlxKey;
-import openfl.events.KeyboardEvent;
-import flixel.effects.particles.FlxEmitter;
-import flixel.effects.particles.FlxParticle;
-import flixel.util.FlxSave;
-import flixel.animation.FlxAnimationController;
-import animateatlas.AtlasFrameMaker;
+import flixel.util.FlxGradient;
+import flixel.FlxState;
+import flixel.FlxCamera;
+import flixel.FlxBasic;
 
-#if !flash 
-import flixel.addons.display.FlxRuntimeShader;
-import openfl.filters.ShaderFilter;
-#end
-
-#if sys
-import sys.FileSystem;
-import sys.io.File;
-#end
-
-#if VIDEOS_ALLOWED
-import vlc.MP4Handler;
-#end
-
-using StringTools;
-
-class MusicBeatState extends FlxState
+class MusicBeatState extends FlxUIState
 {
-
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
@@ -78,25 +25,101 @@ class MusicBeatState extends FlxState
 
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
-	//private var controls(get, never):Controls;
+	private var controls(get, never):Controls;
 
-    public static var camBeat:FlxCamera;
-	
-	override public function create()
-	{
+	public static var camBeat:FlxCamera;
 
+	inline function get_controls():Controls
+		return PlayerSettings.player1.controls;
+
+	override function create() {
 		camBeat = FlxG.camera;
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		super.create();
 
-
-        if(!skip) {
+		if(!skip) {
 			openSubState(new CustomFadeTransition(0.7, true));
+		}
+		FlxTransitionableState.skipNextTransOut = false;
+	}
+
+	override function update(elapsed:Float)
+	{
+		//everyStep();
+		var oldStep:Int = curStep;
+
+		//updateCurStep();
+		updateBeat();
+
+		if (oldStep != curStep)
+		{
+			if(curStep > 0)
+				stepHit();
+/*
+			if(PlayState.SONG != null)
+			{
+				if (oldStep < curStep)
+					updateSection();
+				else
+					rollbackSection();
+			}*/
+		}
+
+		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
+
+		super.update(elapsed);
+	}
+/*
+	private function updateSection():Void
+	{
+		if(stepsToDo < 1) stepsToDo = Math.round(getBeatsOnSection() * 4);
+		while(curStep >= stepsToDo)
+		{
+			curSection++;
+			var beats:Float = getBeatsOnSection();
+			stepsToDo += Math.round(beats * 4);
+			sectionHit();
 		}
 	}
 
-    public static function switchState(nextState:FlxState) {
-        // Custom made Trans in
+	private function rollbackSection():Void
+	{
+		if(curStep < 0) return;
+
+		var lastSection:Int = curSection;
+		curSection = 0;
+		stepsToDo = 0;
+		for (i in 0...PlayState.SONG.notes.length)
+		{
+			if (PlayState.SONG.notes[i] != null)
+			{
+				stepsToDo += Math.round(getBeatsOnSection() * 4);
+				if(stepsToDo > curStep) break;
+				
+				curSection++;
+			}
+		}
+
+		if(curSection > lastSection) sectionHit();
+	}
+*/
+	private function updateBeat():Void
+	{
+		curBeat = Math.floor(curStep / 4);
+		curDecBeat = curDecStep/4;
+	}
+/*
+	private function updateCurStep():Void
+	{
+		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
+
+		var shit = ((Conductor.songPosition - ClientPrefs.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
+		curDecStep = lastChange.stepTime + shit;
+		curStep = lastChange.stepTime + Math.floor(shit);
+	}
+*/
+	public static function switchState(nextState:FlxState) {
+		// Custom made Trans in
 		var curState:Dynamic = FlxG.state;
 		var leState:MusicBeatState = curState;
 		if(!FlxTransitionableState.skipNextTransIn) {
@@ -116,35 +139,38 @@ class MusicBeatState extends FlxState
 		}
 		FlxTransitionableState.skipNextTransIn = false;
 		FlxG.switchState(nextState);
-    }
+	}
 
-    public function beatHit():Void
-    {
-        //trace('Beat: ' + curBeat);
-    }
+	public static function resetState() {
+		MusicBeatState.switchState(FlxG.state);
+	}
 
-    public function stepHit():Void
-        {
-            if (curStep % 4 == 0)
-                beatHit();
-        }
+	public static function getState():MusicBeatState {
+		var curState:Dynamic = FlxG.state;
+		var leState:MusicBeatState = curState;
+		return leState;
+	}
 
-    override function update(elapsed:Float) {
+	public function stepHit():Void
+	{
+		if (curStep % 4 == 0)
+			beatHit();
+	}
 
+	public function beatHit():Void
+	{
+		//trace('Beat: ' + curBeat);
+	}
 
-        var oldStep:Int = curStep;
-
-		//updateCurStep();
-		//updateBeat();
-
-		if (oldStep != curStep)
-		{
-			if(curStep > 0)
-				stepHit();
-		}
-
-		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
-
-
-    }
+	public function sectionHit():Void
+	{
+		//trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
+	}
+/*
+	function getBeatsOnSection()
+	{
+		var val:Null<Float> = 4;
+		if(PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) val = PlayState.SONG.notes[curSection].sectionBeats;
+		return val == null ? 4 : val;
+	}*/
 }

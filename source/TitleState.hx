@@ -14,9 +14,19 @@ class TitleState extends MusicBeatState {
 	public var exampleTxt:FlxText;
 
 	override public function create() {
-		super.create();
 
-		FlxG.sound.playMusic(Paths.music('freakyMenu'));
+
+        FlxG.game.focusLostFramerate = 60;
+		//FlxG.sound.muteKeys = muteKeys;
+		//FlxG.sound.volumeDownKeys = volumeDownKeys;
+		//FlxG.sound.volumeUpKeys = volumeUpKeys;
+		FlxG.keys.preventDefaultKeys = [TAB];
+
+        super.create();
+
+        FlxG.sound.playMusic(Paths.music('freakyMenu'));
+        Conductor.changeBPM(102);
+        persistentUpdate = true;
 
 		titleLogo = new FlxSprite(-120, -70);
 		titleLogo.frames = Paths.getSparrowAtlas('logoBumpin');
@@ -47,7 +57,6 @@ class TitleState extends MusicBeatState {
 		add(gfBop);
 		gfBop.antialiasing = true;
 
-        Conductor.changeBPM(102);
 	
 		exampleTxt = new FlxText(0, 0, FlxG.width, 'Press Enter to Start', 30);
 		
