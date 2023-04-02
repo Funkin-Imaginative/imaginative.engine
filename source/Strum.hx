@@ -1,13 +1,10 @@
 package;
 
-import js.html.PlaybackDirection;
-import js.html.idb.Factory;
 import flixel.FlxSprite;
-import ColorizeRGB;
 
 class Strum extends FlxSprite {
 
-	var ColorizeRGB:ColorizeRGB;
+	var noteColor:ColorizeRGB;
 	var resetAnim:Float = 0;
 	var noteData:Int = 0;
 	var downScroll:Bool = false;
@@ -121,14 +118,14 @@ class Strum extends FlxSprite {
 		centerOffsets();
 		centerOrigin();
 		if(animation.curAnim == null || animation.curAnim.name == 'static') {
-			ColorizeRGB.red = 0;
-			ColorizeRGB.green = 0;
-			ColorizeRGB.blue = 0;
+			noteColor.red = 0;
+			noteColor.green = 0;
+			noteColor.blue = 0;
 		} else {
 			if (noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length) {
-				ColorizeRGB.red = ClientPrefs.data.arrowRGB[noteData][0];
-				ColorizeRGB.green = ClientPrefs.data.arrowRGB[noteData][1];
-				ColorizeRGB.blue = ClientPrefs.data.arrowRGB[noteData][2];
+				noteColor.red = ClientPrefs.data.arrowRGB[noteData][0];
+				noteColor.green = ClientPrefs.data.arrowRGB[noteData][1];
+				noteColor.blue = ClientPrefs.data.arrowRGB[noteData][2];
 			}
 			if(animation.curAnim.name == 'confirm' && !isStrumPixel) centerOrigin();
 		}
