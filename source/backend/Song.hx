@@ -19,9 +19,9 @@ typedef SwagSong =
 	var needsVoices:Bool;
 	var speed:Float;
 
-	var player1:String;
-	var player2:String;
-	var gfVersion:String;
+	var boyfriend:String;
+	var opponent:String;
+	var girlfriend:String;
 	var stage:String;
 
 	var arrowSkin:String;
@@ -30,25 +30,35 @@ typedef SwagSong =
 
 class Song
 {
-	public var song:String;
+	public var song:String = 'test';
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;
 	public var bpm:Float;
 	public var needsVoices:Bool = true;
-	public var arrowSkin:String;
-	public var splashSkin:String;
+	public var arrowSkin:String = 'NOTE_assets';
+	public var splashSkin:String = 'noteSplashes';
 	public var speed:Float = 1;
-	public var stage:String;
-	public var player1:String = 'bf';
-	public var player2:String = 'dad';
-	public var gfVersion:String = 'gf';
+	public var stage:String = 'stage';
+	public var boyfriend:String = 'bf';
+	public var opponent:String = 'dad';
+	public var girlfriend:String = 'gf';
 
 	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
 	{
-		if(songJson.gfVersion == null)
+		if(songJson.boyfriend == null)
 		{
-			songJson.gfVersion = songJson.player3;
-			songJson.player3 = null;
+			songJson.boyfriend = songJson.player1;
+			songJson.player1 = null;
+		}
+		if(songJson.opponent == null)
+		{
+			songJson.opponent = songJson.player2;
+			songJson.player2 = null;
+		}
+		if(songJson.girlfriend == null)
+		{
+			songJson.girlfriend = songJson.gfVersion;
+			songJson.gfVersion = null;
 		}
 
 		if(songJson.events == null)

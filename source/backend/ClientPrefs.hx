@@ -11,27 +11,27 @@ import states.TitleState;
 class SaveVariables {
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
-	public var opponentStrums:Bool = true;
+	public var showOpponentStrums:Bool = true;
 	public var showFPS:Bool = true;
-	public var flashing:Bool = true;
+	public var flashingLights:Bool = true;
 	public var antialiasing:Bool = true;
 	public var noteSplashes:Bool = true;
-	public var lowQuality:Bool = false;
+	public var qualityLevel:Float = 1;
 	public var shaders:Bool = true;
-	public var framerate:Int = 60;
+	public var maxFramerate:Int = 60;
 	public var cursing:Bool = true;
 	public var violence:Bool = true;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
-	public var arrowHSV:Array<Array<Int>> = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+	public var arrowRGB:Array<Array<Int>> = [[194, 75, 153], [0, 255, 255], [18, 250, 5], [249, 57, 63]];
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
-	public var scoreZoom:Bool = true;
-	public var noReset:Bool = false;
+	public var scoreZoomOnNote:Bool = true;
+	public var disableDeathButton:Bool = false;
 	public var healthBarAlpha:Float = 1;
 	public var hitsoundVolume:Float = 0;
-	public var pauseMusic:String = 'Tea Time';
+	public var pauseMusic:String = 'Tea Time'; // Keep?
 	public var checkForUpdates:Bool = true;
 	public var comboStacking:Bool = true;
 	public var gameplaySettings:Map<String, Dynamic> = [
@@ -52,21 +52,17 @@ class SaveVariables {
 		'healthloss' => 1.0,
 		'instakill' => false,
 		'practice' => false,
-		'botplay' => false,
-		'opponentplay' => false
+		'botplay' => false
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public var ratingOffset:Int = 0;
-	public var sickWindow:Int = 45;
-	public var goodWindow:Int = 90;
-	public var badWindow:Int = 135;
+	public var sickWindow:Int = 50;
+	public var goodWindow:Int = 80;
+	public var badWindow:Int = 120;
 	public var safeFrames:Float = 10;
 
-	public function new()
-	{
-		//Why does haxe needs this again?
-	}
+	public function new() {/*Why does haxe needs this again?*/}
 }
 
 class ClientPrefs {
@@ -75,10 +71,10 @@ class ClientPrefs {
 	//Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		//Key Bind, Name for ControlsSubState
-		'note_up'		=> [W, UP],
-		'note_left'		=> [A, LEFT],
-		'note_down'		=> [S, DOWN],
-		'note_right'	=> [D, RIGHT],
+		'note_up'		=> [D, UP],
+		'note_left'		=> [F, LEFT],
+		'note_down'		=> [J, DOWN],
+		'note_right'	=> [K, RIGHT],
 		
 		'ui_up'			=> [W, UP],
 		'ui_left'		=> [A, LEFT],
@@ -88,11 +84,11 @@ class ClientPrefs {
 		'accept'		=> [SPACE, ENTER],
 		'back'			=> [BACKSPACE, ESCAPE],
 		'pause'			=> [ENTER, ESCAPE],
-		'reset'			=> [R],
+		'reset'			=> [F4],
 		
 		'volume_mute'	=> [ZERO],
-		'volume_up'		=> [NUMPADPLUS, PLUS],
-		'volume_down'	=> [NUMPADMINUS, MINUS],
+		'volume_up'		=> [PLUS, NUMPADPLUS],
+		'volume_down'	=> [MINUS, NUMPADMINUS],
 		
 		'debug_1'		=> [SEVEN],
 		'debug_2'		=> [EIGHT]
@@ -152,12 +148,12 @@ class ClientPrefs {
 			Main.fpsVar.visible = data.showFPS;
 		}
 
-		if(data.framerate > FlxG.drawFramerate) {
-			FlxG.updateFramerate = data.framerate;
-			FlxG.drawFramerate = data.framerate;
+		if(data.maxFramerate > FlxG.drawFramerate) {
+			FlxG.updateFramerate = data.maxFramerate;
+			FlxG.drawFramerate = data.maxFramerate;
 		} else {
-			FlxG.drawFramerate = data.framerate;
-			FlxG.updateFramerate = data.framerate;
+			FlxG.drawFramerate = data.maxFramerate;
+			FlxG.updateFramerate = data.maxFramerate;
 		}
 
 		if(FlxG.save.data.gameplaySettings != null) {

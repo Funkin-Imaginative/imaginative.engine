@@ -277,9 +277,7 @@ class Character extends FlxSprite
 
 	public var danced:Bool = false;
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
+	// FOR GF DANCING SHIT
 	public function dance()
 	{
 		if (!debugMode && !skipDance && !specialAnim)
