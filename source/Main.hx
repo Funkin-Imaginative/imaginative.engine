@@ -1,7 +1,7 @@
 package;
 
 import flixel.graphics.FlxGraphic;
-import flixel.FlxG;
+
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Assets;
@@ -11,10 +11,7 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.display.StageScaleMode;
 import lime.app.Application;
-
-#if desktop
-import Discord.DiscordClient;
-#end
+import states.TitleState;
 
 //crash handler stuff
 #if CRASH_HANDLER
@@ -25,8 +22,6 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
 #end
-
-using StringTools;
 
 class Main extends Sprite
 {
@@ -87,6 +82,8 @@ class Main extends Sprite
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
 	
+		Controls.instance = new Controls();
+		ClientPrefs.loadDefaultKeys();
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
 		#if !mobile
@@ -94,6 +91,14 @@ class Main extends Sprite
 		addChild(fpsVar);
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		if(fpsVar != null) {
+			fpsVar.visible = ClientPrefs.data.showFPS;
+		}
+		#end
+
+		#if html5
+		FlxG.autoPause = false;
+		FlxG.mouse.visible = false;
 		#end
 		
 		#if CRASH_HANDLER

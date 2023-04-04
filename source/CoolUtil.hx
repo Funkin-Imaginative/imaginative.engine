@@ -1,39 +1,23 @@
 package;
 
 import flixel.util.FlxSave;
-import flixel.FlxG;
+
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
-import lime.utils.AssetLibrary;
-import lime.utils.AssetManifest;
-import flixel.system.FlxSound;
+
 #if sys
 import sys.io.File;
 import sys.FileSystem;
-#else
-import openfl.utils.Assets;
 #end
-
-using StringTools;
 
 class CoolUtil
 {
-	public static var defaultDifficulties:Array<String> = [
-		'Easy',
-		'Normal',
-		'Hard'
-	];
-	public static var defaultDifficulty:String = 'Normal'; //The chart that has no suffix and starting difficulty on Freeplay/Story Mode
-
-	public static var difficulties:Array<String> = [];
-
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);
 		trace(snap);
 		return (m / snap);
 	}
-	
 
 	inline public static function boundTo(value:Float, min:Float, max:Float):Float {
 		return Math.max(min, Math.min(max, value));
@@ -73,10 +57,10 @@ class CoolUtil
 			for(row in 0...sprite.frameHeight){
 			  var colorOfThisPixel:Int = sprite.pixels.getPixel32(col, row);
 			  if(colorOfThisPixel != 0){
-				if(countByColor.exists(colorOfThisPixel)){
-					countByColor[colorOfThisPixel] =  countByColor[colorOfThisPixel] + 1;
+				  if(countByColor.exists(colorOfThisPixel)){
+				    countByColor[colorOfThisPixel] =  countByColor[colorOfThisPixel] + 1;
 				  }else if(countByColor[colorOfThisPixel] != 13520687 - (2*13520687)){
-					countByColor[colorOfThisPixel] = 1;
+					 countByColor[colorOfThisPixel] = 1;
 				  }
 			  }
 			}
