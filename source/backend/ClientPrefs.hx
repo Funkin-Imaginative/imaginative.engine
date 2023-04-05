@@ -84,7 +84,7 @@ class ClientPrefs {
 		'accept'		=> [SPACE, ENTER],
 		'back'			=> [BACKSPACE, ESCAPE],
 		'pause'			=> [ENTER, ESCAPE],
-		'reset'			=> [F4],
+		'reset'			=> [Q],
 		
 		'volume_mute'	=> [ZERO],
 		'volume_up'		=> [PLUS, NUMPADPLUS],
