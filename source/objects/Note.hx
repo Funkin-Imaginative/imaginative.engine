@@ -2,7 +2,7 @@ package objects;
 
 import states.editors.ChartingState;
 
-import shaders.ColorSwap;
+import shaders.ColorizeRGB;
 
 typedef EventNote = {
 	strumTime:Float,
@@ -46,7 +46,7 @@ class Note extends FlxSprite {
 	public var isPixel:Bool = false;
 	public var pixelScale:Float = 6;
 
-	public var colorSwap:ColorSwap;
+	public var rgbColoring:ColorizeRGB;
 	public var inEditor:Bool = false;
 	
 	public var animSuffix:String = '';
@@ -118,7 +118,7 @@ class Note extends FlxSprite {
 
 	private function set_animToPlay(value:String):String {
 		var singAnims:Array<String> = [this.mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', this.mustPress ? 'singAWAY' : 'singTO'];
-		if (value == 'loadDefaults' || value = null)
+		if (value == 'loadDefaults' || value == null)
 			value = singAnims[this.noteData];
 		return value;
 	}
@@ -133,9 +133,9 @@ class Note extends FlxSprite {
 	private function set_noteType(value:String):String {
 		splashTexture = PlayState.chartData.splashSkin;
 		if (noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length) {
-			colorSwap.red = ClientPrefs.data.arrowRGB[noteData][0] / 360;
-			colorSwap.green = ClientPrefs.data.arrowRGB[noteData][1] / 100;
-			colorSwap.blue = ClientPrefs.data.arrowRGB[noteData][2] / 100;
+			rgbColoring.red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
+			rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
+			rgbColoring.blue = ClientPrefs.data.arrowRGB[noteData][2] / 255;
 		}
 
 		if (noteData > -1 && noteType != value) {
@@ -144,9 +144,9 @@ class Note extends FlxSprite {
 					ignoreNote = mustPress;
 					reloadNote('HURT', 'NOTE_assets');
 					splashTexture = 'HURTnoteSplashes';
-					colorSwap.red = 0;
-					colorSwap.green = 0;
-					colorSwap.blue = 0;
+					rgbColoring.red = 0;
+					rgbColoring.green = 0;
+					rgbColoring.blue = 0;
 					lowPriority = true;
 					missHealth = isSustainNote ? 0.1 : 0.3;
 					hitCausesMiss = true;
@@ -162,9 +162,9 @@ class Note extends FlxSprite {
 			}
 			noteType = value;
 		}
-		splashRed = colorSwap.red;
-		splashGreen = colorSwap.green;
-		splashBlue = colorSwap.blue;
+		splashRed = rgbColoring.red;
+		splashGreen = rgbColoring.green;
+		splashBlue = rgbColoring.blue;
 		return value;
 	}
 
@@ -187,8 +187,8 @@ class Note extends FlxSprite {
 
 		if (noteData > -1) {
 			// texture = '';
-			colorSwap = new ColorSwap();
-			shader = colorSwap.shader;
+			rgbColoring = new ColorizeRGB();
+			shader = rgbColoring.shader;
 			x += swagWidth * (noteData);
 			if (!isSustainNote && noteData > -1 && noteData < 4) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var anim:String = '';
@@ -204,16 +204,16 @@ class Note extends FlxSprite {
 			hitsoundDisabled = true;
 			if (ClientPrefs.data.downScroll) flipY = true;
 
-			offsetX += width / 2;
-			copyAngle = false;
+			extraOffsets.x += width / 2;
+			copyFromStrum.angle = false;
 
 			animation.play(colArray[noteData % 4] + 'holdend');
 
 			updateHitbox();
 
-			offsetX -= width / 2;
+			extraOffsets.x -= width / 2;
 
-			if (isPixel) offsetX += 30;
+			if (isPixel) extraOffsets.x += 30;
 
 			if (prevNote.isSustainNote) {
 				prevNote.animation.play(colArray[prevNote.noteData % 4] + 'hold');
@@ -233,7 +233,7 @@ class Note extends FlxSprite {
 				updateHitbox();
 			}
 		} else if (!isSustainNote) earlyHitMult = 1;
-		x += offsetX;
+		x += extraOffsets.x;
 	}
 
 	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
@@ -276,9 +276,9 @@ class Note extends FlxSprite {
 			antialiasing = false;
 
 			if (isSustainNote) {
-				offsetX += lastNoteOffsetXForPixelAutoAdjusting;
+				extraOffsets.x += lastNoteOffsetXForPixelAutoAdjusting;
 				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (pixelScale / 2);
-				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
+				extraOffsets.x -= lastNoteOffsetXForPixelAutoAdjusting;
 			}
 		} else {
 			frames = Paths.getSparrowAtlas(blahblah);
@@ -317,6 +317,10 @@ class Note extends FlxSprite {
 		}
 	}
 
+	public function noAnimChecker(anim:String) {
+		if (anim.length < 1) return true; else return false;
+	}
+
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 		if (mustPress) {
@@ -332,8 +336,6 @@ class Note extends FlxSprite {
 					wasGoodHit = true;
 			}
 		}
-		if (tooLate && !inEditor) {
-			if (alpha > 0.3) alpha = 0.3;
-		}
+		if (tooLate && !inEditor) if (alpha > 0.3) alpha = 0.3;
 	}
 }
