@@ -28,8 +28,7 @@ typedef SwagSong =
 	var splashSkin:String;
 }
 
-class Song
-{
+class Song {
 	public var song:String = 'test';
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;
@@ -45,37 +44,30 @@ class Song
 
 	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
 	{
-		if(songJson.boyfriend == null)
-		{
+		if(songJson.boyfriend == null) {
 			songJson.boyfriend = songJson.player1;
 			songJson.player1 = null;
 		}
-		if(songJson.opponent == null)
-		{
+		if(songJson.opponent == null) {
 			songJson.opponent = songJson.player2;
 			songJson.player2 = null;
 		}
-		if(songJson.girlfriend == null)
-		{
+		if(songJson.girlfriend == null) {
 			songJson.girlfriend = songJson.gfVersion;
 			songJson.gfVersion = null;
 		}
 
-		if(songJson.events == null)
-		{
+		if(songJson.events == null) {
 			songJson.events = [];
-			for (secNum in 0...songJson.notes.length)
-			{
+			for (secNum in 0...songJson.notes.length) {
 				var sec:SwagSection = songJson.notes[secNum];
 
 				var i:Int = 0;
 				var notes:Array<Dynamic> = sec.sectionNotes;
 				var len:Int = notes.length;
-				while(i < len)
-				{
+				while(i < len) {
 					var note:Array<Dynamic> = notes[i];
-					if(note[1] < 0)
-					{
+					if(note[1] < 0) {
 						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
 						notes.remove(note);
 						len = notes.length;
@@ -86,15 +78,13 @@ class Song
 		}
 	}
 
-	public function new(song, notes, bpm)
-	{
+	public function new(song, notes, bpm) {
 		this.song = song;
 		this.notes = notes;
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
-	{
+	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong {
 		var rawJson = null;
 		
 		var formattedFolder:String = Paths.formatToSongPath(folder);
@@ -114,8 +104,7 @@ class Song
 			#end
 		}
 
-		while (!rawJson.endsWith("}"))
-		{
+		while (!rawJson.endsWith("}")) {
 			rawJson = rawJson.substr(0, rawJson.length - 1);
 			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
 		}
@@ -142,8 +131,7 @@ class Song
 		return songJson;
 	}
 
-	public static function parseJSONshit(rawJson:String):SwagSong
-	{
+	public static function parseJSONshit(rawJson:String):SwagSong {
 		return cast Json.parse(rawJson).song;
 	}
 }

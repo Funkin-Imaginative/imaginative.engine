@@ -21,7 +21,8 @@ class SaveVariables {
 	public var maxFramerate:Int = 60;
 	public var cursing:Bool = true;
 	public var violence:Bool = true;
-	public var camZooms:Bool = true;
+	public var allowCamZooms:Bool = true;
+	public var camZoomTypes:String = 'On Section';
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<Int>> = [[194, 75, 153], [0, 255, 255], [18, 250, 5], [249, 57, 63]];
@@ -31,12 +32,12 @@ class SaveVariables {
 	public var disableDeathButton:Bool = false;
 	public var healthBarAlpha:Float = 1;
 	public var hitsoundVolume:Float = 0;
-	public var pauseMusic:String = 'Tea Time'; // Keep?
+	public var pauseMusic:String = 'Tea Time';
 	public var checkForUpdates:Bool = true;
 	public var comboStacking:Bool = true;
 	public var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
-		'scrolltype' => 'multiplicative', 
+		'scrolltype' => 'multiplicative',
 		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
 		// an amod example would be chartSpeed * multiplier
 		// cmod would just be constantSpeed = chartSpeed
@@ -50,6 +51,7 @@ class SaveVariables {
 		'songspeed' => 1.0,
 		'healthgain' => 1.0,
 		'healthloss' => 1.0,
+		'opponentPlay' => false,
 		'instakill' => false,
 		'practice' => false,
 		'botplay' => false
@@ -135,7 +137,7 @@ class ClientPrefs {
 	}
 
 	public static function loadPrefs() {
-		if(data == null) data = new SaveVariables();
+		if (data == null) data = new SaveVariables();
 
 		for (key in Reflect.fields(data)) {
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key)) {
@@ -144,11 +146,9 @@ class ClientPrefs {
 			}
 		}
 		
-		if(Main.fpsVar != null) {
-			Main.fpsVar.visible = data.showFPS;
-		}
+		if (Main.fpsVar != null) Main.fpsVar.visible = data.showFPS;
 
-		if(data.maxFramerate > FlxG.drawFramerate) {
+		if (data.maxFramerate > FlxG.drawFramerate) {
 			FlxG.updateFramerate = data.maxFramerate;
 			FlxG.drawFramerate = data.maxFramerate;
 		} else {
@@ -156,34 +156,27 @@ class ClientPrefs {
 			FlxG.updateFramerate = data.maxFramerate;
 		}
 
-		if(FlxG.save.data.gameplaySettings != null) {
+		if (FlxG.save.data.gameplaySettings != null) {
 			var savedMap:Map<String, Dynamic> = FlxG.save.data.gameplaySettings;
 			for (name => value in savedMap)
 				data.gameplaySettings.set(name, value);
 		}
 		
 		// flixel automatically saves your volume!
-		if(FlxG.save.data.volume != null)
-			FlxG.sound.volume = FlxG.save.data.volume;
-		if (FlxG.save.data.mute != null)
-			FlxG.sound.muted = FlxG.save.data.mute;
+		if (FlxG.save.data.volume != null) FlxG.sound.volume = FlxG.save.data.volume;
+		if (FlxG.save.data.mute != null) FlxG.sound.muted = FlxG.save.data.mute;
 
 		// controls on a separate save file
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v3', CoolUtil.getSavePath());
-		if(save != null)
-		{
-			if(save.data.keyboard != null) {
+		if (save != null) {
+			if (save.data.keyboard != null) {
 				var loadedControls:Map<String, Array<FlxKey>> = save.data.keyboard;
-				for (control => keys in loadedControls) {
-					if(keyBinds.exists(control)) keyBinds.set(control, keys);
-				}
+				for (control => keys in loadedControls) if (keyBinds.exists(control)) keyBinds.set(control, keys);
 			}
-			if(save.data.gamepad != null) {
+			if (save.data.gamepad != null) {
 				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
-				for (control => keys in loadedControls) {
-					if(gamepadBinds.exists(control)) gamepadBinds.set(control, keys);
-				}
+				for (control => keys in loadedControls) if (gamepadBinds.exists(control)) gamepadBinds.set(control, keys);
 			}
 			reloadControls();
 		}

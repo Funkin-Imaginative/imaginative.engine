@@ -4,8 +4,7 @@ import flixel.FlxSubState;
 
 class MusicBeatSubstate extends FlxSubState
 {
-	public function new()
-	{
+	public function new() {
 		super();
 	}
 
@@ -19,11 +18,9 @@ class MusicBeatSubstate extends FlxSubState
 	private var curDecBeat:Float = 0;
 	private var controls(get, never):Controls;
 
-	inline function get_controls():Controls
-		return Controls.instance;
+	inline function get_controls():Controls return Controls.instance;
 
-	override function update(elapsed:Float)
-	{
+	override function update(elapsed:Float) {
 		//everyStep();
 		var oldStep:Int = curStep;
 
@@ -37,14 +34,12 @@ class MusicBeatSubstate extends FlxSubState
 		super.update(elapsed);
 	}
 
-	private function updateBeat():Void
-	{
+	private function updateBeat():Void {
 		curBeat = Math.floor(curStep / 4);
 		curDecBeat = curDecStep/4;
 	}
 
-	private function updateCurStep():Void
-	{
+	private function updateCurStep():Void {
 		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
 
 		var shit = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
@@ -52,14 +47,9 @@ class MusicBeatSubstate extends FlxSubState
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
 
-	public function stepHit():Void
-	{
-		if (curStep % 4 == 0)
-			beatHit();
+	public function stepHit():Void {
+		if (curStep % 4 == 0) beatHit();
 	}
 
-	public function beatHit():Void
-	{
-		//do literally nothing dumbass
-	}
+	public function beatHit():Void {/*do literally nothing dumbass*/}
 }

@@ -1,7 +1,6 @@
 package backend;
 
-typedef SwagSection =
-{
+typedef SwagSection = {
 	var sectionNotes:Array<Dynamic>;
 	var sectionBeats:Float;
 	var typeOfSection:Int;
@@ -12,8 +11,7 @@ typedef SwagSection =
 	var altAnim:Bool;
 }
 
-class Section
-{
+class Section {
 	public var sectionNotes:Array<Dynamic> = [];
 
 	public var sectionBeats:Float = 4;
@@ -24,8 +22,7 @@ class Section
 	// Copies the first section into the second section!
 	public static var COPYCAT:Int = 0;
 
-	public function new(sectionBeats:Float = 4)
-	{
+	public function new(sectionBeats:Float = 4) {
 		this.sectionBeats = sectionBeats;
 		trace('test created section: ' + sectionBeats);
 	}

@@ -1,7 +1,6 @@
 package backend;
 
-class Rating
-{
+class Rating {
 	public var name:String = '';
 	public var image:String = '';
 	public var hitWindow:Null<Int> = 0; //ms
@@ -10,19 +9,14 @@ class Rating
 	public var noteSplash:Bool = true;
 	public var hits:Int = 0;
 
-	public function new(name:String)
-	{
+	public function new(name:String) {
 		this.name = name;
 		this.image = name;
 		this.hitWindow = Reflect.field(ClientPrefs.data, name + 'Window');
-		if(hitWindow == null)
-		{
-			hitWindow = 0;
-		}
+		if (hitWindow == null) hitWindow = 0;
 	}
 
-	public static function loadDefault():Array<Rating>
-	{
+	public static function loadDefault():Array<Rating> {
 		var ratingsData:Array<Rating> = [new Rating('sick')]; //highest rating goes first
 
 		var rating:Rating = new Rating('good');

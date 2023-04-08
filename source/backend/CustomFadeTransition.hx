@@ -32,7 +32,7 @@ class CustomFadeTransition extends MusicBeatSubstate {
 		transGradient.x -= (width - FlxG.width) / 2;
 		transBlack.x = transGradient.x;
 
-		if(isTransIn) {
+		if (isTransIn) {
 			transGradient.y = transBlack.y - transBlack.height;
 			FlxTween.tween(transGradient, {y: transGradient.height + 50}, duration, {
 				onComplete: function(twn:FlxTween) {
@@ -44,14 +44,14 @@ class CustomFadeTransition extends MusicBeatSubstate {
 			transBlack.y = transGradient.y - transBlack.height + 50;
 			leTween = FlxTween.tween(transGradient, {y: transGradient.height + 50}, duration, {
 				onComplete: function(twn:FlxTween) {
-					if(finishCallback != null) {
+					if (finishCallback != null) {
 						finishCallback();
 					}
 				},
 			ease: FlxEase.linear});
 		}
 
-		if(nextCamera != null) {
+		if (nextCamera != null) {
 			transBlack.cameras = [nextCamera];
 			transGradient.cameras = [nextCamera];
 		}
@@ -59,21 +59,15 @@ class CustomFadeTransition extends MusicBeatSubstate {
 	}
 
 	override function update(elapsed:Float) {
-		if(isTransIn) {
-			transBlack.y = transGradient.y + transGradient.height;
-		} else {
-			transBlack.y = transGradient.y - transBlack.height;
-		}
+		if (isTransIn) transBlack.y = transGradient.y + transGradient.height;
+		else transBlack.y = transGradient.y - transBlack.height;
 		super.update(elapsed);
-		if(isTransIn) {
-			transBlack.y = transGradient.y + transGradient.height;
-		} else {
-			transBlack.y = transGradient.y - transBlack.height;
-		}
+		if (isTransIn) transBlack.y = transGradient.y + transGradient.height;
+		else transBlack.y = transGradient.y - transBlack.height;
 	}
 
 	override function destroy() {
-		if(leTween != null) {
+		if (leTween != null) {
 			finishCallback();
 			leTween.cancel();
 		}

@@ -26,8 +26,7 @@ typedef DialogueCharacterFile = {
 	var scale:Float;
 }
 
-class DialogueCharacter extends FlxSprite
-{
+class DialogueCharacter extends FlxSprite {
 	private static var IDLE_SUFFIX:String = '-IDLE';
 	public static var DEFAULT_CHARACTER:String = 'bf';
 	public static var DEFAULT_SCALE:Float = 0.7;
@@ -40,11 +39,10 @@ class DialogueCharacter extends FlxSprite
 	public var curCharacter:String = 'bf';
 	public var skiptimer = 0;
 	public var skipping = 0;
-	public function new(x:Float = 0, y:Float = 0, character:String = null)
-	{
+	public function new(x:Float = 0, y:Float = 0, character:String = null) {
 		super(x, y);
 
-		if(character == null) character = DEFAULT_CHARACTER;
+		if (character == null) character = DEFAULT_CHARACTER;
 		this.curCharacter = character;
 
 		reloadCharacterJson(character);
@@ -52,7 +50,7 @@ class DialogueCharacter extends FlxSprite
 		reloadAnimations();
 
 		antialiasing = ClientPrefs.data.antialiasing;
-		if(jsonFile.no_antialiasing == true) antialiasing = false;
+		if (jsonFile.no_antialiasing == true) antialiasing = false;
 	}
 
 	public function reloadCharacterJson(character:String) {
@@ -61,13 +59,9 @@ class DialogueCharacter extends FlxSprite
 
 		#if MODS_ALLOWED
 		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path)) {
-			path = Paths.getPreloadPath(characterPath);
-		}
+		if (!FileSystem.exists(path)) path = Paths.getPreloadPath(characterPath);
 
-		if(!FileSystem.exists(path)) {
-			path = Paths.getPreloadPath('images/dialogue/' + DEFAULT_CHARACTER + '.json');
-		}
+		if (!FileSystem.exists(path)) path = Paths.getPreloadPath('images/dialogue/' + DEFAULT_CHARACTER + '.json');
 		rawJson = File.getContent(path);
 
 		#else
@@ -80,7 +74,7 @@ class DialogueCharacter extends FlxSprite
 
 	public function reloadAnimations() {
 		dialogueAnimations.clear();
-		if(jsonFile.animations != null && jsonFile.animations.length > 0) {
+		if (jsonFile.animations != null && jsonFile.animations.length > 0) {
 			for (anim in jsonFile.animations) {
 				animation.addByPrefix(anim.anim, anim.loop_name, 24, isGhost);
 				animation.addByPrefix(anim.anim + IDLE_SUFFIX, anim.idle_name, 24, true);
@@ -91,27 +85,19 @@ class DialogueCharacter extends FlxSprite
 
 	public function playAnim(animName:String = null, playIdle:Bool = false) {
 		var leAnim:String = animName;
-		if(animName == null || !dialogueAnimations.exists(animName)) { //Anim is null, get a random animation
+		if (animName == null || !dialogueAnimations.exists(animName)) { //Anim is null, get a random animation
 			var arrayAnims:Array<String> = [];
-			for (anim in dialogueAnimations) {
-				arrayAnims.push(anim.anim);
-			}
-			if(arrayAnims.length > 0) {
-				leAnim = arrayAnims[FlxG.random.int(0, arrayAnims.length-1)];
-			}
+			for (anim in dialogueAnimations) arrayAnims.push(anim.anim);
+			if (arrayAnims.length > 0) leAnim = arrayAnims[FlxG.random.int(0, arrayAnims.length-1)];
 		}
 
-		if(dialogueAnimations.exists(leAnim) &&
-		(dialogueAnimations.get(leAnim).loop_name == null ||
-		dialogueAnimations.get(leAnim).loop_name.length < 1 ||
-		dialogueAnimations.get(leAnim).loop_name == dialogueAnimations.get(leAnim).idle_name)) {
+		if (dialogueAnimations.exists(leAnim) && (dialogueAnimations.get(leAnim).loop_name == null || dialogueAnimations.get(leAnim).loop_name.length < 1 || dialogueAnimations.get(leAnim).loop_name == dialogueAnimations.get(leAnim).idle_name))
 			playIdle = true;
-		}
+		
 		animation.play(playIdle ? leAnim + IDLE_SUFFIX : leAnim, false);
-
-		if(dialogueAnimations.exists(leAnim)) {
+		if (dialogueAnimations.exists(leAnim)) {
 			var anim:DialogueAnimArray = dialogueAnimations.get(leAnim);
-			if(playIdle) {
+			if (playIdle) {
 				offset.set(anim.idle_offsets[0], anim.idle_offsets[1]);
 				//trace('Setting idle offsets: ' + anim.idle_offsets);
 			} else {
@@ -125,7 +111,7 @@ class DialogueCharacter extends FlxSprite
 	}
 
 	public function animationIsLoop():Bool {
-		if(animation.curAnim == null) return false;
+		if (animation.curAnim == null) return false;
 		return !animation.curAnim.name.endsWith(IDLE_SUFFIX);
 	}
 }

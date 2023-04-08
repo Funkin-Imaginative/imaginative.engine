@@ -2,8 +2,7 @@ package options;
 
 import states.MainMenuState;
 
-class OptionsState extends MusicBeatState
-{
+class OptionsState extends MusicBeatState {
 	var options:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay'];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
@@ -30,9 +29,7 @@ class OptionsState extends MusicBeatState
 	var selectorRight:Alphabet;
 
 	override function create() {
-		#if desktop
-		DiscordClient.changePresence("Options Menu", null);
-		#end
+		#if desktop DiscordClient.changePresence("Options Menu", null); #end
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
@@ -45,8 +42,7 @@ class OptionsState extends MusicBeatState
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
-		for (i in 0...options.length)
-		{
+		for (i in 0...options.length) {
 			var optionText:Alphabet = new Alphabet(0, 0, options[i], true);
 			optionText.screenCenter();
 			optionText.y += (100 * (i - (options.length / 2))) + 50;
@@ -72,29 +68,21 @@ class OptionsState extends MusicBeatState
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (controls.UI_UP_P) {
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P) {
-			changeSelection(1);
-		}
+		if (controls.UI_UP_P) changeSelection(-1);
+		if (controls.UI_DOWN_P) changeSelection(1);
 
 		if (controls.BACK) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			MusicBeatState.switchState(new MainMenuState());
 		}
 
-		if (controls.ACCEPT) {
-			openSelectedSubstate(options[curSelected]);
-		}
+		if (controls.ACCEPT) openSelectedSubstate(options[curSelected]);
 	}
 	
 	function changeSelection(change:Int = 0) {
 		curSelected += change;
-		if (curSelected < 0)
-			curSelected = options.length - 1;
-		if (curSelected >= options.length)
-			curSelected = 0;
+		if (curSelected < 0) curSelected = options.length - 1;
+		if (curSelected >= options.length) curSelected = 0;
 
 		var bullShit:Int = 0;
 

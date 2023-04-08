@@ -26,8 +26,7 @@ typedef StageFile = {
 }
 
 class StageData {
-	public static function dummy():StageFile
-	{
+	public static function dummy():StageFile {
 		return {
 			directory: "",
 			defaultZoom: 0.9,
@@ -51,8 +50,7 @@ class StageData {
 		if(SONG.stage != null) {
 			stage = SONG.stage;
 		} else if(SONG.song != null) {
-			switch (SONG.song.toLowerCase().replace(' ', '-'))
-			{
+			switch (SONG.song.toLowerCase().replace(' ', '-')) {
 				case 'spookeez' | 'south' | 'monster':
 					stage = 'spooky';
 				case 'pico' | 'blammed' | 'philly' | 'philly-nice':
@@ -72,16 +70,11 @@ class StageData {
 				default:
 					stage = 'stage';
 			}
-		} else {
-			stage = 'stage';
-		}
+		} else stage = 'stage';
 
 		var stageFile:StageFile = getStageFile(stage);
-		if(stageFile == null) { //preventing crashes
-			forceNextDirectory = '';
-		} else {
-			forceNextDirectory = stageFile.directory;
-		}
+		if(stageFile == null) forceNextDirectory = ''; //preventing crashes
+		else forceNextDirectory = stageFile.directory;
 	}
 
 	public static function getStageFile(stage:String):StageFile {
@@ -90,27 +83,17 @@ class StageData {
 
 		#if MODS_ALLOWED
 		var modPath:String = Paths.modFolders('stages/' + stage + '.json');
-		if(FileSystem.exists(modPath)) {
-			rawJson = File.getContent(modPath);
-		} else if(FileSystem.exists(path)) {
-			rawJson = File.getContent(path);
-		}
+		if(FileSystem.exists(modPath)) rawJson = File.getContent(modPath);
+		else if(FileSystem.exists(path)) rawJson = File.getContent(path);
 		#else
-		if(Assets.exists(path)) {
-			rawJson = Assets.getText(path);
-		}
+		if(Assets.exists(path)) rawJson = Assets.getText(path);
 		#end
-		else
-		{
-			return null;
-		}
+		else return null;
 		return cast Json.parse(rawJson);
 	}
 
-	public static function vanillaSongStage(songName):String
-	{
-		switch (songName)
-		{
+	public static function vanillaSongStage(songName):String {
+		switch (songName) {
 			case 'spookeez' | 'south' | 'monster':
 				return 'spooky';
 			case 'pico' | 'blammed' | 'philly' | 'philly-nice':
