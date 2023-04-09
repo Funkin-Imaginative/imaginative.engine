@@ -27,7 +27,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option(
-			'Opponent Notes',
+			'Show Opponent Notes',
 			'If unchecked, opponent notes get hidden.',
 			'showOpponentStrums',
 			'bool',
@@ -86,12 +86,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'Changes the amount of time you have\nfor hitting a \'Sick!\' in milliseconds.',
 			'sickWindow',
 			'int',
-			45
+			50
 		);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 15;
 		option.minValue = 15;
-		option.maxValue = 45;
+		option.maxValue = 50;
 		addOption(option);
 
 		var option:Option = new Option(
@@ -99,7 +99,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'Changes the amount of time you have\nfor hitting a \'Good\' in milliseconds.',
 			'goodWindow',
 			'int',
-			90
+			80
 		);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 30;
@@ -112,7 +112,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'Changes the amount of time you have\nfor hitting a \'Bad\' in milliseconds.',
 			'badWindow',
 			'int',
-			135
+			120
 		);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 60;

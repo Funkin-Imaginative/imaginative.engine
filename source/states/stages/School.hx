@@ -10,11 +10,9 @@ import sys.FileSystem;
 import openfl.utils.Assets as OpenFlAssets;
 #end
 
-class School extends BaseStage
-{
+class School extends BaseStage {
 	var bgGirls:BackgroundGirls;
-	override function create()
-	{
+	override function create() {
 		GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
 		GameOverSubstate.loopSoundName = 'gameOver-pixel';
 		GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
@@ -35,7 +33,7 @@ class School extends BaseStage
 		bgStreet.antialiasing = false;
 
 		var widShit = Std.int(bgSky.width * PlayState.daPixelZoom);
-		if(!ClientPrefs.data.lowQuality) {
+		if (!ClientPrefs.data.qualityLevel < 0.5) {
 			var fgTrees:BGSprite = new BGSprite('weeb/weebTreesBack', repositionShit + 170, 130, 0.9, 0.9);
 			fgTrees.setGraphicSize(Std.int(widShit * 0.8));
 			fgTrees.updateHitbox();
@@ -51,7 +49,7 @@ class School extends BaseStage
 		add(bgTrees);
 		bgTrees.antialiasing = false;
 
-		if(!ClientPrefs.data.lowQuality) {
+		if (!ClientPrefs.data.qualityLevel < 0.5) {
 			var treeLeaves:BGSprite = new BGSprite('weeb/petals', repositionShit, -40, 0.85, 0.85, ['PETALS ALL'], true);
 			treeLeaves.setGraphicSize(widShit);
 			treeLeaves.updateHitbox();
@@ -69,54 +67,44 @@ class School extends BaseStage
 		bgStreet.updateHitbox();
 		bgTrees.updateHitbox();
 
-		if(!ClientPrefs.data.lowQuality) {
+		if (!ClientPrefs.data.qualityLevel < 0.5) {
 			bgGirls = new BackgroundGirls(-100, 190);
 			bgGirls.scrollFactor.set(0.9, 0.9);
 			add(bgGirls);
 		}
 		setDefaultGF('gf-pixel');
 
-		switch (songName)
-		{
+		switch (songName) {
 			case 'senpai':
 				FlxG.sound.playMusic(Paths.music('Lunchbox'), 0);
 				FlxG.sound.music.fadeIn(1, 0, 0.8);
 			case 'roses':
 				FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
 		}
-		if(isStoryMode && !seenCutscene)
-		{
+		if(isStoryMode && !seenCutscene) {
 			if(songName == 'roses') FlxG.sound.play(Paths.sound('ANGRY'));
 			initDoof();
 			setStartCallback(schoolIntro);
 		}
 	}
 
-	override function beatHit()
-	{
+	override function beatHit() {
 		if(bgGirls != null) bgGirls.dance();
 	}
 
 	// For events
-	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float)
-	{
-		switch(eventName)
-		{
+	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float) {
+		switch(eventName) {
 			case "BG Freaks Expression":
 				if(bgGirls != null) bgGirls.swapDanceType();
 		}
 	}
 
 	var doof:DialogueBox = null;
-	function initDoof()
-	{
+	function initDoof() {
 		var file:String = Paths.txt(songName + '/' + songName + 'Dialogue'); //Checks for vanilla/Senpai dialogue
-		#if MODS_ALLOWED
-		if (!FileSystem.exists(file))
-		#else
-		if (!OpenFlAssets.exists(file))
-		#end
-		{
+		#if MODS_ALLOWED if (!FileSystem.exists(file))
+		#else if (!OpenFlAssets.exists(file)) #end {
 			startCountdown();
 			return;
 		}
@@ -129,25 +117,19 @@ class School extends BaseStage
 		doof.skipDialogueThing = PlayState.instance.skipDialogue;
 	}
 	
-	function schoolIntro():Void
-	{
+	function schoolIntro():Void 	{
 		inCutscene = true;
 		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		black.scrollFactor.set();
 		if(songName == 'senpai') add(black);
 
-		new FlxTimer().start(0.3, function(tmr:FlxTimer)
-		{
+		new FlxTimer().start(0.3, function(tmr:FlxTimer) {
 			black.alpha -= 0.15;
 
-			if (black.alpha > 0)
-				tmr.reset(0.3);
-			else
-			{
-				if (doof != null)
-					add(doof);
-				else
-					startCountdown();
+			if (black.alpha > 0) tmr.reset(0.3);
+			else {
+				if (doof != null) add(doof);
+				else startCountdown();
 
 				remove(black);
 				black.destroy();

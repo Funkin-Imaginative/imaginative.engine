@@ -16,22 +16,19 @@ typedef MenuCharacterFile = {
 	var flipX:Bool;
 }
 
-class MenuCharacter extends FlxSprite
-{
+class MenuCharacter extends FlxSprite {
 	public var character:String;
 	public var hasConfirmAnimation:Bool = false;
 	private static var DEFAULT_CHARACTER:String = 'bf';
 
-	public function new(x:Float, character:String = 'bf')
-	{
+	public function new(x:Float, character:String = 'bf') {
 		super(x);
-
 		changeCharacter(character);
 	}
 
 	public function changeCharacter(?character:String = 'bf') {
-		if(character == null) character = '';
-		if(character == this.character) return;
+		if (character == null) character = '';
+		if (character == this.character) return;
 
 		this.character = character;
 		antialiasing = ClientPrefs.data.antialiasing;
@@ -52,20 +49,14 @@ class MenuCharacter extends FlxSprite
 
 				#if MODS_ALLOWED
 				var path:String = Paths.modFolders(characterPath);
-				if (!FileSystem.exists(path)) {
-					path = Paths.getPreloadPath(characterPath);
-				}
+				if (!FileSystem.exists(path)) path = Paths.getPreloadPath(characterPath);
 
-				if(!FileSystem.exists(path)) {
-					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
-				}
+				if (!FileSystem.exists(path)) path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
 				rawJson = File.getContent(path);
 
 				#else
 				var path:String = Paths.getPreloadPath(characterPath);
-				if(!Assets.exists(path)) {
-					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
-				}
+				if (!Assets.exists(path)) path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
 				rawJson = Assets.getText(path);
 				#end
 				
@@ -74,16 +65,14 @@ class MenuCharacter extends FlxSprite
 				animation.addByPrefix('idle', charFile.idle_anim, 24);
 
 				var confirmAnim:String = charFile.confirm_anim;
-				if(confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim)
-				{
+				if (confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim) {
 					animation.addByPrefix('confirm', confirmAnim, 24, false);
-					if (animation.getByName('confirm') != null) //check for invalid animation
-						hasConfirmAnimation = true;
+					if (animation.getByName('confirm') != null) hasConfirmAnimation = true; //check for invalid animation
 				}
 
 				flipX = (charFile.flipX == true);
 
-				if(charFile.scale != 1) {
+				if (charFile.scale != 1) {
 					scale.set(charFile.scale, charFile.scale);
 					updateHitbox();
 				}

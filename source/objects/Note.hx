@@ -83,8 +83,8 @@ class Note extends FlxSprite {
 		alpha: true
 	};
 	
-	public var hitHealth:Float = 0.023;
-	public var missHealth:Float = 0.0475;
+	public var hitHealth:Float = 0.02;
+	public var missHealth:Float = 0.04;
 	public var rating:String = 'unknown';
 	public var ratingMod:Float = 0; //9 = unknown, 0.25 = shit, 0.5 = bad, 0.75 = good, 1 = sick
 	public var ratingDisabled:Bool = false;
@@ -118,15 +118,13 @@ class Note extends FlxSprite {
 
 	private function set_animToPlay(value:String):String {
 		var singAnims:Array<String> = [this.mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', this.mustPress ? 'singAWAY' : 'singTO'];
-		if (value == 'loadDefaults' || value == null)
-			value = singAnims[this.noteData];
+		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData];
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
 		var singAnims:Array<String> = [this.mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', this.mustPress ? 'singAWAY' : 'singTO'];
-		if (value == 'loadDefaults' || value == null)
-			value = singAnims[this.noteData] + 'miss';
+		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData] + 'miss';
 		return value;
 	}
 

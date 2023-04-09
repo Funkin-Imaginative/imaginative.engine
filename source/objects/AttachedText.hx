@@ -1,7 +1,6 @@
 package objects;
 
-class AttachedText extends Alphabet
-{
+class AttachedText extends Alphabet {
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
 	public var sprTracker:FlxSprite;
@@ -20,12 +19,8 @@ class AttachedText extends Alphabet
 	override function update(elapsed:Float) {
 		if (sprTracker != null) {
 			setPosition(sprTracker.x + offsetX, sprTracker.y + offsetY);
-			if(copyVisible) {
-				visible = sprTracker.visible;
-			}
-			if(copyAlpha) {
-				alpha = sprTracker.alpha;
-			}
+			if (copyVisible) visible = sprTracker.visible;
+			if (copyAlpha) alpha = sprTracker.alpha;
 		}
 
 		super.update(elapsed);

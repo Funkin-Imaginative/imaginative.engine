@@ -8,32 +8,27 @@ import hscript.Expr;
 
 import objects.Character;
 
-class HScript
-{
+class HScript {
 	#if hscript
 	public static var parser:Parser = new Parser();
 	public var interp:Interp;
 
 	public var variables(get, never):Map<String, Dynamic>;
 
-	public function get_variables()
-	{
+	public function get_variables() {
 		return interp.variables;
 	}
 	
-	public static function initHaxeModule()
-	{
+	public static function initHaxeModule() {
 		#if hscript
-		if(FunkinLua.hscript == null)
-		{
+		if(FunkinLua.hscript == null) {
 			//trace('initializing haxe interp for: $scriptName');
 			FunkinLua.hscript = new HScript(); //TO DO: Fix issue with 2 scripts not being able to use the same variable names
 		}
 		#end
 	}
 
-	public function new()
-	{
+	public function new() {
 		interp = new Interp();
 		interp.variables.set('FlxG', flixel.FlxG);
 		interp.variables.set('FlxSprite', flixel.FlxSprite);
@@ -55,18 +50,15 @@ class HScript
 		interp.variables.set('ShaderFilter', openfl.filters.ShaderFilter);
 		interp.variables.set('StringTools', StringTools);
 
-		interp.variables.set('setVar', function(name:String, value:Dynamic)
-		{
+		interp.variables.set('setVar', function(name:String, value:Dynamic) {
 			PlayState.instance.variables.set(name, value);
 		});
-		interp.variables.set('getVar', function(name:String)
-		{
+		interp.variables.set('getVar', function(name:String) {
 			var result:Dynamic = null;
 			if(PlayState.instance.variables.exists(name)) result = PlayState.instance.variables.get(name);
 			return result;
 		});
-		interp.variables.set('removeVar', function(name:String)
-		{
+		interp.variables.set('removeVar', function(name:String) {
 			if(PlayState.instance.variables.exists(name))
 			{
 				PlayState.instance.variables.remove(name);

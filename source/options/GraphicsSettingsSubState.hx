@@ -13,6 +13,10 @@ class GraphicsSettingsSubState extends BaseOptionsMenu {
 			'float', // Variable type
 			1 // Default value
 		);
+		option.scrollSpeed = 5;
+		option.minValue = 0;
+		option.maxValue = 1;
+		option.changeValue = 0.01;
 		addOption(option);
 
 		var option:Option = new Option(

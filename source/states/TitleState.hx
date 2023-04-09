@@ -27,9 +27,7 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 
-typedef TitleData =
-{
-
+typedef TitleData = {
 	titlex:Float,
 	titley:Float,
 	startx:Float,
@@ -40,8 +38,7 @@ typedef TitleData =
 	bpm:Int
 }
 
-class TitleState extends MusicBeatState
-{
+class TitleState extends MusicBeatState {
 	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
 	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
@@ -75,8 +72,7 @@ class TitleState extends MusicBeatState
 
 	public static var updateVersion:String = '';
 
-	override public function create():Void
-	{
+	override public function create():Void {
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 

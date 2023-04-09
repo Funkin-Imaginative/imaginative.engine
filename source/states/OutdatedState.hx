@@ -24,13 +24,13 @@ class OutdatedState extends MusicBeatState {
 	}
 
 	override function update(elapsed:Float) {
-		if(!leftState) {
+		if (!leftState) {
 			if (controls.ACCEPT) {
 				leftState = true;
 				CoolUtil.browserLoad("https://github.com/RodneyAnImaginativePerson/FNF-Imaginative-Engine");
-			} else if(controls.BACK) leftState = true;
+			} else if (controls.BACK) leftState = true;
 
-			if(leftState) {
+			if (leftState) {
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxTween.tween(warnText, {alpha: 0}, 1, {
 					onComplete: function (twn:FlxTween) {

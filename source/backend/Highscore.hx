@@ -17,7 +17,7 @@ class Highscore {
 	}
 
 	public static function floorDecimal(value:Float, decimals:Int):Float {
-		if(decimals < 1) return Math.floor(value);
+		if (decimals < 1) return Math.floor(value);
 
 		var tempMult:Float = 1;
 		for (i in 0...decimals) tempMult *= 10;
@@ -31,11 +31,11 @@ class Highscore {
 		if (songScores.exists(daSong)) {
 			if (songScores.get(daSong) < score) {
 				setScore(daSong, score);
-				if(rating >= 0) setRating(daSong, rating);
+				if (rating >= 0) setRating(daSong, rating);
 			}
 		} else {
 			setScore(daSong, score);
-			if(rating >= 0) setRating(daSong, rating);
+			if (rating >= 0) setRating(daSong, rating);
 		}
 	}
 
@@ -68,7 +68,7 @@ class Highscore {
 		FlxG.save.flush();
 	}
 
-	public static function formatSong(song:String, diff:Int):String 
+	public static function formatSong(song:String, diff:Int):String {
 		return Paths.formatToSongPath(song) + Difficulty.getFilePath(diff);
 	}
 

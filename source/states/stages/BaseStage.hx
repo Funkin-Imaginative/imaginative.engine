@@ -98,24 +98,20 @@ class BaseStage extends FlxBasic
 	public function addBehindGF(obj:FlxBasic) insert(members.indexOf(game.gfGroup), obj);
 	public function addBehindBF(obj:FlxBasic) insert(members.indexOf(game.boyfriendGroup), obj);
 	public function addBehindDad(obj:FlxBasic) insert(members.indexOf(game.dadGroup), obj);
-	public function setDefaultGF(name:String) //Fix for the Chart Editor on Base Game stages
-	{
-		var gfVersion:String = PlayState.SONG.gfVersion;
-		if(gfVersion == null || gfVersion.length < 1)
-		{
-			gfVersion = name;
-			PlayState.SONG.gfVersion = gfVersion;
+	public function setDefaultGF(name:String) { //Fix for the Chart Editor on Base Game stages
+		var girlfriend:String = PlayState.chartData.girlfriend;
+		if (girlfriend == null || girlfriend.length < 1) {
+			girlfriend = name;
+			PlayState.chartData.girlfriend = girlfriend;
 		}
 	}
 
 	//start/end callback functions
-	public function setStartCallback(myfn:Void->Void)
-	{
+	public function setStartCallback(myfn:Void->Void) 	{
 		if(!onPlayState) return;
 		PlayState.instance.startCallback = myfn;
 	}
-	public function setEndCallback(myfn:Void->Void)
-	{
+	public function setEndCallback(myfn:Void->Void) {
 		if(!onPlayState) return;
 		PlayState.instance.endCallback = myfn;
 	}
@@ -125,14 +121,10 @@ class BaseStage extends FlxBasic
 	public function precacheSound(key:String) precache(key, 'sound');
 	public function precacheMusic(key:String) precache(key, 'music');
 
-	public function precache(key:String, type:String)
-	{
-		if(onPlayState)
-			PlayState.instance.precacheList.set(key, type);
-		else
-		{
-			switch(type)
-			{
+	public function precache(key:String, type:String) {
+		if(onPlayState) PlayState.instance.precacheList.set(key, type);
+		else {
+			switch(type) {
 				case 'image':
 					Paths.image(key);
 				case 'sound':
@@ -154,20 +146,17 @@ class BaseStage extends FlxBasic
 	inline private function get_isStoryMode() return PlayState.isStoryMode;
 	inline private function get_seenCutscene() return PlayState.seenCutscene;
 	inline private function get_inCutscene() return game.inCutscene;
-	inline private function set_inCutscene(value:Bool)
-	{
+	inline private function set_inCutscene(value:Bool) {
 		game.inCutscene = value;
 		return value;
 	}
 	inline private function get_canPause() return game.canPause;
-	inline private function set_canPause(value:Bool)
-	{
+	inline private function set_canPause(value:Bool) {
 		game.canPause = value;
 		return value;
 	}
 	inline private function get_members() return game.members;
-	inline private function set_game(value:MusicBeatState)
-	{
+	inline private function set_game(value:MusicBeatState) {
 		onPlayState = (Std.isOfType(value, states.PlayState));
 		game = value;
 		return value;
@@ -186,8 +175,7 @@ class BaseStage extends FlxBasic
 	inline private function get_camOther():FlxCamera return game.camOther;
 
 	inline private function get_defaultCamZoom():Float return game.defaultCamZoom;
-	inline private function set_defaultCamZoom(value:Float):Float
-	{
+	inline private function set_defaultCamZoom(value:Float):Float {
 		game.defaultCamZoom = value;
 		return game.defaultCamZoom;
 	}

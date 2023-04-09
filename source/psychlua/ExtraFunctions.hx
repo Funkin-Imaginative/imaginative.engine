@@ -19,41 +19,32 @@ import openfl.utils.Assets;
 // Things to trivialize some dumb stuff like splitting strings on older Lua
 //
 
-class ExtraFunctions
-{
-	public static function implement(funk:FunkinLua)
-	{
+class ExtraFunctions {
+	public static function implement(funk:FunkinLua) {
 		var lua:State = funk.lua;
 		
 		// Keyboard & Gamepads
-		Lua_helper.add_callback(lua, "keyboardJustPressed", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "keyboardJustPressed", function(name:String) {
 			return Reflect.getProperty(FlxG.keys.justPressed, name);
 		});
-		Lua_helper.add_callback(lua, "keyboardPressed", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "keyboardPressed", function(name:String) {
 			return Reflect.getProperty(FlxG.keys.pressed, name);
 		});
-		Lua_helper.add_callback(lua, "keyboardReleased", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "keyboardReleased", function(name:String) {
 			return Reflect.getProperty(FlxG.keys.justReleased, name);
 		});
 
-		Lua_helper.add_callback(lua, "anyGamepadJustPressed", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "anyGamepadJustPressed", function(name:String) {
 			return FlxG.gamepads.anyJustPressed(name);
 		});
-		Lua_helper.add_callback(lua, "anyGamepadPressed", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "anyGamepadPressed", function(name:String) {
 			return FlxG.gamepads.anyPressed(name);
 		});
-		Lua_helper.add_callback(lua, "anyGamepadReleased", function(name:String)
-		{
+		Lua_helper.add_callback(lua, "anyGamepadReleased", function(name:String) {
 			return FlxG.gamepads.anyJustReleased(name);
 		});
 
-		Lua_helper.add_callback(lua, "gamepadAnalogX", function(id:Int, ?leftStick:Bool = true)
-		{
+		Lua_helper.add_callback(lua, "gamepadAnalogX", function(id:Int, ?leftStick:Bool = true) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null)
 			{
@@ -61,8 +52,7 @@ class ExtraFunctions
 			}
 			return controller.getXAxis(leftStick ? LEFT_ANALOG_STICK : RIGHT_ANALOG_STICK);
 		});
-		Lua_helper.add_callback(lua, "gamepadAnalogY", function(id:Int, ?leftStick:Bool = true)
-		{
+		Lua_helper.add_callback(lua, "gamepadAnalogY", function(id:Int, ?leftStick:Bool = true) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null)
 			{
@@ -70,8 +60,7 @@ class ExtraFunctions
 			}
 			return controller.getYAxis(leftStick ? LEFT_ANALOG_STICK : RIGHT_ANALOG_STICK);
 		});
-		Lua_helper.add_callback(lua, "gamepadJustPressed", function(id:Int, name:String)
-		{
+		Lua_helper.add_callback(lua, "gamepadJustPressed", function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null)
 			{
@@ -79,8 +68,7 @@ class ExtraFunctions
 			}
 			return Reflect.getProperty(controller.justPressed, name) == true;
 		});
-		Lua_helper.add_callback(lua, "gamepadPressed", function(id:Int, name:String)
-		{
+		Lua_helper.add_callback(lua, "gamepadPressed", function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null)
 			{
@@ -88,8 +76,7 @@ class ExtraFunctions
 			}
 			return Reflect.getProperty(controller.pressed, name) == true;
 		});
-		Lua_helper.add_callback(lua, "gamepadReleased", function(id:Int, name:String)
-		{
+		Lua_helper.add_callback(lua, "gamepadReleased", function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null)
 			{
@@ -192,8 +179,7 @@ class ExtraFunctions
 			return Assets.exists(Paths.getPath('assets/$filename', TEXT));
 			#end
 		});
-		Lua_helper.add_callback(lua, "saveFile", function(path:String, content:String, ?absolute:Bool = false)
-		{
+		Lua_helper.add_callback(lua, "saveFile", function(path:String, content:String, ?absolute:Bool = false) {
 			try {
 				if(!absolute)
 					File.saveContent(Paths.mods(path), content);
@@ -206,8 +192,7 @@ class ExtraFunctions
 			}
 			return false;
 		});
-		Lua_helper.add_callback(lua, "deleteFile", function(path:String, ?ignoreModFolders:Bool = false)
-		{
+		Lua_helper.add_callback(lua, "deleteFile", function(path:String, ?ignoreModFolders:Bool = false) {
 			try {
 				#if MODS_ALLOWED
 				if(!ignoreModFolders)

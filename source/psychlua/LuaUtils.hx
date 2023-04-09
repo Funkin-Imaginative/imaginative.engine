@@ -25,10 +25,8 @@ typedef LuaTweenOptions = {
 	ease:EaseFunction
 }
 
-class LuaUtils
-{
-	public static function getLuaTween(options:Dynamic)
-	{
+class LuaUtils {
+	public static function getLuaTween(options:Dynamic) {
 		return {
 			type: getTweenTypeByString(options.type),
 			startDelay: options.startDelay,
@@ -40,14 +38,11 @@ class LuaUtils
 		};
 	}
 
-	public static function setVarInArray(instance:Dynamic, variable:String, value:Dynamic):Any
-	{
+	public static function setVarInArray(instance:Dynamic, variable:String, value:Dynamic):Any {
 		var splitProps:Array<String> = variable.split('[');
-		if(splitProps.length > 1)
-		{
+		if(splitProps.length > 1) {
 			var target:Dynamic = null;
-			if(PlayState.instance.variables.exists(splitProps[0]))
-			{
+			if(PlayState.instance.variables.exists(splitProps[0])) {
 				var retVal:Dynamic = PlayState.instance.variables.get(splitProps[0]);
 				if(retVal != null)
 					target = retVal;
@@ -69,8 +64,7 @@ class LuaUtils
 			instance.set(variable,value);
 		else*/
 			
-		if(PlayState.instance.variables.exists(variable))
-		{
+		if(PlayState.instance.variables.exists(variable)) {
 			PlayState.instance.variables.set(variable, value);
 			return true;
 		}
@@ -78,11 +72,9 @@ class LuaUtils
 		Reflect.setProperty(instance, variable, value);
 		return true;
 	}
-	public static function getVarInArray(instance:Dynamic, variable:String):Any
-	{
+	public static function getVarInArray(instance:Dynamic, variable:String):Any {
 		var splitProps:Array<String> = variable.split('[');
-		if(splitProps.length > 1)
-		{
+		if(splitProps.length > 1) {
 			var target:Dynamic = null;
 			if(PlayState.instance.variables.exists(splitProps[0]))
 			{
@@ -101,8 +93,7 @@ class LuaUtils
 			return target;
 		}
 
-		if(PlayState.instance.variables.exists(variable))
-		{
+		if(PlayState.instance.variables.exists(variable)) {
 			var retVal:Dynamic = PlayState.instance.variables.get(variable);
 			if(retVal != null)
 				return retVal;
@@ -159,8 +150,7 @@ class LuaUtils
 
 	public static function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Dynamic
 	{
-		switch(objectName)
-		{
+		switch(objectName) {
 			case 'this' | 'instance' | 'game':
 				return PlayState.instance;
 			
@@ -178,8 +168,7 @@ class LuaUtils
 	
 	public static function isOfTypes(value:Any, types:Array<Dynamic>)
 	{
-		for (type in types)
-		{
+		for (type in types) {
 			if(Std.isOfType(value, type)) return true;
 		}
 		return false;
@@ -192,8 +181,7 @@ class LuaUtils
 	
 	public static function loadFrames(spr:FlxSprite, image:String, spriteType:String)
 	{
-		switch(spriteType.toLowerCase().trim())
-		{
+		switch(spriteType.toLowerCase().trim()) {
 			case "texture" | "textureatlas" | "tex":
 				spr.frames = AtlasFrameMaker.construct(image);
 
@@ -270,8 +258,7 @@ class LuaUtils
 	}
 
 	public static function getColorByString(?color:String = '') {
-		switch(color.toLowerCase().trim())
-		{
+		switch(color.toLowerCase().trim()) {
 			case 'blue': return FlxColor.BLUE;
 			case 'brown': return FlxColor.BROWN;
 			case 'cyan': return FlxColor.CYAN;
@@ -292,8 +279,7 @@ class LuaUtils
 
 	//buncho string stuffs
 	public static function getTweenTypeByString(?type:String = '') {
-		switch(type.toLowerCase().trim())
-		{
+		switch(type.toLowerCase().trim()) {
 			case 'backward': return FlxTweenType.BACKWARD;
 			case 'looping': return FlxTweenType.LOOPING;
 			case 'persist': return FlxTweenType.PERSIST;

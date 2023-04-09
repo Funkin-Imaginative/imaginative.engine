@@ -1,7 +1,5 @@
 
-#if desktop
-import backend.Discord;
-#end
+#if desktop import backend.Discord; #end
 import backend.MusicBeatState;
 import backend.MusicBeatSubstate;
 import backend.CustomFadeTransition;

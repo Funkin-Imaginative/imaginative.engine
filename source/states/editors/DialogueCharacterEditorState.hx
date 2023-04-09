@@ -22,8 +22,7 @@ import objects.TypedAlphabet;
 import cutscenes.DialogueBoxPsych;
 import cutscenes.DialogueCharacter;
 
-class DialogueCharacterEditorState extends MusicBeatState
-{
+class DialogueCharacterEditorState extends MusicBeatState {
 	var box:FlxSprite;
 	var daText:TypedAlphabet = null;
 
@@ -191,22 +190,19 @@ class DialogueCharacterEditorState extends MusicBeatState
 		tab_group.name = "Character Type";
 
 		leftCheckbox = new FlxUICheckBox(10, 20, null, null, "Left", 100);
-		leftCheckbox.callback = function()
-		{
+		leftCheckbox.callback = function() {
 			character.jsonFile.dialogue_pos = 'left';
 			updateCharTypeBox();
 		};
 
 		centerCheckbox = new FlxUICheckBox(leftCheckbox.x, leftCheckbox.y + 40, null, null, "Center", 100);
-		centerCheckbox.callback = function()
-		{
+		centerCheckbox.callback = function() {
 			character.jsonFile.dialogue_pos = 'center';
 			updateCharTypeBox();
 		};
 
 		rightCheckbox = new FlxUICheckBox(centerCheckbox.x, centerCheckbox.y + 40, null, null, "Right", 100);
-		rightCheckbox.callback = function()
-		{
+		rightCheckbox.callback = function() {
 			character.jsonFile.dialogue_pos = 'right';
 			updateCharTypeBox();
 		};
@@ -229,7 +225,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 		animationDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), function(animation:String) {
 			var anim:String = animationArray[Std.parseInt(animation)];
-			if(character.dialogueAnimations.exists(anim)) {
+			if (character.dialogueAnimations.exists(anim)) {
 				ghostLoop.playAnim(anim);
 				ghostIdle.playAnim(anim, true);
 
@@ -253,11 +249,10 @@ class DialogueCharacterEditorState extends MusicBeatState
 		
 		var addUpdateButton:FlxButton = new FlxButton(10, idleInputText.y + 30, "Add/Update", function() {
 			var theAnim:String = animationInputText.text.trim();
-			if(character.dialogueAnimations.exists(theAnim)) //Update
-			{
+			if (character.dialogueAnimations.exists(theAnim)) { //Update
 				for (i in 0...character.jsonFile.animations.length) {
 					var animArray:DialogueAnimArray = character.jsonFile.animations[i];
-					if(animArray.anim.trim() == theAnim) {
+					if (animArray.anim.trim() == theAnim) {
 						animArray.loop_name = loopInputText.text;
 						animArray.idle_name = idleInputText.text;
 						break;
@@ -267,13 +262,11 @@ class DialogueCharacterEditorState extends MusicBeatState
 				character.reloadAnimations();
 				ghostLoop.reloadAnimations();
 				ghostIdle.reloadAnimations();
-				if(curSelectedAnim == theAnim) {
+				if (curSelectedAnim == theAnim) {
 					ghostLoop.playAnim(theAnim);
 					ghostIdle.playAnim(theAnim, true);
 				}
-			}
-			else //Add
-			{
+			} else {
 				var newAnim:DialogueAnimArray = {
 					anim: theAnim,
 					loop_name: loopInputText.text,
@@ -302,7 +295,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 					ghostLoop.reloadAnimations();
 					ghostIdle.reloadAnimations();
 					reloadAnimationsDropDown();
-					if(character.jsonFile.animations.length > 0 && lastSelected == animArray.anim.trim()) {
+					if (character.jsonFile.animations.length > 0 && lastSelected == animArray.anim.trim()) {
 						var animToPlay:String = character.jsonFile.animations[0].anim;
 						ghostLoop.playAnim(animToPlay);
 						ghostIdle.playAnim(animToPlay, true);
@@ -332,9 +325,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 	function reloadAnimationsDropDown() {
 		animationArray = [];
-		for (anim in character.jsonFile.animations) {
-			animationArray.push(anim.anim);
-		}
+		for (anim in character.jsonFile.animations) animationArray.push(anim.anim);
 
 		if(animationArray.length < 1) animationArray = [''];
 		animationDropDown.setData(FlxUIDropDownMenu.makeStrIdLabelArray(animationArray, true));
@@ -357,8 +348,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 		var noAntialiasingCheckbox:FlxUICheckBox = new FlxUICheckBox(scaleStepper.x + 80, scaleStepper.y, null, null, "No Antialiasing", 100);
 		noAntialiasingCheckbox.checked = (character.jsonFile.no_antialiasing == true);
-		noAntialiasingCheckbox.callback = function()
-		{
+		noAntialiasingCheckbox.callback = function() {
 			character.jsonFile.no_antialiasing = noAntialiasingCheckbox.checked;
 			character.antialiasing = !character.jsonFile.no_antialiasing;
 		};
@@ -422,7 +412,6 @@ class DialogueCharacterEditorState extends MusicBeatState
 		switch(character.jsonFile.dialogue_pos) {
 			case 'right':
 				character.x = FlxG.width - character.width + DialogueBoxPsych.RIGHT_CHAR_X;
-			
 			case 'center':
 				character.x = FlxG.width / 2;
 				character.x -= character.width / 2;

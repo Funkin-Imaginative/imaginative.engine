@@ -115,7 +115,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 			if (boyfriend.animation.curAnim.finished && !playingDeathSound)
 			{
-				if (PlayState.SONG.stage == 'tank')
+				if (PlayState.chartData.stage == 'tank')
 				{
 					playingDeathSound = true;
 					coolStartDeath(0.2);
