@@ -28,7 +28,7 @@ class FlashingState extends MusicBeatState {
 		add(warnText);
 	}
 
-	override function update(elapsed:Float) 
+	override function update(elapsed:Float) {
 		if (!leftState) {
 			var back:Bool = controls.BACK;
 			if (controls.ACCEPT || back) {

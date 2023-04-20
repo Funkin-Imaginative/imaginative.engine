@@ -18,7 +18,7 @@ class Philly extends BaseStage {
 	var curLightEvent:Int = -1;
 
 	override function create() {
-		if(!ClientPrefs.data.qualityLevel < 0.5) {
+		if(ClientPrefs.data.qualityLevel < 0.5) {
 			var bg:BGSprite = new BGSprite('philly/sky', -100, 0, 0.1, 0.1);
 			add(bg);
 		}
@@ -35,7 +35,7 @@ class Philly extends BaseStage {
 		add(phillyWindow);
 		phillyWindow.alpha = 0;
 
-		if(!ClientPrefs.data.qualityLevel < 0.5) {
+		if(ClientPrefs.data.qualityLevel < 0.5) {
 			var streetBehind:BGSprite = new BGSprite('philly/behindTrain', -40, 50);
 			add(streetBehind);
 		}
@@ -160,7 +160,7 @@ class Philly extends BaseStage {
 						phillyStreet.color = color;
 
 					case 2: // spawn particles
-						if (!ClientPrefs.data.qualityLevel < 0.5) {
+						if (ClientPrefs.data.qualityLevel < 0.5) {
 							var particlesNum:Int = FlxG.random.int(8, 12);
 							var width:Float = (2000 / particlesNum);
 							var color:FlxColor = phillyLightsColors[curLightEvent];

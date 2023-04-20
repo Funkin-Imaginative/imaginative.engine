@@ -2,16 +2,14 @@ package states.stages.objects;
 
 import flixel.graphics.frames.FlxAtlasFrames;
 
-class TankmenBG extends FlxSprite
-{
+class TankmenBG extends FlxSprite {
 	public static var animationNotes:Array<Dynamic> = [];
 	private var tankSpeed:Float;
 	private var endingOffset:Float;
 	private var goingRight:Bool;
 	public var strumTime:Float;
 
-	public function new(x:Float, y:Float, facingRight:Bool)
-	{
+	public function new(x:Float, y:Float, facingRight:Bool) {
 		tankSpeed = 0.7;
 		goingRight = false;
 		strumTime = 0;
@@ -30,8 +28,7 @@ class TankmenBG extends FlxSprite
 		updateHitbox();
 	}
 
-	public function resetShit(x:Float, y:Float, goingRight:Bool):Void
-	{
+	public function resetShit(x:Float, y:Float, goingRight:Bool):Void {
 		this.x = x;
 		this.y = y;
 		this.goingRight = goingRight;
@@ -40,30 +37,20 @@ class TankmenBG extends FlxSprite
 		flipX = goingRight;
 	}
 
-	override function update(elapsed:Float)
-	{
+	override function update(elapsed:Float) {
 		super.update(elapsed);
 
 		visible = (x > -0.5 * FlxG.width && x < 1.2 * FlxG.width);
 
-		if(animation.curAnim.name == "run")
-		{
+		if (animation.curAnim.name == "run") {
 			var speed:Float = (Conductor.songPosition - strumTime) * tankSpeed;
-			if(goingRight)
-				x = (0.02 * FlxG.width - endingOffset) + speed;
-			else
-				x = (0.74 * FlxG.width + endingOffset) - speed;
-		}
-		else if(animation.curAnim.finished)
-		{
-			kill();
-		}
+			if (goingRight) x = (0.02 * FlxG.width - endingOffset) + speed;
+			else x = (0.74 * FlxG.width + endingOffset) - speed;
+		} else if(animation.curAnim.finished) kill();
 
-		if(Conductor.songPosition > strumTime)
-		{
+		if (Conductor.songPosition > strumTime) {
 			animation.play('shot');
-			if(goingRight)
-			{
+			if(goingRight) {
 				offset.x = 300;
 				offset.y = 200;
 			}

@@ -63,6 +63,7 @@ class Character extends FlxSprite {
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
+	public var cameraOffset:Array<Float> = [0, 0];
 
 	public var hasMissAnimations:Bool = false;
 

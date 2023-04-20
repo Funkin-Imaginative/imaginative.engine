@@ -15,7 +15,7 @@ class StageWeek1 extends BaseStage {
 		stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
 		stageFront.updateHitbox();
 		add(stageFront);
-		if (!ClientPrefs.data.qualityLevel < 0.5) {
+		if (ClientPrefs.data.qualityLevel < 0.5) {
 			var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
 			stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
 			stageLight.updateHitbox();

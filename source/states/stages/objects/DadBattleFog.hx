@@ -1,9 +1,7 @@
 package states.stages.objects;
 
-class DadBattleFog extends FlxSpriteGroup
-{
-	public function new()
-	{
+class DadBattleFog extends FlxSpriteGroup {
+	public function new() {
 		super();
 		
 		alpha = 0.7;

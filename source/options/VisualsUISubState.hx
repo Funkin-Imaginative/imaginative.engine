@@ -36,7 +36,7 @@ class VisualsUISubState extends BaseOptionsMenu {
 		var option:Option = new Option(
 			'Flashing Lights',
 			'Uncheck this if you\'re sensitive to flashing lights!',
-			'flashingLigths',
+			'flashingLights',
 			'bool',
 			true
 		);
@@ -53,9 +53,10 @@ class VisualsUISubState extends BaseOptionsMenu {
 		var option:Option = new Option(
 			'Zoom Choice',
 			'The choice of camera zoom.',
-			'allowCamZooms',
-			'bool',
-			true
+			'camZoomTypes',
+			'string',
+			'On Beat Hit',
+			['On Note Hit', 'On Section Hit', 'On Beat Hit']
 		);
 		addOption(option);
 

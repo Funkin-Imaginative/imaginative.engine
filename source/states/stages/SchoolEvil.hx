@@ -22,7 +22,7 @@ class SchoolEvil extends BaseStage {
 		var posY = 200;
 
 		var bg:BGSprite;
-		if (!ClientPrefs.data.qualityLevel < 0.5) bg = new BGSprite('weeb/animatedEvilSchool', posX, posY, 0.8, 0.9, ['background 2'], true);
+		if (ClientPrefs.data.qualityLevel < 0.5) bg = new BGSprite('weeb/animatedEvilSchool', posX, posY, 0.8, 0.9, ['background 2'], true);
 		else bg = new BGSprite('weeb/animatedEvilSchool_low', posX, posY, 0.8, 0.9);
 
 		bg.scale.set(PlayState.daPixelZoom, PlayState.daPixelZoom);
@@ -47,7 +47,7 @@ class SchoolEvil extends BaseStage {
 	override function eventCalled(eventName:String, value1:String, value2:String, flValue1:Null<Float>, flValue2:Null<Float>, strumTime:Float) {
 		switch(eventName) {
 			case "Trigger BG Ghouls":
-				if (!ClientPrefs.data.qualityLevel < 0.5) {
+				if (ClientPrefs.data.qualityLevel < 0.5) {
 					bgGhouls.dance(true);
 					bgGhouls.visible = true;
 				}
@@ -57,7 +57,7 @@ class SchoolEvil extends BaseStage {
 		// used for preloading assets used on events
 		switch(event.event) 	{
 			case "Trigger BG Ghouls":
-				if (!ClientPrefs.data.qualityLevel < 0.5) {
+				if (ClientPrefs.data.qualityLevel < 0.5) {
 					bgGhouls = new BGSprite('weeb/bgGhouls', -100, 190, 0.9, 0.9, ['BG freaks glitch instance'], false);
 					bgGhouls.setGraphicSize(Std.int(bgGhouls.width * PlayState.daPixelZoom));
 					bgGhouls.updateHitbox();

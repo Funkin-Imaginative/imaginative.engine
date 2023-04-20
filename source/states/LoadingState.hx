@@ -63,9 +63,9 @@ class LoadingState extends MusicBeatState
 			{
 				callbacks = new MultiCallback(onLoad);
 				var introComplete = callbacks.add("introComplete");
-				if (PlayState.SONG != null) {
+				if (PlayState.chartData != null) {
 					checkLoadSong(getSongPath());
-					if (PlayState.SONG.needsVoices)
+					if (PlayState.chartData.needsVoices)
 						checkLoadSong(getVocalPath());
 				}
 				checkLibrary("shared");
@@ -135,12 +135,12 @@ class LoadingState extends MusicBeatState
 	
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.SONG.song);
+		return Paths.inst(PlayState.chartData.song);
 	}
 	
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.SONG.song);
+		return Paths.voices(PlayState.chartData.song);
 	}
 	
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
@@ -161,8 +161,8 @@ class LoadingState extends MusicBeatState
 
 		#if NO_PRELOAD_ALL
 		var loaded:Bool = false;
-		if (PlayState.SONG != null) {
-			loaded = isSoundLoaded(getSongPath()) && (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath())) && isLibraryLoaded("shared") && isLibraryLoaded('week_assets');
+		if (PlayState.chartData != null) {
+			loaded = isSoundLoaded(getSongPath()) && (!PlayState.chartData.needsVoices || isSoundLoaded(getVocalPath())) && isLibraryLoaded("shared") && isLibraryLoaded('week_assets');
 		}
 		
 		if (!loaded)

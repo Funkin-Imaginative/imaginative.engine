@@ -6,7 +6,7 @@ class Spooky extends BaseStage {
 	var halloweenBG:BGSprite;
 	var halloweenWhite:BGSprite;
 	override function create() {
-		if (!ClientPrefs.data.qualityLevel < 0.5) halloweenBG = new BGSprite('halloween_bg', -200, -100, ['halloweem bg0', 'halloweem bg lightning strike']);
+		if (ClientPrefs.data.qualityLevel < 0.5) halloweenBG = new BGSprite('halloween_bg', -200, -100, ['halloweem bg0', 'halloweem bg lightning strike']);
 		else halloweenBG = new BGSprite('halloween_bg_low', -200, -100);
 		add(halloweenBG);
 
@@ -38,7 +38,7 @@ class Spooky extends BaseStage {
 
 	function lightningStrikeShit():Void {
 		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
-		if (!ClientPrefs.data.qualityLevel < 0.5) halloweenBG.animation.play('halloweem bg lightning strike');
+		if (ClientPrefs.data.qualityLevel < 0.5) halloweenBG.animation.play('halloweem bg lightning strike');
 
 		lightningStrikeBeat = curBeat;
 		lightningOffset = FlxG.random.int(8, 24);

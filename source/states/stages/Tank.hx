@@ -18,7 +18,7 @@ class Tank extends BaseStage {
 		var sky:BGSprite = new BGSprite('tankSky', -400, -400, 0, 0);
 		add(sky);
 
-		if (!ClientPrefs.data.qualityLevel < 0.5) 	{
+		if (ClientPrefs.data.qualityLevel < 0.5) {
 			var clouds:BGSprite = new BGSprite('tankClouds', FlxG.random.int(-700, -100), FlxG.random.int(-20, 20), 0.1, 0.1);
 			clouds.active = true;
 			clouds.velocity.x = FlxG.random.float(5, 15);
@@ -40,7 +40,7 @@ class Tank extends BaseStage {
 		ruins.updateHitbox();
 		add(ruins);
 
-		if (!ClientPrefs.data.qualityLevel < 0.5) {
+		if (ClientPrefs.data.qualityLevel < 0.5) {
 			var smokeLeft:BGSprite = new BGSprite('smokeLeft', -200, -100, 0.4, 0.4, ['SmokeBlurLeft'], true);
 			add(smokeLeft);
 			var smokeRight:BGSprite = new BGSprite('smokeRight', 1100, -100, 0.4, 0.4, ['SmokeRight'], true);
@@ -63,11 +63,11 @@ class Tank extends BaseStage {
 
 		foregroundSprites = new FlxTypedGroup<BGSprite>();
 		foregroundSprites.add(new BGSprite('tank0', -500, 650, 1.7, 1.5, ['fg']));
-		if (!ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank1', -300, 750, 2, 0.2, ['fg']));
+		if (ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank1', -300, 750, 2, 0.2, ['fg']));
 		foregroundSprites.add(new BGSprite('tank2', 450, 940, 1.5, 1.5, ['foreground']));
-		if (!ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank4', 1300, 900, 1.5, 1.5, ['fg']));
+		if (ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank4', 1300, 900, 1.5, 1.5, ['fg']));
 		foregroundSprites.add(new BGSprite('tank5', 1620, 700, 1.5, 1.5, ['fg']));
-		if (!ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']));
+		if (ClientPrefs.data.qualityLevel < 0.5) foregroundSprites.add(new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg']));
 
 		// Default GFs
 		if(songName == 'stress') {
@@ -87,17 +87,17 @@ class Tank extends BaseStage {
 	override function createPost()	{
 		add(foregroundSprites);
 
-		if (!ClientPrefs.data.qualityLevel < 0.5) {
+		if (ClientPrefs.data.qualityLevel < 0.5) {
 			for (daGf in gfGroup) {
 				var gf:Character = cast daGf;
-				if(gf.curCharacter == 'pico-speaker') {
+				if (gf.curCharacter == 'pico-speaker') {
 					var firstTank:TankmenBG = new TankmenBG(20, 500, true);
 					firstTank.resetShit(20, 600, true);
 					firstTank.strumTime = 10;
 					tankmanRun.add(firstTank);
 
 					for (i in 0...TankmenBG.animationNotes.length) {
-						if(FlxG.random.bool(16)) {
+						if (FlxG.random.bool(16)) {
 							var tankBih = tankmanRun.recycle(TankmenBG);
 							tankBih.strumTime = TankmenBG.animationNotes[i][0];
 							tankBih.resetShit(500, 200 + FlxG.random.int(50, 100), TankmenBG.animationNotes[i][1] < 2);
@@ -113,8 +113,8 @@ class Tank extends BaseStage {
 	override function countdownTick(count:BaseStage.Countdown, num:Int) if(num % 2 == 0) everyoneDance();
 	override function beatHit() everyoneDance();
 	function everyoneDance() {
-		if (!ClientPrefs.data.setStartCallback) tankWatchtower.dance();
-		foregroundSprites.forEach(function(spr:BGSprite) 	{
+		if (ClientPrefs.data.qualityLevel < 0.5) tankWatchtower.dance();
+		foregroundSprites.forEach(function(spr:BGSprite) {
 			spr.dance();
 		});
 	}
@@ -268,7 +268,7 @@ class Tank extends BaseStage {
 		tankman2.frames = Paths.getSparrowAtlas('cutscenes/stress2');
 		addBehindDad(tankman2);
 
-		if (!ClientPrefs.data.qualityLevel < 0.5) {
+		if (ClientPrefs.data.qualityLevel < 0.5) {
 			gfDance.frames = Paths.getSparrowAtlas('characters/gfTankmen');
 			gfDance.animation.addByPrefix('dance', 'GF Dancing at Gunpoint', 24, true);
 			gfDance.animation.play('dance', true);
@@ -281,7 +281,7 @@ class Tank extends BaseStage {
 		gfCutscene.animation.play('dieBitch', true);
 		gfCutscene.animation.pause();
 		addBehindGF(gfCutscene);
-		if (!ClientPrefs.data.qualityLevel < 0.5) gfCutscene.alpha = 0.00001;
+		if (ClientPrefs.data.qualityLevel < 0.5) gfCutscene.alpha = 0.00001;
 
 		picoCutscene.frames = AtlasFrameMaker.construct('cutscenes/stressPico');
 		picoCutscene.animation.addByPrefix('anim', 'Pico Badass', 24, false);
