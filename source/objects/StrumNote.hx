@@ -6,20 +6,29 @@ class StrumNote extends FlxSprite {
 	private var rgbColoring:ColorizeRGB;
 	public var resetAnim:Float = 0;
 	public var noteData:Int = 0;
-	public var direction:Float = 90;//plan on doing scroll directions soon -bb
-	public var downScroll:Bool = false;//plan on doing scroll directions soon -bb
+	public var direction:Float = 90; //plan on doing scroll directions soon -bb
+	public var downScroll:Bool = false; //plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
-	public var glowAttachment = {
-		enable: true,
-		uh: false
-	};
+	public var glowAttachment:Bool = true;
 	
-	public var isPixel:Bool = false;
 	public var pixelScale:Float = 6;
+	public var isPixel(default, set):Bool = false;
+	function set_isPixel(value:Bool):Bool {
+		if (isPixel != value) {
+			isPixel = value;
+			reloadStrum();
+		}
+		return value;
+	}
 	
-	public var texture(default, set):String = null;
+	public var style(default, set):String = 'Normal';
+	private function set_style(value:String):String {
+		return value;
+	}
+	
+	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!Paths.fileExists('images/' + texture, IMAGE)) texture = 'NOTE_assets';
+		if (!Paths.fileExists('shared/images/notes/$style/' + texture, IMAGE)) texture = 'NOTE_assets';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -56,10 +65,10 @@ class StrumNote extends FlxSprite {
 			antialiasing = false;
 			setGraphicSize(Std.int(width * pixelScale));
 
-			animation.add('purple', [4]);
-			animation.add('blue', [5]);
-			animation.add('green', [6]);
-			animation.add('red', [7]);
+			animation.add('left', [4]);
+			animation.add('down', [5]);
+			animation.add('up', [6]);
+			animation.add('right', [7]);
 			switch (noteData % 4) {
 				case 0:
 					animation.add('static', [0]);
@@ -84,10 +93,10 @@ class StrumNote extends FlxSprite {
 			}
 		} else {
 			frames = Paths.getSparrowAtlas(texture);
-			animation.addByPrefix('purple', 'arrowLEFT');
-			animation.addByPrefix('blue', 'arrowDOWN');
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('red', 'arrowRIGHT');
+			animation.addByPrefix('left', 'arrowLEFT');
+			animation.addByPrefix('down', 'arrowDOWN');
+			animation.addByPrefix('up', 'arrowUP');
+			animation.addByPrefix('right', 'arrowRIGHT');
 
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * 0.7));
@@ -97,22 +106,22 @@ class StrumNote extends FlxSprite {
 					animation.addByPrefix('static', 'arrowLEFT');
 					animation.addByPrefix('pressed', 'left press', 24, false);
 					animation.addByPrefix('confirm', 'left confirm', 24, false);
-					animation.addByPrefix('noglow', 'left noglow', 24, false);
+					animation.addByPrefix('noglow', 'left strum confirm', 24, false);
 				case 1:
 					animation.addByPrefix('static', 'arrowDOWN');
 					animation.addByPrefix('pressed', 'down press', 24, false);
 					animation.addByPrefix('confirm', 'down confirm', 24, false);
-					animation.addByPrefix('noglow', 'down noglow', 24, false);
+					animation.addByPrefix('noglow', 'down strum confirm', 24, false);
 				case 2:
 					animation.addByPrefix('static', 'arrowUP');
 					animation.addByPrefix('pressed', 'up press', 24, false);
 					animation.addByPrefix('confirm', 'up confirm', 24, false);
-					animation.addByPrefix('noglow', 'up noglow', 24, false);
+					animation.addByPrefix('noglow', 'up strum confirm', 24, false);
 				case 3:
 					animation.addByPrefix('static', 'arrowRIGHT');
 					animation.addByPrefix('pressed', 'right press', 24, false);
 					animation.addByPrefix('confirm', 'right confirm', 24, false);
-					animation.addByPrefix('noglow', 'right noglow', 24, false);
+					animation.addByPrefix('noglow', 'right strum confirm', 24, false);
 			}
 		}
 		updateHitbox();
@@ -132,11 +141,12 @@ class StrumNote extends FlxSprite {
 				resetAnim = 0;
 			}
 		}
-		if (animation.curAnim.name == 'confirm' && !isPixel) centerOrigin();
+		if ((animation.curAnim.name == 'confirm' || animation.curAnim.name == 'noglow') && !isPixel) centerOrigin();
 		super.update(elapsed);
 	}
 
 	public function playAnim(anim:String, ?force:Bool = false, ?reversed:Bool = false, ?startFrame:Int = 0) {
+		if (anim == 'noglow') return; else if (anim == 'confirm' && glowAttachment) anim == 'noglow';
 		animation.play(anim, force, reversed, startFrame);
 		centerOffsets();
 		centerOrigin();
@@ -150,7 +160,7 @@ class StrumNote extends FlxSprite {
 				rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 100;
 				rgbColoring.blue = ClientPrefs.data.arrowRGB[noteData][2] / 100;
 			}
-			if (animation.curAnim.name == 'confirm' && !isPixel) centerOrigin();
+			if ((animation.curAnim.name == 'confirm' || animation.curAnim.name == 'noglow') && !isPixel) centerOrigin();
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package psychlua;
 
-#if LUA_ALLOWED
+#if SCRIPTS_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;

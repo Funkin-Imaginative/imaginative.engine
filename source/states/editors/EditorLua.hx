@@ -1,6 +1,6 @@
 package states.editors;
 
-#if LUA_ALLOWED
+#if SCRIPTS_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
@@ -14,12 +14,10 @@ class EditorLua {
 	public static var Function_Stop = 1;
 	public static var Function_Continue = 0;
 
-	#if LUA_ALLOWED
-	public var lua:State = null;
-	#end
+	#if SCRIPTS_ALLOWED public var lua:State = null; #end
 
 	public function new(script:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
@@ -164,7 +162,7 @@ class EditorLua {
 	}
 	
 	public function call(event:String, args:Array<Dynamic>):Dynamic {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(lua == null) {
 			return Function_Continue;
 		}
@@ -195,7 +193,7 @@ class EditorLua {
 		return Function_Continue;
 	}
 
-	#if LUA_ALLOWED
+	#if SCRIPTS_ALLOWED
 	function resultIsAllowed(leLua:State, leResult:Null<Int>) { //Makes it ignore warnings
 		switch(Lua.type(leLua, leResult)) {
 			case Lua.LUA_TNIL | Lua.LUA_TBOOLEAN | Lua.LUA_TNUMBER | Lua.LUA_TSTRING | Lua.LUA_TTABLE:
@@ -206,7 +204,7 @@ class EditorLua {
 	#end
 
 	public function set(variable:String, data:Dynamic) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(lua == null) {
 			return;
 		}
@@ -216,7 +214,7 @@ class EditorLua {
 		#end
 	}
 
-	#if LUA_ALLOWED
+	#if SCRIPTS_ALLOWED
 	public function getBool(variable:String) {
 		var result:String = null;
 		Lua.getglobal(lua, variable);
@@ -234,7 +232,7 @@ class EditorLua {
 	#end
 
 	public function stop() {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(lua == null) {
 			return;
 		}

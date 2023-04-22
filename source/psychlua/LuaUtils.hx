@@ -8,7 +8,7 @@ import Type.ValueType;
 
 import substates.GameOverSubstate;
 
-#if LUA_ALLOWED
+#if SCRIPTS_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
@@ -163,7 +163,7 @@ class LuaUtils {
 
 	inline public static function getTextObject(name:String):FlxText
 	{
-		return #if LUA_ALLOWED PlayState.instance.modchartTexts.exists(name) ? PlayState.instance.modchartTexts.get(name) : #end Reflect.getProperty(PlayState.instance, name);
+		return #if SCRIPTS_ALLOWED PlayState.instance.modchartTexts.exists(name) ? PlayState.instance.modchartTexts.get(name) : #end Reflect.getProperty(PlayState.instance, name);
 	}
 	
 	public static function isOfTypes(value:Any, types:Array<Dynamic>)
@@ -197,7 +197,7 @@ class LuaUtils {
 	}
 
 	public static function resetTextTag(tag:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(!PlayState.instance.modchartTexts.exists(tag)) {
 			return;
 		}
@@ -213,7 +213,7 @@ class LuaUtils {
 	}
 
 	public static function resetSpriteTag(tag:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(!PlayState.instance.modchartSprites.exists(tag)) {
 			return;
 		}
@@ -229,7 +229,7 @@ class LuaUtils {
 	}
 
 	public static function cancelTween(tag:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(PlayState.instance.modchartTweens.exists(tag)) {
 			PlayState.instance.modchartTweens.get(tag).cancel();
 			PlayState.instance.modchartTweens.get(tag).destroy();
@@ -247,7 +247,7 @@ class LuaUtils {
 	}
 
 	public static function cancelTimer(tag:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(PlayState.instance.modchartTimers.exists(tag)) {
 			var theTimer:FlxTimer = PlayState.instance.modchartTimers.get(tag);
 			theTimer.cancel();
@@ -351,7 +351,7 @@ class LuaUtils {
 	}
 	
 	public static function typeToString(type:Int):String {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		switch(type) {
 			case Lua.LUA_TBOOLEAN: return "boolean";
 			case Lua.LUA_TNUMBER: return "number";

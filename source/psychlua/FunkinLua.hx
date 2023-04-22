@@ -4,7 +4,7 @@ import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
 
-#if LUA_ALLOWED
+#if SCRIPTS_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
@@ -54,7 +54,7 @@ class FunkinLua {
 	public static var Function_StopLua:Dynamic = "##PSYCHLUA_FUNCTIONSTOPLUA";
 
 	//public var errorHandler:String->Void;
-	#if LUA_ALLOWED
+	#if SCRIPTS_ALLOWED
 	public var lua:State = null;
 	#end
 	public var camTarget:FlxCamera;
@@ -66,7 +66,7 @@ class FunkinLua {
 	#end
 	
 	public function new(script:String) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
@@ -2338,7 +2338,7 @@ class FunkinLua {
 	//main
 	var lastCalledFunction:String = '';
 	public function call(func:String, args:Array<Dynamic>):Dynamic {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(closed) return Function_Continue;
 
 		lastCalledFunction = func;
@@ -2381,7 +2381,7 @@ class FunkinLua {
 	}
 	
 	public function set(variable:String, data:Dynamic) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(lua == null) {
 			return;
 		}
@@ -2392,7 +2392,7 @@ class FunkinLua {
 	}
 
 	public function stop() {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(lua == null) {
 			return;
 		}
@@ -2405,7 +2405,7 @@ class FunkinLua {
 	//clone functions
 	function oldTweenFunction(tag:String, vars:String, tweenValue:Any, duration:Float, ease:String, funcName:String)
 	{
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		var target:Dynamic = LuaUtils.tweenPrepare(tag, vars);
 		if(target != null) {
 			PlayState.instance.modchartTweens.set(tag, FlxTween.tween(target, tweenValue, duration, {ease: LuaUtils.getTweenEaseByString(ease),
@@ -2449,7 +2449,7 @@ class FunkinLua {
 	}
 	
 	public function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false, color:FlxColor = FlxColor.WHITE) {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if(ignoreCheck || getBool('luaDebugMode')) {
 			if(deprecated && !getBool('luaDeprecatedWarnings')) {
 				return;
@@ -2460,7 +2460,7 @@ class FunkinLua {
 		#end
 	}
 	
-	#if LUA_ALLOWED
+	#if SCRIPTS_ALLOWED
 	public function getBool(variable:String) {
 		var result:String = null;
 		Lua.getglobal(lua, variable);
@@ -2475,7 +2475,7 @@ class FunkinLua {
 	#end
 
 	public function getErrorMessage(status:Int):String {
-		#if LUA_ALLOWED
+		#if SCRIPTS_ALLOWED
 		var v:String = Lua.tostring(lua, -1);
 		Lua.pop(lua, 1);
 

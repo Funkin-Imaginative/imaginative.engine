@@ -4,9 +4,9 @@ gf
 spooky
 pico
 mom
-mom-car
-bf-car
-gf-car
+mom-hairblow
+bf-hairblow
+gf-hairblow
 parents-christmas
 monster-christmas
 bf-christmas

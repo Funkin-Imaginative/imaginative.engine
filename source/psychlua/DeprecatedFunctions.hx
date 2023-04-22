@@ -1,6 +1,6 @@
 package psychlua;
 
-#if LUA_ALLOWED
+#if SCRIPTS_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
@@ -13,8 +13,7 @@ import llua.Convert;
 //
 
 class DeprecatedFunctions {
-	public static function implement(funk:FunkinLua)
-	{
+	public static function implement(funk:FunkinLua) {
 		var lua:State = funk.lua;
 		// DEPRECATED, DONT MESS WITH THESE SHITS, ITS JUST THERE FOR BACKWARD COMPATIBILITY
 		Lua_helper.add_callback(lua, "objectPlayAnimation", function(obj:String, name:String, forced:Bool = false, ?startFrame:Int = 0) {

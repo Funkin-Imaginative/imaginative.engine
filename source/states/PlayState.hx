@@ -144,6 +144,12 @@ class PlayState extends MusicBeatState
 	private static var prevCamFollow:FlxPoint;
 	private static var prevCamFollowPos:FlxObject;
 
+	public var stageCameraOffsets = {
+		dad: [0.0, 0.0],
+		gf: [0.0, 0.0],
+		boyfriend: [0.0, 0.0]
+	};
+
 	public var strumLineNotes:FlxTypedGroup<StrumNote>;
 	public var opponentStrums:FlxTypedGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
@@ -364,7 +370,7 @@ class PlayState extends MusicBeatState
 		DAD_Y = stageData.opponent[1];
 
 		// if (stageData.camera_speed != null)
-		cameraSpeed = 1;//stageData.camera_speed;
+			/*stageData.camera_speed =*/ cameraSpeed = 1;
 
 		boyfriendGroup = new FlxSpriteGroup(BF_X, BF_Y);
 		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
@@ -426,31 +432,33 @@ class PlayState extends MusicBeatState
 		#end
 
 		if (!stageData.hide_girlfriend) {
-			if (chartData.girlfriend == null || chartData.girlfriend.length < 1) chartData.girlfriend = 'gf'; //Fix for the Chart Editor
+			if (chartData.girlfriend == null || chartData.girlfriend.length < 1) chartData.girlfriend = 'gf';
 			gf = new Character(0, 0, chartData.girlfriend);
 			startCharacterPos(gf);
 			gf.scrollFactor.set(0.95, 0.95);
 			gfGroup.add(gf);
-			gf.cameraOffset = stageData.camera_girlfriend;
-			if (gf.cameraOffset == null) gf.cameraOffset = [0, 0];
+			stageCameraOffsets.gf = stageData.camera_girlfriend;
+			if (stageCameraOffsets.gf == null) stageCameraOffsets.gf = [0, 0];
 			startCharacterLua(gf.curCharacter);
 		}
-
+		
+		if (chartData.opponent == null || chartData.opponent.length < 1) chartData.opponent = 'dad';
 		dad = new Character(0, 0, chartData.opponent);
 		startCharacterPos(dad, true);
 		dadGroup.add(dad);
-		dad.cameraOffset = stageData.camera_opponent;
-		if (dad.cameraOffset == null) dad.cameraOffset = [0, 0];
+		stageCameraOffsets.dad = stageData.camera_opponent;
+		if (stageCameraOffsets.dad == null) stageCameraOffsets.dad = [0, 0];
 		startCharacterLua(dad.curCharacter);
-
+		
+		if (chartData.boyfriend == null || chartData.boyfriend.length < 1) chartData.boyfriend = 'boyfriend';
 		boyfriend = new Boyfriend(0, 0, chartData.boyfriend);
 		startCharacterPos(boyfriend);
 		boyfriendGroup.add(boyfriend);
-		boyfriend.cameraOffset = stageData.camera_boyfriend;
-		if (boyfriend.cameraOffset == null) boyfriend.cameraOffset = [0, 0];
+		stageCameraOffsets.boyfriend = stageData.camera_boyfriend;
+		if (stageCameraOffsets.boyfriend == null) stageCameraOffsets.boyfriend = [0, 0];
 		startCharacterLua(boyfriend.curCharacter);
 
-		var camPos:FlxPoint = new FlxPoint(gf.cameraOffset[0], gf.cameraOffset[1]);
+		var camPos:FlxPoint = new FlxPoint(stageCameraOffsets.gf[0], stageCameraOffsets.gf[1]);
 		if (gf != null) {
 			camPos.x += gf.getGraphicMidpoint().x + gf.cameraPosition[0];
 			camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
@@ -613,14 +621,8 @@ class PlayState extends MusicBeatState
 		startingSong = true;
 		
 		#if SCRIPTS_ALLOWED
-		for (notetype in noteTypes)
-		{
-			startLuasOnFolder('custom_notetypes/' + notetype + '.lua');
-		}
-		for (event in eventsPushed)
-		{
-			startLuasOnFolder('custom_events/' + event + '.lua');
-		}
+		for (notetype in noteTypes) startLuasOnFolder('custom_notetypes/' + notetype + '.lua');
+		for (event in eventsPushed) startLuasOnFolder('custom_events/' + event + '.lua');
 		#end
 		noteTypes = null;
 		eventsPushed = null;
@@ -640,24 +642,16 @@ class PlayState extends MusicBeatState
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
 			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + Paths.formatToSongPath(chartData.song) + '/'));
 
-		for(mod in Paths.getGlobalMods())
-			foldersToCheck.insert(0, Paths.mods(mod + '/data/' + Paths.formatToSongPath(chartData.song) + '/' ));// using push instead of insert because these should run after everything else
+		for (mod in Paths.getGlobalMods()) foldersToCheck.insert(0, Paths.mods(mod + '/data/' + Paths.formatToSongPath(chartData.song) + '/' )); // using push instead of insert because these should run after everything else
 		#end
 
 		for (folder in foldersToCheck)
-		{
 			if (FileSystem.exists(folder))
-			{
 				for (file in FileSystem.readDirectory(folder))
-				{
-					if (file.endsWith('.lua') && !filesPushed.contains(file))
-					{
+					if (file.endsWith('.lua') && !filesPushed.contains(file)) {
 						luaArray.push(new FunkinLua(folder + file));
 						filesPushed.push(file);
 					}
-				}
-			}
-		}
 		#end
 
 		startCallback();
@@ -1818,12 +1812,8 @@ class PlayState extends MusicBeatState
 				persistentUpdate = false;
 				persistentDraw = false;
 				#if SCRIPTS_ALLOWED
-				for (tween in modchartTweens) {
-					tween.active = true;
-				}
-				for (timer in modchartTimers) {
-					timer.active = true;
-				}
+				for (tween in modchartTweens) tween.active = true;
+				for (timer in modchartTimers) timer.active = true;
 				#end
 				openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x - boyfriend.positionArray[0], boyfriend.getScreenPosition().y - boyfriend.positionArray[1], camFollowPos.x, camFollowPos.y));
 
@@ -1979,9 +1969,7 @@ class PlayState extends MusicBeatState
 					if (Math.isNaN(duration)) duration = 0;
 					if (Math.isNaN(intensity)) intensity = 0;
 
-					if (duration > 0 && intensity != 0) {
-						targetsArray[i].shake(intensity, duration);
-					}
+					if (duration > 0 && intensity != 0) targetsArray[i].shake(intensity, duration);
 				}
 
 
@@ -2093,8 +2081,8 @@ class PlayState extends MusicBeatState
 		if (gf != null && chartData.notes[sec].gfSection)
 		{
 			camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
-			camFollow.x += gf.cameraPosition[0] + gf.cameraOffset[0];
-			camFollow.y += gf.cameraPosition[1] + gf.cameraOffset[1];
+			camFollow.x += gf.cameraPosition[0] + stageCameraOffsets.gf[0];
+			camFollow.y += gf.cameraPosition[1] + stageCameraOffsets.gf[1];
 			tweenCamIn();
 			callOnLuas('onMoveCamera', ['gf']);
 			return;
@@ -2109,13 +2097,13 @@ class PlayState extends MusicBeatState
 	public function moveCamera(isDad:Bool) {
 		if (isDad) {
 			camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
-			camFollow.x += dad.cameraPosition[0] + dad.cameraOffset[0];
-			camFollow.y += dad.cameraPosition[1] + dad.cameraOffset[1];
+			camFollow.x += dad.cameraPosition[0] + stageCameraOffsets.dad[0];
+			camFollow.y += dad.cameraPosition[1] + stageCameraOffsets.dad[1];
 			tweenCamIn();
 		} else {
 			camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
-			camFollow.x -= boyfriend.cameraPosition[0] - boyfriend.cameraOffset[0];
-			camFollow.y += boyfriend.cameraPosition[1] + boyfriend.cameraOffset[1];
+			camFollow.x -= boyfriend.cameraPosition[0] - stageCameraOffsets.boyfriend[0];
+			camFollow.y += boyfriend.cameraPosition[1] + stageCameraOffsets.boyfriend[1];
 
 			if (Paths.formatToSongPath(chartData.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1) {
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut, onComplete:

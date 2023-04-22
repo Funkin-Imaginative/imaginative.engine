@@ -42,8 +42,8 @@ class NotesSubState extends MusicBeatSubstate {
 			}
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
-			note.frames = Paths.getSparrowAtlas('NOTE_assets');
-			var animations:Array<String> = ['purple0', 'blue0', 'green0', 'red0'];
+			note.frames = Paths.getSparrowAtlas('notes/Default/Colorable');
+			var animations:Array<String> = ['left static', 'down static', 'up static', 'right static'];
 			note.animation.addByPrefix('idle', animations[i]);
 			note.animation.play('idle');
 			note.antialiasing = ClientPrefs.data.antialiasing;
@@ -57,7 +57,7 @@ class NotesSubState extends MusicBeatSubstate {
 			shaderArray.push(newShader);
 		}
 		
-		rgbText = new Alphabet(posX + 560, 0, "Red    Green       Blue", false);
+		rgbText = new Alphabet(posX + 560, 0, "Red        Green       Blue", false);
 		rgbText.scaleX = 0.6;
 		rgbText.scaleY = 0.6;
 		add(rgbText);

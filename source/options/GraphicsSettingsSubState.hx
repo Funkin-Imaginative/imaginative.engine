@@ -15,7 +15,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu {
 		);
 		option.scrollSpeed = 5;
 		option.minValue = 0;
-		option.maxValue = 1;
+		option.maxValue = 2;
 		option.changeValue = 0.01;
 		addOption(option);
 

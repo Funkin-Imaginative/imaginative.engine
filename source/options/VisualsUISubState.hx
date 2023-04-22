@@ -56,7 +56,7 @@ class VisualsUISubState extends BaseOptionsMenu {
 			'camZoomTypes',
 			'string',
 			'On Beat Hit',
-			['On Note Hit', 'On Section Hit', 'On Beat Hit']
+			['None (disable)', 'On Note Hit', 'On Section Hit', 'On Beat Hit']
 		);
 		addOption(option);
 

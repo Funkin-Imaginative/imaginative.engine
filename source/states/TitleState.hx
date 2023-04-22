@@ -39,9 +39,9 @@ typedef TitleData = {
 }
 
 class TitleState extends MusicBeatState {
-	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
-	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
-	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
+	public static var muteKeys:Array<FlxKey> = [ZERO];
+	public static var volumeDownKeys:Array<FlxKey> = [NUMPADMINUS, MINUS];
+	public static var volumeUpKeys:Array<FlxKey> = [NUMPADPLUS, PLUS];
 
 	public static var initialized:Bool = false;
 
@@ -138,8 +138,7 @@ class TitleState extends MusicBeatState {
 		titleJSON = Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
 
 		if (!initialized) {
-			if (FlxG.save.data != null && FlxG.save.data.fullscreen)
-			{
+			if (FlxG.save.data != null && FlxG.save.data.fullscreen) {
 				FlxG.fullscreen = FlxG.save.data.fullscreen;
 				//trace('LOADED FULLSCREEN SETTING!!');
 			}
@@ -163,10 +162,8 @@ class TitleState extends MusicBeatState {
 			FlxTransitionableState.skipNextTransOut = true;
 			MusicBeatState.switchState(new FlashingState());
 		} else {
-			if (initialized)
-				startIntro();
-			else
-			{
+			if (initialized) startIntro();
+			else {
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
 					startIntro();
@@ -225,13 +222,9 @@ class TitleState extends MusicBeatState {
 		#if (desktop && MODS_ALLOWED)
 		var path = "mods/" + Paths.currentModDirectory + "/images/titleEnter.png";
 		//trace(path, FileSystem.exists(path));
-		if (!FileSystem.exists(path)){
-			path = "mods/images/titleEnter.png";
-		}
+		if (!FileSystem.exists(path)) path = "mods/images/titleEnter.png";
 		//trace(path, FileSystem.exists(path));
-		if (!FileSystem.exists(path)){
-			path = "assets/images/titleEnter.png";
-		}
+		if (!FileSystem.exists(path)) path = "assets/images/titleEnter.png";
 		//trace(path, FileSystem.exists(path));
 		titleText.frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile(path),File.getContent(StringTools.replace(path,".png",".xml")));
 		#else
@@ -316,15 +309,12 @@ class TitleState extends MusicBeatState {
 	var titleTimer:Float = 0;
 
 	override function update(elapsed:Float) {
-		if (FlxG.sound.music != null)
-			Conductor.songPosition = FlxG.sound.music.time;
+		if (FlxG.sound.music != null) Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 
-		#if mobile
-		for (touch in FlxG.touches.list) if (touch.justPressed) pressedEnter = true;
-		#end
+		#if mobile for (touch in FlxG.touches.list) if (touch.justPressed) pressedEnter = true; #end
 
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 

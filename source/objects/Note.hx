@@ -58,7 +58,7 @@ class Note extends FlxSprite {
 
 	public static var swagWidth:Float = 160 * 0.7;
 	
-	private var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
+	private var colArray:Array<String> = ['left', 'down', 'up', 'right'];
 	private var pixelInt:Array<Int> = [0, 1, 2, 3];
 	
 	public var splashDisabled:Bool = false;
@@ -298,7 +298,6 @@ class Note extends FlxSprite {
 	function loadNoteAnims() {
 		animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
 		if (isSustainNote) {
-			animation.addByPrefix('purpleholdend', 'pruple end hold'); // ?????
 			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end');
 			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece');
 		}

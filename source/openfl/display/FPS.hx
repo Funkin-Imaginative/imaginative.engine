@@ -26,17 +26,14 @@ import openfl.system.System;
 #end
 class FPS extends TextField
 {
-	/**
-		The current frame rate, expressed using frames-per-second
-	**/
+	// The current frame rate, expressed using frames-per-second
 	public var currentFPS(default, null):Int;
 
 	@:noCompletion private var cacheCount:Int;
 	@:noCompletion private var currentTime:Float;
 	@:noCompletion private var times:Array<Float>;
 
-	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
-	{
+	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000) {
 		super();
 
 		this.x = x;
@@ -65,22 +62,17 @@ class FPS extends TextField
 
 	// Event Handlers
 	@:noCompletion
-	private #if !flash override #end function __enterFrame(deltaTime:Float):Void
-	{
+	private #if !flash override #end function __enterFrame(deltaTime:Float):Void {
 		currentTime += deltaTime;
 		times.push(currentTime);
 
-		while (times[0] < currentTime - 1000)
-		{
-			times.shift();
-		}
+		while (times[0] < currentTime - 1000) times.shift();
 
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
 		if (currentFPS > ClientPrefs.data.maxFramerate) currentFPS = ClientPrefs.data.maxFramerate;
 
-		if (currentCount != cacheCount /*&& visible*/)
-		{
+		if (currentCount != cacheCount) {
 			text = "FPS: " + currentFPS;
 			var memoryMegas:Float = 0;
 			
@@ -90,10 +82,7 @@ class FPS extends TextField
 			#end
 
 			textColor = 0xFFFFFFFF;
-			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.data.maxFramerate / 2)
-			{
-				textColor = 0xFFFF0000;
-			}
+			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.data.maxFramerate / 2) textColor = 0xFFFF0000;
 
 			#if (gl_stats && !disable_cffi && (!html5 || !canvas))
 			text += "\ntotalDC: " + Context3DStats.totalDrawCalls();
