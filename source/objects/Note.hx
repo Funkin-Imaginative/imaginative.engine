@@ -149,7 +149,7 @@ class Note extends FlxSprite {
 
 	private function set_noteType(value:String):String {
 		splash.texture = PlayState.chartData.splashSkin;
-		if (noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length) {
+		if ((noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length)) {
 			rgbColoring.red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
 			rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
 			rgbColoring.blue = ClientPrefs.data.arrowRGB[noteData][2] / 255;
