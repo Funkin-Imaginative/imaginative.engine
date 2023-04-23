@@ -68,7 +68,7 @@ class StrumNote extends FlxSprite {
 			loadGraphic(Paths.image('notes/$texture/$style-pixel'));
 			width /= 4;
 			height /= 5;
-			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
+			loadGraphic(Paths.image('notes/$texture/$style-pixel'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * pixelScale));
