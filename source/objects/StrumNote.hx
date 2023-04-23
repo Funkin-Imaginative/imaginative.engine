@@ -65,7 +65,7 @@ class StrumNote extends FlxSprite {
 		if (animation.curAnim != null) lastAnim = animation.curAnim.name;
 
 		if (isPixel) {
-			loadGraphic(Paths.image('pixelUI/' + texture));
+			loadGraphic(Paths.image('notes/$texture/$style-pixel'));
 			width /= 4;
 			height /= 5;
 			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
