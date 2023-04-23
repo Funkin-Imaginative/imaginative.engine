@@ -70,7 +70,7 @@ class Note extends FlxSprite {
 	
 	public var splash = {
 		disable: false,
-		texture: 'noteSplashes'
+		texture: 'noteSplashes',
 		red: 0.0,
 		green: 0.0,
 		blue: 0.0
