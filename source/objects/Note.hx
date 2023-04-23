@@ -148,7 +148,7 @@ class Note extends FlxSprite {
 	}
 
 	private function set_noteType(value:String):String {
-		splashTexture = PlayState.chartData.splashSkin;
+		splash.texture = PlayState.chartData.splashSkin;
 		if (noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length) {
 			rgbColoring.red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
 			rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
@@ -160,7 +160,7 @@ class Note extends FlxSprite {
 				case 'Hurt Note':
 					ignoreNote = mustPress;
 					texture = 'Hurt';
-					splashTexture = 'HURTnoteSplashes';
+					splash.texture = 'HURTnoteSplashes';
 					rgbColoring.red = 0;
 					rgbColoring.green = 0;
 					rgbColoring.blue = 0;
