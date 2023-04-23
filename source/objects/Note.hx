@@ -331,7 +331,7 @@ class Note extends FlxSprite {
 	}
 
 	public function noAnimChecker(isMissAnim:Bool) {
-		return if (isMissAnim) animMissed.length < 11
+		return if (isMissAnim) animMissed.length < 1; else animToPlay.length < 1;
 	}
 
 	override function update(elapsed:Float) {
