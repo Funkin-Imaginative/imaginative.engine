@@ -125,8 +125,9 @@ class PlayState extends MusicBeatState
 
 	public var spawnTime:Float = 2000;
 
-	public var vocals:FlxSound;
 	public var inst:FlxSound;
+	public var vocals:FlxSound;
+	public var voices:Array<FlxSound>;
 
 	public var dad:Character = null;
 	public var gf:Character = null;
