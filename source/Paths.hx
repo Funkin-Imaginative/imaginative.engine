@@ -200,6 +200,16 @@ class Paths {
 		return voices;
 		#end
 	}
+	
+	inline static public function voicesSep(song:String, isBF, ?suffix:String = null):Any {
+		var hasSuffix:String = '';
+		if (suffix != null) hasSuffix = '-$suffix';
+		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Voices$hasSuffix.$SOUND_EXT'; #else
+		var songKey:String = '${formatToSongPath(song)}/Voices$hasSuffix';
+		var voices = returnSound('songs', songKey);
+		return voices;
+		#end
+	}
 
 	inline static public function inst(song:String, ?suffix:String = null):Any {
 		var hasSuffix:String = '';
