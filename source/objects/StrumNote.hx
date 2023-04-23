@@ -1,7 +1,7 @@
 package objects;
 
 import shaders.ColorizeRGB;
-#if sys import sys.FileSystem #end
+#if sys import sys.FileSystem; #end
 
 class StrumNote extends FlxSprite {
 	private var rgbColoring:ColorizeRGB;
@@ -10,7 +10,7 @@ class StrumNote extends FlxSprite {
 	public var direction:Float = 90; //plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false; //plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
-	private var glowAttachment:Bool = true;
+	public var glowAttachment:Bool = false;
 	
 	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
@@ -24,19 +24,19 @@ class StrumNote extends FlxSprite {
 	
 	public var style(default, set):String = 'Normal';
 	private function set_style(value:String):String {
-		if (!Paths.fileExists('images/notes/$texture/$style', IMAGE)) style = 'Normal';
+		if (!Paths.fileExists('images/notes/$texture/$style', IMAGE, false, 'shared')) style = 'Normal';
 		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
 		if (style != value) {
 			style = value;
 			reloadStrum();
 		}
-		glowAttachment = (style == 'Colorable');
+		glowAttachment = (style == 'Colorable' && !isPixel);
 		return value;
 	}
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!Paths.fileExists('images/notes/$texture')) texture = 'Default';
+		if (!sys.FileSystem.exists('images/notes/$texture')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -158,12 +158,12 @@ class StrumNote extends FlxSprite {
 		animation.play(anim, force, reversed, startFrame);
 		centerOffsets();
 		centerOrigin();
-		if (animation.curAnim == null || (animation.curAnim.name == 'static' || animation.curAnim.name == 'noglow')) {
+		if (animation.curAnim == null || animation.curAnim.name == 'static') {
 			rgbColoring.red = 0;
 			rgbColoring.green = 0;
 			rgbColoring.blue = 0;
 		} else {
-			if (noteData > -1 && noteData < 4) {
+			if ((noteData > -1 && noteData < 4) && animation.curAnim.name != 'noglow') {
 				rgbColoring.red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
 				rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
 				rgbColoring.blue = ClientPrefs.data.arrowRGB[noteData][2] / 255;

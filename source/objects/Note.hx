@@ -1,7 +1,7 @@
 package objects;
 
 import states.editors.ChartingState;
-
+#if sys import sys.FileSystem; #end
 import shaders.ColorizeRGB;
 
 typedef EventNote = {
@@ -112,7 +112,7 @@ class Note extends FlxSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!Paths.fileExists('images/notes/$texture')) texture = 'Default';
+		if (!sys.FileSystem.exists('images/notes/$texture')) texture = 'Default';
 		if (texture != value) reloadNote('', value);
 		return value;
 	}
@@ -190,8 +190,8 @@ class Note extends FlxSprite {
 
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
-		this.isPixel = pixelStuff[0];
-		this.pixelScale = pixelStuff[1];
+		isPixel = pixelStuff[0];
+		pixelScale = pixelStuff[1];
 		this.inEditor = inEditor;
 		this.moves = false;
 		
@@ -201,12 +201,11 @@ class Note extends FlxSprite {
 		this.noteData = noteData;
 
 		if (noteData > -1) {
-			// texture = '';
 			rgbColoring = new ColorizeRGB();
 			shader = rgbColoring.shader;
-			if (!isSustainNote && noteData > -1 && noteData < 4) { //Doing this 'if' check to fix the warnings on Senpai songs
+			if (!isSustainNote && (noteData > -1 && noteData < 4)) { // Doing this 'if' check to fix the warnings on Senpai songs
 				var anim:String = '';
-				anim = colArray[noteData % 4];
+				anim = colArray[noteData % 4] + ' static';
 				animation.play(anim + 'Scroll');
 			}
 		}
@@ -274,16 +273,16 @@ class Note extends FlxSprite {
 		var blahblah:String = arraySkin.join('/');
 		if (isPixel) {
 			if (isSustainNote) {
-				loadGraphic(Paths.image('pixelUI/' + blahblah + 'ENDS'));
+				loadGraphic(Paths.image('notes/$blahblah/$style-pixelEnds'));
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.image('pixelUI/' + blahblah + 'ENDS'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('notes/$blahblah/$style-pixelEnds'), true, Math.floor(width), Math.floor(height));
 			} else {
-				loadGraphic(Paths.image('pixelUI/' + blahblah));
+				loadGraphic(Paths.image('notes/$blahblah/$style'));
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.image('pixelUI/' + blahblah), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('notes/$blahblah/$style'), true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * pixelScale));
 			loadPixelNoteAnims();
@@ -330,7 +329,7 @@ class Note extends FlxSprite {
 		}
 	}
 
-	public function noAnimChecker(isMissAnim:Bool) {
+	public function noAnimChecker(isMissAnim:Bool = false) {
 		return if (isMissAnim) animMissed.length < 1; else animToPlay.length < 1;
 	}
 

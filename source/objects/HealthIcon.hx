@@ -1,5 +1,19 @@
 package objects;
 
+#if MODS_ALLOWED
+import sys.io.File;
+import sys.FileSystem;
+#else import openfl.utils.Assets; #end
+import haxe.Json;
+
+typedef IconJson = {
+	var hasLosing:Bool;
+	var hasWinning:Bool;
+	var isAnimated:Bool;
+
+	var antialiasing:Bool;
+}
+
 class HealthIcon extends FlxSprite {
 	public var sprTracker:FlxSprite;
 	private var isOldIcon:Bool = false;
@@ -9,10 +23,11 @@ class HealthIcon extends FlxSprite {
 	public var hasWinning:Bool = false;
 	public var isAnimated:Bool = false;
 
-	public function new(char:String = 'bf', ?hasLosing:Bool = true, ?hasWinning:Bool = false, ?customStates:Array<String>) {
+	public function new(char:String = 'bf', ?isPlaya:Bool = false) {
 		super();
 		isOldIcon = (char == 'bf-old');
 		changeIcon(char);
+		flipX = isPlaya;
 		scrollFactor.set();
 	}
 
@@ -26,14 +41,42 @@ class HealthIcon extends FlxSprite {
 		else changeIcon('bf');
 	}
 
+	private static function dummyJson():IconJson {
+		return {
+			hasLosing: true,
+			hasWinning: false,
+			isAnimated: false,
+
+			antialiasing: ClientPrefs.data.antialiasing
+		};
+	}
+
 	private var iconOffsets:Array<Float> = [0, 0];
 	public function changeIcon(char:String) {
 		if (this.char != char) {
-			var name:String = 'icons/' + char;
-			if (!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/' + char;
-			if (!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/face'; //Prevents crash from missing icon
-			isAnimated = Paths.fileExists('images/' + name + '.xml', IMAGE);
-			var file:Dynamic = Paths.image(name);
+			var name:String = char;
+			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
+			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
+			
+			var rawJson:String = null;
+			var path:String = Paths.getPreloadPath('images/icons/$name.json');
+			#if MODS_ALLOWED
+			var modPath:String = Paths.modFolders('images/icons/$name.json');
+			if (FileSystem.exists(modPath)) rawJson = File.getContent(modPath);
+			else if (FileSystem.exists(path)) rawJson = File.getContent(path);
+			#else
+			if (Assets.exists(path)) rawJson = Assets.getText(path);
+			#end
+			var iconJson:IconJson = null;
+			if (rawJson == null) iconJson = dummyJson();
+			else iconJson = Json.parse(rawJson);
+			
+			hasLosing = iconJson.hasLosing;
+			hasWinning = iconJson.hasWinning;
+			isAnimated = iconJson.isAnimated;
+
+			isAnimated = Paths.fileExists('images/icons/$name.xml', IMAGE);
+			var file:Dynamic = Paths.image('icons/$name');
 			
 			loadGraphic(file);
 			if (isAnimated) {
@@ -55,10 +98,10 @@ class HealthIcon extends FlxSprite {
 			}
 			updateHitbox();
 
-			animation.play('Neutral');
+			playAnim('Neutral', true);
 			this.char = char;
 			antialiasing = ClientPrefs.data.antialiasing;
-			if (char.endsWith('-pixel')) antialiasing = false;
+			antialiasing = antialiasing;
 		}
 	}
 
@@ -75,5 +118,5 @@ class HealthIcon extends FlxSprite {
 		animation.play(anim, force, reversed, startFrame);
 	}
 
-	public function getCharacter():String {return char;} // Why does this exist???
+	public function getCharacter():String return char; // Why does this exist???
 }

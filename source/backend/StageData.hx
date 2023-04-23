@@ -3,9 +3,7 @@ package backend;
 #if MODS_ALLOWED
 import sys.io.File;
 import sys.FileSystem;
-#else
-import openfl.utils.Assets;
-#end
+#else import openfl.utils.Assets; #end
 import haxe.Json;
 import backend.Song;
 

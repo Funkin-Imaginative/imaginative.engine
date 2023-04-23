@@ -724,7 +724,7 @@ class EditorPlayState extends MusicBeatState
 					noteMiss();
 					--songMisses;
 					if(!note.isSustainNote) {
-						if(!note.splashDisabled) {
+						if(!note.splash.disable) {
 							spawnNoteSplashOnNote(note);
 						}
 					}
@@ -816,7 +816,7 @@ class EditorPlayState extends MusicBeatState
 			//score = 200;
 		}
 
-		if(daRating == 'sick' && !note.splashDisabled)
+		if(daRating == 'sick' && !note.splash.disable)
 		{
 			spawnNoteSplashOnNote(note);
 		}
@@ -1018,10 +1018,10 @@ class EditorPlayState extends MusicBeatState
 		var green:Float = ClientPrefs.data.arrowRGB[data % 4][1] / 100;
 		var blue:Float = ClientPrefs.data.arrowRGB[data % 4][2] / 100;
 		if(note != null) {
-			skin = note.splashTexture;
-			red = note.splashRed;
-			green = note.splashGreen;
-			blue = note.splashBlue;
+			skin = note.splash.texture;
+			red = note.splash.red;
+			green = note.splash.green;
+			blue = note.splash.blue;
 		}
 
 		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);

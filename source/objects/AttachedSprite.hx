@@ -6,10 +6,14 @@ class AttachedSprite extends FlxSprite {
 	public var yAdd:Float = 0;
 	public var angleAdd:Float = 0;
 	public var alphaMult:Float = 1;
+	public var scaleAddX:Float = 1;
+	public var scaleAddY:Float = 1;
 
 	public var copyAngle:Bool = true;
 	public var copyAlpha:Bool = true;
 	public var copyVisible:Bool = false;
+	public var copyScaleX:Bool = true;
+	public var copyScaleY:Bool = true;
 
 	public function new(?file:String = null, ?anim:String = null, ?library:String = null, ?loop:Bool = false) {
 		super();
@@ -32,6 +36,8 @@ class AttachedSprite extends FlxSprite {
 			if (copyAngle) angle = sprTracker.angle + angleAdd;
 			if (copyAlpha) alpha = sprTracker.alpha * alphaMult;
 			if (copyVisible) visible = sprTracker.visible;
+			if (copyScaleX) scale.x = sprTracker.scale.x + scaleAddX;
+			if (copyScaleY) scale.y = sprTracker.scale.y + scaleAddY;
 		}
 	}
 }
