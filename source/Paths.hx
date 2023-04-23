@@ -191,7 +191,7 @@ class Paths {
 		return file;
 	}
 
-	inline static public function voices(song:String, ?suffix:String):Any {
+	inline static public function voices(song:String, ?suffix:String = null):Any {
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Voices.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		var voices = returnSound('songs', songKey);
@@ -199,9 +199,9 @@ class Paths {
 		#end
 	}
 
-	inline static public function inst(song:String, ?suffix:String):Any {
+	inline static public function inst(song:String, ?suffix:String = null):Any {
 		var hasSuffix:String = '';
-		if ()
+		if (suffix)
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Inst' + hasSuffix + '.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/Inst';
 		var inst = returnSound('songs', songKey);
