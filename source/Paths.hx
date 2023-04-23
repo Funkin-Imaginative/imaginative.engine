@@ -203,7 +203,7 @@ class Paths {
 		var hasSuffix:String = '';
 		if (suffix != null) hasSuffix = '-$suffix';
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Inst' + hasSuffix + '.$SOUND_EXT'; #else
-		var songKey:String = '${formatToSongPath(song)}/Inst';
+		var songKey:String = '${formatToSongPath(song)}/Inst' + hasSuffix;
 		var inst = returnSound('songs', songKey);
 		return inst;
 		#end
