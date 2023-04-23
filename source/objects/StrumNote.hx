@@ -100,7 +100,7 @@ class StrumNote extends FlxSprite {
 					animation.add('noglow', [3]);
 			}
 		} else {
-			frames = Paths.getSparrowAtlas(texture);
+			frames = Paths.getSparrowAtlas('notes/$texture/$style');
 			animation.addByPrefix('left', 'arrowLEFT');
 			animation.addByPrefix('down', 'arrowDOWN');
 			animation.addByPrefix('up', 'arrowUP');
