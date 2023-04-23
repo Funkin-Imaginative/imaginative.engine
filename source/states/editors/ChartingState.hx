@@ -89,10 +89,8 @@ class ChartingState extends MusicBeatState {
 	var UI_box:FlxUITabMenu;
 
 	public static var goToPlayState:Bool = false;
-	/**
-	 * Array of notes showing when each section STARTS in STEPS
-	 * Usually rounded up??
-	 */
+	/* Array of notes showing when each section STARTS in STEPS
+	Usually rounded up?? */
 	public static var curSec:Int = 0;
 	public static var lastSection:Int = 0;
 	private static var lastSong:String = '';
@@ -198,9 +196,9 @@ class ChartingState extends MusicBeatState {
 				song: 'Test',
 				notes: [],
 				events: [],
-				bpm: 150.0,
+				bpm: 140.0,
 				needsVoices: true,
-				arrowSkin: 'NOTE_assets',
+				arrowSkin: 'Default',
 				splashSkin: 'noteSplashes',
 				boyfriend: 'bf',
 				opponent: 'dad',

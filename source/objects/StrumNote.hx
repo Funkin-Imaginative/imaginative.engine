@@ -1,6 +1,7 @@
 package objects;
 
 import shaders.ColorizeRGB;
+#if sys import sys.FileSystem #end
 
 class StrumNote extends FlxSprite {
 	private var rgbColoring:ColorizeRGB;
@@ -11,8 +12,8 @@ class StrumNote extends FlxSprite {
 	public var sustainReduce:Bool = true;
 	public var glowAttachment:Bool = true;
 	
-	public var pixelScale:Float = 6;
 	public var isPixel(default, set):Bool = false;
+	public var pixelScale:Float = 6;
 	function set_isPixel(value:Bool):Bool {
 		if (isPixel != value) {
 			isPixel = value;
@@ -23,12 +24,19 @@ class StrumNote extends FlxSprite {
 	
 	public var style(default, set):String = 'Normal';
 	private function set_style(value:String):String {
+		if (!Paths.fileExists('shared/images/notes/$texture/$style', IMAGE)) style = 'Normal';
+		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
+		if (style != value) {
+			style = value;
+			reloadStrum();
+		}
+		glowAttachment = (style == 'Colorable');
 		return value;
 	}
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!Paths.fileExists('shared/images/notes/$style/' + texture, IMAGE)) texture = 'NOTE_assets';
+		if (!sys.FileSystem.exists('assets/shared/images/notes/$texture')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -45,7 +53,7 @@ class StrumNote extends FlxSprite {
 		this.pixelScale = pixelStuff[1];
 		super(x, y);
 
-		var skin:String = 'NOTE_assets';
+		var skin:String = 'Default';
 		if (PlayState.chartData.arrowSkin != null && PlayState.chartData.arrowSkin.length > 1) skin = PlayState.chartData.arrowSkin;
 		texture = skin; //Load texture and anims
 

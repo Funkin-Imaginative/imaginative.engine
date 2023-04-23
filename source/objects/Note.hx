@@ -43,8 +43,15 @@ class Note extends FlxSprite {
 	public var eventVal1:String = '';
 	public var eventVal2:String = '';
 
-	public var isPixel:Bool = false;
+	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
+	function set_isPixel(value:Bool):Bool {
+		if (isPixel != value) {
+			isPixel = value;
+			reloadNote();
+		}
+		return value;
+	}
 
 	public var rgbColoring:ColorizeRGB;
 	public var inEditor:Bool = false;
@@ -59,7 +66,7 @@ class Note extends FlxSprite {
 	public static var swagWidth:Float = 160 * 0.7;
 	
 	private var colArray:Array<String> = ['left', 'down', 'up', 'right'];
-	private var pixelInt:Array<Int> = [0, 1, 2, 3];
+	// private var pixelInt:Array<Int> = [0, 1, 2, 3]; // Why does this exist?
 	
 	public var splashDisabled:Bool = false;
 	public var splashTexture:String = 'noteSplashes';
@@ -71,7 +78,6 @@ class Note extends FlxSprite {
 		x: 0.0,
 		y: 0.0,
 		angle: 0.0
-		// scale: 1.0 // ??
 	};
 	public var multAlpha:Float = 1;
 	public var multSpeed(default, set):Float = 1;
@@ -88,8 +94,26 @@ class Note extends FlxSprite {
 	public var rating:String = 'unknown';
 	public var ratingMod:Float = 0; //9 = unknown, 0.25 = shit, 0.5 = bad, 0.75 = good, 1 = sick
 	public var ratingDisabled:Bool = false;
+
+	public var style(default, set):String = 'Normal';
+	private function set_style(value:String):String {
+		var ifPixel = '';
+		if (isPixel) ifPixel = '-pixel';
+		if (!Paths.fileExists('shared/images/notes/$texture/$style' + ifPixel, IMAGE)) style = 'Normal';
+		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
+		if (style != value) {
+			style = value;
+			reloadNote('', texture);
+		}
+		return value;
+	}
 	
-	public var texture(default, set):String = 'NOTE_assets';
+	public var texture(default, set):String = 'Default';
+	private function set_texture(value:String):String {
+		if (!sys.FileSystem.exists('assets/shared/images/notes/$texture')) texture = 'Default';
+		if (texture != value) reloadNote('', value);
+		return value;
+	}
 	
 	public var hitCausesMiss:Bool = false;
 	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
@@ -107,13 +131,6 @@ class Note extends FlxSprite {
 			scale.y *= ratio;
 			updateHitbox();
 		}
-	}
-
-	private function set_texture(value:String):String {
-		if (!Paths.fileExists('images/' + texture, IMAGE)) texture = 'NOTE_assets';
-		if (texture != value) reloadNote('', value);
-		texture = value;
-		return value;
 	}
 
 	private function set_animToPlay(value:String):String {
@@ -140,7 +157,7 @@ class Note extends FlxSprite {
 			switch(value) {
 				case 'Hurt Note':
 					ignoreNote = mustPress;
-					reloadNote('HURT', 'NOTE_assets');
+					reloadNote('HURT', 'Default');
 					splashTexture = 'HURTnoteSplashes';
 					rgbColoring.red = 0;
 					rgbColoring.green = 0;
@@ -187,7 +204,6 @@ class Note extends FlxSprite {
 			// texture = '';
 			rgbColoring = new ColorizeRGB();
 			shader = rgbColoring.shader;
-			x += swagWidth * (noteData);
 			if (!isSustainNote && noteData > -1 && noteData < 4) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var anim:String = '';
 				anim = colArray[noteData % 4];
@@ -245,7 +261,7 @@ class Note extends FlxSprite {
 		var skin:String = texture;
 		if (texture.length < 1) {
 			skin = PlayState.chartData.arrowSkin;
-			if (skin == null || skin.length < 1) skin = 'NOTE_assets';
+			if (skin == null || skin.length < 1) skin = 'Default';
 		}
 
 		var animName:String = null;
@@ -307,10 +323,10 @@ class Note extends FlxSprite {
 
 	function loadPixelNoteAnims() {
 		if (isSustainNote) {
-			animation.add(colArray[noteData] + 'holdend', [pixelInt[noteData] + 4]);
-			animation.add(colArray[noteData] + 'hold', [pixelInt[noteData]]);
+			animation.add(colArray[noteData] + 'holdend', [noteData + 4]);
+			animation.add(colArray[noteData] + 'hold', [noteData]);
 		} else {
-			animation.add(colArray[noteData] + 'Scroll', [pixelInt[noteData] + 4]);
+			animation.add(colArray[noteData] + 'Scroll', [noteData + 4]);
 		}
 	}
 
