@@ -68,11 +68,6 @@ class Note extends FlxSprite {
 	private var colArray:Array<String> = ['left', 'down', 'up', 'right'];
 	// private var pixelInt:Array<Int> = [0, 1, 2, 3]; // Why does this exist?
 	
-	public var splashDisabled:Bool = false;
-	public var splashTexture:String = 'noteSplashes';
-	public var splashRed:Float = 0;
-	public var splashGreen:Float = 0;
-	public var splashBlue:Float = 0;
 	public var splash = {
 		disable: false,
 		texture: 'noteSplashes'
