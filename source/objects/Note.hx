@@ -179,9 +179,9 @@ class Note extends FlxSprite {
 			}
 			noteType = value;
 		}
-		splashRed = rgbColoring.red;
-		splashGreen = rgbColoring.green;
-		splashBlue = rgbColoring.blue;
+		splash.red = rgbColoring.red;
+		splash.green = rgbColoring.green;
+		splash.blue = rgbColoring.blue;
 		return value;
 	}
 
