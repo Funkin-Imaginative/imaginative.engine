@@ -163,7 +163,7 @@ class StrumNote extends FlxSprite {
 			rgbColoring.green = 0;
 			rgbColoring.blue = 0;
 		} else {
-			if (noteData > -1 && noteData < ClientPrefs.data.arrowRGB.length) {
+			if (noteData > -1 && noteData < 4) {
 				rgbColoring.red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
 				rgbColoring.green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
 				rgbColoring.blue = ClientPrefs.data.arrowRGB[noteData][2] / 255;
