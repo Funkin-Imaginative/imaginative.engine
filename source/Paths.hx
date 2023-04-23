@@ -200,8 +200,9 @@ class Paths {
 	}
 
 	inline static public function inst(song:String, ?suffix:String):Any {
-		var hasSuffix:String = ''
-		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Inst.$SOUND_EXT'; #else
+		var hasSuffix:String = '';
+		if ()
+		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Inst' + hasSuffix + '.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/Inst';
 		var inst = returnSound('songs', songKey);
 		return inst;
