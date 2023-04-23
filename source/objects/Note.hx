@@ -112,7 +112,7 @@ class Note extends FlxSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('assets/shared/images/notes/$texture')) texture = 'Default';
+		if (!Paths.fileExists('assets/shared/images/notes/$texture')) texture = 'Default';
 		if (texture != value) reloadNote('', value);
 		return value;
 	}
