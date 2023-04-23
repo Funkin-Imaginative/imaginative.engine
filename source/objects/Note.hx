@@ -136,13 +136,13 @@ class Note extends FlxSprite {
 	}
 
 	private function set_animToPlay(value:String):String {
-		var singAnims:Array<String> = [this.mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', this.mustPress ? 'singAWAY' : 'singTO'];
+		var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
 		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData];
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
-		var singAnims:Array<String> = [this.mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', this.mustPress ? 'singAWAY' : 'singTO'];
+		var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
 		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData] + 'miss';
 		return value;
 	}
