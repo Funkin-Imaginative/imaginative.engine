@@ -205,8 +205,8 @@ class Paths {
 		var sepStr:String = isBF ? 'play' : 'oppo';
 		var hasSuffix:String = '';
 		if (suffix != null) hasSuffix = '-$suffix';
-		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/$sepStrVoices$hasSuffix.$SOUND_EXT'; #else
-		var songKey:String = '${formatToSongPath(song)}/$sepStrVoices$hasSuffix';
+		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/{$sepStr}Voices$hasSuffix.$SOUND_EXT'; #else
+		var songKey:String = '${formatToSongPath(song)}/{$sepStr}Voices$hasSuffix';
 		var voices = returnSound('songs', songKey);
 		return voices;
 		#end
