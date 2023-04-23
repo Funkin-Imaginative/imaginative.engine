@@ -158,7 +158,7 @@ class StrumNote extends FlxSprite {
 		animation.play(anim, force, reversed, startFrame);
 		centerOffsets();
 		centerOrigin();
-		if (animation.curAnim == null || animation.curAnim.name == 'static') {
+		if (animation.curAnim == null || (animation.curAnim.name == 'static' || animation.curAnim.name == 'noglow')) {
 			rgbColoring.red = 0;
 			rgbColoring.green = 0;
 			rgbColoring.blue = 0;
