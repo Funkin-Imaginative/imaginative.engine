@@ -101,7 +101,7 @@ class Note extends FlxSprite {
 	private function set_style(value:String):String {
 		var ifPixel = '';
 		if (isPixel) ifPixel = '-pixel';
-		if (!Paths.fileExists('shared/images/notes/$texture/$style' + ifPixel, IMAGE)) style = 'Normal';
+		if (!Paths.fileExists('images/notes/$texture/$style' + ifPixel, IMAGE)) style = 'Normal';
 		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
 		if (style != value) {
 			style = value;
