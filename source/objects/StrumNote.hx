@@ -77,7 +77,7 @@ class StrumNote extends FlxSprite {
 			animation.add('down', [5]);
 			animation.add('up', [6]);
 			animation.add('right', [7]);
-			switch (noteData % 4) {
+			switch (noteData % 4) { // Still adding noglow just in case of crashes.
 				case 0:
 					animation.add('static', [0]);
 					animation.add('pressed', [4, 8], 12, false);
