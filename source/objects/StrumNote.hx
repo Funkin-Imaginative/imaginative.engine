@@ -10,7 +10,7 @@ class StrumNote extends FlxSprite {
 	public var direction:Float = 90; //plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false; //plan on doing scroll directions soon -bb
 	public var sustainReduce:Bool = true;
-	public var glowAttachment:Bool = true;
+	private var glowAttachment:Bool = true;
 	
 	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
