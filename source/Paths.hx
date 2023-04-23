@@ -192,8 +192,10 @@ class Paths {
 	}
 
 	inline static public function voices(song:String, ?suffix:String = null):Any {
-		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Voices.$SOUND_EXT'; #else
-		var songKey:String = '${formatToSongPath(song)}/Voices';
+		var hasSuffix:String = '';
+		if (suffix != null) hasSuffix = '-$suffix';
+		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Voices$hasSuffix.$SOUND_EXT'; #else
+		var songKey:String = '${formatToSongPath(song)}/Voices$hasSuffix';
 		var voices = returnSound('songs', songKey);
 		return voices;
 		#end
