@@ -24,7 +24,7 @@ class StrumNote extends FlxSprite {
 	
 	public var style(default, set):String = 'Normal';
 	private function set_style(value:String):String {
-		if (!Paths.fileExists('shared/images/notes/$texture/$style', IMAGE)) style = 'Normal';
+		if (!Paths.fileExists('images/notes/$texture/$style', IMAGE)) style = 'Normal';
 		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
 		if (style != value) {
 			style = value;
@@ -36,7 +36,7 @@ class StrumNote extends FlxSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('assets/shared/images/notes/$texture')) texture = 'Default';
+		if (!Paths.fileExists('images/notes/$texture')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
