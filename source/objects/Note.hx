@@ -75,12 +75,10 @@ class Note extends FlxSprite {
 	public var splashBlue:Float = 0;
 	public var splash = {
 		disable: false,
-		texture
-		colorSwap = {
-			red: 0.0,
-			green: 0.0,
-			blue: 0.0
-		}
+		texture(default, set): 
+		red: 0.0,
+		green: 0.0,
+		blue: 0.0
 	};
 	
 	public var extraOffsets = {
