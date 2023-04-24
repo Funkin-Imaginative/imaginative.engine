@@ -10,13 +10,13 @@ import sys.FileSystem;
 
 import backend.Section;
 
-typedef SwagSong =
-{
+typedef SwagSong = {
 	var song:String;
 	var notes:Array<SwagSection>;
 	var events:Array<Dynamic>;
 	var bpm:Float;
 	var needsVoices:Bool;
+	var songSuffix:String;
 	var speed:Float;
 
 	var boyfriend:String;

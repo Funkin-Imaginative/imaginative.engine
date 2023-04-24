@@ -193,7 +193,7 @@ class Paths {
 
 	inline static public function voices(song:String, ?suffix:String = null):Any {
 		var hasSuffix:String = '';
-		if (suffix != null) hasSuffix = '-$suffix';
+		if (suffix != null || suffix.length > 1) hasSuffix = '-$suffix';
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Voices$hasSuffix.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/Voices$hasSuffix';
 		var voices = returnSound('songs', songKey);
@@ -204,7 +204,7 @@ class Paths {
 	inline static public function voicesSep(song:String, isBF:Bool, ?suffix:String = null):Any {
 		var sepStr:String = isBF ? 'play' : 'oppo';
 		var hasSuffix:String = '';
-		if (suffix != null) hasSuffix = '-$suffix';
+		if (suffix != null || suffix.length > 1) hasSuffix = '-$suffix';
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/${sepStr}Voices$hasSuffix.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/${sepStr}Voices$hasSuffix';
 		var voices = returnSound('songs', songKey);
@@ -214,7 +214,7 @@ class Paths {
 
 	inline static public function inst(song:String, ?suffix:String = null):Any {
 		var hasSuffix:String = '';
-		if (suffix != null) hasSuffix = '-$suffix';
+		if (suffix != null || suffix.length > 1) hasSuffix = '-$suffix';
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/Inst$hasSuffix.$SOUND_EXT'; #else
 		var songKey:String = '${formatToSongPath(song)}/Inst$hasSuffix';
 		var inst = returnSound('songs', songKey);

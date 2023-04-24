@@ -8,7 +8,6 @@ class StrumGlows extends AttachedSprite {
 	public var resetAnim:Float = 0;
 	public var noteData:Int = 0;
 	public var noteType(default, set):String = '';
-	private var colArray:Array<String> = ['left', 'down', 'up', 'right'];
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
@@ -40,6 +39,7 @@ class StrumGlows extends AttachedSprite {
 		antialiasing = ClientPrefs.data.antialiasing;
 		setGraphicSize(Std.int(width * 0.7));
 
+		var colArray:Array<String> = ['left', 'down', 'up', 'right'];
 		animation.addByPrefix('glow', '${colArray[noteData % 4]} glow confirm', 24, false);
 		updateHitbox();
 		playAnim('glow', true);

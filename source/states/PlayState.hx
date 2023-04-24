@@ -266,8 +266,13 @@ class PlayState extends MusicBeatState
 	public var startCallback:Void->Void = null;
 	public var endCallback:Void->Void = null;
 
+	/*private var crashNum:Int = 1;
+	private function breakTracker() {
+		trace('Check: $crashNum');
+		crashNum++;
+	}*/
+
 	override public function create() {
-		//trace('Playback Rate: ' + playbackRate);
 		Paths.clearStoredMemory();
 
 		startCallback = startCountdown;
@@ -469,7 +474,7 @@ class PlayState extends MusicBeatState
 			camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
 		}
 
-		if (dad.curCharacter.startsWith('gf')) {
+		if (dad.curCharacter == gf.curCharacter) {
 			dad.setPosition(GF_X, GF_Y);
 			if (gf != null) gf.visible = false;
 		}
@@ -710,8 +715,7 @@ class PlayState extends MusicBeatState
 		return value;
 	}
 
-	function set_playbackRate(value:Float):Float
-	{
+	function set_playbackRate(value:Float):Float {
 		if (generatedMusic) {
 			if (vocals != null) vocals.pitch = value;
 			FlxG.sound.music.pitch = value;
@@ -810,7 +814,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function getLuaObject(tag:String, text:Bool=true):FlxSprite {
-		#if MODS_ALLOWED
+		#if SCRIPTS_ALLOWED
 		if (modchartSprites.exists(tag)) return modchartSprites.get(tag);
 		if (text && modchartTexts.exists(tag)) return modchartTexts.get(tag);
 		if (variables.exists(tag)) return variables.get(tag);
@@ -866,8 +870,7 @@ class PlayState extends MusicBeatState
 	var dialogueCount:Int = 0;
 	public var psychDialogue:DialogueBoxPsych;
 	//You don't have to add a song, just saying. You can just do 'startDialogue(dialogueJson);' and it should work
-	public function startDialogue(dialogueFile:DialogueFile, ?song:String = null):Void
-	{
+	public function startDialogue(dialogueFile:DialogueFile, ?song:String = null):Void {
 		// TO DO: Make this more flexible, maybe?
 		if (psychDialogue != null) return;
 
@@ -1178,13 +1181,13 @@ class PlayState extends MusicBeatState
 
 		curSong = songData.song;
 
-		if (chartData.needsVoices) vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.chartData.song));
+		if (chartData.needsVoices) vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.chartData.song, PlayState.chartData.songSuffix));
 		else vocals = new FlxSound();
 
 		vocals.pitch = playbackRate;
 		FlxG.sound.list.add(vocals);
 
-		inst = new FlxSound().loadEmbedded(Paths.inst(PlayState.chartData.song));
+		inst = new FlxSound().loadEmbedded(Paths.inst(PlayState.chartData.song, PlayState.chartData.songSuffix));
 		FlxG.sound.list.add(inst);
 
 		notes = new FlxTypedGroup<Note>();
@@ -1476,7 +1479,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		super.update(elapsed);
+		super.update(elapsed); // WHY ARE YOU ONLY BREAKING AFTER THIS?!?!?!
 
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
@@ -1792,8 +1795,7 @@ class PlayState extends MusicBeatState
 
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!
 	function doDeathCheck(?skipHealthCheck:Bool = false) {
-		if (((skipHealthCheck && instakillOnMiss) || health <= 0) && !practiceMode && !isDead)
-		{
+		if (((skipHealthCheck && instakillOnMiss) || health <= 0) && !practiceMode && !isDead) {
 			var ret:Dynamic = callOnLuas('onGameOver', [], false);
 			if (ret != FunkinLua.Function_Stop) {
 				boyfriend.stunned = true;
@@ -1828,17 +1830,13 @@ class PlayState extends MusicBeatState
 	public function checkEventNote() {
 		while(eventNotes.length > 0) {
 			var leStrumTime:Float = eventNotes[0].strumTime;
-			if (Conductor.songPosition < leStrumTime) {
-				return;
-			}
+			if (Conductor.songPosition < leStrumTime) return;
 
 			var value1:String = '';
-			if (eventNotes[0].value1 != null)
-				value1 = eventNotes[0].value1;
+			if (eventNotes[0].value1 != null) value1 = eventNotes[0].value1;
 
 			var value2:String = '';
-			if (eventNotes[0].value2 != null)
-				value2 = eventNotes[0].value2;
+			if (eventNotes[0].value2 != null) value2 = eventNotes[0].value2;
 
 			triggerEventNote(eventNotes[0].event, value1, value2, leStrumTime);
 			eventNotes.shift();
@@ -1864,7 +1862,7 @@ class PlayState extends MusicBeatState
 				if (flValue2 == null || flValue2 <= 0) flValue2 = 0.6;
 
 				if (value != 0) {
-					if (dad.curCharacter.startsWith('gf')) { //Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
+					if (dad.curCharacter == gf.curCharacter) { // Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
 						dad.playAnim('cheer', true);
 						dad.specialAnim = true;
 						dad.heyTimer = flValue2;
@@ -1909,18 +1907,15 @@ class PlayState extends MusicBeatState
 						}
 				}
 
-				if (char != null)
-				{
+				if (char != null) {
 					char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
 
 			case 'Camera Follow Pos':
-				if (camFollow != null)
-				{
+				if (camFollow != null) {
 					camPosForced = false;
-					if (flValue1 != null || flValue2 != null)
-					{
+					if (flValue1 != null || flValue2 != null) {
 						camPosForced = true;
 						if (flValue1 == null) flValue1 = 0;
 						if (flValue2 == null) flValue2 = 0;
@@ -1946,8 +1941,7 @@ class PlayState extends MusicBeatState
 						}
 				}
 
-				if (char != null)
-				{
+				if (char != null) {
 					char.idleSuffix = value2;
 					char.recalculateDanceIdle();
 				}
@@ -1983,9 +1977,7 @@ class PlayState extends MusicBeatState
 				switch(charType) {
 					case 0:
 						if (boyfriend.curCharacter != value2) {
-							if (!boyfriendMap.exists(value2)) {
-								addCharacterToList(value2, charType);
-							}
+							if (!boyfriendMap.exists(value2)) addCharacterToList(value2, charType);
 
 							var lastAlpha:Float = boyfriend.alpha;
 							boyfriend.alpha = 0.00001;
@@ -1997,35 +1989,23 @@ class PlayState extends MusicBeatState
 
 					case 1:
 						if (dad.curCharacter != value2) {
-							if (!dadMap.exists(value2)) {
-								addCharacterToList(value2, charType);
-							}
+							if (!dadMap.exists(value2)) addCharacterToList(value2, charType);
 
-							var wasGf:Bool = dad.curCharacter.startsWith('gf');
+							var wasGf:Bool = (dad.curCharacter == gf.curCharacter);
 							var lastAlpha:Float = dad.alpha;
 							dad.alpha = 0.00001;
 							dad = dadMap.get(value2);
-							if (!dad.curCharacter.startsWith('gf')) {
-								if (wasGf && gf != null) {
-									gf.visible = true;
-								}
-							} else if (gf != null) {
-								gf.visible = false;
-							}
+							if (dad.curCharacter != gf.curCharacter) if (wasGf && gf != null) gf.visible = true;
+							else if (gf != null) gf.visible = false;
 							dad.alpha = lastAlpha;
 							dadIcon.changeIcon(dad.healthIcon);
 						}
 						setOnLuas('dadName', dad.curCharacter);
 
 					case 2:
-						if (gf != null)
-						{
-							if (gf.curCharacter != value2)
-							{
-								if (!gfMap.exists(value2))
-								{
-									addCharacterToList(value2, charType);
-								}
+						if (gf != null) {
+							if (gf.curCharacter != value2) {
+								if (!gfMap.exists(value2)) addCharacterToList(value2, charType);
 
 								var lastAlpha:Float = gf.alpha;
 								gf.alpha = 0.00001;
@@ -2043,8 +2023,7 @@ class PlayState extends MusicBeatState
 					if (flValue2 == null) flValue2 = 0;
 
 					var newValue:Float = chartData.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1) * flValue1;
-					if (flValue2 <= 0)
-						songSpeed = newValue;
+					if (flValue2 <= 0) songSpeed = newValue;
 					else
 						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, flValue2 / playbackRate, {ease: FlxEase.linear, onComplete:
 							function (twn:FlxTween)
@@ -2073,8 +2052,7 @@ class PlayState extends MusicBeatState
 
 		if (chartData.notes[sec] == null) return;
 
-		if (gf != null && chartData.notes[sec].gfSection)
-		{
+		if (gf != null && chartData.notes[sec].gfSection) {
 			camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
 			camFollow.x += gf.cameraPosition[0] + stageCameraOffsets.gf[0];
 			camFollow.y += gf.cameraPosition[1] + stageCameraOffsets.gf[1];
@@ -2871,17 +2849,17 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null) {
+	public function spawnNoteSplash(x:Float, y:Float, noteData:Int, ?note:Note = null) {
 		var skin:String = 'noteSplashes';
 		if (PlayState.chartData.splashSkin != null && PlayState.chartData.splashSkin.length > 0) skin = PlayState.chartData.splashSkin;
 
 		var red:Float = 0;
 		var green:Float = 0;
 		var blue:Float = 0;
-		if (data > -1 && data < ClientPrefs.data.arrowRGB.length) {
-			red = ClientPrefs.data.arrowRGB[data][0] / 255;
-			green = ClientPrefs.data.arrowRGB[data][1] / 255;
-			blue = ClientPrefs.data.arrowRGB[data][2] / 255;
+		if (noteData > -1 && noteData < 4) {
+			red = ClientPrefs.data.arrowRGB[noteData][0] / 255;
+			green = ClientPrefs.data.arrowRGB[noteData][1] / 255;
+			blue = ClientPrefs.data.arrowRGB[noteData][2] / 255;
 			if (note != null) {
 				skin = note.splash.texture;
 				red = note.splash.red;
@@ -2891,7 +2869,7 @@ class PlayState extends MusicBeatState
 		}
 
 		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-		splash.setupNoteSplash(x, y, data, skin, red, green, blue);
+		splash.setupNoteSplash(x, y, noteData, skin, red, green, blue);
 		grpNoteSplashes.add(splash);
 	}
 

@@ -20,8 +20,8 @@
 	
 	<!-- ______________________ ENGINE CUSTOMIZATION ______________________ -->
 
-	<!-- <define name="MODS_ALLOWED" if="desktop" />
-	<define name="SCRIPTS_ALLOWED" if="desktop" /> -->
+	<define name="MODS_ALLOWED" if="desktop" />
+	<!-- <define name="SCRIPTS_ALLOWED" if="desktop" /> -->
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="VIDEOS_ALLOWED" if="desktop" unless="32bits"/>
 	<define name="WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
