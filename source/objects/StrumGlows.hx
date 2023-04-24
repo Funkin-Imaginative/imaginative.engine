@@ -11,7 +11,7 @@ class StrumGlows extends AttachedSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('images/notes/$texture/Colorable')) texture = 'Default';
+		if (!sys.FileSystem.exists('notes/$texture/Colorable')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadGlow();
@@ -35,7 +35,7 @@ class StrumGlows extends AttachedSprite {
 	}
 
 	public function reloadGlow() {
-		frames = Paths.getSparrowAtlas('notes/$texture/Colorable');
+		frames = Paths.getSparrowAtlas('notes/$texture/Colorable', 'shared');
 		antialiasing = ClientPrefs.data.antialiasing;
 		setGraphicSize(Std.int(width * 0.7));
 

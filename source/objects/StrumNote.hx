@@ -36,7 +36,7 @@ class StrumNote extends FlxSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('images/notes/$texture')) texture = 'Default';
+		if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -65,10 +65,10 @@ class StrumNote extends FlxSprite {
 		if (animation.curAnim != null) lastAnim = animation.curAnim.name;
 
 		if (isPixel) {
-			loadGraphic(Paths.image('notes/$texture/$style-pixel'));
+			loadGraphic(Paths.image('notes/$texture/$style-pixel', 'shared'));
 			width /= 4;
 			height /= 5;
-			loadGraphic(Paths.image('notes/$texture/$style-pixel'), true, Math.floor(width), Math.floor(height));
+			loadGraphic(Paths.image('notes/$texture/$style-pixel', 'shared'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * pixelScale));
@@ -100,7 +100,7 @@ class StrumNote extends FlxSprite {
 					animation.add('noglow', [3]);
 			}
 		} else {
-			frames = Paths.getSparrowAtlas('notes/$texture/$style');
+			frames = Paths.getSparrowAtlas('notes/$texture/$style', 'shared');
 			animation.addByPrefix('left', 'arrowLEFT');
 			animation.addByPrefix('down', 'arrowDOWN');
 			animation.addByPrefix('up', 'arrowUP');

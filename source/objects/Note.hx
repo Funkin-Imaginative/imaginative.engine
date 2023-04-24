@@ -101,19 +101,19 @@ class Note extends FlxSprite {
 	private function set_style(value:String):String {
 		var ifPixel:String = '';
 		if (isPixel) ifPixel = '-pixel';
-		if (!Paths.fileExists('images/notes/$texture/$style' + ifPixel, IMAGE)) style = 'Normal';
+		if (!Paths.fileExists('images/notes/$texture/$style$ifPixel', IMAGE, false, 'shared')) style = 'Normal';
 		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
 		if (style != value) {
 			style = value;
-			reloadNote('', texture);
+			reloadNote(texture);
 		}
 		return value;
 	}
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('images/notes/$texture')) texture = 'Default';
-		if (texture != value) reloadNote('', value);
+		if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
+		if (texture != value) reloadNote(value);
 		return value;
 	}
 	
@@ -252,10 +252,8 @@ class Note extends FlxSprite {
 	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
 	var lastNoteScaleToo:Float = 1;
 	public var originalHeightForCalcs:Float = 6;
-	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = '') {
-		if (prefix == null) prefix = '';
+	function reloadNote(?texture:String = '') {
 		if (texture == null) texture = '';
-		if (suffix == null) suffix = '';
 
 		var skin:String = texture;
 		if (texture.length < 1) {
@@ -266,23 +264,19 @@ class Note extends FlxSprite {
 		var animName:String = null;
 		if (animation.curAnim != null) animName = animation.curAnim.name;
 
-		var arraySkin:Array<String> = skin.split('/');
-		arraySkin[arraySkin.length-1] = prefix + arraySkin[arraySkin.length-1] + suffix;
-
 		var lastScaleY:Float = scale.y;
-		var blahblah:String = arraySkin.join('/');
 		if (isPixel) {
 			if (isSustainNote) {
-				loadGraphic(Paths.image('notes/$blahblah/$style-pixelEnds'));
+				loadGraphic(Paths.image('notes/$skin/$style-pixelEnds', 'shared'));
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.image('notes/$blahblah/$style-pixelEnds'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('notes/$skin/$style-pixelEnds', 'shared'), true, Math.floor(width), Math.floor(height));
 			} else {
-				loadGraphic(Paths.image('notes/$blahblah/$style'));
+				loadGraphic(Paths.image('notes/$skin/$style', 'shared'));
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.image('notes/$blahblah/$style'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('notes/$skin/$style', 'shared'), true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * pixelScale));
 			loadPixelNoteAnims();
@@ -294,7 +288,7 @@ class Note extends FlxSprite {
 				extraOffsets.x -= lastNoteOffsetXForPixelAutoAdjusting;
 			}
 		} else {
-			frames = Paths.getSparrowAtlas(blahblah);
+			frames = Paths.getSparrowAtlas('notes/$skin/$style', 'shared');
 			loadNoteAnims();
 			antialiasing = ClientPrefs.data.antialiasing;
 		}
