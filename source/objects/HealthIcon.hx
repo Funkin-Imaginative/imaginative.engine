@@ -17,16 +17,16 @@ typedef IconJson = {
 class HealthIcon extends FlxSprite {
 	public var sprTracker:FlxSprite;
 	private var isOldIcon:Bool = false;
-	private var char:String = ''; // Uh?
+	public var iconName:String = ''; // Uh?
 
 	public var hasLosing:Bool = true;
 	public var hasWinning:Bool = false;
 	public var isAnimated:Bool = false;
 
-	public function new(char:String = 'bf', ?isPlaya:Bool = false) {
+	public function new(icon:String = 'bf', ?isPlaya:Bool = false) {
 		super();
-		isOldIcon = (char == 'bf-old');
-		changeIcon(char);
+		isOldIcon = (icon == 'bf-old');
+		changeIcon(icon);
 		flipX = isPlaya;
 		scrollFactor.set();
 	}
@@ -53,7 +53,7 @@ class HealthIcon extends FlxSprite {
 
 	private var iconOffsets:Array<Float> = [0, 0];
 	public function changeIcon(char:String) {
-		if (this.char != char) {
+		if (iconName != char) {
 			var name:String = char;
 			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
 			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
@@ -88,7 +88,7 @@ class HealthIcon extends FlxSprite {
 			updateHitbox();
 
 			playAnim('Neutral', true);
-			this.char = char;
+			iconName = char;
 			antialiasing = ClientPrefs.data.antialiasing;
 			antialiasing = antialiasing;
 		}
