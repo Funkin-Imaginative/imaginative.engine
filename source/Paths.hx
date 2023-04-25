@@ -250,6 +250,23 @@ class Paths {
 		return 'assets/fonts/$key';
 	}
 
+	inline static public function jsonParse(key:String, ?library:String = 'preload', ?ifNull:Dynamic) {
+		var rawJson:String = null;
+		var path:String = getLibraryPath(key, library);
+		#if MODS_ALLOWED
+		var modPath:String = modFolders(key);
+		if (FileSystem.exists(modPath)) rawJson = File.getContent(modPath);
+		else if (FileSystem.exists(path)) rawJson = File.getContent(path);
+		#else
+		if (Assets.exists(path)) rawJson = Assets.getText(path);
+		#end
+		
+		var parsedJson:Dynamic = null;
+		if (rawJson == null) parsedJson = ifNull;
+		else parsedJson = Json.parse(rawJson);
+		return cast parsedJson;
+	}
+
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String) {
 		#if MODS_ALLOWED if (FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key))) return true; #end
 
