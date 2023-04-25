@@ -47,7 +47,7 @@ class HealthIcon extends FlxSprite {
 			hasWinning: false,
 			isAnimated: false,
 
-			antialiasing: ClientPrefs.data.antialiasing
+			antialiasing: PlayState.isPixelStage ? false : ClientPrefs.data.antialiasing
 		};
 	}
 
@@ -55,21 +55,10 @@ class HealthIcon extends FlxSprite {
 	public function changeIcon(char:String) {
 		if (this.char != char) {
 			var name:String = char;
-			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
+			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
 			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
 			
-			var rawJson:String = null;
-			var path:String = Paths.getPreloadPath('images/icons/$name.json');
-			#if MODS_ALLOWED
-			var modPath:String = Paths.modFolders('images/icons/$name.json');
-			if (FileSystem.exists(modPath)) rawJson = File.getContent(modPath);
-			else if (FileSystem.exists(path)) rawJson = File.getContent(path);
-			#else
-			if (Assets.exists(path)) rawJson = Assets.getText(path);
-			#end
-			var iconJson:IconJson = null;
-			if (rawJson == null) iconJson = dummyJson();
-			else iconJson = Json.parse(rawJson);
+			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', 'preload', dummyJson());
 			
 			hasLosing = iconJson.hasLosing;
 			hasWinning = iconJson.hasWinning;
