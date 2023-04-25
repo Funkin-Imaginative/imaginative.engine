@@ -25,7 +25,7 @@ typedef DetailArray = {
 class HealthIcon extends FlxSprite {
 	public var sprTracker:FlxSprite;
 	private var isOldIcon:Bool = false;
-	public var iconName:String = ''; // Uh?
+	public var iconName:String = 'face';
 
 	public var hasLosing:Bool = true;
 	public var hasWinning:Bool = false;
