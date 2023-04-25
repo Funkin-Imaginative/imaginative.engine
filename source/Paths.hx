@@ -239,18 +239,8 @@ class Paths {
 		#end
 		return Assets.getText(getPath(key, TEXT));
 	}
-
-	inline static public function font(key:String) {
-		#if MODS_ALLOWED
-		var file:String = modsFont(key);
-		if (FileSystem.exists(file)) {
-			return file;
-		}
-		#end
-		return 'assets/fonts/$key';
-	}
-
-	inline static public function jsonParse(key:String, ?library:String = 'preload', ?ifNull:Dynamic) {
+	
+	static public function jsonParse(key:String, ?library:String = 'preload', ?ifNull:Dynamic) {
 		var rawJson:String = null;
 		var path:String = getLibraryPath(key, library);
 		#if MODS_ALLOWED
@@ -265,6 +255,16 @@ class Paths {
 		if (rawJson == null) parsedJson = ifNull;
 		else parsedJson = Json.parse(rawJson);
 		return cast parsedJson;
+	}
+
+	inline static public function font(key:String) {
+		#if MODS_ALLOWED
+		var file:String = modsFont(key);
+		if (FileSystem.exists(file)) {
+			return file;
+		}
+		#end
+		return 'assets/fonts/$key';
 	}
 
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String) {
