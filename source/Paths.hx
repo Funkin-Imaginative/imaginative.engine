@@ -201,7 +201,7 @@ class Paths {
 		#end
 	}
 	
-	inline static public function voicesSep(song:String, isBF:Bool, ?suffix:String = null):Any {
+	inline static public function voicesSep(song:String, ?isBF:Bool = null, ?suffix:String = null):Any {
 		var sepStr:String = null
 		var hasSuffix:String = '';
 		if (suffix != null || suffix.length > 1) hasSuffix = '-$suffix';
