@@ -202,7 +202,7 @@ class Paths {
 	}
 	
 	inline static public function voicesSep(song:String, isBF:Bool, ?suffix:String = null):Any {
-		var sepStr:String = isBF ? 'play' : 'oppo';
+		var sepStr:String = null
 		var hasSuffix:String = '';
 		if (suffix != null || suffix.length > 1) hasSuffix = '-$suffix';
 		#if html5 return 'songs:assets/songs/${formatToSongPath(song)}/${sepStr}Voices$hasSuffix.$SOUND_EXT'; #else
