@@ -16,7 +16,7 @@ typedef IconJson = {
 }
 
 typedef DetailArray = {
-	var stateName:String
+	var stateName:String;
 	var fps:Int;
 	var loop:Bool;
 	var offsets:Array<Int>;
@@ -117,6 +117,4 @@ class HealthIcon extends FlxSprite {
 		if (isAnimated) {}
 		animation.play(anim, force, reversed, startFrame);
 	}
-
-	public function getCharacter():String return iconName; // Why does this exist???
 }
