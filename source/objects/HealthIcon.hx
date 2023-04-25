@@ -1,25 +1,21 @@
 package objects;
 
-#if MODS_ALLOWED
-import sys.io.File;
-import sys.FileSystem;
-#else import openfl.utils.Assets; #end
-import haxe.Json;
-
 typedef IconJson = {
-	var hasLosing:Bool;
-	var hasWinning:Bool;
-
 	var scale:Float;
-	var stateDetails:Array<DetailArray>;
+	var stateDetails:Array<StateInfo>;
 	var antialiasing:Bool;
 }
 
-typedef DetailArray = {
-	var stateName:String;
+typedef StateInfo = {
+	// Static
+	var index:Int;
+	// Animated
+	var anim:String;
 	var fps:Int;
 	var loop:Bool;
-	var offsets:Array<Int>;
+	// General
+	var name:String;
+	var offsets:Array<Float>;
 }
 
 class HealthIcon extends FlxSprite {
@@ -30,9 +26,13 @@ class HealthIcon extends FlxSprite {
 	public var hasLosing:Bool = true;
 	public var hasWinning:Bool = false;
 	public var isAnimated:Bool = false;
+	public var iconScale:Float = 1;
+	public var animOffsets:Map<String, Array<Dynamic>>;
+	public var animsArray:Array<StateInfo> = [];
 
 	public function new(icon:String = 'bf', ?isPlaya:Bool = false) {
 		super();
+		animOffsets = new Map<String, Array<Dynamic>>();
 		isOldIcon = (icon == 'bf-old');
 		changeIcon(icon);
 		flipX = isPlaya;
@@ -49,53 +49,126 @@ class HealthIcon extends FlxSprite {
 		else changeIcon('bf');
 	}
 
-	private static function dummyJson():IconJson {
-		return {
-			hasLosing: true,
-			hasWinning: false,
-
+	private static function dummyJson(?isAnimated:Bool):IconJson {
+		var antialiasing:Bool = PlayState.isPixelStage ? false : ClientPrefs.data.antialiasing;
+		return if (isAnimated) {{
 			scale: 1,
-			stateDetails: {
-				fps: 24;
-				loop: false
-				offsets: [0.0, 0.0];
-			},
-			antialiasing: PlayState.isPixelStage ? false : ClientPrefs.data.antialiasing
-		};
+			stateDetails: [
+				{
+					index: -1,
+					
+					anim: 'Neutral',
+					fps: 24,
+					loop: false,
+					
+					name: 'Neutral',
+					offsets: [0, 0]
+				},
+				{
+					index: -1,
+					
+					anim: 'Losing',
+					fps: 24,
+					loop: false,
+					
+					name: 'Losing',
+					offsets: [0, 0]
+				},
+				{
+					index: -1,
+					
+					anim: 'Winning',
+					fps: 24,
+					loop: false,
+					
+					name: 'Winning',
+					offsets: [0, 0]
+				}
+			],
+			antialiasing: antialiasing
+		}} else {{
+			scale: 1,
+			stateDetails: [
+				{
+					index: 0,
+					
+					anim: '',
+					fps: 0,
+					loop: false,
+					
+					name: 'Neutral',
+					offsets: [0, 0]
+				},
+				{
+					index: 1,
+					
+					anim: '',
+					fps: 0,
+					loop: false,
+					
+					name: 'Losing',
+					offsets: [0, 0]
+				},
+				{
+					index: 2,
+					
+					anim: '',
+					fps: 0,
+					loop: false,
+					
+					name: 'Winning',
+					offsets: [0, 0]
+				}
+			],
+			antialiasing: antialiasing
+		}};
 	}
 
-	private var iconOffsets:Array<Float> = [0, 0];
+	private var staleOffsets:Array<Float> = [0, 0];
 	public function changeIcon(icon:String) {
 		if (iconName != icon) {
 			var name:String = icon;
 			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = icon;
 			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
-			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', dummyJson(), 'preload');
-
-			hasLosing = iconJson.hasLosing;
-			hasWinning = iconJson.hasWinning;
+			
 			isAnimated = Paths.fileExists('images/icons/$name.xml', IMAGE);
-
+			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', dummyJson(isAnimated), 'preload');
+			iconScale = iconJson.scale;
+			animsArray = iconJson.stateDetails;
+			
 			var file:Dynamic = Paths.image('icons/$name');
+			if (animsArray != null && animsArray.length > 0) {
+				for (anim in animsArray) {
+					hasLosing = (anim.name == 'Losing');
+					hasWinning = (anim.name == 'Winning');
+				}
+			}
 			loadGraphic(file);
 			if (isAnimated) {
 				frames = Paths.getSparrowAtlas(name);
-				animation.addByPrefix('Neutral', 'Neutral', 24, false);
-				if (hasLosing) animation.addByPrefix('Losing', 'Losing', 24, false);
-				if (hasWinning) animation.addByPrefix('Winning', 'Winning', 24, false);
 			} else {
 				var amount:Int = 2;
 				if (hasLosing && hasWinning) amount++;
 				else if (!hasLosing && !hasWinning) --amount;
 				
 				loadGraphic(file, true, Math.floor(width / amount), Math.floor(height));
-				iconOffsets[0] = (width - 150) / amount;
-				iconOffsets[1] = (width - 150) / amount;
-				animation.add('Neutral', [0], 0, false);
-				if (hasLosing) animation.add('Losing', [1], 0, false);
-				if (hasWinning) animation.add('Winning', [hasLosing ? 2 : 1], 0, false);
+				staleOffsets[0] = (width - 150) / amount;
+				staleOffsets[1] = (width - 150) / amount;
+			}
+			
+			if (animsArray != null && animsArray.length > 0) {
+				for (anim in animsArray) {
+					var animAnim:String = anim.anim;
+					var animName:String = anim.name;
+					var animFps:Int = anim.fps;
+					var animLoop:Bool = !!anim.loop; //Bruh
+					if (isAnimated) animation.addByPrefix(animAnim, animName, animFps, animLoop);
+					else animation.add(animName, [anim.index], animFps, animLoop);
+					if (anim.offsets != null && anim.offsets.length > 1) addOffset(animAnim, anim.offsets[0], anim.offsets[1]);
+				}
 			}
 
+			setGraphicSize(Std.int(width * iconScale));
 			updateHitbox();
 			playAnim('Neutral', true);
 			iconName = icon;
@@ -105,16 +178,25 @@ class HealthIcon extends FlxSprite {
 
 	override function updateHitbox() {
 		super.updateHitbox();
-		if (isAnimated) {
-			
-		} else {
-			offset.x = iconOffsets[0];
-			offset.y = iconOffsets[1];
+		if (isAnimated) {} else {
+			offset.x = staleOffsets[0];
+			offset.y = staleOffsets[1];
 		}
 	}
 
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
+		animOffsets[name] = [x, y];
+	}
+
 	public function playAnim(anim:String, ?force:Bool = false, ?reversed:Bool = false, ?startFrame:Int = 0) {
-		if (isAnimated) {}
+		if ((!hasLosing && anim == 'Losing') || (!hasWinning && anim == 'Winning')) anim = 'Neutral';
 		animation.play(anim, force, reversed, startFrame);
+		var daOffset = animOffsets.get(anim);
+		if (!isAnimated) {
+			daOffset[0] + staleOffsets[0];
+			daOffset[1] + staleOffsets[1];
+		}
+		if (animOffsets.exists(anim)) offset.set(daOffset[0], daOffset[1]);
+		else offset.set(0, 0);
 	}
 }

@@ -1,10 +1,7 @@
 package objects;
 
 import shaders.ColorizeRGB;
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
+#if sys import sys.FileSystem; #end
 
 class StrumNote extends FlxSprite {
 	private var rgbColoring:ColorizeRGB;
@@ -27,7 +24,9 @@ class StrumNote extends FlxSprite {
 	
 	public var style(default, set):String = 'Normal';
 	private function set_style(value:String):String {
-		if (!Paths.fileExists('images/notes/$texture/$style', IMAGE, false, 'shared')) style = 'Normal';
+		var ifPixel:String = '';
+		if (isPixel) ifPixel = '-pixel';
+		if (!Paths.fileExists('images/notes/$texture/$style$ifPixel', IMAGE, false, 'shared')) style = 'Normal';
 		if (style != 'Normal' || style != 'Colorable') style = 'Normal';
 		if (style != value) {
 			style = value;
@@ -36,10 +35,17 @@ class StrumNote extends FlxSprite {
 		glowAttachment = (style == 'Colorable' && !isPixel);
 		return value;
 	}
+
+	private function fuckStyle(key:String, pixelSuffix:String) {
+		return Paths.fileExists('$key/Normal$pixelSuffix', IMAGE, false, 'shared') || Paths.fileExists('$key/Colorable$pixelSuffix', IMAGE, false, 'shared');
+	}
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!FileSystem.exists('notes/$texture')) texture = 'Default';
+		var ifPixel:String = '';
+		if (isPixel) ifPixel = '-pixel';
+		// if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
+		if (!fuckStyle('images/notes/$texture', ifPixel)) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -52,8 +58,8 @@ class StrumNote extends FlxSprite {
 		shader = rgbColoring.shader;
 		noteData = leData;
 		this.noteData = leData;
-		this.isPixel = pixelStuff[0];
-		this.pixelScale = pixelStuff[1];
+		isPixel = pixelStuff[0];
+		pixelScale = pixelStuff[1];
 		super(x, y);
 
 		var skin:String = 'Default';
@@ -65,7 +71,7 @@ class StrumNote extends FlxSprite {
 
 	public function reloadStrum() {
 		var lastAnim:String = null;
-		if (animation.curAnim != null) lastAnim = animation.curAnim.name;
+		if (animation.curAnim != null || lastAnim != null) lastAnim = animation.curAnim.name;
 
 		if (isPixel) {
 			loadGraphic(Paths.image('notes/$texture/$style-pixel', 'shared'));
@@ -76,10 +82,10 @@ class StrumNote extends FlxSprite {
 			antialiasing = false;
 			setGraphicSize(Std.int(width * pixelScale));
 
-			animation.add('left', [4]);
-			animation.add('down', [5]);
-			animation.add('up', [6]);
-			animation.add('right', [7]);
+			animation.add('left static', [4]);
+			animation.add('down static', [5]);
+			animation.add('up static', [6]);
+			animation.add('right static', [7]);
 			switch (noteData % 4) { // Still adding noglow just in case of crashes.
 				case 0:
 					animation.add('static', [0]);
@@ -103,16 +109,18 @@ class StrumNote extends FlxSprite {
 					animation.add('noglow', [3]);
 			}
 		} else {
+			var colArray:Array<String> = ['left', 'down', 'up', 'right'];
 			frames = Paths.getSparrowAtlas('notes/$texture/$style', 'shared');
 			trace('Yes');
-			animation.addByPrefix('left', 'arrowLEFT');
-			animation.addByPrefix('down', 'arrowDOWN');
-			animation.addByPrefix('up', 'arrowUP');
-			animation.addByPrefix('right', 'arrowRIGHT');
+			animation.addByPrefix('${colArray[noteData % 4]} static', 'arrow${colArray[noteData % 4].toUpperCase}');
 
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * 0.7));
 
+			/*animation.addByPrefix('static', 'arrow${colArray[noteData % 4].toUpperCase}');
+			animation.addByPrefix('pressed', '${colArray[noteData % 4]} press', 24, false);
+			animation.addByPrefix('confirm', '${colArray[noteData % 4]} confirm', 24, false);
+			animation.addByPrefix('noglow', '${colArray[noteData % 4]} strum confirm', 24, false);*/
 			switch (noteData % 4) {
 				case 0:
 					animation.addByPrefix('static', 'arrowLEFT');
@@ -140,8 +148,11 @@ class StrumNote extends FlxSprite {
 		if (lastAnim != null) playAnim(lastAnim, true);
 	}
 
-	public function postAddedToGroup() {
+	public function postAddedToGroup(player:Int) {
 		playAnim('static');
+		x += Note.swagWidth * noteData;
+		x += 50;
+		x += ((FlxG.width / 2) * player);
 		ID = noteData;
 	}
 

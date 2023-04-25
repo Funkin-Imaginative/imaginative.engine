@@ -17,8 +17,7 @@ import states.editors.ChartingState;
 
 import objects.*;
 
-class EditorPlayState extends MusicBeatState
-{
+class EditorPlayState extends MusicBeatState {
 	// Yes, this is mostly a copy of PlayState, it's kinda dumb to make a direct copy of it but... ehhh
 	private var strumLine:FlxSprite;
 	private var comboGroup:FlxTypedGroup<FlxSprite>;
@@ -86,13 +85,8 @@ class EditorPlayState extends MusicBeatState
 		playerStrums = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 
-		generateStaticArrows(0);
-		generateStaticArrows(1);
-		/*if(ClientPrefs.data.middleScroll) {
-			opponentStrums.forEachAlive(function (note:StrumNote) {
-				note.visible = false;
-			});
-		}*/
+		generateStaticArrows(false);
+		generateStaticArrows(true);
 		
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 		add(grpNoteSplashes);
@@ -101,10 +95,8 @@ class EditorPlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.0;
 		
-		if (PlayState.chartData.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.chartData.song));
-		else
-			vocals = new FlxSound();
+		if (PlayState.chartData.needsVoices) vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.chartData.song, null, PlayState.chartData.songSuffix));
+		else vocals = new FlxSound();
 
 		generateSong(PlayState.chartData.song);
 		#if (SCRIPTS_ALLOWED && MODS_ALLOWED)
@@ -188,7 +180,7 @@ class EditorPlayState extends MusicBeatState
 	var startingSong:Bool = true;
 	private function generateSong(dataPath:String):Void
 	{
-		FlxG.sound.playMusic(Paths.inst(PlayState.chartData.song), 0, false);
+		FlxG.sound.playMusic(Paths.inst(PlayState.chartData.song, PlayState.chartData.songSuffix), 0, false);
 		FlxG.sound.music.pause();
 		FlxG.sound.music.onComplete = endSong;
 		vocals.pause();
@@ -950,39 +942,29 @@ class EditorPlayState extends MusicBeatState
 		});
 	}
 
-	private function generateStaticArrows(player:Int):Void
-	{
-		for (i in 0...4)
-		{
-			// FlxG.log.add(i);
+	private function generateStaticArrows(player:Bool):Void {
+		for (i in 0...4) {
 			var targetAlpha:Float = 1;
-			if (player < 1)
-			{
-				if(!ClientPrefs.data.showOpponentStrums) targetAlpha = 0;
-				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
+			if (!player) {
+				if (!ClientPrefs.data.showOpponentStrums) targetAlpha = 0;
+				else if (ClientPrefs.data.middleScroll) targetAlpha = 0.35;
 			}
 
 			var babyArrow:StrumNote = new StrumNote(ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X, strumLine.y, i, [PlayState.isPixelStage, PlayState.daPixelZoom]);
+			babyArrow.downScroll = ClientPrefs.data.downScroll;
 			babyArrow.alpha = targetAlpha;
 
-			if (player == 1)
-			{
-				playerStrums.add(babyArrow);
-			}
-			else
-			{
-				if(ClientPrefs.data.middleScroll)
-				{
-					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
-						babyArrow.x += FlxG.width / 2 + 25;
-					}
+			if (player) playerStrums.add(babyArrow);
+			else {
+				if (ClientPrefs.data.middleScroll) {
+					babyArrow.x += 310; //Up and Right
+					if (i > 1) babyArrow.x += FlxG.width / 2 + 25;
 				}
 				opponentStrums.add(babyArrow);
 			}
 
 			strumLineNotes.add(babyArrow);
-			babyArrow.postAddedToGroup();
+			babyArrow.postAddedToGroup(player ? 1 : 0);
 		}
 	}
 

@@ -82,12 +82,9 @@ class CreditsState extends MusicBeatState {
 			['kawaisprite',			'kawaisprite',		"Composer of Friday Night Funkin'",								'https://twitter.com/kawaisprite',		'378FC7']
 		];
 		
-		for (i in defaultList) {
-			creditsStuff.push(i);
-		}
+		for (i in defaultList) creditsStuff.push(i);
 	
-		for (i in 0...creditsStuff.length)
-		{
+		for (i in 0...creditsStuff.length) {
 			var isSelectable:Bool = !unselectableCheck(i);
 			var optionText:Alphabet = new Alphabet(FlxG.width / 2, 300, creditsStuff[i][0], !isSelectable);
 			optionText.isMenuItem = true;

@@ -66,7 +66,6 @@ class Note extends FlxSprite {
 	public static var swagWidth:Float = 160 * 0.7;
 	
 	private var colArray:Array<String> = ['left', 'down', 'up', 'right'];
-	// private var pixelInt:Array<Int> = [0, 1, 2, 3]; // Why does this exist?
 	
 	public var splash = {
 		disable: false,
@@ -109,10 +108,17 @@ class Note extends FlxSprite {
 		}
 		return value;
 	}
+
+	private function fuckStyle(key:String, pixelSuffix:String) {
+		return Paths.fileExists('$key/Normal$pixelSuffix', IMAGE, false, 'shared') || Paths.fileExists('$key/Colorable$pixelSuffix', IMAGE, false, 'shared');
+	}
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
+		var ifPixel:String = '';
+		if (isPixel) ifPixel = '-pixel';
+		// if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
+		if (!fuckStyle('images/notes/$texture', ifPixel)) texture = 'Default';
 		if (texture != value) reloadNote(value);
 		return value;
 	}
@@ -137,13 +143,13 @@ class Note extends FlxSprite {
 
 	private function set_animToPlay(value:String):String {
 		var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
-		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData];
+		if (value == 'loadDefaults' || value == null) value = singAnims[noteData];
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
 		var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
-		if (value == 'loadDefaults' || value == null) value = singAnims[this.noteData] + 'miss';
+		if (value == 'loadDefaults' || value == null) value = singAnims[noteData] + 'miss';
 		return value;
 	}
 
@@ -201,13 +207,12 @@ class Note extends FlxSprite {
 		this.noteData = noteData;
 
 		if (noteData > -1) {
-			texture = '';
 			rgbColoring = new ColorizeRGB();
 			shader = rgbColoring.shader;
 			x += swagWidth * (noteData);
 			if (!isSustainNote && (noteData > -1 && noteData < 4)) { // Doing this 'if' check to fix the warnings on Senpai songs
 				var anim:String = '';
-				anim = colArray[noteData % 4] + "Scroll";
+				anim = colArray[noteData % 4] + 'Scroll';
 				animation.play(anim);
 			}
 		}
@@ -220,7 +225,6 @@ class Note extends FlxSprite {
 			if (ClientPrefs.data.downScroll) flipY = true;
 
 			extraOffsets.x += width / 2;
-			copyFromStrum.angle = false;
 
 			animation.play(colArray[noteData % 4] + 'holdend');
 
@@ -307,11 +311,11 @@ class Note extends FlxSprite {
 	}
 
 	function loadNoteAnims() {
-		animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
-		trace(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
+		animation.addByPrefix(colArray[noteData % 4] + 'Scroll', colArray[noteData % 4] + ' static');
+		trace(colArray[noteData % 4] + 'Scroll', colArray[noteData % 4] + ' static');
 		if (isSustainNote) {
-			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end');
-			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece');
+			animation.addByPrefix(colArray[noteData % 4] + 'holdend', colArray[noteData % 4] + ' hold end');
+			animation.addByPrefix(colArray[noteData % 4] + 'hold', colArray[noteData % 4] + ' hold piece');
 		}
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
@@ -319,10 +323,10 @@ class Note extends FlxSprite {
 
 	function loadPixelNoteAnims() {
 		if (isSustainNote) {
-			animation.add(colArray[noteData] + 'holdend', [noteData + 4]);
-			animation.add(colArray[noteData] + 'hold', [noteData]);
+			animation.add(colArray[noteData % 4] + 'holdend', [noteData + 4]);
+			animation.add(colArray[noteData % 4] + 'hold', [noteData]);
 		} else {
-			animation.add(colArray[noteData] + 'Scroll', [noteData + 4]);
+			animation.add(colArray[noteData % 4] + 'Scroll', [noteData + 4]);
 		}
 	}
 

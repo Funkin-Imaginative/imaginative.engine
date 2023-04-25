@@ -47,7 +47,7 @@ class Character extends FlxSprite {
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
 
-	public var colorTween:FlxTween;
+	public var colorTween:FlxTween; // Why tf does this need to exist????????
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
@@ -82,7 +82,6 @@ class Character extends FlxSprite {
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 		antialiasing = ClientPrefs.data.antialiasing;
-		var library:String = null;
 		switch (curCharacter) {
 			//case 'your character name in case you want to hardcode them instead':
 			default:
@@ -147,7 +146,7 @@ class Character extends FlxSprite {
 						var animFps:Int = anim.fps;
 						var animLoop:Bool = !!anim.loop; //Bruh
 						var animIndices:Array<Int> = anim.indices;
-						if (animIndices != null && animIndices.length > 0) animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+						if (animIndices != null && animIndices.length > 0) animation.addByIndices(animAnim, animName, animIndices, '', animFps, animLoop);
 						else animation.addByPrefix(animAnim, animName, animFps, animLoop);
 
 						if (anim.offsets != null && anim.offsets.length > 1) addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
@@ -167,7 +166,7 @@ class Character extends FlxSprite {
 			case 'pico-speaker':
 				skipDance = true;
 				loadMappedAnims();
-				playAnim("shoot1");
+				playAnim('shoot1');
 		}
 	}
 
@@ -176,7 +175,7 @@ class Character extends FlxSprite {
 			if (heyTimer > 0) {
 				heyTimer -= elapsed * PlayState.instance.playbackRate;
 				if (heyTimer <= 0) {
-					if (specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer') {
+					if (specialAnim && (animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')) {
 						specialAnim = false;
 						dance();
 					}

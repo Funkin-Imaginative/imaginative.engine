@@ -1361,7 +1361,7 @@ class PlayState extends MusicBeatState
 			}
 
 			strumLineNotes.add(babyArrow);
-			babyArrow.postAddedToGroup();
+			babyArrow.postAddedToGroup(player ? 1 : 0);
 		}
 	}
 
@@ -1626,20 +1626,19 @@ class PlayState extends MusicBeatState
 						strumAngle += daNote.extraOffsets.angle;
 						strumAlpha *= daNote.multAlpha;
 
-						if (strumScroll) //Downscroll
-						{
+						if (strumScroll) { //Downscroll
 							//daNote.y = (strumY + 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed);
 							daNote.distance = (0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed * daNote.multSpeed);
-						}
-						else //Upscroll
-						{
+						} else { //Upscroll
 							//daNote.y = (strumY - 0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed);
 							daNote.distance = (-0.45 * (Conductor.songPosition - daNote.strumTime) * songSpeed * daNote.multSpeed);
 						}
 
 						var angleDir = strumDirection * Math.PI / 180;
-						if (daNote.copyFromStrum.angle)
-							daNote.angle = strumDirection - 90 + strumAngle;
+						if (daNote.copyFromStrum.angle) {
+							if (daNote.isSustainNote) daNote.angle = strumDirection - 90
+							else daNote.angle = strumAngle;
+						}
 
 						if (daNote.copyFromStrum.alpha)
 							daNote.alpha = strumAlpha;
@@ -1655,11 +1654,8 @@ class PlayState extends MusicBeatState
 								if (daNote.animation.curAnim.name.endsWith('end')) {
 									daNote.y += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
 									daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
-									if (daNote.isPixel) {
-										daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * daNote.pixelScale;
-									} else {
-										daNote.y -= 19;
-									}
+									if (daNote.isPixel) daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * daNote.pixelScale;
+									else daNote.y -= 19;
 								}
 								daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
 								daNote.y += 27.5 * ((chartData.bpm / 100) - 1) * (songSpeed - 1);
@@ -1685,21 +1681,16 @@ class PlayState extends MusicBeatState
 						if (strumGroup.members[daNote.noteData].sustainReduce && daNote.isSustainNote && (daNote.mustPress || !daNote.ignoreNote) &&
 							(!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
 						{
-							if (strumScroll)
-							{
-								if (daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center)
-								{
+							if (strumScroll) {
+								if (daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center && daNote.distance > 0) {
 									var swagRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
 									swagRect.height = (center - daNote.y) / daNote.scale.y;
 									swagRect.y = daNote.frameHeight - swagRect.height;
 
 									daNote.clipRect = swagRect;
 								}
-							}
-							else
-							{
-								if (daNote.y + daNote.offset.y * daNote.scale.y <= center)
-								{
+							} else {
+								if (daNote.y + daNote.offset.y * daNote.scale.y <= center && daNote.distance < 0) {
 									var swagRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
 									swagRect.y = (center - daNote.y) / daNote.scale.y;
 									swagRect.height -= swagRect.y;
@@ -1710,8 +1701,7 @@ class PlayState extends MusicBeatState
 						}
 
 						// Kill extremely late notes and cause misses
-						if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
-						{
+						if (Conductor.songPosition > noteKillOffset + daNote.strumTime) {
 							if (daNote.mustPress && !cpuControlled &&!daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit)) {
 								noteMiss(daNote);
 							}
@@ -2530,8 +2520,7 @@ class PlayState extends MusicBeatState
 			}
 
 			var spr:StrumNote = playerStrums.members[key];
-			if (strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
-			{
+			if (strumsBlocked[key] != true && spr != null && (spr.animation.curAnim.name != 'confirm' || spr.animation.curAnim.name != 'noglow')) {
 				spr.playAnim('pressed');
 				spr.resetAnim = 0;
 			}
@@ -2824,6 +2813,11 @@ class PlayState extends MusicBeatState
 			} else {
 				var spr = playerStrums.members[note.noteData];
 				if (spr != null) spr.playAnim('confirm', true);
+				var sprGlows:StrumGlows = playerGlows.members[note.noteData];
+				if (spr.glowAttachment && sprGlows != null) {
+					sprGlows.copyVisible = true;
+					sprGlows.playAnim('glow', true);
+				}
 			}
 			note.wasGoodHit = true;
 			vocals.volume = 1;

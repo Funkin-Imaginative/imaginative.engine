@@ -23,9 +23,7 @@ import haxe.Json;
 import objects.Character;
 import objects.HealthIcon;
 
-#if MODS_ALLOWED
-import sys.FileSystem;
-#end
+#if MODS_ALLOWED import sys.FileSystem; #end
 
 class CharacterEditorState extends MusicBeatState {
 	var char:Character;
@@ -447,7 +445,7 @@ class CharacterEditorState extends MusicBeatState {
 			getEvent(FlxUINumericStepper.CHANGE_EVENT, healthColorStepperB, null);
 		});
 
-		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, leHealthIcon.getCharacter(), 8);
+		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, leHealthIcon.iconName, 8);
 
 		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 45, 0.1, 4, 0, 999, 1);
 
@@ -912,7 +910,7 @@ class CharacterEditorState extends MusicBeatState {
 	function updatePresence() {
 		#if desktop
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("Character Editor", "Character: " + daAnim, leHealthIcon.getCharacter());
+		DiscordClient.changePresence("Character Editor", "Character: " + daAnim, leHealthIcon.iconName);
 		#end
 	}
 
