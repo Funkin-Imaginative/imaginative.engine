@@ -240,7 +240,7 @@ class Paths {
 		return Assets.getText(getPath(key, TEXT));
 	}
 	
-	static public function jsonParse(key:String, ?library:String = 'preload', ?ifNull:Dynamic) {
+	static public function jsonParse(key:String, ?ifNull:Dynamic, ?library:String = 'preload') {
 		var rawJson:String = null;
 		var path:String = getLibraryPath(key, library);
 		#if MODS_ALLOWED
