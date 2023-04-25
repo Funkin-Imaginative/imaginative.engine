@@ -1156,7 +1156,7 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter(), true, songLength);
+		DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName, true, songLength);
 		#end
 		setOnLuas('songLength', songLength);
 		callOnLuas('onSongStart', []);
@@ -1425,7 +1425,7 @@ class PlayState extends MusicBeatState
 
 	override public function onFocusLost():Void {
 		#if desktop
-		if (health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter());
+		if (health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName);
 		#end
 
 		super.onFocusLost();
@@ -1434,8 +1434,8 @@ class PlayState extends MusicBeatState
 	// Updating Discord Rich Presence.
 	function resetRPC(?cond:Bool = false) {
 		#if desktop
-		if (cond) DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
-		else DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter());
+		if (cond) DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName, true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
+		else DiscordClient.changePresence(detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName);
 		#end
 	}
 
@@ -1777,7 +1777,7 @@ class PlayState extends MusicBeatState
 		//}
 
 		#if desktop
-		DiscordClient.changePresence(detailsPausedText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter());
+		DiscordClient.changePresence(detailsPausedText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName);
 		#end
 	}
 
@@ -1818,7 +1818,7 @@ class PlayState extends MusicBeatState
 
 				#if desktop
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence('Game Over - ' + detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.getCharacter());
+				DiscordClient.changePresence('Game Over - ' + detailsText, chartData.song + ' (' + storyDifficultyText + ')', dadIcon.iconName);
 				#end
 				isDead = true;
 				return true;
