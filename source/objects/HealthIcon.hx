@@ -58,7 +58,7 @@ class HealthIcon extends FlxSprite {
 			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
 			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
 			
-			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', 'preload', dummyJson());
+			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', dummyJson(), 'preload');
 			
 			hasLosing = iconJson.hasLosing;
 			hasWinning = iconJson.hasWinning;
