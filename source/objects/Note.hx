@@ -201,12 +201,14 @@ class Note extends FlxSprite {
 		this.noteData = noteData;
 
 		if (noteData > -1) {
+			texture = '';
 			rgbColoring = new ColorizeRGB();
 			shader = rgbColoring.shader;
+			x += swagWidth * (noteData);
 			if (!isSustainNote && (noteData > -1 && noteData < 4)) { // Doing this 'if' check to fix the warnings on Senpai songs
 				var anim:String = '';
-				anim = colArray[noteData % 4] + ' static';
-				animation.play(anim + 'Scroll');
+				anim = colArray[noteData % 4] + "Scroll";
+				animation.play(anim);
 			}
 		}
 
@@ -306,6 +308,7 @@ class Note extends FlxSprite {
 
 	function loadNoteAnims() {
 		animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
+		trace(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
 		if (isSustainNote) {
 			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end');
 			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece');

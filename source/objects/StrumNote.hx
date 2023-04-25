@@ -1,7 +1,10 @@
 package objects;
 
 import shaders.ColorizeRGB;
-#if sys import sys.FileSystem; #end
+#if sys
+import sys.io.File;
+import sys.FileSystem;
+#end
 
 class StrumNote extends FlxSprite {
 	private var rgbColoring:ColorizeRGB;
@@ -36,7 +39,7 @@ class StrumNote extends FlxSprite {
 	
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
-		if (!sys.FileSystem.exists('notes/$texture')) texture = 'Default';
+		if (!FileSystem.exists('notes/$texture')) texture = 'Default';
 		if (texture != value) {
 			texture = value;
 			reloadStrum();
@@ -101,6 +104,7 @@ class StrumNote extends FlxSprite {
 			}
 		} else {
 			frames = Paths.getSparrowAtlas('notes/$texture/$style', 'shared');
+			trace('Yes');
 			animation.addByPrefix('left', 'arrowLEFT');
 			animation.addByPrefix('down', 'arrowDOWN');
 			animation.addByPrefix('up', 'arrowUP');
@@ -149,7 +153,7 @@ class StrumNote extends FlxSprite {
 				resetAnim = 0;
 			}
 		}
-		if ((animation.curAnim.name == 'confirm' || animation.curAnim.name == 'noglow') && !isPixel) centerOrigin();
+		//if ((animation.curAnim.name == 'confirm' || animation.curAnim.name == 'noglow') && !isPixel) centerOrigin();
 		super.update(elapsed);
 	}
 
