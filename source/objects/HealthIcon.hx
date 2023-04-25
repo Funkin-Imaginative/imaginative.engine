@@ -9,9 +9,17 @@ import haxe.Json;
 typedef IconJson = {
 	var hasLosing:Bool;
 	var hasWinning:Bool;
-	var isAnimated:Bool;
 
+	var scale:Float;
+	var stateDetails:Array<DetailArray>;
 	var antialiasing:Bool;
+}
+
+typedef DetailArray = {
+	var stateName:String
+	var fps:Int;
+	var loop:Bool;
+	var offsets:Array<Int>;
 }
 
 class HealthIcon extends FlxSprite {
@@ -45,28 +53,30 @@ class HealthIcon extends FlxSprite {
 		return {
 			hasLosing: true,
 			hasWinning: false,
-			isAnimated: false,
 
+			scale: 1,
+			stateDetails: {
+				fps: 24;
+				loop: false
+				offsets: [0.0, 0.0];
+			},
 			antialiasing: PlayState.isPixelStage ? false : ClientPrefs.data.antialiasing
 		};
 	}
 
 	private var iconOffsets:Array<Float> = [0, 0];
-	public function changeIcon(char:String) {
-		if (iconName != char) {
-			var name:String = char;
-			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = char;
+	public function changeIcon(icon:String) {
+		if (iconName != icon) {
+			var name:String = icon;
+			// if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = icon;
 			if (!Paths.fileExists('images/icons/$name.png', IMAGE)) name = 'face'; //Prevents crash from missing icon
-			
 			var iconJson:IconJson = Paths.jsonParse('images/icons/$name.json', dummyJson(), 'preload');
-			
+
 			hasLosing = iconJson.hasLosing;
 			hasWinning = iconJson.hasWinning;
-			isAnimated = iconJson.isAnimated;
-
 			isAnimated = Paths.fileExists('images/icons/$name.xml', IMAGE);
+
 			var file:Dynamic = Paths.image('icons/$name');
-			
 			loadGraphic(file);
 			if (isAnimated) {
 				frames = Paths.getSparrowAtlas(name);
@@ -85,18 +95,19 @@ class HealthIcon extends FlxSprite {
 				if (hasLosing) animation.add('Losing', [1], 0, false);
 				if (hasWinning) animation.add('Winning', [hasLosing ? 2 : 1], 0, false);
 			}
-			updateHitbox();
 
+			updateHitbox();
 			playAnim('Neutral', true);
-			iconName = char;
-			antialiasing = ClientPrefs.data.antialiasing;
-			antialiasing = antialiasing;
+			iconName = icon;
+			antialiasing = iconJson.antialiasing;
 		}
 	}
 
 	override function updateHitbox() {
 		super.updateHitbox();
-		if (isAnimated) {} else {
+		if (isAnimated) {
+			
+		} else {
 			offset.x = iconOffsets[0];
 			offset.y = iconOffsets[1];
 		}
@@ -107,5 +118,5 @@ class HealthIcon extends FlxSprite {
 		animation.play(anim, force, reversed, startFrame);
 	}
 
-	public function getCharacter():String return char; // Why does this exist???
+	public function getCharacter():String return iconName; // Why does this exist???
 }
