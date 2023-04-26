@@ -34,7 +34,6 @@ class MainMenuState extends MusicBeatState {
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
-	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
 
 	override function create() {
@@ -45,7 +44,6 @@ class MainMenuState extends MusicBeatState {
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
-		debugKeys = ClientPrefs.keyBinds.get('debug_1').copy();
 
 		camGame = new FlxCamera();
 		camAchievement = new FlxCamera();
@@ -70,9 +68,7 @@ class MainMenuState extends MusicBeatState {
 		add(bg);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollowPos = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
-		add(camFollowPos);
 
 		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
 		magenta.scrollFactor.set(0, yScroll);
@@ -114,7 +110,7 @@ class MainMenuState extends MusicBeatState {
 			menuItem.updateHitbox();
 		}
 
-		FlxG.camera.follow(camFollowPos, null, 1);
+		FlxG.camera.follow(camFollow, null, 0);
 
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Imaginative Engine v" + engineVersion, 12);
 		versionShit.scrollFactor.set();
@@ -162,8 +158,7 @@ class MainMenuState extends MusicBeatState {
 			if (FreeplayState.vocals != null) FreeplayState.vocals.volume += 0.5 * elapsed;
 		}
 
-		var lerpVal:Float = CoolUtil.boundTo(elapsed * 7.5, 0, 1);
-		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
+		FlxG.camera.followLerp = FlxMath.bound(elapsed * 7.5, 0, 1);
 
 		if (!selectedSomethin) {
 			if (controls.UI_UP_P) {
@@ -225,7 +220,7 @@ class MainMenuState extends MusicBeatState {
 				}
 			}
 			#if desktop
-			else if (FlxG.keys.anyJustPressed(debugKeys)) {
+			else if (controls.justPressed('debug_1')) {
 				selectedSomethin = true;
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}

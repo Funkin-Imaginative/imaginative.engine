@@ -1,6 +1,6 @@
 package states.stages;
 
-import states.stages.BaseStage;
+import flixel.math.FlxPoint;
 
 class Spooky extends BaseStage {
 	var halloweenBG:BGSprite;
@@ -67,7 +67,8 @@ class Spooky extends BaseStage {
 	function monsterCutscene() {
 		inCutscene = true;
 		camHUD.visible = false;
-		snapCamFollowToPos(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+		
+		FlxG.camera.focusOn(new FlxPoint(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100));
 
 		// character anims
 		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));

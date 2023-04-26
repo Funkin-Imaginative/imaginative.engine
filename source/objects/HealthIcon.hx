@@ -178,10 +178,7 @@ class HealthIcon extends FlxSprite {
 
 	override function updateHitbox() {
 		super.updateHitbox();
-		if (isAnimated) {} else {
-			offset.x = staleOffsets[0];
-			offset.y = staleOffsets[1];
-		}
+		updateAnimOffset(animation.curAnim.name);
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
@@ -191,12 +188,16 @@ class HealthIcon extends FlxSprite {
 	public function playAnim(anim:String, ?force:Bool = false, ?reversed:Bool = false, ?startFrame:Int = 0) {
 		if ((!hasLosing && anim == 'Losing') || (!hasWinning && anim == 'Winning')) anim = 'Neutral';
 		animation.play(anim, force, reversed, startFrame);
-		var daOffset = animOffsets.get(anim);
+		updateAnimOffset(anim);
+	}
+
+	private function updateAnimOffset(daAnim:String) {
+		var daOffset = animOffsets.get(daAnim);
 		if (!isAnimated) {
-			daOffset[0] + staleOffsets[0];
-			daOffset[1] + staleOffsets[1];
+			daOffset[0] += staleOffsets[0];
+			daOffset[1] += staleOffsets[1];
 		}
-		if (animOffsets.exists(anim)) offset.set(daOffset[0], daOffset[1]);
+		if (animOffsets.exists(daAnim)) offset.set(daOffset[0], daOffset[1]);
 		else offset.set(0, 0);
 	}
 }

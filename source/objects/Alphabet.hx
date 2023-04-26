@@ -129,7 +129,7 @@ class Alphabet extends FlxSpriteGroup {
 
 	override function update(elapsed:Float) {
 		if (isMenuItem) {
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
+			var lerpVal:Float = FlxMath.bound(elapsed * 9.6, 0, 1);
 			if (changeX) x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
 			if (changeY) y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
 		}

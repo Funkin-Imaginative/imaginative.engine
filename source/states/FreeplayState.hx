@@ -89,8 +89,7 @@ class FreeplayState extends MusicBeatState {
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			var maxWidth = 980;
-			if (songText.width > maxWidth) songText.scaleX = maxWidth / songText.width;
+			songText.scaleX = Math.min(1, 980 / songText.width);
 			songText.snapToPosition();
 
 			Paths.currentModDirectory = songs[i].folder;
@@ -192,8 +191,8 @@ class FreeplayState extends MusicBeatState {
 	var holdTime:Float = 0;
 	override function update(elapsed:Float) {
 		if (FlxG.sound.music.volume < 0.7) FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
-		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 24, 0, 1)));
-		lerpRating = FlxMath.lerp(lerpRating, intendedRating, CoolUtil.boundTo(elapsed * 12, 0, 1));
+		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(elapsed * 24, 0, 1)));
+		lerpRating = FlxMath.lerp(lerpRating, intendedRating, FlxMath.bound(elapsed * 12, 0, 1));
 
 		if (Math.abs(lerpScore - intendedScore) <= 10) lerpScore = intendedScore;
 		if (Math.abs(lerpRating - intendedRating) <= 0.01) lerpRating = intendedRating;
@@ -210,6 +209,15 @@ class FreeplayState extends MusicBeatState {
 		if (FlxG.keys.pressed.SHIFT) shiftMult = 3;
 
 		if (songs.length > 1) {
+			if(FlxG.keys.justPressed.HOME) {
+				curSelected = 0;
+				changeSelection();
+				holdTime = 0;
+			} else if(FlxG.keys.justPressed.END) {
+				curSelected = songs.length - 1;
+				changeSelection();
+				holdTime = 0;
+			}
 			if (controls.UI_UP_P) {
 				changeSelection(-shiftMult);
 				holdTime = 0;
@@ -403,7 +411,7 @@ class FreeplayState extends MusicBeatState {
 	var _drawDistance:Int = 4;
 	var _lastVisibles:Array<Int> = [];
 	public function updateTexts(elapsed:Float = 0.0) {
-		lerpSelected = FlxMath.lerp(lerpSelected, curSelected, CoolUtil.boundTo(elapsed * 9.6, 0, 1));
+		lerpSelected = FlxMath.lerp(lerpSelected, curSelected, FlxMath.bound(elapsed * 9.6, 0, 1));
 		for (i in _lastVisibles) {
 			grpSongs.members[i].visible = grpSongs.members[i].active = false;
 			iconArray[i].visible = iconArray[i].active = false;

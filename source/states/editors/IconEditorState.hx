@@ -27,27 +27,30 @@ class IconEditorState extends MusicBeatState {
 	var camFollow:FlxObject;
 	
     public function new() {
-		super.create();
+		super();
     }
 	
 	private var camHUD:FlxCamera;
 	private var camMenu:FlxCamera;
-
+	
 	override function create() {
 		camHUD = new FlxCamera();
 		camMenu = new FlxCamera();
 		camMenu.bgColor.alpha = 0;
-
+		
 		FlxG.cameras.reset(camHUD);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camMenu, false);
 		FlxG.cameras.setDefaultDrawTarget(camHUD, true);
-
-		icon = new HealthIcon();
+		
+		icon = new HealthIcon('bf', false);
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.scrollFactor.set();
 		bg.color = FlxColor.fromHSB(FlxG.random.int(0, 359), FlxG.random.float(0, 0.8), FlxG.random.float(0.3, 1));
 		add(bg);
+		add(icon);
+		
+		super.create();
 	}
 
 	override function update(elapsed:Float) {
@@ -58,5 +61,11 @@ class IconEditorState extends MusicBeatState {
 			FlxG.mouse.visible = false;
 			return;
 		}
+	}
+
+	function ClipboardAdd(prefix:String = ''):String {
+		if (prefix.toLowerCase().endsWith('v')) prefix = prefix.substring(0, prefix.length-1); //probably copy paste attempt
+		var text:String = prefix + Clipboard.text.replace('\n', '');
+		return text;
 	}
 }

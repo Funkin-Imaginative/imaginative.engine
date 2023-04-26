@@ -2328,7 +2328,7 @@ class FunkinLua {
 				PlayState.instance.modchartTexts.remove(tag);
 			}
 		});
-		psychlua.DeprecatedFunctions.implement(this);
+		// psychlua.DeprecatedFunctions.implement(this);
 		psychlua.ExtraFunctions.implement(this);
 
 		call('onCreate', []);

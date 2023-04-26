@@ -176,7 +176,7 @@ class CreditsState extends MusicBeatState {
 		
 		for (item in grpOptions.members) {
 			if (!item.bold) {
-				var lerpVal:Float = CoolUtil.boundTo(elapsed * 12, 0, 1);
+				var lerpVal:Float = FlxMath.bound(elapsed * 12, 0, 1);
 				if (item.targetY == 0) {
 					var lastX:Float = item.x;
 					item.screenCenter(X);

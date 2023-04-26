@@ -1,5 +1,6 @@
 package states.stages;
 
+import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import animateatlas.AtlasFrameMaker;
 
@@ -94,6 +95,7 @@ class Tank extends BaseStage {
 					var firstTank:TankmenBG = new TankmenBG(20, 500, true);
 					firstTank.resetShit(20, 600, true);
 					firstTank.strumTime = 10;
+					firstTank.visible = false;
 					tankmanRun.add(firstTank);
 
 					for (i in 0...TankmenBG.animationNotes.length) {
@@ -174,7 +176,7 @@ class Tank extends BaseStage {
 			gf.animation.finishCallback = null;
 			gf.dance();
 		};
-		camFollow.set(dad.x + 280, dad.y + 170);
+		camFollow.setPosition(dad.x + 280, dad.y + 170);
 	}
 
 	function ughIntro() {
@@ -258,7 +260,7 @@ class Tank extends BaseStage {
 		tankman.y -= 14;
 		gfGroup.alpha = 0.00001;
 		boyfriendGroup.alpha = 0.00001;
-		camFollow.set(dad.x + 400, dad.y + 170);
+		camFollow.setPosition(dad.x + 400, dad.y + 170);
 		FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2}, 1, {ease: FlxEase.quadInOut});
 		foregroundSprites.forEach(function(spr:BGSprite) {
 			spr.y += 100;
@@ -352,7 +354,7 @@ class Tank extends BaseStage {
 		});
 
 		cutsceneHandler.timer(20, function() {
-			camFollow.set(dad.x + 500, dad.y + 170);
+			camFollow.setPosition(dad.x + 500, dad.y + 170);
 		});
 
 		cutsceneHandler.timer(31.2, function() 	{
@@ -364,7 +366,8 @@ class Tank extends BaseStage {
 				}
 			};
 
-			camFollow.set(boyfriend.x + 280, boyfriend.y + 200);
+			camFollow.setPosition(boyfriend.x + 280, boyfriend.y + 200);
+			FlxG.camera.snapToTarget();
 			game.cameraSpeed = 12;
 			FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2 * 1.2}, 0.25, {ease: FlxEase.elasticOut});
 		});
@@ -376,10 +379,8 @@ class Tank extends BaseStage {
 
 	function zoomBack() {
 		var calledTimes:Int = 0;
-		var camPosX:Float = 630;
-		var camPosY:Float = 425;
-		camFollow.set(camPosX, camPosY);
-		camFollowPos.setPosition(camPosX, camPosY);
+		camFollow.setPosition(630, 425);
+		FlxG.camera.snapToTarget();
 		FlxG.camera.zoom = 0.8;
 		game.cameraSpeed = 1;
 
