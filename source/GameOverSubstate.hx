@@ -11,7 +11,7 @@ import ui.PreferencesMenu;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
-	var bf:Boyfriend;
+	var bf:DeadChar;
 	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
@@ -42,7 +42,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		Conductor.songPosition = 0;
 
-		bf = new Boyfriend(x, y, daBf);
+		bf = new DeadChar(x, y, daBf);
 		add(bf);
 
 		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);

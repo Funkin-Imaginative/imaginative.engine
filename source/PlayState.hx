@@ -63,15 +63,16 @@ class PlayState extends MusicBeatState
 	public static var storyDifficulty:Int = 1;
 	public static var deathCounter:Int = 0;
 	public static var practiceMode:Bool = false;
-
+	
 	var halloweenLevel:Bool = false;
-
+	public var isPixelStage:Bool = false;
+	
 	private var vocals:FlxSound;
 	private var vocalsFinished:Bool = false;
-
+	
 	private var dad:Character;
 	private var gf:Character;
-	private var boyfriend:Boyfriend;
+	private var boyfriend:Character;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -392,6 +393,7 @@ class PlayState extends MusicBeatState
 				add(evilSnow);
 			case 'senpai' | 'roses':
 				curStage = 'school';
+				isPixelStage = true;
 
 				// defaultCamZoom = 0.9;
 
@@ -457,6 +459,7 @@ class PlayState extends MusicBeatState
 				add(bgGirls);
 			case 'thorns':
 				curStage = 'schoolEvil';
+				isPixelStage = true;
 
 				var waveEffectBG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 3, 2);
 				var waveEffectFG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 5, 2);
@@ -697,7 +700,7 @@ class PlayState extends MusicBeatState
 				dad.y += 180;
 		}
 
-		boyfriend = new Boyfriend(770, 450, SONG.player1);
+		boyfriend = new Character(770, 450, SONG.player1, true);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -1673,23 +1676,21 @@ class PlayState extends MusicBeatState
 			var babyArrow:FlxSprite = new FlxSprite(0, strumLine.y);
 			var colorswap:ColorSwap = new ColorSwap();
 			babyArrow.shader = colorswap.shader;
-			colorswap.update(Note.arrowColors[i]);
 
-			switch (curStage)
-			{
-				case 'school' | 'schoolEvil':
+			var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
+			if (isPixelStage) {
 					babyArrow.loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
-					babyArrow.animation.add('green', [6]);
-					babyArrow.animation.add('red', [7]);
-					babyArrow.animation.add('blue', [5]);
-					babyArrow.animation.add('purplel', [4]);
+					babyArrow.animation.add('left', [4]);
+					babyArrow.animation.add('down', [5]);
+					babyArrow.animation.add('up', [6]);
+					babyArrow.animation.add('right', [7]);
 
 					babyArrow.setGraphicSize(Std.int(babyArrow.width * daPixelZoom));
 					babyArrow.updateHitbox();
 					babyArrow.antialiasing = false;
 
-					switch (Math.abs(i))
-					{
+					babyArrow.x += Note.swagWidth * i;
+					switch (Math.abs(i)) {
 						case 0:
 							babyArrow.x += Note.swagWidth * 0;
 							babyArrow.animation.add('static', [0]);
@@ -1711,19 +1712,15 @@ class PlayState extends MusicBeatState
 							babyArrow.animation.add('pressed', [7, 11], 12, false);
 							babyArrow.animation.add('confirm', [15, 19], 24, false);
 					}
-
-				default:
+			} else {
 					babyArrow.frames = Paths.getSparrowAtlas('NOTE_assets');
-					babyArrow.animation.addByPrefix('green', 'arrowUP');
-					babyArrow.animation.addByPrefix('blue', 'arrowDOWN');
-					babyArrow.animation.addByPrefix('purple', 'arrowLEFT');
-					babyArrow.animation.addByPrefix('red', 'arrowRIGHT');
+					babyArrow.animation.addByPrefix(nameArray[i], 'arrow${nameArray[i].toUpperCase()}');
 
-					babyArrow.antialiasing = true;
 					babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));
+					babyArrow.antialiasing = true;
 
-					switch (Math.abs(i))
-					{
+					babyArrow.x += Note.swagWidth * i;
+					switch (Math.abs(i)) {
 						case 0:
 							babyArrow.x += Note.swagWidth * 0;
 							babyArrow.animation.addByPrefix('static', 'arrow static instance 1');
@@ -1878,8 +1875,7 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			Conductor.songPosition = FlxG.sound.music.time + Conductor.offset; // 20 is THE MILLISECONDS??
-			// Conductor.songPosition += FlxG.elapsed * 1000;
+			Conductor.songPosition += FlxG.elapsed * 1000;
 
 			if (!paused)
 			{
@@ -1923,26 +1919,22 @@ class PlayState extends MusicBeatState
 
 		scoreTxt.text = "Score:" + songScore;
 
-		if (controls.PAUSE && startedCountdown && canPause)
-		{
+		if (controls.PAUSE && startedCountdown && canPause) {
 			persistentUpdate = false;
 			persistentDraw = true;
 			paused = true;
 
 			// 1 / 1000 chance for Gitaroo Man easter egg
-			if (FlxG.random.bool(0.1))
-			{
+			/* if (FlxG.random.bool(0.1)) {
 				// gitaroo man easter egg
 				FlxG.switchState(new GitarooPause());
-			}
-			else
-			{
+			} else { */
 				var boyfriendPos = boyfriend.getScreenPosition();
 				var pauseSubState = new PauseSubState(boyfriendPos.x, boyfriendPos.y);
 				openSubState(pauseSubState);
 				pauseSubState.camera = camHUD;
 				boyfriendPos.put();
-			}
+			// }
 
 			#if discord_rpc
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
@@ -2169,43 +2161,7 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-				if (!daNote.mustPress && daNote.wasGoodHit)
-				{
-					if (SONG.song != 'Tutorial')
-						camZooming = true;
-
-					var altAnim:String = "";
-
-					if (SONG.notes[Math.floor(curStep / 16)] != null)
-					{
-						if (SONG.notes[Math.floor(curStep / 16)].altAnim)
-							altAnim = '-alt';
-					}
-
-					if (daNote.altNote)
-						altAnim = '-alt';
-
-					switch (Math.abs(daNote.noteData))
-					{
-						case 0:
-							dad.playAnim('singLEFT' + altAnim, true);
-						case 1:
-							dad.playAnim('singDOWN' + altAnim, true);
-						case 2:
-							dad.playAnim('singUP' + altAnim, true);
-						case 3:
-							dad.playAnim('singRIGHT' + altAnim, true);
-					}
-
-					dad.holdTimer = 0;
-
-					if (SONG.needsVoices)
-						vocals.volume = 1;
-
-					daNote.kill();
-					notes.remove(daNote, true);
-					daNote.destroy();
-				}
+				opponentNoteHit(daNote);
 
 				// WIP interpolation shit? Need to fix the pause issue
 				// daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * SONG.speed));
@@ -2322,7 +2278,6 @@ class PlayState extends MusicBeatState
 
 				if (SONG.validScore)
 				{
-					NGio.unlockMedal(60961);
 					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 				}
 
@@ -2731,7 +2686,7 @@ class PlayState extends MusicBeatState
 			if (!holdArray[spr.ID])
 				spr.animation.play('static');
 
-			if (spr.animation.curAnim.name == 'confirm' && !curStage.startsWith('school'))
+			if (spr.animation.curAnim.name == 'confirm' && !isPixelStage)
 			{
 				spr.centerOffsets();
 				spr.offset.x -= 13;
@@ -2775,29 +2730,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	/* not used anymore lol
-
-	function badNoteHit()
-	{
-		// just double pasting this shit cuz fuk u
-		// REDO THIS SYSTEM!
-		var leftP = controls.NOTE_LEFT_P;
-		var downP = controls.NOTE_DOWN_P;
-		var upP = controls.NOTE_UP_P;
-		var rightP = controls.NOTE_RIGHT_P;
-
-		if (leftP)
-			noteMiss(0);
-		if (downP)
-			noteMiss(1);
-		if (upP)
-			noteMiss(2);
-		if (rightP)
-			noteMiss(3);
-	} */
-
-	function goodNoteHit(note:Note):Void
-	{
+	function goodNoteHit(note:Note):Void {
 		if (!note.wasGoodHit)
 		{
 			if (!note.isSustainNote)
@@ -2840,6 +2773,47 @@ class PlayState extends MusicBeatState
 				notes.remove(note, true);
 				note.destroy();
 			}
+		}
+	}
+
+	function opponentNoteHit(note:Note):Void
+	{
+		if (!note.mustPress && note.wasGoodHit)
+		{
+			if (SONG.song != 'Tutorial')
+				camZooming = true;
+
+			var altAnim:String = "";
+
+			if (SONG.notes[Math.floor(curStep / 16)] != null)
+			{
+				if (SONG.notes[Math.floor(curStep / 16)].altAnim)
+					altAnim = '-alt';
+			}
+
+			if (note.altNote)
+				altAnim = '-alt';
+
+			switch (Math.abs(note.noteData))
+			{
+				case 0:
+					dad.playAnim('singLEFT' + altAnim, true);
+				case 1:
+					dad.playAnim('singDOWN' + altAnim, true);
+				case 2:
+					dad.playAnim('singUP' + altAnim, true);
+				case 3:
+					dad.playAnim('singRIGHT' + altAnim, true);
+			}
+
+			dad.holdTimer = 0;
+
+			if (SONG.needsVoices)
+				vocals.volume = 1;
+
+			note.kill();
+			notes.remove(note, true);
+			note.destroy();
 		}
 	}
 
