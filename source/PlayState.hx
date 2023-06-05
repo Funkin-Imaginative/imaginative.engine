@@ -1657,21 +1657,14 @@ class PlayState extends MusicBeatState
 	// and the array sorting function doesnt need that order variable thingie
 	// this is good enough for now lololol HERE IS COMMENT FOR THIS SORTA DUMB DECISION LOL
 	function sortByShit(Obj1:Note, Obj2:Note):Int
-	{
-		return sortNotes(FlxSort.ASCENDING, Obj1, Obj2);
-	}
-
+	{ return sortNotes(FlxSort.ASCENDING, Obj1, Obj2); }
 	function sortNotes(order:Int = FlxSort.ASCENDING, Obj1:Note, Obj2:Note)
-	{
-		return FlxSort.byValues(order, Obj1.strumTime, Obj2.strumTime);
-	}
+	{ return FlxSort.byValues(order, Obj1.strumTime, Obj2.strumTime); }
 
 	// ^ These two sorts also look cute together ^
 
-	private function generateStaticArrows(player:Int):Void
-	{
-		for (i in 0...4)
-		{
+	private function generateStaticArrows(player:Int):Void {
+		for (i in 0...4) {
 			// FlxG.log.add(i);
 			var babyArrow:FlxSprite = new FlxSprite(0, strumLine.y);
 			var colorswap:ColorSwap = new ColorSwap();
@@ -1722,22 +1715,22 @@ class PlayState extends MusicBeatState
 					babyArrow.x += Note.swagWidth * i;
 					switch (Math.abs(i)) {
 						case 0:
-							babyArrow.x += Note.swagWidth * 0;
+							//babyArrow.x += Note.swagWidth * 0;
 							babyArrow.animation.addByPrefix('static', 'arrow static instance 1');
 							babyArrow.animation.addByPrefix('pressed', 'left press', 24, false);
 							babyArrow.animation.addByPrefix('confirm', 'left confirm', 24, false);
 						case 1:
-							babyArrow.x += Note.swagWidth * 1;
+							//babyArrow.x += Note.swagWidth * 1;
 							babyArrow.animation.addByPrefix('static', 'arrow static instance 2');
 							babyArrow.animation.addByPrefix('pressed', 'down press', 24, false);
 							babyArrow.animation.addByPrefix('confirm', 'down confirm', 24, false);
 						case 2:
-							babyArrow.x += Note.swagWidth * 2;
+							//babyArrow.x += Note.swagWidth * 2;
 							babyArrow.animation.addByPrefix('static', 'arrow static instance 4');
 							babyArrow.animation.addByPrefix('pressed', 'up press', 24, false);
 							babyArrow.animation.addByPrefix('confirm', 'up confirm', 24, false);
 						case 3:
-							babyArrow.x += Note.swagWidth * 3;
+							//babyArrow.x += Note.swagWidth * 3;
 							babyArrow.animation.addByPrefix('static', 'arrow static instance 3');
 							babyArrow.animation.addByPrefix('pressed', 'right press', 24, false);
 							babyArrow.animation.addByPrefix('confirm', 'right confirm', 24, false);
