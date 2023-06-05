@@ -59,11 +59,11 @@ class Note extends FlxSprite
 		if (isPixel) {
 			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 			
-			animation.add('${nameArray[noteData]}Scroll', noteData + 4);
-			animation.add('leftScroll', [4]);
-			animation.add('downScroll', [5]);
-			animation.add('upScroll', [6]);
-			animation.add('rightScroll', [7]);
+			animation.add('${nameArray[noteData]}Scroll', [noteData + 4]);
+			//animation.add('leftScroll', [4]);
+			//animation.add('downScroll', [5]);
+			//animation.add('upScroll', [6]);
+			//animation.add('rightScroll', [7]);
 
 			if (isSustainNote) {
 				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
