@@ -75,10 +75,10 @@ class Note extends FlxSprite
 				animation.add('downholdend', [5]);*/
 
 				animation.add('${nameArray[noteData]}hold', [noteData]);
-				animation.add('lefthold', [0]);
+				/*animation.add('lefthold', [0]);
 				animation.add('downhold', [1]);
 				animation.add('uphold', [2]);
-				animation.add('righthold', [3]);
+				animation.add('righthold', [3]);*/
 			}
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
