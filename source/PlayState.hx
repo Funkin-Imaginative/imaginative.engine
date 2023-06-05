@@ -65,7 +65,6 @@ class PlayState extends MusicBeatState
 	public static var practiceMode:Bool = false;
 	
 	var halloweenLevel:Bool = false;
-	public var isPixelStage:Bool = false;
 	
 	private var vocals:FlxSound;
 	private var vocalsFinished:Bool = false;
@@ -144,8 +143,9 @@ class PlayState extends MusicBeatState
 
 	var defaultCamZoom:Float = 1.05;
 
+	public var isPixelStage:Bool = false;
 	// how big to stretch the pixel art assets
-	public static var daPixelZoom:Float = 6;
+	public static var startPixelScale:Float = 6;
 
 	var inCutscene:Bool = false;
 
@@ -454,7 +454,7 @@ class PlayState extends MusicBeatState
 					bgGirls.getScared();
 				}
 
-				bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
+				bgGirls.setGraphicSize(Std.int(bgGirls.width * startPixelScale));
 				bgGirls.updateHitbox();
 				add(bgGirls);
 			case 'thorns':
@@ -1385,7 +1385,7 @@ class PlayState extends MusicBeatState
 		var senpaiEvil:FlxSprite = new FlxSprite();
 		senpaiEvil.frames = Paths.getSparrowAtlas('weeb/senpaiCrazy');
 		senpaiEvil.animation.addByPrefix('idle', 'Senpai Pre Explosion', 24, false);
-		senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * daPixelZoom));
+		senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * startPixelScale));
 		senpaiEvil.scrollFactor.set();
 		senpaiEvil.updateHitbox();
 		senpaiEvil.screenCenter();
@@ -1532,7 +1532,7 @@ class PlayState extends MusicBeatState
 		spr.scrollFactor.set();
 
 		if (curStage.startsWith('school'))
-			spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
+			spr.setGraphicSize(Std.int(spr.width * startPixelScale));
 
 		spr.updateHitbox();
 		spr.screenCenter();
@@ -1685,7 +1685,7 @@ class PlayState extends MusicBeatState
 					babyArrow.animation.add('up', [6]);
 					babyArrow.animation.add('right', [7]);
 
-					babyArrow.setGraphicSize(Std.int(babyArrow.width * daPixelZoom));
+					babyArrow.setGraphicSize(Std.int(babyArrow.width * startPixelScale));
 					babyArrow.updateHitbox();
 					babyArrow.antialiasing = false;
 
@@ -2412,7 +2412,7 @@ class PlayState extends MusicBeatState
 
 		if (curStage.startsWith('school'))
 		{
-			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.7));
+			rating.setGraphicSize(Std.int(rating.width * startPixelScale * 0.7));
 		}
 		else
 		{
@@ -2461,7 +2461,7 @@ class PlayState extends MusicBeatState
 
 		if (curStage.startsWith('school'))
 		{
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * startPixelScale * 0.7));
 		}
 		else
 		{
@@ -2499,7 +2499,7 @@ class PlayState extends MusicBeatState
 
 			if (curStage.startsWith('school'))
 			{
-				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+				numScore.setGraphicSize(Std.int(numScore.width * startPixelScale));
 			}
 			else
 			{
