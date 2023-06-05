@@ -39,7 +39,6 @@ class Note extends FlxSprite
 	public var noteScore:Float = 1;
 
 	public static var swagWidth:Float = 160 * 0.7;
-
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false) {
