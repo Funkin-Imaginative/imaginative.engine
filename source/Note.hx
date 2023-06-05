@@ -74,7 +74,7 @@ class Note extends FlxSprite
 				animation.add('rightholdend', [7]);
 				animation.add('downholdend', [5]);
 
-				animation.add('${nameArray[noteData]}hold', [noteData + 4]);
+				animation.add('${nameArray[noteData]}hold', [noteData]);
 				animation.add('lefthold', [0]);
 				animation.add('downhold', [1]);
 				animation.add('uphold', [2]);
