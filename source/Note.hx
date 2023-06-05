@@ -68,15 +68,17 @@ class Note extends FlxSprite
 			if (isSustainNote) {
 				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
 
+				animation.add('${nameArray[noteData]}holdend', [noteData + 4]);
 				animation.add('leftholdend', [4]);
 				animation.add('upholdend', [6]);
 				animation.add('rightholdend', [7]);
 				animation.add('downholdend', [5]);
 
+				animation.add('${nameArray[noteData]}hold', [noteData + 4]);
 				animation.add('lefthold', [0]);
+				animation.add('downhold', [1]);
 				animation.add('uphold', [2]);
 				animation.add('righthold', [3]);
-				animation.add('downhold', [1]);
 			}
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
