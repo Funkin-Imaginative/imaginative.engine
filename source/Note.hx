@@ -15,26 +15,63 @@ using StringTools;
 import polymod.format.ParseRules.TargetSignatureElement;
 #end
 
-class Note extends FlxSprite
-{
+class Note extends FlxSprite {
 	public var strumTime:Float = 0;
-
 	public var mustPress:Bool = false;
 	public var noteData:Int = 0;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
+	public var ignoreNote:Bool = false;
+	public var hitByOpponent:Bool = false;
+	public var noteWasHit:Bool = false;
 	public var prevNote:Note;
+	public var nextNote:Note;
+
+	public var tail:Array<Note> = []; // for sustains
+	public var parent:Note;
+	public var blockHit:Bool = false;
 
 	private static var willMiss:Bool = false;
 
-	public var altNote:Bool = false;
+	public var animSuffix:String = '';
 	// public var invisNote:Bool = false;
-	public var isPixel:Bool = false;
+	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
+	function set_isPixel(value:Bool):Bool {
+		if (isPixel != value) {
+			isPixel = value;
+			// reloadNote();
+		}
+		return value;
+	}
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
+	public var animToPlay(default, set):String = 'loadDefaults';
+	public var animMissed(default, set):String = 'loadDefaults';
+	public var noteType(default, set):String = '';
+
+	public var extraOffsets = {
+		x: 0.0,
+		y: 0.0,
+		angle: 0.0
+	};
+	public var multAlpha:Float = 1;
+	// public var multSpeed(default, set):Float = 1;
+	
+	public var copyFromStrum = {
+		x: true,
+		y: true,
+		angle: true,
+		alpha: true
+	};
+
+	public var hitHealth:Float = 0.02;
+	public var missHealth:Float = 0.04;
+
+	public var hitCausesMiss:Bool = false;
+	public var distance:Float = 2000; // plan on doing scroll directions like psych :P
 
 	public var colorSwap:ColorSwap;
 	public var noteScore:Float = 1;
@@ -90,6 +127,7 @@ class Note extends FlxSprite
 
 		// trace(prevNote);
 
+		if (prevNote != null) prevNote.nextNote = this;
 		if (isSustainNote && prevNote != null) {
 			noteScore * 0.2;
 			alpha = 0.6;
@@ -110,6 +148,37 @@ class Note extends FlxSprite
 				// prevNote.setGraphicSize();
 			}
 		}
+	}
+
+	private function set_animToPlay(value:String):String {
+		// var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
+		var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+		if (value == 'loadDefaults' || value == null) value = singAnims[noteData];
+		return value;
+	}
+
+	private function set_animMissed(value:String):String {
+		if (value == 'loadDefaults' || value == null) value = animToPlay + 'miss';
+		return value;
+	}
+
+	private function set_noteType(value:String):String {
+
+		if (noteData > -1 && noteType != value) {
+			switch(value) {
+				case 'Alt Animation':
+					animSuffix = '-alt';
+				case 'No Animation':
+					animToPlay = '';
+					animMissed = '';
+				case 'Opponent Sing':
+					// oppoNote = true;
+				case 'GF Sing':
+					// gfNote = true;
+			}
+			noteType = value;
+		}
+		return value;
 	}
 
 	override function update(elapsed:Float) {

@@ -9,8 +9,7 @@ import flixel.util.FlxColor;
 import ui.AtlasText.AtlasFont;
 import ui.TextMenuList.TextMenuItem;
 
-class PreferencesMenu extends ui.OptionsState.Page
-{
+class PreferencesMenu extends ui.OptionsState.Page {
 	public static var preferences:Map<String, Dynamic> = new Map();
 
 	var items:TextMenuList;
@@ -19,8 +18,7 @@ class PreferencesMenu extends ui.OptionsState.Page
 	var menuCamera:FlxCamera;
 	var camFollow:FlxObject;
 
-	public function new()
-	{
+	public function new() {
 		super();
 
 		menuCamera = new SwagCamera();
@@ -38,39 +36,30 @@ class PreferencesMenu extends ui.OptionsState.Page
 		createPrefItem('Auto Pause', 'auto-pause', false);
 
 		camFollow = new FlxObject(FlxG.width / 2, 0, 140, 70);
-		if (items != null)
-			camFollow.y = items.selectedItem.y;
+		if (items != null) camFollow.y = items.selectedItem.y;
 
 		menuCamera.follow(camFollow, null, 0.06);
 		var margin = 160;
 		menuCamera.deadzone.set(0, margin, menuCamera.width, 40);
 		menuCamera.minScrollY = 0;
 
-		items.onChange.add(function(selected)
-		{
-			camFollow.y = selected.y;
-		});
+		items.onChange.add(function(selected) { camFollow.y = selected.y; });
 	}
 
 	public static function getPref(pref:String):Dynamic
-	{
-		return preferences.get(pref);
-	}
+	{ return preferences.get(pref); }
 
 	// easy shorthand?
 	public static function setPref(pref:String, value:Dynamic):Void
-	{
-		preferences.set(pref, value);
-	}
+	{ preferences.set(pref, value); }
 
-	public static function initPrefs():Void
-	{
+	public static function initPrefs():Void {
 		preferenceCheck('censor-naughty', true);
 		preferenceCheck('downscroll', false);
 		preferenceCheck('flashing-menu', true);
 		preferenceCheck('camera-zoom', true);
 		preferenceCheck('fps-counter', true);
-		preferenceCheck('auto-pause', false);
+		preferenceCheck('auto-pause', true);
 		preferenceCheck('master-volume', 1);
 
 		#if muted
@@ -78,8 +67,7 @@ class PreferencesMenu extends ui.OptionsState.Page
 		FlxG.sound.muted = true;
 		#end
 
-		if (!getPref('fps-counter'))
-			FlxG.stage.removeChild(Main.fpsCounter);
+		if (!getPref('fps-counter')) FlxG.stage.removeChild(Main.fpsCounter);
 
 		FlxG.autoPause = getPref('auto-pause');
 	}
@@ -150,12 +138,9 @@ class PreferencesMenu extends ui.OptionsState.Page
 
 		// menuCamera.followLerp = CoolUtil.camLerpShit(0.05);
 
-		items.forEach(function(daItem:TextMenuItem)
-		{
-			if (items.selectedItem == daItem)
-				daItem.x = 150;
-			else
-				daItem.x = 120;
+		items.forEach(function(daItem:TextMenuItem) {
+			if (items.selectedItem == daItem) daItem.x = 150;
+			else daItem.x = 120;
 		});
 	}
 
@@ -173,8 +158,7 @@ class PreferencesMenu extends ui.OptionsState.Page
 	}
 }
 
-class CheckboxThingie extends FlxSprite
-{
+class CheckboxThingie extends FlxSprite {
 	public var daValue(default, set):Bool;
 
 	public function new(x:Float, y:Float, daValue:Bool = false)
