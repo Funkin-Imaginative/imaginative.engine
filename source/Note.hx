@@ -48,8 +48,8 @@ class Note extends FlxSprite {
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
-	public var animToPlay(default, set):String = 'loadDefaults';
-	public var animMissed(default, set):String = 'loadDefaults';
+	public var animToPlay(default, set):String = '';
+	public var animMissed(default, set):String = '';
 	public var noteType(default, set):String = '';
 
 	public var extraOffsets = {
@@ -110,7 +110,7 @@ class Note extends FlxSprite {
 			antialiasing = false;
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
-			if (isPixel) {
+			if (isSustainNote) {
 				animation.addByPrefix('${nameArray[noteData]}holdend', '${nameArray[noteData]} hold end');
 				animation.addByPrefix('${nameArray[noteData]}hold', '${nameArray[noteData]} hold piece');
 			} else animation.addByPrefix('${nameArray[noteData]}Scroll', '${nameArray[noteData]} static');
@@ -153,17 +153,20 @@ class Note extends FlxSprite {
 	private function set_animToPlay(value:String):String {
 		// var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
 		var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-		if (value == 'loadDefaults' || value == null) value = singAnims[noteData];
+		if (value.length < 1) value = singAnims[noteData];
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
-		if (value == 'loadDefaults' || value == null) value = animToPlay + 'miss';
+		if (value.length < 1) value = animToPlay + 'miss';
 		return value;
 	}
 
-	private function set_noteType(value:String):String {
+	public function noAnimChecker(?isMissAnim:Bool = false) {
+		return if (isMissAnim) animMissed.length < 1; else animToPlay.length < 1;
+	}
 
+	private function set_noteType(value:String):String {
 		if (noteData > -1 && noteType != value) {
 			switch(value) {
 				case 'Alt Animation':
