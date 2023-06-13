@@ -6,7 +6,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import shaderslmfao.ColorSwap;
 import ui.PreferencesMenu;
 
 using StringTools;
@@ -28,8 +27,8 @@ class Note extends FlxSprite {
 	public var prevNote:Note;
 	public var nextNote:Note;
 
-	public var tail:Array<Note> = []; // for sustains
 	public var parent:Note;
+	public var tail:Array<Note> = []; // for sustains
 	public var blockHit:Bool = false;
 
 	private static var willMiss:Bool = false;
@@ -52,18 +51,20 @@ class Note extends FlxSprite {
 	public var noteType(default, set):String = '';
 	public var attachedChar(default, set):Character;
 	private function set_attachedChar(value:Character):Character {
-		if (value == null)
+		if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
+		attachedChar = value;
 		return value;
 	}
 
 	public var extraOffsets = {
 		x: 0.0,
 		y: 0.0,
-		angle: 0.0
+		alpha: 0.0,
+		angle: 0.0,
+		scrlAng: 0.0
 	};
-	public var multAlpha:Float = 1;
-	// public var multSpeed(default, set):Float = 1;
-	
+	public var multSpeed:Float = 1;
+	public var multScale:Float = 1;
 	public var copyFromStrum = {
 		x: true,
 		y: true,
@@ -78,7 +79,6 @@ class Note extends FlxSprite {
 	public var distance:Float = 2000; // plan on doing scroll directions like psych :P
 	public var scrollAngle:Int = 90
 
-	public var colorSwap:ColorSwap;
 	public var multScore:Float = 1;
 
 	public static var swagWidth:Float = 160 * 0.7;
@@ -89,12 +89,9 @@ class Note extends FlxSprite {
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
-		
 		if (nextNote == null) nextNote = this;
 		//this.nextNote = nextNote;
-		
 		isSustainNote = sustainNote;
-		
 		/*isPixel = pixelStuff[0];
 		pixelScale = pixelStuff[1];*/
 		
@@ -114,22 +111,16 @@ class Note extends FlxSprite {
 				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 				animation.add('Note', [noteData + 4]);
 			}
-			setGraphicSize(Std.int(width * pixelScale));
-			updateHitbox();
-			antialiasing = false;
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
 			if (isSustainNote) {
 				animation.addByPrefix('Hold End', '${nameArray[noteData]} hold end');
 				animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
 			} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
-			setGraphicSize(Std.int(width * 0.7));
-			updateHitbox();
-			antialiasing = true;
 		}
-
-		colorSwap = new ColorSwap();
-		shader = colorSwap.shader;
+		setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multScale));
+		updateHitbox();
+		antialiasing = !isPixel;
 
 		x += swagWidth * noteData;
 		animation.play('Note');
@@ -138,9 +129,9 @@ class Note extends FlxSprite {
 
 		if (prevNote != null) prevNote.nextNote = this;
 		if (isSustainNote && prevNote != null) {
-			multScore * 0.2;
+			// multScore * 0.2;
 
-			if (PreferencesMenu.getPref('downscroll')) angle = 180;
+			if (PreferencesMenu.getPref('downscroll')) scrollAngle = -90;
 			x += width / 2;
 
 			animation.play('Hold End');
@@ -151,7 +142,7 @@ class Note extends FlxSprite {
 
 			if (prevNote.isSustainNote) {
 				prevNote.animation.play('Hold Piece');
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multSpeed;
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
@@ -185,7 +176,7 @@ class Note extends FlxSprite {
 					animToPlay = '';
 					animMissed = '';
 				case 'Opponent Sing':
-					attachedChar = PlayState.dad;
+					attachedChar = mustPress ? PlayState.dad : PlayState.boyfriend;
 				case 'GF Sing':
 					attachedChar = PlayState.gf;
 			}
