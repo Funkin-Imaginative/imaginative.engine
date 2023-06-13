@@ -4,8 +4,7 @@ import flixel.FlxSprite;
 
 using StringTools;
 
-class HealthIcon extends FlxSprite
-{
+class HealthIcon extends FlxSprite {
 	/**
 	 * Used for FreeplayState! If you use it elsewhere, prob gonna annoying
 	 */
@@ -34,7 +33,7 @@ class HealthIcon extends FlxSprite
 		if (isOldIcon)
 			changeIcon('bf-old');
 		else
-			changeIcon(PlayState.SONG.player1);
+			changeIcon(PlayState.chartData.player1);
 	}
 
 	public function changeIcon(newChar:String):Void

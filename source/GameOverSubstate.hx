@@ -30,7 +30,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				daBf = 'bf';
 		}
 
-		var daSong = PlayState.SONG.song.toLowerCase();
+		var daSong = PlayState.chartData.song.toLowerCase();
 
 		switch (daSong)
 		{

@@ -7,8 +7,8 @@ import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import ui.PreferencesMenu;
-import sys.io.File;
-import sys.FileSystem;
+// import sys.io.File;
+// import sys.FileSystem;
 
 using StringTools;
 
@@ -27,8 +27,7 @@ class Note extends FlxSprite {
 	public var missHealth:Float = 0.04;
 	public var scrollAngle:Float = 90;
 	public var noteType(default, set):String = '';
-	public var attachedChar(default, set):Character = null;
-	
+	public var attachedChar(default, set):Character;
 	private function set_attachedChar(value:Character):Character {
 		if (attachedChar != value || value == null) {
 			if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
@@ -81,7 +80,7 @@ class Note extends FlxSprite {
 		return value;
 	}
 
-	/* category */
+	/* Cool Stuff */
 	public var extraOffsets = {
 		x: 0.0,
 		y: 0.0,
@@ -105,16 +104,18 @@ class Note extends FlxSprite {
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
 
-	public function new(strumTime:Float, noteData:Int, /*pixelStuff:Array<Dynamic>,*/ ?prevNote:Note, ?sustainNote:Bool = false) {
+	public function new(strumTime:Float, noteData:Int, pixelStuff:Array<Dynamic>, ?prevNote:Note /*= this*/, ?sustainNote:Bool = false) {
 		super();
+
+		attachedChar = mustPress ? PlayState.boyfriend : PlayState.dad;
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
 		//if (nextNote == null) nextNote = this;
 		//this.nextNote = nextNote;
 		isSustainNote = sustainNote;
-		/*isPixel = pixelStuff[0];
-		pixelScale = pixelStuff[1];*/
+		isPixel = pixelStuff[0];
+		pixelScale = pixelStuff[1];
 		
 		x += 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
@@ -134,7 +135,7 @@ class Note extends FlxSprite {
 		if (isSustainNote && prevNote != null) {
 			// multScore * 0.2;
 
-			if (PreferencesMenu.getPref('downscroll')) scrollAngle = -90;
+			if (PreferencesMenu.getPref('downscroll')) angle = 180;//scrollAngle = -90;
 			x += width / 2;
 
 			loadNotePart('scale');
@@ -180,7 +181,7 @@ class Note extends FlxSprite {
 
 				if (prevNote.isSustainNote) {
 					prevNote.animation.play('Hold Piece');
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multipliers.scrlSpeed;
+					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.chartData.speed * multipliers.scrlSpeed;
 					prevNote.updateHitbox();
 					// prevNote.setGraphicSize();
 				}
@@ -208,14 +209,8 @@ class Note extends FlxSprite {
 	
 	public function checkAnimExists(?isMissAnim:Bool = false):Array<Dynamic> {
 		var anim:String = isMissAnim ? animMissed : animToPlay;
-		if (attachedChar.animOffsets.exists(anim + animSuffix)) {
-			return [true, anim + animSuffix];
-		}
-		else {
-			if (attachedChar.animOffsets.exists(anim)) {
-				return [true, anim];
-			}
-		}
+		if (attachedChar.animOffsets.exists(anim + animSuffix)) return [true, anim + animSuffix];
+		else { if (attachedChar.animOffsets.exists(anim))return [true, anim]; }
 		return [false, ''];
 	}
 
