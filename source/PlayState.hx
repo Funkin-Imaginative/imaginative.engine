@@ -52,56 +52,53 @@ using StringTools;
 import Discord.DiscordClient;
 #end
 
-class PlayState extends MusicBeatState
-{
+class PlayState extends MusicBeatState {
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
-	public static var deathCounter:Int = 0;
-	public static var practiceMode:Bool = false;
+	public var deathCounter:Int = 0;
+	public var practiceMode:Bool = false;
 	
-	var halloweenLevel:Bool = false;
+	public var vocals:FlxSound;
+	public var vocalsFinished:Bool = false;
 	
-	private var vocals:FlxSound;
-	private var vocalsFinished:Bool = false;
-	
-	private var dad:Character;
-	private var gf:Character;
-	private var boyfriend:Character;
+	public var dad:Character;
+	public var gf:Character;
+	public var boyfriend:Character;
 
-	private var notes:FlxTypedGroup<Note>;
-	private var unspawnNotes:Array<Note> = [];
+	public var notes:FlxTypedGroup<Note>;
+	public var unspawnNotes:Array<Note> = [];
 
 	private var strumLine:FlxSprite;
 
-	private var camFollow:FlxObject;
+	public var camFollow:FlxObject;
 
 	private static var prevCamFollow:FlxObject;
 
-	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	private var opponentStrums:FlxTypedGroup<FlxSprite>;
-	private var playerStrums:FlxTypedGroup<FlxSprite>;
+	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
+	public var opponentStrums:FlxTypedGroup<FlxSprite>;
+	public var playerStrums:FlxTypedGroup<FlxSprite>;
 
-	private var camZooming:Bool = false;
-	private var curSong:String = '';
+	public var camZooming:Bool = false;
+	public static var curSong:String = '';
 
-	private var gfSpeed:Int = 1;
-	private var health:Float = 1;
-	private var combo:Int = 0;
+	public var gfSpeed:Int = 1;
+	public var health:Float = 1;
+	public var combo:Int = 0;
 
-	private var healthBarBG:FlxSprite;
-	private var healthBar:FlxBar;
+	public var healthBarBG:FlxSprite;
+	public var healthBar:FlxBar;
 
-	private var generatedMusic:Bool = false;
-	private var startingSong:Bool = false;
+	public static var generatedMusic:Bool = false;
+	public static var startingSong:Bool = false;
 
-	private var iconP1:HealthIcon;
-	private var iconP2:HealthIcon;
-	private var camHUD:FlxCamera;
-	private var camGame:FlxCamera;
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
+	public var camHUD:FlxCamera;
+	public var camGame:FlxCamera;
 
 	public var cpuControlled:Bool = false;
 
@@ -142,7 +139,7 @@ class PlayState extends MusicBeatState
 
 	public static var campaignScore:Int = 0;
 
-	var defaultCamZoom:Float = 1.05;
+	public var defaultCamZoom:Float = 1.05;
 
 	public var isPixelStage:Bool = false;
 	// how big to stretch the pixel art assets
@@ -162,8 +159,7 @@ class PlayState extends MusicBeatState
 	var camPos:FlxPoint;
 	var lightFadeShader:BuildingShaders;
 
-	override public function create()
-	{
+	override public function create() {
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -181,16 +177,14 @@ class PlayState extends MusicBeatState
 		persistentUpdate = true;
 		persistentDraw = true;
 
-		if (SONG == null)
-			SONG = Song.loadFromJson('tutorial');
+		if (SONG == null) SONG = Song.loadFromJson('tutorial');
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
 
 		foregroundSprites = new FlxTypedGroup<BGSprite>();
 
-		switch (SONG.song.toLowerCase())
-		{
+		switch (SONG.song.toLowerCase()) {
 			case 'tutorial':
 				dialogue = ['Hey you\'re pretty cute.', 'Use the arrow keys to keep up \nwith me singing.'];
 			case 'bopeebo':
@@ -220,12 +214,9 @@ class PlayState extends MusicBeatState
 		initDiscord();
 		#end
 
-		switch (SONG.song.toLowerCase())
-		{
+		switch (SONG.song.toLowerCase()) {
 			case 'spookeez' | 'monster' | 'south':
 				curStage = 'spooky';
-				halloweenLevel = true;
-
 				var hallowTex = Paths.getSparrowAtlas('halloween_bg');
 
 				halloweenBG = new FlxSprite(-200, -100);
