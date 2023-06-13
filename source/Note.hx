@@ -35,10 +35,9 @@ class Note extends FlxSprite {
 	private static var willMiss:Bool = false;
 
 	public var animSuffix:String = '';
-	// public var invisNote:Bool = false;
 	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
-	function set_isPixel(value:Bool):Bool {
+	private function set_isPixel(value:Bool):Bool {
 		if (isPixel != value) {
 			isPixel = value;
 			// reloadNote();
@@ -51,6 +50,11 @@ class Note extends FlxSprite {
 	public var animToPlay(default, set):String = '';
 	public var animMissed(default, set):String = '';
 	public var noteType(default, set):String = '';
+	public var attachedChar(default, set):Character;
+	private function set_attachedChar(value:Character):Character {
+		if (value == null)
+		return value;
+	}
 
 	public var extraOffsets = {
 		x: 0.0,
@@ -104,11 +108,11 @@ class Note extends FlxSprite {
 		if (isPixel) {
 			if (isSustainNote) {
 				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
-				animation.add('${nameArray[noteData]}holdend', [noteData + 4]);
-				animation.add('${nameArray[noteData]}hold', [noteData]);
+				animation.add('Hold End', [noteData + 4]);
+				animation.add('Hold Piece', [noteData]);
 			} else {
 				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
-				animation.add('${nameArray[noteData]}Scroll', [noteData + 4]);
+				animation.add('Note', [noteData + 4]);
 			}
 			setGraphicSize(Std.int(width * pixelScale));
 			updateHitbox();
@@ -116,9 +120,9 @@ class Note extends FlxSprite {
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
 			if (isSustainNote) {
-				animation.addByPrefix('${nameArray[noteData]}holdend', '${nameArray[noteData]} hold end');
-				animation.addByPrefix('${nameArray[noteData]}hold', '${nameArray[noteData]} hold piece');
-			} else animation.addByPrefix('${nameArray[noteData]}Scroll', '${nameArray[noteData]} static');
+				animation.addByPrefix('Hold End', '${nameArray[noteData]} hold end');
+				animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
+			} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
 			setGraphicSize(Std.int(width * 0.7));
 			updateHitbox();
 			antialiasing = true;
@@ -128,7 +132,7 @@ class Note extends FlxSprite {
 		shader = colorSwap.shader;
 
 		x += swagWidth * noteData;
-		animation.play('${nameArray[noteData]}Scroll');
+		animation.play('Note');
 
 		// trace(prevNote);
 
@@ -139,14 +143,14 @@ class Note extends FlxSprite {
 			if (PreferencesMenu.getPref('downscroll')) angle = 180;
 			x += width / 2;
 
-			animation.play('${nameArray[noteData]}holdend');
+			animation.play('Hold End');
 			updateHitbox();
 
 			x -= width / 2;
 			if (isPixel) x += 30;
 
 			if (prevNote.isSustainNote) {
-				prevNote.animation.play('${nameArray[noteData]}hold');
+				prevNote.animation.play('Hold Piece');
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
@@ -181,9 +185,9 @@ class Note extends FlxSprite {
 					animToPlay = '';
 					animMissed = '';
 				case 'Opponent Sing':
-					// attachedChar = PlayState.dad;
+					attachedChar = PlayState.dad;
 				case 'GF Sing':
-					// attachedChar = PlayState.gf;
+					attachedChar = PlayState.gf;
 			}
 			noteType = value;
 		}
