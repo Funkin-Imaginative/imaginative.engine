@@ -75,16 +75,20 @@ class Note extends FlxSprite {
 	public var scrollAngle:Int = 90
 
 	public var colorSwap:ColorSwap;
-	public var noteScore:Float = 1;
+	public var multScore:Float = 1;
 
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
 
-	public function new(strumTime:Float, noteData:Int, /*pixelStuff:Array<String>,*/ ?prevNote:Note, ?sustainNote:Bool = false) {
+	public function new(strumTime:Float, noteData:Int, /*pixelStuff:Array<Dynamic>,*/ ?prevNote:Note, /*?nextNote:Note,*/ ?sustainNote:Bool = false) {
 		super();
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
+		
+		if (nextNote == null) nextNote = this;
+		//this.nextNote = nextNote;
+		
 		isSustainNote = sustainNote;
 		
 		/*isPixel = pixelStuff[0];
@@ -130,8 +134,7 @@ class Note extends FlxSprite {
 
 		if (prevNote != null) prevNote.nextNote = this;
 		if (isSustainNote && prevNote != null) {
-			noteScore * 0.2;
-			alpha = 0.6;
+			multScore * 0.2;
 
 			if (PreferencesMenu.getPref('downscroll')) angle = 180;
 			x += width / 2;
@@ -178,9 +181,9 @@ class Note extends FlxSprite {
 					animToPlay = '';
 					animMissed = '';
 				case 'Opponent Sing':
-					// oppoNote = true;
+					// attachedChar = PlayState.dad;
 				case 'GF Sing':
-					// gfNote = true;
+					// attachedChar = PlayState.gf;
 			}
 			noteType = value;
 		}
