@@ -25,9 +25,10 @@ class Note extends FlxSprite {
 	public var sustainLength:Float = 0;
 	public var hitHealth:Float = 0.02;
 	public var missHealth:Float = 0.04;
-	public var scrollAngle:Float = 90
+	public var scrollAngle:Float = 90;
 	public var noteType(default, set):String = '';
 	public var attachedChar(default, set):Character = null;
+	
 	private function set_attachedChar(value:Character):Character {
 		if (attachedChar != value || value == null) {
 			if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
@@ -109,8 +110,8 @@ class Note extends FlxSprite {
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
-		if (nextNote == null) nextNote = this;
-		this.nextNote = nextNote;
+		//if (nextNote == null) nextNote = this;
+		//this.nextNote = nextNote;
 		isSustainNote = sustainNote;
 		/*isPixel = pixelStuff[0];
 		pixelScale = pixelStuff[1];*/
@@ -207,13 +208,15 @@ class Note extends FlxSprite {
 	
 	public function checkAnimExists(?isMissAnim:Bool = false):Array<Dynamic> {
 		var anim:String = isMissAnim ? animMissed : animToPlay;
-		if (attachedChar.animOffsets.exists(anim + animSuffix))
+		if (attachedChar.animOffsets.exists(anim + animSuffix)) {
 			return [true, anim + animSuffix];
-		else {
-			if (attachedChar.animOffsets.exists(anim))
-			return [true, anim];
 		}
-		return [false, '']
+		else {
+			if (attachedChar.animOffsets.exists(anim)) {
+				return [true, anim];
+			}
+		}
+		return [false, ''];
 	}
 
 	private function set_noteType(value:String):String {

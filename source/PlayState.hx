@@ -59,15 +59,15 @@ class PlayState extends MusicBeatState {
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
 	public static var storyDifficulty:Int = 1;
-	public var deathCounter:Int = 0;
-	public var practiceMode:Bool = false;
+	public static var deathCounter:Int = 0;
+	public static var practiceMode:Bool = false;
 	
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
 	
-	public var dad:Character;
-	public var gf:Character;
-	public var boyfriend:Character;
+	public static var dad:Character;
+	public static var gf:Character;
+	public static var boyfriend:Character;
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -2461,14 +2461,14 @@ class PlayState extends MusicBeatState {
 			if (perfectMode) goodNoteHit(possibleNotes[0]);
 			else if (possibleNotes.length > 0) {
 				for (shit in 0...pressArray.length) { // if a direction is hit that shouldn't be
-					if (pressArray[shit] && !directionList.contains(shit)) // noteMissPress(shit);
+					//if (pressArray[shit] && !directionList.contains(shit)) // noteMissPress(shit);
 				}
 				for (coolNote in possibleNotes) {
 					if (pressArray[coolNote.noteData]) goodNoteHit(coolNote);
 				}
 			} else {
-				for (shit in 0...pressArray.length)
-					if (pressArray[shit])
+				//for (shit in 0...pressArray.length)
+					//if (pressArray[shit])
 						// noteMissPress(shit);
 			}
 		}
@@ -2573,7 +2573,7 @@ class PlayState extends MusicBeatState {
 		if (!note.mustPress && note.wasGoodHit) {
 			if (SONG.song != 'Tutorial') camZooming = true; // why tf
 
-			var altSection:SwagSong = SONG.notes[Math.floor(curStep / 16)]
+			var altSection:SwagSection = SONG.notes[Math.floor(curStep / 16)];
 			if (altSection != null && altSection.altAnim) note.animSuffix = '-alt';
 
 			var animCheck:Array<Dynamic> = note.checkAnimExists();
