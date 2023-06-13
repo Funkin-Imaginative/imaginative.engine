@@ -7,6 +7,8 @@ import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import ui.PreferencesMenu;
+import sys.io.File;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -15,21 +17,49 @@ import polymod.format.ParseRules.TargetSignatureElement;
 #end
 
 class Note extends FlxSprite {
+	/* Important Stuff */
 	public var strumTime:Float = 0;
 	public var mustPress:Bool = false;
 	public var noteData:Int = 0;
+	public var isSustainNote:Bool = false;
+	public var sustainLength:Float = 0;
+	public var hitHealth:Float = 0.02;
+	public var missHealth:Float = 0.04;
+	public var scrollAngle:Float = 90
+	public var noteType(default, set):String = '';
+	public var attachedChar(default, set):Character = null;
+	private function set_attachedChar(value:Character):Character {
+		if (attachedChar != value || value == null) {
+			if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
+			attachedChar = value;
+		}
+		return value;
+	}
+
+	/* Hit Detection */
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
-	public var ignoreNote:Bool = false;
 	public var hitByOpponent:Bool = false;
 	public var noteWasHit:Bool = false;
+	
+	/* Note Grouping */
 	public var prevNote:Note;
 	public var nextNote:Note;
-
 	public var parent:Note;
 	public var tail:Array<Note> = []; // for sustains
+
+	/* Extras */
 	public var blockHit:Bool = false;
+	public var ignoreNote:Bool = false;
+	public var hitCausesMiss:Bool = false;
+	public var distanceFromStrum:Float = 2000; // plan on doing scroll directions like psych :P
+	public var spawned:Bool = false;
+
+	/* Animation */
+	public var animToPlay(default, set):String = 'loadDefaults';
+	public var animMissed(default, set):String = 'loadDefaults';
+	public var animSuffix:String = '';
 	public var texture(default, set):String = 'Default';
 	private function set_texture(value:String):String {
 		if (texture != value) {
@@ -39,7 +69,7 @@ class Note extends FlxSprite {
 		return value;
 	}
 
-	public var animSuffix:String = '';
+	/* Pixel */
 	public var isPixel(default, set):Bool = false;
 	public var pixelScale:Float = 6;
 	private function set_isPixel(value:Bool):Bool {
@@ -50,31 +80,19 @@ class Note extends FlxSprite {
 		return value;
 	}
 
-	public var sustainLength:Float = 0;
-	public var isSustainNote:Bool = false;
-	public var animToPlay(default, set):String = '';
-	public var animMissed(default, set):String = '';
-	public var noteType(default, set):String = '';
-	public var attachedChar(default, set):Character = null;
-	private function set_attachedChar(value:Character):Character {
-		if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
-		attachedChar = value;
-		return value;
-	}
-
+	/* category */
 	public var extraOffsets = {
 		x: 0.0,
 		y: 0.0,
-		alpha: 0.0,
-		angle: 0,
-		scrlAng: 0
+		angle: 0.0,
+		scrlAng: 0.0
 	};
 	public var multipliers = {
+		alpha: 1.0,
 		scrlSpeed: 1.0,
+		//score: 1.0,
 		scaleX: 1.0 // no Y on purpose
 	};
-	public var multSpeed:Float = 1;
-	public var multScale:Float = 1;
 	public var copyFromStrum = {
 		x: true,
 		y: true,
@@ -82,25 +100,17 @@ class Note extends FlxSprite {
 		alpha: true
 	};
 
-	public var hitHealth:Float = 0.02;
-	public var missHealth:Float = 0.04;
-
-	public var hitCausesMiss:Bool = false;
-	public var distanceFromStrum:Float = 2000; // plan on doing scroll directions like psych :P
-	public var scrollAngle:Int = 90
-
-	// public var multScore:Float = 1;
-
+	/* Misc */
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
 
-	public function new(strumTime:Float, noteData:Int, /*pixelStuff:Array<Dynamic>,*/ ?prevNote:Note, /*?nextNote:Note,*/ ?sustainNote:Bool = false) {
+	public function new(strumTime:Float, noteData:Int, /*pixelStuff:Array<Dynamic>,*/ ?prevNote:Note, ?sustainNote:Bool = false) {
 		super();
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
 		if (nextNote == null) nextNote = this;
-		//this.nextNote = nextNote;
+		this.nextNote = nextNote;
 		isSustainNote = sustainNote;
 		/*isPixel = pixelStuff[0];
 		pixelScale = pixelStuff[1];*/
@@ -134,11 +144,17 @@ class Note extends FlxSprite {
 		if (part == 'asset') {
 			if (isPixel) {
 				if (isSustainNote) {
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'));
+					width /= 4;
+					height /= 2;
+					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, Math.floor(width), Math.floor(height));
 					animation.add('Hold End', [noteData + 4]);
 					animation.add('Hold Piece', [noteData]);
 				} else {
-					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'));
+					width /= 4;
+					height /= 5;
+					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, Math.floor(width), Math.floor(height));
 					animation.add('Note', [noteData + 4]);
 				}
 			} else {
@@ -148,7 +164,7 @@ class Note extends FlxSprite {
 					animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
 				} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
 			}
-			setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multScale));
+			setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multipliers.scaleX));
 			updateHitbox();
 			antialiasing = !isPixel;
 		} else if (part == 'scale') {
@@ -163,7 +179,7 @@ class Note extends FlxSprite {
 
 				if (prevNote.isSustainNote) {
 					prevNote.animation.play('Hold Piece');
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multSpeed;
+					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multipliers.scrlSpeed;
 					prevNote.updateHitbox();
 					// prevNote.setGraphicSize();
 				}
@@ -185,8 +201,19 @@ class Note extends FlxSprite {
 		return value;
 	}
 
-	public function noAnimChecker(?isMissAnim:Bool = false) {
+	public function noAnimChecker(?isMissAnim:Bool = false):Bool {
 		return if (isMissAnim) animMissed.length < 1; else animToPlay.length < 1;
+	}
+	
+	public function checkAnimExists(?isMissAnim:Bool = false):Array<Dynamic> {
+		var anim:String = isMissAnim ? animMissed : animToPlay;
+		if (attachedChar.animOffsets.exists(anim + animSuffix))
+			return [true, anim + animSuffix];
+		else {
+			if (attachedChar.animOffsets.exists(anim))
+			return [true, anim];
+		}
+		return [false, '']
 	}
 
 	private function set_noteType(value:String):String {
