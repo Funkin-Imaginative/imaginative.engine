@@ -85,10 +85,6 @@ class Note extends FlxSprite {
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
-		
-		if (nextNote == null) nextNote = this;
-		this.nextNote = nextNote;
-		
 		isSustainNote = sustainNote;
 		
 		/*isPixel = pixelStuff[0];
