@@ -30,8 +30,14 @@ class Note extends FlxSprite {
 	public var parent:Note;
 	public var tail:Array<Note> = []; // for sustains
 	public var blockHit:Bool = false;
-
-	private static var willMiss:Bool = false;
+	public var texture(default, set):String = 'Default';
+	private function set_texture(value:String):String {
+		if (texture != value) {
+			texture = value;
+			loadNotePart('asset');
+		}
+		return value;
+	}
 
 	public var animSuffix:String = '';
 	public var isPixel(default, set):Bool = false;
@@ -39,7 +45,7 @@ class Note extends FlxSprite {
 	private function set_isPixel(value:Bool):Bool {
 		if (isPixel != value) {
 			isPixel = value;
-			// reloadNote();
+			loadNotePart('asset');
 		}
 		return value;
 	}
@@ -49,7 +55,7 @@ class Note extends FlxSprite {
 	public var animToPlay(default, set):String = '';
 	public var animMissed(default, set):String = '';
 	public var noteType(default, set):String = '';
-	public var attachedChar(default, set):Character;
+	public var attachedChar(default, set):Character = null;
 	private function set_attachedChar(value:Character):Character {
 		if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
 		attachedChar = value;
@@ -60,8 +66,12 @@ class Note extends FlxSprite {
 		x: 0.0,
 		y: 0.0,
 		alpha: 0.0,
-		angle: 0.0,
-		scrlAng: 0.0
+		angle: 0,
+		scrlAng: 0
+	};
+	public var multipliers = {
+		scrlSpeed: 1.0,
+		scaleX: 1.0 // no Y on purpose
 	};
 	public var multSpeed:Float = 1;
 	public var multScale:Float = 1;
@@ -76,10 +86,10 @@ class Note extends FlxSprite {
 	public var missHealth:Float = 0.04;
 
 	public var hitCausesMiss:Bool = false;
-	public var distance:Float = 2000; // plan on doing scroll directions like psych :P
+	public var distanceFromStrum:Float = 2000; // plan on doing scroll directions like psych :P
 	public var scrollAngle:Int = 90
 
-	public var multScore:Float = 1;
+	// public var multScore:Float = 1;
 
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
@@ -102,28 +112,10 @@ class Note extends FlxSprite {
 		this.strumTime = strumTime;
 		this.noteData = noteData;
 
-		if (isPixel) {
-			if (isSustainNote) {
-				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
-				animation.add('Hold End', [noteData + 4]);
-				animation.add('Hold Piece', [noteData]);
-			} else {
-				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
-				animation.add('Note', [noteData + 4]);
-			}
-		} else {
-			frames = Paths.getSparrowAtlas('NOTE_assets');
-			if (isSustainNote) {
-				animation.addByPrefix('Hold End', '${nameArray[noteData]} hold end');
-				animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
-			} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
-		}
-		setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multScale));
-		updateHitbox();
-		antialiasing = !isPixel;
+		loadNotePart('asset');
 
 		x += swagWidth * noteData;
-		animation.play('Note');
+		if (!isSustainNote) animation.play('Note');
 
 		// trace(prevNote);
 
@@ -134,31 +126,61 @@ class Note extends FlxSprite {
 			if (PreferencesMenu.getPref('downscroll')) scrollAngle = -90;
 			x += width / 2;
 
-			animation.play('Hold End');
+			loadNotePart('scale');
+		}
+	}
+
+	public function loadNotePart(part:String) { // Can also reload.
+		if (part == 'asset') {
+			if (isPixel) {
+				if (isSustainNote) {
+					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+					animation.add('Hold End', [noteData + 4]);
+					animation.add('Hold Piece', [noteData]);
+				} else {
+					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+					animation.add('Note', [noteData + 4]);
+				}
+			} else {
+				frames = Paths.getSparrowAtlas('NOTE_assets');
+				if (isSustainNote) {
+					animation.addByPrefix('Hold End', '${nameArray[noteData]} hold end');
+					animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
+				} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
+			}
+			setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multScale));
 			updateHitbox();
+			antialiasing = !isPixel;
+		} else if (part == 'scale') {
+			x += swagWidth * noteData;
+			if (!isSustainNote) animation.play('Note');
+			if (isSustainNote && prevNote != null) {
+				animation.play('Hold End');
+				updateHitbox();
 
-			x -= width / 2;
-			if (isPixel) x += 30;
+				x -= width / 2;
+				if (isPixel) x += 30;
 
-			if (prevNote.isSustainNote) {
-				prevNote.animation.play('Hold Piece');
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multSpeed;
-				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
+				if (prevNote.isSustainNote) {
+					prevNote.animation.play('Hold Piece');
+					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * multSpeed;
+					prevNote.updateHitbox();
+					// prevNote.setGraphicSize();
+				}
 			}
 		}
 	}
 
 	private function set_animToPlay(value:String):String {
-		// var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
+		// var singAnims:Array<String> = [attachedChar.isPlayer ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', attachedChar.isPlayer ? 'singAWAY' : 'singTO'];
 		var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-		if (value.length < 1) value = singAnims[noteData];
+		if (value.length < 1 || value == 'loadDefaults') value = singAnims[noteData];
 		animToPlay = value;
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
-		if (value.length < 1) value = animToPlay + 'miss';
+		if (value.length < 1 || value == 'loadDefaults') value = animToPlay + 'miss';
 		animMissed = value;
 		return value;
 	}
@@ -185,9 +207,9 @@ class Note extends FlxSprite {
 		return value;
 	}
 
+	private static var willMiss:Bool = false;
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-
 		if (mustPress) {
 			// miss on the NEXT frame so lag doesnt make u miss notes
 			if (willMiss && !wasGoodHit) {
