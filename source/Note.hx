@@ -72,6 +72,7 @@ class Note extends FlxSprite {
 
 	public var hitCausesMiss:Bool = false;
 	public var distance:Float = 2000; // plan on doing scroll directions like psych :P
+	public var scrollAngle:Int = 90
 
 	public var colorSwap:ColorSwap;
 	public var noteScore:Float = 1;
@@ -84,6 +85,10 @@ class Note extends FlxSprite {
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
+		
+		if (nextNote == null) nextNote = this;
+		this.nextNote = nextNote;
+		
 		isSustainNote = sustainNote;
 		
 		/*isPixel = pixelStuff[0];
@@ -154,11 +159,13 @@ class Note extends FlxSprite {
 		// var singAnims:Array<String> = [mustPress ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', mustPress ? 'singAWAY' : 'singTO'];
 		var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 		if (value.length < 1) value = singAnims[noteData];
+		animToPlay = value;
 		return value;
 	}
 
 	private function set_animMissed(value:String):String {
 		if (value.length < 1) value = animToPlay + 'miss';
+		animMissed = value;
 		return value;
 	}
 
