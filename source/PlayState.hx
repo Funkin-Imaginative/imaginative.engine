@@ -64,7 +64,7 @@ class PlayState extends MusicBeatState {
 	
 	public static var inst:FlxSound;
 	public static var vocals:FlxSound;
-	public /*static¿*/ var vocalsFinished:Bool = false;
+	public /*static?*/ var vocalsFinished:Bool = false;
 	
 	public static var dad:Character;
 	public static var gf:Character;
@@ -620,7 +620,7 @@ class PlayState extends MusicBeatState {
 			gfVersion = 'pico-speaker';
 
 		gf = new Character(gfVersion, 400, 130);
-		gf.precacheCharacter(gf.curCharacter);
+		gf.precacheCharacter(gf.charName);
 		gf.scrollFactor.set(0.95, 0.95);
 
 		switch (gfVersion)
@@ -648,7 +648,7 @@ class PlayState extends MusicBeatState {
 		}
 
 		dad = new Character(chartData.player2, 100, 100);
-		dad.precacheCharacter(dad.curCharacter);
+		dad.precacheCharacter(dad.charName);
 
 		camPos = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
 
@@ -687,7 +687,7 @@ class PlayState extends MusicBeatState {
 		}
 
 		boyfriend = new Character(chartData.player1, 770, 450, true);
-		boyfriend.precacheCharacter(boyfriend.curCharacter);
+		boyfriend.precacheCharacter(boyfriend.charName);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage) {
@@ -1790,7 +1790,7 @@ class PlayState extends MusicBeatState {
 			   SHIFT+8 for player char
 				 CTRL+SHIFT+8 for gf   */
 			if (FlxG.keys.pressed.SHIFT)
-				if (FlxG.keys.pressed.CONTROL) FlxG.switchState(new AnimationDebug(gf.curCharacter));
+				if (FlxG.keys.pressed.CONTROL) FlxG.switchState(new AnimationDebug(gf.charName));
 				else  FlxG.switchState(new AnimationDebug(chartData.player1));
 			else FlxG.switchState(new AnimationDebug(chartData.player2));
 		}
@@ -2220,7 +2220,7 @@ class PlayState extends MusicBeatState {
 		if (camFollow.x != dad.getMidpoint().x + 150 && !cameraRightSide) {
 			camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 			// camFollow.setPosition(lucky.getMidpoint().x - 120, lucky.getMidpoint().y + 210);
-			switch (dad.curCharacter) {
+			switch (dad.charName) {
 				case 'mom':
 					camFollow.y = dad.getMidpoint().y;
 				case 'senpai' | 'senpai-angry':
@@ -2586,7 +2586,7 @@ class PlayState extends MusicBeatState {
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
 			boyfriend.playAnim('hey', true);
 
-		if (curBeat % 16 == 15 && chartData.song == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48) {
+		if (curBeat % 16 == 15 && chartData.song == 'Tutorial' && dad.charName == 'gf' && curBeat > 16 && curBeat < 48) {
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);
 		}
