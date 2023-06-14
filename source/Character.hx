@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxState;
 import Section.SwagSection;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -28,8 +29,8 @@ class Character extends FlxSprite {
 	public var charName(default, set):String = 'bf';
 
 	public var swayHead:Bool = false;
-	public var danceNumBeats:Int = 1:
-	public var bopSpeed:Float = 1:
+	public var danceNumBeats:Int = 1;
+	public var bopSpeed:Float = 1;
 	
 	public var holdTimer:Float = 0;
 	public var singDuration:Float = 4;
@@ -37,7 +38,7 @@ class Character extends FlxSprite {
 	public var positionOffset:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
 	
-	public var idleSuffix:String = '':
+	public var idleSuffix:String = '';
 	public var shoutAnim:String = '';
 	
 	public var imageFile:String = '';
@@ -46,7 +47,7 @@ class Character extends FlxSprite {
 	public var healthColorArray:Array<Int> = [128, 0, 255];
 	
 	public var noInterup = {
-		singing = false,
+		singing = false;
 		bopping = false
 	};
 
@@ -469,6 +470,8 @@ class Character extends FlxSprite {
 		// Removes old character.
 		oldMan.kill();
 		oldMan.destroy();
+		charName = value;
+		return value;
 	}
 
 	public function loadMappedAnims() {

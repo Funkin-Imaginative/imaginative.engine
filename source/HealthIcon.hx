@@ -13,12 +13,12 @@ class HealthIcon extends FlxSprite {
 		scrollFactor.set();
 	}
 
-	public var isOldIcon(default, set):Bool = false;
-	private function set_isOldIcon():Bool {
+	public var isOldIcon:Bool = false;
+	/*private function set_isOldIcon():Bool {
 		isOldIcon = !isOldIcon;
 		if (isOldIcon) iconName = 'bf-old';
 		else iconName = iconName;
-	}
+	}*/
 
 	private function set_iconName(value:String):String {
 		if (iconName != value) {

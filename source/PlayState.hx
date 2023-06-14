@@ -781,9 +781,9 @@ class PlayState extends MusicBeatState {
 		generateSong();
 
 		opponentStrums = new FlxTypedGroup<FlxSprite>();
-		notes.forEachAlive(function(daNote:Note) { if (!daNote.mustPress) notes.add(daNote); };
+		notes.forEachAlive(function(daNote:Note) { if (!daNote.mustPress) notes.add(daNote); });
 		playerStrums = new FlxTypedGroup<FlxSprite>();
-		notes.forEachAlive(function(daNote:Note) { if (daNote.mustPress) notes.add(daNote); };
+		notes.forEachAlive(function(daNote:Note) { if (daNote.mustPress) notes.add(daNote); });
 
 		// add(strumLine);
 
