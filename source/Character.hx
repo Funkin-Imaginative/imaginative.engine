@@ -10,22 +10,22 @@ import haxe.io.Path;
 
 using StringTools;
 
-typedef coolOffsetMapStuff = {
+/*typedef coolOffsetMapStuff = {
 	var facingLeft:Map<String, Array<Dynamic>>;
 	var facingRight:Map<String, Array<Dynamic>>;
 	var backups = { // For reoffseting when scale is changed
 		var facingLeft:Map<String, Array<Dynamic>>;
 		var facingRight:Map<String, Array<Dynamic>>;
 	};
-};
+};*/
 
 class Character extends FlxSprite {
 	public var debugMode:Bool = false;
 	public var animOffsets:Map<String, Array<Dynamic>>;
-	//public var offsetMaps:Array<coolOffsetMapStuff>
+	//public var offsetMaps:Array<coolOffsetMapStuff> = [];
 
 	public var isPlayer:Bool = false;
-	public var curCharacter:String = 'bf';
+	public var curCharacter(default, set):String = 'bf';
 
 	public var swayHead:Bool = false;
 	public var danceNumBeats:Int = 1:
@@ -39,6 +39,10 @@ class Character extends FlxSprite {
 	
 	public var idleSuffix:String = '':
 	public var shoutAnim:String = '';
+	
+	public var imageFile:String = '';
+	public var jsonScale:Float = 1;
+	public var noAntialiasing:Bool = false;
 	public var healthColorArray:Array<Int> = [128, 0, 255];
 	
 	public var noInterup = {
@@ -48,7 +52,7 @@ class Character extends FlxSprite {
 
 	public var animationNotes:Array<Dynamic> = [];
 
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false) {
+	public function new(character:String = 'bf', ?x:Float = 0, ?y:Float = 0, ?isPlayer:Bool = false) {
 		super(x, y);
 
 		animOffsets = new Map<String, Array<Dynamic>>();
@@ -442,8 +446,23 @@ class Character extends FlxSprite {
 	}
 
 	public function precacheCharacter(newCharacter:String) {
-		var cachedChar:character = new Character(0, 0, newCharacter);
+		var cachedChar:character = new Character(newCharacter);
 		cachedChar.alpha = 0.0000001;
+	}
+
+	private function set_curCharacter(value:String):String {
+		var oldMan:Character = this;
+		var newKid:Character = new Character(value, oldMan.x, oldMan.y, oldMan.isPlayer);
+		
+		this = newKid;
+		newKid.alpha = oldMan.alpha;
+		newKid.visible = oldMan.visible;
+		newKid.color = oldMan.color;
+		newKid.shader = oldMan.shader;
+		
+		// Removes old Character
+		oldMan.kill();
+		oldMan.destroy();
 	}
 
 	public function loadMappedAnims() {
