@@ -619,7 +619,8 @@ class PlayState extends MusicBeatState {
 		if (chartData.song.toLowerCase() == 'stress')
 			gfVersion = 'pico-speaker';
 
-		gf = new Character(400, 130, gfVersion);
+		gf = new Character(gfVersion, 400, 130);
+		gf.precacheCharacter(gf.curCharacter);
 		gf.scrollFactor.set(0.95, 0.95);
 
 		switch (gfVersion)
@@ -646,7 +647,8 @@ class PlayState extends MusicBeatState {
 				}
 		}
 
-		dad = new Character(100, 100, chartData.player2);
+		dad = new Character(chartData.player2, 100, 100);
+		dad.precacheCharacter(dad.curCharacter);
 
 		camPos = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
 
@@ -684,7 +686,8 @@ class PlayState extends MusicBeatState {
 				dad.y += 180;
 		}
 
-		boyfriend = new Character(770, 450, chartData.player1, true);
+		boyfriend = new Character(chartData.player1, 770, 450, true);
+		boyfriend.precacheCharacter(boyfriend.curCharacter);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage) {
