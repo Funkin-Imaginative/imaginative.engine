@@ -104,15 +104,14 @@ class Note extends FlxSprite {
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
 
-	public function new(strumTime:Float, noteData:Int, pixelStuff:Array<Dynamic>, ?prevNote:Note /*= this*/, ?sustainNote:Bool = false) {
+	public function new(strumTime:Float, noteData:Int, pixelStuff:Array<Dynamic>, ?prevNote:Note, ?sustainNote:Bool = false) {
 		super();
 
 		attachedChar = mustPress ? PlayState.boyfriend : PlayState.dad;
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
-		//if (nextNote == null) nextNote = this;
-		//this.nextNote = nextNote;
+
 		isSustainNote = sustainNote;
 		isPixel = pixelStuff[0];
 		pixelScale = pixelStuff[1];
