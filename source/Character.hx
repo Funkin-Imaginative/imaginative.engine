@@ -39,7 +39,7 @@ class Character extends FlxSprite {
 	public var positionOffset:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
 	
-	public var idleSuffix;String = '':
+	public var idleSuffix:String = '':
 	public var shoutAnim:String = '';
 	public var originalFlipX:Bool = false;
 	public var healthColorArray:Array<Int> = [128, 0, 255];
