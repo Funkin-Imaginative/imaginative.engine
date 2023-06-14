@@ -48,9 +48,7 @@ import ui.PreferencesMenu;
 
 using StringTools;
 
-#if discord_rpc
-import Discord.DiscordClient;
-#end
+#if discord_rpc import Discord.DiscordClient; #end
 
 class PlayState extends MusicBeatState {
 	public static var curStage:String = '';
@@ -62,43 +60,43 @@ class PlayState extends MusicBeatState {
 	public static var deathCounter:Int = 0;
 	public static var practiceMode:Bool = false;
 	
-	public static var inst:FlxSound;
-	public static var vocals:FlxSound;
-	public /*static?*/ var vocalsFinished:Bool = false;
+	public var inst:FlxSound;
+	public var vocals:FlxSound;
+	public var vocalsFinished:Bool = false;
 	
-	public static var dad:Character;
-	public static var gf:Character;
-	public static var boyfriend:Character;
+	public var dad:Character;
+	public var gf:Character;
+	public var boyfriend:Character;
 
-	public static var notes:FlxTypedGroup<Note>;
-	public static var unspawnNotes:Array<Note> = [];
-
+	public var notes:FlxTypedGroup<Note>;
+	public var unspawnNotes:Array<Note> = [];
+	public var scrollSpeed:Float = chartData.speed;
+	public var startScrlSpd:Float;
+	
+	public var camFollow:FlxObject;
+	private static var prevCamFollow:FlxObject;
+	
 	private var strumLine:FlxSprite;
+	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
+	public var opponentStrums:FlxTypedGroup<FlxSprite>;
+	public var playerStrums:FlxTypedGroup<FlxSprite>;
 
-	public static var camFollow:FlxObject;
-
-	private var prevCamFollow:FlxObject;
-
-	public static var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	public static var opponentStrums:FlxTypedGroup<FlxSprite>;
-	public static var playerStrums:FlxTypedGroup<FlxSprite>;
-
-	public static var camZooming:Bool = false;
+	public var camZooming:Bool = false;
 	public var curSong:String = '';
 
-	public static var health:Float = 1;
+	public var health:Float = 1;
 	public var combo:Int = 0;
 
-	public static var healthBarBG:FlxSprite;
-	public static var healthBar:FlxBar;
+	public var healthBarBG:FlxSprite;
+	public var healthBar:FlxBar;
 
-	public static var generatedMusic:Bool = false;
-	public static var startingSong:Bool = false;
+	public var generatedMusic:Bool = false;
+	public var startingSong:Bool = false;
 
-	public static var iconP1:HealthIcon;
-	public static var iconP2:HealthIcon;
-	public static var camHUD:FlxCamera;
-	public static var camGame:FlxCamera;
+	public var iconP1:HealthIcon;
+	public var iconP2:HealthIcon;
+	public var camHUD:FlxCamera;
+	public var camGame:FlxCamera;
 
 	public static var botplay:Bool = false;
 
@@ -139,12 +137,12 @@ class PlayState extends MusicBeatState {
 
 	public static var campaignScore:Int = 0;
 
-	public static var defaultCamZoom:Float = 1.05;
+	public var defaultCamZoom:Float = 1;
 
 	public static var isPixelStage:Bool = false;
-	public static var startPixelScale:Float = 6; // how big to stretch the pixel art assets
+	public static var daPixelZoom:Float = 6; // how big to stretch the pixel art assets
 
-	var inCutscene:Bool = false;
+	public var inCutscene:Bool = false;
 
 	#if discord_rpc
 	// Discord RPC variables
@@ -158,16 +156,21 @@ class PlayState extends MusicBeatState {
 	var camPos:FlxPoint;
 	var lightFadeShader:BuildingShaders;
 
+	public static var instance:PlayState;
+
 	override public function create() {
+		instance = this;
+
 		if (inst != null) inst.stop();
 
-		FlxG.sound.cache(Paths.inst(PlayState.chartData.song));
-		FlxG.sound.cache(Paths.voices(PlayState.chartData.song));
+		FlxG.sound.cache(Paths.inst(chartData.song));
+		FlxG.sound.cache(Paths.voices(chartData.song));
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = new SwagCamera();
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
+		startScrlSpd = scrollSpeed;
 
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camHUD, false);
@@ -212,6 +215,7 @@ class PlayState extends MusicBeatState {
 		initDiscord();
 		#end
 
+		isPixelStage = false;
 		switch (chartData.song.toLowerCase()) {
 			case 'spookeez' | 'monster' | 'south':
 				curStage = 'spooky';
@@ -269,7 +273,7 @@ class PlayState extends MusicBeatState {
 				add(street);
 			case 'milf' | 'satin-panties' | 'high':
 				curStage = 'limo';
-				defaultCamZoom = 0.90;
+				defaultCamZoom = 0.9;
 
 				var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
 				skyBG.scrollFactor.set(0.1, 0.1);
@@ -285,8 +289,7 @@ class PlayState extends MusicBeatState {
 				grpLimoDancers = new FlxTypedGroup<BackgroundDancer>();
 				add(grpLimoDancers);
 
-				for (i in 0...5)
-				{
+				for (i in 0...5) {
 					var dancer:BackgroundDancer = new BackgroundDancer((370 * i) + 130, bgLimo.y - 400);
 					dancer.scrollFactor.set(0.4, 0.4);
 					grpLimoDancers.add(dancer);
@@ -310,7 +313,7 @@ class PlayState extends MusicBeatState {
 			case 'cocoa' | 'eggnog':
 				curStage = 'mall';
 
-				defaultCamZoom = 0.80;
+				defaultCamZoom = 0.8;
 
 				var bg:FlxSprite = new FlxSprite(-1000, -500).loadGraphic(Paths.image('christmas/bgWalls'));
 				bg.antialiasing = true;
@@ -383,7 +386,7 @@ class PlayState extends MusicBeatState {
 				curStage = 'school';
 				isPixelStage = true;
 
-				// defaultCamZoom = 0.9;
+				defaultCamZoom = 1.05;
 
 				var bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky'));
 				bgSky.scrollFactor.set(0.1, 0.1);
@@ -439,7 +442,7 @@ class PlayState extends MusicBeatState {
 
 				if (chartData.song.toLowerCase() == 'roses') { bgGirls.getScared(); }
 
-				bgGirls.setGraphicSize(Std.int(bgGirls.width * startPixelScale));
+				bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
 				bgGirls.updateHitbox();
 				add(bgGirls);
 			case 'thorns':
@@ -459,53 +462,8 @@ class PlayState extends MusicBeatState {
 				bg.scrollFactor.set(0.8, 0.9);
 				bg.scale.set(6, 6);
 				add(bg);
-
-			/* 
-				var bg:FlxSprite = new FlxSprite(posX, posY).loadGraphic(Paths.image('weeb/evilSchoolBG'));
-				bg.scale.set(6, 6);
-				// bg.setGraphicSize(Std.int(bg.width * 6));
-				// bg.updateHitbox();
-				add(bg);
-
-				var fg:FlxSprite = new FlxSprite(posX, posY).loadGraphic(Paths.image('weeb/evilSchoolFG'));
-				fg.scale.set(6, 6);
-				// fg.setGraphicSize(Std.int(fg.width * 6));
-				// fg.updateHitbox();
-				add(fg);
-
-				wiggleShit.effectType = WiggleEffectType.DREAMY;
-				wiggleShit.waveAmplitude = 0.01;
-				wiggleShit.waveFrequency = 60;
-				wiggleShit.waveSpeed = 0.8;
-			 */
-
-			// bg.shader = wiggleShit.shader;
-			// fg.shader = wiggleShit.shader;
-
-			/* 
-				var waveSprite = new FlxEffectSprite(bg, [waveEffectBG]);
-				var waveSpriteFG = new FlxEffectSprite(fg, [waveEffectFG]);
-
-				// Using scale since setGraphicSize() doesnt work???
-				waveSprite.scale.set(6, 6);
-				waveSpriteFG.scale.set(6, 6);
-				waveSprite.setPosition(posX, posY);
-				waveSpriteFG.setPosition(posX, posY);
-
-				waveSprite.scrollFactor.set(0.7, 0.8);
-				waveSpriteFG.scrollFactor.set(0.9, 0.8);
-
-				// waveSprite.setGraphicSize(Std.int(waveSprite.width * 6));
-				// waveSprite.updateHitbox();
-				// waveSpriteFG.setGraphicSize(Std.int(fg.width * 6));
-				// waveSpriteFG.updateHitbox();
-
-				add(waveSprite);
-				add(waveSpriteFG);
-			 */
-
 			case 'guns' | 'stress' | 'ugh':
-				defaultCamZoom = 0.90;
+				defaultCamZoom = 0.9;
 				curStage = 'tank';
 
 				var bg:BGSprite = new BGSprite('tankSky', -400, -400, 0, 0);
@@ -1352,7 +1310,7 @@ class PlayState extends MusicBeatState {
 		var senpaiEvil:FlxSprite = new FlxSprite();
 		senpaiEvil.frames = Paths.getSparrowAtlas('weeb/senpaiCrazy');
 		senpaiEvil.animation.addByPrefix('idle', 'Senpai Pre Explosion', 24, false);
-		senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * startPixelScale));
+		senpaiEvil.setGraphicSize(Std.int(senpaiEvil.width * daPixelZoom));
 		senpaiEvil.scrollFactor.set();
 		senpaiEvil.updateHitbox();
 		senpaiEvil.screenCenter();
@@ -1451,7 +1409,7 @@ class PlayState extends MusicBeatState {
 		var spr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(path));
 		spr.scrollFactor.set();
 
-		if (isPixelStage) spr.setGraphicSize(Std.int(spr.width * startPixelScale));
+		if (isPixelStage) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
 
 		spr.updateHitbox();
 		spr.screenCenter();
@@ -1494,7 +1452,7 @@ class PlayState extends MusicBeatState {
 		if (chartData.needsVoices) vocals = new FlxSound().loadEmbedded(Paths.voices(chartData.song));
 		else vocals = new FlxSound();
 
-		inst.onComplete = function() { endSong = true; };
+		inst.onComplete = function() { endSong(); };
 		vocals.onComplete = function() { vocalsFinished = true; };
 		FlxG.sound.list.add(inst);
 		FlxG.sound.list.add(vocals);
@@ -1520,7 +1478,7 @@ class PlayState extends MusicBeatState {
 				if (unspawnNotes.length > 0) oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 				else oldNote = null;
 
-				var swagNote:Note = new Note(daStrumTime, daNoteData, [isPixelStage, startPixelScale], oldNote);
+				var swagNote:Note = new Note(daStrumTime, daNoteData, [isPixelStage, daPixelZoom], oldNote);
 				swagNote.sustainLength = songNotes[2];
 				swagNote.animSuffix = songNotes[3] ? '-alt' : '';
 				swagNote.scrollFactor.set(0, 0);
@@ -1533,7 +1491,7 @@ class PlayState extends MusicBeatState {
 				for (susNote in 0...Math.floor(susLength)) {
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, [isPixelStage, startPixelScale], oldNote, true);
+					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, [isPixelStage, daPixelZoom], oldNote, true);
 					sustainNote.scrollFactor.set();
 					unspawnNotes.push(sustainNote);
 
@@ -1573,7 +1531,7 @@ class PlayState extends MusicBeatState {
 				babyArrow.height /= 5;
 				babyArrow.loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, Math.floor(babyArrow.width), Math.floor(babyArrow.height));
 				babyArrow.animation.add('Note', [i + 4]);
-				babyArrow.setGraphicSize(Std.int(babyArrow.width * startPixelScale));
+				babyArrow.setGraphicSize(Std.int(babyArrow.width * daPixelZoom));
 				babyArrow.updateHitbox();
 				babyArrow.x += Note.swagWidth * i;
 				babyArrow.animation.add('static', [i]);
@@ -1732,18 +1690,13 @@ class PlayState extends MusicBeatState {
 			persistentUpdate = false;
 			persistentDraw = true;
 			paused = true;
-
-			// 1 / 1000 chance for Gitaroo Man easter egg
-			/* if (FlxG.random.bool(0.1)) {
-				// gitaroo man easter egg
-				FlxG.switchState(new GitarooPause());
-			} else { */
-				var boyfriendPos = boyfriend.getScreenPosition();
-				var pauseSubState = new PauseSubState(boyfriendPos.x, boyfriendPos.y);
-				openSubState(pauseSubState);
-				pauseSubState.camera = camHUD;
-				boyfriendPos.put();
-			// }
+			
+			var boyfriendPos:FlxPoint = boyfriend.getScreenPosition();
+			var pauseSubState:MusicBeatSubstate = new PauseSubState(boyfriendPos.x, boyfriendPos.y);
+			if (FlxG.random.bool(0.1)) pauseSubState = new GitarooPause(); // gitaroo man easter egg, 1 / 1000 chance for Gitaroo Man easter egg
+			openSubState(pauseSubState);
+			pauseSubState.camera = camHUD;
+			boyfriendPos.put();
 
 			#if discord_rpc
 			DiscordClient.changePresence(detailsPausedText, chartData.song + ' (' + storyDifficultyText + ')', iconRPC);
@@ -1755,7 +1708,7 @@ class PlayState extends MusicBeatState {
 			#if discord_rpc DiscordClient.changePresence('Chart Editor', null, null, true); #end
 		}
 
-		// if (FlxG.keys.justPressed.NINE) iconP1.swapOldIcon();
+		if (FlxG.keys.justPressed.NINE) iconP1.isOldIcon = !iconP1.isOldIcon;
 
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
@@ -1963,10 +1916,8 @@ class PlayState extends MusicBeatState {
 	}
 
 	function killCombo():Void {
-		if (combo > 5 && gf.animOffsets.exists('sad'))
-			gf.playAnim('sad');
-		if (combo != 0)
-		{
+		if (combo > 5) gf.playAnim('sad');
+		if (combo != 0) {
 			combo = 0;
 			displayCombo();
 		}
@@ -2007,7 +1958,7 @@ class PlayState extends MusicBeatState {
 				transIn = FlxTransitionableState.defaultTransIn;
 				transOut = FlxTransitionableState.defaultTransOut;
 
-				switch (PlayState.storyWeek) {
+				switch (storyWeek) {
 					case 7: FlxG.switchState(new VideoState());
 					default: FlxG.switchState(new StoryMenuState());
 				}
@@ -2125,7 +2076,7 @@ class PlayState extends MusicBeatState {
 
 		add(rating);
 
-		if (isPixelStage) rating.setGraphicSize(Std.int(rating.width * startPixelScale * 0.7));
+		if (isPixelStage) rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.7));
 		else {
 			rating.setGraphicSize(Std.int(rating.width * 0.7));
 			rating.antialiasing = true;
@@ -2163,7 +2114,7 @@ class PlayState extends MusicBeatState {
 
 		add(comboSpr);
 
-		if (isPixelStage) comboSpr.setGraphicSize(Std.int(comboSpr.width * startPixelScale * 0.7));
+		if (isPixelStage) comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.7));
 		else {
 			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
 			comboSpr.antialiasing = true;
@@ -2191,7 +2142,7 @@ class PlayState extends MusicBeatState {
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
 			numScore.y = comboSpr.y;
 
-			if (isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * startPixelScale));
+			if (isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
 			else {
 				numScore.antialiasing = true;
 				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
@@ -2493,7 +2444,7 @@ class PlayState extends MusicBeatState {
 	function updateTrainPos():Void {
 		if (trainSound.time >= 4700) {
 			startedMoving = true;
-			if (gf.animOffsets.exists('hairBlow')) gf.playAnim('hairBlow');
+			gf.playAnim('hairBlow');
 		}
 
 		if (startedMoving) {
@@ -2511,7 +2462,7 @@ class PlayState extends MusicBeatState {
 	}
 
 	function trainReset():Void {
-		if (gf.animOffsets.exists('hairFall')) gf.playAnim('hairFall');
+		gf.playAnim('hairFall');
 		phillyTrain.x = FlxG.width + 200;
 		trainMoving = false;
 		// trainSound.stop();
@@ -2528,8 +2479,8 @@ class PlayState extends MusicBeatState {
 		lightningStrikeBeat = curBeat;
 		lightningOffset = FlxG.random.int(8, 24);
 
-		if (boyfriend.animOffsets.exists('scared')) boyfriend.playAnim('scared', true);
-		if (gf.animOffsets.exists('scared')) gf.playAnim('scared', true);
+		boyfriend.playAnim('scared', true);
+		gf.playAnim('scared', true);
 	}
 
 	override function stepHit() {

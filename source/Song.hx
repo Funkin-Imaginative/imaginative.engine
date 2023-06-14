@@ -7,8 +7,7 @@ import lime.utils.Assets;
 
 using StringTools;
 
-typedef SwagSong =
-{
+typedef SwagSong = {
 	var song:String;
 	var notes:Array<SwagSection>;
 	var bpm:Float;
@@ -20,8 +19,7 @@ typedef SwagSong =
 	var validScore:Bool;
 }
 
-class Song
-{
+class Song {
 	public var song:String;
 	public var notes:Array<SwagSection>;
 	public var bpm:Float;
@@ -31,8 +29,7 @@ class Song
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
 
-	public function new(song, notes, bpm)
-	{
+	public function new(song, notes, bpm) {
 		this.song = song;
 		this.notes = notes;
 		this.bpm = bpm;

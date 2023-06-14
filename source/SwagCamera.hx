@@ -5,13 +5,10 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 
-class SwagCamera extends FlxCamera
-{
-	/**
-	 * properly follow framerate
-	 * most of this just copied from FlxCamera,
-	 * only lines 96 and 97 are changed
-	 */
+class SwagCamera extends FlxCamera {
+	/* properly follow framerate
+	most of this just copied from FlxCamera,
+	only lines 96 and 97 are changed */
 	override public function updateFollow():Void
 	{
 		// Either follow the object closely,

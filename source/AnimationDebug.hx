@@ -14,9 +14,7 @@ import openfl.net.FileReference;
 
 using StringTools;
 
-/**
-	*DEBUG MODE
- */
+// DEBUG MODE
 class AnimationDebug extends FlxState
 {
 	var bf:Character;
@@ -49,7 +47,7 @@ class AnimationDebug extends FlxState
 
 		if (isDad)
 		{
-			dad = new Character(0, 0, daAnim);
+			dad = new Character(daAnim, 0, 0);
 			dad.screenCenter();
 			dad.debugMode = true;
 			add(dad);
@@ -59,7 +57,7 @@ class AnimationDebug extends FlxState
 		}
 		else
 		{
-			bf = new Character(0, 0);
+			bf = new Character('bf', 0, 0);
 			bf.screenCenter();
 			bf.debugMode = true;
 			add(bf);

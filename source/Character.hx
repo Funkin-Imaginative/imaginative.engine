@@ -11,22 +11,23 @@ import haxe.io.Path;
 
 using StringTools;
 
-/*typedef coolOffsetMapStuff = {
+typedef RealOffsets = {
 	var facingLeft:Map<String, Array<Dynamic>>;
 	var facingRight:Map<String, Array<Dynamic>>;
-	var backups = { // For reoffseting when scale is changed
-		var facingLeft:Map<String, Array<Dynamic>>;
-		var facingRight:Map<String, Array<Dynamic>>;
-	};
-};*/
+}
+typedef CoolOffsetMapStuff = {
+	var facingLeft:Map<String, Array<Dynamic>>;
+	var facingRight:Map<String, Array<Dynamic>>;
+	var realOffsets:Array<RealOffsets>;// For reoffseting when scale is changed.
+};
 
 class Character extends FlxSprite {
 	public var debugMode:Bool = false;
 	public var animOffsets:Map<String, Array<Dynamic>>;
-	//public var offsetMaps:Array<coolOffsetMapStuff> = [];
+	public var offsetMaps:Array<CoolOffsetMapStuff> = [];
 
 	public var isPlayer:Bool = false;
-	public var charName(default, set):String = 'bf';
+	public var charName/*(default, set)*/:String = 'bf';
 
 	public var swayHead:Bool = false;
 	public var danceNumBeats:Int = 1;
@@ -36,7 +37,7 @@ class Character extends FlxSprite {
 	public var singDuration:Float = 4;
 	
 	public var positionOffset:Array<Float> = [0, 0];
-	public var cameraPosition:Array<Float> = [0, 0];
+	public static var cameraPosition:Array<Float> = [0, 0];
 	
 	public var idleSuffix:String = '';
 	public var shoutAnim:String = '';
@@ -47,8 +48,8 @@ class Character extends FlxSprite {
 	public var healthColorArray:Array<Int> = [128, 0, 255];
 	
 	public var noInterup = {
-		singing = false;
-		bopping = false
+		singing: false,
+		bopping: false
 	};
 
 	public var animationNotes:Array<Dynamic> = [];
@@ -69,7 +70,6 @@ class Character extends FlxSprite {
 		if (charName.startsWith('bf')) shoutAnim = 'hey';
 		switch (charName) {
 			case 'gf':
-				// GIRLFRIEND CODE
 				tex = Paths.getSparrowAtlas('characters/GF_assets');
 				frames = tex;
 				quickAnimAdd('cheer', 'GF Cheer');
@@ -446,33 +446,32 @@ class Character extends FlxSprite {
 		if (isPlayer) flipX = !flipX;
 	}
 
-	var currentState:FlxState = FlxG.state;
+	var currentState:Dynamic = PlayState.instance;
 	public function precacheCharacter(newCharacter:String) {
-		var cachedChar:character = new Character(newCharacter);
-		currentState.addAt(cachedChar, this.x, this.y, 0);
+		var cachedChar:Character = new Character(newCharacter);
+		currentState.add(cachedChar);
 		cachedChar.alpha = 0.0000001;
 	}
 
 	// Due to how this is done please precache all characters that will be used in your song MANUALLY!
 	// Unless your triggering the change with events then its precached for you.
-	private function set_charName(value:String):String {
+	/*private function set_charName(value:String):String {
 		var oldMan:Character = this;
 		var newKid:Character = new Character(value, oldMan.x, oldMan.y, oldMan.isPlayer);
 
-		this = newKid; // Makes them the new character.
+		// this = newKid; // Makes them the new character.
 		newKid.alpha = oldMan.alpha;
 		newKid.visible = oldMan.visible;
 		newKid.color = oldMan.color;
 		newKid.shader = oldMan.shader;
 		currentState.add(newKid); // Adds them in the same relative spot as the old one.
-		currentState.addAfter(newKid, oldMan);
+		currentState.insert(members.indexOf(oldMan), newKid);
 
-		// Removes old character.
 		oldMan.kill();
-		oldMan.destroy();
+		oldMan.destroy(); // Removes old character.
 		charName = value;
 		return value;
-	}
+	}*/
 
 	public function loadMappedAnims() {
 		var swagshit = Song.loadFromJson('picospeaker', 'stress');
@@ -533,7 +532,6 @@ class Character extends FlxSprite {
 
 	private var danced:Bool = false;
 
-	// FOR GF DANCING SHIT
 	public function dance() {
 		if (!debugMode || !noInterup.bopping) {
 			if (swayHead) {

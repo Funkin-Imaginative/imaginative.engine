@@ -13,21 +13,22 @@ class HealthIcon extends FlxSprite {
 		scrollFactor.set();
 	}
 
-	public var isOldIcon:Bool = false;
-	/*private function set_isOldIcon():Bool {
-		isOldIcon = !isOldIcon;
+	public var isOldIcon(default, set):Bool = false;
+	private function set_isOldIcon(value:Bool):Bool {
 		if (isOldIcon) iconName = 'bf-old';
 		else iconName = iconName;
-	}*/
+		isOldIcon = value;
+		return value;
+	}
 
 	private function set_iconName(value:String):String {
 		if (iconName != value) {
 			loadGraphic(Paths.image('icons/' + iconName));
 			loadGraphic(Paths.image('icons/' + iconName), true, Math.floor(width / 2), Math.floor(height));
-			animation.add('idle', [0, 1], 0, false);
-			animation.play('idle');
+			animation.add(value + '.idle', [0, 1], 0, false);
+			animation.play(value + '.idle'); // dont ask
 			antialiasing = !value.endsWith('-pixel');
-			if (iconName != 'bf-old') iconName = value;
+			if (!isOldIcon) iconName = value;
 		}
 		return value;
 	}

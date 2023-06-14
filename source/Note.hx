@@ -30,7 +30,7 @@ class Note extends FlxSprite {
 	public var attachedChar(default, set):Character;
 	private function set_attachedChar(value:Character):Character {
 		if (attachedChar != value) {
-			if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
+			if (value == null) value = mustPress ? PlayState.instance.boyfriend : PlayState.instance.dad;
 			attachedChar = value;
 		}
 		return value;
@@ -107,7 +107,7 @@ class Note extends FlxSprite {
 	public function new(strumTime:Float, noteData:Int, pixelStuff:Array<Dynamic>, ?prevNote:Note, ?sustainNote:Bool = false) {
 		super();
 
-		attachedChar = mustPress ? PlayState.boyfriend : PlayState.dad;
+		attachedChar = mustPress ? PlayState.instance.boyfriend : PlayState.instance.dad;
 		
 		if (prevNote == null) prevNote = this;
 		this.prevNote = prevNote;
@@ -222,9 +222,9 @@ class Note extends FlxSprite {
 					animToPlay = '';
 					animMissed = '';
 				case 'Opponent Sing':
-					attachedChar = mustPress ? PlayState.dad : PlayState.boyfriend;
+					attachedChar = mustPress ? PlayState.instance.dad : PlayState.instance.boyfriend;
 				case 'GF Sing':
-					attachedChar = PlayState.gf;
+					attachedChar = PlayState.instance.gf;
 			}
 			noteType = value;
 		}

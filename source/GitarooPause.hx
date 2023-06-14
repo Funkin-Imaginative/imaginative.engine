@@ -13,7 +13,7 @@ class GitarooPause extends MusicBeatSubstate {
 
 	var replaySelect:Bool = false;
 
-	override function new() {
+	public function new() {
 		super();
 
 		pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);

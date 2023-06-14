@@ -18,8 +18,7 @@ import lime.net.curl.CURLCode;
 
 using StringTools;
 
-class StoryMenuState extends MusicBeatState
-{
+class StoryMenuState extends MusicBeatState {
 	var scoreText:FlxText;
 
 	var weekData:Array<Dynamic> = [
