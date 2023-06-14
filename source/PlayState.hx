@@ -62,46 +62,46 @@ class PlayState extends MusicBeatState {
 	public static var deathCounter:Int = 0;
 	public static var practiceMode:Bool = false;
 	
-	public var inst:FlxSound;
-	public var vocals:FlxSound;
-	public var vocalsFinished:Bool = false;
+	public static var inst:FlxSound;
+	public static var vocals:FlxSound;
+	public /*static¿*/ var vocalsFinished:Bool = false;
 	
 	public static var dad:Character;
 	public static var gf:Character;
 	public static var boyfriend:Character;
 
-	public var notes:FlxTypedGroup<Note>;
-	public var unspawnNotes:Array<Note> = [];
+	public static var notes:FlxTypedGroup<Note>;
+	public static var unspawnNotes:Array<Note> = [];
 
 	private var strumLine:FlxSprite;
 
-	public var camFollow:FlxObject;
+	public static var camFollow:FlxObject;
 
-	private static var prevCamFollow:FlxObject;
+	private var prevCamFollow:FlxObject;
 
-	public var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	public var opponentStrums:FlxTypedGroup<FlxSprite>;
-	public var playerStrums:FlxTypedGroup<FlxSprite>;
+	public static var strumLineNotes:FlxTypedGroup<FlxSprite>;
+	public static var opponentStrums:FlxTypedGroup<FlxSprite>;
+	public static var playerStrums:FlxTypedGroup<FlxSprite>;
 
-	public var camZooming:Bool = false;
-	public static var curSong:String = '';
+	public static var camZooming:Bool = false;
+	public var curSong:String = '';
 
-	public var gfSpeed:Int = 1;
-	public var health:Float = 1;
+	public var gf.bopSpeed:Int = 1;
+	public static var health:Float = 1;
 	public var combo:Int = 0;
 
-	public var healthBarBG:FlxSprite;
-	public var healthBar:FlxBar;
+	public static var healthBarBG:FlxSprite;
+	public static var healthBar:FlxBar;
 
 	public static var generatedMusic:Bool = false;
 	public static var startingSong:Bool = false;
 
-	public var iconP1:HealthIcon;
-	public var iconP2:HealthIcon;
-	public var camHUD:FlxCamera;
-	public var camGame:FlxCamera;
+	public static var iconP1:HealthIcon;
+	public static var iconP2:HealthIcon;
+	public static var camHUD:FlxCamera;
+	public static var camGame:FlxCamera;
 
-	public var botplay:Bool = false;
+	public static var botplay:Bool = false;
 
 	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
 
@@ -1421,11 +1421,12 @@ class PlayState extends MusicBeatState {
 
 		startTimer.start(Conductor.crochet / 1000, function(tmr:FlxTimer) {
 			// this just based on beatHit stuff but compact
-			if (swagCounter % gfSpeed == 0) gf.dance();
-			if (swagCounter % 2 == 0) {
-				if (!boyfriend.animation.curAnim.name.startsWith('sing')) boyfriend.playAnim('idle');
-				if (!dad.animation.curAnim.name.startsWith('sing')) dad.dance();
-			} else if (dad.curCharacter == 'spooky' && !dad.animation.curAnim.name.startsWith('sing')) dad.dance();
+			var chars:Array<Character> = [dad, gf, boyfriend];
+			for (them in chars)
+				if (swagCounter % (them.danceNumBeats * them.bopSpeed) == 0)
+					if (!them.animation.curAnim.name.startsWith('sing'))
+						them.dance();
+					
 			if (generatedMusic) notes.sort(sortNotes, FlxSort.DESCENDING);
 
 			var introSprPaths:Array<String> = ['ready', 'set', 'go'];
@@ -1597,14 +1598,12 @@ class PlayState extends MusicBeatState {
 			}
 
 			babyArrow.ID = i;
-
 			if (player) playerStrums.add(babyArrow);
 			else opponentStrums.add(babyArrow);
 
 			babyArrow.animation.play('static');
 			babyArrow.x += 50;
 			babyArrow.x += ((FlxG.width / 2) * (player ? 1 : 0));
-
 			strumLineNotes.add(babyArrow);
 		}
 	}
@@ -1619,10 +1618,8 @@ class PlayState extends MusicBeatState {
 				inst.pause();
 				vocals.pause();
 			}
-
 			if (!startTimer.finished) startTimer.active = false;
 		}
-
 		super.openSubState(SubState);
 	}
 
@@ -1659,13 +1656,11 @@ class PlayState extends MusicBeatState {
 	}
 	#end
 
-	function resyncVocals():Void
-	{
-		if (_exiting)
-			return;
-
-		vocals.pause();
+	function resyncVocals():Void {
+		if (_exiting) return;
+		
 		inst.play();
+		vocals.pause();
 		Conductor.songPosition = inst.time + Conductor.offset;
 
 		if (vocalsFinished)
@@ -1675,12 +1670,11 @@ class PlayState extends MusicBeatState {
 		vocals.play();
 	}
 
-	private var paused:Bool = false;
-	var startedCountdown:Bool = false;
-	var canPause:Bool = true;
+	public static var paused:Bool = false;
+	public static var startedCountdown:Bool = false;
+	public static var canPause:Bool = true;
 
-	override public function update(elapsed:Float)
-	{
+	override public function update(elapsed:Float) {
 		// makes the lerp non-dependant on the framerate
 		// FlxG.camera.followLerp = CoolUtil.camLerpShit(0.04);
 
@@ -1819,13 +1813,13 @@ class PlayState extends MusicBeatState {
 			switch (curBeat) 	{
 				case 16:
 					camZooming = true;
-					gfSpeed = 2;
+					gf.bopSpeed = 2;
 				case 48:
-					gfSpeed = 1;
+					gf.bopSpeed = 1;
 				case 80:
-					gfSpeed = 2;
+					gf.bopSpeed = 2;
 				case 112:
-					gfSpeed = 1;
+					gf.bopSpeed = 1;
 				case 163:
 					// inst.stop();
 					// FlxG.switchState(new TitleState());
@@ -2409,7 +2403,7 @@ class PlayState extends MusicBeatState {
 			}
 			
 			var animCheck:Array<Dynamic> = note.checkAnimExists();
-			if (animCheck[0]) note.attachedChar.playAnim(animCheck[1], true);
+			if (note.noAnimChecker() || animCheck[0] || !note.attachedChar.noInterup.singing) note.attachedChar.playAnim(animCheck[1], true);
 			playerStrums.members[note.noteData].animation.play('confirm', true);
 
 			note.attachedChar.holdTimer = 0;
@@ -2581,14 +2575,11 @@ class PlayState extends MusicBeatState {
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
-		if (curBeat % gfSpeed == 0) gf.dance();
-
-		if (curBeat % 2 == 0) {
-			if (!boyfriend.animation.curAnim.name.startsWith('sing')) boyfriend.playAnim('idle');
-			if (!dad.animation.curAnim.name.startsWith('sing')) dad.dance();
-		}
-		else if (dad.curCharacter == 'spooky')
-			if (!dad.animation.curAnim.name.startsWith('sing')) dad.dance();
+		var chars:Array<Character> = [dad, gf, boyfriend];
+		for (them in chars)
+			if (curBeat % (them.danceNumBeats * them.bopSpeed) == 0)
+				if (!them.animation.curAnim.name.startsWith('sing'))
+					them.dance();
 
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
 			boyfriend.playAnim('hey', true);
@@ -2635,10 +2626,8 @@ class PlayState extends MusicBeatState {
 			case 'tank': tankWatchtower.dance();
 		}
 
-		if (curStage == 'spooky' && FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset) {
+		if (curStage == 'spooky' && FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
 			lightningStrikeShit();
-		}
 	}
-
 	var curLight:Int = 0;
 }
