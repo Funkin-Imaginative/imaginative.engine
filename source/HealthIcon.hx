@@ -22,7 +22,7 @@ class HealthIcon extends FlxSprite {
 
 	private function set_iconName(value:String):String {
 		if (iconName != value) {
-			loadGraphic(Paths.image('icons/' + iconName))
+			loadGraphic(Paths.image('icons/' + iconName));
 			loadGraphic(Paths.image('icons/' + iconName), true, Math.floor(width / 2), Math.floor(height));
 			animation.add('idle', [0, 1], 0, false);
 			animation.play('idle');
