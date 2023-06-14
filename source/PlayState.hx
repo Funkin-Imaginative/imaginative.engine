@@ -86,7 +86,6 @@ class PlayState extends MusicBeatState {
 	public static var camZooming:Bool = false;
 	public var curSong:String = '';
 
-	public var gf.bopSpeed:Int = 1;
 	public static var health:Float = 1;
 	public var combo:Int = 0;
 
