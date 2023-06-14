@@ -29,7 +29,7 @@ class Note extends FlxSprite {
 	public var noteType(default, set):String = '';
 	public var attachedChar(default, set):Character;
 	private function set_attachedChar(value:Character):Character {
-		if (attachedChar != value || value == null) {
+		if (attachedChar != value) {
 			if (value == null) value = mustPress ? PlayState.boyfriend : PlayState.dad;
 			attachedChar = value;
 		}
