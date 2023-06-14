@@ -210,7 +210,7 @@ class Note extends FlxSprite {
 		var anim:String = isMissAnim ? animMissed : animToPlay;
 		if (attachedChar.animOffsets.exists(anim + animSuffix)) return [true, anim + animSuffix];
 		else { if (attachedChar.animOffsets.exists(anim))return [true, anim]; }
-		return [false, ''];
+		return [false, '']; // Wait did I just make noAnimChecker useless?
 	}
 
 	private function set_noteType(value:String):String {
