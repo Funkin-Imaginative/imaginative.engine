@@ -137,7 +137,7 @@ class PlayState extends MusicBeatState {
 
 	public static var campaignScore:Int = 0;
 
-	public var defaultCamZoom:Float = 1;
+	public static var defaultCamZoom:Float = 1;
 
 	public static var isPixelStage:Bool = false;
 	public static var daPixelZoom:Float = 6; // how big to stretch the pixel art assets
@@ -784,12 +784,12 @@ class PlayState extends MusicBeatState {
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
-		iconP1 = new HealthIcon(chartData.player1);
+		iconP1 = new HealthIcon(boyfriend.healthIcon);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
 		iconP1.flipX = true;
 		add(iconP1);
 
-		iconP2 = new HealthIcon(chartData.player2);
+		iconP2 = new HealthIcon(dad.healthIcon);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
@@ -803,23 +803,15 @@ class PlayState extends MusicBeatState {
 		scoreTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
-		// if (chartData.song == 'South')
-		// FlxG.camera.alpha = 0.7;
-		// UI_camera.zoom = 1;
-
-		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
-
 		if (isStoryMode && !seenCutscene) {
 			seenCutscene = true;
-
 			switch (curSong.toLowerCase()) {
 				case 'winter-horrorland':
 					var blackScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
 					add(blackScreen);
 					blackScreen.scrollFactor.set();
 					camHUD.visible = false;
-
 					new FlxTimer().start(0.1, function(tmr:FlxTimer) {
 						remove(blackScreen);
 						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
@@ -827,7 +819,6 @@ class PlayState extends MusicBeatState {
 						camFollow.x += 200;
 						FlxG.camera.focusOn(camFollow.getPosition());
 						FlxG.camera.zoom = 1.5;
-
 						new FlxTimer().start(0.8, function(tmr:FlxTimer) {
 							camHUD.visible = true;
 							remove(blackScreen);
@@ -845,7 +836,6 @@ class PlayState extends MusicBeatState {
 					stressIntro();
 				case 'guns':
 					gunsIntro();
-
 				default:
 					startCountdown();
 			}
@@ -858,21 +848,17 @@ class PlayState extends MusicBeatState {
 				// 	stressIntro();
 				// case 'guns':
 				// 	gunsIntro();
-
 				default: startCountdown();
 			}
 		} 
-
 		super.create();
 	}
 
 	function ughIntro() {
 		inCutscene = true;
-
 		var blackShit:FlxSprite = new FlxSprite(-200, -200).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		blackShit.scrollFactor.set();
 		add(blackShit);
-
 		var vid:FlxVideo = new FlxVideo('music/ughCutscene.mp4');
 		vid.finishCallback = function() {
 			remove(blackShit);
@@ -882,7 +868,6 @@ class PlayState extends MusicBeatState {
 		};
 
 		FlxG.camera.zoom = defaultCamZoom * 1.2;
-
 		camFollow.x += 100;
 		camFollow.y += 100;
 
