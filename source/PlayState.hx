@@ -2514,7 +2514,7 @@ class PlayState extends MusicBeatState {
 
 		var chars:Array<Character> = [dad, gf, boyfriend];
 		for (them in chars)
-			if (curBeat % (them.danceNumBeats * them.bopSpeed) == 0)
+			if (curBeat % Math.round(them.bopSpeed * them.danceNumBeats) == 0)
 				if (!them.animation.curAnim.name.startsWith('sing'))
 					them.dance();
 
