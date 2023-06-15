@@ -66,6 +66,19 @@ class Character extends FlxSprite {
 		if (isPlayer) flipX = !flipX;
 	}
 
+	private function prepareForReset() {
+		for (k => v in animOffsets) animation.remove(k); // Removes previous character animations. Thx skullbite! :>
+		animOffsets = new Map<String, Array<Dynamic>>(); // Should make the map blank again.
+		bopSpeed = 1;
+		stunned = false;
+		singDuration = 4;
+		positionOffset = {x: 0.0, y: 0.0};
+		cameraPosition = {x: 0.0, y: 0.0};
+		idleSuffix = '';
+		shoutAnim = '';
+		antialiasing = true;
+	}
+
 	public function precacheCharacter(newCharacter:String) {
 		var cachedChar:Character = new Character(newCharacter);
 		PlayState.instance.add(cachedChar);
@@ -76,24 +89,12 @@ class Character extends FlxSprite {
 	// Due to how this is done please precache all characters that will be used in your song MANUALLY!
 	// Unless your triggering the change with events then its precached for you.
 	private function set_charName(value:String):String {
-		/*var oldMan:Character = this;
-		var newKid:Character = new Character(value, oldMan.x, oldMan.y, oldMan.isPlayer);
-
-		// this = newKid; // Makes them the new character.
-		newKid.alpha = oldMan.alpha;
-		newKid.visible = oldMan.visible;
-		newKid.color = oldMan.color;
-		newKid.shader = oldMan.shader;
-		PlayState.instance.add(newKid); // Adds them in the same relative spot as the old one.
-		PlayState.instance.insert(members.indexOf(oldMan), newKid);
-
-		oldMan.kill();
-		oldMan.destroy(); // Removes old character.*/
-		
+		if (charName == value) return; // Should I not have this line? 🤔
+		prepareForReset();
 		if (charName.startsWith('gf') || charName == 'spooky') danceNumBeats = 2;
 		if (charName.startsWith('gf')) shoutAnim = 'cheer';
 		if (charName.startsWith('bf')) shoutAnim = 'hey';
-		antialiasing = true;
+		if (charName.endsWith('-dead')) shoutAnim = 'deathLoop';
 		switch (charName) {
 			case 'gf':
 				frames = Paths.getSparrowAtlas('characters/GF_assets');
@@ -335,7 +336,6 @@ class Character extends FlxSprite {
 				quickAnimAdd('deathConfirm', 'RETRY CONFIRM', true);
 
 				loadOffsetFile(charName);
-				playAnim('firstDeath');
 				jsonScale = 6;
 				antialiasing = false;
 			case 'bf-holding-gf-dead':
@@ -346,7 +346,6 @@ class Character extends FlxSprite {
 				quickAnimAdd('deathConfirm', 'RETRY confirm holding gf', true);
 
 				loadOffsetFile(charName);
-				playAnim('firstDeath');
 			case 'senpai':
 				frames = Paths.getSparrowAtlas('characters/senpai');
 				quickAnimAdd('idle', 'Senpai Idle');
@@ -427,7 +426,7 @@ class Character extends FlxSprite {
 			updateHitbox();
 		}
 
-		dance();
+		if (charName.endsWith('-dead')) playAnim('firstDeath'); else dance();
 		animation.finish();
 		
 		charName = value;
@@ -501,12 +500,13 @@ class Character extends FlxSprite {
 	private var danced:Bool = false;
 
 	public function dance() {
-		if (!debugMode || !noInterup.bopping) {
+		if (!debugMode || (!noInterup.bopping || !stunned)) {
 			if (swayHead) {
 				danced = !danced;
 				if (danced) playAnim('danceRight' + idleSuffix);
 				else playAnim('danceLeft' + idleSuffix);
 			} else playAnim('idle' + idleSuffix);
+			if (charName.endsWith('-dead')) playAnim('firstDeath')
 		}
 		//noInterup.bopping = false;
 	}
