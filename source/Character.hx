@@ -26,29 +26,33 @@ class Character extends FlxSprite {
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var offsetMaps:Array<CoolOffsetMapStuff> = [];
 
+	/* Character Setup */
 	public var isPlayer:Bool = false;
 	public var charName(default, set):String = 'bf';
-
-	public var swayHead:Bool = false;
-	public var danceNumBeats:Int = 1;
-	public var bopSpeed:Float = 1;
-	
-	public var stunned:Bool = false;
-	public var holdTimer:Float = 0;
-	public var singDuration:Float = 4;
-	
-	public var positionOffset = {x: 0.0, y: 0.0};
-	public var cameraPosition = {x: 0.0, y: 0.0};
-	public var cameraOffset = {x: 0.0, y: 0.0};
-	
-	public var idleSuffix:String = '';
-	public var shoutAnim:String = '';
-	
-	//public var imageFile:String = '';
+	public var imageFile:String = '';
 	public var healthIcon:String = 'face';
 	public var jsonScale:Float = 1;
 	public var healthColorArray:Array<Int> = [128, 0, 255];
-	
+	public var flipChar:Bool = false; // Flips animations when added, no more flipX confusion! :D
+
+	/* Bop Settings */
+	public var swayHead:Bool = false;
+	public var danceNumBeats:Int = 1;
+	public var bopSpeed:Float = 1;
+
+	/* Cool Moves Bro 😎 */
+	public var holdTimer:Float = 0;
+	public var singDuration:Float = 4;
+
+	/* Positioning */
+	public var positionOffset = {x: 0.0, y: 0.0};
+	public var cameraPosition = {x: 0.0, y: 0.0};
+	public var cameraOffset = {x: 0.0, y: 0.0};
+
+	/* Extras */
+	public var idleSuffix:String = '';
+	public var shoutAnim:String = '';
+	public var stunned:Bool = false;
 	public var noInterup = {
 		singing: false,
 		bopping: false
@@ -62,6 +66,9 @@ class Character extends FlxSprite {
 		animOffsets = new Map<String, Array<Dynamic>>();
 		this.isPlayer = isPlayer;
 
+		frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
+		quickAnimAdd('jic no other animations exist', 'BF idle dance', true);
+
 		charName = character
 		if (isPlayer) flipX = !flipX;
 	}
@@ -69,13 +76,15 @@ class Character extends FlxSprite {
 	private function prepareForReset() {
 		for (k => v in animOffsets) animation.remove(k); // Removes previous character animations. Thx skullbite! :>
 		animOffsets = new Map<String, Array<Dynamic>>(); // Should make the map blank again.
+		flipChar = false;
+		danceNumBeats = 1;
 		bopSpeed = 1;
-		stunned = false;
 		singDuration = 4;
 		positionOffset = {x: 0.0, y: 0.0};
 		cameraPosition = {x: 0.0, y: 0.0};
 		idleSuffix = '';
 		shoutAnim = '';
+		stunned = false;
 		antialiasing = true;
 	}
 
@@ -453,7 +462,7 @@ class Character extends FlxSprite {
 	}
 
 	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int { return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]); }
-	function quickAnimAdd(name:String, prefix:String, ?flipX:Bool = false) { animation.addByPrefix(name, prefix, 24, false); }
+	function quickAnimAdd(name:String, prefix:String, ?flipX:Bool = false) { animation.addByPrefix(name, prefix, 24, false, flipX); }
 	private function loadOffsetFile(offsetCharacter:String) {
 		var daFile:Array<String> = CoolUtil.coolTextFile(Paths.file('images/characters/' + offsetCharacter + 'Offsets.txt'));
 		for (i in daFile) {
