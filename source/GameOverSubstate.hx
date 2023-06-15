@@ -10,7 +10,7 @@ import haxe.display.Display.Package;
 import ui.PreferencesMenu;
 
 class GameOverSubstate extends MusicBeatSubstate {
-	var bf:DeadChar;
+	var corpse:Character;
 	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
@@ -23,23 +23,21 @@ class GameOverSubstate extends MusicBeatSubstate {
 			case 'school' | 'schoolEvil':
 				stageSuffix = '-pixel';
 				daBf = 'bf-pixel-dead';
-			default: daBf = 'bf';
+			default: daBf = 'bf-dead';
 		}
 
 		var daSong = PlayState.chartData.song.toLowerCase();
 
-		switch (daSong) {
-			case 'stress': daBf = 'bf-holding-gf-dead';
-		}
+		if (daSong == 'stress') daBf = 'bf-holding-gf-dead';
 
 		super();
 
 		Conductor.songPosition = 0;
 
-		bf = new DeadChar(daBf, x, y);
-		add(bf);
+		corpse = new Character(daBf, x, y, true);
+		add(corpse);
 
-		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
+		camFollow = new FlxObject(corpse.getMidpoint().x + corpse.cameraPosition.x, corpse.getMidpoint().y, 1, 1);
 		add(camFollow);
 
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
@@ -49,7 +47,7 @@ class GameOverSubstate extends MusicBeatSubstate {
 		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
-		bf.playAnim('firstDeath');
+		corpse.playAnim('firstDeath');
 
 		var randomCensor:Array<Int> = [];
 		if (PreferencesMenu.getPref('censor-naughty')) randomCensor = [1, 3, 8, 13, 17, 21];
@@ -57,7 +55,7 @@ class GameOverSubstate extends MusicBeatSubstate {
 	}
 
 	var playingDeathSound:Bool = false;
-
+	var startedDeath:Bool = false;
 	var preventDoublePress:Bool = false;
 	override function update(elapsed:Float) {
 		// makes the lerp non-dependant on the framerate
@@ -65,10 +63,9 @@ class GameOverSubstate extends MusicBeatSubstate {
 
 		super.update(elapsed);
 
-		if (controls.ACCEPT) endBullshit();
-
-		if (controls.BACK || !preventDoublePress) {
-			preventDoublePress = true;
+		if (controls.ACCEPT && !preventDoublePress) endBullshit();
+		if (controls.ACCEPT || controls.BACK) preventDoublePress = true;
+		if (controls.BACK && !preventDoublePress) {
 			PlayState.deathCounter = 0;
 			PlayState.seenCutscene = false;
 			FlxG.sound.music.stop();
@@ -78,26 +75,26 @@ class GameOverSubstate extends MusicBeatSubstate {
 		}
 
 		#if debug
-		if (FlxG.keys.justPressed.EIGHT) FlxG.switchState(new AnimationDebug(bf.charName));
+		if (FlxG.keys.justPressed.EIGHT) FlxG.switchState(new AnimationDebug(corpse.charName));
 		#end
 
-		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
+		if (corpse.animation.curAnim.name == 'firstDeath' && corpse.animation.curAnim.curFrame == 12)
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
 
 		switch (PlayState.storyWeek) {
 			case 7:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished && !playingDeathSound) {
+				if (corpse.animation.curAnim.name == 'firstDeath' && corpse.animation.curAnim.finished && !playingDeathSound) {
 					playingDeathSound = true;
 
-					bf.startedDeath = true;
+					startedDeath = true;
 					coolStartDeath(0.2);
 
 					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + randomGameover), 1, false, null, true, function()
 					{ if (!isEnding) FlxG.sound.music.fadeIn(4, 0.2, 1); });
 				}
 			default:
-				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished) {
-					bf.startedDeath = true;
+				if (corpse.animation.curAnim.name == 'firstDeath' && corpse.animation.curAnim.finished) {
+					startedDeath = true;
 					coolStartDeath();
 				}
 		}
@@ -111,7 +108,7 @@ class GameOverSubstate extends MusicBeatSubstate {
 
 	override function beatHit() {
 		super.beatHit();
-		if (curBeat % (bf.danceNumBeats * bf.bopSpeed) == 0) bf.playAnim('deathLoop');
+		if (curBeat % (corpse.danceNumBeats * corpse.bopSpeed) == 0 && corpse.animation.curAnim.name != 'firstDeath') corpse.playAnim('deathLoop');
 		FlxG.log.add('beat');
 	}
 
@@ -120,11 +117,13 @@ class GameOverSubstate extends MusicBeatSubstate {
 	function endBullshit():Void {
 		if (!isEnding) {
 			isEnding = true;
-			bf.playAnim('deathConfirm', true);
+			corpse.playAnim('deathConfirm', true);
+			corpse.noInterup.bopping = true;
 			FlxG.sound.music.stop();
 			FlxG.sound.play(Paths.music('gameOverEnd' + stageSuffix));
 			new FlxTimer().start(0.7, function(tmr:FlxTimer) {
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, function() { LoadingState.loadAndSwitchState(new PlayState()); });
+				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
+				{ LoadingState.loadAndSwitchState(new PlayState()); });
 			});
 		}
 	}
