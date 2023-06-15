@@ -27,7 +27,6 @@ class GameOverSubstate extends MusicBeatSubstate {
 		}
 
 		var daSong = PlayState.chartData.song.toLowerCase();
-
 		if (daSong == 'stress') daBf = 'bf-holding-gf-dead';
 
 		super();
@@ -37,7 +36,7 @@ class GameOverSubstate extends MusicBeatSubstate {
 		corpse = new Character(daBf, x, y, true);
 		add(corpse);
 
-		camFollow = new FlxObject(corpse.getMidpoint().x + corpse.cameraPosition.x, corpse.getMidpoint().y, 1, 1);
+		camFollow = new FlxObject(corpse.getMidpoint().x + corpse.cameraPosition.x, corpse.getMidpoint().y + corpse.cameraPosition.y, 1, 1);
 		add(camFollow);
 
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
