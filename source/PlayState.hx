@@ -130,7 +130,7 @@ class PlayState extends MusicBeatState {
 	var tankGround:BGSprite;
 
 	var talking:Bool = true;
-	var staticsongScore:Int = 0;
+	var songScore:Int = 0;
 	public static var scoreTxt:FlxText;
 
 	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
