@@ -246,8 +246,7 @@ class PlayState extends MusicBeatState {
 
 				add(phillyCityLights);
 
-				for (i in 0...5)
-				{
+				for (i in 0...5) {
 					var light:FlxSprite = new FlxSprite(city.x).loadGraphic(Paths.image('philly/win' + i));
 					light.scrollFactor.set(0.3, 0.3);
 					light.visible = false;
@@ -299,7 +298,7 @@ class PlayState extends MusicBeatState {
 				overlayShit.alpha = 0.5;
 				// add(overlayShit);
 				// var shaderBullshit = new BlendModeEffect(new OverlayShader(), FlxColor.RED);
-				// FlxG.camera.setFilters([new ShaderFilter(cast shaderBullshit.shader)]);
+				// camGame.setFilters([new ShaderFilter(cast shaderBullshit.shader)]);
 				// overlayShit.shader = shaderBullshit;
 
 				limo = new FlxSprite(-120, 550);
@@ -756,10 +755,10 @@ class PlayState extends MusicBeatState {
 
 		add(camFollow);
 
-		FlxG.camera.follow(camFollow, LOCKON, 0.04);
-		// FlxG.camera.setScrollBounds(0, FlxG.width, 0, FlxG.height);
-		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow.getPosition());
+		camGame.follow(camFollow, LOCKON, 0.04);
+		// camGame.setScrollBounds(0, FlxG.width, 0, FlxG.height);
+		camGame.zoom = defaultCamZoom;
+		camGame.focusOn(camFollow.getPosition());
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
@@ -817,12 +816,12 @@ class PlayState extends MusicBeatState {
 						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
 						camFollow.y = -2050;
 						camFollow.x += 200;
-						FlxG.camera.focusOn(camFollow.getPosition());
-						FlxG.camera.zoom = 1.5;
+						camGame.focusOn(camFollow.getPosition());
+						camGame.zoom = 1.5;
 						new FlxTimer().start(0.8, function(tmr:FlxTimer) {
 							camHUD.visible = true;
 							remove(blackScreen);
-							FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
+							FlxTween.tween(camGame, {zoom: defaultCamZoom}, 2.5, {
 								ease: FlxEase.quadInOut,
 								onComplete: function(twn:FlxTween) { startCountdown(); }
 							});
@@ -862,12 +861,12 @@ class PlayState extends MusicBeatState {
 		var vid:FlxVideo = new FlxVideo('music/ughCutscene.mp4');
 		vid.finishCallback = function() {
 			remove(blackShit);
-			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
+			FlxTween.tween(camGame, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
 		};
 
-		FlxG.camera.zoom = defaultCamZoom * 1.2;
+		camGame.zoom = defaultCamZoom * 1.2;
 		camFollow.x += 100;
 		camFollow.y += 100;
 
@@ -886,7 +885,7 @@ class PlayState extends MusicBeatState {
 
 			camHUD.visible = false;
 
-			FlxG.camera.zoom *= 1.2;
+			camGame.zoom *= 1.2;
 			camFollow.y += 100;
 
 			tankCutscene.startSyncAudio = FlxG.sound.load(Paths.sound('wellWellWell'));
@@ -895,7 +894,7 @@ class PlayState extends MusicBeatState {
 			{
 				camFollow.x += 800;
 				camFollow.y += 100;
-				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 0.27, {ease: FlxEase.quadInOut});
+				FlxTween.tween(camGame, {zoom: defaultCamZoom * 1.2}, 0.27, {ease: FlxEase.quadInOut});
 
 				new FlxTimer().start(1.5, function(bep:FlxTimer)
 				{
@@ -911,12 +910,12 @@ class PlayState extends MusicBeatState {
 				{
 					camFollow.x -= 800;
 					camFollow.y -= 100;
-					FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 0.5, {ease: FlxEase.quadInOut});
+					FlxTween.tween(camGame, {zoom: defaultCamZoom * 1.2}, 0.5, {ease: FlxEase.quadInOut});
 					tankCutscene.animation.play('killYou');
 					FlxG.sound.play(Paths.sound('killYou'));
 					new FlxTimer().start(6.1, function(swagasdga:FlxTimer)
 					{
-						FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
+						FlxTween.tween(camGame, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 
 						inst.fadeOut((Conductor.crochet / 1000) * 5, 0);
 
@@ -946,7 +945,7 @@ class PlayState extends MusicBeatState {
 		vid.finishCallback = function() {
 			remove(blackShit);
 
-			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
+			FlxTween.tween(camGame, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
 		};
@@ -960,7 +959,7 @@ class PlayState extends MusicBeatState {
 
 			camFollow.y += 100;
 
-			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.3}, 4, {ease: FlxEase.quadInOut});
+			FlxTween.tween(camGame, {zoom: defaultCamZoom * 1.3}, 4, {ease: FlxEase.quadInOut});
 
 			dad.visible = false;
 			var tankCutscene:TankCutscene = new TankCutscene(20, 320);
@@ -974,8 +973,8 @@ class PlayState extends MusicBeatState {
 
 			new FlxTimer().start(4.1, function(ugly:FlxTimer)
 			{
-				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.4}, 0.4, {ease: FlxEase.quadOut});
-				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.3}, 0.7, {ease: FlxEase.quadInOut, startDelay: 0.45});
+				FlxTween.tween(camGame, {zoom: defaultCamZoom * 1.4}, 0.4, {ease: FlxEase.quadOut});
+				FlxTween.tween(camGame, {zoom: defaultCamZoom * 1.3}, 0.7, {ease: FlxEase.quadInOut, startDelay: 0.45});
 
 				gf.playAnim('sad');
 			});
@@ -984,7 +983,7 @@ class PlayState extends MusicBeatState {
 			{
 				inst.fadeOut((Conductor.crochet / 1000) * 5, 0);
 
-				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet * 5) / 1000, {ease: FlxEase.quartIn});
+				FlxTween.tween(camGame, {zoom: defaultCamZoom}, (Conductor.crochet * 5) / 1000, {ease: FlxEase.quartIn});
 				startCountdown();
 				new FlxTimer().start((Conductor.crochet * 25) / 1000, function(daTim:FlxTimer)
 				{
@@ -1018,7 +1017,7 @@ class PlayState extends MusicBeatState {
 		vid.finishCallback = function() {
 			remove(blackShit);
 
-			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
+			FlxTween.tween(camGame, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
 		};
@@ -1073,7 +1072,7 @@ class PlayState extends MusicBeatState {
 			alsoTankCutscene.y = FlxG.height + 100;
 
 			camFollow.setPosition(gf.x + 350, gf.y + 560);
-			FlxG.camera.focusOn(camFollow.getPosition());
+			camGame.focusOn(camFollow.getPosition());
 
 			boyfriend.visible = false;
 
@@ -1167,7 +1166,7 @@ class PlayState extends MusicBeatState {
 			// tankCutscene.startSyncAudio = cutsceneSound;
 			// tankCutscene.animation.curAnim.curFrame
 
-			FlxG.camera.zoom = defaultCamZoom * 1.15;
+			camGame.zoom = defaultCamZoom * 1.15;
 
 			camFollow.x -= 200;
 
@@ -1178,16 +1177,16 @@ class PlayState extends MusicBeatState {
 			{
 				camFollow.x += 400;
 				camFollow.y += 150;
-				FlxG.camera.zoom = defaultCamZoom * 1.4;
-				FlxTween.tween(FlxG.camera, {zoom: FlxG.camera.zoom + 0.1}, 0.5, {ease: FlxEase.elasticOut});
-				FlxG.camera.focusOn(camFollow.getPosition());
+				camGame.zoom = defaultCamZoom * 1.4;
+				FlxTween.tween(camGame, {zoom: camGame.zoom + 0.1}, 0.5, {ease: FlxEase.elasticOut});
+				camGame.focusOn(camFollow.getPosition());
 				boyfriend.playAnim('singUPmiss');
 				boyfriend.animation.finishCallback = function(animFinish:String)
 				{
 					camFollow.x -= 400;
 					camFollow.y -= 150;
-					FlxG.camera.zoom /= 1.4;
-					FlxG.camera.focusOn(camFollow.getPosition());
+					camGame.zoom /= 1.4;
+					camGame.focusOn(camFollow.getPosition());
 
 					boyfriend.animation.finishCallback = null;
 				};
@@ -1197,14 +1196,14 @@ class PlayState extends MusicBeatState {
 			{
 				camFollow.y -= 170;
 				camFollow.x += 200;
-				FlxTween.tween(FlxG.camera, {zoom: FlxG.camera.zoom * 1.3}, 2.1, {
+				FlxTween.tween(camGame, {zoom: camGame.zoom * 1.3}, 2.1, {
 					ease: FlxEase.quadInOut
 				});
 
 				new FlxTimer().start(2.2, function(swagTimer:FlxTimer)
 				{
-					// FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 0.7, {ease: FlxEase.elasticOut});
-					FlxG.camera.zoom = 0.8;
+					// FlxTween.tween(camGame, {zoom: defaultCamZoom}, 0.7, {ease: FlxEase.elasticOut});
+					camGame.zoom = 0.8;
 					// camFollow.y -= 100;
 					boyfriend.visible = false;
 					bfCatchGf.visible = true;
@@ -1332,12 +1331,12 @@ class PlayState extends MusicBeatState {
 								FlxG.sound.play(Paths.sound('Senpai_Dies'), 1, false, null, true, function() {
 									remove(senpaiEvil);
 									remove(red);
-									FlxG.camera.fade(FlxColor.WHITE, 0.01, true, function() {
+									camGame.fade(FlxColor.WHITE, 0.01, true, function() {
 										add(dialogueBox);
 										camHUD.visible = true;
 									}, true);
 								});
-								new FlxTimer().start(3.2, function(deadTime:FlxTimer) { FlxG.camera.fade(FlxColor.WHITE, 1.6, false); });
+								new FlxTimer().start(3.2, function(deadTime:FlxTimer) { camGame.fade(FlxColor.WHITE, 1.6, false); });
 							}
 						});
 					} else add(dialogueBox);
@@ -1554,7 +1553,7 @@ class PlayState extends MusicBeatState {
 	}
 
 	function tweenCamIn():Void {
-		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+		FlxTween.tween(camGame, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 	}
 
 	override function openSubState(SubState:FlxSubState) {
@@ -1621,7 +1620,7 @@ class PlayState extends MusicBeatState {
 
 	override public function update(elapsed:Float) {
 		// makes the lerp non-dependant on the framerate
-		// FlxG.camera.followLerp = CoolUtil.camLerpShit(0.04);
+		// camGame.followLerp = CoolUtil.camLerpShit(0.04);
 
 		#if !debug
 		perfectMode = false;
@@ -1742,7 +1741,7 @@ class PlayState extends MusicBeatState {
 		}
 
 		if (camZooming) {
-			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, 0.95);
+			camGame.zoom = FlxMath.lerp(defaultCamZoom, camGame.zoom, 0.95);
 			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, 0.95);
 		}
 
@@ -1971,8 +1970,8 @@ class PlayState extends MusicBeatState {
 				vocals.stop();
 
 				if (chartData.song.toLowerCase() == 'eggnog') {
-					var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
-						-FlxG.height * FlxG.camera.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
+					var blackShit:FlxSprite = new FlxSprite(-FlxG.width * camGame.zoom,
+						-FlxG.height * camGame.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
 					blackShit.scrollFactor.set();
 					add(blackShit);
 					camHUD.visible = false;
@@ -2000,7 +1999,7 @@ class PlayState extends MusicBeatState {
 	// gives score and pops up rating
 	private function popUpScore(strumtime:Float, daNote:Note):Void {
 		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
-		// boyfriend.playAnim('hey');
+		// boyfriend.playAnim(boyfriend.shoutAnim);
 		if (chartData.needsVoices) vocals.volume = 1;
 
 		var rating:FlxSprite = new FlxSprite();
@@ -2050,11 +2049,11 @@ class PlayState extends MusicBeatState {
 		rating.loadGraphic(Paths.image(ratingPath));
 		rating.x = FlxG.width * 0.55 - 40;
 		// make sure rating is visible lol!
-		if (rating.x < FlxG.camera.scroll.x) rating.x = FlxG.camera.scroll.x;
-		else if (rating.x > FlxG.camera.scroll.x + FlxG.camera.width - rating.width)
-		rating.x = FlxG.camera.scroll.x + FlxG.camera.width - rating.width;
+		if (rating.x < camGame.scroll.x) rating.x = camGame.scroll.x;
+		else if (rating.x > camGame.scroll.x + camGame.width - rating.width)
+		rating.x = camGame.scroll.x + camGame.width - rating.width;
 
-		rating.y = FlxG.camera.scroll.y + FlxG.camera.height * 0.4 - 60;
+		rating.y = camGame.scroll.y + camGame.height * 0.4 - 60;
 		rating.acceleration.y = 550;
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
@@ -2085,13 +2084,13 @@ class PlayState extends MusicBeatState {
 		}
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
-		comboSpr.y = FlxG.camera.scroll.y + FlxG.camera.height * 0.4 + 80;
+		comboSpr.y = camGame.scroll.y + camGame.height * 0.4 + 80;
 		comboSpr.x = FlxG.width * 0.55;
 		// make sure combo is visible lol!
 		// 194 fits 4 combo digits
-		if (comboSpr.x < FlxG.camera.scroll.x + 194) comboSpr.x = FlxG.camera.scroll.x + 194;
-		else if (comboSpr.x > FlxG.camera.scroll.x + FlxG.camera.width - comboSpr.width)
-		comboSpr.x = FlxG.camera.scroll.x + FlxG.camera.width - comboSpr.width;
+		if (comboSpr.x < camGame.scroll.x + 194) comboSpr.x = camGame.scroll.x + 194;
+		else if (comboSpr.x > camGame.scroll.x + camGame.width - comboSpr.width)
+		comboSpr.x = camGame.scroll.x + camGame.width - comboSpr.width;
 
 		comboSpr.acceleration.y = 600;
 		comboSpr.velocity.y -= 150;
@@ -2177,7 +2176,7 @@ class PlayState extends MusicBeatState {
 					camFollow.x = boyfriend.getMidpoint().x - 200;
 					camFollow.y = boyfriend.getMidpoint().y - 200;
 			}
-			if (chartData.song.toLowerCase() == 'tutorial') FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+			if (chartData.song.toLowerCase() == 'tutorial') FlxTween.tween(camGame, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 		}
 	}
 
@@ -2496,13 +2495,13 @@ class PlayState extends MusicBeatState {
 		// HARDCODING FOR MILF ZOOMS!
 
 		if (PreferencesMenu.getPref('camera-zoom')) {
-			if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35) {
-				FlxG.camera.zoom += 0.015;
+			if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && camGame.zoom < 1.35) {
+				camGame.zoom += 0.015;
 				camHUD.zoom += 0.03;
 			}
 
-			if (camZooming && FlxG.camera.zoom < 1.35 && curBeat % 4 == 0) {
-				FlxG.camera.zoom += 0.015;
+			if (camZooming && camGame.zoom < 1.35 && curBeat % 4 == 0) {
+				camGame.zoom += 0.015;
 				camHUD.zoom += 0.03;
 			}
 		}
@@ -2520,11 +2519,11 @@ class PlayState extends MusicBeatState {
 					them.dance();
 
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
-			boyfriend.playAnim('hey', true);
+			boyfriend.playAnim(boyfriend.shoutAnim, true);
 
 		if (curBeat % 16 == 15 && chartData.song == 'Tutorial' && dad.charName == 'gf' && curBeat > 16 && curBeat < 48) {
-			boyfriend.playAnim('hey', true);
-			dad.playAnim('cheer', true);
+			boyfriend.playAnim(boyfriend.shoutAnim, true);
+			dad.playAnim(dad.shoutAnim, true);
 		}
 
 		foregroundSprites.forEach(function(spr:BGSprite) { spr.dance(); });
