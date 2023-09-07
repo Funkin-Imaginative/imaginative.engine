@@ -71,7 +71,7 @@ class PlayState extends MusicBeatState
 
 	private var dad:Character;
 	private var gf:Character;
-	private var boyfriend:Boyfriend;
+	private var boyfriend:Character;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -697,7 +697,7 @@ class PlayState extends MusicBeatState
 				dad.y += 180;
 		}
 
-		boyfriend = new Boyfriend(770, 450, SONG.player1);
+		boyfriend = new Character(770, 450, SONG.player1);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -838,11 +838,12 @@ class PlayState extends MusicBeatState
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
-		iconP1 = new HealthIcon(SONG.player1, true);
+		iconP1 = new HealthIcon(SONG.player1);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
+		iconP1.flipX = true;
 		add(iconP1);
 
-		iconP2 = new HealthIcon(SONG.player2, false);
+		iconP2 = new HealthIcon(SONG.player2);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
@@ -1486,7 +1487,7 @@ class PlayState extends MusicBeatState
 				if (!dad.animation.curAnim.name.startsWith("sing"))
 					dad.dance();
 			}
-			else if (dad.curCharacter == 'spooky' && !dad.animation.curAnim.name.startsWith("sing"))
+			else if (dad.charName == 'spooky' && !dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 			if (generatedMusic)
 				notes.sort(sortNotes, FlxSort.DESCENDING);
@@ -2001,7 +2002,7 @@ class PlayState extends MusicBeatState
 				 CTRL+SHIFT+8 for gf   */
 			if (FlxG.keys.pressed.SHIFT)
 				if (FlxG.keys.pressed.CONTROL)
-					FlxG.switchState(new AnimationDebug(gf.curCharacter));
+					FlxG.switchState(new AnimationDebug(gf.charName));
 				else 
 					FlxG.switchState(new AnimationDebug(SONG.player1));
 			else
@@ -2320,11 +2321,7 @@ class PlayState extends MusicBeatState
 				// if ()
 				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
 
-				if (SONG.validScore)
-				{
-					NGio.unlockMedal(60961);
-					Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
-				}
+				if (SONG.validScore) Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
 
 				FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
 				FlxG.save.flush();
@@ -2581,7 +2578,7 @@ class PlayState extends MusicBeatState
 			camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 			// camFollow.setPosition(lucky.getMidpoint().x - 120, lucky.getMidpoint().y + 210);
 
-			switch (dad.curCharacter)
+			switch (dad.charName)
 			{
 				case 'mom':
 					camFollow.y = dad.getMidpoint().y;
@@ -2590,7 +2587,7 @@ class PlayState extends MusicBeatState
 					camFollow.x = dad.getMidpoint().x - 100;
 			}
 
-			if (dad.curCharacter == 'mom')
+			if (dad.charName == 'mom')
 				vocals.volume = 1;
 
 			if (SONG.song.toLowerCase() == 'tutorial')
@@ -2958,7 +2955,7 @@ class PlayState extends MusicBeatState
 			resyncVocals();
 		}
 
-		if (dad.curCharacter == 'spooky' && curStep % 4 == 2)
+		if (dad.charName == 'spooky' && curStep % 4 == 2)
 		{
 			// dad.dance();
 		}
@@ -3022,7 +3019,7 @@ class PlayState extends MusicBeatState
 			if (!dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
 		}
-		else if (dad.curCharacter == 'spooky')
+		else if (dad.charName == 'spooky')
 		{
 			if (!dad.animation.curAnim.name.startsWith("sing"))
 				dad.dance();
@@ -3033,7 +3030,7 @@ class PlayState extends MusicBeatState
 			boyfriend.playAnim('hey', true);
 		}
 
-		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
+		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.charName == 'gf' && curBeat > 16 && curBeat < 48)
 		{
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);

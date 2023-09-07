@@ -11,7 +11,7 @@ import ui.PreferencesMenu;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
-	var bf:Boyfriend;
+	var bf:Character;
 	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
@@ -42,7 +42,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		Conductor.songPosition = 0;
 
-		bf = new Boyfriend(x, y, daBf);
+		bf = new Character(x, y, daBf);
 		add(bf);
 
 		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
@@ -94,7 +94,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		#if debug
 		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(bf.curCharacter));
+			FlxG.switchState(new AnimationDebug(bf.charName));
 		#end
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
@@ -102,6 +102,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		}
 
+		var startedDeath:Bool = false;
 		switch (PlayState.storyWeek)
 		{
 			case 7:
@@ -109,7 +110,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				{
 					playingDeathSound = true;
 
-					bf.startedDeath = true;
+					startedDeath = true;
 					coolStartDeath(0.2);
 
 					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + randomGameover), 1, false, null, true, function()
@@ -121,7 +122,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			default:
 				if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
 				{
-					bf.startedDeath = true;
+					startedDeath = true;
 					coolStartDeath();
 				}
 		}
