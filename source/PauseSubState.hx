@@ -13,7 +13,8 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 
-class PauseSubState extends MusicBeatSubstate {
+class PauseSubState extends MusicBeatSubstate
+{
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var pauseOG:Array<String> = [
@@ -50,7 +51,7 @@ class PauseSubState extends MusicBeatSubstate {
 		add(bg);
 
 		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
-		levelInfo.text += PlayState.chartData.song;
+		levelInfo.text += PlayState.SONG.song;
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();
@@ -147,7 +148,8 @@ class PauseSubState extends MusicBeatSubstate {
 				case "Resume":
 					close();
 				case "EASY" | 'NORMAL' | "HARD":
-					PlayState.chartData = Song.loadFromJson(Highscore.formatSong(PlayState.chartData.song.toLowerCase(), curSelected), PlayState.chartData.song.toLowerCase());
+					PlayState.SONG = Song.loadFromJson(Highscore.formatSong(PlayState.SONG.song.toLowerCase(), curSelected),
+						PlayState.SONG.song.toLowerCase());
 
 					PlayState.storyDifficulty = curSelected;
 

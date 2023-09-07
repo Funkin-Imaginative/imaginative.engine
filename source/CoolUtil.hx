@@ -13,10 +13,12 @@ import lime.utils.Assets;
 
 using StringTools;
 
-class CoolUtil {
+class CoolUtil
+{
 	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 
-	public static function difficultyString():String {
+	public static function difficultyString():String
+	{
 		return difficultyArray[PlayState.storyDifficulty];
 	}
 

@@ -57,7 +57,7 @@ class LoadingState extends MusicBeatState
 			callbacks = new MultiCallback(onLoad);
 			var introComplete = callbacks.add("introComplete");
 			checkLoadSong(getSongPath());
-			if (PlayState.chartData.needsVoices)
+			if (PlayState.SONG.needsVoices)
 				checkLoadSong(getVocalPath());
 			checkLibrary("shared");
 			if (PlayState.storyWeek > 0)
@@ -162,12 +162,12 @@ class LoadingState extends MusicBeatState
 
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.chartData.song);
+		return Paths.inst(PlayState.SONG.song);
 	}
 
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.chartData.song);
+		return Paths.voices(PlayState.SONG.song);
 	}
 
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
@@ -180,7 +180,7 @@ class LoadingState extends MusicBeatState
 		Paths.setCurrentLevel("week" + PlayState.storyWeek);
 		#if NO_PRELOAD_ALL
 		var loaded = isSoundLoaded(getSongPath())
-			&& (!PlayState.chartData.needsVoices || isSoundLoaded(getVocalPath()))
+			&& (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath()))
 			&& isLibraryLoaded("shared");
 
 		if (!loaded)

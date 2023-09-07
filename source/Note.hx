@@ -6,9 +6,8 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import shaderslmfao.ColorSwap;
 import ui.PreferencesMenu;
-// import sys.io.File;
-// import sys.FileSystem;
 
 using StringTools;
 
@@ -16,241 +15,228 @@ using StringTools;
 import polymod.format.ParseRules.TargetSignatureElement;
 #end
 
-class Note extends FlxSprite {
-	/* Important Stuff */
+class Note extends FlxSprite
+{
 	public var strumTime:Float = 0;
+
 	public var mustPress:Bool = false;
 	public var noteData:Int = 0;
-	public var isSustainNote:Bool = false;
-	public var sustainLength:Float = 0;
-	public var hitHealth:Float = 0.02;
-	public var missHealth:Float = 0.04;
-	public var scrollAngle:Float = 90;
-	public var noteType(default, set):String = '';
-	public var attachedChar(default, set):Character;
-	private function set_attachedChar(value:Character):Character {
-		if (attachedChar != value) {
-			if (value == null) value = mustPress ? PlayState.instance.boyfriend : PlayState.instance.dad;
-			attachedChar = value;
-		}
-		return value;
-	}
-
-	/* Hit Detection */
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
-	public var hitByOpponent:Bool = false;
-	public var noteWasHit:Bool = false;
-	
-	/* Note Grouping */
 	public var prevNote:Note;
-	public var nextNote:Note;
-	public var parent:Note;
-	public var tail:Array<Note> = []; // for sustains
 
-	/* Extras */
-	public var blockHit:Bool = false;
-	public var ignoreNote:Bool = false;
-	public var hitCausesMiss:Bool = false;
-	public var distanceFromStrum:Float = 2000; // plan on doing scroll directions like psych :P
-	public var spawned:Bool = false;
+	private var willMiss:Bool = false;
 
-	/* Animation */
-	public var animToPlay(default, set):String = 'loadDefaults';
-	public var animMissed(default, set):String = 'loadDefaults';
-	public var animSuffix:String = '';
-	public var texture(default, set):String = 'Default';
-	private function set_texture(value:String):String {
-		if (texture != value) {
-			texture = value;
-			loadNotePart('asset');
-		}
-		return value;
-	}
+	public var altNote:Bool = false;
+	public var invisNote:Bool = false;
 
-	/* Pixel */
-	public var isPixel(default, set):Bool = false;
-	public var pixelScale:Float = 6;
-	private function set_isPixel(value:Bool):Bool {
-		if (isPixel != value) {
-			isPixel = value;
-			loadNotePart('asset');
-		}
-		return value;
-	}
+	public var sustainLength:Float = 0;
+	public var isSustainNote:Bool = false;
 
-	/* Cool Stuff */
-	public var extraOffsets = {
-		x: 0.0,
-		y: 0.0,
-		angle: 0.0,
-		scrlAng: 0.0
-	};
-	public var multipliers = {
-		alpha: 1.0,
-		scrlSpeed: 1.0,
-		//score: 1.0,
-		scaleX: 1.0 // no Y on purpose
-	};
-	public var copyFromStrum = {
-		x: true,
-		y: true,
-		angle: true,
-		alpha: true
-	};
+	public var colorSwap:ColorSwap;
+	public var noteScore:Float = 1;
 
-	/* Misc */
 	public static var swagWidth:Float = 160 * 0.7;
-	public static var nameArray:Array<String> = ['left', 'down', 'up', 'right'];
+	public static var PURP_NOTE:Int = 0;
+	public static var GREEN_NOTE:Int = 2;
+	public static var BLUE_NOTE:Int = 1;
+	public static var RED_NOTE:Int = 3;
 
-	public function new(strumTime:Float, noteData:Int, pixelStuff:Array<Dynamic>, ?prevNote:Note, ?sustainNote:Bool = false) {
+	public static var arrowColors:Array<Float> = [1, 1, 1, 1];
+
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
+	{
 		super();
 
-		attachedChar = mustPress ? PlayState.instance.boyfriend : PlayState.instance.dad;
-		
-		if (prevNote == null) prevNote = this;
-		this.prevNote = prevNote;
+		if (prevNote == null)
+			prevNote = this;
 
+		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
-		isPixel = pixelStuff[0];
-		pixelScale = pixelStuff[1];
-		
+
 		x += 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
-
 		this.strumTime = strumTime;
+
 		this.noteData = noteData;
 
-		loadNotePart('asset');
+		var daStage:String = PlayState.curStage;
 
-		x += swagWidth * noteData;
-		if (!isSustainNote) animation.play('Note');
+		switch (daStage)
+		{
+			case 'school' | 'schoolEvil':
+				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+
+				animation.add('greenScroll', [6]);
+				animation.add('redScroll', [7]);
+				animation.add('blueScroll', [5]);
+				animation.add('purpleScroll', [4]);
+
+				if (isSustainNote)
+				{
+					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
+
+					animation.add('purpleholdend', [4]);
+					animation.add('greenholdend', [6]);
+					animation.add('redholdend', [7]);
+					animation.add('blueholdend', [5]);
+
+					animation.add('purplehold', [0]);
+					animation.add('greenhold', [2]);
+					animation.add('redhold', [3]);
+					animation.add('bluehold', [1]);
+				}
+
+				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+				updateHitbox();
+
+			default:
+				frames = Paths.getSparrowAtlas('NOTE_assets');
+
+				animation.addByPrefix('greenScroll', 'green instance');
+				animation.addByPrefix('redScroll', 'red instance');
+				animation.addByPrefix('blueScroll', 'blue instance');
+				animation.addByPrefix('purpleScroll', 'purple instance');
+
+				animation.addByPrefix('purpleholdend', 'pruple end hold');
+				animation.addByPrefix('greenholdend', 'green hold end');
+				animation.addByPrefix('redholdend', 'red hold end');
+				animation.addByPrefix('blueholdend', 'blue hold end');
+
+				animation.addByPrefix('purplehold', 'purple hold piece');
+				animation.addByPrefix('greenhold', 'green hold piece');
+				animation.addByPrefix('redhold', 'red hold piece');
+				animation.addByPrefix('bluehold', 'blue hold piece');
+
+				setGraphicSize(Std.int(width * 0.7));
+				updateHitbox();
+				antialiasing = true;
+
+				// colorSwap.colorToReplace = 0xFFF9393F;
+				// colorSwap.newColor = 0xFF00FF00;
+
+				// color = FlxG.random.color();
+				// color.saturation *= 4;
+				// replaceColor(0xFFC1C1C1, FlxColor.RED);
+		}
+
+		colorSwap = new ColorSwap();
+		shader = colorSwap.shader;
+		updateColors();
+
+		switch (noteData)
+		{
+			case 0:
+				x += swagWidth * 0;
+				animation.play('purpleScroll');
+			case 1:
+				x += swagWidth * 1;
+				animation.play('blueScroll');
+			case 2:
+				x += swagWidth * 2;
+				animation.play('greenScroll');
+			case 3:
+				x += swagWidth * 3;
+				animation.play('redScroll');
+		}
 
 		// trace(prevNote);
 
-		if (prevNote != null) prevNote.nextNote = this;
-		if (isSustainNote && prevNote != null) {
-			// multScore * 0.2;
+		if (isSustainNote && prevNote != null)
+		{
+			noteScore * 0.2;
+			alpha = 0.6;
 
-			if (PreferencesMenu.getPref('downscroll')) angle = 180;//scrollAngle = -90;
+			if (PreferencesMenu.getPref('downscroll'))
+				angle = 180;
+
 			x += width / 2;
 
-			loadNotePart('scale');
-		}
-	}
-
-	public function loadNotePart(part:String) { // Can also reload.
-		if (part == 'asset') {
-			if (isPixel) {
-				if (isSustainNote) {
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'));
-					width /= 4;
-					height /= 2;
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, Math.floor(width), Math.floor(height));
-					animation.add('Hold End', [noteData + 4]);
-					animation.add('Hold Piece', [noteData]);
-				} else {
-					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'));
-					width /= 4;
-					height /= 5;
-					loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, Math.floor(width), Math.floor(height));
-					animation.add('Note', [noteData + 4]);
-				}
-			} else {
-				frames = Paths.getSparrowAtlas('NOTE_assets');
-				if (isSustainNote) {
-					animation.addByPrefix('Hold End', '${nameArray[noteData]} hold end');
-					animation.addByPrefix('Hold Piece', '${nameArray[noteData]} hold piece');
-				} else animation.addByPrefix('Note', '${nameArray[noteData]} static');
+			switch (noteData)
+			{
+				case 2:
+					animation.play('greenholdend');
+				case 3:
+					animation.play('redholdend');
+				case 1:
+					animation.play('blueholdend');
+				case 0:
+					animation.play('purpleholdend');
 			}
-			setGraphicSize(Std.int(width * (isPixel ? pixelScale : 0.7) * multipliers.scaleX));
+
 			updateHitbox();
-			antialiasing = !isPixel;
-		} else if (part == 'scale') {
-			x += swagWidth * noteData;
-			if (!isSustainNote) animation.play('Note');
-			if (isSustainNote && prevNote != null) {
-				animation.play('Hold End');
-				updateHitbox();
 
-				x -= width / 2;
-				if (isPixel) x += 30;
+			x -= width / 2;
 
-				if (prevNote.isSustainNote) {
-					prevNote.animation.play('Hold Piece');
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.chartData.speed * multipliers.scrlSpeed;
-					prevNote.updateHitbox();
-					// prevNote.setGraphicSize();
+			if (PlayState.curStage.startsWith('school'))
+				x += 30;
+
+			if (prevNote.isSustainNote)
+			{
+				switch (prevNote.noteData)
+				{
+					case 0:
+						prevNote.animation.play('purplehold');
+					case 1:
+						prevNote.animation.play('bluehold');
+					case 2:
+						prevNote.animation.play('greenhold');
+					case 3:
+						prevNote.animation.play('redhold');
 				}
+
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.updateHitbox();
+				// prevNote.setGraphicSize();
 			}
 		}
 	}
 
-	private function set_animToPlay(value:String):String {
-		// var singAnims:Array<String> = [attachedChar.isPlayer ? 'singTO' : 'singAWAY', 'singDOWN', 'singUP', attachedChar.isPlayer ? 'singAWAY' : 'singTO'];
-		var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-		if (value.length < 1 || value == 'loadDefaults') value = singAnims[noteData];
-		animToPlay = value;
-		return value;
+	public function updateColors():Void
+	{
+		colorSwap.update(arrowColors[noteData]);
 	}
 
-	private function set_animMissed(value:String):String {
-		if (value.length < 1 || value == 'loadDefaults') value = animToPlay + 'miss';
-		animMissed = value;
-		return value;
-	}
-
-	public function noAnimChecker(?isMissAnim:Bool = false):Bool {
-		return if (isMissAnim) animMissed.length < 1; else animToPlay.length < 1;
-	}
-	
-	public function checkAnimExists(?isMissAnim:Bool = false):Array<Dynamic> {
-		var anim:String = isMissAnim ? animMissed : animToPlay;
-		if (attachedChar.animOffsets.exists(anim + animSuffix)) return [true, anim + animSuffix];
-		else { if (attachedChar.animOffsets.exists(anim))return [true, anim]; }
-		return [false, '']; // Wait did I just make noAnimChecker useless?
-	}
-
-	private function set_noteType(value:String):String {
-		if (noteData > -1 && noteType != value) {
-			switch(value) {
-				case 'Alt Animation':
-					animSuffix = '-alt';
-				case 'No Animation':
-					animToPlay = '';
-					animMissed = '';
-				case 'Opponent Sing':
-					attachedChar = mustPress ? PlayState.instance.dad : PlayState.instance.boyfriend;
-				case 'GF Sing':
-					attachedChar = PlayState.instance.gf;
-			}
-			noteType = value;
-		}
-		return value;
-	}
-
-	private static var willMiss:Bool = false;
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float)
+	{
 		super.update(elapsed);
-		if (mustPress) {
+
+		if (mustPress)
+		{
 			// miss on the NEXT frame so lag doesnt make u miss notes
-			if (willMiss && !wasGoodHit) {
+			if (willMiss && !wasGoodHit)
+			{
 				tooLate = true;
 				canBeHit = false;
-			} else {
-				if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset) { // The * 0.5 is so that it's easier to hit them too late, instead of too early
-					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5)) canBeHit = true;
-				} else {
+			}
+			else
+			{
+				if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset)
+				{ // The * 0.5 is so that it's easier to hit them too late, instead of too early
+					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
+						canBeHit = true;
+				}
+				else
+				{
 					canBeHit = true;
 					willMiss = true;
 				}
 			}
-		} else {
-			canBeHit = false;
-			if (strumTime <= Conductor.songPosition) wasGoodHit = true;
 		}
-		if (tooLate) if (alpha > 0.3) alpha = 0.3;
+		else
+		{
+			canBeHit = false;
+
+			if (strumTime <= Conductor.songPosition)
+				wasGoodHit = true;
+		}
+
+		if (tooLate)
+		{
+			if (alpha > 0.3)
+				alpha = 0.3;
+		}
 	}
 }

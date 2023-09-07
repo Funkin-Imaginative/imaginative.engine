@@ -4,8 +4,10 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.io.Path;
 
-class NoteSplash extends FlxSprite {
-	public function new(x:Float, y:Float, noteData:Int = 0):Void {
+class NoteSplash extends FlxSprite
+{
+	public function new(x:Float, y:Float, noteData:Int = 0):Void
+	{
 		super(x, y);
 
 		frames = Paths.getSparrowAtlas('noteSplashes');
@@ -20,9 +22,12 @@ class NoteSplash extends FlxSprite {
 		animation.addByPrefix('note3-1', 'note impact 2 red', 24, false);
 
 		setupNoteSplash(x, y, noteData);
+
+		// alpha = 0.75;
 	}
 
-	public function setupNoteSplash(x:Float, y:Float, noteData:Int = 0) {
+	public function setupNoteSplash(x:Float, y:Float, noteData:Int = 0)
+	{
 		setPosition(x, y);
 		alpha = 0.6;
 
@@ -33,8 +38,10 @@ class NoteSplash extends FlxSprite {
 		offset.set(width * 0.3, height * 0.3);
 	}
 
-	override function update(elapsed:Float) {
-		if (animation.curAnim.finished) kill();
+	override function update(elapsed:Float)
+	{
+		if (animation.curAnim.finished)
+			kill();
 
 		super.update(elapsed);
 	}
