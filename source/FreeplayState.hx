@@ -61,7 +61,7 @@ class FreeplayState extends MusicBeatState
 		addSong('Test', 1, 'bf-pixel');
 		#end
 
-		var initSonglist = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
+		var initSonglist = ["Tutorial"];
 
 		for (i in 0...initSonglist.length)
 		{
