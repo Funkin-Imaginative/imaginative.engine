@@ -1,19 +1,25 @@
-Key: Done = *, Working on = @
+Key: Done = *, Working On = @, On Hold = %
 
 Soft Modding ~
 Weeks @
 Songs
-Characters
+Characters %
+HScript, no lua bitches
 
 Overhauling ~
 Story Menu Characters
 Chart Editor
-Chart Format
-GameWorld (slightly, PlayState renamed)
+Chart Formating
+GameWorld (slightly, renamed PlayState)
 Option Menus
 Notes/Strums/Splashes (slightly)
+Health Icons %
+Source Folder (organize really)
 
-Maybe Completely Sorta Borrow (with perms) ~
+Compatibility ~
+Charts with Psych
+
+Maybe Completely Sorta Borrow (with perms obv) ~
 Psychs Controls.hx Shit
 
 More or so to be added as we go along.
