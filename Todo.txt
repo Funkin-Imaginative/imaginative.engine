@@ -15,6 +15,7 @@ Option Menus
 Notes/Strums/Splashes (slightly)
 Health Icons %
 Source Folder (organize really)
+Stages
 
 Compatibility ~
 Charts with Psych
