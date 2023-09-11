@@ -6,6 +6,7 @@ Songs
 Characters
 
 Overhauling ~
+Story Menu Characters
 Chart Editor
 Chart Format
 GameWorld (slightly, PlayState renamed)
