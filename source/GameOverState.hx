@@ -32,6 +32,7 @@ class GameOverState extends FlxTransitionableState
 
 		var bf:Character = new Character(bfX, bfY);
 		// bf.scrollFactor.set();
+		bf.flipX = true;
 		add(bf);
 		bf.playAnim('firstDeath');
 

@@ -44,6 +44,7 @@
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
+	<assets path="mod_folder" rename="mods" />
 	
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
