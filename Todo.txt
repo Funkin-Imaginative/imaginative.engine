@@ -6,10 +6,11 @@ Songs
 Characters
 
 Overhauling ~
+Story Menu Characters
 Chart Editor
 Chart Format
 GameWorld (slightly, PlayState renamed)
 Option Menus
-Notes/Strums/Splashes
+Notes/Strums/Splashes (slightly)
 
 More or so to be added as we go along.
