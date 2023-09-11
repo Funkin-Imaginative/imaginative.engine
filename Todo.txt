@@ -1,4 +1,7 @@
-Key: Done = *, Working On = @, On Hold = %
+Key ~
+Done = *, Finished.
+Working On = @, Not done but working on.
+On Hold = %, Not done but not working on.
 
 Soft Modding ~
 Weeks @
