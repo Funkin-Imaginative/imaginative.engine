@@ -1,0 +1,15 @@
+Key: Done = *, Working on = @
+
+Soft Modding ~
+Weeks @
+Songs
+Characters
+
+Overhauling ~
+Chart Editor
+Chart Format
+GameWorld (slightly, PlayState renamed)
+Option Menus
+Notes/Strums/Splashes
+
+More or so to be added as we go along.
