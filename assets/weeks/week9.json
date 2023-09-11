@@ -16,5 +16,5 @@
         "tankman",
         "tankman"
     ],
-    "freeplayColor": "0xFF888888"
+    "freeplayColors": ["0xFFFF0000", "0xFF00FF00", "0xFF0000FF"]
 }

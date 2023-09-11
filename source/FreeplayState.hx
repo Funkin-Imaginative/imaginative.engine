@@ -31,15 +31,15 @@ class FreeplayState extends MusicBeatState
 	var lerpScore:Float = 0;
 	var intendedScore:Int = 0;
 
-	var coolColors:Array<Int> = [
-		0xff9271fd,
-		0xff9271fd,
-		0xff223344,
-		0xFF941653,
-		0xFFfc96d7,
-		0xFFa0d1ff,
-		0xffff78bf,
-		0xfff6b604
+	var coolColors:Array<Dynamic> = [
+		["0xff9271fd"],
+		["0xff9271fd"],
+		["0xff223344"],
+		["0xFF941653"],
+		["0xFFfc96d7"],
+		["0xFFa0d1ff"],
+		["0xffff78bf"],
+		["0xfff6b604"]
 	];
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
@@ -77,25 +77,25 @@ class FreeplayState extends MusicBeatState
 		}
 
 		if (StoryMenuState.weekUnlocked[2] || isDebug)
-			addWeek(['Bopeebo', 'Fresh', 'Dadbattle'], 1, ['dad']);
+			addWeek(['Bopeebo', 'Fresh', 'Dadbattle'], 1, ['dad'], coolColors[1]);
 
 		if (StoryMenuState.weekUnlocked[2] || isDebug)
-			addWeek(['Spookeez', 'South', 'Monster'], 2, ['spooky', 'spooky', 'monster']);
+			addWeek(['Spookeez', 'South', 'Monster'], 2, ['spooky', 'spooky', 'monster'], coolColors[2]);
 
 		if (StoryMenuState.weekUnlocked[3] || isDebug)
-			addWeek(['Pico', 'Philly', 'Blammed'], 3, ['pico']);
+			addWeek(['Pico', 'Philly', 'Blammed'], 3, ['pico'], coolColors[3]);
 
 		if (StoryMenuState.weekUnlocked[4] || isDebug)
-			addWeek(['Satin-Panties', 'High', 'Milf'], 4, ['mom']);
+			addWeek(['Satin-Panties', 'High', 'Milf'], 4, ['mom'], coolColors[4]);
 
 		if (StoryMenuState.weekUnlocked[5] || isDebug)
-			addWeek(['Cocoa', 'Eggnog', 'Winter-Horrorland'], 5, ['parents-christmas', 'parents-christmas', 'monster-christmas']);
+			addWeek(['Cocoa', 'Eggnog', 'Winter-Horrorland'], 5, ['parents-christmas', 'parents-christmas', 'monster-christmas'], coolColors[5]);
 
 		if (StoryMenuState.weekUnlocked[6] || isDebug)
-			addWeek(['Senpai', 'Roses', 'Thorns'], 6, ['senpai', 'senpai', 'spirit']);
+			addWeek(['Senpai', 'Roses', 'Thorns'], 6, ['senpai', 'senpai', 'spirit'], coolColors[6]);
 
 		if (StoryMenuState.weekUnlocked[7] || isDebug)
-			addWeek(['Ugh', 'Guns', 'Stress'], 7, ['tankman']);
+			addWeek(['Ugh', 'Guns', 'Stress'], 7, ['tankman'], coolColors[7]);
 
 
 		#if sys
@@ -106,10 +106,8 @@ class FreeplayState extends MusicBeatState
 			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
 
 			if (StoryMenuState.weekUnlocked[iterator] || isDebug) {
-				addWeek(jsonReturn.songs, iterator, jsonReturn.freeplayCharacters);
+				addWeek(jsonReturn.songs, iterator, jsonReturn.freeplayCharacters, jsonReturn.freeplayColors);
 			}
-
-			coolColors.insert(coolColors.length + 1, Std.int(jsonReturn.freeplayColor));
 
 			iterator++;
 			
@@ -193,23 +191,34 @@ class FreeplayState extends MusicBeatState
 		super.create();
 	}
 
-	public function addSong(songName:String, weekNum:Int, songCharacter:String)
+	public function addSong(songName:String, weekNum:Int, songCharacter:String, ?color:String = "0xFFFFFFFF")
 	{
-		songs.push(new SongMetadata(songName, weekNum, songCharacter));
+		songs.push(new SongMetadata(songName, weekNum, songCharacter, FlxColor.fromString(color)));
 	}
 
-	public function addWeek(songs:Array<String>, weekNum:Int, ?songCharacters:Array<String>)
+	public function addWeek(songs:Array<String>, weekNum:Int, ?songCharacters:Array<String>, ?colors:Array<String>)
 	{
 		if (songCharacters == null)
 			songCharacters = ['bf'];
 
+		if (colors[songs.length - 1] == null) {
+			for (i in 1 ... songs.length) {
+				colors[i] = colors[0];
+			}
+		}
+
+		trace(colors);
+
 		var num:Int = 0;
+		var counter = 0;
 		for (song in songs)
 		{
-			addSong(song, weekNum, songCharacters[num]);
+			addSong(song, weekNum, songCharacters[num], colors[counter]);
 
 			if (songCharacters.length != 1)
 				num++;
+
+			counter++;
 		}
 	}
 
@@ -226,7 +235,7 @@ class FreeplayState extends MusicBeatState
 		}
 
 		lerpScore = CoolUtil.coolLerp(lerpScore, intendedScore, 0.4);
-		bg.color = FlxColor.interpolate(bg.color, coolColors[songs[curSelected].week % coolColors.length], CoolUtil.camLerpShit(0.045));
+		bg.color = FlxColor.interpolate(bg.color, songs[curSelected].color, CoolUtil.camLerpShit(0.045));
 
 		scoreText.text = "PERSONAL BEST:" + Math.round(lerpScore);
 
@@ -346,11 +355,14 @@ class SongMetadata
 	public var songName:String = "";
 	public var week:Int = 0;
 	public var songCharacter:String = "";
+	public var color:Int = 0xFFFFFFFF;
 
-	public function new(song:String, week:Int, songCharacter:String)
+	public function new(song:String, week:Int, songCharacter:String, ?color:Int)
 	{
 		this.songName = song;
 		this.week = week;
 		this.songCharacter = songCharacter;
+
+		this.color = color;
 	}
 }
