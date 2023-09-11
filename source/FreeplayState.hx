@@ -1,5 +1,7 @@
 package;
 
+import haxe.Json;
+import sys.FileSystem;
 #if discord_rpc
 import Discord.DiscordClient;
 #end
@@ -94,6 +96,25 @@ class FreeplayState extends MusicBeatState
 
 		if (StoryMenuState.weekUnlocked[7] || isDebug)
 			addWeek(['Ugh', 'Guns', 'Stress'], 7, ['tankman']);
+
+
+		#if sys
+		var iterator = 8;
+		for (file in FileSystem.readDirectory('assets/weeks/')) {
+			trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
+
+			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
+
+			if (StoryMenuState.weekUnlocked[iterator] || isDebug) {
+				addWeek(jsonReturn.songs, iterator, jsonReturn.freeplayCharacters);
+			}
+
+			coolColors.insert(coolColors.length + 1, Std.int(jsonReturn.freeplayColor));
+
+			iterator++;
+			
+		}
+		#end
 
 		// LOAD MUSIC
 

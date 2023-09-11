@@ -61,6 +61,7 @@
 		<library name="week5"    preload="true" />
 		<library name="week6"    preload="true" />
 		<library name="week7"    preload="true" />
+		<library name="weeks"    preload="true" />
 	</section>
 	
 	<section if="NO_PRELOAD_ALL">
@@ -74,6 +75,7 @@
 		<library name="week5"    preload="false" />
 		<library name="week6"    preload="false" />
 		<library name="week7"    preload="false" />
+		<library name="weeks"    preload="false" />
 	</section>
 	
 	<assets path="assets/songs"    library="songs"    exclude="*.fla|*.ogg" if="web"/>
@@ -96,6 +98,7 @@
 	<assets path="assets/week6"    library="week6"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.mp3" unless="web"/>
+	<assets path="assets/weeks"	   library="weeks" />
 	
 	<!-- <assets path='example_mods' rename='mods' embed='false'/> -->
 

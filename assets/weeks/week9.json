@@ -1,0 +1,20 @@
+{
+    "songs": [
+        "Tutorial", 
+        "Stress", 
+        "Guns"
+    ],
+    "characters": [
+        "tankman",
+        "bf",
+        "gf"
+    ],
+    "weekName": "THE ATLAS WEEK!",
+    "isUnlocked": true,
+    "freeplayCharacters": [
+        "gf",
+        "tankman",
+        "tankman"
+    ],
+    "freeplayColor": "0xFF888888"
+}

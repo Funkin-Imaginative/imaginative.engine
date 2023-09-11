@@ -1,5 +1,8 @@
 package;
 
+import openfl.Assets;
+import sys.FileSystem;
+import haxe.Json;
 #if discord_rpc
 import Discord.DiscordClient;
 #end
@@ -34,7 +37,7 @@ class StoryMenuState extends MusicBeatState
 	];
 	var curDifficulty:Int = 1;
 
-	public static var weekUnlocked:Array<Bool> = [true, true, true, true, true, true, true, true];
+	public static var weekUnlocked:Array<Bool> = [true, false, false, false, false, false, false, false];
 
 	var weekCharacters:Array<Dynamic> = [
 		['dad', 'bf', 'gf'],
@@ -120,6 +123,34 @@ class StoryMenuState extends MusicBeatState
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
+
+
+		#if sys
+
+		trace(FileSystem.readDirectory('assets'));
+		trace(FileSystem.readDirectory('assets/weeks/'));
+
+		trace(Paths.file('week9.json', TEXT, 'weeks'));
+
+		for (file in FileSystem.readDirectory('assets/weeks/')) {
+			trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
+
+			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
+			
+			weekData.insert(weekData.length + 1, jsonReturn.songs);
+
+			weekCharacters.insert(weekCharacters.length + 1, jsonReturn.characters);
+
+			weekNames.insert(weekNames.length + 1, jsonReturn.weekName);
+
+			weekUnlocked.insert(weekUnlocked.length + 1, jsonReturn.isUnlocked);
+		}
+
+		//trace(Json.parse("assets/weeks/week8.json"));
+
+		#end
+
+
 
 		for (i in 0...weekData.length)
 		{
@@ -431,9 +462,11 @@ class StoryMenuState extends MusicBeatState
 
 		var stringThing:Array<String> = weekData[curWeek];
 
+		trace(stringThing);
+
 		for (i in stringThing)
 		{
-			txtTracklist.text += "\n" + i;
+			txtTracklist.text += i + "\n";
 		}
 
 		txtTracklist.text = txtTracklist.text.toUpperCase();
