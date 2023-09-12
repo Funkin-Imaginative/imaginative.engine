@@ -473,7 +473,7 @@ class Character extends FlxSprite {
 		dance();
 		animation.finish();
 
-		// if (isPlayer) flipX = !flipX;
+		if (isPlayer) flipX = !flipX;
 	}
 
 	public function loadMappedAnims()
