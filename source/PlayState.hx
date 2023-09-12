@@ -698,7 +698,6 @@ class PlayState extends MusicBeatState
 		}
 
 		boyfriend = new Character(770, 450, SONG.player1);
-		boyfriend.flipX = true;
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
