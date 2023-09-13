@@ -19,7 +19,7 @@ class Character extends FlxSprite {
 
 	public var holdTimer:Float = 0;
 
-	public var heyTimer:Float = 0;
+	public var shoutTimer:Float = 0;
 	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose.
@@ -467,13 +467,12 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 				playAnim('idle');
-
 		}
 
 		dance();
 		animation.finish();
 
-		if (isPlayer) flipX = !flipX;
+		flipX = isPlayer;
 	}
 
 	public function loadMappedAnims()
@@ -521,17 +520,17 @@ class Character extends FlxSprite {
 	{
 		if(!debugMode && animation.curAnim != null)
 		{
-			if(heyTimer > 0)
+			if(shoutTimer > 0)
 			{
-				heyTimer -= elapsed;
-				if(heyTimer <= 0)
+				shoutTimer -= elapsed;
+				if(shoutTimer <= 0)
 				{
 					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
 					{
 						specialAnim = false;
 						dance();
 					}
-					heyTimer = 0;
+					shoutTimer = 0;
 				}
 			}
 			else if(specialAnim && animation.curAnim.finished)
@@ -578,20 +577,13 @@ class Character extends FlxSprite {
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance()
-	{
-		if (!debugMode && !skipDance && !specialAnim)
-		{
-			if(danceIdle)
-			{
+	public function dance() {
+		if (!debugMode && !skipDance && !specialAnim) {
+			if(danceIdle) {
 				danced = !danced;
-
-				if (danced)
-					playAnim('danceRight' + idleSuffix);
-				else
-					playAnim('danceLeft' + idleSuffix);
-			}
-			else if(animation.getByName('idle' + idleSuffix) != null) {
+				if (danced) playAnim('danceRight' + idleSuffix);
+				else playAnim('danceLeft' + idleSuffix);
+			} else if(animation.getByName('idle' + idleSuffix) != null) {
 					playAnim('idle' + idleSuffix);
 			}
 		}
