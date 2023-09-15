@@ -697,7 +697,7 @@ class PlayState extends MusicBeatState
 				dad.y += 180;
 		}
 
-		boyfriend = new Character(770, 450, SONG.player1);
+		boyfriend = new Character(770, 450, SONG.player1, true);
 
 		// REPOSITIONING PER STAGE
 		switch (curStage)
@@ -2707,6 +2707,7 @@ class PlayState extends MusicBeatState
 			{
 				for (shit in 0...pressArray.length)
 					if (pressArray[shit])
+						if (!PreferencesMenu.getPref('ghost-tapping'))
 						noteMiss(shit);
 			}
 		}
