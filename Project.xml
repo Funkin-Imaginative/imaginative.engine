@@ -45,11 +45,11 @@
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
 	<assets path="mod_folder" rename="mods" />
-	
+
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
-	
+
 	<section if="PRELOAD_ALL">
 		<library name="songs"    preload="true" />
 		<library name="shared"   preload="true" />
@@ -63,7 +63,7 @@
 		<library name="week7"    preload="true" />
 		<library name="weeks"    preload="true" />
 	</section>
-	
+
 	<section if="NO_PRELOAD_ALL">
 		<library name="songs"    preload="false" />
 		<library name="shared"   preload="false" />
@@ -77,7 +77,7 @@
 		<library name="week7"    preload="false" />
 		<library name="weeks"    preload="false" />
 	</section>
-	
+
 	<assets path="assets/songs"    library="songs"    exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/songs"    library="songs"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/shared"   library="shared"   exclude="*.fla|*.ogg" if="web"/>
@@ -99,17 +99,17 @@
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.ogg" if="web"/>
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/weeks"	   library="weeks" />
-	
+
 	<!-- <assets path='example_mods' rename='mods' embed='false'/> -->
 
 	<template path="example_mods" rename="mods" />
 
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 	<!-- <template path='mods' /> -->
-	
+
 	<assets path="CHANGELOG.md" rename='changelog.txt'/>
 
-	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
+	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
 		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
 		NOT USING A DIRECT THING TO THE ASSET!!!
@@ -123,15 +123,13 @@
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons" />
 	<haxelib name="hscript" />
+	<haxelib name="yaml"/>
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
-	<!--haxelib name="newgrounds" unless="switch"/> -->
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="polymod"/>
-	<haxelib name="newgrounds"/>
 	<haxelib name="hxcpp-debug-server" if="desktop debug"/>
-	
+
 	<!-- <haxelib name="flixel-animate" /> -->
 	<!-- <haxelib name="spinehaxe" /> -->
 	<!-- https://github.com/ninjamuffin99/Flixel-Animate-Atlas-Player -->
@@ -181,7 +179,7 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
-	
+
 	<icon path="art/icon16.png" size='16'/>
 	<icon path="art/icon32.png" size='32'/>
 	<icon path="art/icon64.png" size='64'/>
@@ -189,21 +187,9 @@
 
 
 	<!-- <haxedef name="SKIP_TO_PLAYSTATE" if="debug" /> -->
-	
+
 	<haxedef name="CAN_OPEN_LINKS" unless="switch"/>
 	<haxedef name="CAN_CHEAT" if="switch debug"/>
-	
+
 	<!-- <haxedef name="CLEAR_INPUT_SAVE"/> -->
-	
-	<section if="newgrounds">
-		<!-- Enables Ng.core.verbose -->
-		<!-- <haxedef name="NG_VERBOSE" /> -->
-		
-		<!-- Enables a NG debug session, so medals don't permently unlock -->
-		<!-- <haxedef name="NG_DEBUG" /> -->
-		
-		<!-- pretends that the saved session Id was expired, forcing the reconnect prompt -->
-		<!-- <haxedef name="NG_FORCE_EXPIRED_SESSION" if="debug" /> -->
-	</section>
-	
 </project>

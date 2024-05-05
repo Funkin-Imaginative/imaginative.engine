@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import Section.SwagSection;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -19,7 +20,6 @@ class Character extends FlxSprite {
 
 	public var holdTimer:Float = 0;
 
-	public var shoutTimer:Float = 0;
 	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose.
@@ -39,10 +39,9 @@ class Character extends FlxSprite {
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
-	public var healthColorArray:Array<Int> = [128, 0, 255];
+	public var iconColor:FlxColor = 0xFF0000;
 
-	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
-	{
+	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false) {
 		super(x, y);
 
 		animOffsets = new Map<String, Array<Dynamic>>();
@@ -467,6 +466,8 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 				playAnim('idle');
+			default:
+				// future yaml support
 		}
 
 		dance();
@@ -475,8 +476,7 @@ class Character extends FlxSprite {
 		flipX = isPlayer;
 	}
 
-	public function loadMappedAnims()
-	{
+	public function loadMappedAnims() {
 		var swagshit = Song.loadFromJson('picospeaker', 'stress');
 
 		var notes = swagshit.notes;
@@ -495,18 +495,15 @@ class Character extends FlxSprite {
 		animationNotes.sort(sortAnims);
 	}
 
-	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
-	{
+	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int {
 		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
 	}
 
-	function quickAnimAdd(name:String, prefix:String, ?flipX:Bool = false)
-	{
+	function quickAnimAdd(name:String, prefix:String, ?flipX:Bool = false) {
 		animation.addByPrefix(name, prefix, 24, false, flipX);
 	}
 
-	private function loadOffsetFile(offsetCharacter:String)
-	{
+	private function loadOffsetFile(offsetCharacter:String) {
 		var daFile:Array<String> = CoolUtil.coolTextFile(Paths.file("images/characters/" + offsetCharacter + "Offsets.txt"));
 
 		for (i in daFile)
@@ -516,51 +513,31 @@ class Character extends FlxSprite {
 		}
 	}
 
-	override function update(elapsed:Float)
-	{
-		if(!debugMode && animation.curAnim != null)
-		{
-			if(shoutTimer > 0)
-			{
-				shoutTimer -= elapsed;
-				if(shoutTimer <= 0)
-				{
-					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
-					{
-						specialAnim = false;
-						dance();
-					}
-					shoutTimer = 0;
-				}
-			}
-			else if(specialAnim && animation.curAnim.finished)
-			{
+	override function update(elapsed:Float) {
+		if (!debugMode && animation.curAnim != null) {
+			if (specialAnim && animation.curAnim.finished) {
 				specialAnim = false;
 				dance();
-			}
-			else if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished)
-			{
+			} else if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished) {
 				dance();
 				animation.finish();
 			}
 
-			switch(charName)
-			{
+			switch (charName) {
 				case 'pico-speaker':
-					if(animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0])
-					{
+					if(animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0]) {
 						var noteData:Int = 1;
-						if(animationNotes[0][1] > 2) noteData = 3;
+						if (animationNotes[0][1] > 2) noteData = 3;
 
 						noteData += FlxG.random.int(0, 1);
 						playAnim('shoot' + noteData, true);
 						animationNotes.shift();
 					}
-					if(animation.curAnim.finished) playAnim(animation.curAnim.name, false, false, animation.curAnim.frames.length - 3);
+					if (animation.curAnim.finished) playAnim(animation.curAnim.name, false, false, animation.curAnim.frames.length - 3);
 			}
 
 			if (animation.curAnim.name.startsWith('sing')) holdTimer += elapsed;
-			else if(isPlayer) holdTimer = 0;
+			else if (isPlayer) holdTimer = 0;
 
 			if (!isPlayer && holdTimer >= Conductor.stepCrochet * 0.0011 * singDuration) {
 				dance();
@@ -579,12 +556,12 @@ class Character extends FlxSprite {
 	 */
 	public function dance() {
 		if (!debugMode && !skipDance && !specialAnim) {
-			if(danceIdle) {
+			if (danceIdle) {
 				danced = !danced;
 				if (danced) playAnim('danceRight' + idleSuffix);
 				else playAnim('danceLeft' + idleSuffix);
-			} else if(animation.getByName('idle' + idleSuffix) != null) {
-					playAnim('idle' + idleSuffix);
+			} else if (animation.getByName('idle' + idleSuffix) != null) {
+				playAnim('idle' + idleSuffix);
 			}
 		}
 	}
@@ -594,11 +571,10 @@ class Character extends FlxSprite {
 		if (animOffsets.exists(AnimName)) {
 			animation.play(AnimName, Force, Reversed, Frame);
 			offset.set(daOffset[0], daOffset[1]);
-		} else offset.set(0, 0);
+		}
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-	{
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
 		animOffsets[name] = [x, y];
 	}
 }

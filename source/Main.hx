@@ -20,12 +20,8 @@ class Main extends Sprite
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	#if web
-	var framerate:Int = 60; // How many frames per second the game should run at.
-	#else
-	var framerate:Int = 144; // How many frames per second the game should run at.
+	var framerate:Int = #if web 60 #else 144 #end; // How many frames per second the game should run at.
 
-	#end
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
@@ -84,7 +80,7 @@ class Main extends Sprite
 		initialState = TitleState;
 		#end
 
-		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		addChild(new FlxGame(gameWidth, gameHeight, initialState, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
 		fpsCounter = new FPS(10, 3, 0xFFFFFF);

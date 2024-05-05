@@ -1674,7 +1674,7 @@ class PlayState extends MusicBeatState
 			var babyArrow:FlxSprite = new FlxSprite(0, strumLine.y);
 			var colorswap:ColorSwap = new ColorSwap();
 			babyArrow.shader = colorswap.shader;
-			colorswap.update(Note.arrowColors[i]);
+			// colorswap.update(Note.arrowColors[i]);
 
 			switch (curStage)
 			{
