@@ -53,6 +53,10 @@ using StringTools;
 import Discord.DiscordClient;
 #end
 
+#if hxvlc
+import hxvlc.flixel.*;
+#end
+
 class PlayState extends MusicBeatState
 {
 	public static var curStage:String = '';
@@ -939,14 +943,16 @@ class PlayState extends MusicBeatState
 		blackShit.scrollFactor.set();
 		add(blackShit);
 
-		var vid:FlxVideo = new FlxVideo('music/ughCutscene.mp4');
-		vid.finishCallback = function()
-		{
+		var vid:FlxVideo = new FlxVideo();
+		vid.load('assets/videos/ughCutscene.mp4');
+		vid.play();
+		vid.onEndReached.add(() -> {
+			vid.dispose();
 			remove(blackShit);
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
-		};
+		});
 
 		FlxG.camera.zoom = defaultCamZoom * 1.2;
 
@@ -1025,15 +1031,18 @@ class PlayState extends MusicBeatState
 		blackShit.scrollFactor.set();
 		add(blackShit);
 
-		var vid:FlxVideo = new FlxVideo('music/gunsCutscene.mp4');
-		vid.finishCallback = function()
-		{
+		var vid:FlxVideo = new FlxVideo();
+		vid.load('assets/videos/gunsCutscene.mp4');
+		vid.play();
+		vid.onEndReached.add(() -> {
+			vid.dispose();
+
 			remove(blackShit);
 
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
-		};
+		});
 
 		/* camFollow.setPosition(camPos.x, camPos.y);
 
@@ -1099,15 +1108,18 @@ class PlayState extends MusicBeatState
 		blackShit.scrollFactor.set();
 		add(blackShit);
 
-		var vid:FlxVideo = new FlxVideo('music/stressCutscene.mp4');
-		vid.finishCallback = function()
-		{
+		var vid:FlxVideo = new FlxVideo();
+		vid.load('assets/videos/stressCutscene.mp4');
+		vid.play();
+		vid.onEndReached.add(() -> {
+			vid.dispose();
+
 			remove(blackShit);
 
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, (Conductor.crochet / 1000) * 5, {ease: FlxEase.quadInOut});
 			startCountdown();
 			cameraMovement();
-		};
+		});
 
 		/* camHUD.visible = false;
 
