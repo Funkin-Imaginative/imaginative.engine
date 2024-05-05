@@ -44,7 +44,7 @@
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
-	<assets path="mod_folder" rename="mods" />
+	<assets path="lower_end" rename="lowerend" />
 
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
@@ -192,4 +192,6 @@
 	<haxedef name="CAN_CHEAT" if="switch debug"/>
 
 	<!-- <haxedef name="CLEAR_INPUT_SAVE"/> -->
+
+	<!-- <assets path="upfront"/> -->
 </project>
