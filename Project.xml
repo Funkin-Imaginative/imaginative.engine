@@ -95,8 +95,6 @@
 	<assets path="assets/week7"    library="week7"    exclude="*.fla|*.mp3" unless="web"/>
 	<assets path="assets/weeks"	   library="weeks" />
 
-	<template path="example_mods" rename="mods" />
-
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
 	<assets path="CHANGELOG.md" rename='changelog.txt'/>

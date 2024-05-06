@@ -484,7 +484,7 @@ class Character extends FlxSprite {
 
 		TankmenBG.animationNotes = animationNotes;
 
-		trace(animationNotes);
+		// trace(animationNotes);
 		animationNotes.sort(sortAnims);
 	}
 

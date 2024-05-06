@@ -13,15 +13,13 @@ import fnf.ui.Prompt;
 
 import fnf.graphics.FunkinCamera;
 
-class MainMenuState extends MusicBeatState
-{
+class MainMenuState extends MusicBeatState {
 	var menuItems:MainMenuList;
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 
-	override function create()
-	{
+	override function create() {
 		#if discord_rpc
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
@@ -30,16 +28,12 @@ class MainMenuState extends MusicBeatState
 		transIn = FlxTransitionableState.defaultTransIn;
 		transOut = FlxTransitionableState.defaultTransOut;
 
-		if (!FlxG.sound.music.playing)
-		{
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-		}
+		if (!FlxG.sound.music.playing) FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 		persistentUpdate = persistentDraw = true;
 
 		var bg:FlxSprite = new FlxSprite(Paths.image('menuBG'));
-		bg.scrollFactor.x = 0;
-		bg.scrollFactor.y = 0.17;
+		bg.scrollFactor.set(0, 0.17);
 		bg.setGraphicSize(Std.int(bg.width * 1.2));
 		bg.updateHitbox();
 		bg.screenCenter();
@@ -87,8 +81,7 @@ class MainMenuState extends MusicBeatState
 		// center vertically
 		var spacing = 160;
 		var top = (FlxG.height - (spacing * (menuItems.length - 1))) / 2;
-		for (i in 0...menuItems.length)
-		{
+		for (i in 0...menuItems.length) {
 			var menuItem = menuItems.members[i];
 			menuItem.x = FlxG.width / 2;
 			menuItem.y = top + spacing * i;
@@ -98,14 +91,11 @@ class MainMenuState extends MusicBeatState
 		FlxG.camera.follow(camFollow, null, 0.06);
 		// FlxG.camera.setScrollBounds(bg.x, bg.x + bg.width, bg.y, bg.y + bg.height * 1.2);
 
-		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "v" + Application.current.meta.get('version'), 12);
+		var versionShit:FlxText = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nBuilt on Friday Night Funkin\' v0.2.8', 12);
+		versionShit.y = FlxG.height - versionShit.height - 5;
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-
-		versionShit.text += '(Newgrounds exclusive preview)';
-
-		// NG.core.calls.event.logEvent('swag').send();
 
 		super.create();
 	}

@@ -24,18 +24,18 @@ import flixel.FlxG;
 import fnf.states.menus.options.PreferencesMenu;
 import fnf.states.sub.MusicBeatSubstate;
 import fnf.backend.Section.SwagSection;
+import fnf.backend.PlayerSettings;
 import fnf.backend.Song.SwagSong;
 import fnf.states.MusicBeatState;
-import fnf.backend.PlayerSettings;
 import fnf.backend.SaveManager;
-import fnf.backend.Conductor;
-import fnf.backend.Controls;
-import fnf.backend.Highscore;
 import fnf.states.LoadingState;
+import fnf.backend.Conductor;
+import fnf.backend.Highscore;
+import fnf.backend.Controls;
 import fnf.states.PlayState;
+import fnf.backend.Section;
 import fnf.utils.CoolUtil;
 import fnf.backend.Song;
-import fnf.backend.Section;
 import fnf.utils.Paths;
 
 #if hxvlc

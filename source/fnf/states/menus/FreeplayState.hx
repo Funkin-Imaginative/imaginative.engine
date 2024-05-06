@@ -91,7 +91,7 @@ class FreeplayState extends MusicBeatState
 		#if sys
 		var iterator = 8;
 		for (file in FileSystem.readDirectory('assets/weeks/')) {
-			trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
+			// trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
 
 			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
 
@@ -170,7 +170,7 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		trace(colors);
+		// trace(colors);
 
 		var num:Int = 0;
 		var counter = 0;

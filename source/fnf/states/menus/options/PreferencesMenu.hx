@@ -12,7 +12,7 @@ class PreferencesMenu extends fnf.states.menus.OptionsState.Page
 	var items:TextMenuList;
 
 	var checkboxes:Array<CheckboxThingie> = [];
-	var menuCamera:FlxCamera;
+	var menuCamera:FunkinCamera;
 	var camFollow:FlxObject;
 
 	public function new()

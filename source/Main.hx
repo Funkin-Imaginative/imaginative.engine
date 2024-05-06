@@ -16,7 +16,8 @@ class Main extends Sprite {
 
 	public static var fpsCounter:FPS;
 
-	public static final engineVersion:String = '0.1a';
+	public static var engineVersion(get, never):String;
+	private static function get_engineVersion():String return lime.app.Application.current.meta.get('version');
 
 	public function new():Void {
 		super();

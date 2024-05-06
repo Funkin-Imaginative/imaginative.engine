@@ -67,6 +67,8 @@ class TitleState extends MusicBeatState {
 
 		super.create();
 
+		SaveManager.init();
+
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 		PreferencesMenu.initPrefs();
 		PlayerSettings.init();
@@ -315,14 +317,14 @@ class TitleState extends MusicBeatState {
 
 			transitioning = true;
 			// FlxG.sound.music.stop();
-			
+
 			FlxG.switchState(new MainMenuState());
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
 
 		if (pressedEnter && !skippedIntro && initialized)
 			skipIntro();
-		/* 
+		/*
 			#if web
 			if (!initialized && controls.ACCEPT)
 			{
