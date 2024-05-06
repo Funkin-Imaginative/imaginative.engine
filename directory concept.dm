@@ -2,6 +2,7 @@
   boyfriend:
     - normal.yaml
     - windy.yaml
+  dad.yaml
 ● songs
   Tutorial:
     - SongMetaData.yaml
