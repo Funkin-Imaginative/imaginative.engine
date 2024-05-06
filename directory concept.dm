@@ -1,10 +1,10 @@
 ● characters
   boyfriend:
-    - normal
-    - windy
+    - normal.yaml
+    - windy.yaml
 ● songs
   Tutorial:
-    - SongMetaData.json
+    - SongMetaData.yaml
     - Hard.json
     - events.json
     - script.hx
