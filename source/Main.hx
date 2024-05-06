@@ -8,13 +8,15 @@ class Main extends Sprite {
 	final gameData:Dynamic = {
 		width: 1280,
 		height: 720,
-		initState: TitleState,
+		initState: fnf.states.menus.TitleState,
 		fps: 144,
-		skipSplash: true,
+		skipSplash: false,
 		startFullscreen: false
 	};
 
 	public static var fpsCounter:FPS;
+
+	public static final engineVersion:String = '0.1a';
 
 	public function new():Void {
 		super();

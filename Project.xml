@@ -2,26 +2,23 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Imaginative Engine" file="ImagEngine" packageName="com.ImagEngine.funkin" package="com.ImagEngine.funkin" main="Main" version="0.2.8" company="RodneyAnImaginativePerson" />
+	<app title="Friday Night Funkin': Imaginative Engine" file="ImagEngine" packageName="com.ImagEngine.funkin" package="com.ImagEngine.funkin" main="Main" version="0.1a" company="RodneyAnImaginativePerson"/>
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
-	<set name="APP_ID" value="0x0100f6c013bbc000" />
+	<set name="APP_ID" value="0x0100f6c013bbc000"/>
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
 	<!-- <app preloader="Preloader" resizable="true" /> -->
-	<app preloader="flixel.system.FlxPreloader" />
+	<app preloader="flixel.system.FlxPreloader"/>
 
 	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
-	<set name="SWF_VERSION" value="11.8" />
+	<set name="SWF_VERSION" value="11.8"/>
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
-
-	<!--HTML5-specific-->
-	<window if="html5" resizable="true" />
+	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false"/>
 
 	<!--Desktop-specific-->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
@@ -29,20 +26,20 @@
 	<!--Mobile-specific-->
 	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
 
-	<!--Switch-specific-->
-	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
-
 	<!-- _____________________________ Path Settings ____________________________ -->
 
-	<set name="BUILD_DIR" value="export/debug" if="debug" />
-	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
+	<set name="BUILD_DIR" value="export/debug" if="debug"/>
+	<set name="BUILD_DIR" value="export/release" unless="debug"/>
+	<set name="BUILD_DIR" value="export/32bit" if="32bit"/>
 
-	<classpath name="source" />
+	<classpath name="source"/>
+	<!-- MODDING BULLSHIT -->
+	<!-- <assets path="upfront"/> -->
+	<assets path="lowerend"/>
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
-	<assets path="lower_end" rename="lowerend" />
+
 
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
@@ -119,7 +116,7 @@
 
 	<section if="cpp">
 		<haxelib name="hxvlc" if="desktop || mobile"/>
-	</section>	
+	</section>
 
 	<!-- for debug -->
 	<haxelib name="hxcpp-debug-server" if="desktop debug"/>
@@ -146,6 +143,4 @@
 	<haxedef name="CAN_CHEAT" if="switch debug"/>
 
 	<!-- <haxedef name="CLEAR_INPUT_SAVE"/> -->
-
-	<!-- <assets path="upfront"/> -->
 </project>
