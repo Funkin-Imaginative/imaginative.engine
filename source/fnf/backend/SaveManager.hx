@@ -184,7 +184,7 @@ class SaveManager {
 			modOptionsMap = theSave.data.modOptions;
 			optionsMap = theSave.data.options;
 			initialized = true;
-			trace(theSave.data.options);
+			// trace(theSave.data.options);
 		}
 	}
 

@@ -30,9 +30,6 @@ enum Control
 	ACCEPT;
 	BACK;
 	PAUSE;
-	#if CAN_CHEAT
-	CHEAT;
-	#end
 }
 
 enum abstract Action(String) to String from String
@@ -65,9 +62,6 @@ enum abstract Action(String) to String from String
 	var BACK = "back";
 	var PAUSE = "pause";
 	var RESET = "reset";
-	#if CAN_CHEAT
-	var CHEAT = "cheat";
-	#end
 }
 
 enum Device
@@ -118,10 +112,7 @@ class Controls extends FlxActionSet
 	var _back = new FlxActionDigital(Action.BACK);
 	var _pause = new FlxActionDigital(Action.PAUSE);
 	var _reset = new FlxActionDigital(Action.RESET);
-	#if CAN_CHEAT
-	var _cheat = new FlxActionDigital(Action.CHEAT);
-	#end
-	
+
 	var byName:Map<String, FlxActionDigital> = new Map<String, FlxActionDigital>();
 
 	public var gamepadsAdded:Array<Int> = [];
@@ -141,7 +132,7 @@ class Controls extends FlxActionSet
 	public var UI_LEFT_R (get, never):Bool; inline function get_UI_LEFT_R () return _ui_leftR .check();
 	public var UI_RIGHT_R(get, never):Bool; inline function get_UI_RIGHT_R() return _ui_rightR.check();
 	public var UI_DOWN_R (get, never):Bool; inline function get_UI_DOWN_R () return _ui_downR .check();
-	
+
 	public var NOTE_UP   (get, never):Bool; inline function get_NOTE_UP   () return _note_up   .check();
 	public var NOTE_LEFT (get, never):Bool; inline function get_NOTE_LEFT () return _note_left .check();
 	public var NOTE_RIGHT(get, never):Bool; inline function get_NOTE_RIGHT() return _note_right.check();
@@ -161,10 +152,7 @@ class Controls extends FlxActionSet
 	public var BACK  (get, never):Bool; inline function get_BACK  () return _back  .check();
 	public var PAUSE (get, never):Bool; inline function get_PAUSE () return _pause .check();
 	public var RESET (get, never):Bool; inline function get_RESET () return _reset .check();
-	#if CAN_CHEAT
-	public var CHEAT (get, never):Bool; inline function get_CHEAT () return _cheat.check ();
-	#end
-	
+
 	public function new(name, scheme:KeyboardScheme = null)
 	{
 		super(name);
@@ -197,9 +185,6 @@ class Controls extends FlxActionSet
 		add(_back);
 		add(_pause);
 		add(_reset);
-		#if CAN_CHEAT
-		add(_cheat);
-		#end
 
 		for (action in digitalActions)
 			byName[action.name] = action;
@@ -257,9 +242,6 @@ class Controls extends FlxActionSet
 			case BACK: _back;
 			case PAUSE: _pause;
 			case RESET: _reset;
-			#if CAN_CHEAT
-			case CHEAT: _cheat;
-			#end
 		}
 	}
 
@@ -319,10 +301,6 @@ class Controls extends FlxActionSet
 				func(_pause, JUST_PRESSED);
 			case RESET:
 				func(_reset, JUST_PRESSED);
-			#if CAN_CHEAT
-			case CHEAT:
-				func(_cheat, JUST_PRESSED);
-			#end
 		}
 	}
 
@@ -551,7 +529,6 @@ class Controls extends FlxActionSet
 	public function addDefaultGamepad(id):Void
 	{
 		addGamepadLiteral(id, [
-			
 			Control.ACCEPT => [#if switch B #else A #end],
 			Control.BACK => [#if switch A #else B #end, FlxGamepadInputID.BACK],
 			Control.UI_UP => [DPAD_UP, LEFT_STICK_DIGITAL_UP],
@@ -565,9 +542,6 @@ class Controls extends FlxActionSet
 			Control.NOTE_RIGHT => [DPAD_RIGHT, B, LEFT_STICK_DIGITAL_RIGHT, RIGHT_STICK_DIGITAL_RIGHT],
 			Control.PAUSE => [START],
 			Control.RESET => [Y]
-			#if CAN_CHEAT
-			,Control.CHEAT => [X]
-			#end
 		]);
 	}
 

@@ -34,8 +34,8 @@
 
 	<classpath name="source"/>
 	<!-- MODDING BULLSHIT -->
-	<!-- <assets path="upfront"/> -->
-	<assets path="lowerend"/>
+	<assets path="games"/>
+	<assets path="mods"/>
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
@@ -136,9 +136,4 @@
 	<icon path="art/icon32.png" size='32'/>
 	<icon path="art/icon64.png" size='64'/>
 	<icon path="art/iconOG.png"/>
-
-	<haxedef name="CAN_OPEN_LINKS" unless="switch"/>
-	<haxedef name="CAN_CHEAT" if="switch debug"/>
-
-	<!-- <haxedef name="CLEAR_INPUT_SAVE"/> -->
 </project>

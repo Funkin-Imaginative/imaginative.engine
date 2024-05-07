@@ -26,11 +26,6 @@ class PlayerSettings
 		this.id = id;
 		this.controls = new Controls('player$id', None);
 
-		#if CLEAR_INPUT_SAVE
-		FlxG.save.data.controls = null;
-		FlxG.save.flush();
-		#end
-
 		var useDefault = true;
 		var controlData = FlxG.save.data.controls;
 		if (controlData != null)
