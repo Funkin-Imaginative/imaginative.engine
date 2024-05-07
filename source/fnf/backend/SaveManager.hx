@@ -23,7 +23,7 @@ class SaveManager {
 	 */
 	public static function setOption(dir:String, value:Dynamic):Dynamic {
 		var path:Array<String> = dir.split('.');
-		if (dir[0] == 'controls') return trace('setOption: Please use setBind or setBind.');
+		if (dir[0] == 'controls') return trace('setOption: Please use setBind or setKeyBind.');
 		if (dir[1] == null) return trace('setOption: Please put something.');
 		optionsMap.get(dir[0]).set(dir[1], value); // Make system for making sure you don't set Int as String and etc.
 		applySave();
@@ -38,7 +38,7 @@ class SaveManager {
 	public static function getOption(dir:String):Dynamic {
 		var result:Dynamic;
 		var path:Array<String> = dir.split('.');
-		if (dir[0] == 'controls') return trace('getOption: Please use getBind or getBind.');
+		if (dir[0] == 'controls') return trace('getOption: Please use getBind or getKeyBind.');
 		if (dir[1] == null) result = optionsMap.get(dir[0]);
 		else result = optionsMap.get(dir[0]).get(dir[1]);
 		return result;
@@ -53,7 +53,7 @@ class SaveManager {
 	 */
 	public static function setBind(dir:String, index:Int, key:Bind):Bind {
 		var path:Array<String> = dir.split('.');
-		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('setBind: Please use setBind.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('setBind: Please use setKeyBind.');
 		if (path[1] == null) optionsMap.get('controls').get(path[0])[index] = key;
 		else optionsMap.get('controls').get(path[0]).get(path[1])[index] = key;
 		applySave();
@@ -67,7 +67,7 @@ class SaveManager {
 	public static function getBind(dir:String):BindsArray {
 		var result:BindsArray;
 		var path:Array<String> = dir.split('.');
-		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('getBind: Please use getBind.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('getBind: Please use getKeyBind.');
 		if (path[1] == null) result = optionsMap.get('controls').get(path[0]);
 		else result = optionsMap.get('controls').get(path[0]).get(path[1]);
 		return result;
@@ -81,7 +81,7 @@ class SaveManager {
 	 * @param key the new input
 	 * @return Bind
 	 */
-	public static function setBind(type:String, indexs:Array<Int>, key:Bind):Bind {
+	public static function setKeyBind(type:String, indexs:Array<Int>, key:Bind):Bind {
 		switch (type) {
 			case 'notes': optionsMap.get('controls').get('binds')[indexs[0]][indexs[1]] = key;
 			case 'menus': optionsMap.get('controls').get('menus').get('navBinds')[indexs[0]][indexs[1]] = key;
@@ -96,7 +96,7 @@ class SaveManager {
 	 * @param type `notes` or `menus`
 	 * @return BindArrays
 	 */
-	public static function getBind(type:String):BindArrays {
+	public static function getKeyBind(type:String):BindArrays {
 		return switch (type) {
 			case 'notes': optionsMap.get('controls').get('binds');
 			case 'menus': optionsMap.get('controls').get('menus').get('navBinds');
