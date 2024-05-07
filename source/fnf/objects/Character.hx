@@ -11,12 +11,11 @@ class Character extends FlxSprite {
 
 	public var holdTimer:Float = 0;
 
-	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose.
 	public var idleSuffix:String = '';
 	public var danceIdle:Bool = false; // Character use "danceLeft" and "danceRight" instead of "idle".
-	public var skipDance:Bool = false;
+	public var preventIdle:Bool = false;
 
 	public var positionOffset = {x: 0.0, y: 0.0};
 	public var cameraPosition = {x: 0.0, y: 0.0};
@@ -31,8 +30,6 @@ class Character extends FlxSprite {
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
 	public var iconColor:FlxColor = 0xFF0000;
-
-	public var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false) {
 		super(x, y);
@@ -508,10 +505,10 @@ class Character extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		if (!debugMode && animation.curAnim != null) {
-			if (specialAnim && animation.curAnim.finished) {
+			/* if (specialAnim && animation.curAnim.finished) {
 				specialAnim = false;
 				dance();
-			} else if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished) {
+			} else */ if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished) {
 				dance();
 				animation.finish();
 			}
@@ -548,7 +545,7 @@ class Character extends FlxSprite {
 	 * FOR GF DANCING SHIT
 	 */
 	public function dance() {
-		if (!debugMode && !skipDance && !specialAnim) {
+		if (!debugMode && !preventIdle) {
 			if (danceIdle) {
 				danced = !danced;
 				if (danced) playAnim('danceRight' + idleSuffix);
@@ -559,12 +556,18 @@ class Character extends FlxSprite {
 		}
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void {
-		var daOffset = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName)) {
-			animation.play(AnimName, Force, Reversed, Frame);
+	public var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
+		var daOffset = animOffsets.get(name);
+		if (animOffsets.exists(name)) {
+			animation.play(name, force, reverse, frame);
 			offset.set(daOffset[0], daOffset[1]);
 		}
+	}
+
+	public function playSingAnim(direction:Int, suffix:String = '', missed:Bool = false, force:Bool = false, reverse:Bool = false, frame:Int = 0) {
+		playAnim('${singAnims[direction]}${missed ? 'miss' : ''}$suffix', force, reverse, frame);
+		if (!missed) holdTimer = 0;
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) {

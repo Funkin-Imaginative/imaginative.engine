@@ -1,9 +1,7 @@
 package fnf.objects.note;
 
-class NoteSplash extends FlxSprite
-{
-	public function new(x:Float, y:Float, noteData:Int = 0):Void
-	{
+class Splash extends FlxSprite {
+	public function new(x:Float, y:Float, noteData:Int = 0):Void {
 		super(x, y);
 
 		frames = Paths.getSparrowAtlas('noteSplashes');
