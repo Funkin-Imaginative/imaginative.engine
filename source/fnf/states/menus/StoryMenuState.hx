@@ -6,7 +6,6 @@ import haxe.Json;
 import flixel.addons.transition.FlxTransitionableState;
 
 import fnf.objects.MenuCharacter;
-import fnf.backend.Highscore;
 import fnf.objects.MenuItem;
 
 class StoryMenuState extends MusicBeatState {
