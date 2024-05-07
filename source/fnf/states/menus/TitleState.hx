@@ -70,7 +70,6 @@ class TitleState extends MusicBeatState {
 		SaveManager.init();
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
-		PreferencesMenu.initPrefs();
 		PlayerSettings.init();
 		fnf.backend.Highscore.load();
 

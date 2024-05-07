@@ -700,7 +700,7 @@ class PlayState extends MusicBeatState
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
 
-		if (PreferencesMenu.getPref('downscroll'))
+		if (SaveManager.getOption('gameplay.downscroll'))
 			strumLine.y = FlxG.height - 150; // 150 just random ass number lol
 
 		strumLine.scrollFactor.set();
@@ -750,7 +750,7 @@ class PlayState extends MusicBeatState
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
 
-		if (PreferencesMenu.getPref('downscroll'))
+		if (SaveManager.getOption('gameplay.downscroll'))
 			healthBarBG.y = FlxG.height * 0.1;
 
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
@@ -1667,8 +1667,8 @@ class PlayState extends MusicBeatState
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{
-				if ((PreferencesMenu.getPref('downscroll') && daNote.y < -daNote.height)
-					|| (!PreferencesMenu.getPref('downscroll') && daNote.y > FlxG.height))
+				if ((SaveManager.getOption('gameplay.downscroll') && daNote.y < -daNote.height)
+					|| (!SaveManager.getOption('gameplay.downscroll') && daNote.y > FlxG.height))
 				{
 					daNote.active = false;
 					daNote.visible = false;
@@ -1681,7 +1681,7 @@ class PlayState extends MusicBeatState
 
 				var strumLineMid = strumLine.y + Note.swagWidth / 2;
 
-				if (PreferencesMenu.getPref('downscroll'))
+				if (SaveManager.getOption('gameplay.downscroll'))
 				{
 					daNote.y = (strumLine.y + (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2)));
 
@@ -1750,8 +1750,8 @@ class PlayState extends MusicBeatState
 
 				if (daNote.isSustainNote && daNote.wasGoodHit)
 				{
-					if ((!PreferencesMenu.getPref('downscroll') && daNote.y < -daNote.height)
-						|| (PreferencesMenu.getPref('downscroll') && daNote.y > FlxG.height))
+					if ((!SaveManager.getOption('gameplay.downscroll') && daNote.y < -daNote.height)
+						|| (SaveManager.getOption('gameplay.downscroll') && daNote.y > FlxG.height))
 					{
 						daNote.active = false;
 						daNote.visible = false;
@@ -2224,7 +2224,7 @@ class PlayState extends MusicBeatState
 			{
 				for (shit in 0...pressArray.length)
 					if (pressArray[shit])
-						if (!PreferencesMenu.getPref('ghost-tapping'))
+						if (!SaveManager.getOption('gameplay.ghostTapping'))
 						noteMiss(shit);
 			}
 		}
@@ -2444,7 +2444,7 @@ class PlayState extends MusicBeatState
 
 		// HARDCODING FOR MILF ZOOMS!
 
-		if (PreferencesMenu.getPref('camera-zoom'))
+		if (SaveManager.getOption('gameplay.camZooming'))
 		{
 			if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35)
 			{

@@ -5,50 +5,39 @@ import flixel.util.FlxSignal;
 
 import fnf.ui.Prompt;
 import fnf.ui.TextMenuList;
+import fnf.states.menus.options.*;
 
-// typedef OptionsState = OptionsMenu_old;
-// class OptionsState_new extends MusicBeatState
-class OptionsState extends MusicBeatState
-{
-	var pages = new Map<PageName, Page>();
-	var currentName:PageName = Options;
-	var currentPage(get, never):Page;
+class OptionsState extends MusicBeatState {
+	public var pages = new Map<PageName, Page>();
+	public var currentName:PageName = Options;
+	public var currentPage(get, never):Page;
 
-	inline function get_currentPage()
-		return pages[currentName];
+	private function get_currentPage():Page return pages[currentName];
 
-	override function create()
-	{
+	override function create() {
 		var menuBG = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		menuBG.color = 0xFFea71fd;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
-		menuBG.scrollFactor.set(0, 0);
+		menuBG.scrollFactor.set();
 		add(menuBG);
 
-		var options = addPage(Options, new OptionsMenu(false));
-		var preferences = addPage(Preferences, new PreferencesMenu());
-		var controls = addPage(Controls, new fnf.states.menus.options.ControlsMenu());
-		// var colors = addPage(Colors, new ColorsMenu());
+		var preferences = addPage(Preferences, new PreferencesPage());
+		var gameplay = addPage(Gameplay, new GameplayPage());
+		var graphics = addPage(Graphics, new GraphicsPage());
+		var sensitivity = addPage(Sensitivity, new SensitivityPage());
+		var controls = addPage(Controls, new ControlsPage());
+		var options = addPage(Options, new OptionsMenu());
 
-		#if cpp
-		var mods = addPage(Mods, new ModMenu());
-		#end
-
-		if (options.hasMultipleOptions())
-		{
-			options.onExit.add(exitToMainMenu);
-			controls.onExit.add(switchPage.bind(Options));
-			// colors.onExit.add(switchPage.bind(Options));
+		if (options.hasMultipleOptions()) {
 			preferences.onExit.add(switchPage.bind(Options));
-
-			#if cpp
-			mods.onExit.add(switchPage.bind(Options));
-			#end
-		}
-		else
-		{
+			gameplay.onExit.add(switchPage.bind(Options));
+			graphics.onExit.add(switchPage.bind(Options));
+			sensitivity.onExit.add(switchPage.bind(Options));
+			controls.onExit.add(switchPage.bind(Options));
+			options.onExit.add(exitToMainMenu);
+		} else {
 			// No need to show Options page
 			controls.onExit.add(exitToMainMenu);
 			setPage(Controls);
@@ -59,8 +48,7 @@ class OptionsState extends MusicBeatState
 		super.create();
 	}
 
-	function addPage<T:Page>(name:PageName, page:T)
-	{
+	function addPage<T:Page>(name:PageName, page:T):T {
 		page.onSwitch.add(switchPage);
 		pages[name] = page;
 		add(page);
@@ -68,8 +56,7 @@ class OptionsState extends MusicBeatState
 		return page;
 	}
 
-	function setPage(name:PageName)
-	{
+	function setPage(name:PageName) {
 		if (pages.exists(currentName))
 			currentPage.exists = false;
 
@@ -79,29 +66,25 @@ class OptionsState extends MusicBeatState
 			currentPage.exists = true;
 	}
 
-	override function finishTransIn()
-	{
+	override function finishTransIn() {
 		super.finishTransIn();
 
 		currentPage.enabled = true;
 	}
 
-	function switchPage(name:PageName)
-	{
+	function switchPage(name:PageName) {
 		// Todo animate?
 		setPage(name);
 	}
 
-	function exitToMainMenu()
-	{
+	function exitToMainMenu() {
 		currentPage.enabled = false;
 		// Todo animate?
 		FlxG.switchState(new MainMenuState());
 	}
 }
 
-class Page extends FlxGroup
-{
+class Page extends FlxGroup {
 	public var onSwitch(default, null) = new FlxTypedSignal<PageName->Void>();
 	public var onExit(default, null) = new FlxSignal();
 
@@ -171,20 +154,16 @@ class OptionsMenu extends Page
 {
 	var items:TextMenuList;
 
-	public function new(showDonate:Bool)
+	public function new()
 	{
 		super();
 
 		add(items = new TextMenuList());
 		createItem('preferences', function() switchPage(Preferences));
-		createItem("controls", function() switchPage(Controls));
-		// createItem('colors', function() switchPage(Colors));
-		#if cpp
-		createItem('mods', function() switchPage(Mods));
-		#end
-
-		if (showDonate) createItem('donate', selectDonate);
-		createItem("exit", exit);
+		createItem('gameplay', function() switchPage(Gameplay));
+		createItem('graphics', function() switchPage(Graphics));
+		createItem('sensitivity', function() switchPage(Sensitivity));
+		createItem('controls', function() switchPage(Controls));
 	}
 
 	function createItem(name:String, callback:Void->Void, fireInstantly = false)
@@ -209,24 +188,13 @@ class OptionsMenu extends Page
 	{
 		return items.length > 2;
 	}
-
-	#if CAN_OPEN_LINKS
-	function selectDonate()
-	{
-		#if linux
-		Sys.command('/usr/bin/xdg-open', ["https://ninja-muffin24.itch.io/funkin", "&"]);
-		#else
-		FlxG.openURL('https://ninja-muffin24.itch.io/funkin');
-		#end
-	}
-	#end
 }
 
-enum PageName
-{
-	Options;
-	Controls;
-	Colors;
-	Mods;
-	Preferences;
+enum abstract PageName(String) {
+	var Preferences = 'prefs';
+	var Gameplay = 'gameplay';
+	var Controls = 'controls';
+	var Graphics = 'graphics';
+	var Sensitivity = 'sensitivity';
+	var Options = 'options';
 }

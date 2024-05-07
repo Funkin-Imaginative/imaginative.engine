@@ -10,7 +10,7 @@ import fnf.ui.TextMenuList;
 import fnf.ui.Prompt;
 import fnf.backend.InputFormatter;
 
-class ControlsMenu extends fnf.states.menus.OptionsState.Page
+class ControlsPage extends OptionsState.Page
 {
 	inline static public var COLUMNS = 2;
 	static var controlList = Control.createAll();
@@ -336,9 +336,9 @@ class InputItem extends TextMenuItem
 			if (list[index] != FlxKey.ESCAPE || list[index] != FlxGamepadInputID.BACK)
 				return list[index];
 
-			if (list.length > ControlsMenu.COLUMNS)
+			if (list.length > ControlsPage.COLUMNS)
 				// Escape isn't mappable, show a third option, instead.
-				return list[ControlsMenu.COLUMNS];
+				return list[ControlsPage.COLUMNS];
 		}
 
 		return -1;

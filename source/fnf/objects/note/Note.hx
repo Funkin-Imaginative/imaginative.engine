@@ -1,7 +1,6 @@
 package fnf.objects.note;
 
 import fnf.graphics.shaders.ColorSwap;
-import fnf.states.menus.options.PreferencesMenu;
 
 class Note extends FlxSprite
 {
@@ -128,7 +127,7 @@ class Note extends FlxSprite
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			if (PreferencesMenu.getPref('downscroll'))
+			if (SaveManager.getOption('gameplay.downscroll'))
 				angle = 180;
 
 			x += width / 2;

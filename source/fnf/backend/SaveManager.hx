@@ -23,13 +23,16 @@ class SaveManager {
 	 */
 	public static function setOption(dir:String, value:Dynamic):Dynamic {
 		var path:Array<String> = dir.split('.');
-		if (dir[0] == 'controls') return trace('setOption: Please use setBind or setKeyBind.');
-		if (dir[1] == null) return trace('setOption: Please put something.');
-		optionsMap.get(dir[0]).set(dir[1], value); // Make system for making sure you don't set Int as String and etc.
+		if (path[0] == 'controls') {trace('setOption: Please use setBind or setKeyBind.'); return null;}
+		if (path[1] == null) {trace('setOption: Please put something.'); return null;}
+		optionsMap.get(path[0]).set(path[1], value); // Make system for making sure you don't set Int as String and etc.
 		applySave();
+		switch (path[path.length - 1]) {
+			case 'autoPause': FlxG.autoPause = value;
+			case 'showFpsCounter': Main.fpsCounter.visible = value;
+		}
 		return value;
 	}
-
 	/**
 	 * Get's the save data for the specified directory.
 	 * @param dir ex: `graphics.qualityLevel`
@@ -38,9 +41,9 @@ class SaveManager {
 	public static function getOption(dir:String):Dynamic {
 		var result:Dynamic;
 		var path:Array<String> = dir.split('.');
-		if (dir[0] == 'controls') return trace('getOption: Please use getBind or getKeyBind.');
-		if (dir[1] == null) result = optionsMap.get(dir[0]);
-		else result = optionsMap.get(dir[0]).get(dir[1]);
+		if (path[0] == 'controls') {trace('getOption: Please use getBind or getKeyBind.'); return null;}
+		if (path[1] == null) result = optionsMap.get(path[0]);
+		else result = optionsMap.get(path[0]).get(path[1]);
 		return result;
 	}
 
@@ -53,7 +56,7 @@ class SaveManager {
 	 */
 	public static function setBind(dir:String, index:Int, key:Bind):Bind {
 		var path:Array<String> = dir.split('.');
-		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('setBind: Please use setKeyBind.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') {trace('setBind: Please use setKeyBind.'); return null;}
 		if (path[1] == null) optionsMap.get('controls').get(path[0])[index] = key;
 		else optionsMap.get('controls').get(path[0]).get(path[1])[index] = key;
 		applySave();
@@ -67,7 +70,7 @@ class SaveManager {
 	public static function getBind(dir:String):BindsArray {
 		var result:BindsArray;
 		var path:Array<String> = dir.split('.');
-		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('getBind: Please use getKeyBind.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') {trace('getBind: Please use getKeyBind.'); return null;}
 		if (path[1] == null) result = optionsMap.get('controls').get(path[0]);
 		else result = optionsMap.get('controls').get(path[0]).get(path[1]);
 		return result;
@@ -85,22 +88,23 @@ class SaveManager {
 		switch (type) {
 			case 'notes': optionsMap.get('controls').get('binds')[indexs[0]][indexs[1]] = key;
 			case 'menus': optionsMap.get('controls').get('menus').get('navBinds')[indexs[0]][indexs[1]] = key;
-			default: return trace('setBind: $type is invaild, do "notes" or "menus".');
+			default: trace('setBind: $type is invaild, do "notes" or "menus".');
+			return null;
 		}
 		applySave();
 		return key;
 	}
-
 	/**
 	 * Get's your keybinds.
 	 * @param type `notes` or `menus`
 	 * @return BindArrays
 	 */
 	public static function getKeyBind(type:String):BindArrays {
-		return switch (type) {
-			case 'notes': optionsMap.get('controls').get('binds');
-			case 'menus': optionsMap.get('controls').get('menus').get('navBinds');
+		switch (type) {
+			case 'notes': return optionsMap.get('controls').get('binds');
+			case 'menus': return optionsMap.get('controls').get('menus').get('navBinds');
 			default: trace('getBind: $type is invaild, do "notes" or "menus".');
+			return null;
 		}
 	}
 
@@ -140,7 +144,7 @@ class SaveManager {
 		defaultMap.set('sensitivity', new Map<String, Dynamic>()); page = defaultMap.get('sensitivity');
 		page.set('naughtiness', true);
 		page.set('violence', true);
-		page.set('lights', false);
+		page.set('lights', true);
 
 		// controls
 		defaultMap.set('controls', new Map<String, Dynamic>()); page = defaultMap.get('controls');

@@ -21,7 +21,6 @@ import flixel.FlxBasic;
 import flixel.FlxState;
 import flixel.FlxG;
 
-import fnf.states.menus.options.PreferencesMenu;
 import fnf.states.sub.MusicBeatSubstate;
 import fnf.backend.Section.SwagSection;
 import fnf.backend.PlayerSettings;
