@@ -1,0 +1,9 @@
+characters:
+	boyfriend:
+		- normal.yaml
+		- windy.yaml
+		- winterwear.yaml
+		- pixel.yaml
+		- holding-gf.yaml
+
+	dad.yaml

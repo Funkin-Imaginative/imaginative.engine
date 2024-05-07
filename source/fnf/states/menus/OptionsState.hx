@@ -183,13 +183,7 @@ class OptionsMenu extends Page
 		createItem('mods', function() switchPage(Mods));
 		#end
 
-		#if CAN_OPEN_LINKS
-		if (showDonate)
-		{
-			var hasPopupBlocker = #if web true #else false #end;
-			createItem('donate', selectDonate, hasPopupBlocker);
-		}
-		#end
+		if (showDonate) createItem('donate', selectDonate);
 		createItem("exit", exit);
 	}
 

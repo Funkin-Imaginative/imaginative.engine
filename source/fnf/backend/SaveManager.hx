@@ -3,28 +3,117 @@ package fnf.backend;
 import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
 
+// hate typing a ton of bs
+typedef KeyBind = Null<FlxKey>;
+typedef BindArray = Array<KeyBind>;
+typedef BindsArray = Array<BindArray>;
+
 class SaveManager {
+	// Please use the set and get funcs as the set funcs will apply the data after setting.
+	public static var modOptionsMap:Map<String, Dynamic> = new Map<String, Dynamic>(); // is public instead since, ya know... mods.
+	private static var optionsMap:Map<String, Dynamic> = new Map<String, Dynamic>();
 	private static var initialized:Bool = false;
-	public static var savesMap:Map<String, Dynamic> = new Map<String, Dynamic>();
 	private static var theSave:FlxSave;
 
-	public static function setSave(page:String, sub:String):Dynamic {
-		var result:Dynamic;
-		result = savesMap.get(page).set(sub);
+	/**
+	 * Set's the save data for the specified directory.
+	 * @param dir ex: `graphics.qualityLevel`
+	 * @param value ex: `0.56`
+	 * @return Dynamic `value`
+	 */
+	public static function setOption(dir:String, value:Dynamic):Dynamic {
+		var path:Array<String> = dir.split('.');
+		if (dir[0] == 'controls') return trace('setOption: Please use setBind or setKeyBind.');
+		if (dir[1] == null) return trace('setOption: Please put something.');
+		optionsMap.get(dir[0]).set(dir[1], value); // Make system for making sure you don't set Int as String and etc.
 		applySave();
+		return value;
+	}
+
+	/**
+	 * Get's the save data for the specified directory.
+	 * @param dir ex: `graphics.qualityLevel`
+	 * @return Dynamic `value`
+	 */
+	public static function getOption(dir:String):Dynamic {
+		var result:Dynamic;
+		var path:Array<String> = dir.split('.');
+		if (dir[0] == 'controls') return trace('getOption: Please use getBind or getKeyBind.');
+		if (dir[1] == null) result = optionsMap.get(dir[0]);
+		else result = optionsMap.get(dir[0]).get(dir[1]);
 		return result;
 	}
-	public static function getSave(page:String, sub:String = 'nothing setup'):Dynamic {
-		var result:Dynamic;
-		if (sub == 'nothing setup') result = savesMap.get(page);
-		else result = savesMap.get(page).get(sub);
+
+	/**
+	 * Set's the save data for a bind.
+	 * @param dir ex: `menus.reset`
+	 * @param index a number silly
+	 * @param key the new input
+	 * @return KeyBind
+	 */
+	public static function setBind(dir:String, index:Int, key:KeyBind):KeyBind {
+		var path:Array<String> = dir.split('.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('setBind: Please use setKeyBind.');
+		if (path[1] == null) optionsMap.get('controls').get(path[0])[index] = key;
+		else optionsMap.get('controls').get(path[0]).get(path[1])[index] = key;
+		applySave();
+		return key;
+	}
+	/**
+	 * Get's the save data for a bind.
+	 * @param dir ex: `menus.reset`
+	 * @return BindArray
+	 */
+	public static function getBind(dir:String):BindArray {
+		var result:BindArray;
+		var path:Array<String> = dir.split('.');
+		if (path[0] == 'binds' || path[1] == 'navBinds') return trace('getBind: Please use getKeyBind.');
+		if (path[1] == null) result = optionsMap.get('controls').get(path[0]);
+		else result = optionsMap.get('controls').get(path[0]).get(path[1]);
 		return result;
+	}
+
+	// keyBind versions is for song controls (hitting notes/ui navigation)
+	/**
+	 * Set's a keybind.
+	 * @param type `notes` or `menus`
+	 * @param indexs first is set, second is noteData
+	 * @param key the new input
+	 * @return KeyBind
+	 */
+	public static function setKeyBind(type:String, indexs:Array<Int>, key:KeyBind):KeyBind {
+		switch (type) {
+			case 'notes': optionsMap.get('controls').get('binds')[indexs[0]][indexs[1]] = key;
+			case 'menus': optionsMap.get('controls').get('menus').get('navBinds')[indexs[0]][indexs[1]] = key;
+			default: return trace('setKeyBind: $type is invaild, do "notes" or "menus".');
+		}
+		applySave();
+		return key;
+	}
+
+	/**
+	 * Get's your keybinds.
+	 * @param type `notes` or `menus`
+	 * @return BindsArray
+	 */
+	public static function getKeyBind(type:String):BindsArray {
+		return switch (type) {
+			case 'notes': optionsMap.get('controls').get('binds');
+			case 'menus': optionsMap.get('controls').get('menus').get('navBinds');
+			default: trace('getKeyBind: $type is invaild, do "notes" or "menus".');
+		}
 	}
 
 	// haxe was being a bitch so I had to do it this way
 	public static function loadDefault():Map<String, Dynamic> {
 		var defaultMap:Map<String, Dynamic> = new Map<String, Dynamic>();
-
+		/*
+			ModName:
+				options:
+					autoDodge => false
+				binds:
+					dodge => [Key1, Key2]
+		*/
 		// prefs
 		defaultMap.set('prefs', new Map<String, Dynamic>()); var page:Map<String, Dynamic> = defaultMap.get('prefs');
 		page.set('autoPause', true);
@@ -85,17 +174,19 @@ class SaveManager {
 		if (!initialized || theSave == null) {
 			theSave = new FlxSave();
 			theSave.bind('options');
-			#if debug theSave.data.options = null; #end // for testing, comment out when done
+			theSave.data.modOptions = theSave.data.modOptions == null ? new Map<String, Dynamic>() : theSave.data.modOptions;
 			theSave.data.options = theSave.data.options == null ? loadDefault() : theSave.data.options;
 			theSave.flush();
-			savesMap = theSave.data.options;
+			modOptionsMap = theSave.data.modOptions;
+			optionsMap = theSave.data.options;
 			initialized = true;
 			trace(theSave.data.options);
 		}
 	}
 
 	public static function applySave():Void {
-		theSave.data.options = savesMap;
+		theSave.data.modOptions = modOptionsMap;
+		theSave.data.options = optionsMap;
 		theSave.flush();
 	}
 }

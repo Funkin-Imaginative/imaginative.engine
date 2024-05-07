@@ -324,18 +324,6 @@ class TitleState extends MusicBeatState {
 
 		if (pressedEnter && !skippedIntro && initialized)
 			skipIntro();
-		/*
-			#if web
-			if (!initialized && controls.ACCEPT)
-			{
-				// netStream.dispose();
-				// FlxG.stage.removeChild(video);
-
-				startIntro();
-				skipIntro();
-			}
-			#end
-		 */
 
 		// if (FlxG.keys.justPressed.SPACE)
 		// swagShader.hasOutline = !swagShader.hasOutline;
