@@ -58,8 +58,8 @@ class PlayState extends MusicBeatState {
 	private static var prevCamFollow:FlxObject;
 
 	public var strumLines:Array<StrumLine> = [];
-	public var opponentStrums:StrumLine;
-	public var playerStrums:StrumLine;
+	public var opponentStrumLine:StrumLine;
+	public var playerStrumLine:StrumLine;
 
 	public var camZooming:Bool = false;
 	public var curSong:String = "";
@@ -711,10 +711,10 @@ class PlayState extends MusicBeatState {
 
 		add(grpNoteSplashes);
 
-		for (strumLine in [opponentStrums, playerStrums]) strumLines.push(strumLine);
 		var pixel:Bool = curStage == 'school' || curStage == 'schoolEvil';
-		opponentStrums = new StrumLine(0, strumLine.y, pixel, 0);
-		playerStrums = new StrumLine(0, strumLine.y, pixel, 1);
+		opponentStrumLine = new StrumLine(0, strumLine.y, pixel, 0);
+		playerStrumLine = new StrumLine(0, strumLine.y, pixel, 1);
+		for (strumLine in [opponentStrumLine, playerStrumLine]) strumLines.push(strumLine);
 		for (strumLine in strumLines) add(strumLine);
 
 		generateSong();
@@ -766,8 +766,8 @@ class PlayState extends MusicBeatState {
 		add(iconP2);
 
 		// for (strumLine in strumLines) strumLine.cameras = [camHUD];
-		opponentStrums.cameras = [camHUD];
-		playerStrums.cameras = [camHUD];
+		opponentStrumLine.cameras = [camHUD];
+		playerStrumLine.cameras = [camHUD];
 
 		grpNoteSplashes.cameras = [camHUD];
 		notes.cameras = [camHUD];
@@ -1552,8 +1552,7 @@ class PlayState extends MusicBeatState {
 		{
 			notes.forEachAlive(function(daNote:Note)
 			{
-				if ((SaveManager.getOption('gameplay.downscroll') && daNote.y < -daNote.height)
-					|| (!SaveManager.getOption('gameplay.downscroll') && daNote.y > FlxG.height))
+				if ((SaveManager.getOption('gameplay.downscroll') && daNote.y < -daNote.height) || (!SaveManager.getOption('gameplay.downscroll') && daNote.y > FlxG.height))
 				{
 					daNote.active = false;
 					daNote.visible = false;
@@ -1577,8 +1576,7 @@ class PlayState extends MusicBeatState {
 						else
 							daNote.y += daNote.height / 2;
 
-						if ((!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-							&& daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
+						if ((!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))) && daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= strumLineMid)
 						{
 							// clipRect is applied to graphic itself so use frame Heights
 							var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
@@ -1593,9 +1591,7 @@ class PlayState extends MusicBeatState {
 				{
 					daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(SONG.speed, 2)));
 
-					if (daNote.isSustainNote
-						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit)))
-						&& daNote.y + daNote.offset.y * daNote.scale.y <= strumLineMid)
+					if (daNote.isSustainNote && (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))) && daNote.y + daNote.offset.y * daNote.scale.y <= strumLineMid)
 					{
 						var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
 
@@ -2093,7 +2089,7 @@ class PlayState extends MusicBeatState {
 			}
 		}
 
-		playerStrums.forEach(function(spr:FlxSprite) {
+		playerStrumLine.forEach(function(spr:FlxSprite) {
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm')
 				spr.animation.play('press');
 			if (!holdArray[spr.ID])
@@ -2125,7 +2121,7 @@ class PlayState extends MusicBeatState {
 
 			boyfriend.playSingAnim(note.noteData, '', false, true);
 
-			playerStrums.members[note.noteData].playAnim('confirm', true);
+			playerStrumLine.members[note.noteData].playAnim('confirm', true);
 
 			note.wasGoodHit = true;
 			vocals.volume = 1;
@@ -2155,7 +2151,7 @@ class PlayState extends MusicBeatState {
 
 			dad.playSingAnim(note.noteData, altAnim, false, true);
 
-			opponentStrums.members[note.noteData].playAnim('confirm', true);
+			opponentStrumLine.members[note.noteData].playAnim('confirm', true);
 
 			if (SONG.needsVoices)
 				vocals.volume = 1;
