@@ -1,7 +1,5 @@
 package fnf.graphics;
 
-import flixel.math.FlxPoint;
-
 class FunkinCamera extends FlxCamera
 {
 	/**

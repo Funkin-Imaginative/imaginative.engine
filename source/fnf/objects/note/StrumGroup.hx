@@ -8,7 +8,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			babyArrow.ID = i;
 			if (hate == null) {
 				babyArrow.x = x - (Note.swagWidth / 2);
-				babyArrow.x += Note.swagWidth * babyArrow.noteData;
+				babyArrow.x += Note.swagWidth * i;
 				babyArrow.x -= (Note.swagWidth * ((length - 1) / 2));
 			} else {
 				babyArrow.x += 50;

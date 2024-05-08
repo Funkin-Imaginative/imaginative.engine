@@ -9,7 +9,6 @@ import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUINumericStepper;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.addons.ui.FlxUITooltip.FlxUITooltipStyle;
-import flixel.math.FlxPoint;
 import flixel.ui.FlxButton;
 import flixel.ui.FlxSpriteButton;
 import haxe.Json;

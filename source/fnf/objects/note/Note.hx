@@ -25,16 +25,19 @@ class Note extends FlxSprite {
 
 	public static var swagWidth:Float = 160 * 0.7;
 
+	var __state(default, set):String = '';
+	private function set___state(value:String):String {
+		__state = value;
+		animation.play(__state);
+		return value;
+	}
+	public var noteState(get, never):String;
+	private function get_noteState():String return __state == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
+
 	private var col(get, never):String;
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][noteData];
 	private var dir(get, never):String;
 	private function get_dir():String return ['left', 'down', 'up', 'right'][noteData];
-
-	var __state:String = '';
-	public var noteState(get, never):String;
-	private function get_noteState():String return __state == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
-	public function refreshAnim() animation.play(noteState);
-
 	public function new(time:Float, data:Int, ?prev:Note, ?isSustain:Bool = false) {
 		super();
 
@@ -52,7 +55,6 @@ class Note extends FlxSprite {
 
 		switch (PlayState.curStage) {
 			case 'school' | 'schoolEvil':
-
 				if (isSustain) {
 					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
 					animation.add('end', [data + 4], 24);
@@ -83,10 +85,7 @@ class Note extends FlxSprite {
 		shader = colorSwap.shader;
 
 		x += swagWidth * data;
-		if (!isSustain) {
-			animation.play('note');
-			__state = 'note';
-		}
+		if (!isSustain) __state = 'note';
 
 		if (isSustain && prev != null) {
 			noteScore * 0.2;
@@ -96,7 +95,6 @@ class Note extends FlxSprite {
 
 			x += width / 2;
 
-			animation.play('end');
 			__state = 'end';
 
 			updateHitbox();
@@ -106,15 +104,11 @@ class Note extends FlxSprite {
 			if (PlayState.curStage.startsWith('school')) x += 30;
 
 			if (prev.isSustainNote) {
-				prev.animation.play('hold');
 				prev.__state = 'hold';
 				prev.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prev.updateHitbox();
 			}
 		}
-
-		if (prev != null) prev.refreshAnim();
-		refreshAnim();
 	}
 
 	override function update(elapsed:Float) {

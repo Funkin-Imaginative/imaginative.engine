@@ -3,25 +3,21 @@ package fnf.objects.note;
 import fnf.graphics.shaders.ColorSwap;
 
 class Strum extends FlxSprite {
-	var isPixel:Bool = false;
-	var pixelZoom:Float = 6;
-	public var noteData:Int;
+	public var noteData:Int = 0;
 	public var colorSwap:ColorSwap;
 
 	private var col(get, never):String;
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][noteData];
 	private var dir(get, never):String;
 	private function get_dir():String return ['left', 'down', 'up', 'right'][noteData];
-
 	override public function new(x:Float, y:Float, data:Int, pixel:Bool = false) {
 		super(x, y);
 
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
 		noteData = data;
-		isPixel = pixel;
 
-		if (isPixel) {
+		if (pixel) {
 			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
 
 			animation.add('note', [data + 4]);
@@ -31,7 +27,7 @@ class Strum extends FlxSprite {
 			animation.add('confirm', [data + 12, data + 16], 24, false);
 
 			antialiasing = false;
-			setGraphicSize(Std.int(width * pixelZoom));
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			updateHitbox();
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
@@ -61,8 +57,8 @@ class Strum extends FlxSprite {
 
 	}
 
-	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
-		animation.play(name, force, reverse, frame);
+	public function playAnim(name:String, force:Bool = false) {
+		animation.play(name, force);
 		centerOffsets();
 		centerOrigin();
 	}

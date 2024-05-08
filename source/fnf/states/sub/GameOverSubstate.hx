@@ -1,6 +1,5 @@
 package fnf.states.sub;
 
-import flixel.math.FlxPoint;
 import fnf.objects.Character;
 
 class GameOverSubstate extends MusicBeatSubstate

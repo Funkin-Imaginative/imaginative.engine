@@ -1,6 +1,5 @@
 package fnf.ui;
 
-import flixel.math.FlxPoint;
 import flixel.effects.FlxFlicker;
 import flixel.util.FlxSignal;
 
