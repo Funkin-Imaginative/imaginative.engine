@@ -1,7 +1,7 @@
 package fnf.objects.note;
 
 class StrumLine extends FlxTypedGroup<Strum> {
-	override public function new(x:Float, y:Float, pixel:Bool = false, hate:Int) {
+	override public function new(x:Float, y:Float, pixel:Bool = false, hate:Int) { // KEEP `hate` FOR NOW
 		super();
 		for (i in 0...4) {
 			var babyArrow:Strum = new Strum(Note.swagWidth * i, y, i, pixel);
