@@ -30,6 +30,8 @@ import Discord.DiscordClient;
 #end
 
 class PlayState extends MusicBeatState {
+	public static var instance:PlayState = null; // SCRIPTING BABY!
+
 	public static var curStage:String = '';
 	public static var SONG:SwagSong;
 	public static var isStoryMode:Bool = false;
@@ -57,9 +59,9 @@ class PlayState extends MusicBeatState {
 
 	private static var prevCamFollow:FlxObject;
 
-	public var strumLines:Array<StrumLine> = [];
-	public var opponentStrumLine:StrumLine;
-	public var playerStrumLine:StrumLine;
+	public var strumLines:Array<StrumGroup> = [];
+	public var opponentStrumLine:StrumGroup;
+	public var playerStrumLine:StrumGroup;
 
 	public var camZooming:Bool = false;
 	public var curSong:String = "";
@@ -136,8 +138,9 @@ class PlayState extends MusicBeatState {
 	var camPos:FlxPoint;
 	var lightFadeShader:BuildingShaders;
 
-	override public function create()
-	{
+	override public function create() {
+		instance = this;
+
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -701,10 +704,9 @@ class PlayState extends MusicBeatState {
 		if (SaveManager.getOption('gameplay.downscroll'))
 			strumLine.y = FlxG.height - 150; // 150 just random ass number lol
 
-		// fake notesplash cache type deal so that it loads in the graphic?
-
 		grpNoteSplashes = new FlxTypedGroup<Splash>();
 
+		// fake notesplash cache type deal so that it loads in the graphic?
 		var noteSplash:Splash = new Splash(100, 100, 0);
 		grpNoteSplashes.add(noteSplash);
 		noteSplash.alpha = 0.001;
@@ -712,8 +714,10 @@ class PlayState extends MusicBeatState {
 		add(grpNoteSplashes);
 
 		var pixel:Bool = curStage == 'school' || curStage == 'schoolEvil';
-		opponentStrumLine = new StrumLine(0, strumLine.y, pixel, 0);
-		playerStrumLine = new StrumLine(0, strumLine.y, pixel, 1);
+
+		opponentStrumLine = new StrumGroup(0, strumLine.y, pixel, 1);
+		playerStrumLine = new StrumGroup((FlxG.width / 2) + (FlxG.width / 4), strumLine.y, pixel, null);
+
 		for (strumLine in [opponentStrumLine, playerStrumLine]) strumLines.push(strumLine);
 		for (strumLine in strumLines) add(strumLine);
 
@@ -765,9 +769,13 @@ class PlayState extends MusicBeatState {
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
-		// for (strumLine in strumLines) strumLine.cameras = [camHUD];
-		opponentStrumLine.cameras = [camHUD];
-		playerStrumLine.cameras = [camHUD];
+		try {
+			for (strumLine in strumLines) strumLine.cameras = [camHUD];
+		} catch(e:Dynamic) {
+			trace(e);
+			opponentStrumLine.cameras = [camHUD];
+			playerStrumLine.cameras = [camHUD];
+		}
 
 		grpNoteSplashes.cameras = [camHUD];
 		notes.cameras = [camHUD];
@@ -1135,8 +1143,7 @@ class PlayState extends MusicBeatState {
 
 		previousFrameTime = FlxG.game.ticks;
 
-		if (!paused)
-			FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
+		if (!paused) FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false);
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
@@ -1282,28 +1289,26 @@ class PlayState extends MusicBeatState {
 		super.closeSubState();
 	}
 
-	#if discord_rpc
-	override public function onFocus():Void
-	{
-		if (health > 0 && !paused && FlxG.autoPause)
-		{
-			if (Conductor.songPosition > 0.0)
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength - Conductor.songPosition);
-			else
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
+	override public function onFocus():Void {
+		#if discord_rpc
+		if (health > 0 && !paused && FlxG.autoPause) {
+			if (Conductor.songPosition > 0.0) DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength - Conductor.songPosition);
+			else DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
 		}
+		#end
 
 		super.onFocus();
 	}
 
-	override public function onFocusLost():Void
-	{
-		if (health > 0 && !paused && FlxG.autoPause)
-			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
-
+	override public function onFocusLost():Void {
+		#if discord_rpc if (health > 0 && !paused && FlxG.autoPause) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC); #end
+		if (SaveManager.getOption('prefs.pauseOnLostFocus') && canPause && !paused) {
+			persistentUpdate = false;
+			persistentDraw = paused = true;
+			openSubState(new fnf.states.sub.PauseSubState());
+		}
 		super.onFocusLost();
 	}
-	#end
 
 	function resyncVocals():Void
 	{
@@ -1391,34 +1396,20 @@ class PlayState extends MusicBeatState {
 
 		scoreTxt.text = "Score:" + songScore;
 
-		if (controls.PAUSE && startedCountdown && canPause)
-		{
+		if (controls.PAUSE && canPause) {
 			persistentUpdate = false;
-			persistentDraw = true;
-			paused = true;
+			persistentDraw = paused = true;
 
 			// 1 / 1000 chance for Gitaroo Man easter egg
-			if (FlxG.random.bool(0.1))
-			{
-				// gitaroo man easter egg
-				FlxG.switchState(new GitarooPause());
-			}
-			else
-			{
-				var boyfriendPos = boyfriend.getScreenPosition();
-				var pauseSubState = new fnf.states.sub.PauseSubState(boyfriendPos.x, boyfriendPos.y);
-				openSubState(pauseSubState);
-				pauseSubState.camera = camHUD;
-				boyfriendPos.put();
-			}
+			if (FlxG.random.bool(0.1)) FlxG.switchState(new GitarooPause()); // gitaroo man easter egg
+			else openSubState(new fnf.states.sub.PauseSubState());
 
 			#if discord_rpc
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
 			#end
 		}
 
-		if (FlxG.keys.justPressed.SEVEN)
-		{
+		if (FlxG.keys.justPressed.SEVEN) {
 			FlxG.switchState(new fnf.states.editors.ChartingState());
 
 			#if discord_rpc
@@ -1426,11 +1417,7 @@ class PlayState extends MusicBeatState {
 			#end
 		}
 
-		if (FlxG.keys.justPressed.NINE)
-			iconP1.swapOldIcon();
-
-		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
-		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
+		if (FlxG.keys.justPressed.NINE) iconP1.swapOldIcon();
 
 		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, 0.85)));
 		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, 0.85)));
@@ -1510,13 +1497,9 @@ class PlayState extends MusicBeatState {
 		if (!inCutscene && !_exiting)
 		{
 			// RESET = Quick Game Over Screen
-			if (controls.RESET)
-			{
-				health = 0;
-			}
+			if (!SaveManager.getOption('gameplay.stopDeathKey') && controls.RESET) health = 0;
 
-			if (health <= 0 && !practiceMode)
-			{
+			if (health <= 0 && !practiceMode) {
 				// boyfriend.stunned = true;
 
 				persistentUpdate = false;
@@ -2410,4 +2393,8 @@ class PlayState extends MusicBeatState {
 	}
 
 	var curLight:Int = 0;
+
+	override public function destroy() {
+		instance = null;
+	}
 }

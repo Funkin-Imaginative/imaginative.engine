@@ -23,7 +23,7 @@ class PauseSubState extends MusicBeatSubstate {
 
 	var practiceText:FlxText;
 
-	public function new(x:Float, y:Float) {
+	public function new() {
 		super();
 
 		menuItems = pauseOG;
@@ -85,6 +85,10 @@ class PauseSubState extends MusicBeatSubstate {
 		add(grpMenuShit);
 
 		regenMenu();
+
+		camera = new FlxCamera();
+		camera.bgColor = FlxColor.TRANSPARENT;
+		FlxG.cameras.add(camera, false);
 
 		// cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
@@ -172,8 +176,10 @@ class PauseSubState extends MusicBeatSubstate {
 		}
 	}
 
-	override function destroy()
-	{
+	override function destroy() {
+		if (FlxG.cameras.list.contains(camera))
+			FlxG.cameras.remove(camera, true);
+
 		pauseMusic.destroy();
 
 		super.destroy();

@@ -122,6 +122,7 @@ class SaveManager {
 		defaultMap.set('prefs', new Map<String, Dynamic>()); var page:Map<String, Dynamic> = defaultMap.get('prefs');
 		page.set('autoPause', true);
 		page.set('showFpsCounter', false);
+		page.set('pauseOnLostFocus', false);
 
 		// gameplay
 		defaultMap.set('gameplay', new Map<String, Dynamic>()); page = defaultMap.get('gameplay');
