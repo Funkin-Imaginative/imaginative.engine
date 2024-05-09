@@ -7,9 +7,9 @@ class BackgroundDancer extends FlxSprite
 		super(x, y);
 
 		frames = Paths.getSparrowAtlas("limo/limoDancer");
-		animation.addByIndices('danceLeft', 'bg dancer sketch PINK', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-		animation.addByIndices('danceRight', 'bg dancer sketch PINK', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-		animation.play('danceLeft');
+		animation.addByIndices('idle', 'bg dancer sketch PINK', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
+		animation.addByIndices('sway', 'bg dancer sketch PINK', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
+		animation.play('idle');
 		animation.finish();
 		antialiasing = true;
 	}
@@ -21,8 +21,8 @@ class BackgroundDancer extends FlxSprite
 		danceDir = !danceDir;
 
 		if (danceDir)
-			animation.play('danceRight', true);
+			animation.play('sway', true);
 		else
-			animation.play('danceLeft', true);
+			animation.play('idle', true);
 	}
 }

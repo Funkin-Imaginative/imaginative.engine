@@ -21,6 +21,9 @@ import flixel.FlxBasic;
 import flixel.FlxState;
 import flixel.FlxG;
 
+import fnf.backend.BareCameraPoint;
+import fnf.backend.CameraPoint;
+
 import fnf.states.sub.MusicBeatSubstate;
 import fnf.backend.Section.SwagSection;
 import fnf.backend.PlayerSettings;

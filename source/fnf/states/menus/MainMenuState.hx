@@ -17,7 +17,7 @@ class MainMenuState extends MusicBeatState {
 	var menuItems:MainMenuList;
 
 	var magenta:FlxSprite;
-	var camFollow:FlxObject;
+	var camPoint:BareCameraPoint;
 
 	override function create() {
 		#if discord_rpc
@@ -40,8 +40,8 @@ class MainMenuState extends MusicBeatState {
 		bg.antialiasing = true;
 		add(bg);
 
-		camFollow = new FlxObject(0, 0, 1, 1);
-		add(camFollow);
+		camPoint = new BareCameraPoint();
+		add(camPoint);
 
 		magenta = new FlxSprite(Paths.image('menuDesat'));
 		magenta.scrollFactor.x = bg.scrollFactor.x;
@@ -83,7 +83,7 @@ class MainMenuState extends MusicBeatState {
 		}
 
 		FlxG.cameras.reset(new FunkinCamera());
-		FlxG.camera.follow(camFollow, null, 0.06);
+		FlxG.camera.follow(camPoint.realPos, null, 0.06);
 		// FlxG.camera.setScrollBounds(bg.x, bg.x + bg.width, bg.y, bg.y + bg.height * 1.2);
 
 		var versionShit:FlxText = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nBuilt on Friday Night Funkin\' v0.2.8', 12);
@@ -95,16 +95,14 @@ class MainMenuState extends MusicBeatState {
 		super.create();
 	}
 
-	override function finishTransIn()
-	{
+	override function finishTransIn() {
 		super.finishTransIn();
 
 		menuItems.enabled = true;
 	}
 
-	function onMenuItemChange(selected:MenuItem)
-	{
-		camFollow.setPosition(selected.getGraphicMidpoint().x, selected.getGraphicMidpoint().y);
+	function onMenuItemChange(selected:MenuItem) {
+		camPoint.setPoint(selected.getGraphicMidpoint().x, selected.getGraphicMidpoint().y);
 	}
 
 	public function openPrompt(prompt:Prompt, onClose:Void->Void)

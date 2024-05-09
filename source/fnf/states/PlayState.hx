@@ -54,9 +54,10 @@ class PlayState extends MusicBeatState {
 
 	private var strumLine:FlxSprite;
 
-	public var camFollow:FlxObject;
-
-	private static var prevCamFollow:FlxObject;
+	public var camPoint:CameraPoint;
+	@:isVar public var cameraSpeed(get, set):Float;
+	private function set_cameraSpeed(value:Float):Float return camPoint.lerpMult = value;
+	private function get_cameraSpeed():Float return camPoint.lerpMult;
 
 	public var strumLines:Array<StrumGroup> = [];
 	public var opponentStrumLine:StrumGroup;
@@ -684,13 +685,11 @@ class PlayState extends MusicBeatState {
 		Conductor.songPosition = -5000;
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
-		if (SaveManager.getOption('gameplay.downscroll'))
-			strumLine.y = FlxG.height - 150; // 150 just random ass number lol
+		if (SaveManager.getOption('gameplay.downscroll')) strumLine.y = FlxG.height - 150; // 150 just random ass number lol
 
 		var pixel:Bool = curStage == 'school' || curStage == 'schoolEvil';
-
-		opponentStrumLine = new StrumGroup(0, strumLine.y, pixel, 1);
-		playerStrumLine = new StrumGroup(FlxG.width / 2, strumLine.y, pixel, null);
+		opponentStrumLine = new StrumGroup((FlxG.width / 2) - (FlxG.width / 4), strumLine.y, pixel);
+		playerStrumLine = new StrumGroup((FlxG.width / 2) + (FlxG.width / 4), strumLine.y, pixel);
 
 		for (strumLine in [opponentStrumLine, playerStrumLine]) strumLines.push(strumLine);
 		for (strumLine in strumLines) add(strumLine);
@@ -706,19 +705,14 @@ class PlayState extends MusicBeatState {
 
 		generateSong();
 
-		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(camPos.x, camPos.y);
-		if (prevCamFollow != null) {
-			camFollow = prevCamFollow;
-			prevCamFollow = null;
-		}
+		camPoint = new CameraPoint(0, 0, 0.04);
+		camPoint.setPoint(camPos.x, camPos.y);
+		add(camPoint);
 
-		add(camFollow);
-
-		FlxG.camera.follow(camFollow, LOCKON, 0.04);
+		FlxG.camera.follow(camPoint.realPosFollow, LOCKON, 999999); // Edit followLerp from the CameraPoint's pointLerp and offsetLerp vars.
 		// FlxG.camera.setScrollBounds(0, FlxG.width, 0, FlxG.height);
 		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow.getPosition());
+		camPoint.snapPoint();
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
@@ -779,9 +773,9 @@ class PlayState extends MusicBeatState {
 					new FlxTimer().start(0.1, function(tmr:FlxTimer) {
 						remove(blackScreen);
 						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
-						camFollow.y = -2050;
-						camFollow.x += 200;
-						FlxG.camera.focusOn(camFollow.getPosition());
+						camPoint.x += 200;
+						camPoint.y = -2050;
+						camPoint.snapPoint();
 						FlxG.camera.zoom = 1.5;
 
 						new FlxTimer().start(0.8, function(tmr:FlxTimer) {
@@ -846,8 +840,8 @@ class PlayState extends MusicBeatState {
 
 		FlxG.camera.zoom = defaultCamZoom * 1.2;
 
-		camFollow.x += 100;
-		camFollow.y += 100;
+		camPoint.x += 100;
+		camPoint.y += 100;
 	}
 
 	function gunsIntro() {
@@ -933,7 +927,7 @@ class PlayState extends MusicBeatState {
 		senpaiEvil.screenCenter();
 		senpaiEvil.x += senpaiEvil.width / 5;
 
-		camFollow.setPosition(camPos.x, camPos.y);
+		camPoint.setPoint(camPos.x, camPos.y);
 
 		if (SONG.song.toLowerCase() == 'roses' || SONG.song.toLowerCase() == 'thorns') {
 			remove(black);
@@ -1094,9 +1088,7 @@ class PlayState extends MusicBeatState {
 		if (SONG.needsVoices) vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
 		else vocals = new FlxSound();
 
-		vocals.onComplete = function() {
-			vocalsFinished = true;
-		};
+		vocals.onComplete = function() vocalsFinished = true;
 		FlxG.sound.list.add(vocals);
 
 		notes = new FlxTypedGroup<Note>();
@@ -1214,12 +1206,12 @@ class PlayState extends MusicBeatState {
 
 	override public function onFocusLost():Void {
 		#if discord_rpc if (health > 0 && !paused && FlxG.autoPause) DiscordClient.changePresence(detailsPausedText, SONG.song + ' (' + storyDifficultyText + ')', iconRPC); #end
+		super.onFocusLost();
 		if (SaveManager.getOption('prefs.pauseOnLostFocus') && canPause && !paused) {
 			persistentUpdate = false;
 			persistentDraw = paused = true;
-			openSubState(new fnf.states.sub.PauseSubState());
+			openSubState(new fnf.states.sub.PauseSubState(FlxG.autoPause));
 		}
-		super.onFocusLost();
 	}
 
 	function resyncVocals():Void {
@@ -1562,13 +1554,11 @@ class PlayState extends MusicBeatState {
 					inCutscene = true;
 
 					FlxG.sound.play(Paths.sound('Lights_Shut_off'), function() {
-						// no camFollow so it centers on horror tree
+						// no camPoint so it centers on horror tree
 						SONG = Song.loadFromJson(storyPlaylist[0].toLowerCase() + difficulty, storyPlaylist[0]);
 						LoadingState.loadAndSwitchState(new PlayState());
 					});
 				} else {
-					prevCamFollow = camFollow;
-
 					SONG = Song.loadFromJson(storyPlaylist[0].toLowerCase() + difficulty, storyPlaylist[0]);
 					LoadingState.loadAndSwitchState(new PlayState());
 				}
@@ -1734,31 +1724,31 @@ class PlayState extends MusicBeatState {
 	var cameraRightSide:Bool = false;
 
 	function cameraMovement() {
-		if (camFollow.x != dad.getMidpoint().x + 150 && !cameraRightSide) {
-			camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+		if (camPoint.x != dad.getMidpoint().x + 150 && !cameraRightSide) {
+			camPoint.setPoint(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 
 			switch (dad.charName) {
 				case 'mom':
-					camFollow.y = dad.getMidpoint().y;
+					camPoint.y = dad.getMidpoint().y;
 				case 'senpai' | 'senpai-angry':
-					camFollow.y = dad.getMidpoint().y - 430;
-					camFollow.x = dad.getMidpoint().x - 100;
+					camPoint.x = dad.getMidpoint().x - 100;
+					camPoint.y = dad.getMidpoint().y - 430;
 			}
 
 			if (SONG.song.toLowerCase() == 'tutorial') tweenCamIn();
 		}
 
-		if (cameraRightSide && camFollow.x != boyfriend.getMidpoint().x - 100) {
-			camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+		if (cameraRightSide && camPoint.x != boyfriend.getMidpoint().x - 100) {
+			camPoint.setPoint(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 
 			switch (curStage) {
 				case 'limo':
-					camFollow.x = boyfriend.getMidpoint().x - 300;
+					camPoint.x = boyfriend.getMidpoint().x - 300;
 				case 'mall':
-					camFollow.y = boyfriend.getMidpoint().y - 200;
+					camPoint.y = boyfriend.getMidpoint().y - 200;
 				case 'school' | 'schoolEvil':
-					camFollow.x = boyfriend.getMidpoint().x - 200;
-					camFollow.y = boyfriend.getMidpoint().y - 200;
+					camPoint.x = boyfriend.getMidpoint().x - 200;
+					camPoint.y = boyfriend.getMidpoint().y - 200;
 			}
 
 			if (SONG.song.toLowerCase() == 'tutorial')

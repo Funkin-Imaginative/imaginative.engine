@@ -6,7 +6,7 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 
 	var checkboxes:Array<Checkbox> = [];
 	var menuCamera:FunkinCamera;
-	var camFollow:FlxObject;
+	var camPoint:BareCameraPoint;
 
 	public function new(optionCategory:String) {
 		super();
@@ -20,14 +20,14 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 		this.optionCategory = optionCategory;
 		onPrefCreation();
 
-		camFollow = new FlxObject(FlxG.width / 2, 0, 140, 70);
-		if (items != null) camFollow.y = items.selectedItem.y;
+		camPoint = new BareCameraPoint(FlxG.width / 2);
+		if (items != null) camPoint.y = items.selectedItem.y;
 
-		menuCamera.follow(camFollow, null, 0.06);
+		menuCamera.follow(camPoint.realPos, null, 0.06);
 		menuCamera.deadzone.set(0, 160, menuCamera.width, 40);
 		menuCamera.minScrollY = 0;
 
-		items.onChange.add(function(selected) {camFollow.y = selected.y;});
+		items.onChange.add(function(selected) {camPoint.y = selected.y;});
 	}
 
 	public function onPrefCreation() {}

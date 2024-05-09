@@ -1,2 +1,2 @@
-danceLeft 0 0
-danceRight 0 0
+idle 0 0
+sway 0 0

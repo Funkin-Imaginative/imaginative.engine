@@ -126,6 +126,7 @@ class SaveManager {
 
 		// gameplay
 		defaultMap.set('gameplay', new Map<String, Dynamic>()); page = defaultMap.get('gameplay');
+		page.set('strumShift', false);
 		page.set('downscroll', false);
 		page.set('ghostTapping', true);
 		page.set('stopDeathKey', false);

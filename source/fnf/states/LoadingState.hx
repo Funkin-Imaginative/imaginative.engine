@@ -17,7 +17,7 @@ class LoadingState extends MusicBeatState
 	var stopMusic = false;
 	var callbacks:MultiCallback;
 
-	var danceLeft = false;
+	var idle = false;
 
 	var loadBar:FlxSprite;
 	var funkay:FlxSprite;
@@ -106,12 +106,12 @@ class LoadingState extends MusicBeatState
 		super.beatHit();
 
 		// logo.animation.play('bump');
-		danceLeft = !danceLeft;
+		idle = !idle;
 		/* 
-			if (danceLeft)
-				gfDance.animation.play('danceRight');
+			if (idle)
+				gfDance.animation.play('sway');
 			else
-				gfDance.animation.play('danceLeft'); */
+				gfDance.animation.play('idle'); */
 	}
 
 	var targetShit:Float = 0;

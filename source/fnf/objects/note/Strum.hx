@@ -3,19 +3,18 @@ package fnf.objects.note;
 import fnf.graphics.shaders.ColorSwap;
 
 class Strum extends FlxSprite {
-	public var noteData:Int = 0;
 	public var colorSwap:ColorSwap;
 
 	private var col(get, never):String;
-	private function get_col():String return ['purple', 'blue', 'green', 'red'][noteData];
+	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
 	private var dir(get, never):String;
-	private function get_dir():String return ['left', 'down', 'up', 'right'][noteData];
+	private function get_dir():String return ['left', 'down', 'up', 'right'][ID];
 	override public function new(x:Float, y:Float, data:Int, pixel:Bool = false) {
 		super(x, y);
 
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
-		noteData = data;
+		ID = data;
 
 		if (pixel) {
 			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);

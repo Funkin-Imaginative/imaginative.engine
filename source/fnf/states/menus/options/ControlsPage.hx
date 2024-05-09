@@ -30,7 +30,7 @@ class ControlsPage extends OptionsState.Page
 	var deviceList:TextMenuList;
 	var menuCamera:FlxCamera;
 	var prompt:Prompt;
-	var camFollow:FlxObject;
+	var camPoint:BareCameraPoint;
 	var labels:FlxTypedGroup<AtlasText>;
 
 	var currentDevice:Device = Keys;
@@ -106,23 +106,19 @@ class ControlsPage extends OptionsState.Page
 			y += spacer;
 		}
 
-		camFollow = new FlxObject(FlxG.width / 2, 0, 70, 70);
-		if (deviceList != null)
-		{
-			camFollow.y = deviceList.selectedItem.y;
+		camPoint = new BareCameraPoint(FlxG.width / 2);
+		if (deviceList != null) {
+			camPoint.y = deviceList.selectedItem.y;
 			controlGrid.selectedItem.idle();
 			controlGrid.enabled = false;
-		}
-		else
-			camFollow.y = controlGrid.selectedItem.y;
+		} else camPoint.y = controlGrid.selectedItem.y;
 
-		menuCamera.follow(camFollow, null, 0.06);
+		menuCamera.follow(camPoint.realPos, null, 0.06);
 		var margin = 100;
 		menuCamera.deadzone.set(0, margin, menuCamera.width, menuCamera.height - margin * 2);
 		menuCamera.minScrollY = 0;
-		controlGrid.onChange.add(function(selected)
-		{
-			camFollow.y = selected.y;
+		controlGrid.onChange.add(function(selected) {
+			camPoint.y = selected.y;
 
 			labels.forEach((label) -> label.alpha = 0.6);
 			labels.members[Std.int(controlGrid.selectedIndex / COLUMNS)].alpha = 1.0;
@@ -162,7 +158,7 @@ class ControlsPage extends OptionsState.Page
 		controlGrid.enabled = false;
 		deviceList.enabled = true;
 		canExit = true;
-		camFollow.y = deviceList.selectedItem.y;
+		camPoint.y = deviceList.selectedItem.y;
 		deviceListSelected = true;
 	}
 
