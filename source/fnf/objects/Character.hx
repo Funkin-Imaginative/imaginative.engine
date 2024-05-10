@@ -1,36 +1,48 @@
 package fnf.objects;
 
-import fnf.objects.background.TankmenBG;
+typedef AnimSuffixes = { // will still work even if alt isn't found
+	var idle:String; // for idle/sway
+	var sing:String; // for sing anims (global version)
+	var anim:String; // for any anim
+}
+
+enum abstract CharFacing(String) {
+	var leftFace:String = 'left';
+	var rightFace:String = 'right';
+}
 
 class Character extends FlxSprite {
-	public var animOffsets:Map<String, Array<Dynamic>>;
+	public var animOffsets:Map<String, Array<Int>>;
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
+	public var isFacing(get, set):CharFacing;
+	private function set_isFacing(value:CharFacing):CharFacing return isFacing = value;
+	private function get_isFacing():CharFacing return flipX ? rightFace : leftFace;
 	public var charName:String = 'bf';
 
 	public var holdTimer:Float = 0;
 
 	public var stunned:Bool = false;
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose.
-	public var idleSuffix:String = '';
+	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''};
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	private function get_hasSway():Bool return animOffsets.exists('sway$idleSuffix');
+	private function get_hasSway():Bool return animOffsets.exists('sway${suffixes.idle}');
 
-	public var positionOffset(default, never):FlxPoint = new FlxPoint();
+	public var xyOffset(default, never):FlxPoint = new FlxPoint();
 	public var cameraPosition(default, never):BareCameraPoint = new BareCameraPoint();
 
 	public var healthIcon:String = 'face';
 
 	public var animationNotes:Array<Dynamic> = [];
 
-	// Used on Character Editor
-	public var imageFile:String = '';
-	public var jsonScale:Float = 1;
-	public var noAntialiasing:Bool = false;
-	public var originalFlipX:Bool = false;
-	public var iconColor:Null<FlxColor> = 0xFF0000;
+	public var spritePath:String = '';
+	public var scaleMult:Float = 1;
+	public var aliasing:Bool = true;
+	public var flipSprite:Bool = false;
+	public var iconColor(get, default):Null<FlxColor>;
+	private function get_iconColor():FlxColor return iconColor == null ? FlxColor.RED : iconColor;
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false) {
 		super(x, y);
@@ -82,18 +94,19 @@ class Character extends FlxSprite {
 				loadOffsetFile('gf');
 
 			case 'bf-holding-gf':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfAndGF');
-				quickAnimAdd('idle', 'BF idle dance', true);
-				quickAnimAdd('singDOWN', 'BF NOTE DOWN0', true);
-				quickAnimAdd('singLEFT', 'BF NOTE LEFT0', true);
-				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0', true);
-				quickAnimAdd('singUP', 'BF NOTE UP0', true);
+				quickAnimAdd('idle', 'BF idle dance');
+				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
+				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
+				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0');
+				quickAnimAdd('singUP', 'BF NOTE UP0');
 
-				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS', true);
-				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS', true);
-				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS', true);
-				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS', true);
-				quickAnimAdd('bfCatch', 'BF catches GF', true);
+				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS');
+				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS');
+				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS');
+				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS');
+				quickAnimAdd('bfCatch', 'BF catches GF');
 
 				loadOffsetFile(charName);
 
@@ -188,25 +201,26 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'pico':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/Pico_FNF_assetss');
-				quickAnimAdd('idle', 'Pico Idle Dance', true);
-				quickAnimAdd('singUP', 'pico Up note0', true);
-				quickAnimAdd('singDOWN', 'Pico Down Note0', true);
+				quickAnimAdd('idle', 'Pico Idle Dance');
+				quickAnimAdd('singUP', 'pico Up note0');
+				quickAnimAdd('singDOWN', 'Pico Down Note0');
 				if (isPlayer) {
-					quickAnimAdd('singLEFT', 'Pico NOTE LEFT0', true);
-					quickAnimAdd('singRIGHT', 'Pico Note Right0', true);
-					quickAnimAdd('singRIGHTmiss', 'Pico Note Right Miss', true);
-					quickAnimAdd('singLEFTmiss', 'Pico NOTE LEFT miss', true);
+					quickAnimAdd('singLEFT', 'Pico NOTE LEFT0');
+					quickAnimAdd('singRIGHT', 'Pico Note Right0');
+					quickAnimAdd('singRIGHTmiss', 'Pico Note Right Miss');
+					quickAnimAdd('singLEFTmiss', 'Pico NOTE LEFT miss');
 				} else {
 					// Need to be flipped! REDO THIS LATER!
-					quickAnimAdd('singLEFT', 'Pico Note Right0', true);
-					quickAnimAdd('singRIGHT', 'Pico NOTE LEFT0', true);
-					quickAnimAdd('singRIGHTmiss', 'Pico NOTE LEFT miss', true);
-					quickAnimAdd('singLEFTmiss', 'Pico Note Right Miss', true);
+					quickAnimAdd('singLEFT', 'Pico Note Right0');
+					quickAnimAdd('singRIGHT', 'Pico NOTE LEFT0');
+					quickAnimAdd('singRIGHTmiss', 'Pico NOTE LEFT miss');
+					quickAnimAdd('singLEFTmiss', 'Pico Note Right Miss');
 				}
 
-				quickAnimAdd('singUPmiss', 'pico Up note miss', true);
-				quickAnimAdd('singDOWNmiss', 'Pico Down Note MISS', true);
+				quickAnimAdd('singUPmiss', 'pico Up note miss');
+				quickAnimAdd('singDOWNmiss', 'Pico Down Note MISS');
 
 				loadOffsetFile(charName);
 
@@ -225,67 +239,71 @@ class Character extends FlxSprite {
 				loadMappedAnims();
 
 			case 'bf':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
-				quickAnimAdd('idle', 'BF idle dance', true);
-				quickAnimAdd('singUP', 'BF NOTE UP0', true);
-				quickAnimAdd('singLEFT', 'BF NOTE LEFT0', true);
-				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0', true);
-				quickAnimAdd('singDOWN', 'BF NOTE DOWN0', true);
-				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS', true);
-				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS', true);
-				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS', true);
-				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS', true);
-				quickAnimAdd('hey', 'BF HEY', true);
+				quickAnimAdd('idle', 'BF idle dance');
+				quickAnimAdd('singUP', 'BF NOTE UP0');
+				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
+				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0');
+				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
+				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS');
+				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS');
+				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS');
+				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS');
+				quickAnimAdd('hey', 'BF HEY');
 
-				quickAnimAdd('firstDeath', 'BF dies', true);
-				animation.addByPrefix('deathLoop', 'BF Dead Loop', 24, false, true);
-				quickAnimAdd('deathConfirm', 'BF Dead confirm', true);
+				quickAnimAdd('firstDeath', 'BF dies');
+				animation.addByPrefix('deathLoop', 'BF Dead Loop', 24, false, flipSprite);
+				quickAnimAdd('deathConfirm', 'BF Dead confirm');
 
-				animation.addByPrefix('scared', 'BF idle shaking', 24, true, true);
+				animation.addByPrefix('scared', 'BF idle shaking', 24, true, flipSprite);
 
 				loadOffsetFile(charName);
 
 			case 'bf-christmas':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfChristmas');
-				quickAnimAdd('idle', 'BF idle dance', true);
-				quickAnimAdd('singUP', 'BF NOTE UP0', true);
-				quickAnimAdd('singLEFT', 'BF NOTE LEFT0', true);
-				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0', true);
-				quickAnimAdd('singDOWN', 'BF NOTE DOWN0', true);
-				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS', true);
-				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS', true);
-				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS', true);
-				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS', true);
-				quickAnimAdd('hey', 'BF HEY', true);
+				quickAnimAdd('idle', 'BF idle dance');
+				quickAnimAdd('singUP', 'BF NOTE UP0');
+				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
+				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0');
+				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
+				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS');
+				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS');
+				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS');
+				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS');
+				quickAnimAdd('hey', 'BF HEY');
 
 				loadOffsetFile(charName);
 
 			case 'bf-car':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfCar');
-				quickAnimAdd('idle', 'BF idle dance', true);
-				quickAnimAdd('singUP', 'BF NOTE UP0', true);
-				quickAnimAdd('singLEFT', 'BF NOTE LEFT0', true);
-				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0', true);
-				quickAnimAdd('singDOWN', 'BF NOTE DOWN0', true);
-				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS', true);
-				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS', true);
-				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS', true);
-				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS', true);
-				animation.addByIndices('idle-loop', 'BF idle dance', [10, 11, 12, 13], '', 24, true, true);
+				quickAnimAdd('idle', 'BF idle dance');
+				quickAnimAdd('singUP', 'BF NOTE UP0');
+				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
+				quickAnimAdd('singRIGHT', 'BF NOTE RIGHT0');
+				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
+				quickAnimAdd('singUPmiss', 'BF NOTE UP MISS');
+				quickAnimAdd('singLEFTmiss', 'BF NOTE LEFT MISS');
+				quickAnimAdd('singRIGHTmiss', 'BF NOTE RIGHT MISS');
+				quickAnimAdd('singDOWNmiss', 'BF NOTE DOWN MISS');
+				animation.addByIndices('idle-loop', 'BF idle dance', [10, 11, 12, 13], '', 24, true, flipSprite);
 
 				loadOffsetFile(charName);
 
 			case 'bf-pixel':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfPixel');
-				quickAnimAdd('idle', 'BF IDLE', true);
-				quickAnimAdd('singUP', 'BF UP NOTE', true);
-				quickAnimAdd('singLEFT', 'BF LEFT NOTE', true);
-				quickAnimAdd('singRIGHT', 'BF RIGHT NOTE', true);
-				quickAnimAdd('singDOWN', 'BF DOWN NOTE', true);
-				quickAnimAdd('singUPmiss', 'BF UP MISS', true);
-				quickAnimAdd('singLEFTmiss', 'BF LEFT MISS', true);
-				quickAnimAdd('singRIGHTmiss', 'BF RIGHT MISS', true);
-				quickAnimAdd('singDOWNmiss', 'BF DOWN MISS', true);
+				quickAnimAdd('idle', 'BF IDLE');
+				quickAnimAdd('singUP', 'BF UP NOTE');
+				quickAnimAdd('singLEFT', 'BF LEFT NOTE');
+				quickAnimAdd('singRIGHT', 'BF RIGHT NOTE');
+				quickAnimAdd('singDOWN', 'BF DOWN NOTE');
+				quickAnimAdd('singUPmiss', 'BF UP MISS');
+				quickAnimAdd('singLEFTmiss', 'BF LEFT MISS');
+				quickAnimAdd('singRIGHTmiss', 'BF RIGHT MISS');
+				quickAnimAdd('singDOWNmiss', 'BF DOWN MISS');
 
 				loadOffsetFile(charName);
 
@@ -296,16 +314,17 @@ class Character extends FlxSprite {
 				height -= 100;
 
 				antialiasing = false;
+
 			case 'bf-pixel-dead':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfPixelsDEAD');
-				quickAnimAdd('singUP', 'BF Dies pixel', true);
-				quickAnimAdd('firstDeath', 'BF Dies pixel', true);
-				animation.addByPrefix('deathLoop', 'Retry Loop', 24, false, true);
-				quickAnimAdd('deathConfirm', 'RETRY CONFIRM', true);
+				quickAnimAdd('singUP', 'BF Dies pixel');
+				quickAnimAdd('firstDeath', 'BF Dies pixel');
+				animation.addByPrefix('deathLoop', 'Retry Loop', 24, false, flipSprite);
+				quickAnimAdd('deathConfirm', 'RETRY CONFIRM');
 
 				loadOffsetFile(charName);
 
-				playAnim('firstDeath');
 				// pixel bullshit
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
@@ -313,15 +332,14 @@ class Character extends FlxSprite {
 				flipX = true;
 
 			case 'bf-holding-gf-dead':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/bfHoldingGF-DEAD');
-				quickAnimAdd('singUP', 'BF Dead with GF Loop', true);
-				quickAnimAdd('firstDeath', 'BF Dies with GF', true);
-				animation.addByPrefix('deathLoop', 'BF Dead with GF Loop', 24, false, true);
-				quickAnimAdd('deathConfirm', 'RETRY confirm holding gf', true);
+				quickAnimAdd('singUP', 'BF Dead with GF Loop');
+				quickAnimAdd('firstDeath', 'BF Dies with GF');
+				animation.addByPrefix('deathLoop', 'BF Dead with GF Loop', 24, false, flipSprite);
+				quickAnimAdd('deathConfirm', 'RETRY confirm holding gf');
 
 				loadOffsetFile(charName);
-
-				playAnim('firstDeath');
 
 			case 'senpai':
 				frames = Paths.getSparrowAtlas('characters/senpai');
@@ -338,12 +356,11 @@ class Character extends FlxSprite {
 
 				loadOffsetFile(charName);
 
-				playAnim('idle');
-
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 
 				antialiasing = false;
+
 			case 'senpai-angry':
 				frames = Paths.getSparrowAtlas('characters/senpai');
 				quickAnimAdd('idle', 'Angry Senpai Idle');
@@ -353,8 +370,6 @@ class Character extends FlxSprite {
 				quickAnimAdd('singDOWN', 'Angry Senpai DOWN NOTE');
 
 				loadOffsetFile(charName);
-
-				playAnim('idle');
 
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
@@ -374,8 +389,6 @@ class Character extends FlxSprite {
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 
-				playAnim('idle');
-
 				antialiasing = false;
 
 			case 'parents-christmas':
@@ -394,39 +407,38 @@ class Character extends FlxSprite {
 
 				loadOffsetFile(charName);
 
-				playAnim('idle');
 			case 'tankman':
+				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/tankmanCaptain');
 
-				quickAnimAdd('idle', 'Tankman Idle Dance', true);
+				quickAnimAdd('idle', 'Tankman Idle Dance');
 
 				if (isPlayer) {
-					quickAnimAdd('singLEFT', 'Tankman Note Left ', true);
-					quickAnimAdd('singRIGHT', 'Tankman Right Note ', true);
-					quickAnimAdd('singLEFTmiss', 'Tankman Note Left MISS', true);
-					quickAnimAdd('singRIGHTmiss', 'Tankman Right Note MISS', true);
+					quickAnimAdd('singLEFT', 'Tankman Note Left ');
+					quickAnimAdd('singRIGHT', 'Tankman Right Note ');
+					quickAnimAdd('singLEFTmiss', 'Tankman Note Left MISS');
+					quickAnimAdd('singRIGHTmiss', 'Tankman Right Note MISS');
 				} else {
 					// Need to be flipped! REDO THIS LATER
-					quickAnimAdd('singLEFT', 'Tankman Right Note ', true);
-					quickAnimAdd('singRIGHT', 'Tankman Note Left ', true);
-					quickAnimAdd('singLEFTmiss', 'Tankman Right Note MISS', true);
-					quickAnimAdd('singRIGHTmiss', 'Tankman Note Left MISS', true);
+					quickAnimAdd('singLEFT', 'Tankman Right Note ');
+					quickAnimAdd('singRIGHT', 'Tankman Note Left ');
+					quickAnimAdd('singLEFTmiss', 'Tankman Right Note MISS');
+					quickAnimAdd('singRIGHTmiss', 'Tankman Note Left MISS');
 				}
 
-				quickAnimAdd('singUP', 'Tankman UP note ', true);
-				quickAnimAdd('singDOWN', 'Tankman DOWN note ', true);
-				quickAnimAdd('singUPmiss', 'Tankman UP note MISS', true);
-				quickAnimAdd('singDOWNmiss', 'Tankman DOWN note MISS', true);
+				quickAnimAdd('singUP', 'Tankman UP note ');
+				quickAnimAdd('singDOWN', 'Tankman DOWN note ');
+				quickAnimAdd('singUPmiss', 'Tankman UP note MISS');
+				quickAnimAdd('singDOWNmiss', 'Tankman DOWN note MISS');
 
 				// PRETTY GOOD tankman
 				// TANKMAN UGH instanc
 
-				quickAnimAdd('singDOWN-alt', 'PRETTY GOOD', true);
-				quickAnimAdd('singUP-alt', 'TANKMAN UGH', true);
+				quickAnimAdd('singDOWN-alt', 'PRETTY GOOD');
+				quickAnimAdd('singUP-alt', 'TANKMAN UGH');
 
 				loadOffsetFile(charName);
 
-				playAnim('idle');
 			default:
 				// future yaml support
 		}
@@ -438,30 +450,27 @@ class Character extends FlxSprite {
 	}
 
 	public function loadMappedAnims() {
-		var swagshit = Song.loadFromJson('picospeaker', 'stress');
+		final swagshit = Song.loadFromJson('picospeaker', 'stress');
 
-		var notes = swagshit.notes;
+		final notes = swagshit.notes;
 		for (section in notes)
 			for (idk in section.sectionNotes)
 				animationNotes.push(idk);
 
-		TankmenBG.animationNotes = animationNotes;
+		fnf.objects.background.TankmenBG.animationNotes = animationNotes;
 		animationNotes.sort(sortAnims);
 	}
 
-	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int {
+	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
-	}
 
-	function quickAnimAdd(name:String, prefix:String, ?flipX:Bool = false) {
-		animation.addByPrefix(name, prefix, 24, false, flipX);
-	}
+	function quickAnimAdd(name:String, prefix:String)
+		animation.addByPrefix(name, prefix, 24, false, flipSprite);
 
 	private function loadOffsetFile(offsetCharacter:String) {
-		var daFile:Array<String> = CoolUtil.coolTextFile(Paths.file('images/characters/' + offsetCharacter + 'Offsets.txt'));
-
+		final daFile:Array<String> = CoolUtil.coolTextFile(Paths.file('images/characters/${offsetCharacter}Offsets.txt'));
 		for (i in daFile) {
-			var splitWords:Array<String> = i.split(' ');
+			final splitWords:Array<String> = i.split(' ');
 			addOffset(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]));
 		}
 	}
@@ -503,35 +512,50 @@ class Character extends FlxSprite {
 	}
 
 	public var onSway:Bool = false;
-
 	public function dance() {
 		if (!debugMode && !preventIdle) {
-			if (hasSway) playAnim('${(onSway = !onSway) ? 'sway' : 'idle'}$idleSuffix');
-			else if (animation.getByName('idle$idleSuffix') != null) playAnim('idle$idleSuffix');
+			final anim:String = (onSway = !onSway) ? (hasSway ? 'sway' : 'idle') : 'idle';
+			final suffix:String = animOffsets.exists('$anim$suffix') ? suffixes.idle : '';
+			playAnim('$anim$suffix');
 		}
 	}
 
-	public var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
-		var daOffset = animOffsets.get(name);
-		if (animOffsets.exists(name)) {
-			animation.play(name, force, reverse, frame);
+		final suffix:String = animOffsets.exists('$name$suffix') ? suffixes.anim : '';
+		final anim:String = '$name$suffix';
+		if (animOffsets.exists(anim)) {
+			animation.play(anim, force, reverse, frame);
+			final daOffset = animOffsets.get(anim);
 			offset.set(daOffset[0], daOffset[1]);
 		}
 	}
 
+	public function singAnimCheck(sing:String, miss:String, suffix:String):String {
+		var has = {
+			miss: animOffsets.exists('${sing}miss$suffix'),
+			suffix: animOffsets.exists('$sing$miss$suffix')
+		};
+		var cool = {
+			miss: has.miss ? miss : '',
+			suffix: has.suffix ? suffix : ''
+		};
+		return '$sing${cool.miss}${cool.suffix}';
+	}
+
+	public var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 	public function playSingAnim(direction:Int, suffix:String = '', missed:Bool = false, force:Bool = false, reverse:Bool = false, frame:Int = 0) {
-		if (!animOffsets.exists('${singAnims[direction]}${missed ? 'miss' : ''}$suffix')) suffix = ''; // jic there no alt anim
-		playAnim('${singAnims[direction]}${missed ? 'miss' : ''}$suffix', force, reverse, frame);
+		playAnim(singAnimCheck(
+			singAnims[direction],
+			missed ? 'miss' : '',
+			suffix.trim() == '' ? suffixes.sing : suffix
+		), force, reverse, frame);
 		if (!missed) holdTimer = 0;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0) {
-		animOffsets[name] = [x, y];
-	}
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) animOffsets[name] = [x, y];
 
 	override public function destroy() {
-		positionOffset.put();
+		xyOffset.put();
 		cameraPosition.destroy();
 		super.destroy();
 	}
