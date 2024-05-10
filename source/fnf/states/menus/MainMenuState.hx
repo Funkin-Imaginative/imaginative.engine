@@ -86,7 +86,7 @@ class MainMenuState extends MusicBeatState {
 		FlxG.camera.follow(camPoint.realPos, null, 0.06);
 		// FlxG.camera.setScrollBounds(bg.x, bg.x + bg.width, bg.y, bg.y + bg.height * 1.2);
 
-		var versionShit:FlxText = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nBuilt on Friday Night Funkin\' v0.2.8', 12);
+		var versionShit:FlxText = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nBuilt off Friday Night Funkin\' v0.2.8', 12);
 		versionShit.y = FlxG.height - versionShit.height - 5;
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);

@@ -3,6 +3,8 @@ package fnf.objects.note;
 import fnf.graphics.shaders.ColorSwap;
 
 class Note extends FlxSprite {
+	public var extra:Map<String, Dynamic> = [];
+	
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;

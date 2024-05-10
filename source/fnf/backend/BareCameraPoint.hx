@@ -14,8 +14,7 @@ class BareCameraPoint extends FlxBasic {
 	// these are the internal positions, they're not private on purpose
 	public var point(default, never):FlxPoint = new FlxPoint();
 	public var offset(default, never):FlxPoint = new FlxPoint();
-	// this is what you set as the camera target
-	public var realPos(default, never):FlxObject = new FlxObject();
+	public var realPos(default, never):FlxObject = new FlxObject(); // this is what you set as the camera target
 
 	override public function new(startX:Float = 0, startY:Float = 0) {
 		super();

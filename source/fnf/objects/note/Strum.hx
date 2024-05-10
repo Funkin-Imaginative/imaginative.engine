@@ -3,6 +3,8 @@ package fnf.objects.note;
 import fnf.graphics.shaders.ColorSwap;
 
 class Strum extends FlxSprite {
+	public var extra:Map<String, Dynamic> = [];
+
 	public var colorSwap:ColorSwap;
 
 	private var col(get, never):String;
@@ -43,17 +45,20 @@ class Strum extends FlxSprite {
 		}
 
 		playAnim('static', true);
+	}
 
-		animation.finishCallback = function(name:String) {
-			switch (name) {
+	override public function update(elapsed:Float) {
+		centerOffsets();
+		centerOrigin();
+		super.update(elapsed); // this method was the only thing that remotely worked for some reason :')
+		centerOffsets();
+		centerOrigin();
+		if (animation.finished) {
+			switch (animation.name) {
 				case 'press': playAnim('static', true);
 				case 'confirm': playAnim('press', true);
 			}
 		}
-	}
-
-	override public function update(elapsed:Float) {
-
 	}
 
 	public function playAnim(name:String, force:Bool = false) {

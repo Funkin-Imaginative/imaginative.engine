@@ -30,7 +30,7 @@ class Character extends FlxSprite {
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
-	public var iconColor:FlxColor = 0xFF0000;
+	public var iconColor:Null<FlxColor> = 0xFF0000;
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false) {
 		super(x, y);

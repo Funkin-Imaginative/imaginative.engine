@@ -12,6 +12,7 @@ import fnf.states.menus.StoryMenuState;
 import fnf.objects.BGSprite;
 import fnf.objects.Character;
 import fnf.objects.background.*;
+import fnf.objects.note.groups.*;
 import fnf.objects.note.*;
 
 import fnf.ui.DialogueBox;
@@ -44,6 +45,7 @@ class PlayState extends MusicBeatState {
 
 	public var vocals:FlxSound;
 	private var vocalsFinished:Bool = false;
+	static var botplay:Bool = false; // temp way
 
 	public var dad:Character;
 	public var gf:Character;
@@ -55,6 +57,7 @@ class PlayState extends MusicBeatState {
 	private var strumLine:FlxSprite;
 
 	public var camPoint:CameraPoint;
+	private static var prevCamPoint:CameraPoint;
 	@:isVar public var cameraSpeed(get, set):Float;
 	private function set_cameraSpeed(value:Float):Float return camPoint.lerpMult = value;
 	private function get_cameraSpeed():Float return camPoint.lerpMult;
@@ -705,11 +708,16 @@ class PlayState extends MusicBeatState {
 
 		generateSong();
 
-		camPoint = new CameraPoint(0, 0, 0.04);
+		camPoint = new CameraPoint(0, 0, 0.04, function() return cameraSpeed * 3.8);
 		camPoint.setPoint(camPos.x, camPos.y);
+		if (prevCamPoint != null) {
+			camPoint = prevCamPoint;
+			prevCamPoint = null;
+		}
+
 		add(camPoint);
 
-		FlxG.camera.follow(camPoint.realPosFollow, LOCKON, 999999); // Edit followLerp from the CameraPoint's pointLerp and offsetLerp vars.
+		FlxG.camera.follow(camPoint.realPosFollow, LOCKON, 0.04); // Edit followLerp from the CameraPoint's pointLerp and offsetLerp vars.
 		// FlxG.camera.setScrollBounds(0, FlxG.width, 0, FlxG.height);
 		FlxG.camera.zoom = defaultCamZoom;
 		camPoint.snapPoint();
@@ -981,7 +989,7 @@ class PlayState extends MusicBeatState {
 
 		for (strumLine in strumLines) {
 			for (i => strum in strumLine) {
-				if (!PlayState.isStoryMode) {
+				if (!isStoryMode) {
 					strum.y -= 10;
 					strum.alpha = 0;
 					FlxTween.tween(strum, {y: strum.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
@@ -1207,7 +1215,7 @@ class PlayState extends MusicBeatState {
 	override public function onFocusLost():Void {
 		#if discord_rpc if (health > 0 && !paused && FlxG.autoPause) DiscordClient.changePresence(detailsPausedText, SONG.song + ' (' + storyDifficultyText + ')', iconRPC); #end
 		super.onFocusLost();
-		if (SaveManager.getOption('prefs.pauseOnLostFocus') && canPause && !paused) {
+		if (SaveManager.getOption('gameplay.pauseOnLostFocus') && canPause && !paused) {
 			persistentUpdate = false;
 			persistentDraw = paused = true;
 			openSubState(new fnf.states.sub.PauseSubState(FlxG.autoPause));
@@ -1287,6 +1295,11 @@ class PlayState extends MusicBeatState {
 		}
 
 		super.update(elapsed);
+		if (FlxG.keys.justPressed.F4) {
+			botplay = !botplay;
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+		if (botplay) SONG.validScore = false;
 
 		scoreTxt.text = 'Score:' + songScore;
 
@@ -1458,9 +1471,13 @@ class PlayState extends MusicBeatState {
 					}
 				} else if (daNote.tooLate || daNote.wasGoodHit) {
 					if (daNote.tooLate) {
-						health -= 0.0475;
-						vocals.volume = 0;
-						killCombo();
+						if (botplay) {
+							goodNoteHit(daNote);
+						} else {
+							health -= 0.0475;
+							vocals.volume = 0;
+							killCombo();
+						}
 					}
 
 					daNote.active = false;
@@ -1559,6 +1576,7 @@ class PlayState extends MusicBeatState {
 						LoadingState.loadAndSwitchState(new PlayState());
 					});
 				} else {
+					prevCamPoint = camPoint;
 					SONG = Song.loadFromJson(storyPlaylist[0].toLowerCase() + difficulty, storyPlaylist[0]);
 					LoadingState.loadAndSwitchState(new PlayState());
 				}
@@ -1778,7 +1796,7 @@ class PlayState extends MusicBeatState {
 		];
 
 		// HOLDS, check for sustain notes
-		if (holdArray.contains(true) && /* !boyfriend.stunned && */ generatedMusic) {
+		if ((holdArray.contains(true) || botplay) && /* !boyfriend.stunned && */ generatedMusic) {
 			notes.forEachAlive(function(daNote:Note) {
 				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
 					goodNoteHit(daNote);
@@ -1786,7 +1804,7 @@ class PlayState extends MusicBeatState {
 		}
 
 		// PRESSES, check for note hits
-		if (pressArray.contains(true) && /* !boyfriend.stunned && */ generatedMusic) {
+		if ((pressArray.contains(true) || botplay) && /* !boyfriend.stunned && */ generatedMusic) {
 			var possibleNotes:Array<Note> = []; // notes that can be hit
 			var directionList:Array<Int> = []; // directions that can be hit
 			var dumbNotes:Array<Note> = []; // notes to kill later
@@ -1830,7 +1848,7 @@ class PlayState extends MusicBeatState {
 					if (pressArray[shit] && !directionList.contains(shit))
 						noteMiss(shit);
 				for (coolNote in possibleNotes)
-					if (pressArray[coolNote.noteData])
+					if (pressArray[coolNote.noteData] || botplay)
 						goodNoteHit(coolNote);
 			} else
 				for (shit in 0...pressArray.length)
@@ -1845,13 +1863,25 @@ class PlayState extends MusicBeatState {
 
 		playerStrumLine.forEach(function(spr:FlxSprite) {
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm')
+				if (!botplay)
 				spr.animation.play('press');
 			if (!holdArray[spr.ID])
 				spr.animation.play('static');
 		});
 	}
 
+	public var displacement:Float = 60;
+	function hate(data:Int):Array<Float> {
+		return [
+			[-displacement, 0],
+			[0, displacement],
+			[0, -displacement],
+			[displacement, 0]
+		][data];
+	}
+	var coolCamReturn:FlxTimer = new FlxTimer();
 	function noteMiss(direction:Int):Void {
+		if (botplay) return;
 		// whole function used to be encased in if (!boyfriend.stunned)
 		health -= 0.04;
 		killCombo();
@@ -1862,6 +1892,9 @@ class PlayState extends MusicBeatState {
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
 		boyfriend.playSingAnim(direction, '', true, true);
+		if (coolCamReturn != null) coolCamReturn.cancel();
+		camPoint.setOffset();
+		camPoint.snapPoint();
 	}
 
 	function goodNoteHit(note:Note):Void {
@@ -1875,6 +1908,15 @@ class PlayState extends MusicBeatState {
 
 			boyfriend.playSingAnim(note.noteData, '', false, true);
 			playerStrumLine.members[note.noteData].playAnim('confirm', true);
+			if (cameraRightSide) {
+				var ah = hate(note.noteData);
+				camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
+			}
+			if (coolCamReturn != null) coolCamReturn.cancel();
+			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) {
+				camPoint.setOffset();
+				// trace('Cool return there!');
+			});
 
 			note.wasGoodHit = true;
 			vocals.volume = 1;
@@ -1899,6 +1941,15 @@ class PlayState extends MusicBeatState {
 
 			dad.playSingAnim(note.noteData, altAnim, false, true);
 			opponentStrumLine.members[note.noteData].playAnim('confirm', true);
+			if (!cameraRightSide) {
+				var ah = hate(note.noteData);
+				camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
+			}
+			if (coolCamReturn != null) coolCamReturn.cancel();
+			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) {
+				camPoint.setOffset();
+				// trace('Cool return there!');
+			});
 
 			if (SONG.needsVoices) vocals.volume = 1;
 
