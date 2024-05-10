@@ -2,6 +2,8 @@ package fnf.backend;
 
 import flixel.util.FlxStringUtil;
 
+typedef VoidORFloat = flixel.util.typeLimit.OneOfTwo<Void->Float, Float>;
+
 class CameraPoint extends BareCameraPoint {
 	// these are the positions, the non follow versions are now what these lerp to
 	public var pointFollow(default, never):FlxPoint = new FlxPoint();
@@ -10,23 +12,23 @@ class CameraPoint extends BareCameraPoint {
 
 	// lerp math
 	public var lerpMult:Float = 1;
-	public var pointLerp(get, default):Dynamic;
+	public var pointLerp(get, default):VoidORFloat;
 	private function get_pointLerp():Float return lerpTranslate(pointLerp, 0.04);
-	public var offsetLerp(get, default):Dynamic;
+	public var offsetLerp(get, default):VoidORFloat;
 	private function get_offsetLerp():Float return lerpTranslate(offsetLerp, pointLerp);
 
-	private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
+	private static function lerpTranslate(followLerp:VoidORFloat, ifNull:Float = 0.04):Float {
 		var output:Float;
 		if (Std.string(followLerp) == '<function>') output = followLerp();
 		else output = followLerp;
 		return !(output is Float) || output <= 0 ? ifNull : output;
 	}
 
-	override public function new(startX:Float = 0, startY:Float = 0, followLerp:Float = 0.04, ?funcLerp:Void->Float) {
+	override public function new(startX:Float = 0, startY:Float = 0, followLerp:Float = 0.04, ?funcLerp:VoidORFloat) {
 		super(startX, startY);
 		pointFollow.set(startX, startY);
 		pointLerp = followLerp;
-		if (funcLerp != null) offsetLerp = funcLerp;
+		if (funcLerp != null) offsetLerp = lerpTranslate(funcLerp, pointLerp);
 	}
 
 	public function snapPoint(which:String = 'Why this is a string? I don\'t really care.') {
