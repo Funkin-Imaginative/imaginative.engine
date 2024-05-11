@@ -33,6 +33,7 @@
 	<set name="BUILD_DIR" value="export/32bit" if="32bit"/>
 
 	<classpath name="source"/>
+	<assets path="assets" preload="true"/>
 	<!-- MODDING BULLSHIT -->
 	<assets path="games"/>
 	<assets path="mods"/>
@@ -98,15 +99,13 @@
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 
 	<assets path="CHANGELOG.md" rename='changelog.txt'/>
-
-	<assets path="assets/fonts" embed="false"/>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel"/>
 
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons"/>
-	<haxelib name="hscript"/>
+	<!-- <haxelib name="hscript"/> -->
 	<haxelib name="yaml"/>
 
 	<!--In case you want to use the ui package-->

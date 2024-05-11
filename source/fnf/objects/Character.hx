@@ -250,7 +250,7 @@ class Character extends FlxSprite {
 
 				// here for now, will be replaced later for less copypaste
 				loadOffsetFile(charName);
-				playAnim('shoot1');
+				playAnim('shoot1', true);
 
 				loadMappedAnims();
 
