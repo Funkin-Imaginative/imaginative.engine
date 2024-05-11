@@ -708,12 +708,14 @@ class PlayState extends MusicBeatState {
 
 		generateSong();
 
-		camPoint = new CameraPoint(0, 0, 0.04, function() return cameraSpeed * 3.8);
+		camPoint = new CameraPoint(0, 0, 0.04);
+		camPoint.offsetLerp = function():Float return camPoint.pointLerp * 1.5;
 		camPoint.setPoint(camPos.x, camPos.y);
 		if (prevCamPoint != null) {
 			camPoint = prevCamPoint;
 			prevCamPoint = null;
 		}
+		camPoint.snapPoint();
 
 		add(camPoint);
 
@@ -742,9 +744,8 @@ class PlayState extends MusicBeatState {
 		scoreTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(scoreTxt);
 
-		iconP1 = new HealthIcon(SONG.player1);
+		iconP1 = new HealthIcon(SONG.player1, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
-		iconP1.flipX = true;
 		add(iconP1);
 
 		iconP2 = new HealthIcon(SONG.player2);
@@ -1475,8 +1476,8 @@ class PlayState extends MusicBeatState {
 							goodNoteHit(daNote);
 						} else {
 							health -= 0.0475;
-							vocals.volume = 0;
-							killCombo();
+							noteMiss(daNote.noteData);
+							health += 0.04;
 						}
 					}
 
@@ -1857,7 +1858,7 @@ class PlayState extends MusicBeatState {
 							noteMiss(shit);
 		}
 
-		if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && !holdArray.contains(true))
+		if (boyfriend.holdTimer > Conductor.stepCrochet * boyfriend.singLength * 0.001 && !holdArray.contains(true))
 			if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
 				boyfriend.dance();
 
@@ -1870,7 +1871,7 @@ class PlayState extends MusicBeatState {
 		});
 	}
 
-	public var displacement:Float = 60;
+	public var displacement:Float = 30;
 	function hate(data:Int):Array<Float> {
 		return [
 			[-displacement, 0],
@@ -1913,10 +1914,7 @@ class PlayState extends MusicBeatState {
 				camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
 			}
 			if (coolCamReturn != null) coolCamReturn.cancel();
-			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) {
-				camPoint.setOffset();
-				// trace('Cool return there!');
-			});
+			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			note.wasGoodHit = true;
 			vocals.volume = 1;
@@ -1946,10 +1944,7 @@ class PlayState extends MusicBeatState {
 				camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
 			}
 			if (coolCamReturn != null) coolCamReturn.cancel();
-			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) {
-				camPoint.setOffset();
-				// trace('Cool return there!');
-			});
+			coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			if (SONG.needsVoices) vocals.volume = 1;
 
@@ -2142,7 +2137,7 @@ class PlayState extends MusicBeatState {
 			boyfriend.playAnim('hey', true);
 		}
 
-		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.charName == 'gf' && curBeat > 16 && curBeat < 48)
+		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && curBeat > 16 && curBeat < 48)
 		{
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);

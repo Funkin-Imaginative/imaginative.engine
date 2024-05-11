@@ -1,54 +1,59 @@
 package fnf.ui;
 
-class HealthIcon extends FlxSprite
-{
+import fnf.objects.Character.SpriteFacing;
+
+class HealthIcon extends FlxSprite {
 	/**
 	 * Used for FreeplayState! If you use it elsewhere, prob gonna annoying
 	 */
 	public var sprTracker:FlxSprite;
-	public var trackerFunc:Void->Void;
+	public var trackerFunc:FlxSprite->FlxPoint;
+	public function setupTracking(spr:FlxSprite, func:FlxSprite->FlxPoint) {
+		sprTracker = spr;
+		trackerFunc = func;
+	}
 
-	var curIcon:String = '';
+	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
+	private function set_isFacing(value:SpriteFacing):SpriteFacing {
+		flipX = value == leftFace;
+		return isFacing = value;
+	}
+	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
 
-	public function new(char:String = 'bf') {
+	public function new(char:String = 'bf', faceLeft:Bool = false) {
 		super();
-
-		changeIcon(char);
+		curIcon = char;
 		antialiasing = true;
-		scrollFactor.set();
+		isFacing = faceLeft ? leftFace : rightFace;
 	}
 
+	var _lastIcon:String;
 	public var isOldIcon:Bool = false;
+	public function swapOldIcon():Void curIcon = (isOldIcon = !isOldIcon) ? 'bf-old' : _lastIcon;
 
-	public function swapOldIcon():Void {
-		isOldIcon = !isOldIcon;
+	public var curIcon(default, set):String;
+	private function set_curIcon(value:String):String {
+		if (value != 'bf-pixel' && value != 'bf-old')
+			value = value.split('-')[0].trim();
 
-		if (isOldIcon) changeIcon('bf-old');
-		else changeIcon(PlayState.SONG.player1);
-	}
-
-	public function changeIcon(newChar:String):Void {
-		if (newChar != 'bf-pixel' && newChar != 'bf-old')
-			newChar = newChar.split('-')[0].trim();
-
-		if (newChar != curIcon) {
-			if (animation.getByName(newChar) == null)
-			{
-				loadGraphic(Paths.image('icons/' + newChar), true, 150, 150);
-				animation.add(newChar, [0, 1], 0, false);
+		if (value != curIcon) {
+			if (animation.getByName(value) == null) {
+				loadGraphic(Paths.image('icons/' + value), true, 150, 150);
+				animation.add(value, [0, 1], 0, false);
 			}
-			animation.play(newChar);
-			curIcon = newChar;
+			animation.play(value);
+			if (value == 'bf-old' && isOldIcon) _lastIcon = curIcon;
+			return curIcon = value;
 		}
+		return curIcon;
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-
-		if (sprTracker != null) {
-			if (trackerFunc == null)
-				setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y - 30);
-			else trackerFunc();
+		if (sprTracker != null && trackerFunc != null) {
+			final trackPoint:FlxPoint = trackerFunc(sprTracker);
+			setPosition(trackPoint.x, trackPoint.y);
+			trackPoint.putWeak();
 		}
 	}
 }

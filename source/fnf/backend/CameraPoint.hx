@@ -12,23 +12,22 @@ class CameraPoint extends BareCameraPoint {
 
 	// lerp math
 	public var lerpMult:Float = 1;
-	public var pointLerp(get, default):VoidORFloat;
+	public var pointLerp(get, default):Dynamic; // VoidORFloat
 	private function get_pointLerp():Float return lerpTranslate(pointLerp, 0.04);
-	public var offsetLerp(get, default):VoidORFloat;
+	public var offsetLerp(get, default):Dynamic; // VoidORFloat
 	private function get_offsetLerp():Float return lerpTranslate(offsetLerp, pointLerp);
 
-	private static function lerpTranslate(followLerp:VoidORFloat, ifNull:Float = 0.04):Float {
+	private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
 		var output:Float;
 		if (Std.string(followLerp) == '<function>') output = followLerp();
 		else output = followLerp;
 		return !(output is Float) || output <= 0 ? ifNull : output;
 	}
 
-	override public function new(startX:Float = 0, startY:Float = 0, followLerp:Float = 0.04, ?funcLerp:VoidORFloat) {
+	override public function new(startX:Float = 0, startY:Float = 0, followLerp:Float = 0.04) {
 		super(startX, startY);
 		pointFollow.set(startX, startY);
 		pointLerp = followLerp;
-		if (funcLerp != null) offsetLerp = lerpTranslate(funcLerp, pointLerp);
 	}
 
 	public function snapPoint(which:String = 'Why this is a string? I don\'t really care.') {
@@ -43,7 +42,7 @@ class CameraPoint extends BareCameraPoint {
 		}
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float) { // have to do Std.parseFloat('$pointLerp') them because, `fnf.backend.VoidORFloat should be Int For function argument 'ratio'` like wtf, so the vars themselves have to be Dynamic to prevent this.
 		super.update(elapsed);
 		pointFollow.set(
 			FlxMath.lerp(point.x, pointFollow.x, pointLerp * lerpMult),

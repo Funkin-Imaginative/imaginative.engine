@@ -1,0 +1,135 @@
+---
+aliasing: true
+anims:
+  - fps: 24
+    indices: []
+    loop: false
+    name: idle
+    offsets:
+      x: -5
+      y: 0
+    xmltag: BF idle dance
+  - fps: 24
+    indices: []
+    loop: false
+    name: singLEFT
+    offsets:
+      x: -6
+      y: 5
+    xmltag: BF NOTE LEFT0
+  - fps: 24
+    indices: []
+    loop: false
+    name: singDOWN
+    offsets:
+      x: -20
+      y: -51
+    xmltag: BF NOTE DOWN0
+  - fps: 24
+    indices: []
+    loop: false
+    name: singUP
+    offsets:
+      x: -46
+      y: 27
+    xmltag: BF NOTE UP0
+  - fps: 24
+    indices: []
+    loop: false
+    name: singRIGHT
+    offsets:
+      x: -48
+      y: -7
+    xmltag: BF NOTE RIGHT0
+  - fps: 24
+    indices: []
+    loop: false
+    name: singLEFTmiss
+    offsets:
+      x: 7
+      y: 19
+    xmltag: BF NOTE LEFT MISS
+  - fps: 24
+    indices: []
+    loop: false
+    name: singDOWNmiss
+    offsets:
+      x: -15
+      y: -19
+    xmltag: BF NOTE DOWN MISS
+  - fps: 24
+    indices: []
+    loop: false
+    name: singUPmiss
+    offsets:
+      x: -46
+      y: 27
+    xmltag: BF NOTE UP MISS
+  - fps: 24
+    indices: []
+    loop: false
+    name: singRIGHTmiss
+    offsets:
+      x: -44
+      y: 22
+    xmltag: BF NOTE RIGHT MISS
+  - fps: 24
+    indices: []
+    loop: false
+    name: hey
+    offsets:
+      x: -3
+      y: 5
+    xmltag: BF HEY
+  - fps: 24
+    indices: []
+    loop: false
+    name: hurt
+    offsets:
+      x: 14
+      y: 18
+    xmltag: BF hit
+  - fps: 24
+    indices: []
+    loop: true
+    name: scared
+    offsets:
+      x: -4
+      y: 0
+    xmltag: BF idle shaking
+  - fps: 24
+    indices: []
+    loop: false
+    name: dodge
+    offsets:
+      x: -10
+      y: -16
+    xmltag: boyfriend dodge
+  - fps: 24
+    indices: []
+    loop: false
+    name: attack
+    offsets:
+      x: 294
+      y: 267
+    xmltag: boyfriend attack
+  - fps: 24
+    indices: []
+    loop: false
+    name: pre-attack
+    offsets:
+      x: -40
+      y: -40
+    xmltag: bf pre attack
+camera:
+  x: 0
+  y: 0
+color: '#31b0d1'
+flip: true
+icon: bf
+position:
+  x: 0
+  y: 350
+scale: 1
+singLen: 4
+sprite: BOYFRIEND

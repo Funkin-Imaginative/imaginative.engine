@@ -801,13 +801,13 @@ class ChartingState extends MusicBeatState
 	{
 		if (check_mustHitSection.checked)
 		{
-			leftIcon.changeIcon(_song.player1);
-			rightIcon.changeIcon(_song.player2);
+			leftIcon.curIcon = _song.player1;
+			rightIcon.curIcon = _song.player2;
 		}
 		else
 		{
-			leftIcon.changeIcon(_song.player2);
-			rightIcon.changeIcon(_song.player1);
+			leftIcon.curIcon = _song.player2;
+			rightIcon.curIcon = _song.player1;
 		}
 	}
 
