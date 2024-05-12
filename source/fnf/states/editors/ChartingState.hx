@@ -80,8 +80,6 @@ class ChartingState extends MusicBeatState
 
 		leftIcon = new HealthIcon('bf');
 		rightIcon = new HealthIcon('dad');
-		leftIcon.scrollFactor.set(1, 1);
-		rightIcon.scrollFactor.set(1, 1);
 
 		leftIcon.setGraphicSize(0, 45);
 		rightIcon.setGraphicSize(0, 45);
@@ -905,7 +903,7 @@ class ChartingState extends MusicBeatState
 
 		for (i in _song.notes[curSection].sectionNotes)
 		{
-			if (i.strumTime == note.strumTime && i.noteData % 4 == note.noteData)
+			if (i.strumTime == note.strumTime && i.ID % 4 == note.ID)
 			{
 				curSelectedNote = _song.notes[curSection].sectionNotes[swagNum];
 			}
@@ -921,7 +919,7 @@ class ChartingState extends MusicBeatState
 	{
 		for (i in _song.notes[curSection].sectionNotes)
 		{
-			if (i[0] == note.strumTime && i[1] % 4 == note.noteData)
+			if (i[0] == note.strumTime && i[1] % 4 == note.ID)
 			{
 				FlxG.log.add('FOUND EVIL NUMBER');
 				_song.notes[curSection].sectionNotes.remove(i);
@@ -951,17 +949,17 @@ class ChartingState extends MusicBeatState
 	private function addNote():Void
 	{
 		var noteStrum = getStrumTime(dummyArrow.y) + sectionStartTime();
-		var noteData = Math.floor(FlxG.mouse.x / GRID_SIZE);
+		var data = Math.floor(FlxG.mouse.x / GRID_SIZE);
 		var noteSus = 0;
 		var noteAlt = false;
 
-		_song.notes[curSection].sectionNotes.push([noteStrum, noteData, noteSus, noteAlt]);
+		_song.notes[curSection].sectionNotes.push([noteStrum, data, noteSus, noteAlt]);
 
 		curSelectedNote = _song.notes[curSection].sectionNotes[_song.notes[curSection].sectionNotes.length - 1];
 
 		if (FlxG.keys.pressed.CONTROL)
 		{
-			_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus, noteAlt]);
+			_song.notes[curSection].sectionNotes.push([noteStrum, (data + 4) % 8, noteSus, noteAlt]);
 		}
 
 		trace(noteStrum);
@@ -1015,14 +1013,14 @@ class ChartingState extends MusicBeatState
 
 	function getNotes():Array<Dynamic>
 	{
-		var noteData:Array<Dynamic> = [];
+		var data:Array<Dynamic> = [];
 
 		for (i in _song.notes)
 		{
-			noteData.push(i.sectionNotes);
+			data.push(i.sectionNotes);
 		}
 
-		return noteData;
+		return data;
 	}
 
 	function loadJson(song:String):Void

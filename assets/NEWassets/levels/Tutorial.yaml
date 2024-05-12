@@ -1,0 +1,4 @@
+title: 'Teaching Time'
+songs: ['Tutorial']
+difficulties: ['Easy', 'Normal', 'Hard'] # this only really applies for story menu
+characters: ['', 'boyfriend', 'gf']

@@ -1,11 +1,11 @@
 package fnf.states.menus.options;
 
 class PreferencesPage extends PageTemplate {
-	override public function new() {
+	public function new() {
 		super('prefs');
 	}
 
-	override public function onPrefCreation() {
+	override function onPrefCreation() {
 		createPrefItem('Auto Pause', 'autoPause', true);
 		createPrefItem('FPS Counter', 'showFpsCounter', false);
 		createPrefItem('StrumLine Shift', 'strumShift', false);

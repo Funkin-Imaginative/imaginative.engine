@@ -70,7 +70,7 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 		trace('toggled? ' + getPref(prefName));
 	}
 
-	override function update(elapsed:Float) {
+	override public function update(elapsed:Float) {
 		super.update(elapsed);
 
 		// menuCamera.followLerp = CoolUtil.camLerpShit(0.05);

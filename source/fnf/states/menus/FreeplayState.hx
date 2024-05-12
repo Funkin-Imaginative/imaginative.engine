@@ -88,7 +88,7 @@ class FreeplayState extends MusicBeatState
 			addWeek(['Ugh', 'Guns', 'Stress'], 7, ['tankman'], coolColors[7]);
 
 
-		#if sys
+		/* #if sys
 		var iterator = 8;
 		for (file in FileSystem.readDirectory('assets/weeks/')) {
 			// trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
@@ -100,9 +100,8 @@ class FreeplayState extends MusicBeatState
 			}
 
 			iterator++;
-			
 		}
-		#end
+		#end */
 
 		// LOAD MUSIC
 

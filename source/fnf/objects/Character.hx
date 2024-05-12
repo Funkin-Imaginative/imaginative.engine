@@ -5,9 +5,9 @@ import yaml.Parser;
 import yaml.Yaml;
 
 typedef AnimSuffixes = { // will still work even if alt isn't found
-	var idle:String; // for idle/sway
-	var sing:String; // for sing anims (global version)
-	var anim:String; // for any anim
+	@:default('') var idle:String; // for idle/sway
+	@:default('') var sing:String; // for sing anims (global version)
+	@:default('') var anim:String; // for any anim
 }
 
 enum abstract SpriteFacing(String) {
@@ -16,23 +16,29 @@ enum abstract SpriteFacing(String) {
 }
 
 class Character extends FlxSprite {
-	public var animOffsets:Map<String, FlxPoint>;
-	public var debugMode:Bool = false;
+	public var debugMode:Bool = false; // for editors
 
+	public var animOffsets:Map<String, FlxPoint> = new Map<String, FlxPoint>(); // the offsets
+
+	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
 	private function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
 	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	public var charName:String = 'bf';
+	public var charName:String = 'boyfriend';
 	public var charVariant:String = 'normal';
+	public var hasVariant(get, never):Bool;
+	private function get_hasVariant():Bool return charVariant != 'none';
 
-	public var holdTimer:Float = 0;
+	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 
 	public var stunned:Bool = false;
+	public var beatInterval(get, default):Int = 0;
+	private function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
-	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''};
+	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
 	private function get_hasSway():Bool return animOffsets.exists('sway${suffixes.idle}');
@@ -49,16 +55,23 @@ class Character extends FlxSprite {
 	public var aliasing:Bool = true;
 	public var flipSprite:Bool = false;
 	public var iconColor(get, default):Null<FlxColor>;
-	private function get_iconColor():FlxColor return iconColor == null ? FlxColor.RED : iconColor;
+	private function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
-	public var yamlContent:Parser;
+	public var yamlContent:Dynamic;
 
-	public function new(x:Float, y:Float, character:String = 'bf', faceLeft:Bool = false) {
+	public function getCamPos():FlxPoint {
+		var basePos:FlxPoint = getMidpoint();
+		basePos.x += camPoint.x * (isFacing == rightFace ? 1 : -1);
+		basePos.y += camPoint.y;
+		return basePos;
+	}
+
+	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'failsafe', variant:String = 'none') {
 		super(x, y);
 
-		animOffsets = new Map<String, FlxPoint>();
-		charName = character;
 		isFacing = faceLeft ? leftFace : rightFace;
+		charName = character;
+		charVariant = variant;
 
 		switch (charName) {
 			case 'gf':
@@ -105,9 +118,9 @@ class Character extends FlxSprite {
 				loadOffsetFile('gf');
 
 			case 'bf-holding-gf':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfAndGF'}');
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'BF idle dance');
 				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
@@ -221,12 +234,12 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'pico':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'Pico_FNF_assetss'}');
 
 				final LEFT:String = faceLeft ? 'LEFT' : 'RIGHT';
 				final RIGHT:String = faceLeft ? 'RIGHT' : 'LEFT';
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'Pico Idle Dance');
 				quickAnimAdd('sing$LEFT', 'Pico NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'Pico Down Note0');
@@ -255,9 +268,9 @@ class Character extends FlxSprite {
 				loadMappedAnims();
 
 			case 'bf':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'BOYFRIEND'}');
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'BF idle dance');
 				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
@@ -277,9 +290,9 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'bf-christmas':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfChristmas'}');
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'BF idle dance');
 				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
@@ -294,9 +307,9 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'bf-car':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfCar'}');
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'BF idle dance');
 				quickAnimAdd('singLEFT', 'BF NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'BF NOTE DOWN0');
@@ -311,9 +324,9 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'bf-pixel':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfPixel'}');
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'BF IDLE');
 				quickAnimAdd('singLEFT', 'BF LEFT NOTE');
 				quickAnimAdd('singDOWN', 'BF DOWN NOTE');
@@ -330,9 +343,9 @@ class Character extends FlxSprite {
 				aliasing = false;
 
 			case 'bf-pixel-dead':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfPixelsDEAD'}');
 
+				flipSprite = true;
 				quickAnimAdd('firstDeath', 'BF Dies pixel');
 				animation.addByPrefix('deathLoop', 'Retry Loop', 24, false, flipSprite);
 				quickAnimAdd('deathConfirm', 'RETRY CONFIRM');
@@ -344,9 +357,9 @@ class Character extends FlxSprite {
 				aliasing = false;
 
 			case 'bf-holding-gf-dead':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfHoldingGF-DEAD'}');
 
+				flipSprite = true;
 				quickAnimAdd('firstDeath', 'BF Dies with GF');
 				animation.addByPrefix('deathLoop', 'BF Dead with GF Loop', 24, false, flipSprite);
 				quickAnimAdd('deathConfirm', 'RETRY confirm holding gf');
@@ -417,12 +430,12 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			case 'tankman':
-				flipSprite = true;
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'tankmanCaptain'}');
 
 				final LEFT:String = faceLeft ? 'LEFT' : 'RIGHT';
 				final RIGHT:String = faceLeft ? 'RIGHT' : 'LEFT';
 
+				flipSprite = true;
 				quickAnimAdd('idle', 'Tankman Idle Dance');
 				quickAnimAdd('sing$LEFT', 'Tankman Note Left ');
 				quickAnimAdd('singDOWN', 'Tankman DOWN note ');
@@ -438,7 +451,29 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			default:
-				// future yaml support
+				final startPath:String = 'assets/characters/';
+				var path:String;
+				if (!sys.FileSystem.exists('$startPath$charName.yaml'))
+					if (sys.FileSystem.exists('$startPath$charName/$charVariant.yaml')) path = '$startPath$charName/$charVariant.yaml';
+					else path = '${startPath}failsafe.yaml';
+				else path = '$startPath$charName.yaml';
+				yamlContent = Yaml.parse(Paths.getContent(path), Parser.options().useObjects());
+				frames = Paths.getSparrowAtlas('characters/${spritePath = yamlContent.sprite}');
+				flipSprite = yamlContent.flip;
+				for (i in 0...yamlContent.anims.length) {
+					final anim = yamlContent.anims[i];
+					// multsparrow support soon
+					if (anim.indices != null && anim.indices.length > 0)
+						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipSprite);
+					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipSprite);
+					addOffset(anim.name, anim.offset.x, anim.offset.y);
+				}
+				camPoint.setPoint(yamlContent.camera.x, yamlContent.camera.y);
+				xyOffset.set(yamlContent.position.x, yamlContent.position.y);
+				iconColor = Std.parseInt(yamlContent.color);
+				singLength = yamlContent.singLen;
+				scaleMult = yamlContent.scale;
+				aliasing = yamlContent.aliasing;
 		}
 
 		antialiasing = aliasing;
@@ -446,10 +481,6 @@ class Character extends FlxSprite {
 			setGraphicSize(Std.int(width * scaleMult));
 			updateHitbox();
 		}
-		/* if (charName == 'bf') {
-			yamlContent = Yaml.parse(Paths.file('characters/$charName.yaml', TEXT, 'shared'), Parser.options().useObjects());
-			trace(yamlContent);
-		} */
 
 		playAnim('idle', true);
 		animation.finish();
@@ -481,19 +512,16 @@ class Character extends FlxSprite {
 		}
 	}
 
-	override function update(elapsed:Float) {
+	override public function update(elapsed:Float) {
 		if (!debugMode && animation.curAnim != null) {
-			/* if (specialAnim && animation.curAnim.finished) {
-				specialAnim = false;
-				dance();
-			} else */ if (animation.name.endsWith('miss') && animation.curAnim.finished) {
-				dance();
+			if (animation.name.endsWith('miss') && animation.curAnim.finished) {
+				tryDance();
 				animation.finish();
 			}
 
 			switch (charName) {
 				case 'pico-speaker':
-					if(animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0]) {
+					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0]) {
 						var noteData:Int = 1;
 						if (animationNotes[0][1] > 2) noteData = 3;
 
@@ -504,13 +532,7 @@ class Character extends FlxSprite {
 					if (animation.curAnim.finished) playAnim(animation.name, false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (animation.name.startsWith('sing')) holdTimer += elapsed;
-			else if (flipX) holdTimer = 0;
-
-			if (!flipX && holdTimer >= Conductor.stepCrochet * 0.0011 * singLength) {
-				dance();
-				holdTimer = 0;
-			}
+			if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition) tryDance();
 
 			if (animation.curAnim.finished && animOffsets.exists('${animation.name}-loop')) playAnim('${animation.name}-loop');
 		}
@@ -526,13 +548,16 @@ class Character extends FlxSprite {
 		}
 	}
 
+	public var preventIdleOnBeat:Bool = false;
+	public function tryDance() dance(); // for now it like this
+
 	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
 		final suffix:String = animOffsets.exists('$name${suffixes.anim}') ? suffixes.anim : '';
 		final anim:String = '$name$suffix';
 		if (animOffsets.exists(anim)) {
 			animation.play(anim, force, reverse, frame);
 			final daOffset = animOffsets.get(anim);
-			offset.set(daOffset.x, daOffset.y);
+			offset.set(daOffset.x + xyOffset.x, daOffset.y + xyOffset.y);
 			daOffset.putWeak();
 		}
 	}
@@ -556,7 +581,6 @@ class Character extends FlxSprite {
 			missed ? 'miss' : '',
 			suffix.trim() == '' ? suffixes.sing : suffix
 		), force, reverse, frame);
-		if (!missed) holdTimer = 0;
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) animOffsets.set(name, FlxPoint.get(x, y));
@@ -572,6 +596,7 @@ class Character extends FlxSprite {
 			LabelValuePair.weak('Name', charName),
 			LabelValuePair.weak('Variant', charVariant),
 			LabelValuePair.weak('Facing', isFacing),
+			LabelValuePair.weak('Beat Invertal', beatInterval),
 			LabelValuePair.weak('Can Sway', hasSway)
 		]);
 	}

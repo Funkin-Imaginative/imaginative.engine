@@ -6,12 +6,16 @@ class Strum extends FlxSprite {
 	public var extra:Map<String, Dynamic> = [];
 
 	public var colorSwap:ColorSwap;
+	public var noteData(get, set):Int;
+	private function set_noteData(value:Int):Int return ID = value;
+	private function get_noteData():Int return ID;
+	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 
 	private var col(get, never):String;
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
 	private var dir(get, never):String;
 	private function get_dir():String return ['left', 'down', 'up', 'right'][ID];
-	override public function new(x:Float, y:Float, data:Int, pixel:Bool = false) {
+	public function new(x:Float, y:Float, data:Int, pixel:Bool = false) {
 		super(x, y);
 
 		colorSwap = new ColorSwap();
@@ -47,7 +51,7 @@ class Strum extends FlxSprite {
 		playAnim('static', true);
 	}
 
-	override public function update(elapsed:Float) {
+	override function update(elapsed:Float) {
 		centerOffsets();
 		centerOrigin();
 		super.update(elapsed); // this method was the only thing that remotely worked for some reason :')
@@ -59,6 +63,8 @@ class Strum extends FlxSprite {
 				case 'confirm': playAnim('press', true);
 			}
 		}
+		// if cpu shit will be added later
+		if (lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm') playAnim('static', true);
 	}
 
 	public function playAnim(name:String, force:Bool = false) {

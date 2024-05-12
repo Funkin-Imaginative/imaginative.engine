@@ -1,7 +1,7 @@
 package fnf.states.menus;
 
 import openfl.utils.Assets;
-import sys.FileSystem;
+#if sys import sys.FileSystem; #end
 import haxe.Json;
 import flixel.addons.transition.FlxTransitionableState;
 
@@ -114,18 +114,16 @@ class StoryMenuState extends MusicBeatState {
 		#end
 
 
-		#if sys
+		/* #if sys
 
 		trace(FileSystem.readDirectory('assets'));
 		trace(FileSystem.readDirectory('assets/weeks/'));
-
-		trace(Paths.file('week9.json', TEXT, 'weeks'));
 
 		for (file in FileSystem.readDirectory('assets/weeks/')) {
 			trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
 
 			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
-			
+
 			weekData.insert(weekData.length + 1, jsonReturn.songs);
 
 			weekCharacters.insert(weekCharacters.length + 1, jsonReturn.characters);
@@ -137,7 +135,7 @@ class StoryMenuState extends MusicBeatState {
 
 		//trace(Json.parse('assets/weeks/week8.json'));
 
-		#end
+		#end */
 
 
 
@@ -278,15 +276,8 @@ class StoryMenuState extends MusicBeatState {
 					changeWeek(1);
 				}
 
-				if (controls.UI_RIGHT)
-					rightArrow.animation.play('press')
-				else
-					rightArrow.animation.play('idle');
-
-				if (controls.UI_LEFT)
-					leftArrow.animation.play('press');
-				else
-					leftArrow.animation.play('idle');
+				rightArrow.animation.play(controls.UI_RIGHT ? 'press' : 'idle');
+				leftArrow.animation.play(controls.UI_LEFT ? 'press' : 'idle');
 
 				if (controls.UI_RIGHT_P)
 					changeDifficulty(1);

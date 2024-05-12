@@ -23,6 +23,7 @@ import flixel.FlxG;
 
 import fnf.backend.BareCameraPoint;
 import fnf.backend.CameraPoint;
+import fnf.backend.scripting.*;
 
 import fnf.states.sub.MusicBeatSubstate;
 import fnf.backend.Section.SwagSection;

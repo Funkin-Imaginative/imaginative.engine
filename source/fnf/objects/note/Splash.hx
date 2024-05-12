@@ -1,7 +1,7 @@
 package fnf.objects.note;
 
 class Splash extends FlxSprite {
-	public function new(x:Float, y:Float, noteData:Int = 0):Void {
+	public function new(x:Float, y:Float, data:Int = 0):Void {
 		super(x, y);
 
 		frames = Paths.getSparrowAtlas('noteSplashes');
@@ -15,17 +15,17 @@ class Splash extends FlxSprite {
 		animation.addByPrefix('note0-1', 'note impact 2 purple', 24, false);
 		animation.addByPrefix('note3-1', 'note impact 2 red', 24, false);
 
-		setupNoteSplash(x, y, noteData);
+		setupNoteSplash(x, y, data);
 
 		// alpha = 0.75;
 	}
 
-	public function setupNoteSplash(x:Float, y:Float, noteData:Int = 0)
+	public function setupNoteSplash(x:Float, y:Float, data:Int = 0)
 	{
 		setPosition(x, y);
 		alpha = 0.6;
 
-		animation.play('note' + noteData + '-' + FlxG.random.int(0, 1), true);
+		animation.play('note' + data + '-' + FlxG.random.int(0, 1), true);
 		animation.curAnim.frameRate += FlxG.random.int(-2, 2);
 		updateHitbox();
 

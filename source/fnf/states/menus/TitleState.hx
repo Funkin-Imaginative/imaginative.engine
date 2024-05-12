@@ -50,7 +50,7 @@ class TitleState extends MusicBeatState {
 	var netStream:NetStream;
 	private var overlay:Sprite;
 
-	override public function create():Void {
+	override function create():Void {
 
 		startedIntro = false;
 

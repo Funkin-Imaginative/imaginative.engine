@@ -9,7 +9,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	public var splashes:SplashGroup;
 	public var vocals:FlxSound;
 
-	override public function new(x:Float, y:Float, pixel:Bool = false) {
+	public function new(x:Float, y:Float, pixel:Bool = false) {
 		super();
 		var amount:Int = 4;
 		for (i in 0...amount) {

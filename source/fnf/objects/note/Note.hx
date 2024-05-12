@@ -4,11 +4,10 @@ import fnf.graphics.shaders.ColorSwap;
 
 class Note extends FlxSprite {
 	public var extra:Map<String, Dynamic> = [];
-	
+
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;
-	public var noteData:Int = 0;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
@@ -24,6 +23,14 @@ class Note extends FlxSprite {
 
 	public var colorSwap:ColorSwap;
 	public var noteScore:Float = 1;
+	public var kind(default, set):String = 'Normal';
+	private function set_kind(value:String) {
+		switch (value) {
+			default:
+				// script call
+		}
+		return kind = value;
+	}
 
 	public static var swagWidth:Float = 160 * 0.7;
 
@@ -36,10 +43,14 @@ class Note extends FlxSprite {
 	public var noteState(get, never):String;
 	private function get_noteState():String return __state == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
 
+	public var noteData(get, set):Int;
+	private function set_noteData(value:Int):Int return ID = value;
+	private function get_noteData():Int return ID;
+
 	private var col(get, never):String;
-	private function get_col():String return ['purple', 'blue', 'green', 'red'][noteData];
+	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
 	private var dir(get, never):String;
-	private function get_dir():String return ['left', 'down', 'up', 'right'][noteData];
+	private function get_dir():String return ['left', 'down', 'up', 'right'][ID];
 	public function new(time:Float, data:Int, ?prev:Note, ?isSustain:Bool = false) {
 		super();
 
@@ -48,12 +59,11 @@ class Note extends FlxSprite {
 		prevNote = prev;
 		isSustainNote = isSustain;
 
-		x += 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		strumTime = time;
 
-		noteData = data;
+		ID = data;
 
 		switch (PlayState.curStage) {
 			case 'school' | 'schoolEvil':
@@ -86,7 +96,6 @@ class Note extends FlxSprite {
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
 
-		x += swagWidth * data;
 		if (!isSustain) __state = 'note';
 
 		if (isSustain && prev != null) {
@@ -95,15 +104,9 @@ class Note extends FlxSprite {
 
 			if (SaveManager.getOption('gameplay.downscroll')) angle = 180;
 
-			x += width / 2;
-
 			__state = 'end';
 
 			updateHitbox();
-
-			x -= width / 2;
-
-			if (PlayState.curStage.startsWith('school')) x += 30;
 
 			if (prev.isSustainNote) {
 				prev.__state = 'hold';

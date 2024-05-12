@@ -108,7 +108,7 @@ class Page extends FlxGroup {
 		onExit.dispatch();
 	}
 
-	override function update(elapsed:Float)
+	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
@@ -143,7 +143,7 @@ class Page extends FlxGroup {
 		FlxG.state.openSubState(prompt);
 	}
 
-	override function destroy()
+	override public function destroy()
 	{
 		super.destroy();
 		onSwitch.removeAll();
@@ -174,7 +174,7 @@ class OptionsMenu extends Page
 		return item;
 	}
 
-	override function set_enabled(value:Bool)
+	override public function set_enabled(value:Bool)
 	{
 		items.enabled = value;
 		return super.set_enabled(value);
