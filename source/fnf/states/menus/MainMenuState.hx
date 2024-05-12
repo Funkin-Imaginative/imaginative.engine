@@ -19,8 +19,6 @@ class MainMenuState extends MusicBeatState {
 	var magenta:FlxSprite;
 	var camPoint:BareCameraPoint;
 
-	var testScript:Script;
-
 	override function create() {
 		#if discord_rpc
 		// Updating Discord Rich Presence
@@ -95,9 +93,6 @@ class MainMenuState extends MusicBeatState {
 		add(versionShit);
 
 		super.create();
-
-		testScript = new Script('script');
-		testScript.call('create', []);
 	}
 
 	override function finishTransIn() {

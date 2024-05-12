@@ -532,7 +532,7 @@ class Character extends FlxSprite {
 					if (animation.curAnim.finished) playAnim(animation.name, false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition) tryDance();
+			// if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition) tryDance();
 
 			if (animation.curAnim.finished && animOffsets.exists('${animation.name}-loop')) playAnim('${animation.name}-loop');
 		}
