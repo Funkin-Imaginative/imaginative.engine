@@ -180,14 +180,14 @@ class PlayState extends MusicBeatState {
 	override function beatHit():Void {
 		super.beatHit();
 		for (char in characters)
-			if (!char.preventIdleOnBeat && curBeat % Math.round(char.bopSpeed * char.beatInterval) == 0)
+			if (!char.preventIdleBopping && curBeat % Math.round(char.bopSpeed * char.beatInterval) == 0)
 				char.tryDance();
 	}
 
 	override function openSubState(SubState:FlxSubState) {
 		if (paused) {
-			if (FlxG.sound.music != null) FlxG.sound.music.pause();
-			vocals.pause();
+			// if (FlxG.sound.music != null) FlxG.sound.music.pause();
+			// vocals.pause();
 
 			// if (!startTimer.finished)
 			// 	startTimer.active = false;

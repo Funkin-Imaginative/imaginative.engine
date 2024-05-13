@@ -3,7 +3,9 @@ package fnf.backend.scripting;
 import hscript.Parser;
 import hscript.Interp;
 import hscript.Expr;
+import haxe.io.Path;
 
+// This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.
 class Script extends FlxBasic {
 	var interp:Interp;
 	var parser:Parser;
@@ -16,49 +18,23 @@ class Script extends FlxBasic {
 	public var scriptName:String = '';
 	public var loaded:Bool = false;
 
-	public function new(file:String, type:String):Void {
-		super();
+	var invalid:Bool = false;
+	public var isInvalid(get, never):Bool;
+	private function get_isInvalid():Bool return invalid;
 
-		interp = new Interp();
-		parser = new Parser();
+	public static final exts:Array<String> = ['hx', 'hscript', 'hsc', 'hxs', 'hxc', 'lua'];
 
-		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
-
-		var pathsSetup:String = '';
-		switch (type) {
-			case 'song': pathsSetup = Paths.file('data/$file/script.hx');
-			case 'state': pathsSetup = Paths.file('content/states/$file.hx');
+	public static function create(file:String, type:String = ''):Script {
+		final path:String = Paths.script(switch (type) {
+			case 'song': 'data/${PlayState.SONG.song}/$file.hx';
+			case 'state': 'content/states/$file.hx';
+			default: '$file.hx';
+		});
+		switch (Path.extension(path).toLowerCase()) {
+			case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc': return new Script(path);
+			case 'lua': fnf.states.LuaFileDetected.runCheck(path); // doing a cne but more trollish lmao
 		}
-		scriptName = haxe.io.Path.withoutDirectory(pathsSetup);
-
-
-		try {scriptCode = Paths.getContent(pathsSetup);} catch (e:haxe.Exception) {
-			scriptCode = '';
-			trace('Error while trying to initialize script: $e');
-		}
-
-		for (name => thing in getBasicImports(this)) set(name, thing);
-	}
-
-	public function load() {
-		if (loaded) return;
-		onLoad();
-		loaded = true;
-	}
-
-	public function onLoad() {
-		loadCodeFromString(scriptCode);
-		if (canExecute) {
-			// setVariables();
-			try {
-				@:privateAccess interp.execute(parser.mk(EBlock([]), 0, 0));
-				if (expr != null) {
-					interp.execute(expr);
-					call('new', []);
-				}
-			} catch (e:haxe.Exception) trace('Error while trying to execute script: $e');
-		}
+		return new Script('failsafe');
 	}
 
 	public static function getBasicImports(?script:Script):Map<String, Dynamic> {
@@ -131,7 +107,7 @@ class Script extends FlxBasic {
 			// Custom Functions //
 			'addBehindObject' => (obj:FlxBasic, ?behindThis:FlxBasic = null, ?into:Dynamic) -> {
 				if (script == null || script.parent == null)
-					return trace('addBehindObject: Script parent not found.');
+					return trace('addBehindObject: Script and/or parent not found.');
 				var resolvedGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
 				if (resolvedGroup == null) resolvedGroup = script.parent;
 				final group:Dynamic = into == null ? resolvedGroup : into;
@@ -147,15 +123,75 @@ class Script extends FlxBasic {
 		];
 	}
 
+	// I wanted to have a reload func for scripts but I couldn't figure it out without error's so this part is mostly ripped from cne
+	public var path:String;
+	private var rawPath:String;
+	public var fileName:String;
+	public var extension:String;
+	public function new(path:String):Void {
+		super();
+		rawPath = path;
+		path = getFilenameFromLibFile(path);
+		fileName = Path.withoutDirectory(path);
+		extension = Path.extension(path);
+		this.path = path;
+		scriptCreation(path);
+		for (name => thing in getBasicImports(this)) set(name, thing);
+	}
+
+	function getFilenameFromLibFile(path:String) {
+		var file = new Path(path);
+		if (file.file.startsWith('LIB_')) {
+			return file.dir + '.' + file.ext;
+		}
+		return path;
+	}
+
+	private function scriptCreation(path:String) {
+		interp = new Interp();
+		parser = new Parser();
+
+		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
+		interp.allowStaticVariables = interp.allowPublicVariables = true;
+
+		scriptName = Path.withoutDirectory(path);
+
+		if (path != 'failsafe') {
+			try {scriptCode = Paths.getContent(path);} catch (e:haxe.Exception) {
+				trace('Error while trying to initialize script: $e');
+				scriptCode = '';
+			}
+		} else invalid = true;
+	}
+
+	public function onLoad() {
+		loadCodeFromString(scriptCode);
+		if (canExecute) {
+			try {
+				@:privateAccess interp.execute(parser.mk(EBlock([]), 0, 0));
+				if (expr != null) {
+					interp.execute(expr);
+					call('new', []);
+				}
+			} catch (e:haxe.Exception) trace('Error while trying to execute script: $e');
+		}
+	}
+
+	public function load() {
+		if (loaded) return;
+		onLoad();
+		loaded = true;
+	}
+
 	public function set(variable:String, value:Dynamic):Void interp.variables.set(variable, value);
 	public function get(variable):Dynamic return interp.variables.get(variable);
 
-	public function call(funcName:String, args:Array<Dynamic>):Dynamic {
-		if (!interp.variables.exists(funcName) || interp == null) return null;
+	public function call(funcName:String, ?args:Array<Dynamic>):Dynamic {
+		if (interp == null || !interp.variables.exists(funcName)) return null;
 
 		final func = interp.variables.get(funcName);
 		if (func != null && Reflect.isFunction(func))
-			try {return Reflect.callMethod(null, func, args);}
+			try {return Reflect.callMethod(null, func, args == null ? [] : args);}
 			catch (e:haxe.Exception) trace('Error while trying to call function $funcName: $e');
 
 		return null;
@@ -165,12 +201,34 @@ class Script extends FlxBasic {
 	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
 	inline function get_parent():Dynamic return interp.scriptObject;
 
-	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVars = map;
+	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVariables = map;
 
 	override public function destroy():Void {
 		interp = null;
 		parser = null;
 		super.destroy();
+	}
+
+	public function reload() {
+		// save variables
+		interp.allowStaticVariables = interp.allowPublicVariables = false;
+		var savedVariables:Map<String, Dynamic> = [];
+		for(name => thing in interp.variables)
+			if (!Reflect.isFunction(thing))
+				savedVariables[name] = thing;
+		final oldParent = parent;
+		scriptCreation(path);
+
+		for (name => thing in Script.getBasicImports(this))
+			set(name, thing);
+
+		load();
+		parent = oldParent;
+
+		for(name => thing in savedVariables)
+			interp.variables.set(name, thing);
+
+		interp.allowStaticVariables = interp.allowPublicVariables = true;
 	}
 
 	private function loadCodeFromString(code:String):Void {

@@ -52,6 +52,19 @@ class Paths {
 
 	inline public static function json(key:String, ?library:String) return getPath('data/$key.json', TEXT, library);
 
+	inline public static function script(key:String, ?library:String) {
+		var scriptPath = getPath(key, TEXT, library);
+		var p:String;
+		for (ext in Script.exts) {
+			p = '$scriptPath.$ext';
+			if (FileSystem.exists(p)) {
+				scriptPath = p;
+				break;
+			}
+		}
+		return scriptPath;
+	}
+
 	inline public static function sound(key:String, ?library:String) return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
 
 	inline public static function soundRandom(key:String, min:Int, max:Int, ?library:String) return sound(key + FlxG.random.int(min, max), library);

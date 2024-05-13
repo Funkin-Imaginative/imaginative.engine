@@ -550,7 +550,7 @@ class Character extends FlxSprite {
 		}
 	}
 
-	public var preventIdleOnBeat:Bool = false;
+	public var preventIdleBopping:Bool = false;
 	public function tryDance() dance(); // for now it like this
 
 	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
