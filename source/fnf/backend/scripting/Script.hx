@@ -130,10 +130,10 @@ class Script extends FlxBasic {
 
 			// Custom Functions //
 			'addBehindObject' => (obj:FlxBasic, ?behindThis:FlxBasic = null, ?into:Dynamic) -> {
-				if (script == null || script.interp == null || script.interp.scriptObject == null)
+				if (script == null || script.parent == null)
 					return trace('addBehindObject: Script parent not found.');
 				var resolvedGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
-				if (resolvedGroup == null) resolvedGroup = script.interp.scriptObject;
+				if (resolvedGroup == null) resolvedGroup = script.parent;
 				final group:Dynamic = into == null ? resolvedGroup : into;
 				if (behindThis != null) group.insert(group.members.indexOf(behindThis), obj);
 			},
