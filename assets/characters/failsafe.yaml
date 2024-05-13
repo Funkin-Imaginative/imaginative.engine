@@ -1,24 +1,10 @@
----
 aliasing: true
-anims:
-  - fps: 24
-    indices: []
-    loop: false
-    name: 'idle'
-    offset:
-      x: -5
-      y: 0
-    tag: 'BF idle dance'
-  - fps: 24
-camera:
-  x: 0
-  y: 0
+anims: {name: 'idle', tag: 'BF idle dance', fps: 24, loop: false, offset: {x: -5, y: 0}, indices: []}
+camera: {x: 0, y: 0}
 color: 'a1a1a1'
 flip: true
 icon: 'face'
-position:
-  x: 0
-  y: 350
+position: {x: 0, y: 350}
 scale: 1
 singLen: 4
 sprite: 'BOYFRIEND'

@@ -16,7 +16,7 @@ class Script extends FlxBasic {
 	public var scriptName:String = '';
 	public var loaded:Bool = false;
 
-	public function new(file:String):Void {
+	public function new(file:String, type:String):Void {
 		super();
 
 		interp = new Interp();
@@ -25,15 +25,20 @@ class Script extends FlxBasic {
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 
-		scriptName = haxe.io.Path.withoutDirectory(Paths.script(file));
+		var pathsSetup:String = '';
+		switch (type) {
+			case 'song': pathsSetup = Paths.file('data/$file/script.hx');
+			case 'state': pathsSetup = Paths.file('content/states/$file.hx');
+		}
+		scriptName = haxe.io.Path.withoutDirectory(pathsSetup);
 
-		for(name => clASS in getDefaultVariables(this)) set(name, clASS);
 
-		try {if (sys.FileSystem.exists(file)) scriptCode = sys.io.File.getContent(file);}
-		catch (e:haxe.Exception) {
+		try {scriptCode = Paths.getContent(pathsSetup);} catch (e:haxe.Exception) {
 			scriptCode = '';
 			trace('Error while trying to initialize script: $e');
 		}
+
+		for (name => thing in getBasicImports(this)) set(name, thing);
 	}
 
 	public function load() {
@@ -56,7 +61,7 @@ class Script extends FlxBasic {
 		}
 	}
 
-	public static function getDefaultVariables(?script:Script):Map<String, Dynamic> {
+	public static function getBasicImports(?script:Script):Map<String, Dynamic> {
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -116,7 +121,7 @@ class Script extends FlxBasic {
 			'OutdatedSubState' => fnf.states.sub.OutdatedSubState,
 			'PauseSubState' => fnf.states.sub.PauseSubState,
 			'LoadingState' => LoadingState, // states
-			'MusicBeatState' => MusicBeatState, // states
+			'MusicBeatState' => MusicBeatState,
 			'PlayState' => PlayState,
 			'Alphabet' => fnf.ui.Alphabet, // ui
 			'HealthIcon' => fnf.ui.HealthIcon,
@@ -131,7 +136,14 @@ class Script extends FlxBasic {
 				if (resolvedGroup == null) resolvedGroup = script.interp.scriptObject;
 				final group:Dynamic = into == null ? resolvedGroup : into;
 				if (behindThis != null) group.insert(group.members.indexOf(behindThis), obj);
-			}
+			},
+			'disableScript' => () -> {
+				if (script != null)
+					script.active = false;
+			},
+
+			// self //
+			'self' => script
 		];
 	}
 
@@ -149,8 +161,11 @@ class Script extends FlxBasic {
 		return null;
 	}
 
-	public function setParent(parent:Dynamic):Void
-		interp.scriptObject = parent;
+	public var parent(get, set):Dynamic;
+	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
+	inline function get_parent():Dynamic return interp.scriptObject;
+
+	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVars = map;
 
 	override public function destroy():Void {
 		interp = null;

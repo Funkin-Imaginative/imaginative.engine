@@ -33,8 +33,10 @@ class Character extends FlxSprite {
 	private function get_hasVariant():Bool return charVariant != 'none';
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
-
 	public var stunned:Bool = false;
+
+	public var bopSpeed(default, set):Int = 1;
+	private function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0;
 	private function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
@@ -61,8 +63,8 @@ class Character extends FlxSprite {
 
 	public function getCamPos():FlxPoint {
 		var basePos:FlxPoint = getMidpoint();
-		basePos.x += camPoint.x * (isFacing == rightFace ? 1 : -1);
-		basePos.y += camPoint.y;
+		basePos.x += (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1);
+		basePos.y += xyOffset.y + camPoint.y;
 		return basePos;
 	}
 
@@ -557,7 +559,7 @@ class Character extends FlxSprite {
 		if (animOffsets.exists(anim)) {
 			animation.play(anim, force, reverse, frame);
 			final daOffset = animOffsets.get(anim);
-			offset.set(daOffset.x + xyOffset.x, daOffset.y + xyOffset.y);
+			offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
 			daOffset.putWeak();
 		}
 	}

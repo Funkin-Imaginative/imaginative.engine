@@ -50,8 +50,6 @@ class Paths {
 
 	inline public static function yaml(key:String, ?library:String) return getPath('data/$key.yaml', TEXT, library);
 
-	inline public static function script(key:String, ?library:String) return getPath('$key.hx', TEXT, library);
-
 	inline public static function json(key:String, ?library:String) return getPath('data/$key.json', TEXT, library);
 
 	inline public static function sound(key:String, ?library:String) return getPath('sounds/$key.$SOUND_EXT', SOUND, library);

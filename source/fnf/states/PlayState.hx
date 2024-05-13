@@ -28,24 +28,27 @@ import fnf.graphics.shaders.BuildingShaders;
 import fnf.graphics.shaders.ColorSwap;
 
 class PlayState extends MusicBeatState {
-	public static var direct:PlayState = null;
+	public static var direct:PlayState = null; // SCRIPTING BABY
 
-	public static var storyDifficulty:Int = 1; // keeping for now
+	// keeping for now since there static and get used in other states
+	public static var storyDifficulty:Int = 1;
+	public static var daPixelZoom:Float = 6;
+	public var curSong:String = '';
 
 	public static var SONG:SwagSong;
 
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
-	public static var storyPlaylist:Array<String> = [];
-	public static var storyDifficulties:Array<String> = [];
+	public static var campaignList:Array<String> = [];
+	public static var difficulties:Array<String> = [];
 	public static var curDifficulty:String = 'Normal';
 
 	public static var deathCounter:Int = 0;
 	public static var practiceMode:Bool = false;
 
-	public static var seenCutscene:Bool = false;
-	public static var daPixelZoom:Float = 6; // keeping for now
 	public static var campaignScore:Int = 0;
+	public static var seenCutscene:Bool = false;
+	public var inCutscene:Bool = false;
 
 	public var defaultCamZoom:Float = 0.9;
 
@@ -54,45 +57,65 @@ class PlayState extends MusicBeatState {
 	public var gf:Character;
 	public var boyfriend:Character;
 
+	public var gfSpeed(get, set):Int;
+	inline function set_gfSpeed(value:Int):Int return gf.bopSpeed = value;
+	inline function get_gfSpeed():Int return gf.bopSpeed;
+
 	public var camGame:FunkinCamera;
 	public var camHUD:FlxCamera;
 
 	public var camPoint:CameraPoint;
+	@:isVar public var cameraSpeed(get, set):Float;
+	inline function get_cameraSpeed():Float return camPoint.lerpMult;
+	inline function set_cameraSpeed(value:Float):Float return camPoint.lerpMult = value;
 
-	public var health(default, set):Float;
-	public var maxHealth(default, set):Float = 2;
-	inline function set_health(value:Float):Float return health = FlxMath.bound(value, 0, maxHealth);
-	inline function set_maxHealth(value:Float):Float {
-		if (healthBar != null && healthBar.max == maxHealth)
-			healthBar.setRange(healthBar.min, value);
-		return maxHealth = value;
-	}
+	public var inst:FlxSound;
+	public var vocals:FlxSound;
+	public var vocalsFinished:Bool = false;
+
+	public var generatedMusic:Bool = false;
+	public var paused:Bool = false;
+	public var startedCountdown:Bool = false;
+	public var canPause:Bool = true;
 
 	public static var curStage:String = '';
 	public var scripts:ScriptGroup;
 
-	// for convenience sake
-	// and my sanity
-	// - Zyflx
-
+	/**
+	 * for convenience sake
+	 * and my sanity
+	 * @Zyflx
+	 */
 	public var playField(default, null):PlayField;
-	public var playerStrumLine(get, never):StrumGroup;
 	public var opponentStrumLine(get, never):StrumGroup;
-	public var healthBar(get, never):FunkinBar;
-	inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
 	inline function get_opponentStrumLine():StrumGroup return playField.opponentStrumLine;
+	public var playerStrumLine(get, never):StrumGroup;
+	inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
+	public var healthBar(get, never):FunkinBar;
 	inline function get_healthBar():FunkinBar return playField.healthBar;
+
+	public var minHealth(get, set):Float; // >:)
+	inline function get_minHealth():Float return playField.minHealth;
+	inline function set_minHealth(value:Float):Float return playField.minHealth = value;
+	public var health(get, set):Float;
+	inline function get_health():Float return playField.health;
+	inline function set_health(value:Float):Float return playField.health = value;
+	public var maxHealth(get, set):Float;
+	inline function get_maxHealth():Float return playField.maxHealth;
+	inline function set_maxHealth(value:Float):Float return playField.maxHealth = value;
 
 	override function create():Void {
 		direct = this;
-		health = maxHealth / 2;
-		if (FlxG.sound.music != null)
-			FlxG.sound.music.stop();
+		if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
 		persistentUpdate = persistentDraw = true;
 
-		(scripts = new ScriptGroup('PlayState')).setParent(this);
+		(scripts = new ScriptGroup('PlayState')).parent = this;
 		if (SONG == null) SONG = Song.loadFromJson('tutorial');
+
+		Conductor.mapBPMChanges(SONG);
+		Conductor.changeBPM(SONG.bpm);
+		Conductor.songPosition = -5000;
 
 		FlxG.cameras.reset(camGame = new FunkinCamera());
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
@@ -100,10 +123,10 @@ class PlayState extends MusicBeatState {
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
 		characters.push(dad = new Character(100, 100, false, 'boyfriend', 'normal'));
-		characters.push(gf = new Character(400, 130, false, 'gf', 'none'));
 		characters.push(boyfriend = new Character(770, 100, true, 'boyfriend', 'normal'));
-		add(dad);
+		characters.push(gf = new Character(400, 130, false, 'gf', 'none'));
 		add(gf);
+		add(dad);
 		add(boyfriend);
 
 		var lol:FlxPoint = dad.getCamPos();
@@ -125,15 +148,74 @@ class PlayState extends MusicBeatState {
 		super.create();
 	}
 
+	private function generateSong():Void {
+		var songData = SONG;
+		Conductor.changeBPM(songData.bpm);
+		curSong = songData.song;
+
+		inst = FlxG.sound.load(Paths.inst(SONG.song));
+		vocals = FlxG.sound.load(Paths.voices(SONG.song));
+
+		inst.group = FlxG.sound.defaultMusicGroup;
+		vocals.group = FlxG.sound.defaultMusicGroup;
+
+		inst.persist = vocals.persist = false;
+
+		for (strumLine in playField.strumLines) strumLine.generateSong(songData.notes);
+
+		generatedMusic = true;
+	}
+
+	function startSong():Void {
+		// startingSong = false;
+		// FlxG.sound.setMusic(inst);
+		// FlxG.sound.music.onComplete = endSong;
+		FlxG.sound.music.play();
+
+		if (vocals == null) vocals = new FlxSound();
+		vocals.onComplete = function() vocalsFinished = true;
+		vocals.play();
+	}
+
 	override function beatHit():Void {
 		super.beatHit();
 		for (char in characters)
-			if (!char.preventIdleOnBeat && curBeat % char.beatInterval == 0)
+			if (!char.preventIdleOnBeat && curBeat % Math.round(char.bopSpeed * char.beatInterval) == 0)
 				char.tryDance();
+	}
+
+	override function openSubState(SubState:FlxSubState) {
+		if (paused) {
+			if (FlxG.sound.music != null) FlxG.sound.music.pause();
+			vocals.pause();
+
+			// if (!startTimer.finished)
+			// 	startTimer.active = false;
+		}
+
+		super.openSubState(SubState);
 	}
 
 	override function update(elapsed:Float):Void {
 		super.update(elapsed);
+		if (controls.PAUSE && canPause) {
+			persistentUpdate = false;
+			persistentDraw = paused = true;
+
+			// 1 / 1000 chance for Gitaroo Man easter egg
+			if (FlxG.random.bool(0.1)) FlxG.switchState(new GitarooPause()); // gitaroo man easter egg
+			else openSubState(new fnf.states.sub.PauseSubState());
+		}
+	}
+
+	override function onFocus():Void super.onFocus();
+	override function onFocusLost():Void {
+		super.onFocusLost();
+		if (SaveManager.getOption('gameplay.pauseOnLostFocus') && canPause && !paused) {
+			persistentUpdate = false;
+			persistentDraw = paused = true;
+			openSubState(new fnf.states.sub.PauseSubState());
+		}
 	}
 
 	override function destroy():Void {

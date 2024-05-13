@@ -38,6 +38,12 @@
 	<assets path="games"/>
 	<assets path="mods"/>
 
+	<!-- embedded stuff -->
+	<define name="EMBED_FAILSAFES"/>
+	<section if="EMBED_FAILSAFES">
+		<assets path="assets/characters/failsafe.yaml" embed="true">
+	</section>
+
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
 

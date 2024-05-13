@@ -20,6 +20,8 @@ class Note extends FlxSprite {
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
+	public var lowPriority:Bool = false;
+	public var tail:Array<Note> = [];
 
 	public var colorSwap:ColorSwap;
 	public var noteScore:Float = 1;

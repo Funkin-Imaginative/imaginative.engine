@@ -23,7 +23,7 @@ class PauseSubState extends MusicBeatSubstate {
 
 	var practiceText:FlxText;
 
-	public function new(ifStartFrozen:Bool = false) {
+	public function new() {
 		super();
 
 		menuItems = pauseOG;
@@ -35,7 +35,7 @@ class PauseSubState extends MusicBeatSubstate {
 		FlxG.sound.list.add(pauseMusic);
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		bg.alpha = ifStartFrozen ? 0.4 : 0;
+		bg.alpha = 0;
 		bg.scrollFactor.set();
 		add(bg);
 
@@ -67,20 +67,14 @@ class PauseSubState extends MusicBeatSubstate {
 		practiceText.visible = PlayState.practiceMode;
 		add(practiceText);
 
-		levelDifficulty.alpha = levelInfo.alpha = deathCounter.alpha = ifStartFrozen ? 1 : 0;
+		levelDifficulty.alpha = levelInfo.alpha = deathCounter.alpha = 0;
 
 		for (text in [levelInfo, levelDifficulty, deathCounter, practiceText]) text.x = FlxG.width - (text.width + 20); // lol
 
-		if (!ifStartFrozen) {
-			FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
-			FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
-			FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
-			FlxTween.tween(deathCounter, {alpha: 1, y: deathCounter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
-		} else {
-			levelInfo.y = 20;
-			levelDifficulty.y += 5;
-			deathCounter.y += 5;
-		}
+		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
+		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
+		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
+		FlxTween.tween(deathCounter, {alpha: 1, y: deathCounter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
 
 		grpMenuShit = new FlxTypedGroup<Alphabet>();
 		add(grpMenuShit);

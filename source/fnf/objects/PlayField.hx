@@ -14,10 +14,26 @@ class PlayField extends FlxGroup {
 
 	public var game:PlayState; // lol
 
+	public var minHealth(default, set):Float = 0; // >:)
+	inline function set_minHealth(value:Float):Float {
+		if (healthBar != null && healthBar.min == minHealth)
+			healthBar.setRange(minHealth, healthBar.max);
+		return minHealth = value;
+	}
+	public var maxHealth(default, set):Float = 2;
+	inline function set_maxHealth(value:Float):Float {
+		if (healthBar != null && healthBar.max == maxHealth)
+			healthBar.setRange(healthBar.min, value);
+		return maxHealth = value;
+	}
+	public var health(default, set):Float;
+	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
+
 	public function new(game:PlayState):Void {
 		super();
 
 		this.game = game;
+		health = (maxHealth - minHealth) / 2;
 		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
 
 		healthBarBG = new FlxSprite().loadGraphic(Paths.image('healthBar'));
@@ -38,8 +54,8 @@ class PlayField extends FlxGroup {
 			add(icon);
 		}
 
-		add(opponentStrumLine = new StrumGroup((FlxG.width * .5) - (FlxG.width * .25), 0, false));
-		add(playerStrumLine = new StrumGroup((FlxG.width * .5) + (FlxG.width * .25), 0, false));
+		add(StrumGroup.opponent = opponentStrumLine = new StrumGroup((FlxG.width * .5) - (FlxG.width * .25), 0, false));
+		add(StrumGroup.player = playerStrumLine = new StrumGroup((FlxG.width * .5) + (FlxG.width * .25), 0, false));
 
 		for (strumLine in [opponentStrumLine, playerStrumLine]) {
 			for (strum in strumLine) {
