@@ -35,7 +35,7 @@
 	<classpath name="source"/>
 	<assets path="assets" preload="true"/>
 	<!-- MODDING BULLSHIT -->
-	<assets path="games"/>
+	<assets path="solo"/>
 	<assets path="mods"/>
 
 	<define name="CUSTOM_CLASSES"/>
