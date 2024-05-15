@@ -12,34 +12,20 @@ import lime.utils.Assets;
 
 using StringTools;
 
-class CoolUtil
-{
+class CoolUtil {
 	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 
-	public static function difficultyString():String
-	{
-		return difficultyArray[PlayState.storyDifficulty];
-	}
+	public static function difficultyString():String return difficultyArray[PlayState.storyDifficulty];
 
-	public static function coolTextFile(path:String):Array<String>
-	{
+	public static function coolTextFile(path:String):Array<String> {
 		var daList:Array<String> = Assets.getText(path).trim().split('\n');
-
-		for (i in 0...daList.length)
-		{
-			daList[i] = daList[i].trim();
-		}
-
+		for (i in 0...daList.length) daList[i] = daList[i].trim();
 		return daList;
 	}
 
-	public static function numberArray(max:Int, ?min = 0):Array<Int>
-	{
+	public static function numberArray(max:Int, ?min = 0):Array<Int> {
 		var dumbArray:Array<Int> = [];
-		for (i in min...max)
-		{
-			dumbArray.push(i);
-		}
+		for (i in min...max) dumbArray.push(i);
 		return dumbArray;
 	}
 
@@ -50,16 +36,15 @@ class CoolUtil
 			Actually make and modify the scroll and lerp shit in it's own function
 			instead of solely relying on changing the lerp on the fly
 	 */
-	public static function camLerpShit(lerp:Float):Float
-	{
-		return lerp * (FlxG.elapsed / (1 / 60));
-	}
+	public static function camLerpShit(lerp:Float):Float {return lerp * (FlxG.elapsed / (1 / 60));}
 
-	/*
-	* just lerp that does camLerpShit for u so u dont have to do it every time
-	*/
-	public static function coolLerp(a:Float, b:Float, ratio:Float):Float
-	{
-		return FlxMath.lerp(a, b, camLerpShit(ratio));
+	//just lerp that does camLerpShit for u so u dont have to do it every time
+	public static function coolLerp(a:Float, b:Float, ratio:Float):Float return FlxMath.lerp(a, b, camLerpShit(ratio));
+
+	public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
+		if (provideFullPath) return Type.getClassName(Type.getClass(direct)); else {
+			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
+			return path[path.length - 1];
+		}
 	}
 }

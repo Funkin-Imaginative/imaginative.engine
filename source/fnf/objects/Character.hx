@@ -15,10 +15,57 @@ enum abstract SpriteFacing(String) {
 	var rightFace = 'right';
 }
 
+private typedef XY = {
+	var x:Float;
+	var y:Float;
+}
+
+private typedef AnimHas = {
+	var suffix:Bool;
+	var miss:Bool;
+}
+private typedef AnimCheck = {
+	var suffix:String;
+	var miss:String;
+}
+
+typedef AnimList = {
+	var name:String;
+	var tag:String;
+	var fps:Float;
+	var loop:Bool;
+	var offset:XY;
+	var indices:Array<Int>;
+}
+
+typedef CharYaml = {
+	var aliasing:Bool;
+	var anims:Array<AnimList>;
+	var camera:XY;
+	var color:String;
+	var flip:Bool;
+	var icon:String;
+	var position:XY;
+	var scale:Float;
+	var singLen:Float;
+	var sprite:String;
+}
+
 class Character extends FlxSprite {
 	public var debugMode:Bool = false; // for editors
 
 	public var animOffsets:Map<String, FlxPoint> = new Map<String, FlxPoint>(); // the offsets
+
+	// internal set to prevent issues
+	var __name:String = 'boyfriend';
+	var __variant:String = 'normal';
+	// vars to actually use
+	@:isVar public var charName(get, never):String;
+	@:isVar public var charVariant(get, never):String;
+	private function get_charName():String return __name;
+	private function get_charVariant():String return __variant;
+	public var hasVariant(get, never):Bool;
+	private function get_hasVariant():Bool return charVariant != 'none';
 
 	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
@@ -27,10 +74,6 @@ class Character extends FlxSprite {
 		return isFacing = value;
 	}
 	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	public var charName:String = 'boyfriend';
-	public var charVariant:String = 'normal';
-	public var hasVariant(get, never):Bool;
-	private function get_hasVariant():Bool return charVariant != 'none';
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
@@ -43,10 +86,17 @@ class Character extends FlxSprite {
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	private function get_hasSway():Bool return animOffsets.exists('sway${suffixes.idle}');
+	private function get_hasSway():Bool return suffixes.idle.trim() == '' ? animOffsets.exists('sway') : animOffsets.exists('sway${suffixes.idle}');
 
 	public var xyOffset(default, never):FlxPoint = new FlxPoint();
 	public var camPoint(default, never):BareCameraPoint = new BareCameraPoint();
+	public function getCamPos():FlxPoint {
+		var basePos:FlxPoint = getMidpoint();
+		basePos.x += (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1);
+		basePos.y += xyOffset.y + camPoint.y;
+		scripts.call('getCameraPos', [basePos]);
+		return basePos;
+	}
 
 	public var icon:String = 'face';
 
@@ -59,21 +109,42 @@ class Character extends FlxSprite {
 	public var iconColor(get, default):Null<FlxColor>;
 	private function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
-	public var yamlContent:Dynamic;
+	public var yamlData:CharYaml;
+	public static function applyCharYaml(yamlContent:Dynamic):CharYaml
+		return {
+			sprite: yamlContent.sprite,
+			flip: yamlContent.flip,
+			anims: yamlContent.anims,
+			position: yamlContent.position,
+			camera: yamlContent.camera,
 
-	public function getCamPos():FlxPoint {
-		var basePos:FlxPoint = getMidpoint();
-		basePos.x += (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1);
-		basePos.y += xyOffset.y + camPoint.y;
-		return basePos;
-	}
+			scale: yamlContent.scale,
+			singLen: yamlContent.singLen,
+			icon: yamlContent.icon,
+			aliasing: yamlContent.aliasing,
+			color: yamlContent.color
+		};
 
-	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'failsafe', variant:String = 'none') {
+	public var scripts:ScriptGroup; // just for effecting both scripts at once lmao
+	public var charScript:Script;
+	public var variantScript:Script;
+
+	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making these whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
+		__name = character;
+		__variant = variant;
+		isFacing = faceLeft ? leftFace : rightFace;
+
 		super(x, y);
 
-		isFacing = faceLeft ? leftFace : rightFace;
-		charName = character;
-		charVariant = variant;
+		scripts = new ScriptGroup(this);
+		charScript = Script.create(charName, 'char');
+		if (hasVariant) variantScript = Script.create('$charName/$charVariant', 'char');
+		for (script in [charScript, variantScript]) {
+			if (script == null) script = new Script(FailsafeUtil.invaildScriptKey);
+			scripts.add(script);
+		}
+		scripts.load(true);
+		scripts.call('create');
 
 		switch (charName) {
 			case 'gf':
@@ -453,29 +524,33 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			default:
-				final startPath:String = 'assets/characters/';
-				var path:String;
-				if (!sys.FileSystem.exists('$startPath$charName.yaml'))
-					if (sys.FileSystem.exists('$startPath$charName/$charVariant.yaml')) path = '$startPath$charName/$charVariant.yaml';
-					else path = '${startPath}failsafe.yaml';
-				else path = '$startPath$charName.yaml';
-				yamlContent = Yaml.parse(Paths.getContent(path), Parser.options().useObjects());
-				frames = Paths.getSparrowAtlas('characters/${spritePath = yamlContent.sprite}');
-				flipSprite = yamlContent.flip;
-				for (i in 0...yamlContent.anims.length) {
-					final anim = yamlContent.anims[i];
+				var path:String = '';
+				var applyFailsafe:Bool = false;
+				if (!sys.FileSystem.exists('characters/$charName'))
+					if (sys.FileSystem.exists('characters/$charName/$charVariant')) path = 'characters/$charName/$charVariant';
+					else applyFailsafe = true;
+				else path = 'characters/$charName';
+
+				yamlData = applyFailsafe ? FailsafeUtil.charYaml : applyCharYaml(ParseUtil.parseYaml(path)); // get char data
+
+				frames = Paths.getSparrowAtlas('characters/${spritePath = yamlData.sprite}');
+				flipSprite = yamlData.flip;
+				for (i in 0...yamlData.anims.length) {
+					final anim = yamlData.anims[i];
 					// multsparrow support soon
 					if (anim.indices != null && anim.indices.length > 0)
 						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipSprite);
 					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipSprite);
 					addOffset(anim.name, anim.offset.x, anim.offset.y);
 				}
-				camPoint.setPoint(yamlContent.camera.x, yamlContent.camera.y);
-				xyOffset.set(yamlContent.position.x, yamlContent.position.y);
-				iconColor = Std.parseInt(yamlContent.color);
-				singLength = yamlContent.singLen;
-				scaleMult = yamlContent.scale;
-				aliasing = yamlContent.aliasing;
+				xyOffset.set(yamlData.position.x, yamlData.position.y);
+				camPoint.setPoint(yamlData.camera.x, yamlData.camera.y);
+
+				scaleMult = yamlData.scale;
+				singLength = yamlData.singLen;
+				icon = yamlData.icon;
+				aliasing = yamlData.aliasing;
+				if (yamlData.color.trim() != '') iconColor = Std.parseInt(yamlData.color);
 		}
 
 		antialiasing = aliasing;
@@ -486,6 +561,8 @@ class Character extends FlxSprite {
 
 		playAnim('idle', true);
 		animation.finish();
+
+		scripts.call('createPost');
 	}
 
 	public function loadMappedAnims() {
@@ -514,7 +591,10 @@ class Character extends FlxSprite {
 		}
 	}
 
+	// "-end" anim code by @HIGGAMEON
+	private var animB4Loop:String = '';
 	override public function update(elapsed:Float) {
+		scripts.call('update', [elapsed]);
 		if (!debugMode && animation.curAnim != null) {
 			if (animation.name.endsWith('miss') && animation.curAnim.finished) {
 				tryDance();
@@ -536,18 +616,31 @@ class Character extends FlxSprite {
 
 			// if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition) tryDance();
 
-			if (animation.curAnim.finished && animOffsets.exists('${animation.name}-loop')) playAnim('${animation.name}-loop');
+			if (animation.curAnim.finished && animOffsets.exists('${animation.name}-loop')) {
+				scripts.call('playingSpecialAnim', ['loop']);
+				playAnim('${animation.name}-loop');
+				scripts.call('playingSpecialAnimPost', ['loop']);
+			}
 		}
 		super.update(elapsed);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	public var onSway:Bool = false;
 	public function dance() {
-		if (!debugMode && !preventIdle) {
-			final anim:String = (onSway = !onSway) ? (hasSway ? 'sway' : 'idle') : 'idle';
-			final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
-			playAnim('$anim$suffix');
+		scripts.call('dancing', [onSway]);
+		if (!debugMode) {
+			if (animation.curAnim.finished && animOffsets.exists('$animB4Loop-end') && !animation.name.endsWith('-end')) {
+				scripts.call('playingSpecialAnim', ['end']);
+				playAnim('$animB4Loop-end');
+				scripts.call('playingSpecialAnimPost', ['end']);
+			} else if (!preventIdle) {
+				final anim:String = (onSway = !onSway) ? (hasSway ? 'sway' : 'idle') : 'idle';
+				final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
+				playAnim('$anim$suffix');
+			}
 		}
+		scripts.call('dancingPost', [onSway]);
 	}
 
 	public var preventIdleBopping:Bool = false;
@@ -557,37 +650,46 @@ class Character extends FlxSprite {
 		final suffix:String = animOffsets.exists('$name${suffixes.anim}') ? suffixes.anim : '';
 		final anim:String = '$name$suffix';
 		if (animOffsets.exists(anim)) {
+			if (!animation.name.endsWith('-loop')) animB4Loop = name;
+			scripts.call('playingAnim', [anim, force, reverse, frame]);
 			animation.play(anim, force, reverse, frame);
 			final daOffset = animOffsets.get(anim);
 			offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
 			daOffset.putWeak();
+			scripts.call('playingAnimPost', [anim, force, reverse, frame]);
 		}
 	}
 
-	public function singAnimCheck(sing:String, miss:String, suffix:String):String {
-		var has = {
-			miss: animOffsets.exists('${sing}miss$suffix') || animOffsets.exists('${sing}miss'),
-			suffix: suffix.trim() == '' ? false : animOffsets.exists('$sing$miss$suffix')
+	public function singAnimCheck(sing:String, suffix:String, miss:String):Array<String> {
+		var has:AnimHas = {
+			suffix: suffix.trim() == '' ? false : animOffsets.exists('$sing$miss$suffix'),
+			miss: animOffsets.exists('${sing}miss$suffix') || animOffsets.exists('${sing}miss')
 		};
-		var cool = {
-			miss: has.miss ? miss : '',
-			suffix: has.suffix ? suffix : ''
+		var cool:AnimCheck = {
+			suffix: has.suffix ? suffix : '',
+			miss: has.miss ? miss : ''
 		};
-		return '$sing${cool.miss}${cool.suffix}';
+		return [sing, cool.miss, cool.suffix]; // proper order
 	}
 
-	public var singAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	public var singAnims(get, default):Null<Array<Null<String>>>;
+	public var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	private function get_singAnims():Array<String> return singAnims == null ? globalSingAnims : singAnims;
 	public function playSingAnim(direction:Int, suffix:String = '', missed:Bool = false, force:Bool = false, reverse:Bool = false, frame:Int = 0) {
-		playAnim(singAnimCheck(
+		scripts.call('playingSingAnim', [direction, suffix, missed, force, reverse, frame]);
+		var checkedAnims:Array<String> = singAnimCheck(
 			singAnims[direction],
-			missed ? 'miss' : '',
-			suffix.trim() == '' ? suffixes.sing : suffix
-		), force, reverse, frame);
+			suffix.trim() == '' ? suffixes.sing : suffix,
+			missed ? 'miss' : ''
+		);
+		playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', force, reverse, frame);
+		scripts.call('playingSingAnimPost', [direction, suffix, missed, force, reverse, frame]);
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) animOffsets.set(name, FlxPoint.get(x, y));
 
 	override public function destroy() {
+		scripts.destroy();
 		xyOffset.put();
 		camPoint.destroy();
 		super.destroy();

@@ -5,6 +5,8 @@ import flixel.addons.transition.FlxTransitionableState;
 import fnf.ui.Alphabet;
 
 class PauseSubState extends MusicBeatSubstate {
+	@:unreflective private static var bfStare:Bool = false; // prevent script edits
+
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var pauseOG:Array<String> = [

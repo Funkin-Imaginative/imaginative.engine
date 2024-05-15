@@ -1,11 +1,9 @@
-package fnf.states;
+package fnf.backend.musicbeat;
 
 import fnf.backend.Conductor.BPMChangeEvent;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.addons.ui.FlxUIState;
-import flixel.math.FlxRect;
+import flixel.FlxSubState;
 
-class MusicBeatState extends FlxUIState {
+class MusicBeatSubstate extends FlxSubState {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 	private var controls(get, never):Controls;
@@ -23,14 +21,11 @@ class MusicBeatState extends FlxUIState {
 	}
 
 	function loadScript() {
-		var className:String = Type.getClassName(Type.getClass(this));
-		if (stateScripts == null) (stateScripts = new ScriptGroup(className)).parent = this;
+		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			if (stateScripts.scripts.length == 0) {
-				var path = Paths.script(className, 'state');
-				var script = Script.create(path);
-				if (!script.isInvalid) scriptName = script.scriptName;
-				// script.remappedNames.set(script.fileName, '$i:${script.fileName}');
+			if (stateScripts.length == 0) {
+				var script = Script.create(CoolUtil.getClassName(this), 'state');
+				if (!script.isInvalid) scriptName = script.fileName;
 				stateScripts.add(script);
 				script.load();
 			}
@@ -38,10 +33,30 @@ class MusicBeatState extends FlxUIState {
 		}
 	}
 
+	public function call(name:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+		if (stateScripts != null)
+			return stateScripts.call(name, args);
+		return def;
+	}
+
 	override function create() {
 		loadScript();
 		super.create();
-		if (stateScripts != null) stateScripts.call('create');
+		call('create');
+		call('postCreate');
+	}
+
+	override public function tryUpdate(elapsed:Float):Void {
+		if (persistentUpdate || subState == null) {
+			call('preUpdate', [elapsed]);
+			update(elapsed);
+			call('postUpdate', [elapsed]);
+		}
+		if (_requestSubStateReset) {
+			_requestSubStateReset = false;
+			resetSubState();
+		}
+		if (subState != null) subState.tryUpdate(elapsed);
 	}
 
 	override function update(elapsed:Float) {
@@ -54,7 +69,7 @@ class MusicBeatState extends FlxUIState {
 		if (oldStep != curStep && curStep >= 0)
 			stepHit();
 
-		if (stateScripts != null) stateScripts.call('update', [elapsed]);
+		call('update', [elapsed]);
 		super.update(elapsed);
 	}
 
@@ -80,9 +95,10 @@ class MusicBeatState extends FlxUIState {
 	public function stepHit():Void {
 		if (curStep % 4 == 0)
 			beatHit();
+		call('stepHit', [curStep]);
 	}
 
 	public function beatHit():Void {
-		// do literally nothing dumbass
+		call('beatHit', [curBeat]);
 	}
 }

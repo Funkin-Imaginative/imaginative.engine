@@ -110,7 +110,7 @@ class PlayState extends MusicBeatState {
 
 		persistentUpdate = persistentDraw = true;
 
-		(scripts = new ScriptGroup('PlayState')).parent = this;
+		scripts = new ScriptGroup(this);
 		if (SONG == null) SONG = Song.loadFromJson('tutorial');
 
 		Conductor.mapBPMChanges(SONG);
@@ -136,9 +136,9 @@ class PlayState extends MusicBeatState {
 		add(camPoint);
 		lol.putWeak();
 
+		camPoint.snapPoint();
 		FlxG.camera.follow(camPoint.realPosFollow, LOCKON, 0.04); // Edit followLerp from the CameraPoint's pointLerp and offsetLerp vars.
 		FlxG.camera.zoom = defaultCamZoom;
-		camPoint.snapPoint();
 		FlxG.camera.followLerp = 0.04;
 
 		playField = new PlayField(this);
@@ -153,7 +153,7 @@ class PlayState extends MusicBeatState {
 		Conductor.changeBPM(songData.bpm);
 		curSong = songData.song;
 
-		inst = FlxG.sound.load(Paths.inst(SONG.song));
+		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(SONG.song));
 		vocals = FlxG.sound.load(Paths.voices(SONG.song));
 
 		inst.group = FlxG.sound.defaultMusicGroup;

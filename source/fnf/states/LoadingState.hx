@@ -1,6 +1,5 @@
 package fnf.states;
 
-import flixel.FlxState;
 import haxe.io.Path;
 import lime.app.Future;
 import lime.app.Promise;

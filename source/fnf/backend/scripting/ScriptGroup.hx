@@ -1,20 +1,22 @@
 package fnf.backend.scripting;
 
 class ScriptGroup extends FlxBasic {
-	public var scripts:Array<Script> = [];
+	public var members:Array<Script> = [];
 	public var publicVars:Map<String, Dynamic> = [];
 	public var extraVars:Map<String, Dynamic> = [];
+	public var length(get, never):Int;
+	private function get_length():Int return members.length;
 
 	@:isVar public var parent(get, set):Dynamic;
 	inline function get_parent():Dynamic return parent;
 	inline function set_parent(value:Dynamic):Dynamic {
-		for (script in scripts) script.parent = value;
+		for (script in members) script.parent = value;
 		return parent = value;
 	}
 
 	// as of rn this func is ripped from cne
 	public function importScript(path:String):Script {
-		var script = Script.create(path);
+		final script = Script.create(path);
 		if (script.isInvalid) {
 			throw 'Script at $path does not exist.';
 			return null;
@@ -24,46 +26,50 @@ class ScriptGroup extends FlxBasic {
 		return script;
 	}
 
-	public function new(stateName:String) {
-		extraVars['importScript'] = importScript;
+	public function new(parent:Dynamic) {
 		super();
+		extraVars['importScript'] = importScript;
+		this.parent = parent;
 	}
 
-	public function load()
-		for (script in scripts)
-			script.load();
+	public function load(stopNewCall:Bool = false)
+		for (script in members)
+			script.load(stopNewCall);
 
 	public function set(variable:String, value:Dynamic)
-		for (script in scripts)
+		for (script in members)
 			script.set(variable, value);
-	public function get(variable:String)
-		for (script in scripts)
-			script.get(variable);
+	public function get(variable:String, ?def:Dynamic):Dynamic {
+		for (script in members)
+			return script.get(variable);
+		return def;
+	}
 
-	public function call(funcName:String, ?args:Array<Dynamic>)
-		for (script in scripts)
-			script.call(funcName, args);
-
+	public function call(funcName:String, ?args:Array<Dynamic>):Dynamic {
+		for (script in members)
+			return script.call(funcName, args);
+		return null;
+	}
 	public function add(script:Script) {
-		scripts.push(script);
+		members.push(script);
 		setupScript(script);
 	}
 
 	override public function destroy():Void {
-		for (script in scripts)
+		for (script in members)
 			script.destroy();
 		super.destroy();
 	}
 
 	public function reload()
-		for (script in scripts)
+		for (script in members)
 			script.reload();
 
 	public function remove(script:Script)
-		scripts.remove(script);
+		members.remove(script);
 
 	public function insert(pos:Int, script:Script) {
-		scripts.insert(pos, script);
+		members.insert(pos, script);
 		setupScript(script);
 	}
 
@@ -73,15 +79,24 @@ class ScriptGroup extends FlxBasic {
 		for (name => thing in extraVars) script.set(name, thing);
 	}
 
+	public function clearInvaild() {
+		for (script in members) {
+			if (script.isInvalid) {
+				remove(script);
+				script.destroy();
+			}
+		}
+	}
+
 	// whitsleing noises
 	public function getByPath(name:String) {
-		for(s in scripts)
+		for(s in members)
 			if (s.path == name)
 				return s;
 		return null;
 	}
 	public function getByName(name:String) {
-		for(s in scripts)
+		for(s in members)
 			if (s.fileName == name)
 				return s;
 		return null;

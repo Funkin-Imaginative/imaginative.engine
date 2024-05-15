@@ -7,18 +7,18 @@ import haxe.io.Path;
 
 // This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.
 class Script extends FlxBasic {
-	var interp:Interp;
-	var parser:Parser;
-	var expr:Expr;
+	// because parent being null returns the script itself I think it would be best to make this unreflective
+	@:unreflective var interp:Interp;
+	@:unreflective var parser:Parser;
+	@:unreflective var expr:Expr;
 
-	var scriptCode:String = '';
+	@:unreflective var scriptCode:String = '';
 
-	var canExecute:Bool = false;
+	@:unreflective var canExecute:Bool = false;
 
-	public var scriptName:String = '';
 	public var loaded:Bool = false;
 
-	var invalid:Bool = false;
+	@:unreflective var invalid:Bool = false;
 	public var isInvalid(get, never):Bool;
 	private function get_isInvalid():Bool return invalid;
 
@@ -26,18 +26,22 @@ class Script extends FlxBasic {
 
 	public static function create(file:String, type:String = ''):Script {
 		final path:String = Paths.script(switch (type) {
-			case 'song': 'data/${PlayState.SONG.song}/$file.hx';
-			case 'state': 'content/states/$file.hx';
-			default: '$file.hx';
+			case 'song': 'data/${PlayState.SONG.song.toLowerCase(/*jic*/)}/$file';
+			case 'state': 'content/states/$file';
+			case 'char': 'characters/$file';
+			default: '$file';
 		});
+		#if debug trace(path); #end
 		switch (Path.extension(path).toLowerCase()) {
 			case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc': return new Script(path);
-			case 'lua': fnf.states.LuaFileDetected.runCheck(path); // doing a cne but more trollish lmao
+			case 'lua': #if THROW_LUA_MAKEFUN @:privateAccess if (!fnf.states.sub.LuaMakeFunLmao.alreadyOpened) FlxG.state.openSubState(new fnf.states.sub.LuaMakeFunLmao()); else fnf.states.sub.PauseSubState.bfStare = true; #else trace('LUA SCRIPTS AIN\'T SUPPORTED BITCH!!!'); #end
+			// doing a cne but more trollish lmao
 		}
-		return new Script('failsafe');
+		return new Script(FailsafeUtil.invaildScriptKey);
 	}
 
-	public static function getBasicImports(?script:Script):Map<String, Dynamic> {
+	// idk what to call this
+	public static function getTheStuff(?script:Script):Map<String, Dynamic> {
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -124,8 +128,8 @@ class Script extends FlxBasic {
 	}
 
 	// I wanted to have a reload func for scripts but I couldn't figure it out without error's so this part is mostly ripped from cne
-	public var path:String;
 	private var rawPath:String;
+	public var path:String;
 	public var fileName:String;
 	public var extension:String;
 	public function new(path:String):Void {
@@ -136,7 +140,7 @@ class Script extends FlxBasic {
 		extension = Path.extension(path);
 		this.path = path;
 		scriptCreation(path);
-		for (name => thing in getBasicImports(this)) set(name, thing);
+		for (name => thing in getTheStuff(this)) set(name, thing);
 	}
 
 	function getFilenameFromLibFile(path:String) {
@@ -154,37 +158,35 @@ class Script extends FlxBasic {
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 
-		scriptName = Path.withoutDirectory(path);
-
-		if (path != 'failsafe') {
+		if (path == FailsafeUtil.invaildScriptKey) invalid = true; else {
 			try {scriptCode = Paths.getContent(path);} catch (e:haxe.Exception) {
 				trace('Error while trying to initialize script: $e');
 				scriptCode = '';
 			}
-		} else invalid = true;
+		}
 	}
 
-	public function onLoad() {
+	public function onLoad(stopNewCall:Bool = false) {
 		loadCodeFromString(scriptCode);
-		if (canExecute) {
+		if (canExecute && !loaded) {
 			try {
 				@:privateAccess interp.execute(parser.mk(EBlock([]), 0, 0));
 				if (expr != null) {
 					interp.execute(expr);
-					call('new', []);
+					loaded = true;
+					if (!stopNewCall) call('new');
 				}
 			} catch (e:haxe.Exception) trace('Error while trying to execute script: $e');
 		}
 	}
 
-	public function load() {
+	public function load(stopNewCall:Bool = false) {
 		if (loaded) return;
-		onLoad();
-		loaded = true;
+		onLoad(stopNewCall);
 	}
 
 	public function set(variable:String, value:Dynamic):Void interp.variables.set(variable, value);
-	public function get(variable):Dynamic return interp.variables.get(variable);
+	public function get(variable:String):Dynamic return interp.variables.get(variable);
 
 	public function call(funcName:String, ?args:Array<Dynamic>):Dynamic {
 		if (interp == null || !interp.variables.exists(funcName)) return null;
@@ -199,11 +201,12 @@ class Script extends FlxBasic {
 
 	public var parent(get, set):Dynamic;
 	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
-	inline function get_parent():Dynamic return interp.scriptObject;
+	inline function get_parent():Dynamic return interp.scriptObject == null ? this : interp.scriptObject; // lol
 
 	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVariables = map;
 
 	override public function destroy():Void {
+		call('destroy');
 		interp = null;
 		parser = null;
 		super.destroy();
@@ -213,19 +216,19 @@ class Script extends FlxBasic {
 		// save variables
 		interp.allowStaticVariables = interp.allowPublicVariables = false;
 		var savedVariables:Map<String, Dynamic> = [];
-		for(name => thing in interp.variables)
+		for (name => thing in interp.variables)
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;
 		final oldParent = parent;
 		scriptCreation(path);
 
-		for (name => thing in Script.getBasicImports(this))
+		for (name => thing in Script.getTheStuff(this))
 			set(name, thing);
 
 		load();
 		parent = oldParent;
 
-		for(name => thing in savedVariables)
+		for (name => thing in savedVariables)
 			interp.variables.set(name, thing);
 
 		interp.allowStaticVariables = interp.allowPublicVariables = true;

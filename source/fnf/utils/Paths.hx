@@ -1,6 +1,5 @@
 package fnf.utils;
 
-import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
@@ -48,17 +47,17 @@ class Paths {
 
 	inline public static function xml(key:String, ?library:String) return getPath('data/$key.xml', TEXT, library);
 
-	inline public static function yaml(key:String, ?library:String) return getPath('data/$key.yaml', TEXT, library);
+	inline public static function yaml(key:String, ?library:String) return getPath('$key.yaml', TEXT, library);
 
 	inline public static function json(key:String, ?library:String) return getPath('data/$key.json', TEXT, library);
 
 	inline public static function script(key:String, ?library:String) {
 		var scriptPath = getPath(key, TEXT, library);
-		var p:String;
+		var path:String;
 		for (ext in Script.exts) {
-			p = '$scriptPath.$ext';
-			if (FileSystem.exists(p)) {
-				scriptPath = p;
+			path = '$scriptPath.$ext';
+			if (FileSystem.exists(path)) {
+				scriptPath = path;
 				break;
 			}
 		}
