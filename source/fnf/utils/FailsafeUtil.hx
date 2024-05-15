@@ -15,6 +15,7 @@ class FailsafeUtil {
 		singLen: 4,
 		icon: 'face',
 		aliasing: true,
-		color: ''
+		color: '',
+		beat: 0
 	};
 }

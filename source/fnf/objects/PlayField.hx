@@ -12,6 +12,7 @@ class PlayField extends FlxGroup {
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 
+	public static var direct:PlayField = null;
 	public var game:PlayState; // lol
 
 	public var minHealth(default, set):Float = 0; // >:)
@@ -31,7 +32,7 @@ class PlayField extends FlxGroup {
 
 	public function new(game:PlayState):Void {
 		super();
-
+		direct = this;
 		this.game = game;
 		health = (maxHealth - minHealth) / 2;
 		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
@@ -41,7 +42,7 @@ class PlayField extends FlxGroup {
         healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
-		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), PlayState, 'health', 0, 2);
+		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), 'health', 0, 2);
 		healthBar.createFilledBar(game.dad.iconColor, game.boyfriend.iconColor);
 		add(healthBar);
 
@@ -78,6 +79,7 @@ class PlayField extends FlxGroup {
 	}
 
 	override function destroy():Void {
+		direct = null;
 		game = null;
 		super.destroy();
 	}

@@ -1,0 +1,4 @@
+normal
+windy
+winterwear
+pixel

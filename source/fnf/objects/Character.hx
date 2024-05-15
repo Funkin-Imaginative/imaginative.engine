@@ -16,8 +16,8 @@ enum abstract SpriteFacing(String) {
 }
 
 private typedef XY = {
-	var x:Float;
-	var y:Float;
+	@:default(0) var x:Float;
+	@:default(0) var y:Float;
 }
 
 private typedef AnimHas = {
@@ -32,23 +32,25 @@ private typedef AnimCheck = {
 typedef AnimList = {
 	var name:String;
 	var tag:String;
-	var fps:Float;
-	var loop:Bool;
+	@:default(24) var fps:Float;
+	@:default(false) var loop:Bool;
 	var offset:XY;
-	var indices:Array<Int>;
+	@:default([]) var indices:Array<Int>;
 }
 
 typedef CharYaml = {
-	var aliasing:Bool;
-	var anims:Array<AnimList>;
-	var camera:XY;
-	var color:String;
-	var flip:Bool;
-	var icon:String;
-	var position:XY;
-	var scale:Float;
-	var singLen:Float;
 	var sprite:String;
+	@:default(false) var flip:Bool;
+	var anims:Array<AnimList>;
+	var position:XY;
+	var camera:XY;
+
+	@:default(1) var scale:Float;
+	@:default(4) var singLen:Float;
+	@:default('') var icon:String;
+	@:default(true) var aliasing:Bool;
+	@:default('') var color:String;
+	@:default(0) var beat:Int;
 }
 
 class Character extends FlxSprite {
@@ -78,10 +80,8 @@ class Character extends FlxSprite {
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
 
-	public var bopSpeed(default, set):Int = 1;
-	private function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
-	public var beatInterval(get, default):Int = 0;
-	private function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
+	public var bopSpeed(default, set):Int = 1; private function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
+	public var beatInterval(get, default):Int = 0; private function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
@@ -98,7 +98,8 @@ class Character extends FlxSprite {
 		return basePos;
 	}
 
-	public var icon:String = 'face';
+	public var icon(get, default):String = 'face';
+	private function get_icon():String return icon.trim() == '' ? spritePath : icon;
 
 	public var animationNotes:Array<Dynamic> = [];
 
@@ -122,7 +123,8 @@ class Character extends FlxSprite {
 			singLen: yamlContent.singLen,
 			icon: yamlContent.icon,
 			aliasing: yamlContent.aliasing,
-			color: yamlContent.color
+			color: yamlContent.color,
+			beat: yamlContent.beat
 		};
 
 	public var scripts:ScriptGroup; // just for effecting both scripts at once lmao
@@ -132,9 +134,9 @@ class Character extends FlxSprite {
 	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making these whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
 		__name = character;
 		__variant = variant;
-		isFacing = faceLeft ? leftFace : rightFace;
 
 		super(x, y);
+		isFacing = faceLeft ? leftFace : rightFace;
 
 		scripts = new ScriptGroup(this);
 		charScript = Script.create(charName, 'char');
@@ -551,6 +553,7 @@ class Character extends FlxSprite {
 				icon = yamlData.icon;
 				aliasing = yamlData.aliasing;
 				if (yamlData.color.trim() != '') iconColor = Std.parseInt(yamlData.color);
+				beatInterval = yamlData.beat;
 		}
 
 		antialiasing = aliasing;

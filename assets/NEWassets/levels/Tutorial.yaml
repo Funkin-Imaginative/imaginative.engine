@@ -2,3 +2,4 @@ title: 'Teaching Time'
 songs: ['Tutorial']
 difficulties: ['Easy', 'Normal', 'Hard'] # this only really applies for story menu
 characters: ['', 'boyfriend', 'gf']
+color: 'F9CF51' # by default it's 0xFFF9CF51
