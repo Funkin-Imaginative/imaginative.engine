@@ -1,9 +1,21 @@
 package fnf.objects.note;
 
+import fnf.objects.note.groups.StrumGroup;
 import fnf.graphics.shaders.ColorSwap;
 
 class Note extends FlxSprite {
 	public var extra:Map<String, Dynamic> = [];
+
+	public var strumGroup(default, set):StrumGroup;
+	private function set_strumGroup(strumGroup:StrumGroup) {
+		if (strumGroup != null) {
+			if (this.strumGroup.notes != null)
+				this.strumGroup.notes.remove(this, true);
+			strumGroup.notes.add(this);
+			strumGroup.notes.sortSelf();
+		}
+		return this.strumGroup = strumGroup;
+	}
 
 	public var strumTime:Float = 0;
 

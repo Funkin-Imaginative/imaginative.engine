@@ -9,6 +9,8 @@ class MusicBeatState extends FlxTransitionableState {
 	private var controls(get, never):Controls;
 	inline function get_controls():Controls return PlayerSettings.player1.controls;
 
+	public var paused:Bool = false;
+
 	public var stateScripts:ScriptGroup;
 	public var scriptsAllowed:Bool = true;
 	public var scriptName:String = null;
@@ -70,6 +72,23 @@ class MusicBeatState extends FlxTransitionableState {
 
 		call('update', [elapsed]);
 		super.update(elapsed);
+	}
+
+	override public function openSubState(SubState:FlxSubState) {
+		stateScripts.call('openingSubState', [SubState]);
+		if (paused) {
+			persistentUpdate = false;
+			persistentDraw = true;
+		}
+		super.openSubState(SubState);
+	}
+	override public function closeSubState() {
+		stateScripts.call('closingSubState', [subState]);
+		if (paused) {
+			persistentUpdate = persistentDraw = true;
+			paused = false;
+		}
+		super.closeSubState();
 	}
 
 	private function updateBeat():Void {

@@ -77,7 +77,6 @@ class PlayState extends MusicBeatState {
 	public var generatedMusic:Bool = false;
 	public var startingSong:Bool = false;
 
-	public var paused:Bool = false;
 	public var startedCountdown:Bool = false;
 	public var canPause:Bool = true;
 
@@ -109,7 +108,7 @@ class PlayState extends MusicBeatState {
 	inline function get_maxHealth():Float return playField.maxHealth;
 	inline function set_maxHealth(value:Float):Float return playField.maxHealth = value;
 
-	override function create():Void {
+	override public function create():Void {
 		direct = this;
 		if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
@@ -160,6 +159,7 @@ class PlayState extends MusicBeatState {
 
 		startingSong = true;
 		if (isStoryMode && !seenCutscene) {
+			// inCutscene = true;
 			switch (curSong) {
 				default:
 					startCountdown();
@@ -170,7 +170,8 @@ class PlayState extends MusicBeatState {
 		gameScripts.call('createPost');
 	}
 
-	override function openSubState(SubState:FlxSubState) {
+	override public function openSubState(SubState:FlxSubState) {
+		gameScripts.call('openingSubState', [SubState]);
 		if (paused) {
 			for (strumLine in strumLines) strumLine.vocals.pause();
 			vocals.pause();
@@ -179,12 +180,10 @@ class PlayState extends MusicBeatState {
 		}
 		super.openSubState(SubState);
 	}
-
-	override function closeSubState() {
+	override public function closeSubState() {
+		gameScripts.call('closingSubState', [subState]);
 		if (paused) {
-			// if (!startingSong) resyncVocals();
 			if (!countdownTimer.finished) countdownTimer.active = true;
-			paused = false;
 		}
 		super.closeSubState();
 	}
@@ -202,6 +201,9 @@ class PlayState extends MusicBeatState {
 				}
 			}
 		}
+
+		gameScripts.call('onStartCountdown');
+
 		startedCountdown = true;
 		Conductor.songPosition = 0;
 		Conductor.songPosition -= Conductor.crochet * countdownLength;
@@ -237,7 +239,9 @@ class PlayState extends MusicBeatState {
 			FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
 
 			onCount += 1;
+			if (onCount == countdownLength) new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer) {startSong();});
 		}, countdownLength);
+		gameScripts.call('onStartCountdownPost');
 	}
 
 	private function generateSong():Void {
@@ -248,9 +252,9 @@ class PlayState extends MusicBeatState {
 		FlxG.sound.music = FlxG.sound.load(Paths.inst(SONG.song));
 		vocals = FlxG.sound.load(Paths.voices(SONG.song));
 
-		FlxG.sound.music.group = FlxG.sound.defaultMusicGroup;
-		vocals.group = FlxG.sound.defaultMusicGroup;
-		FlxG.sound.music.persist = vocals.persist = false;
+		// FlxG.sound.music.group = FlxG.sound.defaultMusicGroup;
+		// vocals.group = FlxG.sound.defaultMusicGroup;
+		// FlxG.sound.music.persist = vocals.persist = false;
 
 		for (strumLine in strumLines) @:privateAccess strumLine.generateSong(songData.notes);
 
@@ -260,7 +264,7 @@ class PlayState extends MusicBeatState {
 	function startSong():Void {
 		startingSong = false;
 		// FlxG.sound.music.onComplete = endSong;
-		if (!paused) FlxG.sound.music.play();
+		if (!paused) FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false); // FlxG.sound.music.play();
 
 		if (vocals == null) vocals = new FlxSound();
 		vocals.onComplete = function() vocalsFinished = true;
@@ -272,7 +276,7 @@ class PlayState extends MusicBeatState {
 		}
 	}
 
-	override function beatHit():Void {
+	override public function beatHit():Void {
 		super.beatHit();
 		for (char in characters)
 			if (!char.preventIdleBopping && curBeat % Math.round(char.bopSpeed * char.beatInterval) == 0)
@@ -280,17 +284,24 @@ class PlayState extends MusicBeatState {
 	}
 
 	var __vocalOffsetViolation:Float;
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		gameScripts.call('update', [elapsed]);
+
+		if (inCutscene) {
+			super.update(elapsed);
+			gameScripts.call('updatePost', [elapsed]);
+			return;
+		}
 
 		if (startingSong) {
 			if (startedCountdown) {
 				Conductor.songPosition + elapsed * 1000;
-				if (Conductor.songPosition >= 0)
+				if (Conductor.songPosition >= 0) {
 					startSong();
+				}
 			}
 		} else {
-			// using cne's since being on update instead is definintlt 10x better... plus idk how else to make this better XD
+			// using cne's since being on update instead is definitely 10x better... plus idk how else to make this better XD
 			var instTime:Float = FlxG.sound.music.time;
 			var isOffsync:Bool = vocals.time != instTime || [for(strumLine in strumLines) strumLine.vocals.time != instTime].contains(true);
 			__vocalOffsetViolation = Math.max(0, __vocalOffsetViolation + (isOffsync ? elapsed : -elapsed / 2));
@@ -301,11 +312,9 @@ class PlayState extends MusicBeatState {
 		}
 
 		super.update(elapsed);
-		if (controls.PAUSE && canPause) {
-			persistentUpdate = false;
-			persistentDraw = paused = true;
-
+		if (controls.PAUSE && startedCountdown && canPause) {
 			// 1 / 1000 chance for Gitaroo Man easter egg
+			paused = true;
 			if (FlxG.random.bool(0.1)) FlxG.switchState(new GitarooPause()); // gitaroo man easter egg
 			else openSubState(new fnf.states.sub.PauseSubState());
 		}
@@ -314,7 +323,6 @@ class PlayState extends MusicBeatState {
 	}
 
 	function resyncVocals() {
-		gameScripts.call('syncingVocals');
 		for (strumLine in strumLines) strumLine.vocals.pause();
 		vocals.pause();
 		Conductor.songPosition = FlxG.sound.music.time;
@@ -324,10 +332,10 @@ class PlayState extends MusicBeatState {
 			strumLine.vocals.play();
 		}
 		vocals.play();
-		gameScripts.call('vocalsSynced');
+		gameScripts.call('resyncedVocals');
 	}
 
-	override function onFocus():Void {
+	override public function onFocus():Void {
 		if (!paused && FlxG.autoPause) {
 			for (strumLine in strumLines) strumLine.vocals.resume();
 			vocals.resume();
@@ -336,22 +344,21 @@ class PlayState extends MusicBeatState {
 		gameScripts.call('focus');
 		super.onFocus();
 	}
-	override function onFocusLost():Void {
+	override public function onFocusLost():Void {
 		if (!paused && FlxG.autoPause) {
 			for (strumLine in strumLines) strumLine.vocals.pause();
 			vocals.pause();
 			FlxG.sound.music.pause();
 		}
 		if (SaveManager.getOption('gameplay.pauseOnLostFocus') && canPause && !paused) {
-			persistentUpdate = false;
-			persistentDraw = paused = true;
-			openSubState(new fnf.states.sub.PauseSubState());
+			paused = true; openSubState(new fnf.states.sub.PauseSubState());
 		}
 		gameScripts.call('lostFocus');
 		super.onFocusLost();
 	}
 
-	override function destroy():Void {
+	override public function destroy():Void {
+		gameScripts.destroy();
 		direct = null;
 		super.destroy();
 	}

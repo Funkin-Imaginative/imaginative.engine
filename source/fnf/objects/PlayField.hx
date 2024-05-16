@@ -13,7 +13,7 @@ class PlayField extends FlxGroup {
 	public var iconP2:HealthIcon;
 
 	public static var direct:PlayField = null;
-	public var game:PlayState; // lol
+	public var game:PlayState; // ideas, ideas
 
 	public var minHealth(default, set):Float = 0; // >:)
 	inline function set_minHealth(value:Float):Float {

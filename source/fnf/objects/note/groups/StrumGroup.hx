@@ -10,6 +10,18 @@ private typedef KeySetup = {
 	var press:Bool;
 	var release:Bool;
 }
+private typedef BotplayTypedefShiz = {
+	var p1:Bool;
+	var p2:Bool; // only works in co-op
+}
+
+typedef NoteSignals = {
+	var noteHit:FlxTypedSignal<Void->Void>;
+	var noteMiss:FlxTypedSignal<Void->Void>;
+	@:optional var noteSpawn:FlxTypedSignal<Void->Void>;
+	@:optional var noteDestroy:FlxTypedSignal<Void->Void>;
+	@:optional var splashSpawn:FlxTypedSignal<Void->Void>;
+}
 
 class StrumGroup extends FlxTypedGroup<Strum> {
 	public var extra:Map<String, Dynamic> = [];
@@ -23,11 +35,25 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		return null;
 	}
 
-	public static var botplay:Bool = false;
-	public static var botplayP2:Bool = false; // only works in co-op
+	public static var botplay(default, never):BotplayTypedefShiz = {p1: false, p2: false};
+	@:isVar public static var botplayP1(get, set):Bool = false;
+	private static function get_botplayP1():Bool return botplay.p1;
+	private static function set_botplayP1(value:Bool):Bool return botplay.p1 = value;
+	@:isVar public static var botplayP2(get, set):Bool = false;
+	private static function get_botplayP2():Bool return botplay.p2;
+	private static function set_botplayP2(value:Bool):Bool return botplay.p2 = value;
 
-	public var onHit:FlxTypedSignal<Dynamic->Void> = new FlxTypedSignal<Dynamic->Void>();
-	public var onMiss:FlxTypedSignal<Dynamic->Void> = new FlxTypedSignal<Dynamic->Void>();
+	/* @:unreflective */ private static var baseSignals(default, never):NoteSignals = {
+		noteHit: new FlxTypedSignal<Void->Void>(),
+		noteMiss: new FlxTypedSignal<Void->Void>()
+	};
+	public var signals(default, never):NoteSignals = {
+		noteHit: new FlxTypedSignal<Void->Void>(),
+		noteMiss: new FlxTypedSignal<Void->Void>(),
+		noteSpawn: new FlxTypedSignal<Void->Void>(),
+		noteDestroy: new FlxTypedSignal<Void->Void>(),
+		splashSpawn: new FlxTypedSignal<Void->Void>()
+	};
 
 	public var notes:NoteGroup;
 	public var splashes:SplashGroup;
@@ -92,6 +118,11 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		notes.update(elapsed);
 		splashes.update(elapsed);
 
+		notes.forEachAlive(function(note:Note) {
+			note.setPosition((members[note.ID].width - note.width) / 2, (note.strumTime - Conductor.songPosition) * (0.45 * CoolUtil.quantize(PlayState.SONG.speed, 100)));
+			if (note.isSustainNote) note.y += (Note.swagWidth / 2);
+		});
+
 		var controls:Controls = PlayerSettings.player1.controls;
 		var keys:KeySetupArray = {
 			hold: [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT],
@@ -99,14 +130,14 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			release: [controls.NOTE_LEFT_R, controls.NOTE_DOWN_R, controls.NOTE_UP_R, controls.NOTE_RIGHT_R]
 		};
 		if (getStatus()) {
-			if ((keys.hold.contains(true) || botplay) /* && !boyfriend.stunned */) {
+			if ((keys.hold.contains(true) || botplayP1) /* && !boyfriend.stunned */) {
 				notes.forEachAlive(function(note:Note) {
 					if (note.isSustainNote && note.canBeHit && keys.hold[note.ID])
 						noteHit(note);
 				});
 			}
 
-			if ((keys.press.contains(true) || botplay) /* && !boyfriend.stunned */) {
+			if ((keys.press.contains(true) || botplayP1) /* && !boyfriend.stunned */) {
 				var possibleNotes:Array<Note> = []; // notes that can be hit
 				var directionList:Array<Int> = []; // directions that can be hit
 				var dumbNotes:Array<Note> = []; // notes to kill later
@@ -145,21 +176,22 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				if (possibleNotes.length > 0) {
 					for (shit in 0...keys.press.length)
 						// if a direction is hit that shouldn't be
-						if (keys.press[shit] && !directionList.contains(shit))
-							noteMiss(shit);
-					for (coolNote in possibleNotes)
-						if (keys.press[coolNote.ID] || botplay)
-							noteHit(coolNote);
-				} else
+					for (deNote in possibleNotes) {
+						if (keys.press[shit] && !directionList.contains(deNote.ID))
+							noteMiss(deNote);
+						if (keys.press[deNote.ID] || botplayP1)
+							noteHit(deNote);
+					}
+				} /* else
 					for (shit in 0...keys.press.length)
 						if (keys.press[shit])
 							if (!SaveManager.getOption('gameplay.ghostTapping'))
-								noteMiss(shit);
+								noteMiss(shit); */
 			}
 
 			for (index => strum in members) {
 				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]};
-				if (strum.animation.name != 'confirm' && !botplay) {
+				if (strum.animation.name != 'confirm' && !botplayP1) {
 					if (key.press) strum.playAnim('press');
 					if (!key.hold) strum.playAnim('static');
 				}
@@ -169,10 +201,13 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public static function noteHit(note:Note) {
 		// FlxG.state.noteHit(note);
+		baseSignals.noteHit.dispatch();
+		note.strumGroup.signals.noteHit.dispatch();
 	}
-	public static function noteMiss(direction:Int) {
+	public static function noteMiss(note:Note) {
 		// FlxG.state.noteMiss(note);
-
+		baseSignals.noteMiss.dispatch();
+		note.strumGroup.signals.noteMiss.dispatch();
 	}
 
 	private function drawNotes(drawNote:Bool, drawSustain:Bool) {
@@ -197,8 +232,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	override function destroy() {
 		var status:Null<Bool> = getStatus();
 		if (status != null)
-			if (status) botplay = false;
-			else botplayP2 = false;
+			if (status) botplay.p1 = false;
+			else botplay.p2 = false;
 
 		splashes.destroy();
 		notes.destroy();

@@ -52,17 +52,13 @@ class Strum extends FlxSprite {
 	}
 
 	override function update(elapsed:Float) {
-		centerOffsets();
-		centerOrigin();
-		super.update(elapsed); // this method was the only thing that remotely worked for some reason :')
-		centerOffsets();
-		centerOrigin();
-		if (animation.finished) {
+		super.update(elapsed);
+		/* if (animation.finished) {
 			switch (animation.name) {
 				case 'press': playAnim('static', true);
 				case 'confirm': playAnim('press', true);
 			}
-		}
+		} */
 		// if cpu shit will be added later
 		if (lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm') playAnim('static', true);
 	}

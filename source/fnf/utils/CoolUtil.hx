@@ -47,4 +47,6 @@ class CoolUtil {
 			return path[path.length - 1];
 		}
 	}
+
+	public static function quantize(Value:Float, Quant:Float) return Math.fround(Value * Quant) / Quant;
 }
