@@ -58,8 +58,8 @@ class Note extends FlxSprite {
 	private function get_noteState():String return __state == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
 
 	public var noteData(get, set):Int;
-	private function set_noteData(value:Int):Int return ID = value;
 	private function get_noteData():Int return ID;
+	private function set_noteData(value:Int):Int return ID = value;
 
 	private var col(get, never):String;
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
@@ -70,14 +70,10 @@ class Note extends FlxSprite {
 
 		if (prev == null) prev = this;
 
+		strumTime = time;
+		ID = data;
 		prevNote = prev;
 		isSustainNote = isSustain;
-
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
-		y -= 2000;
-		strumTime = time;
-
-		ID = data;
 
 		switch (PlayState.curStage) {
 			case 'school' | 'schoolEvil':

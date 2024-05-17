@@ -183,6 +183,9 @@ class PlayState extends MusicBeatState {
 	override public function closeSubState() {
 		gameScripts.call('closingSubState', [subState]);
 		if (paused) {
+			for (strumLine in strumLines) strumLine.vocals.resume();
+			vocals.resume();
+			FlxG.sound.music.resume();
 			if (!countdownTimer.finished) countdownTimer.active = true;
 		}
 		super.closeSubState();
@@ -329,9 +332,9 @@ class PlayState extends MusicBeatState {
 		vocals.time = Conductor.songPosition;
 		for (strumLine in strumLines) {
 			strumLine.vocals.time = vocals.time;
-			strumLine.vocals.play();
+			strumLine.vocals.resume();
 		}
-		vocals.play();
+		vocals.resume();
 		gameScripts.call('resyncedVocals');
 	}
 
