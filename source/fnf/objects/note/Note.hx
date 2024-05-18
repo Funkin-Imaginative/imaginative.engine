@@ -22,8 +22,9 @@ class Note extends FlxSprite {
 	public var mustPress:Bool = false;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
-	public var wasGoodHit:Bool = false;
+	public var wasHit:Bool = false;
 	public var prevNote:Note;
+	public var scrollAngle:Float = 90;
 
 	private var willMiss:Bool = false;
 
@@ -112,7 +113,7 @@ class Note extends FlxSprite {
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			if (SaveManager.getOption('gameplay.downscroll')) angle = 180;
+			if (SaveManager.getOption('gameplay.downscroll')) scrollAngle = 180;
 
 			__state = 'end';
 
@@ -131,7 +132,7 @@ class Note extends FlxSprite {
 
 		if (mustPress) {
 			// miss on the NEXT frame so lag doesnt make u miss notes
-			if (willMiss && !wasGoodHit) {
+			if (willMiss && !wasHit) {
 				tooLate = true;
 				canBeHit = false;
 			} else {
@@ -148,7 +149,7 @@ class Note extends FlxSprite {
 			canBeHit = false;
 
 			if (strumTime <= Conductor.songPosition)
-				wasGoodHit = true;
+				wasHit = true;
 		}
 
 		if (tooLate) {

@@ -70,7 +70,7 @@ class PlayState extends MusicBeatState {
 	inline function get_cameraSpeed():Float return camPoint.lerpMult;
 	inline function set_cameraSpeed(value:Float):Float return camPoint.lerpMult = value;
 
-	// public var inst:FlxSound;
+	public var inst:FlxSound;
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
 
@@ -168,6 +168,50 @@ class PlayState extends MusicBeatState {
 
 		super.create();
 		gameScripts.call('createPost');
+
+		@:privateAccess StrumGroup.baseSignals.noteHit.add(function(note:Note) {
+			if (!note.wasHit) {
+				if (!note.isSustainNote) {
+					// combo += 1;
+					// popUpScore(note.strumTime, note);
+				}
+
+				health += 0.023;
+
+				boyfriend.playSingAnim(note.ID, '', false, true);
+				playerStrumLine.members[note.ID].playAnim('confirm', true);
+				// if (cameraRightSide) {
+				// 	var ah = hate(note.ID);
+				// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
+				// }
+				// if (coolCamReturn != null) coolCamReturn.cancel();
+				// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
+
+				note.wasHit = true;
+				vocals.volume = 1;
+
+				/* if (!note.isSustainNote) {
+					note.kill();
+					notes.remove(note, true);
+					note.destroy();
+				} */
+			}
+		});
+		@:privateAccess StrumGroup.baseSignals.noteMiss.add(function(note:Note) {
+			// whole function used to be encased in if (!boyfriend.stunned)
+			health -= 0.04;
+			// killCombo();
+
+			// if (!practiceMode) songScore -= 10;
+
+			vocals.volume = 0;
+			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+
+			boyfriend.playSingAnim(note.ID, '', true, true);
+			// if (coolCamReturn != null) coolCamReturn.cancel();
+			// camPoint.setOffset();
+			// camPoint.snapPoint();
+		});
 	}
 
 	override public function openSubState(SubState:FlxSubState) {
@@ -175,7 +219,7 @@ class PlayState extends MusicBeatState {
 		if (paused) {
 			for (strumLine in strumLines) strumLine.vocals.pause();
 			vocals.pause();
-			FlxG.sound.music.pause();
+			inst.pause();
 			if (!countdownTimer.finished) countdownTimer.active = false;
 		}
 		super.openSubState(SubState);
@@ -185,7 +229,7 @@ class PlayState extends MusicBeatState {
 		if (paused) {
 			for (strumLine in strumLines) strumLine.vocals.resume();
 			vocals.resume();
-			FlxG.sound.music.resume();
+			inst.resume();
 			if (!countdownTimer.finished) countdownTimer.active = true;
 		}
 		super.closeSubState();
@@ -196,11 +240,11 @@ class PlayState extends MusicBeatState {
 	public function startCountdown() {
 		inCutscene = false;
 		for (strumLine in strumLines) {
-			for (i => strum in strumLine) {
+			for (index => strum in strumLine) {
 				if (!isStoryMode) {
 					strum.y -= 10;
 					strum.alpha = 0;
-					FlxTween.tween(strum, {y: strum.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+					FlxTween.tween(strum, {y: strum.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * index)});
 				}
 			}
 		}
@@ -242,7 +286,6 @@ class PlayState extends MusicBeatState {
 			FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
 
 			onCount += 1;
-			if (onCount == countdownLength) new FlxTimer().start(Conductor.crochet / 1000, function(timer:FlxTimer) {startSong();});
 		}, countdownLength);
 		gameScripts.call('onStartCountdownPost');
 	}
@@ -252,22 +295,22 @@ class PlayState extends MusicBeatState {
 		Conductor.changeBPM(songData.bpm);
 		curSong = songData.song;
 
-		FlxG.sound.music = FlxG.sound.load(Paths.inst(SONG.song));
+		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(SONG.song));
 		vocals = FlxG.sound.load(Paths.voices(SONG.song));
 
-		// FlxG.sound.music.group = FlxG.sound.defaultMusicGroup;
-		// vocals.group = FlxG.sound.defaultMusicGroup;
-		// FlxG.sound.music.persist = vocals.persist = false;
+		inst.group = FlxG.sound.defaultMusicGroup;
+		vocals.group = FlxG.sound.defaultMusicGroup;
+		inst.persist = vocals.persist = false;
 
-		for (strumLine in strumLines) @:privateAccess strumLine.generateSong(songData.notes);
+		for (strumLine in strumLines) @:privateAccess strumLine.generateNotes(songData.notes);
 
 		generatedMusic = true;
 	}
 
 	function startSong():Void {
 		startingSong = false;
-		// FlxG.sound.music.onComplete = endSong;
-		if (!paused) FlxG.sound.playMusic(Paths.inst(SONG.song), 1, false); // FlxG.sound.music.play();
+		// inst.onComplete = endSong;
+		if (!paused) inst.play();
 
 		if (vocals == null) vocals = new FlxSound();
 		vocals.onComplete = function() vocalsFinished = true;
@@ -298,14 +341,16 @@ class PlayState extends MusicBeatState {
 
 		if (startingSong) {
 			if (startedCountdown) {
-				Conductor.songPosition + elapsed * 1000;
+				Conductor.songPosition += elapsed * 1000;
 				if (Conductor.songPosition >= 0) {
 					startSong();
 				}
 			}
 		} else {
+			Conductor.songPosition = inst.time;
+
 			// using cne's since being on update instead is definitely 10x better... plus idk how else to make this better XD
-			var instTime:Float = FlxG.sound.music.time;
+			var instTime:Float = inst.time;
 			var isOffsync:Bool = vocals.time != instTime || [for(strumLine in strumLines) strumLine.vocals.time != instTime].contains(true);
 			__vocalOffsetViolation = Math.max(0, __vocalOffsetViolation + (isOffsync ? elapsed : -elapsed / 2));
 			if (__vocalOffsetViolation > 25) {
@@ -328,7 +373,7 @@ class PlayState extends MusicBeatState {
 	function resyncVocals() {
 		for (strumLine in strumLines) strumLine.vocals.pause();
 		vocals.pause();
-		Conductor.songPosition = FlxG.sound.music.time;
+		Conductor.songPosition = inst.time;
 		vocals.time = Conductor.songPosition;
 		for (strumLine in strumLines) {
 			strumLine.vocals.time = vocals.time;
@@ -342,7 +387,7 @@ class PlayState extends MusicBeatState {
 		if (!paused && FlxG.autoPause) {
 			for (strumLine in strumLines) strumLine.vocals.resume();
 			vocals.resume();
-			FlxG.sound.music.resume();
+			inst.resume();
 		}
 		gameScripts.call('focus');
 		super.onFocus();
@@ -351,10 +396,11 @@ class PlayState extends MusicBeatState {
 		if (!paused && FlxG.autoPause) {
 			for (strumLine in strumLines) strumLine.vocals.pause();
 			vocals.pause();
-			FlxG.sound.music.pause();
+			inst.pause();
 		}
 		if (SaveManager.getOption('gameplay.pauseOnLostFocus') && canPause && !paused) {
-			paused = true; openSubState(new fnf.states.sub.PauseSubState());
+			paused = true;
+			openSubState(new fnf.states.sub.PauseSubState());
 		}
 		gameScripts.call('lostFocus');
 		super.onFocusLost();

@@ -12,10 +12,10 @@ private typedef KeySetup = {
 }
 
 typedef NoteSignals = {
-	var noteHit:FlxTypedSignal<Void->Void>;
-	var noteMiss:FlxTypedSignal<Void->Void>;
-	@:optional var noteSpawn:FlxTypedSignal<Void->Void>;
-	@:optional var noteDestroy:FlxTypedSignal<Void->Void>;
+	var noteHit:FlxTypedSignal<Note->Void>;
+	var noteMiss:FlxTypedSignal<Note->Void>;
+	@:optional var noteSpawn:FlxTypedSignal<Note->Void>;
+	@:optional var noteDestroy:FlxTypedSignal<Note->Void>;
 	@:optional var splashSpawn:FlxTypedSignal<Void->Void>;
 }
 
@@ -53,14 +53,14 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	}
 
 	/* @:unreflective */ private static var baseSignals(default, never):NoteSignals = {
-		noteHit: new FlxTypedSignal<Void->Void>(),
-		noteMiss: new FlxTypedSignal<Void->Void>()
+		noteHit: new FlxTypedSignal<Note->Void>(),
+		noteMiss: new FlxTypedSignal<Note->Void>()
 	};
 	public var signals(default, never):NoteSignals = {
-		noteHit: new FlxTypedSignal<Void->Void>(),
-		noteMiss: new FlxTypedSignal<Void->Void>(),
-		noteSpawn: new FlxTypedSignal<Void->Void>(),
-		noteDestroy: new FlxTypedSignal<Void->Void>(),
+		noteHit: new FlxTypedSignal<Note->Void>(),
+		noteMiss: new FlxTypedSignal<Note->Void>(),
+		noteSpawn: new FlxTypedSignal<Note->Void>(),
+		noteDestroy: new FlxTypedSignal<Note->Void>(),
 		splashSpawn: new FlxTypedSignal<Void->Void>()
 	};
 
@@ -84,7 +84,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes = new SplashGroup();
 	}
 
-	private function generateSong(noteData:Array<SwagSection>) {
+	private function generateNotes(noteData:Array<SwagSection>) {
 		for (section in noteData) {
 			for (songNotes in section.sectionNotes) {
 				var daStrumTime:Float = songNotes[0];
@@ -154,7 +154,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				var dumbNotes:Array<Note> = []; // notes to kill later
 
 				notes.forEachAlive(function(note:Note) {
-					if (note.canBeHit && !note.tooLate && !note.wasGoodHit) {
+					if (note.canBeHit && !note.tooLate && !note.wasHit) {
 						if (directionList.contains(note.ID)) {
 							for (coolNote in possibleNotes) {
 								if (coolNote.ID == note.ID && Math.abs(note.strumTime - coolNote.strumTime) < 10){
@@ -208,18 +208,18 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public static function noteHit(note:Note) {
 		// FlxG.state.noteHit(note);
-		baseSignals.noteHit.dispatch();
-		note.strumGroup.signals.noteHit.dispatch();
+		baseSignals.noteHit.dispatch(note);
+		note.strumGroup.signals.noteHit.dispatch(note);
 	}
 	public static function noteMiss(note:Note) {
 		// FlxG.state.noteMiss(note);
-		baseSignals.noteMiss.dispatch();
-		note.strumGroup.signals.noteMiss.dispatch();
+		baseSignals.noteMiss.dispatch(note);
+		note.strumGroup.signals.noteMiss.dispatch(note);
 	}
 
 	public function deleteNote(note:Note) {
 		if (note == null) return;
-		signals.noteDestroy.dispatch();
+		signals.noteDestroy.dispatch(note);
 		note.kill();
 		notes.remove(note, true);
 		note.destroy();
