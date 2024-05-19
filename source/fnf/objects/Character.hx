@@ -71,11 +71,11 @@ class Character extends FlxSprite {
 
 	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
+	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
 	private function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
-	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;

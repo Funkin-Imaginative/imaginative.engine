@@ -6,10 +6,10 @@ class BareCameraPoint extends FlxBasic {
 	// shortcut
 	@:isVar public var x(get, set):Float;
 	@:isVar public var y(get, set):Float;
-	private function set_x(value:Float):Float return point.x = value;
-	private function set_y(value:Float):Float return point.y = value;
 	private function get_x():Float return realPos.x; // :D
 	private function get_y():Float return realPos.y;
+	private function set_x(value:Float):Float return point.x = value;
+	private function set_y(value:Float):Float return point.y = value;
 
 	// these are the internal positions, they're not private on purpose
 	public var point(default, never):FlxPoint = new FlxPoint();

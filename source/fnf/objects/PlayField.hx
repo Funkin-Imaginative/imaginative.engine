@@ -46,12 +46,10 @@ class PlayField extends FlxGroup {
 		healthBar.createFilledBar(game.dad.iconColor, game.boyfriend.iconColor);
 		add(healthBar);
 
-		iconP1 = new HealthIcon('bf', true);
-		iconP2 = new HealthIcon('dad', false);
+		iconP1 = new HealthIcon(game.boyfriend.icon, true);
+		iconP2 = new HealthIcon(game.dad.icon);
 		for(icon in [iconP1, iconP2]) {
             icon.y = healthBar.y - (icon.height * .5);
-			/* icon.screenCenter(Y);
-			icon.y += FlxG.height / 2.6 * (downscroll ? 1 : -1); */
 			add(icon);
 		}
 

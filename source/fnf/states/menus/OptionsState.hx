@@ -11,7 +11,6 @@ class OptionsState extends MusicBeatState {
 	public var pages = new Map<PageName, Page>();
 	public var currentName:PageName = Options;
 	public var currentPage(get, never):Page;
-
 	private function get_currentPage():Page return pages[currentName];
 
 	override function create() {

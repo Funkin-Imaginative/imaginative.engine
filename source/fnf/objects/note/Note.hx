@@ -17,10 +17,13 @@ class Note extends FlxSprite {
 		return this.strumGroup = strumGroup;
 	}
 
+	// temporary
+	public var downscrollMult(get, never):Float;
+	private function get_downscrollMult():Float return SaveManager.getOption('gameplay.downscroll') ? -1 : 1;
+
 	public var strumTime:Float = 0;
 
-	public var mustPress:Bool = false;
-	public var canBeHit:Bool = false;
+	public var canHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasHit:Bool = false;
 	public var prevNote:Note;
@@ -56,7 +59,7 @@ class Note extends FlxSprite {
 		return value;
 	}
 	public var noteState(get, never):String;
-	private function get_noteState():String return __state == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
+	private function get_noteState():String return __state.trim() == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
 
 	public var noteData(get, set):Int;
 	private function get_noteData():Int return ID;
@@ -113,7 +116,7 @@ class Note extends FlxSprite {
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			if (SaveManager.getOption('gameplay.downscroll')) scrollAngle = 180;
+			if (SaveManager.getOption('gameplay.downscroll')) angle = 180;
 
 			__state = 'end';
 
@@ -130,23 +133,23 @@ class Note extends FlxSprite {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (mustPress) {
+		if (strumGroup.status == !PlayUtil.opponentPlay) {
 			// miss on the NEXT frame so lag doesnt make u miss notes
 			if (willMiss && !wasHit) {
 				tooLate = true;
-				canBeHit = false;
+				canHit = false;
 			} else {
 				if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset) {
 					// The * 0.5 is so that it's easier to hit them too late, instead of too early
 					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
-						canBeHit = true;
+						canHit = true;
 				} else {
-					canBeHit = true;
+					canHit = true;
 					willMiss = true;
 				}
 			}
 		} else {
-			canBeHit = false;
+			canHit = false;
 
 			if (strumTime <= Conductor.songPosition)
 				wasHit = true;

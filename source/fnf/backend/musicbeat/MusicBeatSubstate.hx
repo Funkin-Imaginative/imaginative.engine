@@ -100,4 +100,9 @@ class MusicBeatSubstate extends FlxSubState {
 	public function beatHit():Void {
 		call('beatHit', [curBeat]);
 	}
+
+	override public function destroy() {
+		stateScripts.destroy();
+		super.destroy();
+	}
 }

@@ -9,7 +9,7 @@ class Strum extends FlxSprite {
 	public var strumGroup(default, null):StrumGroup;
 	@:unreflective private static function setStrumGroup(strum:Strum, group:StrumGroup) strum.strumGroup = group;
 	public var cpu(get, never):Bool;
-	private function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == !PlayUtil.opponentPlay && !PlayUtil.enableP2);
+	private function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == PlayUtil.opponentPlay && !PlayUtil.enableP2);
 
 	public var colorSwap:ColorSwap;
 	public var noteData(get, set):Int;
@@ -59,13 +59,12 @@ class Strum extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-		/* if (animation.finished) {
+		if (animation.finished && !cpu) {
 			switch (animation.name) {
-				case 'press': playAnim('static', true);
+				// case 'press': playAnim('static', true);
 				case 'confirm': playAnim('press', true);
 			}
-		} */
-		// if cpu shit will be added later
+		}
 		if (cpu && lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm') playAnim('static', true);
 	}
 
@@ -73,5 +72,6 @@ class Strum extends FlxSprite {
 		animation.play(name, force);
 		centerOffsets();
 		centerOrigin();
+		if (name == 'confirm') lastHit = Conductor.songPosition;
 	}
 }

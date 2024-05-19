@@ -1,5 +1,7 @@
 package fnf.objects.note.groups;
 
+import flixel.util.FlxSignal.FlxTypedSignal;
+
 private typedef KeySetupArray = {
 	var hold:Array<Bool>;
 	var press:Array<Bool>;
@@ -11,12 +13,15 @@ private typedef KeySetup = {
 	var release:Bool;
 }
 
-typedef NoteSignals = {
+typedef BaseNoteSignals = {
 	var noteHit:FlxTypedSignal<Note->Void>;
-	var noteMiss:FlxTypedSignal<Note->Void>;
-	@:optional var noteSpawn:FlxTypedSignal<Note->Void>;
-	@:optional var noteDestroy:FlxTypedSignal<Note->Void>;
-	@:optional var splashSpawn:FlxTypedSignal<Void->Void>;
+	var noteMiss:FlxTypedSignal<(Note, Int)->Void>;
+}
+typedef NoteSignals = {
+	> BaseNoteSignals,
+	var noteSpawn:FlxTypedSignal<Note->Void>;
+	var noteDestroy:FlxTypedSignal<Note->Void>;
+	var splashSpawn:FlxTypedSignal<Void->Void>;
 }
 
 class StrumGroup extends FlxTypedGroup<Strum> {
@@ -52,13 +57,13 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		return status;
 	}
 
-	/* @:unreflective */ private static var baseSignals(default, never):NoteSignals = {
+	public static var baseSignals(default, never):BaseNoteSignals = {
 		noteHit: new FlxTypedSignal<Note->Void>(),
-		noteMiss: new FlxTypedSignal<Note->Void>()
+		noteMiss: new FlxTypedSignal<(Note, Int)->Void>()
 	};
 	public var signals(default, never):NoteSignals = {
 		noteHit: new FlxTypedSignal<Note->Void>(),
-		noteMiss: new FlxTypedSignal<Note->Void>(),
+		noteMiss: new FlxTypedSignal<(Note, Int)->Void>(),
 		noteSpawn: new FlxTypedSignal<Note->Void>(),
 		noteDestroy: new FlxTypedSignal<Note->Void>(),
 		splashSpawn: new FlxTypedSignal<Void->Void>()
@@ -130,8 +135,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
-			note.setPosition((members[note.ID].width - note.width) / 2, (note.strumTime - Conductor.songPosition) * (0.45 * CoolUtil.quantize(PlayState.SONG.speed, 100)));
-			if (note.isSustainNote) note.y += (Note.swagWidth / 2);
+			note.setPosition(members[note.ID].x + (note.isSustainNote ? members[note.ID].width / 2 : 0), (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustainNote ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
 		});
 
 		var controls:Controls = PlayerSettings.player1.controls;
@@ -142,8 +146,9 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		};
 		if (status != null && PlayUtil.opponentPlay == !status) {
 			if ((keys.hold.contains(true) || PlayUtil.botplay) /* && !boyfriend.stunned */) {
+				// trace('hit the fucking note you idiot');
 				notes.forEachAlive(function(note:Note) {
-					if (note.isSustainNote && note.canBeHit && keys.hold[note.ID])
+					if (note.isSustainNote && note.canHit && keys.hold[note.ID])
 						noteHit(note);
 				});
 			}
@@ -154,7 +159,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				var dumbNotes:Array<Note> = []; // notes to kill later
 
 				notes.forEachAlive(function(note:Note) {
-					if (note.canBeHit && !note.tooLate && !note.wasHit) {
+					if (note.canHit && !note.tooLate && !note.wasHit) {
 						if (directionList.contains(note.ID)) {
 							for (coolNote in possibleNotes) {
 								if (coolNote.ID == note.ID && Math.abs(note.strumTime - coolNote.strumTime) < 10){
@@ -198,23 +203,25 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 			for (index => strum in members) {
 				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]};
-				if (strum.animation.name != 'confirm' && !PlayUtil.botplay) {
-					if (key.press) strum.playAnim('press');
-					if (!key.hold) strum.playAnim('static');
-				}
+				if (key.press && strum.animation.name != 'confirm' && !PlayUtil.botplay)
+					strum.playAnim('press');
+				if (!key.hold) strum.playAnim('static');
 			}
 		}
 	}
 
 	public static function noteHit(note:Note) {
-		// FlxG.state.noteHit(note);
-		baseSignals.noteHit.dispatch(note);
-		note.strumGroup.signals.noteHit.dispatch(note);
+		if (!note.wasHit) {
+			note.wasHit = true;
+			// FlxG.state.noteHit(note);
+			baseSignals.noteHit.dispatch(note);
+			note.strumGroup.signals.noteHit.dispatch(note);
+		}
 	}
 	public static function noteMiss(note:Note) {
 		// FlxG.state.noteMiss(note);
-		baseSignals.noteMiss.dispatch(note);
-		note.strumGroup.signals.noteMiss.dispatch(note);
+		baseSignals.noteMiss.dispatch(note, note.ID);
+		note.strumGroup.signals.noteMiss.dispatch(note, note.ID);
 	}
 
 	public function deleteNote(note:Note) {

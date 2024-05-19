@@ -59,8 +59,8 @@ class PlayState extends MusicBeatState {
 
 	// may or may not keep
 	public var gfSpeed(get, set):Int;
-	inline function set_gfSpeed(value:Int):Int return gf.bopSpeed = value;
 	inline function get_gfSpeed():Int return gf.bopSpeed;
+	inline function set_gfSpeed(value:Int):Int return gf.bopSpeed = value;
 
 	public var camGame:FunkinCamera;
 	public var camHUD:FlxCamera;
@@ -169,35 +169,28 @@ class PlayState extends MusicBeatState {
 		super.create();
 		gameScripts.call('createPost');
 
-		@:privateAccess StrumGroup.baseSignals.noteHit.add(function(note:Note) {
-			if (!note.wasHit) {
-				if (!note.isSustainNote) {
-					// combo += 1;
-					// popUpScore(note.strumTime, note);
-				}
-
-				health += 0.023;
-
-				boyfriend.playSingAnim(note.ID, '', false, true);
-				playerStrumLine.members[note.ID].playAnim('confirm', true);
-				// if (cameraRightSide) {
-				// 	var ah = hate(note.ID);
-				// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
-				// }
-				// if (coolCamReturn != null) coolCamReturn.cancel();
-				// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
-
-				note.wasHit = true;
-				vocals.volume = 1;
-
-				/* if (!note.isSustainNote) {
-					note.kill();
-					notes.remove(note, true);
-					note.destroy();
-				} */
+		StrumGroup.baseSignals.noteHit.add(function(note:Note) {
+			if (!note.isSustainNote) {
+				// combo += 1;
+				// popUpScore(note.strumTime, note);
 			}
+
+			health += 0.023;
+
+			boyfriend.playSingAnim(note.ID, '', false, true);
+			note.strumGroup.members[note.ID].playAnim(note.noteState == 'end' ? 'press' : 'confirm', true);
+			// if (cameraRightSide) {
+			// 	var ah = hate(note.ID);
+			// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
+			// }
+			// if (coolCamReturn != null) coolCamReturn.cancel();
+			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
+
+			vocals.volume = 1;
+
+			if (!note.isSustainNote) note.strumGroup.deleteNote(note);
 		});
-		@:privateAccess StrumGroup.baseSignals.noteMiss.add(function(note:Note) {
+		StrumGroup.baseSignals.noteMiss.add(function(note:Note, direction:Int) {
 			// whole function used to be encased in if (!boyfriend.stunned)
 			health -= 0.04;
 			// killCombo();
@@ -207,7 +200,7 @@ class PlayState extends MusicBeatState {
 			vocals.volume = 0;
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
-			boyfriend.playSingAnim(note.ID, '', true, true);
+			boyfriend.playSingAnim(direction, '', true, true);
 			// if (coolCamReturn != null) coolCamReturn.cancel();
 			// camPoint.setOffset();
 			// camPoint.snapPoint();
@@ -261,32 +254,34 @@ class PlayState extends MusicBeatState {
 				if (!char.preventIdleBopping && onCount % Math.round(char.bopSpeed * char.beatInterval) == 0)
 					char.tryDance();
 
-			var introSprPaths:Array<String> = ['', 'ready', 'set', 'go'];
-			var altSuffix:String = '';
+			if (onCount != countdownLength + 1) {
+				var introSprPaths:Array<String> = ['', 'ready', 'set', 'go'];
+				var altSuffix:String = '';
 
-			if (curStage.startsWith('school')) {
-				altSuffix = '-pixel';
-				introSprPaths = ['', 'weeb/pixelUI/ready', 'weeb/pixelUI/set', 'weeb/pixelUI/date'];
+				if (curStage.startsWith('school')) {
+					altSuffix = '-pixel';
+					introSprPaths = ['', 'weeb/pixelUI/ready', 'weeb/pixelUI/set', 'weeb/pixelUI/date'];
+				}
+
+				var introSndPaths:Array<String> = ['intro3', 'intro2', 'intro1', 'introGo'];
+
+				if (onCount > 0) {
+					var spr:FlxSprite = new FlxSprite(0, 0, Paths.image(introSprPaths[onCount] + altSuffix));
+					if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
+					spr.updateHitbox();
+					spr.screenCenter();
+					spr.cameras = [camHUD];
+					add(spr);
+					FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
+						ease: FlxEase.cubeInOut,
+						onComplete: function(tween:FlxTween) {spr.destroy();}
+					});
+				}
+				FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
 			}
-
-			var introSndPaths:Array<String> = ['intro3', 'intro2', 'intro1', 'introGo'];
-
-			if (onCount > 0) {
-				var spr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introSprPaths[onCount] + altSuffix));
-				if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
-				spr.updateHitbox();
-				spr.screenCenter();
-				spr.cameras = [camHUD];
-				add(spr);
-				FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-					ease: FlxEase.cubeInOut,
-					onComplete: function(tween:FlxTween) {spr.destroy();}
-				});
-			}
-			FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
 
 			onCount += 1;
-		}, countdownLength);
+		}, countdownLength + 1);
 		gameScripts.call('onStartCountdownPost');
 	}
 
@@ -322,6 +317,11 @@ class PlayState extends MusicBeatState {
 		}
 	}
 
+	override public function stepHit() {
+		super.stepHit();
+		resyncVocals();
+	}
+
 	override public function beatHit():Void {
 		super.beatHit();
 		for (char in characters)
@@ -331,6 +331,8 @@ class PlayState extends MusicBeatState {
 
 	var __vocalOffsetViolation:Float;
 	override public function update(elapsed:Float):Void {
+		Conductor.songPosition += Conductor.offset + elapsed * 1000;
+
 		gameScripts.call('update', [elapsed]);
 
 		if (inCutscene) {
@@ -339,16 +341,7 @@ class PlayState extends MusicBeatState {
 			return;
 		}
 
-		if (startingSong) {
-			if (startedCountdown) {
-				Conductor.songPosition += elapsed * 1000;
-				if (Conductor.songPosition >= 0) {
-					startSong();
-				}
-			}
-		} else {
-			Conductor.songPosition = inst.time;
-
+		if (Conductor.songPosition >= 0 && startingSong) startSong(); else {
 			// using cne's since being on update instead is definitely 10x better... plus idk how else to make this better XD
 			var instTime:Float = inst.time;
 			var isOffsync:Bool = vocals.time != instTime || [for(strumLine in strumLines) strumLine.vocals.time != instTime].contains(true);

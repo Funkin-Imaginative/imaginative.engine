@@ -14,11 +14,11 @@ class HealthIcon extends FlxSprite {
 	}
 
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
+	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
 	private function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
-	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
 
 	public function new(char:String = 'bf', faceLeft:Bool = false) {
 		super();

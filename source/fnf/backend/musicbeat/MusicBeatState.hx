@@ -1,5 +1,6 @@
 package fnf.backend.musicbeat;
 
+import fnf.objects.note.groups.StrumGroup;
 import fnf.backend.Conductor.BPMChangeEvent;
 import flixel.addons.transition.FlxTransitionableState;
 
@@ -118,5 +119,12 @@ class MusicBeatState extends FlxTransitionableState {
 
 	public function beatHit():Void {
 		call('beatHit', [curBeat]);
+	}
+
+	override public function destroy() {
+		stateScripts.destroy();
+		StrumGroup.baseSignals.noteHit.removeAll();
+		StrumGroup.baseSignals.noteMiss.removeAll();
+		super.destroy();
 	}
 }

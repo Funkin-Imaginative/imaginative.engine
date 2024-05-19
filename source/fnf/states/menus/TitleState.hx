@@ -100,42 +100,6 @@ class TitleState extends MusicBeatState {
 		#end
 	}
 
-	private function client_onMetaData(metaData:Dynamic)
-	{
-		video.attachNetStream(netStream);
-
-		video.width = video.videoWidth;
-		video.height = video.videoHeight;
-		// video.
-	}
-
-	private function netStream_onAsyncError(event:AsyncErrorEvent):Void
-	{
-		trace("Error loading video");
-	}
-
-	private function netConnection_onNetStatus(event:NetStatusEvent):Void
-	{
-		if (event.info.code == 'NetStream.Play.Complete')
-		{
-			// netStream.dispose();
-			// FlxG.stage.removeChild(video);
-
-			startIntro();
-		}
-
-		trace(event.toString());
-	}
-
-	private function overlay_onMouseDown(event:MouseEvent):Void
-	{
-		netStream.soundTransform.volume = 0.2;
-		netStream.soundTransform.pan = -1;
-		// netStream.play(Paths.file('music/kickstarterTrailer.mp4'));
-
-		FlxG.stage.removeChild(overlay);
-	}
-
 	var logoBl:FlxSprite;
 
 	var gfDance:FlxSprite;

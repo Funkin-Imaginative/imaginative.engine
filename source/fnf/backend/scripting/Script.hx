@@ -41,7 +41,7 @@ class Script extends FlxBasic {
 	}
 
 	// idk what to call this
-	public static function getTheStuff(?script:Script):Map<String, Dynamic> {
+	public static function getDefaults(?script:Script):Map<String, Dynamic> {
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -109,6 +109,14 @@ class Script extends FlxBasic {
 			'Paths' => Paths,
 
 			// Custom Functions //
+			'addInfrontOfObject' => (obj:FlxBasic, ?infrontOfThis:FlxBasic = null, ?into:Dynamic) -> {
+				if (script == null || script.parent == null)
+					return trace('addInfrontOfObject: Script and/or parent not found.');
+				var resolvedGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
+				if (resolvedGroup == null) resolvedGroup = script.parent;
+				final group:Dynamic = into == null ? resolvedGroup : into;
+				if (infrontOfThis != null) group.insert(group.members.indexOf(infrontOfThis) + 1, obj);
+			},
 			'addBehindObject' => (obj:FlxBasic, ?behindThis:FlxBasic = null, ?into:Dynamic) -> {
 				if (script == null || script.parent == null)
 					return trace('addBehindObject: Script and/or parent not found.');
@@ -140,7 +148,7 @@ class Script extends FlxBasic {
 		extension = Path.extension(path);
 		this.path = path;
 		scriptCreation(path);
-		for (name => thing in getTheStuff(this)) set(name, thing);
+		for (name => thing in getDefaults(this)) set(name, thing);
 	}
 
 	function getFilenameFromLibFile(path:String) {
@@ -200,8 +208,8 @@ class Script extends FlxBasic {
 	}
 
 	public var parent(get, set):Dynamic;
-	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
 	inline function get_parent():Dynamic return interp.scriptObject == null ? this : interp.scriptObject; // lol
+	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
 
 	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVariables = map;
 
@@ -222,7 +230,7 @@ class Script extends FlxBasic {
 		final oldParent = parent;
 		scriptCreation(path);
 
-		for (name => thing in Script.getTheStuff(this))
+		for (name => thing in getDefaults(this))
 			set(name, thing);
 
 		load();
