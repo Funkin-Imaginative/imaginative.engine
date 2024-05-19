@@ -190,7 +190,7 @@ class PlayState extends MusicBeatState {
 
 			if (!note.isSustainNote) note.strumGroup.deleteNote(note);
 		});
-		StrumGroup.baseSignals.noteMiss.add(function(note:Note, direction:Int) {
+		StrumGroup.baseSignals.noteMiss.add(function(note:Null<Note>, direction:Int) {
 			// whole function used to be encased in if (!boyfriend.stunned)
 			health -= 0.04;
 			// killCombo();

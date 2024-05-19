@@ -132,10 +132,10 @@ class Character extends FlxSprite {
 	public var variantScript:Script;
 
 	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making these whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
+		super(x, y);
+
 		__name = character;
 		__variant = variant;
-
-		super(x, y);
 		isFacing = faceLeft ? leftFace : rightFace;
 
 		scripts = new ScriptGroup(this);

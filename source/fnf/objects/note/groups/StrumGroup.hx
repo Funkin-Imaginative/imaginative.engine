@@ -15,7 +15,7 @@ private typedef KeySetup = {
 
 typedef BaseNoteSignals = {
 	var noteHit:FlxTypedSignal<Note->Void>;
-	var noteMiss:FlxTypedSignal<(Note, Int)->Void>;
+	var noteMiss:FlxTypedSignal<(Null<Note>, Int)->Void>;
 }
 typedef NoteSignals = {
 	> BaseNoteSignals,
@@ -59,11 +59,11 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public static var baseSignals(default, never):BaseNoteSignals = {
 		noteHit: new FlxTypedSignal<Note->Void>(),
-		noteMiss: new FlxTypedSignal<(Note, Int)->Void>()
+		noteMiss: new FlxTypedSignal<(Null<Note>, Int)->Void>()
 	};
 	public var signals(default, never):NoteSignals = {
 		noteHit: new FlxTypedSignal<Note->Void>(),
-		noteMiss: new FlxTypedSignal<(Note, Int)->Void>(),
+		noteMiss: new FlxTypedSignal<(Null<Note>, Int)->Void>(),
 		noteSpawn: new FlxTypedSignal<Note->Void>(),
 		noteDestroy: new FlxTypedSignal<Note->Void>(),
 		splashSpawn: new FlxTypedSignal<Void->Void>()
@@ -144,7 +144,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			press: [controls.NOTE_LEFT_P, controls.NOTE_DOWN_P, controls.NOTE_UP_P, controls.NOTE_RIGHT_P],
 			release: [controls.NOTE_LEFT_R, controls.NOTE_DOWN_R, controls.NOTE_UP_R, controls.NOTE_RIGHT_R]
 		};
-		if (status != null && PlayUtil.opponentPlay == !status) {
+		if (status != null && status == !PlayUtil.opponentPlay) {
 			if ((keys.hold.contains(true) || PlayUtil.botplay) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
 				notes.forEachAlive(function(note:Note) {
@@ -190,15 +190,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 						// if a direction is hit that shouldn't be
 					for (deNote in possibleNotes) {
 						if (keys.press[shit] && !directionList.contains(deNote.ID))
-							noteMiss(deNote);
+							noteMiss(deNote, deNote.ID);
 						if (keys.press[deNote.ID] || PlayUtil.botplay)
 							noteHit(deNote);
 					}
-				} /* else
+				} else
 					for (shit in 0...keys.press.length)
 						if (keys.press[shit])
 							if (!SaveManager.getOption('gameplay.ghostTapping'))
-								noteMiss(shit); */
+								noteMiss(null, shit);
 			}
 
 			for (index => strum in members) {
@@ -207,6 +207,12 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 					strum.playAnim('press');
 				if (!key.hold) strum.playAnim('static');
 			}
+		} else {
+			notes.forEachAlive(function(note:Note) {
+				if (note.strumTime <= Conductor.songPosition) {
+					noteHit(note);
+				}
+			});
 		}
 	}
 
@@ -218,10 +224,10 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			note.strumGroup.signals.noteHit.dispatch(note);
 		}
 	}
-	public static function noteMiss(note:Note) {
+	public static function noteMiss(note:Note, direction:Int) {
 		// FlxG.state.noteMiss(note);
-		baseSignals.noteMiss.dispatch(note, note.ID);
-		note.strumGroup.signals.noteMiss.dispatch(note, note.ID);
+		baseSignals.noteMiss.dispatch(note, direction);
+		note.strumGroup.signals.noteMiss.dispatch(note, direction);
 	}
 
 	public function deleteNote(note:Note) {
