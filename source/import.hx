@@ -23,7 +23,7 @@ import flixel.FlxG;
 
 // alphabetical order
 import fnf.backend.musicbeat.*;
-import fnf.backend.scripting.*;
+import fnf.backend.scripting.*; import fnf.backend.scripting.events.*;
 import fnf.backend.BareCameraPoint; // backend
 import fnf.backend.CameraPoint;
 import fnf.backend.Conductor;
@@ -33,6 +33,7 @@ import fnf.backend.PlayerSettings;
 import fnf.backend.SaveManager;
 import fnf.backend.Section; import fnf.backend.Section.SwagSection;
 import fnf.backend.Song; import fnf.backend.Song.SwagSong;
+import fnf.objects.PlayField;
 import fnf.states.LoadingState; // states
 import fnf.states.PlayState;
 import fnf.utils.*;

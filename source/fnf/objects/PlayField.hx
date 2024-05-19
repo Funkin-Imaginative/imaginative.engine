@@ -1,7 +1,17 @@
 package fnf.objects;
 
 import fnf.objects.note.groups.StrumGroup;
+import fnf.objects.note.Note;
 import fnf.ui.HealthIcon;
+
+private typedef StupidLOL = {
+	@:optional var opponent:PlayFieldSetup;
+	@:optional var player:PlayFieldSetup;
+}
+typedef PlayFieldSetup = {
+	@:default(FlxColor.RED) var color:FlxColor;
+	@:default('face') var icon:String;
+}
 
 class PlayField extends FlxGroup {
 	public var strumLines:Array<StrumGroup> = [];
@@ -12,8 +22,9 @@ class PlayField extends FlxGroup {
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 
+	public static var fieldScripts:ScriptGroup;
 	public static var direct:PlayField = null;
-	public var game:PlayState; // ideas, ideas
+	public var state:Dynamic; // ideas, ideas
 
 	public var minHealth(default, set):Float = 0; // >:)
 	inline function set_minHealth(value:Float):Float {
@@ -30,11 +41,16 @@ class PlayField extends FlxGroup {
 	public var health(default, set):Float;
 	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
-	public function new(game:PlayState):Void {
+	public function new(state:Dynamic, ?setup:StupidLOL):Void {
 		super();
-		direct = this;
-		this.game = game;
-		health = (maxHealth - minHealth) / 2;
+		if (direct == null || (this.state = state) is MusicBeatState) {/*Satety first!*/} else {
+			trace('Either you have a PlayField instance already or you didn\'t make it in a MusicBeatState instance.');
+			destroy();
+		}
+		fieldScripts = new ScriptGroup(direct = this);
+		fieldScripts.add(Script.create('content/playfield'));
+
+		health = (maxHealth - minHealth) / 2; // health setup lol
 		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
 
 		healthBarBG = new FlxSprite().loadGraphic(Paths.image('healthBar'));
@@ -43,11 +59,11 @@ class PlayField extends FlxGroup {
 		add(healthBarBG);
 
 		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), 'health', 0, 2);
-		healthBar.createFilledBar(game.dad.iconColor, game.boyfriend.iconColor);
+		healthBar.createFilledBar(setup.opponent.color, setup.player.color);
 		add(healthBar);
 
-		iconP1 = new HealthIcon(game.boyfriend.icon, true);
-		iconP2 = new HealthIcon(game.dad.icon);
+		iconP1 = new HealthIcon(setup.player.icon, true);
+		iconP2 = new HealthIcon(setup.opponent.icon);
 		for(icon in [iconP1, iconP2]) {
             icon.y = healthBar.y - (icon.height * .5);
 			add(icon);
@@ -65,20 +81,40 @@ class PlayField extends FlxGroup {
 		}
 	}
 
+	public static function noteHit(note:Note) {
+		if (!note.wasHit) {
+			note.wasHit = true;
+			var event:NoteHitEvent = direct.state.gameScripts.event('noteHit', new NoteHitEvent(note));
+			// FlxG.state.noteHit(event);
+			StrumGroup.baseSignals.noteHit.dispatch(event);
+			note.strumGroup.signals.noteHit.dispatch(event);
+		}
+	}
+	public static function noteMiss(note:Note, direction:Int) {
+		var event:NoteMissEvent = direct.state.gameScripts.event('noteHit', new NoteMissEvent(note));
+		// FlxG.state.noteMiss(note);
+		StrumGroup.baseSignals.noteMiss.dispatch(event);
+		note.strumGroup.signals.noteMiss.dispatch(event);
+	}
+
 	public var updateIconPos:Bool = true;
 	override function update(elapsed:Float):Void {
+		fieldScripts.call('update', [elapsed]);
 		super.update(elapsed);
 		if (updateIconPos) {
 			var iconOffset:Int = 26;
 			var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
 			iconP1.x = center - iconOffset;
 			iconP2.x = center - (iconP2.width - iconOffset);
+			state.gameScripts.call('updateIconPos', [elapsed]);
 		}
+		fieldScripts.call('updatePost', [elapsed]);
 	}
 
 	override function destroy():Void {
+		fieldScripts.destroy();
 		direct = null;
-		game = null;
+		state = null;
 		super.destroy();
 	}
 }

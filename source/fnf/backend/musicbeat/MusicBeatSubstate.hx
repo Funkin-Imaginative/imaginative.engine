@@ -103,6 +103,7 @@ class MusicBeatSubstate extends FlxSubState {
 
 	override public function destroy() {
 		stateScripts.destroy();
+		if (PlayField.direct.state == this) PlayField.direct.state = null;
 		super.destroy();
 	}
 }

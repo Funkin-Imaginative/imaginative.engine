@@ -207,6 +207,12 @@ class Script extends FlxBasic {
 		return null;
 	}
 
+	public function event(func:String, event:Dynamic):Dynamic {
+		call(func, [event]);
+		if (event.stopped) event;
+		return event;
+	}
+
 	public var parent(get, set):Dynamic;
 	inline function get_parent():Dynamic return interp.scriptObject == null ? this : interp.scriptObject; // lol
 	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;

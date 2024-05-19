@@ -50,6 +50,16 @@ class ScriptGroup extends FlxBasic {
 			return script.call(funcName, args);
 		return null;
 	}
+
+	public function event(func:String, event:Dynamic):Dynamic {
+		for (script in members) {
+			if (!script.active) continue;
+			call(func, [event]);
+			if (event.stopped && @:privateAccess !event.continueLoop) break;
+		}
+		return event;
+	}
+
 	public function add(script:Script) {
 		members.push(script);
 		setupScript(script);

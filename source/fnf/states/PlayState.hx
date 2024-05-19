@@ -11,7 +11,6 @@ import fnf.states.menus.StoryMenuState;
 
 import fnf.objects.BGSprite;
 import fnf.objects.Character;
-import fnf.objects.PlayField;
 import fnf.objects.FunkinBar;
 import fnf.objects.background.*;
 import fnf.objects.note.groups.*;
@@ -169,8 +168,10 @@ class PlayState extends MusicBeatState {
 		super.create();
 		gameScripts.call('createPost');
 
-		StrumGroup.baseSignals.noteHit.add(function(note:Note) {
-			if (!note.isSustainNote) {
+		StrumGroup.baseSignals.noteHit.add(function(event:NoteHitEvent) {
+			var note:Note = event.note;
+
+			if (!note.isSustainNote && note.strumGroup.status) {
 				// combo += 1;
 				// popUpScore(note.strumTime, note);
 			}
@@ -187,20 +188,25 @@ class PlayState extends MusicBeatState {
 			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			vocals.volume = 1;
+			note.strumGroup.vocals.volume = 1;
 
 			if (!note.isSustainNote) note.strumGroup.deleteNote(note);
 		});
-		StrumGroup.baseSignals.noteMiss.add(function(note:Null<Note>, direction:Int) {
-			// whole function used to be encased in if (!boyfriend.stunned)
+		StrumGroup.baseSignals.noteMiss.add(function(event:NoteMissEvent) {
+			var note:Note = event.note;
+			var direction:Int = event.direction;
+
 			health -= 0.04;
 			// killCombo();
 
 			// if (!practiceMode) songScore -= 10;
 
 			vocals.volume = 0;
+			if (note != null) note.strumGroup.vocals.volume = 0;
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
 			boyfriend.playSingAnim(direction, '', true, true);
+			// if (note != null) note.strumGroup.members[direction].playAnim('press', true);
 			// if (coolCamReturn != null) coolCamReturn.cancel();
 			// camPoint.setOffset();
 			// camPoint.snapPoint();
