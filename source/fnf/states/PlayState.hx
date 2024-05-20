@@ -135,7 +135,10 @@ class PlayState extends MusicBeatState {
 		add(dad);
 		add(boyfriend);
 
-		playField = new PlayField(this);
+		playField = new PlayField(this, {
+			opponent: {color: dad.iconColor, icon: dad.icon},
+			player: {color: boyfriend.iconColor, icon: boyfriend.icon}
+		}, gameScripts);
 		playField.cameras = [camHUD];
 		add(playField);
 

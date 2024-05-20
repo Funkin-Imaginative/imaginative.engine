@@ -5,12 +5,12 @@ import fnf.objects.note.Note;
 import fnf.ui.HealthIcon;
 
 private typedef StupidLOL = {
-	@:optional var opponent:PlayFieldSetup;
-	@:optional var player:PlayFieldSetup;
+	var opponent:PlayFieldSetup;
+	var player:PlayFieldSetup;
 }
 typedef PlayFieldSetup = {
-	@:default(FlxColor.RED) var color:FlxColor;
-	@:default('face') var icon:String;
+	var color:FlxColor;
+	var icon:String;
 }
 
 class PlayField extends FlxGroup {
@@ -23,6 +23,7 @@ class PlayField extends FlxGroup {
 	public var iconP2:HealthIcon;
 
 	public static var fieldScripts:ScriptGroup;
+	public var stateScripts:ScriptGroup;
 	public static var direct:PlayField = null;
 	public var state:Dynamic; // ideas, ideas
 
@@ -41,12 +42,17 @@ class PlayField extends FlxGroup {
 	public var health(default, set):Float;
 	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
-	public function new(state:Dynamic, ?setup:StupidLOL):Void {
-		super();
+	public function new(state:Dynamic, setup:Null<StupidLOL> = null, ?stateScripts:ScriptGroup):Void {
+		super(); // note using the state var in source is a bitch
 		if (direct == null || (this.state = state) is MusicBeatState) {/*Satety first!*/} else {
 			trace('Either you have a PlayField instance already or you didn\'t make it in a MusicBeatState instance.');
 			destroy();
 		}
+		setup == null ? {
+			opponent: {color: FlxColor.RED, icon: 'face'},
+			player: {color: 0xFF66FF33, icon: 'face'}
+		} : setup;
+		this.stateScripts = stateScripts;
 		fieldScripts = new ScriptGroup(direct = this);
 		fieldScripts.add(Script.create('content/playfield'));
 
@@ -84,14 +90,14 @@ class PlayField extends FlxGroup {
 	public static function noteHit(note:Note) {
 		if (!note.wasHit) {
 			note.wasHit = true;
-			var event:NoteHitEvent = direct.state.gameScripts.event('noteHit', new NoteHitEvent(note));
+			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note));
 			// FlxG.state.noteHit(event);
 			StrumGroup.baseSignals.noteHit.dispatch(event);
 			note.strumGroup.signals.noteHit.dispatch(event);
 		}
 	}
 	public static function noteMiss(note:Note, direction:Int) {
-		var event:NoteMissEvent = direct.state.gameScripts.event('noteHit', new NoteMissEvent(note));
+		var event:NoteMissEvent = direct.stateScripts.event('noteHit', new NoteMissEvent(note));
 		// FlxG.state.noteMiss(note);
 		StrumGroup.baseSignals.noteMiss.dispatch(event);
 		note.strumGroup.signals.noteMiss.dispatch(event);
@@ -106,7 +112,7 @@ class PlayField extends FlxGroup {
 			var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
 			iconP1.x = center - iconOffset;
 			iconP2.x = center - (iconP2.width - iconOffset);
-			state.gameScripts.call('updateIconPos', [elapsed]);
+			stateScripts.call('updateIconPos', [elapsed]);
 		}
 		fieldScripts.call('updatePost', [elapsed]);
 	}

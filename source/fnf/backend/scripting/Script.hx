@@ -79,6 +79,14 @@ class Script extends FlxBasic {
 			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
 
 			// Engine //
+			'MusicBeatState' => MusicBeatState, // backend.musicbeat
+			'MusicBeatSubstate' => MusicBeatSubstate,
+			'CustomEvent' => CustomEvent, // backend.scripting.events
+			'ScriptEvent' => ScriptEvent,
+			'ModState' => ModState, // backend.scripting
+			'ModSubstate' => ModSubstate,
+			'Script' => Script,
+			'ScriptGroup' => ScriptGroup,
 			'BareCameraPoint' => BareCameraPoint, // backend
 			'CameraPoint' => CameraPoint,
 			'Conductor' => Conductor,
@@ -91,17 +99,15 @@ class Script extends FlxBasic {
 			'Splash' => fnf.objects.note.Splash,
 			'Strum' => fnf.objects.note.Strum,
 			'Character' => fnf.objects.Character, // objects
-			'PlayField' => fnf.objects.PlayField,
+			'PlayField' => PlayField,
 			'FreeplayState' => fnf.states.menus.FreeplayState, // states.menus
 			'MainMenuState' => fnf.states.menus.MainMenuState,
 			'StoryMenuState' => fnf.states.menus.StoryMenuState,
 			'TitleState' => fnf.states.menus.TitleState,
 			'GameOverSubstate' => fnf.states.sub.GameOverSubstate, // states.sub
-			'MusicBeatSubstate' => MusicBeatSubstate,
 			'OutdatedSubState' => fnf.states.sub.OutdatedSubState,
 			'PauseSubState' => fnf.states.sub.PauseSubState,
 			'LoadingState' => LoadingState, // states
-			'MusicBeatState' => MusicBeatState,
 			'PlayState' => PlayState,
 			'Alphabet' => fnf.ui.Alphabet, // ui
 			'HealthIcon' => fnf.ui.HealthIcon,
