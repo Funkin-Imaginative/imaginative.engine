@@ -237,7 +237,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		var sustainsUnderStrums:Bool = SaveManager.getOption('prefs.sustainsUnderStrums');
 		drawNotes(false, sustainsUnderStrums);
 		super.draw();
-		drawNotes(true, !sustainsUnderStrums);
+		drawNotes(false, !sustainsUnderStrums);
+		drawNotes(true, false);
 		splashes.cameras = cameras;
 		splashes.draw();
 	}
