@@ -137,7 +137,7 @@ class PlayState extends MusicBeatState {
 
 		var event:PlayFieldSetupEvent = gameScripts.event('playFieldSetup', new PlayFieldSetupEvent(dad.iconColor, dad.icon, boyfriend.iconColor, boyfriend.icon, [camHUD]));
 		playField = new PlayField(this, {
-			stateScripts: gameScripts,
+			scriptGroup: gameScripts,
 			barStuff: {
 				opponent: {color: event.oppoIconColor, icon: event.oppoIcon},
 				player: {color: event.playIconColor, icon: event.playIcon}
@@ -188,7 +188,7 @@ class PlayState extends MusicBeatState {
 			health += 0.023;
 
 			boyfriend.playSingAnim(note.ID, '', false, true);
-			note.strumGroup.members[note.ID].playAnim(note.noteState == 'end' ? 'press' : 'confirm', true);
+			note.parentStrum.playAnim('confirm', true);
 			// if (cameraRightSide) {
 			// 	var ah = hate(note.ID);
 			// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
@@ -198,8 +198,6 @@ class PlayState extends MusicBeatState {
 
 			vocals.volume = 1;
 			note.strumGroup.vocals.volume = 1;
-
-			if (!note.isSustainNote) note.strumGroup.deleteNote(note);
 		});
 		StrumGroup.baseSignals.noteMiss.add(function(event:NoteMissEvent) {
 			var note:Note = event.note;
@@ -281,18 +279,20 @@ class PlayState extends MusicBeatState {
 				var introSndPaths:Array<String> = ['intro3', 'intro2', 'intro1', 'introGo'];
 
 				if (onCount > 0) {
-					var spr:FlxSprite = new FlxSprite(0, 0, Paths.image(introSprPaths[onCount] + altSuffix));
-					if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
-					spr.updateHitbox();
-					spr.screenCenter();
-					spr.cameras = [camHUD];
-					add(spr);
-					FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: function(tween:FlxTween) {spr.destroy();}
-					});
+					try {
+						var spr:FlxSprite = new FlxSprite(0, 0, Paths.image(introSprPaths[onCount] + altSuffix));
+						if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
+						spr.updateHitbox();
+						spr.screenCenter();
+						spr.cameras = [camHUD];
+						add(spr);
+						FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
+							ease: FlxEase.cubeInOut,
+							onComplete: function(tween:FlxTween) {spr.destroy();}
+						});
+					} catch(e) {trace(e);}
 				}
-				FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
+				try {FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);} catch(e) {trace(e);}
 			}
 
 			onCount += 1;

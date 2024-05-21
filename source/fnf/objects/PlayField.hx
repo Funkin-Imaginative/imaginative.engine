@@ -46,7 +46,7 @@ class PlayField extends FlxGroup {
 	public var health(default, set):Float;
 	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
-	public function new(state:Dynamic, setup:Null<PlayFieldSetup> = null):Void {
+	public function new(state:Dynamic, ?setup:PlayFieldSetup):Void {
 		super(); // note using the state var in source is a bitch
 		if (direct == null || (this.state = state) is MusicBeatState) {/*Satety first!*/} else {
 			trace('Either you have a PlayField instance already or you didn\'t make it in a MusicBeatState instance.');
@@ -56,8 +56,8 @@ class PlayField extends FlxGroup {
 		setup.barStuff == null ? {
 			opponent: {color: FlxColor.RED, icon: 'face'},
 			player: {color: 0xFF66FF33, icon: 'face'}
-		} : setup.barStuff
-		this.stateScripts = setup.stateScripts;
+		} : setup.barStuff;
+		this.stateScripts = setup.scriptGroup == null ? new ScriptGroup(this) : setup.scriptGroup;
 		fieldScripts = new ScriptGroup(direct = this);
 		fieldScripts.add(Script.create('content/fieldscripts/script'));
 		fieldScripts.load();
@@ -95,6 +95,7 @@ class PlayField extends FlxGroup {
 
 	public static function noteHit(note:Note) {
 		if (!note.wasHit) {
+			if (note.hitCausesMiss) return noteMiss(note);
 			note.wasHit = true;
 			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note));
 			// FlxG.state.noteHit(event);
@@ -124,6 +125,7 @@ class PlayField extends FlxGroup {
 			iconP2.x = center - (iconP2.width - iconOffset);
 			stateScripts.call('updateIconPos', [elapsed]);
 		}
+		if (FlxG.keys.justPressed.F4) PlayUtil.botplay = !PlayUtil.botplay;
 		fieldScripts.call('updatePost', [elapsed]);
 	}
 

@@ -1,6 +1,5 @@
 package fnf.objects.note;
 
-import fnf.objects.note.groups.StrumGroup;
 import fnf.graphics.shaders.ColorSwap;
 
 class Note extends FlxSprite {
@@ -16,6 +15,8 @@ class Note extends FlxSprite {
 		}
 		return this.strumGroup = strumGroup;
 	}
+	public var parentStrum(get, never):Strum;
+	private function get_parentStrum():Strum return strumGroup.members[ID];
 
 	// temporary
 	public var downscrollMult(get, never):Float;
@@ -26,10 +27,11 @@ class Note extends FlxSprite {
 	public var canHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasHit:Bool = false;
-	public var prevNote:Note;
+	public var prevNote(get, default):Note; private function get_prevNote():Note return prevNote == null ? this : prevNote;
 	public var scrollAngle:Float = 90;
 
 	private var willMiss:Bool = false;
+	public var hitCausesMiss:Bool = false; // psych be like
 
 	public var altNote:Bool = false;
 	public var invisNote:Bool = false;
@@ -37,6 +39,8 @@ class Note extends FlxSprite {
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 	public var lowPriority:Bool = false;
+
+	public var parent:Note;
 	public var tail:Array<Note> = [];
 
 	public var colorSwap:ColorSwap;
@@ -45,7 +49,7 @@ class Note extends FlxSprite {
 	private function set_kind(value:String) {
 		switch (value) {
 			default:
-				// script call
+				// script call?
 		}
 		return kind = value;
 	}
@@ -69,14 +73,12 @@ class Note extends FlxSprite {
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
 	private var dir(get, never):String;
 	private function get_dir():String return ['left', 'down', 'up', 'right'][ID];
-	public function new(time:Float, data:Int, ?prev:Note, ?isSustain:Bool = false) {
+	public function new(time:Float, data:Int, ?prevNote:Note, ?isSustain:Bool = false) {
 		super();
-
-		if (prev == null) prev = this;
 
 		strumTime = time;
 		ID = data;
-		prevNote = prev;
+		this.prevNote = prevNote;
 		isSustainNote = isSustain;
 
 		switch (PlayState.curStage) {
@@ -112,7 +114,7 @@ class Note extends FlxSprite {
 
 		if (!isSustain) __state = 'note';
 
-		if (isSustain && prev != null) {
+		if (isSustain && prevNote != null) {
 			noteScore * 0.2;
 			alpha = 0.6;
 
@@ -122,10 +124,10 @@ class Note extends FlxSprite {
 
 			updateHitbox();
 
-			if (prev.isSustainNote) {
-				prev.__state = 'hold';
-				prev.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
-				prev.updateHitbox();
+			if (prevNote.isSustainNote) {
+				prevNote.__state = 'hold';
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.updateHitbox();
 			}
 		}
 	}
@@ -133,7 +135,7 @@ class Note extends FlxSprite {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		if (strumGroup.status == !PlayUtil.opponentPlay) {
+		if (!parentStrum.cpu) {
 			// miss on the NEXT frame so lag doesnt make u miss notes
 			if (willMiss && !wasHit) {
 				tooLate = true;
@@ -148,16 +150,18 @@ class Note extends FlxSprite {
 					willMiss = true;
 				}
 			}
-		} else {
-			canHit = false;
-
-			if (strumTime <= Conductor.songPosition)
-				wasHit = true;
-		}
+		} else canHit = false;
 
 		if (tooLate) {
 			if (alpha > 0.3)
 				alpha = 0.3;
 		}
 	}
+
+	// thats it lol
+	public var forceDraw:Bool = false;
+	public var willDraw(get, never):Bool; private function get_willDraw():Bool return forceDraw || !wasHit || isSustainNote;
+	override function draw()
+		if (willDraw)
+			super.draw();
 }

@@ -19,9 +19,9 @@ typedef BaseNoteSignals = {
 }
 typedef NoteSignals = {
 	> BaseNoteSignals,
-	var noteSpawn:FlxTypedSignal<Note->Void>;
-	var noteDestroy:FlxTypedSignal<Note->Void>;
-	var splashSpawn:FlxTypedSignal<Void->Void>;
+	var noteSpawn:FlxTypedSignal<BasicNoteEvent->Void>;
+	var noteDestroy:FlxTypedSignal<BasicNoteEvent->Void>;
+	var splashSpawn:FlxTypedSignal<SplashSpawnEvent->Void>;
 }
 
 class StrumGroup extends FlxTypedGroup<Strum> {
@@ -64,9 +64,9 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	public var signals(default, never):NoteSignals = {
 		noteHit: new FlxTypedSignal<NoteHitEvent->Void>(),
 		noteMiss: new FlxTypedSignal<NoteMissEvent->Void>(),
-		noteSpawn: new FlxTypedSignal<Note->Void>(),
-		noteDestroy: new FlxTypedSignal<Note->Void>(),
-		splashSpawn: new FlxTypedSignal<Void->Void>()
+		noteSpawn: new FlxTypedSignal<BasicNoteEvent->Void>(),
+		noteDestroy: new FlxTypedSignal<BasicNoteEvent->Void>(),
+		splashSpawn: new FlxTypedSignal<SplashSpawnEvent->Void>()
 	};
 
 	public var notes(default, null):NoteGroup;
@@ -116,6 +116,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 						oldNote = notes.members[Std.int(notes.length - 1)];
 						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
 						swagNote.tail.push(sustainNote);
+						sustainNote.parent = swagNote;
 						notes.add(sustainNote);
 						@:bypassAccessor sustainNote.strumGroup = this;
 					}
@@ -134,7 +135,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
-			note.setPosition(members[note.ID].x + (note.isSustainNote ? members[note.ID].width / 2 : 0), (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustainNote ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
+			if (note.willDraw)
+				note.setPosition(note.isSustainNote ? (members[note.ID].x + (note.width / 2)) - (note.width / 2) : members[note.ID].x, (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustainNote ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
 		});
 
 		var controls:Controls = PlayerSettings.player1.controls;
@@ -143,8 +145,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			press: [controls.NOTE_LEFT_P, controls.NOTE_DOWN_P, controls.NOTE_UP_P, controls.NOTE_RIGHT_P],
 			release: [controls.NOTE_LEFT_R, controls.NOTE_DOWN_R, controls.NOTE_UP_R, controls.NOTE_RIGHT_R]
 		};
-		if (status != null && status == !PlayUtil.opponentPlay) {
-			if ((keys.hold.contains(true) || PlayUtil.botplay) /* && !boyfriend.stunned */) {
+		if (status != null && status == !PlayUtil.opponentPlay && !PlayUtil.botplay) {
+			if (keys.hold.contains(true) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
 				notes.forEachAlive(function(note:Note) {
 					if (note.isSustainNote && note.canHit && keys.hold[note.ID])
@@ -152,7 +154,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				});
 			}
 
-			if ((keys.press.contains(true) || PlayUtil.botplay) /* && !boyfriend.stunned */) {
+			if (keys.press.contains(true) /* && !boyfriend.stunned */) {
 				var possibleNotes:Array<Note> = []; // notes that can be hit
 				var directionList:Array<Int> = []; // directions that can be hit
 				var dumbNotes:Array<Note> = []; // notes to kill later
@@ -190,7 +192,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 					for (deNote in possibleNotes) {
 						if (keys.press[shit] && !directionList.contains(deNote.ID))
 							PlayField.noteMiss(deNote, deNote.ID);
-						if (keys.press[deNote.ID] || PlayUtil.botplay)
+						if (keys.press[deNote.ID])
 							PlayField.noteHit(deNote);
 					}
 				} else
@@ -202,7 +204,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 			for (index => strum in members) {
 				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]};
-				if (key.press && strum.animation.name != 'confirm' && !PlayUtil.botplay)
+				if (key.press && strum.animation.name != 'confirm')
 					strum.playAnim('press');
 				if (!key.hold) strum.playAnim('static');
 			}
@@ -217,7 +219,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public function deleteNote(note:Note) {
 		if (note == null) return;
-		signals.noteDestroy.dispatch(note);
+		signals.noteDestroy.dispatch(new BasicNoteEvent(note));
 		note.kill();
 		notes.remove(note, true);
 		note.destroy();

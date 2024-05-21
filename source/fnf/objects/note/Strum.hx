@@ -1,6 +1,5 @@
 package fnf.objects.note;
 
-import fnf.objects.note.groups.StrumGroup; // ಠ_ಠ wtf
 import fnf.graphics.shaders.ColorSwap;
 
 class Strum extends FlxSprite {
@@ -9,7 +8,7 @@ class Strum extends FlxSprite {
 	public var strumGroup(default, null):StrumGroup;
 	@:unreflective private static function setStrumGroup(strum:Strum, group:StrumGroup) strum.strumGroup = group;
 	public var cpu(get, never):Bool;
-	private function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == PlayUtil.opponentPlay && !PlayUtil.enableP2);
+	private function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == PlayUtil.opponentPlay && !PlayUtil.enableP2) || PlayUtil.botplay;
 
 	public var colorSwap:ColorSwap;
 	public var noteData(get, set):Int;
@@ -59,13 +58,7 @@ class Strum extends FlxSprite {
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-		if (animation.finished && !cpu) {
-			switch (animation.name) {
-				// case 'press': playAnim('static', true);
-				case 'confirm': playAnim('press', true);
-			}
-		}
-		if (cpu && lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm') playAnim('static', true);
+		if (lastHit + (Conductor.crochet / (cpu ? 2 : 1)) < Conductor.songPosition && animation.name == 'confirm') playAnim(cpu ? 'static' : 'press', true);
 	}
 
 	public function playAnim(name:String, force:Bool = false) {
