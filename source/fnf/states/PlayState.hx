@@ -145,7 +145,7 @@ class PlayState extends MusicBeatState {
 		});
 		playField.cameras = event.cameras;
 		add(playField);
-		gameScripts.call('playFieldSetupPost, [event]);
+		gameScripts.call('playFieldSetupPost', [event]);
 		event.destroy();
 
 		generateSong();
