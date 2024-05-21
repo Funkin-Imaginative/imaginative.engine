@@ -135,12 +135,18 @@ class PlayState extends MusicBeatState {
 		add(dad);
 		add(boyfriend);
 
+		var event:PlayFieldSetupEvent = gameScripts.event('playFieldSetup', new PlayFieldSetupEvent(dad.iconColor, dad.icon, boyfriend.iconColor, boyfriend.icon, [camHUD]));
 		playField = new PlayField(this, {
-			opponent: {color: dad.iconColor, icon: dad.icon},
-			player: {color: boyfriend.iconColor, icon: boyfriend.icon}
-		}, gameScripts);
-		playField.cameras = [camHUD];
+			stateScripts: gameScripts,
+			barStuff: {
+				opponent: {color: event.oppoIconColor, icon: event.oppoIcon},
+				player: {color: event.playIconColor, icon: event.playIcon}
+			}
+		});
+		playField.cameras = event.cameras;
 		add(playField);
+		gameScripts.call('playFieldSetupPost, [event]);
+		event.destroy();
 
 		generateSong();
 

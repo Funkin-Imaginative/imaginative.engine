@@ -5,12 +5,16 @@ import fnf.objects.note.Note;
 import fnf.ui.HealthIcon;
 
 private typedef StupidLOL = {
-	var opponent:PlayFieldSetup;
-	var player:PlayFieldSetup;
+	var opponent:HealthBarSetup;
+	var player:HealthBarSetup;
 }
-typedef PlayFieldSetup = {
+private typedef HealthBarSetup = {
 	var color:FlxColor;
 	var icon:String;
+}
+typedef PlayFieldSetup = {
+	var scriptGroup:Null<ScriptGroup>;
+	@:optional var barStuff:StupidLOL;
 }
 
 class PlayField extends FlxGroup {
@@ -42,36 +46,38 @@ class PlayField extends FlxGroup {
 	public var health(default, set):Float;
 	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
-	public function new(state:Dynamic, setup:Null<StupidLOL> = null, ?stateScripts:ScriptGroup):Void {
+	public function new(state:Dynamic, setup:Null<PlayFieldSetup> = null):Void {
 		super(); // note using the state var in source is a bitch
 		if (direct == null || (this.state = state) is MusicBeatState) {/*Satety first!*/} else {
 			trace('Either you have a PlayField instance already or you didn\'t make it in a MusicBeatState instance.');
 			destroy();
 		}
-		setup == null ? {
+		setup == null ? {stateScripts: null} : setup;
+		setup.barStuff == null ? {
 			opponent: {color: FlxColor.RED, icon: 'face'},
 			player: {color: 0xFF66FF33, icon: 'face'}
-		} : setup;
-		this.stateScripts = stateScripts;
+		} : setup.barStuff
+		this.stateScripts = setup.stateScripts;
 		fieldScripts = new ScriptGroup(direct = this);
-		fieldScripts.add(Script.create('content/playfield'));
+		fieldScripts.add(Script.create('content/fieldscripts/script'));
+		fieldScripts.load();
 
 		health = (maxHealth - minHealth) / 2; // health setup lol
 		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
 
 		healthBarBG = new FlxSprite().loadGraphic(Paths.image('healthBar'));
 		healthBarBG.screenCenter(XY);
-        healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
+		healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
 		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), 'health', 0, 2);
-		healthBar.createFilledBar(setup.opponent.color, setup.player.color);
+		healthBar.createFilledBar(setup.barStuff.opponent.color, setup.barStuff.player.color);
 		add(healthBar);
 
-		iconP1 = new HealthIcon(setup.player.icon, true);
-		iconP2 = new HealthIcon(setup.opponent.icon);
+		iconP1 = new HealthIcon(setup.barStuff.player.icon, true);
+		iconP2 = new HealthIcon(setup.barStuff.opponent.icon);
 		for(icon in [iconP1, iconP2]) {
-            icon.y = healthBar.y - (icon.height * .5);
+			icon.y = healthBar.y - (icon.height * .5);
 			add(icon);
 		}
 
@@ -94,13 +100,17 @@ class PlayField extends FlxGroup {
 			// FlxG.state.noteHit(event);
 			StrumGroup.baseSignals.noteHit.dispatch(event);
 			note.strumGroup.signals.noteHit.dispatch(event);
+			direct.stateScripts.call('noteHitPost', [event]);
+			event.destroy();
 		}
 	}
-	public static function noteMiss(note:Note, direction:Int) {
-		var event:NoteMissEvent = direct.stateScripts.event('noteHit', new NoteMissEvent(note));
+	public static function noteMiss(note:Note, ?direction:Int) {
+		var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction));
 		// FlxG.state.noteMiss(note);
 		StrumGroup.baseSignals.noteMiss.dispatch(event);
 		note.strumGroup.signals.noteMiss.dispatch(event);
+		direct.stateScripts.call('noteMissPost', [event]);
+		event.destroy();
 	}
 
 	public var updateIconPos:Bool = true;

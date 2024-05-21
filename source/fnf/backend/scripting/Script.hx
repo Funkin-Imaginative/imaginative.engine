@@ -81,8 +81,7 @@ class Script extends FlxBasic {
 			// Engine //
 			'MusicBeatState' => MusicBeatState, // backend.musicbeat
 			'MusicBeatSubstate' => MusicBeatSubstate,
-			'CustomEvent' => CustomEvent, // backend.scripting.events
-			'ScriptEvent' => ScriptEvent,
+			'ScriptEvent' => ScriptEvent, // backend.scripting.events , will preadd more soon
 			'ModState' => ModState, // backend.scripting
 			'ModSubstate' => ModSubstate,
 			'Script' => Script,

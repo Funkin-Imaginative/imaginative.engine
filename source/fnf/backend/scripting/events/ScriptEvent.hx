@@ -12,7 +12,8 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 		continueLoop = finishLoop;
 	}
 
-	public function new() {}
+	public var data:Dynamic = {};
+	public function new(data:Dynamic = {}) {this.data = data;}
 
 	public function toString():String return '[${CoolUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
 
