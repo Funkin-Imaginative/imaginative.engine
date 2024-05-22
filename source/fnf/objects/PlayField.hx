@@ -70,6 +70,7 @@ class PlayField extends FlxGroup {
 		healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
+		#if debug trace(setup); #end
 		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), 'health', 0, 2);
 		healthBar.createFilledBar(setup.barStuff.opponent.color, setup.barStuff.player.color);
 		add(healthBar);
@@ -102,7 +103,6 @@ class PlayField extends FlxGroup {
 			StrumGroup.baseSignals.noteHit.dispatch(event);
 			note.strumGroup.signals.noteHit.dispatch(event);
 			direct.stateScripts.call('noteHitPost', [event]);
-			event.destroy();
 		}
 	}
 	public static function noteMiss(note:Note, ?direction:Int, strumGroup:StrumGroup) {
@@ -111,7 +111,6 @@ class PlayField extends FlxGroup {
 		StrumGroup.baseSignals.noteMiss.dispatch(event);
 		note.strumGroup.signals.noteMiss.dispatch(event);
 		direct.stateScripts.call('noteMissPost', [event]);
-		event.destroy();
 	}
 
 	public var updateIconPos:Bool = true;

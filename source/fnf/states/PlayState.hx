@@ -147,7 +147,6 @@ class PlayState extends MusicBeatState {
 		opponentStrumLine.character = dad;
 		playerStrumLine.character = boyfriend;
 		gameScripts.call('playFieldSetupPost', [event]);
-		event.destroy();
 
 		generateSong();
 
@@ -178,42 +177,37 @@ class PlayState extends MusicBeatState {
 		gameScripts.call('createPost');
 
 		StrumGroup.baseSignals.noteHit.add(function(event:NoteHitEvent) {
-			var note:Note = event.note;
-
-			if (!note.isSustain && note.strumGroup.status) {
+			if (!event.note.isSustain && event.note.strumGroup.status) {
 				// combo += 1;
-				// popUpScore(note.strumTime, note);
+				// popUpScore(event.note.strumTime, event.note);
 			}
 
 			health += 0.023;
 
-			event.strumGroup.character.playSingAnim(note.ID, '');
-			note.parentStrum.playAnim('confirm', true);
+			event.strumGroup.character.playSingAnim(event.direction, '');
+			event.note.parentStrum.playAnim('confirm', true);
 			// if (cameraRightSide) {
-			// 	var ah = hate(note.ID);
+			// 	var ah = hate(event.direction);
 			// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
 			// }
 			// if (coolCamReturn != null) coolCamReturn.cancel();
-			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustain ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
+			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (event.note.isSustain ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			vocals.volume = 1;
-			note.strumGroup.vocals.volume = 1;
+			event.strumGroup.vocals.volume = 1;
 		});
 		StrumGroup.baseSignals.noteMiss.add(function(event:NoteMissEvent) {
-			var note:Note = event.note;
-			var direction:Int = event.direction;
-
 			health -= 0.04;
 			// killCombo();
 
 			// if (!practiceMode) songScore -= 10;
 
 			vocals.volume = 0;
-			if (note != null) note.strumGroup.vocals.volume = 0;
+			event.strumGroup.vocals.volume = 0;
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
-			event.strumGroup.character.playSingAnim(direction, '', MISS);
-			// if (note != null) note.strumGroup.members[direction].playAnim('press', true);
+			event.strumGroup.character.playSingAnim(event.direction, '', MISS);
+			// event.note.parentStrum.playAnim('press', true);
 			// if (coolCamReturn != null) coolCamReturn.cancel();
 			// camPoint.setOffset();
 			// camPoint.snapPoint();

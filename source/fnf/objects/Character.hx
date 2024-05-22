@@ -79,7 +79,10 @@ class Character extends FlxSprite {
 	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
 	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	private function set_isFacing(value:SpriteFacing):SpriteFacing return isFacing = (flipX = value == leftFace);
+	private function set_isFacing(value:SpriteFacing):SpriteFacing {
+		flipX = value == leftFace;
+		return isFacing = value;
+	}
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
@@ -96,10 +99,13 @@ class Character extends FlxSprite {
 	public var camPoint(default, never):BareCameraPoint = new BareCameraPoint();
 	public function getCamPos():FlxPoint {
 		var basePos:FlxPoint = getMidpoint();
-		basePos.x += (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1);
-		basePos.y += xyOffset.y + camPoint.y;
-		scripts.call('getCameraPos', [basePos]);
-		return basePos;
+		var event:PointEvent = new PointEvent(
+			basePos.x + (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1),
+			basePos.y + xyOffset.y + camPoint.y
+		);
+		basePos.put();
+		scripts.call('getCameraPos', [event]);
+		return new FlxPoint(event.x, event.y);
 	}
 
 	public var icon(get, default):String = 'face';
@@ -603,7 +609,7 @@ class Character extends FlxSprite {
 	override public function update(elapsed:Float) {
 		scripts.call('update', [elapsed]);
 		if (!debugMode && animation.curAnim != null) {
-			if (animName().endsWith('miss') && animFinish()) {
+			if (animName().endsWith('miss') && animFinished()) {
 				tryDance();
 				animation.finish();
 			}
@@ -618,18 +624,16 @@ class Character extends FlxSprite {
 						playAnim('shoot' + noteData, true);
 						animationNotes.shift();
 					}
-					if (animFinish()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
+					if (animFinished()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
 			}
 
 			if (animType != DANCE) tryDance();
 
-			if (animFinish() && animOffsets.exists('${animName()}-loop')) {
+			if (animFinished() && animOffsets.exists('${animName()}-loop')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', false, NONE, false, 0));
-				if (!event.stopped) {
-					playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
-					scripts.call('playingSpecialAnimPost', [event]);
-				}
-				event.destroy();
+				if (event.stopped) return;
+				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
+				scripts.call('playingSpecialAnimPost', [event]);
 			}
 		}
 		super.update(elapsed);
@@ -638,22 +642,21 @@ class Character extends FlxSprite {
 
 	public var onSway:Bool = false;
 	public function dance() {
-		scripts.call('dancing', [onSway]);
-		if (!debugMode) {
-			if (animFinish() && animOffsets.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
+		var event:BopEvent = scripts.event('dancing', new BopEvent(onSway));
+		if (!debugMode || !event.stopped) {
+			if (animFinished() && animOffsets.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
-				if (!event.stopped) {
-					playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
-					scripts.call('playingSpecialAnimPost', [event]);
-				}
-				event.destroy();
+				if (event.stopped) return;
+				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
+				scripts.call('playingSpecialAnimPost', [event]);
 			} else if (!preventIdle) {
-				final anim:String = (onSway = !onSway) ? (hasSway ? 'sway' : 'idle') : 'idle';
+				onSway = !event.sway;
+				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
 				final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
 				playAnim('$anim$suffix', false, DANCE);
 			}
 		}
-		scripts.call('dancingPost', [onSway]);
+		scripts.call('dancingPost', [event]);
 	}
 
 	public var preventIdleBopping:Bool = false;
@@ -668,29 +671,27 @@ class Character extends FlxSprite {
 				if (animName() == null)
 					dance();
 			default:
-				if (animName() == null || animFinish())
+				if (animName() == null || animFinished())
 					dance();
 		}
 	}
 
 	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
 		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(name, force, animType, reverse, frame));
-		if (!event.stopped) {
-			final suffix:String = animOffsets.exists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
-			final anim:String = '${event.anim}$suffix';
-			if (animOffsets.exists(anim)) {
-				if (!animName().endsWith('-loop')) animB4Loop = anim;
-				this.animType = event.animType;
-				animation.play(anim, event.force, event.reverse, event.frame);
-				final daOffset = animOffsets.get(anim);
-				offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
-				daOffset.putWeak();
-				if (animType == SING || animType == MISS)
-					lastHit = Conductor.songPosition;
-				scripts.call('playingAnimPost', [event]);
-			}
+		if (event.stopped) return;
+		final suffix:String = animOffsets.exists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
+		final anim:String = '${event.anim}$suffix';
+		if (animOffsets.exists(anim)) {
+			if (!animName().endsWith('-loop')) animB4Loop = anim;
+			this.animType = event.animType;
+			animation.play(anim, event.force, event.reverse, event.frame);
+			final daOffset = animOffsets.get(anim);
+			offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
+			daOffset.putWeak();
+			if (animType == SING || animType == MISS)
+				lastHit = Conductor.songPosition;
+			scripts.call('playingAnimPost', [event]);
 		}
-		event.destroy();
 	}
 
 	public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
@@ -714,22 +715,20 @@ class Character extends FlxSprite {
 	}
 	public function playSingAnim(direction:Int, suffix:String = '', animType:AnimType = SING, force:Bool = true, reverse:Bool = false, frame:Int = 0) {
 		var event:PlaySingAnimEvent = scripts.event('playingSingAnim', new PlaySingAnimEvent(direction, suffix, animType, force, reverse, frame));
-		if (!event.stopped) {
-			var checkedAnims:Array<String> = singAnimCheck(
-				singAnims[event.direction],
-				event.animType == MISS ? 'miss' : '',
-				event.suffix.trim() == '' ? suffixes.sing : event.suffix
-			);
-			playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', event.force, event.animType, event.reverse, event.frame);
-			scripts.call('playingSingAnimPost', [event]);
-		}
-		event.destroy();
+		if (event.stopped) return;
+		var checkedAnims:Array<String> = singAnimCheck(
+			singAnims[event.direction],
+			event.animType == MISS ? 'miss' : '',
+			event.suffix.trim() == '' ? suffixes.sing : event.suffix
+		);
+		playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', event.force, event.animType, event.reverse, event.frame);
+		scripts.call('playingSingAnimPost', [event]);
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) animOffsets.set(name, FlxPoint.get(x, y));
 
 	public function animName():String return animation.name;
-	public function animFinish():Bool return animation.curAnim.finished;
+	public function animFinished():Bool return animation.curAnim.finished;
 
 	override public function destroy() {
 		scripts.destroy();
