@@ -28,16 +28,18 @@ class Note extends FlxSprite {
 	public var tooLate:Bool = false;
 	public var wasHit:Bool = false;
 	public var prevNote(get, default):Note; private function get_prevNote():Note return prevNote == null ? this : prevNote;
+	public var nextNote(get, default):Note; private function get_nextNote():Note return nextNote == null ? this : nextNote;
 	public var scrollAngle:Float = 90;
 
 	private var willMiss:Bool = false;
 	public var hitCausesMiss:Bool = false; // psych be like
+	public var forceMiss:Bool = false; // opponent specific
 
 	public var altNote:Bool = false;
 	public var invisNote:Bool = false;
 
 	public var sustainLength:Float = 0;
-	public var isSustainNote:Bool = false;
+	public var isSustain:Bool = false;
 	public var lowPriority:Bool = false;
 
 	public var parent:Note;
@@ -60,10 +62,14 @@ class Note extends FlxSprite {
 	private function set___state(value:String):String {
 		__state = value;
 		animation.play(__state);
+		if (__state == 'note') {
+			centerOffsets();
+			centerOrigin();
+		}
 		return value;
 	}
 	public var noteState(get, never):String;
-	private function get_noteState():String return __state.trim() == '' ? (isSustainNote ? 'hold' : 'note') : __state; // did some jic stuff
+	private function get_noteState():String return __state.trim() == '' ? (isSustain ? 'hold' : 'note') : __state; // did some jic stuff
 
 	public var noteData(get, set):Int;
 	private function get_noteData():Int return ID;
@@ -73,13 +79,13 @@ class Note extends FlxSprite {
 	private function get_col():String return ['purple', 'blue', 'green', 'red'][ID];
 	private var dir(get, never):String;
 	private function get_dir():String return ['left', 'down', 'up', 'right'][ID];
-	public function new(time:Float, data:Int, ?prevNote:Note, ?isSustain:Bool = false) {
+	public function new(time:Float, data:Int, ?prevNote:Note, isSustain:Bool = false) {
 		super();
 
 		strumTime = time;
 		ID = data;
 		this.prevNote = prevNote;
-		isSustainNote = isSustain;
+		this.isSustain = isSustain;
 
 		switch (PlayState.curStage) {
 			case 'school' | 'schoolEvil':
@@ -118,13 +124,13 @@ class Note extends FlxSprite {
 			noteScore * 0.2;
 			alpha = 0.6;
 
-			if (SaveManager.getOption('gameplay.downscroll')) angle = 180;
+			if (SaveManager.getOption('gameplay.downscroll')) scrollAngle = 180;
 
 			__state = 'end';
 
 			updateHitbox();
 
-			if (prevNote.isSustainNote) {
+			if (prevNote.isSustain) {
 				prevNote.__state = 'hold';
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prevNote.updateHitbox();
@@ -152,16 +158,15 @@ class Note extends FlxSprite {
 			}
 		} else canHit = false;
 
-		if (tooLate) {
+		if (tooLate)
 			if (alpha > 0.3)
 				alpha = 0.3;
-		}
 	}
 
 	// thats it lol
 	public var forceDraw:Bool = false;
-	public var willDraw(get, never):Bool; private function get_willDraw():Bool return forceDraw || !wasHit || isSustainNote;
+	public var willDraw(get, never):Bool; private function get_willDraw():Bool return forceDraw || !wasHit || isSustain;
 	override function draw()
-		if (willDraw)
+		if (willDraw) // made var for if statement shit lol
 			super.draw();
 }

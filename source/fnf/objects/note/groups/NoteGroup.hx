@@ -8,7 +8,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	public static function noteSortFunc(i, n1, n2):Int {
 		if (n1.strumTime == n2.strumTime) {
 			var level:Int = 0;
-			if (n1.strumTime == n2.strumTime) n1.isSustainNote ? level++ : level--;
+			if (n1.strumTime == n2.strumTime) n1.isSustain ? level++ : level--;
 			if (n1.lowPriority && !n2.lowPriority) level++;
 			else if (!n1.lowPriority && n2.lowPriority) level--;
 			return level;
@@ -18,7 +18,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	public static function noteSortFunc_ArrayVer(n1, n2):Int {
 		if (n1.strumTime == n2.strumTime) {
 			var level:Int = 0;
-			if (n1.strumTime == n2.strumTime) n1.isSustainNote ? level++ : level--;
+			if (n1.strumTime == n2.strumTime) n1.isSustain ? level++ : level--;
 			if (n1.lowPriority && !n2.lowPriority) level++;
 			else if (!n1.lowPriority && n2.lowPriority) level--;
 			return level;

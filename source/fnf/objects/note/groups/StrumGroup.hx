@@ -73,6 +73,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	public var splashes(default, null):SplashGroup;
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
+	public var character:Character;
 
 	public function new(x:Float, y:Float, pixel:Bool = false, amount:Int = 4) {
 		super();
@@ -135,8 +136,11 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
-			if (note.willDraw)
-				note.setPosition(note.isSustainNote ? (members[note.ID].x + (note.width / 2)) - (note.width / 2) : members[note.ID].x, (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustainNote ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
+			if (note.willDraw) {
+				var angleDir:Float = note.scrollAngle * Math.PI / 180;
+				note.setPosition(note.isSustain ? (members[note.ID].x + (note.parent.width / 2)) - (note.parent.width / 2) + Math.cos(angleDir) : members[note.ID].x + Math.cos(angleDir), (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustain ? (Note.swagWidth / 2) : 0) + Math.sin(angleDir) * note.downscrollMult);
+				if (note.isSustain) note.angle = note.scrollAngle - 90;
+			}
 		});
 
 		var controls:Controls = PlayerSettings.player1.controls;
@@ -149,8 +153,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			if (keys.hold.contains(true) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
 				notes.forEachAlive(function(note:Note) {
-					if (note.isSustainNote && note.canHit && keys.hold[note.ID])
-						PlayField.noteHit(note);
+					if (note.isSustain && note.canHit && keys.hold[note.ID])
+						PlayField.noteHit(note, this);
 				});
 			}
 
@@ -191,15 +195,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 						// if a direction is hit that shouldn't be
 					for (deNote in possibleNotes) {
 						if (keys.press[shit] && !directionList.contains(deNote.ID))
-							PlayField.noteMiss(deNote, deNote.ID);
+							PlayField.noteMiss(deNote, deNote.ID, this);
 						if (keys.press[deNote.ID])
-							PlayField.noteHit(deNote);
+							PlayField.noteHit(deNote, this);
 					}
 				} else
 					for (shit in 0...keys.press.length)
 						if (keys.press[shit])
 							if (!SaveManager.getOption('gameplay.ghostTapping'))
-								PlayField.noteMiss(null, shit);
+								PlayField.noteMiss(null, shit, this);
 			}
 
 			for (index => strum in members) {
@@ -210,9 +214,9 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			}
 		} else {
 			notes.forEachAlive(function(note:Note) {
-				if (note.strumTime <= Conductor.songPosition) {
-					PlayField.noteHit(note);
-				}
+				if (note.strumTime <= Conductor.songPosition)
+					if (note.forceMiss) PlayField.noteMiss(note, note.ID, this);
+					else PlayField.noteHit(note, this);
 			});
 		}
 	}
@@ -228,7 +232,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	private function drawNotes(drawNote:Bool, drawSustain:Bool) {
 		for (note in notes) {
 			if (note != null && note.exists && note.visible) {
-				if (note.isSustainNote ? drawSustain : drawNote) {
+				if (note.isSustain ? drawSustain : drawNote) {
 					note.cameras = cameras;
 					note.draw();
 				}

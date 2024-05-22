@@ -125,10 +125,9 @@ class PlayState extends MusicBeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		persistentUpdate = persistentDraw = true;
 		gameScripts.load();
 
-		characters.push(dad = new Character(100, 100, false, 'boyfriend', 'normal'));
+		characters.push(dad = new Character(100, 100, false, SONG.player2, 'none'));
 		characters.push(boyfriend = new Character(770, 100, true, 'boyfriend', 'normal'));
 		characters.push(gf = new Character(400, 130, false, 'gf', 'none'));
 		add(gf);
@@ -145,11 +144,12 @@ class PlayState extends MusicBeatState {
 		});
 		playField.cameras = event.cameras;
 		add(playField);
+		opponentStrumLine.character = dad;
+		playerStrumLine.character = boyfriend;
 		gameScripts.call('playFieldSetupPost', [event]);
 		event.destroy();
 
 		generateSong();
-
 
 		var lol:FlxPoint = dad.getCamPos();
 		camPoint = new CameraPoint(lol.x, lol.y, 0.04);
@@ -180,21 +180,21 @@ class PlayState extends MusicBeatState {
 		StrumGroup.baseSignals.noteHit.add(function(event:NoteHitEvent) {
 			var note:Note = event.note;
 
-			if (!note.isSustainNote && note.strumGroup.status) {
+			if (!note.isSustain && note.strumGroup.status) {
 				// combo += 1;
 				// popUpScore(note.strumTime, note);
 			}
 
 			health += 0.023;
 
-			boyfriend.playSingAnim(note.ID, '', false, true);
+			event.strumGroup.character.playSingAnim(note.ID, '');
 			note.parentStrum.playAnim('confirm', true);
 			// if (cameraRightSide) {
 			// 	var ah = hate(note.ID);
 			// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
 			// }
 			// if (coolCamReturn != null) coolCamReturn.cancel();
-			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustainNote ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
+			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (note.isSustain ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			vocals.volume = 1;
 			note.strumGroup.vocals.volume = 1;
@@ -212,7 +212,7 @@ class PlayState extends MusicBeatState {
 			if (note != null) note.strumGroup.vocals.volume = 0;
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
-			boyfriend.playSingAnim(direction, '', true, true);
+			event.strumGroup.character.playSingAnim(direction, '', MISS);
 			// if (note != null) note.strumGroup.members[direction].playAnim('press', true);
 			// if (coolCamReturn != null) coolCamReturn.cancel();
 			// camPoint.setOffset();
@@ -278,8 +278,8 @@ class PlayState extends MusicBeatState {
 
 				var introSndPaths:Array<String> = ['intro3', 'intro2', 'intro1', 'introGo'];
 
-				if (onCount > 0) {
-					try {
+				try {
+					if (onCount > 0 || introSprPaths[onCount].trim() != '') {
 						var spr:FlxSprite = new FlxSprite(0, 0, Paths.image(introSprPaths[onCount] + altSuffix));
 						if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
 						spr.updateHitbox();
@@ -290,9 +290,9 @@ class PlayState extends MusicBeatState {
 							ease: FlxEase.cubeInOut,
 							onComplete: function(tween:FlxTween) {spr.destroy();}
 						});
-					} catch(e) {trace(e);}
-				}
-				try {FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);} catch(e) {trace(e);}
+					}
+					if (introSndPaths[onCount].trim() != '') FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
+				} catch(e) {trace(e);}
 			}
 
 			onCount += 1;

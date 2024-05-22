@@ -93,11 +93,11 @@ class PlayField extends FlxGroup {
 		}
 	}
 
-	public static function noteHit(note:Note) {
+	public static function noteHit(note:Note, strumGroup:StrumGroup) {
 		if (!note.wasHit) {
-			if (note.hitCausesMiss) return noteMiss(note);
+			if (note.hitCausesMiss) return noteMiss(note, strumGroup);
 			note.wasHit = true;
-			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note));
+			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note, note.ID, strumGroup));
 			// FlxG.state.noteHit(event);
 			StrumGroup.baseSignals.noteHit.dispatch(event);
 			note.strumGroup.signals.noteHit.dispatch(event);
@@ -105,8 +105,8 @@ class PlayField extends FlxGroup {
 			event.destroy();
 		}
 	}
-	public static function noteMiss(note:Note, ?direction:Int) {
-		var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction));
+	public static function noteMiss(note:Note, ?direction:Int, strumGroup:StrumGroup) {
+		var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction, strumGroup));
 		// FlxG.state.noteMiss(note);
 		StrumGroup.baseSignals.noteMiss.dispatch(event);
 		note.strumGroup.signals.noteMiss.dispatch(event);

@@ -15,6 +15,15 @@ enum abstract SpriteFacing(String) {
 	var rightFace = 'right';
 }
 
+// after some thinking I see why cne did it capitalized
+enum abstract AnimType(String) {
+	var NONE = null;
+	var DANCE = 'dance';
+	var SING = 'sing';
+	var MISS = 'miss';
+	var LOCK = 'lock';
+}
+
 private typedef XY = {
 	@:default(0) var x:Float;
 	@:default(0) var y:Float;
@@ -57,6 +66,7 @@ class Character extends FlxSprite {
 	public var debugMode:Bool = false; // for editors
 
 	public var animOffsets:Map<String, FlxPoint> = new Map<String, FlxPoint>(); // the offsets
+	public var animType:AnimType = NONE;
 
 	// internal set to prevent issues
 	var __name:String = 'boyfriend';
@@ -617,12 +627,15 @@ class Character extends FlxSprite {
 					if (animation.curAnim.finished) playAnim(animation.name, false, false, animation.curAnim.frames.length - 3);
 			}
 
-			// if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition) tryDance();
+			if (animType != DANCE) tryDance();
 
 			if (animation.curAnim.finished && animOffsets.exists('${animation.name}-loop')) {
-				scripts.call('playingSpecialAnim', ['loop']);
-				playAnim('${animation.name}-loop');
-				scripts.call('playingSpecialAnimPost', ['loop']);
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', false, NONE, false, 0));
+				if (!event.stopped) {
+					playAnim('${animation.name}-loop', event.force, event.animType, event.reverse, event.frame);
+					scripts.call('playingSpecialAnimPost', [event]);
+				}
+				event.destroy();
 			}
 		}
 		super.update(elapsed);
@@ -634,9 +647,12 @@ class Character extends FlxSprite {
 		scripts.call('dancing', [onSway]);
 		if (!debugMode) {
 			if (animation.curAnim.finished && animOffsets.exists('$animB4Loop-end') && !animation.name.endsWith('-end')) {
-				scripts.call('playingSpecialAnim', ['end']);
-				playAnim('$animB4Loop-end');
-				scripts.call('playingSpecialAnimPost', ['end']);
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
+				if (!event.stopped) {
+					playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
+					scripts.call('playingSpecialAnimPost', [event]);
+				}
+				event.destroy();
 			} else if (!preventIdle) {
 				final anim:String = (onSway = !onSway) ? (hasSway ? 'sway' : 'idle') : 'idle';
 				final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
@@ -647,23 +663,43 @@ class Character extends FlxSprite {
 	}
 
 	public var preventIdleBopping:Bool = false;
-	public function tryDance() dance(); // for now it like this
-
-	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
-		final suffix:String = animOffsets.exists('$name${suffixes.anim}') ? suffixes.anim : '';
-		final anim:String = '$name$suffix';
-		if (animOffsets.exists(anim)) {
-			if (!animation.name.endsWith('-loop')) animB4Loop = name;
-			scripts.call('playingAnim', [anim, force, reverse, frame]);
-			animation.play(anim, force, reverse, frame);
-			final daOffset = animOffsets.get(anim);
-			offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
-			daOffset.putWeak();
-			scripts.call('playingAnimPost', [anim, force, reverse, frame]);
+	public function tryDance() {
+		switch (animType) {
+			case SING | MISS:
+				if (lastHit + (Conductor.stepCrochet * singLength) < Conductor.songPosition)
+					dance();
+			case DANCE:
+				dance();
+			case LOCK:
+				if (animation.name == null)
+					dance();
+			default:
+				if (animation.name == null || animation.curAnim.finished)
+					dance();
 		}
 	}
 
-	public function singAnimCheck(sing:String, suffix:String, miss:String):Array<String> {
+	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
+		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(name, force, animType, reverse, frame));
+		if (!event.stopped) {
+			final suffix:String = animOffsets.exists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
+			final anim:String = '${event.anim}$suffix';
+			if (animOffsets.exists(anim)) {
+				if (!animation.name.endsWith('-loop')) animB4Loop = anim;
+				this.animType = event.animType;
+				animation.play(anim, event.force, event.reverse, event.frame);
+				final daOffset = animOffsets.get(anim);
+				offset.set(daOffset.x - xyOffset.x, daOffset.y - xyOffset.y);
+				daOffset.putWeak();
+				if (animType == SING || animType == MISS)
+					lastHit = Conductor.songPosition;
+				scripts.call('playingAnimPost', [event]);
+			}
+		}
+		event.destroy();
+	}
+
+	public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
 		var has:AnimHas = {
 			suffix: suffix.trim() == '' ? false : animOffsets.exists('$sing$miss$suffix'),
 			miss: animOffsets.exists('${sing}miss$suffix') || animOffsets.exists('${sing}miss')
@@ -675,18 +711,25 @@ class Character extends FlxSprite {
 		return [sing, cool.miss, cool.suffix]; // proper order
 	}
 
+	public static var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 	public var singAnims(get, default):Null<Array<Null<String>>>;
-	public var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-	private function get_singAnims():Array<String> return singAnims == null ? globalSingAnims : singAnims;
-	public function playSingAnim(direction:Int, suffix:String = '', missed:Bool = false, force:Bool = false, reverse:Bool = false, frame:Int = 0) {
-		scripts.call('playingSingAnim', [direction, suffix, missed, force, reverse, frame]);
-		var checkedAnims:Array<String> = singAnimCheck(
-			singAnims[direction],
-			suffix.trim() == '' ? suffixes.sing : suffix,
-			missed ? 'miss' : ''
-		);
-		playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', force, reverse, frame);
-		scripts.call('playingSingAnimPost', [direction, suffix, missed, force, reverse, frame]);
+	private function get_singAnims():Array<String> {
+		var theAnims:Array<String> = singAnims == null ? globalSingAnims : singAnims;
+		for (index => anim in theAnims) theAnims[index] = anim == null ? globalSingAnims[index] : anim;
+		return theAnims;
+	}
+	public function playSingAnim(direction:Int, suffix:String = '', animType:AnimType = SING, force:Bool = true, reverse:Bool = false, frame:Int = 0) {
+		var event:PlaySingAnimEvent = scripts.event('playingSingAnim', new PlaySingAnimEvent(direction, suffix, animType, force, reverse, frame));
+		if (!event.stopped) {
+			var checkedAnims:Array<String> = singAnimCheck(
+				singAnims[event.direction],
+				event.animType == MISS ? 'miss' : '',
+				event.suffix.trim() == '' ? suffixes.sing : event.suffix
+			);
+			playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', event.force, event.animType, event.reverse, event.frame);
+			scripts.call('playingSingAnimPost', [event]);
+		}
+		event.destroy();
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0) animOffsets.set(name, FlxPoint.get(x, y));
