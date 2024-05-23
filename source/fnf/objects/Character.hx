@@ -642,7 +642,7 @@ class Character extends FlxSprite {
 
 	public var onSway:Bool = false;
 	public function dance() {
-		var event:BopEvent = scripts.event('dancing', new BopEvent(onSway));
+		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (animFinished() && animOffsets.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
@@ -650,7 +650,7 @@ class Character extends FlxSprite {
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			} else if (!preventIdle) {
-				onSway = !event.sway;
+				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
 				final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
 				playAnim('$anim$suffix', false, DANCE);
