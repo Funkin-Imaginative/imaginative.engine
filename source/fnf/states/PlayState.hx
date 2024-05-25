@@ -127,9 +127,9 @@ class PlayState extends MusicBeatState {
 
 		gameScripts.load();
 
-		characters.push(dad = new Character(100, 100, false, SONG.player2, 'none'));
+		characters.push(dad = new Character(100, 100, false, 'dad', 'none'));
 		characters.push(boyfriend = new Character(770, 100, true, 'boyfriend', 'normal'));
-		characters.push(gf = new Character(400, 130, false, 'gf', 'none'));
+		characters.push(gf = new Character(400, 130, false, 'gf', 'normal'));
 		add(gf);
 		add(dad);
 		add(boyfriend);

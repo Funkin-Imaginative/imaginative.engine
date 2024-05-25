@@ -25,24 +25,28 @@ class ParseUtil {
 				default: (key:String, ?lib:Null<String>) -> return key;
 
 			};
-			if (!sys.FileSystem.exists(funclol('characters/$charName'))) {
-				if (sys.FileSystem.exists(funclol('characters/$charName/$charVariant'))) {
-					path = 'characters/$charName/$charVariant';
+			if (charVariant == 'none') {
+				if (sys.FileSystem.exists(funclol('characters/$charName'))) {
+					path = 'characters/$charName';
 					break;
-				} else applyFailsafe = true;
-			}
-			else {
-				path = 'characters/$charName';
-				break;
+				}
+			} else {
+				if (!sys.FileSystem.exists(funclol('characters/$charName'))) {
+					if (sys.FileSystem.exists(funclol('characters/$charName/$charVariant'))) {
+						path = 'characters/$charName/$charVariant';
+						break;
+					}
+				} else {
+					path = 'characters/$charName';
+					break;
+				}
 			}
 		}
 
-		#if debug trace(path); #end
 		var charDataType:CharDataType = null;
 		if (sys.FileSystem.exists(Paths.json(path))) charDataType = PSYCH;
 		else if (sys.FileSystem.exists(Paths.yaml(path))) charDataType = IMAG;
 		else if (sys.FileSystem.exists(Paths.xml(path))) charDataType = CNE;
-		#if debug trace(charDataType); #end
 
 		var theData:CharData = FailsafeUtil.charYaml;
 		switch (charDataType) {
@@ -68,8 +72,16 @@ class ParseUtil {
 
 				for (index in 0...jsonData.animations.length) {
 					var info:Dynamic = jsonData.animations[index];
+					var flipAnim:String = switch (info.anim) {
+						case 'singLEFT': 'singRIGHT'; case 'singRIGHT': 'singLEFT';
+						case 'singLEFT-alt': 'singRIGHT-alt'; case 'singRIGHT-alt': 'singLEFT-alt';
+						case 'singLEFTmiss': 'singRIGHTmiss'; case 'singRIGHTmiss': 'singLEFTmiss';
+						case 'singLEFTmiss-alt': 'singRIGHTmiss-alt'; case 'singRIGHTmiss-alt': 'singLEFTmiss-alt';
+						default: '';
+					};
 					theData.anims.insert(index, {
 						name: info.anim,
+						flipAnim: flipAnim,
 						tag: info.name,
 						fps: info.fps,
 						loop: info.loop,
@@ -78,8 +90,6 @@ class ParseUtil {
 						flip: false
 					});
 				}
-
-				theData = jsonData;
 			// case CNE:
 			case IMAG: theData = parseYaml(path);
 			default: applyFailsafe = true;
