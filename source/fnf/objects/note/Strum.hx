@@ -35,10 +35,6 @@ class Strum extends FlxSprite {
 			animation.add('static', [data], 24);
 			animation.add('press', [data + 4, data + 8], 24, false);
 			animation.add('confirm', [data + 12, data + 16], 24, false);
-
-			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-			updateHitbox();
 		} else {
 			frames = Paths.getSparrowAtlas('NOTE_assets');
 
@@ -47,18 +43,17 @@ class Strum extends FlxSprite {
 			animation.addByPrefix('static', 'arrow${dir.toUpperCase()}', 24);
 			animation.addByPrefix('press', '$dir press', 24, false);
 			animation.addByPrefix('confirm', '$dir confirm', 24, false);
-
-			antialiasing = true;
-			setGraphicSize(Std.int(width * 0.7));
-			updateHitbox();
 		}
+		antialiasing = !pixel;
+		setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7)));
+		updateHitbox();
 
 		playAnim('static', true);
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-		if (lastHit + (Conductor.crochet / (cpu ? 2 : 1.5)) < Conductor.songPosition && animation.name == 'confirm') playAnim(cpu ? 'static' : 'press', true);
+		if (cpu && lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm') playAnim('static', true);
 	}
 
 	public function playAnim(name:String, force:Bool = false) {

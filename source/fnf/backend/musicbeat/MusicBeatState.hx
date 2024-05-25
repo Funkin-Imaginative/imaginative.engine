@@ -111,9 +111,12 @@ class MusicBeatState extends FlxTransitionableState {
 		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
+	var oldBeat:Int = 0;
 	public function stepHit():Void {
-		if (curStep % 4 == 0)
+		if (curStep % 4 == 0 && oldBeat != curBeat) {
+			oldBeat = curBeat;
 			beatHit();
+		}
 		call('stepHit', [curStep]);
 	}
 

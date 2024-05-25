@@ -45,11 +45,11 @@ class Paths {
 
 	inline public static function txt(key:String, ?library:String) return getPath('data/$key.txt', TEXT, library);
 
-	inline public static function xml(key:String, ?library:String) return getPath('data/$key.xml', TEXT, library);
+	inline public static function xml(key:String, ?library:String) return getPath('$key.xml', TEXT, library);
 
 	inline public static function yaml(key:String, ?library:String) return getPath('$key.yaml', TEXT, library);
 
-	inline public static function json(key:String, ?library:String) return getPath('data/$key.json', TEXT, library);
+	inline public static function json(key:String, ?library:String) return getPath('$key.json', TEXT, library);
 
 	inline public static function script(key:String, ?library:String) {
 		var scriptPath = getPath(key, TEXT, library);
@@ -80,7 +80,7 @@ class Paths {
 
 	inline public static function getContent(file:String):String return FileSystem.exists(file) ? File.getContent(file) : '';
 
-	inline public static function getSparrowAtlas(key:String, ?library:String) return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
+	inline public static function getSparrowAtlas(key:String, ?library:String) return FlxAtlasFrames.fromSparrow(image(key, library), xml('images/$key', library));
 
 	inline public static function getPackerAtlas(key:String, ?library:String) return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 }

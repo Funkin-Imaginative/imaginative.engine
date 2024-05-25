@@ -47,7 +47,7 @@ typedef AnimList = {
 	@:optional @:default(false) var flip:Bool;
 }
 
-typedef CharYaml = {
+typedef CharData = {
 	var sprite:String;
 	@:default(false) var flip:Bool;
 	var anims:Array<AnimList>;
@@ -120,8 +120,8 @@ class Character extends FlxSprite {
 	public var iconColor(get, default):Null<FlxColor>;
 	private function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
-	public var yamlData:CharYaml;
-	public static function applyCharYaml(yamlContent:Dynamic):CharYaml
+	public var charData:CharData;
+	public static function applyCharData(yamlContent:Dynamic):CharData
 		return {
 			sprite: yamlContent.sprite,
 			flip: yamlContent.flip,
@@ -141,7 +141,7 @@ class Character extends FlxSprite {
 	public var charScript:Script;
 	public var variantScript:Script;
 
-	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making these whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
+	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making this whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
 		super(x, y);
 
 		__name = character;
@@ -159,7 +159,7 @@ class Character extends FlxSprite {
 		scripts.call('create');
 
 		switch (charName) {
-			case 'gf':
+			/* case 'gf':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'GF_assets'}');
 
 				animation.addByIndices('idle', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
@@ -174,7 +174,7 @@ class Character extends FlxSprite {
 				animation.addByIndices('hairFall', 'GF Dancing Beat Hair Landing', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], '', 24, false);
 				animation.addByPrefix('scared', 'GF FEAR', 24, true);
 
-				loadOffsetFile(charName);
+				loadOffsetFile(charName); */
 
 			case 'gf-christmas':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'gfChristmas'}');
@@ -242,7 +242,7 @@ class Character extends FlxSprite {
 				scaleMult = 6;
 				aliasing = false;
 
-			case 'dad':
+			/* case 'dad':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'DADDY_DEAREST'}');
 
 				quickAnimAdd('idle', 'Dad idle dance');
@@ -251,7 +251,7 @@ class Character extends FlxSprite {
 				quickAnimAdd('singUP', 'Dad Sing Note UP');
 				quickAnimAdd('singRIGHT', 'Dad Sing Note RIGHT');
 
-				loadOffsetFile(charName);
+				loadOffsetFile(charName); */
 
 			case 'spooky':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'spooky_kids_assets'}');
@@ -300,10 +300,10 @@ class Character extends FlxSprite {
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'Monster_Assets'}');
 
 				quickAnimAdd('idle', 'monster idle');
-				quickAnimAdd('singRIGHT', 'Monster Right note');
+				quickAnimAdd('singLEFT', 'Monster Right note');
 				quickAnimAdd('singDOWN', 'monster down');
 				quickAnimAdd('singUP', 'monster up note');
-				quickAnimAdd('singLEFT', 'Monster left note');
+				quickAnimAdd('singRIGHT', 'Monster left note');
 
 				loadOffsetFile(charName);
 
@@ -311,10 +311,10 @@ class Character extends FlxSprite {
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'monsterChristmas'}');
 
 				quickAnimAdd('idle', 'monster idle');
-				quickAnimAdd('singRIGHT', 'Monster Right note');
+				quickAnimAdd('singLEFT', 'Monster Right note');
 				quickAnimAdd('singDOWN', 'monster down');
 				quickAnimAdd('singUP', 'monster up note');
-				quickAnimAdd('singLEFT', 'Monster left note');
+				quickAnimAdd('singRIGHT', 'Monster left note');
 
 				loadOffsetFile(charName);
 
@@ -536,34 +536,28 @@ class Character extends FlxSprite {
 				loadOffsetFile(charName);
 
 			default:
-				var path:String = '';
-				var applyFailsafe:Bool = false;
-				if (!sys.FileSystem.exists('characters/$charName'))
-					if (sys.FileSystem.exists('characters/$charName/$charVariant')) path = 'characters/$charName/$charVariant';
-					else applyFailsafe = true;
-				else path = 'characters/$charName';
+				charData = ParseUtil.parseCharacter(charName, charVariant); // get char data
 
-				yamlData = applyFailsafe ? FailsafeUtil.charYaml : applyCharYaml(ParseUtil.parseYaml(path)); // get char data
-
-				frames = Paths.getSparrowAtlas('characters/${spritePath = yamlData.sprite}');
-				flipSprite = yamlData.flip;
-				for (i in 0...yamlData.anims.length) {
-					final anim = yamlData.anims[i];
+				frames = Paths.getSparrowAtlas('characters/${spritePath = charData.sprite}');
+				flipSprite = charData.flip;
+				var anims:Array<AnimList> = charData.anims;
+				for (anim in anims) {
+					// final anim = charData.anims[i];
 					// multsparrow support soon
 					if (anim.indices != null && anim.indices.length > 0)
 						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipSprite);
 					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipSprite);
 					addOffset(anim.name, anim.offset.x, anim.offset.y);
 				}
-				xyOffset.set(yamlData.position.x, yamlData.position.y);
-				camPoint.setPoint(yamlData.camera.x, yamlData.camera.y);
+				xyOffset.set(charData.position.x, charData.position.y);
+				camPoint.setPoint(charData.camera.x, charData.camera.y);
 
-				scaleMult = yamlData.scale;
-				singLength = yamlData.singLen;
-				icon = yamlData.icon;
-				aliasing = yamlData.aliasing;
-				if (yamlData.color.trim() != '') iconColor = Std.parseInt(yamlData.color);
-				beatInterval = yamlData.beat;
+				scaleMult = charData.scale;
+				singLength = charData.singLen;
+				icon = charData.icon;
+				aliasing = charData.aliasing;
+				if (charData.color.trim() != '') iconColor = Std.parseInt(charData.color);
+				beatInterval = charData.beat;
 		}
 
 		antialiasing = aliasing;
@@ -653,7 +647,7 @@ class Character extends FlxSprite {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
 				final suffix:String = animOffsets.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
-				playAnim('$anim$suffix', false, DANCE);
+				playAnim('$anim$suffix', true, DANCE);
 			}
 		}
 		scripts.call('dancingPost', [event]);

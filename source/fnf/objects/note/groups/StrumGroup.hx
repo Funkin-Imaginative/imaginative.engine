@@ -138,7 +138,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		notes.forEachAlive(function(note:Note) {
 			if (note.willDraw) {
 				var angleDir:Float = note.scrollAngle * Math.PI / 180;
-				note.setPosition(note.isSustain ? (members[note.ID].x + (note.parent.width / 2)) - (note.parent.width / 2) + Math.cos(angleDir) : members[note.ID].x + Math.cos(angleDir), (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustain ? (Note.swagWidth / 2) : 0) + Math.sin(angleDir) * note.downscrollMult);
+				note.setPosition(note.isSustain ? (members[note.ID].x + (note.parent.width / 2)) - (note.parent.width / 2) : members[note.ID].x, (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustain ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
 				if (note.isSustain) note.angle = note.scrollAngle - 90;
 			}
 		});

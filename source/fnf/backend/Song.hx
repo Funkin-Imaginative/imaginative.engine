@@ -36,18 +36,7 @@ class Song
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
-	{
-		var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
-
-		while (!rawJson.endsWith("}"))
-		{
-			rawJson = rawJson.substr(0, rawJson.length - 1);
-			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
-		}
-
-		return parseJSONshit(rawJson);
-	}
+	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong return parseJSONshit(Paths.getContent(Paths.json('data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim());
 
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{
