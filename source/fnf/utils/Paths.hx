@@ -31,7 +31,7 @@ class Paths {
 
 	inline public static function json(key:String, ?pathType:FunkinPath) return getPath('$key.json', pathType);
 
-	inline public static function script(key:String, ?pathType:FunkinPath) {
+	public static function script(key:String, ?pathType:FunkinPath) {
 		var scriptPath = getPath(key, pathType);
 		var path:String;
 		for (ext in Script.exts) {
@@ -44,7 +44,7 @@ class Paths {
 		return scriptPath;
 	}
 
-	inline public static function audio(key:String, ?pathType:FunkinPath) {
+	public static function audio(key:String, ?pathType:FunkinPath) {
 		var soundPath = getPath(key, pathType);
 		var path:String;
 		for (ext in soundExts) {

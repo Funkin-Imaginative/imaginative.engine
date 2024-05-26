@@ -18,11 +18,11 @@ class ParseUtil {
 		var applyFailsafe:Bool = false;
 
 		for (lol in ['yaml', 'json', 'xml']) {
-			var funclol:(String, ?Null<String>)->String = switch (lol) {
+			var funclol:(String, ?pathType:FunkinPath)->String = switch (lol) {
 				case 'yaml': Paths.yaml;
 				case 'json': Paths.json;
 				case 'xml': Paths.xml;
-				default: (key:String, ?lib:Null<String>) -> return key;
+				default: (key:String, ?pathType:FunkinPath) -> return key;
 
 			};
 			if (charVariant == 'none') {

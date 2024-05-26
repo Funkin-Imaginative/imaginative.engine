@@ -36,7 +36,7 @@ import fnf.backend.Song; import fnf.backend.Song.SwagSong;
 import fnf.objects.PlayField;
 import fnf.states.LoadingState; // states
 import fnf.states.PlayState;
-import fnf.utils.*;
+import fnf.utils.*; import fnf.utils.Paths.FunkinPath;
 
 #if discord_rpc import discord_rpc.DiscordRpc; #end
 #if hxvlc import hxvlc.flixel.*; #end
