@@ -33,7 +33,7 @@
 	<set name='BUILD_DIR' value='export/32bit' if='32bit'/>
 
 	<classpath name='source'/>
-	<assets path='assets' preload='true'/>
+	<assets path='assets' preload='true' exclude='*.fla'/>
 	<!-- MODDING BULLSHIT -->
 	<assets path='solo'/>
 	<assets path='mods'/>
