@@ -118,7 +118,7 @@ class PlayState extends MusicBeatState {
 		if (SONG == null) SONG = Song.loadFromJson('Tutorial', 'Normal');
 
 		Conductor.mapBPMChanges(SONG);
-		Conductor.changeBPM(SONG.bpm);
+		Conductor.bpm = SONG.bpm;
 		Conductor.songPosition = -5000;
 
 		FlxG.cameras.reset(camGame = new FunkinCamera());
@@ -297,7 +297,7 @@ class PlayState extends MusicBeatState {
 
 	private function generateSong():Void {
 		var songData:SwagSong = SONG;
-		Conductor.changeBPM(songData.bpm);
+		Conductor.bpm = songData.bpm;
 		curSong = songData.song;
 
 		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(curSong));
