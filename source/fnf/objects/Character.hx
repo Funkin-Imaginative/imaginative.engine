@@ -10,17 +10,154 @@ typedef AnimSuffixes = { // will still work even if alt isn't found
 }
 
 enum abstract SpriteFacing(String) {
-	var leftFace = 'left';
+	/**
+	 * States that the object is facing left.
+	 */
+	 var leftFace = 'left';
+
+	/**
+	 * States that the object is facing right.
+	 */
 	var rightFace = 'right';
 }
 
 // after some thinking I see why cne did it capitalized
 enum abstract AnimType(String) {
-	var NONE = null;
+	/**
+	 * States that the object was/is dancing.
+	 */
 	var DANCE = 'dance';
+
+	/**
+	 * States that the character was/is singing.
+	 */
 	var SING = 'sing';
+
+	/**
+	 * States that the character is/had missed a note.
+	 */
 	var MISS = 'miss';
+
+	/**
+	 * Prevent's idle animation.
+	 */
 	var LOCK = 'lock';
+
+	/**
+	 * Allow's the idle to overwrite the current animation. Useful for "-loop" animations.
+	 */
+	var VOID = 'void';
+
+	/**
+	 * Play's the idle after the animation has finished.
+	 */
+	var NONE = null;
+}
+
+typedef AnimList = {
+	/**
+	 * The name of the animatiom.
+	 */
+	var name:String;
+
+	/**
+	 * The name of the animation to play instead if facing right.
+	 */
+	@:optional var flipAnim:String;
+
+	/**
+	 * The internal animation name on the objects xml/json.
+	 */
+	var tag:String;
+
+	/**
+	 * The frames per second (FPS) of the animation.
+	 */
+	@:default(24) var fps:Float;
+
+	/**
+	 * Should the animation loop?
+	 */
+	@:default(false) var loop:Bool;
+
+	/**
+	 * The animation offsets.
+	 */
+	var offset:XY;
+
+	/**
+	 * The specified frame order to play out.
+	 */
+	@:default([]) var indices:Array<Int>;
+
+	/**
+	 * The alternate sprite path for this animation.
+	 */
+	@:optional var spritePath:String;
+
+	/**
+	 * Should the animation face the other way?
+	 */
+	@:optional @:default(false) var flip:Bool;
+}
+
+typedef CharData = {
+	/**
+	 * The sprite path.
+	 */
+	var sprite:String;
+
+	/**
+	 * Should the character face the other way?
+	 */
+	@:default(false) var flip:Bool;
+
+	/**
+	 * The animation(s) information.
+	 */
+	var anims:Array<AnimList>;
+
+	/**
+	 * Offset xy position.
+	 */
+	var position:XY;
+
+	/**
+	 * Camera xy position.
+	 */
+	var camera:XY;
+
+
+
+	/**
+	 * The scale multiplier.
+	 */
+	@:optional @:default(1) var scale:Float;
+
+	/**
+	 * Sing animation duration.
+	 */
+	@:optional @:default(4) var singLen:Float;
+
+	/**
+	 * The icon name.
+	 */
+	@:optional @:default('') var icon:String;
+
+	/**
+	 * Should use aliasing?
+	 */
+	@:optional @:default(true) var aliasing:Bool;
+
+	/**
+	 * Health Bar Color.
+	 */
+	@:optional @:default('') var color:String;
+
+	/**
+	 * Bops ber beat.
+	 */
+	@:optional @:default(0) var beat:Int;
 }
 
 private typedef XY = {
@@ -37,34 +174,7 @@ private typedef AnimCheck = {
 	var suffix:String;
 }
 
-typedef AnimList = {
-	var name:String;
-	@:optional var flipAnim:String;
-	var tag:String;
-	@:default(24) var fps:Float;
-	@:default(false) var loop:Bool;
-	var offset:XY;
-	@:default([]) var indices:Array<Int>;
-	@:optional var spritePath:String;
-	@:optional @:default(false) var flip:Bool;
-}
-
-typedef CharData = {
-	var sprite:String;
-	@:default(false) var flip:Bool;
-	var anims:Array<AnimList>;
-	var position:XY;
-	var camera:XY;
-
-	@:optional @:default(1) var scale:Float;
-	@:optional @:default(4) var singLen:Float;
-	@:optional @:default('') var icon:String;
-	@:optional @:default(true) var aliasing:Bool;
-	@:optional @:default('') var color:String;
-	@:optional @:default(0) var beat:Int;
-}
-
-typedef AnimInfo = {
+private typedef AnimMapInfo = {
 	var offset:FlxPoint;
 	var flipAnim:String;
 }
@@ -72,7 +182,7 @@ typedef AnimInfo = {
 class Character extends FlxSprite {
 	public var debugMode:Bool = false; // for editors
 
-	public var animInfo:Map<String, AnimInfo> = new Map<String, AnimInfo>(); // the offsets
+	public var animInfo:Map<String, AnimMapInfo> = new Map<String, AnimMapInfo>(); // the offsets
 	public var animType:AnimType = NONE;
 
 	// internal set to prevent setting
@@ -166,23 +276,6 @@ class Character extends FlxSprite {
 		scripts.call('create');
 
 		switch (charName) {
-			/* case 'gf':
-				frames = Paths.getSparrowAtlas('characters/${spritePath = 'GF_assets'}');
-
-				animation.addByIndices('idle', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
-				animation.addByIndices('sway', 'GF Dancing Beat', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], '', 24, false);
-				quickAnimAdd('singLEFT', 'GF left note');
-				quickAnimAdd('singDOWN', 'GF Down Note');
-				quickAnimAdd('singUP', 'GF Up Note');
-				quickAnimAdd('singRIGHT', 'GF Right Note');
-				quickAnimAdd('cheer', 'GF Cheer');
-				animation.addByIndices('sad', 'gf sad', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], '', 24, true);
-				animation.addByIndices('hairBlow', 'GF Dancing Beat Hair blowing', [0, 1, 2, 3], '', 24);
-				animation.addByIndices('hairFall', 'GF Dancing Beat Hair Landing', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], '', 24, false);
-				animation.addByPrefix('scared', 'GF FEAR', 24, true);
-
-				loadOffsetFile(charName); */
-
 			case 'gf-christmas':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'gfChristmas'}');
 
@@ -248,17 +341,6 @@ class Character extends FlxSprite {
 
 				scaleMult = 6;
 				aliasing = false;
-
-			/* case 'dad':
-				frames = Paths.getSparrowAtlas('characters/${spritePath = 'DADDY_DEAREST'}');
-
-				quickAnimAdd('idle', 'Dad idle dance');
-				quickAnimAdd('singLEFT', 'Dad Sing Note LEFT');
-				quickAnimAdd('singDOWN', 'Dad Sing Note DOWN');
-				quickAnimAdd('singUP', 'Dad Sing Note UP');
-				quickAnimAdd('singRIGHT', 'Dad Sing Note RIGHT');
-
-				loadOffsetFile(charName); */
 
 			case 'spooky':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'spooky_kids_assets'}');
@@ -572,14 +654,13 @@ class Character extends FlxSprite {
 			updateHitbox();
 		}
 
-		playAnim('idle', true);
-		animation.finish();
+		dance();
 
 		scripts.call('createPost');
 	}
 
 	public function loadMappedAnims() {
-		final swagshit = Song.loadFromJson('picospeaker', 'stress');
+		final swagshit = Song.loadFromJson('Stress', 'picolol');
 
 		final notes = swagshit.notes;
 		for (section in notes)
@@ -628,12 +709,12 @@ class Character extends FlxSprite {
 
 			if (animType != DANCE) tryDance();
 
-			/* if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
+			if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
-			} */
+			}
 		}
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -644,7 +725,7 @@ class Character extends FlxSprite {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (animFinished() && animInfo.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, VOID, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
@@ -669,6 +750,8 @@ class Character extends FlxSprite {
 			case LOCK:
 				if (animName() == null)
 					dance();
+			case VOID:
+				dance();
 			default:
 				if (animName() == null || animFinished())
 					dance();
@@ -676,7 +759,7 @@ class Character extends FlxSprite {
 	}
 
 	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
-		final flipAnim:String = animInfo.get(name).flipAnim;
+		final flipAnim:String = animInfo.exists(name) ? animInfo.get(name).flipAnim : '';
 		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(isFacing == leftFace ? name : (flipAnim.trim() == '' ? name : flipAnim), force, animType, reverse, frame));
 		if (event.stopped) return;
 		final suffix:String = animInfo.exists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
@@ -727,8 +810,8 @@ class Character extends FlxSprite {
 
 	public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: FlxPoint.get(x, y), flipAnim: flipAnim});
 
-	public function animName():String return animation.name;
-	public function animFinished():Bool return animation.curAnim.finished;
+	public function animName():String return (animation == null || animation.name == null) ? '' : animation.name;
+	public function animFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
 
 	override public function destroy() {
 		scripts.destroy();

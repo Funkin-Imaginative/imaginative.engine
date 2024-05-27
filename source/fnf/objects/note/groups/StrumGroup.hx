@@ -82,6 +82,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			babyArrow.x += Note.swagWidth * i;
 			babyArrow.x -= (Note.swagWidth * ((amount - 1) / 2));
 			@:privateAccess Strum.setStrumGroup(babyArrow, this);
+			if (SaveManager.getOption('prefs.strumShift')) babyArrow.x -= Note.swagWidth / 2.4;
 			insert(i, babyArrow);
 		}
 		notes = new NoteGroup();
@@ -138,6 +139,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
+			if ((note.tooLate || note.wasHit) && !note.isOnScreen()) deleteNote(note);
 			if (note.willDraw) {
 				var angleDir:Float = note.scrollAngle * Math.PI / 180;
 				note.setPosition(note.isSustain ? members[note.ID].x + (members[note.ID].width / 2.4) : members[note.ID].x, (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustain ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
@@ -234,27 +236,24 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	private function drawNotes(drawNote:Bool, drawSustain:Bool) {
 		for (note in notes) {
 			if (note != null && note.exists && note.visible) {
-				if (note.isSustain ? drawSustain : drawNote) {
+				if (drawSustain && note.isSustain) {
 					note.cameras = cameras;
-					if (SaveManager.getOption('prefs.strumShift')) note.x -= Note.swagWidth / 2.4;
 					note.draw();
-					if (SaveManager.getOption('prefs.strumShift')) note.x += Note.swagWidth / 2.4;
+				}
+				if (drawNote && !note.isSustain) {
+					note.cameras = cameras;
+					note.draw();
 				}
 			}
 		}
 	}
 	override public function draw() {
-		for (strum in members) if (SaveManager.getOption('prefs.strumShift')) strum.x -= Note.swagWidth / 2.4;
 		var sustainsUnderStrums:Bool = SaveManager.getOption('prefs.sustainsUnderStrums');
 		drawNotes(false, sustainsUnderStrums);
 		super.draw();
-		drawNotes(false, !sustainsUnderStrums);
-		drawNotes(true, false);
-		for (splash in splashes) if (SaveManager.getOption('prefs.strumShift')) splash.x -= Note.swagWidth / 2.4;
+		drawNotes(true, !sustainsUnderStrums);
 		splashes.cameras = cameras;
 		splashes.draw();
-		for (splash in splashes) if (SaveManager.getOption('prefs.strumShift')) splash.x += Note.swagWidth / 2.4;
-		for (strum in members) if (SaveManager.getOption('prefs.strumShift')) strum.x += Note.swagWidth / 2.4;
 	}
 
 	override function destroy() {

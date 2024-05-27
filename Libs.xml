@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<libraries>
+	<git name='flixel' url='https://github.com/FNF-CNE-Devs/flixel'/>
+	<git name='flixel-addons' url='https://github.com/FNF-CNE-Devs/flixel-addons'/>
+</libraries>

@@ -24,7 +24,7 @@
 				14
 			],
 			"fps": 24,
-			"anim": "idle",
+			"anim": "danceLeft",
 			"loop": false,
 			"name": "GF Dancing Beat"
 		},
@@ -51,7 +51,7 @@
 				29
 			],
 			"fps": 24,
-			"anim": "sway",
+			"anim": "danceRight",
 			"loop": false,
 			"name": "GF Dancing Beat"
 		},

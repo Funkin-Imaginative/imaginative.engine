@@ -34,7 +34,7 @@ class Song
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong return parseJSONshit(Paths.getContent(Paths.json('songs/${folder.replace('.', '')}/$jsonInput')));
+	public static function loadFromJson(song:String, diff:String):SwagSong return parseJSONshit(Paths.getContent(Paths.json('songs/${song.replace('.', '')}/$diff')));
 
 	public static function parseJSONshit(rawJson:String):SwagSong
 	{

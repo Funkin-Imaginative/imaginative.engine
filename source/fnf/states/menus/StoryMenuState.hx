@@ -333,7 +333,7 @@ class StoryMenuState extends MusicBeatState {
 
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(diffic, PlayState.campaignList[0]);
+			PlayState.SONG = Song.loadFromJson(PlayState.campaignList[0], diffic);
 			PlayState.storyWeek = curWeek;
 			PlayState.campaignScore = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)

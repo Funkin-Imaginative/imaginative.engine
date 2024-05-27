@@ -9,7 +9,7 @@
 			"fps": 24,
 			"anim": "idle",
 			"loop": false,
-			"name": "Dad idle dance"
+			"name": "idle"
 		},
 		{
 			"offsets": [
@@ -20,7 +20,7 @@
 			"fps": 24,
 			"anim": "singLEFT",
 			"loop": false,
-			"name": "Dad Sing Note LEFT"
+			"name": "singLEFT"
 		},
 		{
 			"offsets": [
@@ -31,7 +31,7 @@
 			"fps": 24,
 			"anim": "singDOWN",
 			"loop": false,
-			"name": "Dad Sing Note DOWN"
+			"name": "singDOWN"
 		},
 		{
 			"offsets": [
@@ -42,7 +42,7 @@
 			"fps": 24,
 			"anim": "singUP",
 			"loop": false,
-			"name": "Dad Sing Note UP"
+			"name": "singUP"
 		},
 		{
 			"offsets": [
@@ -53,7 +53,7 @@
 			"fps": 24,
 			"anim": "singRIGHT",
 			"loop": false,
-			"name": "Dad Sing Note RIGHT"
+			"name": "singRIGHT"
 		},
 		{
 			"offsets": [
@@ -69,7 +69,7 @@
 			"fps": 24,
 			"anim": "idle-loop",
 			"loop": true,
-			"name": "Dad idle dance"
+			"name": "idle"
 		},
 		{
 			"offsets": [
@@ -85,7 +85,7 @@
 			"fps": 24,
 			"anim": "singLEFT-loop",
 			"loop": true,
-			"name": "Dad Sing Note LEFT"
+			"name": "singLEFT"
 		},
 		{
 			"offsets": [
@@ -101,7 +101,7 @@
 			"fps": 24,
 			"anim": "singUP-loop",
 			"loop": true,
-			"name": "Dad Sing Note UP"
+			"name": "singUP"
 		},
 		{
 			"offsets": [
@@ -117,12 +117,12 @@
 			"fps": 24,
 			"anim": "singRIGHT-loop",
 			"loop": true,
-			"name": "Dad Sing Note RIGHT"
+			"name": "singRIGHT"
 		}
 	],
 	"vocals_file": "",
 	"no_antialiasing": false,
-	"image": "characters/DADDY_DEAREST",
+	"image": "characters/daddyDearest",
 	"position": [
 		0,
 		0
@@ -138,7 +138,7 @@
 		0,
 		0
 	],
-	"sing_duration": 6.1,
+	"sing_duration": 4,
 	"scale": 1,
 	"_editor_isPlayer": false
 }

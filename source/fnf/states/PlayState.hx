@@ -115,7 +115,7 @@ class PlayState extends MusicBeatState {
 		persistentUpdate = persistentDraw = true;
 
 		gameScripts = new ScriptGroup(this);
-		if (SONG == null) SONG = Song.loadFromJson('Tutorial');
+		if (SONG == null) SONG = Song.loadFromJson('Tutorial', 'Normal');
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -241,7 +241,7 @@ class PlayState extends MusicBeatState {
 	public function startCountdown() {
 		inCutscene = false;
 		for (strumLine in strumLines) {
-			for (index => strum in strumLine) {
+			for (index => strum in strumLine.members) {
 				if (!isStoryMode) {
 					strum.y -= 10;
 					strum.alpha = 0;
@@ -380,12 +380,12 @@ class PlayState extends MusicBeatState {
 
 					FlxG.sound.play(Paths.sound('Lights_Shut_off'), function() {
 						// no camPoint so it centers on horror tree
-						SONG = Song.loadFromJson(difficulty, campaignList[0]);
+						SONG = Song.loadFromJson(campaignList[0], difficulty);
 						LoadingState.loadAndSwitchState(new PlayState());
 					});
 				} else {
 					// prevCamPoint = camPoint;
-					SONG = Song.loadFromJson(difficulty, campaignList[0]);
+					SONG = Song.loadFromJson(campaignList[0], difficulty);
 					LoadingState.loadAndSwitchState(new PlayState());
 				}
 			}

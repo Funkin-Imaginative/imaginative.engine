@@ -226,7 +226,7 @@ class FreeplayState extends MusicBeatState
 		if (accepted)
 		{
 			var poop:String = Highscore.formatSong(songs[curSelected].songName, curDifficulty);
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName);
+			PlayState.SONG = Song.loadFromJson(songs[curSelected].songName, poop);
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 

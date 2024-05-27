@@ -53,10 +53,17 @@ class ParseUtil {
 			// case BASE:
 			case PSYCH:
 				var jsonData:Dynamic = parseJson(path);
+
 				var sprite:String = jsonData.image;
+				var pathSplit:Array<String> = sprite.split('/');
+				if (pathSplit[0] == 'characters') pathSplit.remove('characters');
+
 				var icon:String = jsonData.healthicon;
+				var iconSplit:Array<String> = icon.split('-');
+				if (iconSplit[0] == 'icon') iconSplit.remove('icon');
+
 				theData = {
-					sprite: sprite.replace('characters/', ''),
+					sprite: pathSplit.join('/'),
 					flip: jsonData.flip_x,
 					anims: [],
 					position: {x: jsonData.position[0], y: jsonData.position[1]},
@@ -64,7 +71,7 @@ class ParseUtil {
 
 					scale: jsonData.scale,
 					singLen: jsonData.sing_duration,
-					icon: icon.replace('icon-', ''),
+					icon: iconSplit.join('-'),
 					aliasing: !jsonData.no_antialiasing,
 					color: FlxColor.fromRGB(jsonData.healthbar_colors[0], jsonData.healthbar_colors[1], jsonData.healthbar_colors[2]).toHexString(false, false),
 					beat: 0
@@ -72,15 +79,22 @@ class ParseUtil {
 
 				for (index in 0...jsonData.animations.length) {
 					var info:Dynamic = jsonData.animations[index];
-					var flipAnim:String = switch (info.anim) {
+
+					var animName:String = info.anim;
+					if (animName.contains('danceLeft')) animName.replace('danceLeft', 'idle');
+					if (animName.contains('danceRight')) animName.replace('danceRight', 'sway');
+					trace(animName);
+
+					var flipAnim:String = switch (animName) {
 						case 'singLEFT': 'singRIGHT'; case 'singRIGHT': 'singLEFT';
 						case 'singLEFT-alt': 'singRIGHT-alt'; case 'singRIGHT-alt': 'singLEFT-alt';
 						case 'singLEFTmiss': 'singRIGHTmiss'; case 'singRIGHTmiss': 'singLEFTmiss';
 						case 'singLEFTmiss-alt': 'singRIGHTmiss-alt'; case 'singRIGHTmiss-alt': 'singLEFTmiss-alt';
 						default: '';
 					};
+
 					theData.anims.insert(index, {
-						name: info.anim,
+						name: animName,
 						flipAnim: flipAnim,
 						tag: info.name,
 						fps: info.fps,

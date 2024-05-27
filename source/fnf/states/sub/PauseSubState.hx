@@ -138,7 +138,7 @@ class PauseSubState extends MusicBeatSubstate {
 				case "Resume":
 					close();
 				case "EASY" | 'NORMAL' | "HARD":
-					PlayState.SONG = fnf.backend.Song.loadFromJson(Highscore.formatSong(PlayState.SONG.song, curSelected), PlayState.SONG.song);
+					PlayState.SONG = fnf.backend.Song.loadFromJson(PlayState.SONG.song, Highscore.formatSong(PlayState.SONG.song, curSelected));
 
 					PlayState.storyDifficulty = curSelected;
 
