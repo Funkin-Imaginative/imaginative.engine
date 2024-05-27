@@ -707,7 +707,7 @@ class Character extends FlxSprite {
 					if (animFinished()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (animType != DANCE) tryDance();
+			if (animType != DANCE || animType != VOID) tryDance();
 
 			if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, VOID, false, 0));
