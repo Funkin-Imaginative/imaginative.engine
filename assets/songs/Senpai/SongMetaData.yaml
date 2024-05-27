@@ -1,0 +1,5 @@
+display: 'Senpai'
+icon: 'senpai'
+color: 'ff78bf'
+difficulties: ['Easy', 'Normal', 'Hard', 'Erect', 'Nightmare']
+measure: [4, 4]

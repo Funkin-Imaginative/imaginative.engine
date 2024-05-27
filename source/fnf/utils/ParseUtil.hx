@@ -22,7 +22,7 @@ class ParseUtil {
 				case 'yaml': Paths.yaml;
 				case 'json': Paths.json;
 				case 'xml': Paths.xml;
-				default: (key:String, ?pathType:FunkinPath) -> return key;
+				default: (key:String, ?pathType:FunkinPath = BOTH) -> return key;
 
 			};
 			if (charVariant == 'none') {

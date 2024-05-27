@@ -1,0 +1,5 @@
+display: 'Test'
+icon: 'bf-pixel'
+color: 'ffffff'
+difficulties: ['Normal']
+measure: [4, 4]

@@ -1,0 +1,5 @@
+display: 'Thorns'
+icon: 'spirit'
+color: 'ff78bf'
+difficulties: ['Easy', 'Normal', 'Hard', 'Erect', 'Nightmare']
+measure: [4, 4]

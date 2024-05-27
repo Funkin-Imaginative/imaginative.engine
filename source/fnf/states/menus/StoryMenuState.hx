@@ -1,7 +1,6 @@
 package fnf.states.menus;
 
 import openfl.utils.Assets;
-#if sys import sys.FileSystem; #end
 import haxe.Json;
 import flixel.addons.transition.FlxTransitionableState;
 
@@ -322,19 +321,19 @@ class StoryMenuState extends MusicBeatState {
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
-			var diffic = '';
+			var diffic = 'Normal';
 
 			switch (curDifficulty)
 			{
 				case 0:
-					diffic = '-easy';
+					diffic = 'Easy';
 				case 2:
-					diffic = '-hard';
+					diffic = 'Hard';
 			}
 
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.campaignList[0].toLowerCase() + diffic, PlayState.campaignList[0].toLowerCase());
+			PlayState.SONG = Song.loadFromJson(diffic, PlayState.campaignList[0]);
 			PlayState.storyWeek = curWeek;
 			PlayState.campaignScore = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)

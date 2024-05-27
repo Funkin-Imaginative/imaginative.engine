@@ -628,12 +628,12 @@ class Character extends FlxSprite {
 
 			if (animType != DANCE) tryDance();
 
-			if (animFinished() && animInfo.exists('${animName()}-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', false, NONE, false, 0));
+			/* if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
-			}
+			} */
 		}
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -644,7 +644,7 @@ class Character extends FlxSprite {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (animFinished() && animInfo.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);

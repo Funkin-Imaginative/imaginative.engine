@@ -22,7 +22,6 @@ import openfl.net.NetConnection;
 import openfl.net.NetStream;
 
 #if desktop
-import sys.FileSystem;
 import sys.io.File;
 import sys.thread.Thread;
 #end
@@ -216,7 +215,7 @@ class TitleState extends MusicBeatState {
 
 	function getIntroTextShit():Array<Array<String>>
 	{
-		var fullText:String = Paths.txt('introText');
+		var fullText:String = Paths.txt('data/introText');
 
 		var firstArray:Array<String> = fullText.split('\n');
 		var swagGoodArray:Array<Array<String>> = [];

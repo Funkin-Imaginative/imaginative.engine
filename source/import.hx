@@ -38,6 +38,8 @@ import fnf.states.LoadingState; // states
 import fnf.states.PlayState;
 import fnf.utils.*; import fnf.utils.Paths.FunkinPath;
 
+import sys.FileSystem;
+
 #if discord_rpc import discord_rpc.DiscordRpc; #end
 #if hxvlc import hxvlc.flixel.*; #end
 

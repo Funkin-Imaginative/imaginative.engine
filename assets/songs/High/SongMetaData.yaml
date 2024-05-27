@@ -1,0 +1,5 @@
+display: 'High'
+icon: 'mom'
+color: 'fc96d7'
+difficulties: ['Easy', 'Normal', 'Hard', 'Erect', 'Nightmare']
+measure: [4, 4]

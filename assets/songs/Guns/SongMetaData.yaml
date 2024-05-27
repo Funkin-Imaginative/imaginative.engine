@@ -1,0 +1,5 @@
+display: 'Guns'
+icon: 'tankman'
+color: 'f6b604'
+difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
+measure: [4, 4]

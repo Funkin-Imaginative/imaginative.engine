@@ -1,7 +1,6 @@
 package fnf.states.menus;
 
 import haxe.Json;
-import sys.FileSystem;
 import flixel.addons.display.FlxGridOverlay;
 import openfl.utils.Assets;
 
@@ -66,20 +65,20 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
 
-		if (StoryMenuState.weekUnlocked[2] || isDebug)
-			addWeek(['Bopeebo', 'Fresh', 'Dadbattle'], 1, ['dad'], coolColors[1]);
+		if (StoryMenuState.weekUnlocked[1] || isDebug)
+			addWeek(['Bopeebo', 'Fresh', 'DadBattle'], 1, ['dad'], coolColors[1]);
 
 		if (StoryMenuState.weekUnlocked[2] || isDebug)
 			addWeek(['Spookeez', 'South', 'Monster'], 2, ['spooky', 'spooky', 'monster'], coolColors[2]);
 
 		if (StoryMenuState.weekUnlocked[3] || isDebug)
-			addWeek(['Pico', 'Philly', 'Blammed'], 3, ['pico'], coolColors[3]);
+			addWeek(['Pico', 'Philly Nice', 'Blammed'], 3, ['pico'], coolColors[3]);
 
 		if (StoryMenuState.weekUnlocked[4] || isDebug)
-			addWeek(['Satin-Panties', 'High', 'Milf'], 4, ['mom'], coolColors[4]);
+			addWeek(['Satin Panties', 'High', 'M.I.L.F.'], 4, ['mom'], coolColors[4]);
 
 		if (StoryMenuState.weekUnlocked[5] || isDebug)
-			addWeek(['Cocoa', 'Eggnog', 'Winter-Horrorland'], 5, ['parents-christmas', 'parents-christmas', 'monster-christmas'], coolColors[5]);
+			addWeek(['Cocoa', 'Eggnog', 'Winter Horrorland'], 5, ['parents-christmas', 'parents-christmas', 'monster'], coolColors[5]);
 
 		if (StoryMenuState.weekUnlocked[6] || isDebug)
 			addWeek(['Senpai', 'Roses', 'Thorns'], 6, ['senpai', 'senpai', 'spirit'], coolColors[6]);
@@ -88,8 +87,7 @@ class FreeplayState extends MusicBeatState
 			addWeek(['Ugh', 'Guns', 'Stress'], 7, ['tankman'], coolColors[7]);
 
 
-		/* #if sys
-		var iterator = 8;
+		/* var iterator = 8;
 		for (file in FileSystem.readDirectory('assets/weeks/')) {
 			// trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
 
@@ -100,8 +98,7 @@ class FreeplayState extends MusicBeatState
 			}
 
 			iterator++;
-		}
-		#end */
+		} */
 
 		// LOAD MUSIC
 
@@ -228,8 +225,8 @@ class FreeplayState extends MusicBeatState
 
 		if (accepted)
 		{
-			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			var poop:String = Highscore.formatSong(songs[curSelected].songName, curDifficulty);
+			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName);
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 

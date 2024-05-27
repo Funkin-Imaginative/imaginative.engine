@@ -12,7 +12,7 @@ characters:
 
 songs:
 	DadBattle:
-		Audio:
+		audio:
 			- Inst.ogg
 			- VoicesOpponent.ogg
 			- VoicesPlayer.ogg
@@ -48,6 +48,13 @@ content:
 	stages:
 		- mainStage.hx
 		- mainStage.yaml
+
+	difficulties:
+		- Easy.yaml
+		- Normal.yaml
+		- Hard.yaml
+		- Erect.yaml
+		- Nightmare.yaml
 
 
 

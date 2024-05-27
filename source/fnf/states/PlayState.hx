@@ -47,6 +47,7 @@ class PlayState extends MusicBeatState {
 
 	public static var campaignScore:Int = 0;
 	public static var seenCutscene:Bool = false;
+	public static var songScore:Int = 0;
 	public var inCutscene:Bool = false;
 
 	public var defaultCamZoom:Float = 0.9;
@@ -114,7 +115,7 @@ class PlayState extends MusicBeatState {
 		persistentUpdate = persistentDraw = true;
 
 		gameScripts = new ScriptGroup(this);
-		if (SONG == null) SONG = Song.loadFromJson('tutorial');
+		if (SONG == null) SONG = Song.loadFromJson('Tutorial');
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -286,7 +287,7 @@ class PlayState extends MusicBeatState {
 						});
 					}
 					if (introSndPaths[onCount].trim() != '') FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
-				} catch(e) {trace(e);}
+				} catch(e) {trace('Null Object on Countdown');}
 			}
 
 			onCount += 1;
@@ -295,15 +296,14 @@ class PlayState extends MusicBeatState {
 	}
 
 	private function generateSong():Void {
-		var songData = SONG;
+		var songData:SwagSong = SONG;
 		Conductor.changeBPM(songData.bpm);
 		curSong = songData.song;
 
-		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(SONG.song));
-		vocals = FlxG.sound.load(Paths.voices(SONG.song));
+		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(curSong));
+		vocals = FlxG.sound.load(Paths.voices(curSong));
 
-		inst.group = FlxG.sound.defaultMusicGroup;
-		vocals.group = FlxG.sound.defaultMusicGroup;
+		inst.group = vocals.group = FlxG.sound.defaultMusicGroup;
 		inst.persist = vocals.persist = false;
 
 		for (strumLine in strumLines) @:privateAccess strumLine.generateNotes(songData.notes);
@@ -313,7 +313,7 @@ class PlayState extends MusicBeatState {
 
 	function startSong():Void {
 		startingSong = false;
-		// inst.onComplete = endSong;
+		inst.onComplete = endSong;
 		if (!paused) inst.play();
 
 		if (vocals == null) vocals = new FlxSound();
@@ -323,6 +323,76 @@ class PlayState extends MusicBeatState {
 			if (strumLine.vocals == null) strumLine.vocals = new FlxSound();
 			strumLine.vocals.onComplete = function() strumLine.vocalsFinished = true;
 			if (!paused) strumLine.vocals.play();
+		}
+	}
+	function endSong():Void {
+		seenCutscene = false;
+		deathCounter = 0;
+		canPause = false;
+		FlxG.sound.music.volume = 0;
+		vocals.volume = 0;
+		if (SONG.validScore) Highscore.saveScore(SONG.song, songScore, storyDifficulty);
+
+		if (isStoryMode) {
+			campaignScore += songScore;
+
+			campaignList.remove(campaignList[0]);
+
+			if (campaignList.length <= 0) {
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+
+				transIn = FlxTransitionableState.defaultTransIn;
+				transOut = FlxTransitionableState.defaultTransOut;
+
+				FlxG.switchState(new fnf.states.menus.StoryMenuState());
+
+				// if ()
+				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
+
+				if (SONG.validScore) Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
+
+				FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
+				FlxG.save.flush();
+			} else {
+				var difficulty:String = 'Normal';
+
+				if (storyDifficulty == 0)
+					difficulty = 'Easy';
+
+				if (storyDifficulty == 2)
+					difficulty = 'Hard';
+
+				trace('LOADING NEXT SONG');
+				trace('${campaignList[0]} $difficulty');
+
+				FlxTransitionableState.skipNextTransIn = true;
+				FlxTransitionableState.skipNextTransOut = true;
+
+				FlxG.sound.music.stop();
+				vocals.stop();
+
+				if (SONG.song.toLowerCase() == 'eggnog') {
+					var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom, -FlxG.height * FlxG.camera.zoom).makeGraphic(FlxG.width * 3, FlxG.height * 3, FlxColor.BLACK);
+					blackShit.scrollFactor.set();
+					add(blackShit);
+					camHUD.visible = false;
+					inCutscene = true;
+
+					FlxG.sound.play(Paths.sound('Lights_Shut_off'), function() {
+						// no camPoint so it centers on horror tree
+						SONG = Song.loadFromJson(difficulty, campaignList[0]);
+						LoadingState.loadAndSwitchState(new PlayState());
+					});
+				} else {
+					// prevCamPoint = camPoint;
+					SONG = Song.loadFromJson(difficulty, campaignList[0]);
+					LoadingState.loadAndSwitchState(new PlayState());
+				}
+			}
+		} else {
+			trace('WENT BACK TO FREEPLAY??');
+			// unloadAssets();
+			FlxG.switchState(new fnf.states.menus.FreeplayState());
 		}
 	}
 

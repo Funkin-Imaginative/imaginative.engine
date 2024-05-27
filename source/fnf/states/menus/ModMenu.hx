@@ -1,9 +1,5 @@
 package fnf.states.menus;
 
-#if sys
-import sys.FileSystem;
-#end
-
 class ModMenu extends fnf.states.menus.OptionsState.Page
 {
 	var grpMods:FlxTypedGroup<ModMenuItem>;

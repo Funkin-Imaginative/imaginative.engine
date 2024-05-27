@@ -51,12 +51,12 @@ class Highscore
 
 	public static function formatSong(song:String, diff:Int):String
 	{
-		var daSong:String = song;
+		var daSong:String = 'Normal';
 
 		if (diff == 0)
-			daSong += '-easy';
+			daSong = 'Easy';
 		else if (diff == 2)
-			daSong += '-hard';
+			daSong = 'Hard';
 
 		return daSong;
 	}

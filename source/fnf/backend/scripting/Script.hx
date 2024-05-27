@@ -134,6 +134,9 @@ class Script extends FlxBasic {
 				if (script != null)
 					script.active = false;
 			},
+			'trace' => (value:Dynamic) -> {
+				trace('${script == null ? '???' : '${script.rawPath}'}: $value');
+			},
 
 			// self //
 			'self' => script
