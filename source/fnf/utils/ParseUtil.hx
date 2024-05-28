@@ -1,5 +1,6 @@
 package fnf.utils;
 
+import fnf.objects.Difficulty;
 import fnf.objects.Character;
 
 enum abstract CharDataType(String) {
@@ -13,16 +14,26 @@ class ParseUtil {
 	public static function parseYaml(path:String):Dynamic return yaml.Yaml.parse(Paths.getContent(Paths.yaml(path)), yaml.Parser.options().useObjects());
 	public static function parseJson(path:String):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path)));
 
+	// What? We're you expecting it to be complex?
+	public static function parseDifficulty(diffName:String):DiffData {
+		var yamlData:Dynamic = parseYaml('content/difficulties/$diffName');
+		return {
+			audioVariant: yamlData.audioVariant,
+			scoreMult: yamlData.scoreMult,
+			fps: yamlData.fps == null ? 24 : yamlData.fps
+		};
+	}
+
 	public static function parseCharacter(charName:String, charVariant:String = 'none'):CharData {
 		var path:String = '';
 		var applyFailsafe:Bool = false;
 
 		for (lol in ['yaml', 'json', 'xml']) {
-			var funclol:(String, ?pathType:FunkinPath)->String = switch (lol) {
+			var funclol:(String, ?FunkinPath)->String = switch (lol) {
 				case 'yaml': Paths.yaml;
 				case 'json': Paths.json;
 				case 'xml': Paths.xml;
-				default: (key:String, ?pathType:FunkinPath = BOTH) -> return key;
+				default: (key:String, pathType:FunkinPath = BOTH) -> return key;
 
 			};
 			if (charVariant == 'none') {

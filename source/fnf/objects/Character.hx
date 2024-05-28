@@ -238,20 +238,20 @@ class Character extends FlxSprite {
 	private function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
 	public var charData:CharData;
-	public static function applyCharData(yamlContent:Dynamic):CharData
+	public static function applyCharData(content:Dynamic):CharData
 		return {
-			sprite: yamlContent.sprite,
-			flip: yamlContent.flip,
-			anims: yamlContent.anims,
-			position: yamlContent.position,
-			camera: yamlContent.camera,
+			sprite: content.sprite,
+			flip: content.flip,
+			anims: content.anims,
+			position: content.position,
+			camera: content.camera,
 
-			scale: yamlContent.scale,
-			singLen: yamlContent.singLen,
-			icon: yamlContent.icon,
-			aliasing: yamlContent.aliasing,
-			color: yamlContent.color,
-			beat: yamlContent.beat
+			scale: content.scale,
+			singLen: content.singLen,
+			icon: content.icon,
+			aliasing: content.aliasing,
+			color: content.color,
+			beat: content.beat
 		};
 
 	public var scripts:ScriptGroup; // just for effecting both scripts at once lmao
@@ -707,14 +707,14 @@ class Character extends FlxSprite {
 					if (animFinished()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (animType != DANCE || animType != VOID) tryDance();
-
 			if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, VOID, false, 0));
 				if (event.stopped) return;
 				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			}
+
+			if (animType != DANCE || animType != VOID) tryDance();
 		}
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
