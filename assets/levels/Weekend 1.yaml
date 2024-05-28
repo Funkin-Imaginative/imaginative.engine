@@ -1,0 +1,5 @@
+title: 'Due Debts'
+songs: ['Darnell', 'Lit Up', '2hot', "Blazin'"] # \ doesn't work so had to use "
+difficulties: ['Easy', 'Normal', 'Hard']
+characters: ['darnell', 'pico', 'nene']
+color: '413CAE'
