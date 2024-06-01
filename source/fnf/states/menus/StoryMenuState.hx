@@ -119,9 +119,9 @@ class StoryMenuState extends MusicBeatState {
 		trace(FileSystem.readDirectory('assets/weeks/'));
 
 		for (file in FileSystem.readDirectory('assets/weeks/')) {
-			trace(Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks'))));
+			trace(Json.parse(Assets.getText(Paths.getRoot(file, TEXT, 'weeks'))));
 
-			var jsonReturn = Json.parse(Assets.getText(Paths.file(file, TEXT, 'weeks')));
+			var jsonReturn = Json.parse(Assets.getText(Paths.getRoot(file, TEXT, 'weeks')));
 
 			weekData.insert(weekData.length + 1, jsonReturn.songs);
 

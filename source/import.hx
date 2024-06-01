@@ -36,7 +36,7 @@ import fnf.backend.Song; import fnf.backend.Song.SwagSong;
 import fnf.objects.PlayField;
 import fnf.states.LoadingState; // states
 import fnf.states.PlayState;
-import fnf.utils.*; import fnf.utils.Paths.FunkinPath;
+import fnf.utils.*; import fnf.utils.ModUtil.FunkinPath;
 
 import sys.FileSystem;
 

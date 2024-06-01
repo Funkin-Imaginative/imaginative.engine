@@ -1,6 +1,6 @@
 package fnf.utils;
 
-import fnf.objects.Difficulty;
+import fnf.backend.metas.DifficultyMeta;
 import fnf.objects.Character;
 
 enum abstract CharDataType(String) {
@@ -11,20 +11,20 @@ enum abstract CharDataType(String) {
 }
 
 class ParseUtil {
-	public static function parseYaml(path:String):Dynamic return yaml.Yaml.parse(Paths.getContent(Paths.yaml(path)), yaml.Parser.options().useObjects());
-	public static function parseJson(path:String):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path)));
+	public static function parseYaml(path:String, pathType:FunkinPath = UNI):Dynamic return yaml.Yaml.parse(Paths.getContent(Paths.yaml(path, pathType)), yaml.Parser.options().useObjects());
+	public static function parseJson(path:String, pathType:FunkinPath = UNI):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
 
 	// What? We're you expecting it to be complex?
-	public static function parseDifficulty(diffName:String):DiffData {
-		var yamlData:Dynamic = parseYaml('content/difficulties/$diffName');
-		return {
+	public static function parseDifficulty(diffName:String, pathType:FunkinPath = UNI):DiffData {
+		var yamlData:Dynamic = parseYaml('content/difficulties/$diffName', pathType);
+		return yamlData == null ? FailsafeUtil.diffYaml : {
 			audioVariant: yamlData.audioVariant,
 			scoreMult: yamlData.scoreMult,
 			fps: yamlData.fps == null ? 24 : yamlData.fps
 		};
 	}
 
-	public static function parseCharacter(charName:String, charVariant:String = 'none'):CharData {
+	public static function parseCharacter(charName:String, charVariant:String = 'none', pathType:FunkinPath = UNI):CharData {
 		var path:String = '';
 		var applyFailsafe:Bool = false;
 
@@ -33,17 +33,17 @@ class ParseUtil {
 				case 'yaml': Paths.yaml;
 				case 'json': Paths.json;
 				case 'xml': Paths.xml;
-				default: (key:String, pathType:FunkinPath = BOTH) -> return key;
+				default: (key:String, pathType:FunkinPath = UNI) -> return key;
 
 			};
 			if (charVariant == 'none') {
-				if (sys.FileSystem.exists(funclol('characters/$charName'))) {
+				if (sys.FileSystem.exists(funclol('characters/$charName', pathType))) {
 					path = 'characters/$charName';
 					break;
 				}
 			} else {
-				if (!sys.FileSystem.exists(funclol('characters/$charName'))) {
-					if (sys.FileSystem.exists(funclol('characters/$charName/$charVariant'))) {
+				if (!sys.FileSystem.exists(funclol('characters/$charName', pathType))) {
+					if (sys.FileSystem.exists(funclol('characters/$charName/$charVariant', pathType))) {
 						path = 'characters/$charName/$charVariant';
 						break;
 					}
@@ -55,9 +55,9 @@ class ParseUtil {
 		}
 
 		var charDataType:CharDataType = null;
-		if (sys.FileSystem.exists(Paths.json(path))) charDataType = PSYCH;
-		else if (sys.FileSystem.exists(Paths.yaml(path))) charDataType = IMAG;
-		else if (sys.FileSystem.exists(Paths.xml(path))) charDataType = CNE;
+		if (sys.FileSystem.exists(Paths.json(path, pathType))) charDataType = PSYCH;
+		else if (sys.FileSystem.exists(Paths.yaml(path, pathType))) charDataType = IMAG;
+		else if (sys.FileSystem.exists(Paths.xml(path, pathType))) charDataType = CNE;
 
 		var theData:CharData = FailsafeUtil.charYaml;
 		switch (charDataType) {
@@ -116,7 +116,7 @@ class ParseUtil {
 					});
 				}
 			// case CNE:
-			case IMAG: theData = parseYaml(path);
+			case IMAG: theData = parseYaml(path, pathType);
 			default: applyFailsafe = true;
 		}
 

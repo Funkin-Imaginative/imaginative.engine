@@ -1,5 +1,5 @@
 display: 'Eggnog'
 icon: 'parents'
-color: 'a0d1ff'
+color: '#A0D1FF'
 difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
 measure: [4, 4]

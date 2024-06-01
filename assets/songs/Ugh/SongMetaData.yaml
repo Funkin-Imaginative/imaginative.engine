@@ -1,5 +1,5 @@
 display: 'Ugh'
 icon: 'tankman'
-color: 'f6b604'
+color: '#F6B604'
 difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
 measure: [4, 4]

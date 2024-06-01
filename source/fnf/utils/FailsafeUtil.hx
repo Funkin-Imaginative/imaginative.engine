@@ -18,4 +18,10 @@ class FailsafeUtil {
 		color: '',
 		beat: 0
 	};
+
+	public static final diffYaml:fnf.backend.metas.DifficultyMeta.DiffData = {
+		audioVariant: null,
+		scoreMult: 1,
+		fps: 24
+	};
 }

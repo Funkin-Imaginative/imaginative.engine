@@ -6,25 +6,9 @@ import flixel.addons.transition.TransitionData;
 import flixel.graphics.FlxGraphic;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.math.FlxRect;
-import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.system.FlxAssets;
-import lime.app.Application;
-import lime.ui.Window;
-import openfl.Assets;
 import openfl.display.Sprite;
-import openfl.events.AsyncErrorEvent;
-import openfl.events.AsyncErrorEvent;
-import openfl.events.Event;
-import openfl.events.MouseEvent;
-import openfl.events.NetStatusEvent;
 import openfl.media.Video;
-import openfl.net.NetConnection;
 import openfl.net.NetStream;
-
-#if desktop
-import sys.io.File;
-import sys.thread.Thread;
-#end
 
 import fnf.ui.Alphabet;
 import fnf.graphics.shaders.ColorSwap;
@@ -182,7 +166,7 @@ class TitleState extends MusicBeatState {
 		credGroup.add(blackScreen);
 
 		// var atlasBullShit:FlxSprite = new FlxSprite();
-		// atlasBullShit.frames = CoolUtil.fromAnimate(Paths.image('money'), Paths.file('images/money.json'));
+		// atlasBullShit.frames = CoolUtil.fromAnimate(Paths.image('money'), Paths.getRoot('images/money.json'));
 		// credGroup.add(atlasBullShit);
 
 		credTextShit = new Alphabet(0, 0, "ninjamuffin99\nPhantomArcade\nkawaisprite\nevilsk8er", true);
@@ -265,7 +249,7 @@ class TitleState extends MusicBeatState {
 		{
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.onComplete = null;
-			// netStream.play(Paths.file('music/kickstarterTrailer.mp4'));
+			// netStream.play(Paths.getRoot('music/kickstarterTrailer.mp4'));
 
 			// If it's Friday according to da clock
 			if (Date.now().getDay() == 5)

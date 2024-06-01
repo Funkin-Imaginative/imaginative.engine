@@ -1,5 +1,5 @@
 display: 'Blammed'
 icon: 'pico'
-color: '941653'
+color: '#941653'
 difficulties: ['Easy', 'Normal', 'Hard', 'Erect', 'Nightmare']
 measure: [4, 4]

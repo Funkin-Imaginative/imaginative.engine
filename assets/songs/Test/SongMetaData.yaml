@@ -1,5 +1,5 @@
 display: 'Test'
 icon: 'bf-pixel'
-color: 'ffffff'
+color: '#FFFFFF'
 difficulties: ['Normal']
 measure: [4, 4]

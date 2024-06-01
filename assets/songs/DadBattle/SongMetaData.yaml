@@ -1,5 +1,5 @@
 display: 'DadBattle'
 icon: 'dad'
-color: '9271FD'
+color: '#9271FD'
 difficulties: ['Easy', 'Normal', 'Hard', 'Erect', 'Nightmare']
 measure: [4, 4]

@@ -1,6 +1,5 @@
 package fnf.utils;
 
-import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
@@ -8,7 +7,6 @@ import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.Json;
 import lime.math.Rectangle;
-import lime.utils.Assets;
 
 using StringTools;
 
@@ -17,8 +15,8 @@ class CoolUtil {
 
 	public static function difficultyString():String return difficultyArray[PlayState.storyDifficulty];
 
-	public static function coolTextFile(path:String):Array<String> {
-		var daList:Array<String> = Assets.getText(path).trim().split('\n');
+	public static function splitTextByLine(path:String):Array<String> {
+		var daList:Array<String> = Paths.getContent(path).split('\n');
 		for (i in 0...daList.length) daList[i] = daList[i].trim();
 		return daList;
 	}
@@ -36,10 +34,10 @@ class CoolUtil {
 			Actually make and modify the scroll and lerp shit in it's own function
 			instead of solely relying on changing the lerp on the fly
 	 */
-	public static function camLerpShit(lerp:Float):Float return lerp * (FlxG.elapsed / (1 / 60));
+	inline public static function camLerpShit(lerp:Float):Float return lerp * (FlxG.elapsed / (1 / 60));
 
 	//just lerp that does camLerpShit for u so u dont have to do it every time
-	public static function coolLerp(a:Float, b:Float, ratio:Float):Float return FlxMath.lerp(a, b, camLerpShit(ratio));
+	inline public static function coolLerp(a:Float, b:Float, ratio:Float):Float return FlxMath.lerp(a, b, camLerpShit(ratio));
 
 	public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
 		if (provideFullPath) return Type.getClassName(Type.getClass(direct)); else {
@@ -48,5 +46,5 @@ class CoolUtil {
 		}
 	}
 
-	public static function quantize(Value:Float, Quant:Float) return Math.fround(Value * Quant) / Quant;
+	inline public static function quantize(Value:Float, Quant:Float) return Math.fround(Value * Quant) / Quant;
 }

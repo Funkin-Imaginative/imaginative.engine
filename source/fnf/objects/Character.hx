@@ -189,14 +189,14 @@ class Character extends FlxSprite {
 	@:unreflective var __name:String = 'boyfriend';
 	@:unreflective var __variant:String = 'normal';
 	// vars to actually use
-	@:isVar public var charName(get, never):String; private function get_charName():String return __name;
-	@:isVar public var charVariant(get, never):String; private function get_charVariant():String return __variant;
-	public var hasVariant(get, never):Bool; private function get_hasVariant():Bool return charVariant != 'none';
+	@:isVar public var charName(get, never):String; function get_charName():String return __name;
+	@:isVar public var charVariant(get, never):String; function get_charVariant():String return __variant;
+	public var hasVariant(get, never):Bool; function get_hasVariant():Bool return charVariant != 'none';
 
 	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
-	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	private function set_isFacing(value:SpriteFacing):SpriteFacing {
+	function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
+	function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
@@ -204,13 +204,13 @@ class Character extends FlxSprite {
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
 
-	public var bopSpeed(default, set):Int = 1; private function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
-	public var beatInterval(get, default):Int = 0; private function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
+	public var bopSpeed(default, set):Int = 1; function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
+	public var beatInterval(get, default):Int = 0; function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	private function get_hasSway():Bool return suffixes.idle.trim() == '' ? animInfo.exists('sway') : animInfo.exists('sway${suffixes.idle}');
+	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animInfo.exists('sway') : animInfo.exists('sway${suffixes.idle}');
 
 	public var xyOffset(default, never):FlxPoint = new FlxPoint();
 	public var camPoint(default, never):BareCameraPoint = new BareCameraPoint();
@@ -226,7 +226,7 @@ class Character extends FlxSprite {
 	}
 
 	public var icon(get, default):String = 'face';
-	private function get_icon():String return icon.trim() == '' ? spritePath : icon;
+	function get_icon():String return icon.trim() == '' ? spritePath : icon;
 
 	public var animationNotes:Array<Dynamic> = [];
 
@@ -235,7 +235,7 @@ class Character extends FlxSprite {
 	public var aliasing:Bool = true;
 	public var flipSprite:Bool = false;
 	public var iconColor(get, default):Null<FlxColor>;
-	private function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
+	function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
 	public var charData:CharData;
 	public static function applyCharData(content:Dynamic):CharData
@@ -644,7 +644,7 @@ class Character extends FlxSprite {
 				singLength = charData.singLen;
 				icon = charData.icon;
 				aliasing = charData.aliasing;
-				if (charData.color.trim() != '') iconColor = Std.parseInt(charData.color);
+				/* if (charData.color.trim() != '') */ iconColor = FlxColor.fromString(charData.color);
 				beatInterval = charData.beat;
 		}
 
@@ -678,7 +678,7 @@ class Character extends FlxSprite {
 		animation.addByPrefix(name, prefix, 24, false, flipSprite);
 
 	private function loadOffsetFile(offsetCharacter:String) {
-		for (i in CoolUtil.coolTextFile(Paths.file('images/characters/${offsetCharacter}Offsets.txt'))) {
+		for (i in CoolUtil.splitTextByLine(Paths.txt('images/characters/${offsetCharacter}Offsets'))) {
 			final splitWords:Array<String> = i.split(' ');
 			setupAnim(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]), splitWords[3]);
 		}
@@ -791,7 +791,7 @@ class Character extends FlxSprite {
 
 	public static var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 	public var singAnims(get, default):Null<Array<Null<String>>>;
-	private function get_singAnims():Array<String> {
+	function get_singAnims():Array<String> {
 		var theAnims:Array<String> = singAnims == null ? globalSingAnims : singAnims;
 		for (index => anim in theAnims) theAnims[index] = anim == null ? globalSingAnims[index] : anim;
 		return theAnims;
