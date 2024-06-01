@@ -67,7 +67,6 @@ class Paths {
 			pathWext = getRoot('$filePath.$ext', pathType);
 			if (FileSystem.exists(pathWext)) {
 				filePath = pathWext;
-				trace(filePath);
 				break;
 			}
 		}
