@@ -9,7 +9,7 @@ class SongMeta {
 	public var icon:String;
 	public var color:FlxColor;
 
-	public var diffs:Array<String>;
+	public var diffs:Array<String> = [];
 
 	public function new(song:String, week:String, icon:String, color:FlxColor = FlxColor.WHITE) {
 		this.song = song;

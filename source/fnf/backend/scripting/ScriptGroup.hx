@@ -32,9 +32,10 @@ class ScriptGroup extends FlxBasic {
 		this.parent = parent;
 	}
 
-	public function load(stopNewCall:Bool = false)
-		for (script in members)
-			script.load(stopNewCall);
+	public function load(stopNewCall:Bool = false, clearInvaild:Bool = true) {
+		if (clearInvaild) this.clearInvaild();
+		for (script in members) script.load(stopNewCall);
+	}
 
 	public function set(variable:String, value:Dynamic)
 		for (script in members)

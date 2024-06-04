@@ -71,6 +71,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public var notes(default, null):NoteGroup;
 	public var splashes(default, null):SplashGroup;
+	// public var holdCovers(default, null):FlxTypedGroup<HoldCover>;
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
 	public var character:Character;
@@ -87,6 +88,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		}
 		notes = new NoteGroup();
 		splashes = new SplashGroup();
+		// holdCovers = new FlxTypedGroup<HoldCover>();
 	}
 
 	private function generateNotes(noteData:Array<SwagSection>) {
@@ -136,6 +138,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 		notes.update(elapsed);
+		// holdCovers.update(elapsed);
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
@@ -195,25 +198,22 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				possibleNotes.sort(NoteGroup.noteSortFunc_ArrayVer);
 
 				if (possibleNotes.length > 0) {
-					for (shit in 0...keys.press.length)
-						// if a direction is hit that shouldn't be
 					for (deNote in possibleNotes) {
-						if (keys.press[shit] && !directionList.contains(deNote.ID))
-							PlayField.noteMiss(deNote, deNote.ID, this);
+						for (shit in 0...keys.press.length) // if a direction is hit that shouldn't be
+							if (keys.press[shit] && !directionList.contains(deNote.ID))
+								PlayField.noteMiss(deNote, deNote.ID, this);
 						if (keys.press[deNote.ID])
 							PlayField.noteHit(deNote, this);
 					}
 				} else
 					for (shit in 0...keys.press.length)
-						if (keys.press[shit])
-							if (!SaveManager.getOption('gameplay.ghostTapping'))
-								PlayField.noteMiss(null, shit, this);
+						if (!SaveManager.getOption('gameplay.ghostTapping') && keys.press[shit])
+							PlayField.noteMiss(null, shit, this);
 			}
 
 			for (index => strum in members) {
 				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]};
-				if (key.press && strum.animation.name != 'confirm')
-					strum.playAnim('press');
+				if (key.press && strum.animation.name != 'confirm') strum.playAnim('press');
 				if (!key.hold) strum.playAnim('static');
 			}
 		} else {
@@ -252,12 +252,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		drawNotes(false, sustainsUnderStrums);
 		super.draw();
 		drawNotes(true, !sustainsUnderStrums);
+		// holdCovers.cameras = cameras;
+		// holdCovers.draw();
 		splashes.cameras = cameras;
 		splashes.draw();
 	}
 
 	override function destroy() {
 		if (status) PlayUtil.botplay = false; // resets botplay
+		// holdCovers.destroy();
 		splashes.destroy();
 		notes.destroy();
 		super.destroy();

@@ -44,7 +44,7 @@ enum abstract AnimType(String) {
 	var LOCK = 'lock';
 
 	/**
-	 * Allow's the idle to overwrite the current animation. Useful for "-loop" animations.
+	 * Allow's the idle to overwrite the current animation.
 	 */
 	var VOID = 'void';
 
@@ -210,7 +210,7 @@ class Character extends FlxSprite {
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animInfo.exists('sway') : animInfo.exists('sway${suffixes.idle}');
+	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animExists('sway') : animExists('sway${suffixes.idle}');
 
 	public var xyOffset(default, never):FlxPoint = new FlxPoint();
 	public var camPoint(default, never):BareCameraPoint = new BareCameraPoint();
@@ -239,7 +239,7 @@ class Character extends FlxSprite {
 
 	public var charData:CharData;
 	public static function applyCharData(content:Dynamic):CharData
-		return {
+		return cast content == null ? FailsafeUtil.charYaml : {
 			sprite: content.sprite,
 			flip: content.flip,
 			anims: content.anims,
@@ -410,21 +410,17 @@ class Character extends FlxSprite {
 			case 'pico':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'Pico_FNF_assetss'}');
 
-				final LEFT:String = faceLeft ? 'LEFT' : 'RIGHT';
-				final RIGHT:String = faceLeft ? 'RIGHT' : 'LEFT';
-
 				flipSprite = true;
 				quickAnimAdd('idle', 'Pico Idle Dance');
-				quickAnimAdd('sing$LEFT', 'Pico NOTE LEFT0');
+				quickAnimAdd('singLEFT', 'Pico NOTE LEFT0');
 				quickAnimAdd('singDOWN', 'Pico Down Note0');
 				quickAnimAdd('singUP', 'pico Up note0');
-				quickAnimAdd('sing$RIGHT', 'Pico Note Right0');
-				quickAnimAdd('sing${LEFT}miss', 'Pico NOTE LEFT miss');
+				quickAnimAdd('singRIGHT', 'Pico Note Right0');
+				quickAnimAdd('singLEFTmiss', 'Pico NOTE LEFT miss');
 				quickAnimAdd('singDOWNmiss', 'Pico Down Note MISS');
 				quickAnimAdd('singUPmiss', 'pico Up note miss');
-				quickAnimAdd('sing${RIGHT}miss', 'Pico Note Right Miss');
+				quickAnimAdd('singRIGHTmiss', 'Pico Note Right Miss');
 
-				// Need to be flipped! REDO THIS LATER!
 				loadOffsetFile(charName);
 
 			case 'pico-speaker':
@@ -606,26 +602,23 @@ class Character extends FlxSprite {
 			case 'tankman':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'tankmanCaptain'}');
 
-				final LEFT:String = faceLeft ? 'LEFT' : 'RIGHT';
-				final RIGHT:String = faceLeft ? 'RIGHT' : 'LEFT';
-
 				flipSprite = true;
 				quickAnimAdd('idle', 'Tankman Idle Dance');
-				quickAnimAdd('sing$LEFT', 'Tankman Note Left ');
+				quickAnimAdd('singLEFT', 'Tankman Note Left ');
 				quickAnimAdd('singDOWN', 'Tankman DOWN note ');
 				quickAnimAdd('singUP', 'Tankman UP note ');
-				quickAnimAdd('sing$RIGHT', 'Tankman Right Note ');
-				// quickAnimAdd('sing${LEFT}miss', 'Tankman Note Left MISS');
+				quickAnimAdd('singRIGHT', 'Tankman Right Note ');
+				// quickAnimAdd('singLEFTmiss', 'Tankman Note Left MISS');
 				// quickAnimAdd('singDOWNmiss', 'Tankman DOWN note MISS');
 				// quickAnimAdd('singUPmiss', 'Tankman UP note MISS');
-				// quickAnimAdd('sing${RIGHT}miss', 'Tankman Right Note MISS');
+				// quickAnimAdd('singRIGHTmiss', 'Tankman Right Note MISS');
 				quickAnimAdd('singDOWN-alt', 'PRETTY GOOD'); // PRETTY GOOD tankman
 				quickAnimAdd('singUP-alt', 'TANKMAN UGH'); // TANKMAN UGH instanc
 
 				loadOffsetFile(charName);
 
 			default:
-				charData = ParseUtil.parseCharacter(charName, charVariant); // get char data
+				charData = ParseUtil.character(charName, charVariant); // get char data
 
 				frames = Paths.getSparrowAtlas('characters/${spritePath = charData.sprite}');
 
@@ -644,7 +637,7 @@ class Character extends FlxSprite {
 				singLength = charData.singLen;
 				icon = charData.icon;
 				aliasing = charData.aliasing;
-				/* if (charData.color.trim() != '') */ iconColor = FlxColor.fromString(charData.color);
+				iconColor = FlxColor.fromString(charData.color);
 				beatInterval = charData.beat;
 		}
 
@@ -689,11 +682,6 @@ class Character extends FlxSprite {
 	override public function update(elapsed:Float) {
 		scripts.call('update', [elapsed]);
 		if (!debugMode && animation.curAnim != null) {
-			if (animName().endsWith('miss') && animFinished()) {
-				tryDance();
-				animation.finish();
-			}
-
 			switch (charName) {
 				case 'pico-speaker':
 					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0]) {
@@ -707,14 +695,14 @@ class Character extends FlxSprite {
 					if (animFinished()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (animFinished() && animInfo.exists('${animName()}-loop') && !animName().endsWith('-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, VOID, false, 0));
+			if (animFinished() && animExists('${animName()}-loop') && !animName().endsWith('-loop')) {
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			}
 
-			if (animType != DANCE || animType != VOID) tryDance();
+			if (/* animType != VOID || */ animType != DANCE) tryDance();
 		}
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -724,7 +712,7 @@ class Character extends FlxSprite {
 	public function dance() {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
-			if (animFinished() && animInfo.exists('$animB4Loop-end') && !animName().endsWith('-end')) {
+			if (animFinished() && animExists('$animB4Loop-end') && !animName().endsWith('-end')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
@@ -732,7 +720,7 @@ class Character extends FlxSprite {
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				final suffix:String = animInfo.exists('$anim${suffixes.idle}') ? suffixes.idle : '';
+				final suffix:String = animExists('$anim${suffixes.idle}') ? suffixes.idle : '';
 				playAnim('$anim$suffix', true, DANCE);
 			}
 		}
@@ -759,12 +747,12 @@ class Character extends FlxSprite {
 	}
 
 	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
-		final flipAnim:String = animInfo.exists(name) ? animInfo.get(name).flipAnim : '';
+		final flipAnim:String = animExists(name) ? animInfo.get(name).flipAnim : '';
 		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(isFacing == leftFace ? name : (flipAnim.trim() == '' ? name : flipAnim), force, animType, reverse, frame));
 		if (event.stopped) return;
-		final suffix:String = animInfo.exists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
+		final suffix:String = animExists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
 		final anim:String = '${event.anim}$suffix';
-		if (animInfo.exists(anim)) {
+		if (animExists(anim)) {
 			if (!animName().endsWith('-loop')) animB4Loop = anim;
 			this.animType = event.animType;
 			final daOffset:FlxPoint = animInfo.get(anim).offset;
@@ -779,8 +767,8 @@ class Character extends FlxSprite {
 
 	public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
 		var has:AnimHas = {
-			miss: animInfo.exists('${sing}miss$suffix') || animInfo.exists('${sing}miss'),
-			suffix: suffix.trim() == '' ? false : animInfo.exists('$sing$miss$suffix')
+			miss: animExists('${sing}miss$suffix') || animExists('${sing}miss'),
+			suffix: suffix.trim() == '' ? false : animExists('$sing$miss$suffix')
 		};
 		var cool:AnimCheck = {
 			miss: has.miss ? miss : '',
@@ -789,7 +777,7 @@ class Character extends FlxSprite {
 		return [sing, cool.miss, cool.suffix];
 	}
 
-	public static var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	public static final globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 	public var singAnims(get, default):Null<Array<Null<String>>>;
 	function get_singAnims():Array<String> {
 		var theAnims:Array<String> = singAnims == null ? globalSingAnims : singAnims;
@@ -812,6 +800,7 @@ class Character extends FlxSprite {
 
 	public function animName():String return (animation == null || animation.name == null) ? '' : animation.name;
 	public function animFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	public function animExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
 
 	override public function destroy() {
 		scripts.destroy();

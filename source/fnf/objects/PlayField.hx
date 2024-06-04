@@ -95,7 +95,7 @@ class PlayField extends FlxGroup {
 	}
 
 	public static function noteHit(note:Note, strumGroup:StrumGroup) {
-		if (!note.wasHit) {
+		if (!note.wasHit && !note.wasMissed) {
 			if (note.hitCausesMiss) return noteMiss(note, strumGroup);
 			note.wasHit = true;
 			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note, note.ID, strumGroup));
@@ -106,11 +106,14 @@ class PlayField extends FlxGroup {
 		}
 	}
 	public static function noteMiss(note:Note, ?direction:Int, strumGroup:StrumGroup) {
-		var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction, strumGroup));
-		// FlxG.state.noteMiss(note);
-		StrumGroup.baseSignals.noteMiss.dispatch(event);
-		note.strumGroup.signals.noteMiss.dispatch(event);
-		direct.stateScripts.call('noteMissPost', [event]);
+		if (!note.wasHit && !note.wasMissed) {
+			note.wasMissed = true;
+			var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction, strumGroup));
+			// FlxG.state.noteMiss(note);
+			StrumGroup.baseSignals.noteMiss.dispatch(event);
+			note.strumGroup.signals.noteMiss.dispatch(event);
+			direct.stateScripts.call('noteMissPost', [event]);
+		}
 	}
 
 	public var updateIconPos:Bool = true;

@@ -1,7 +1,7 @@
 package fnf.utils;
 
-import fnf.backend.metas.DifficultyMeta;
 import fnf.objects.Character;
+import yaml.*;
 
 enum abstract CharDataType(String) {
 	var BASE = 'base';
@@ -11,20 +11,42 @@ enum abstract CharDataType(String) {
 }
 
 class ParseUtil {
-	public static function parseYaml(path:String, pathType:FunkinPath = UNI):Dynamic return yaml.Yaml.parse(Paths.getContent(Paths.yaml(path, pathType)), yaml.Parser.options().useObjects());
-	public static function parseJson(path:String, pathType:FunkinPath = UNI):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
+	public static function yaml(path:String, ?pathType:FunkinPath):Dynamic return Yaml.parse(Paths.getContent(Paths.yaml(path, pathType)), Parser.options().useObjects());
+	public static function json(path:String, ?pathType:FunkinPath):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
 
 	// What? We're you expecting it to be complex?
-	public static function parseDifficulty(diffName:String, pathType:FunkinPath = UNI):DiffData {
-		var yamlData:Dynamic = parseYaml('content/difficulties/$diffName', pathType);
-		return yamlData == null ? FailsafeUtil.diffYaml : {
+	public static function difficulty(diffName:String, ?pathType:FunkinPath):fnf.backend.metas.DifficultyMeta.DiffData {
+		var yamlData:Dynamic = yaml('content/difficulties/$diffName', pathType);
+		return cast yamlData == null ? FailsafeUtil.diffYaml : {
 			audioVariant: yamlData.audioVariant,
 			scoreMult: yamlData.scoreMult,
-			fps: yamlData.fps == null ? 24 : yamlData.fps
+			fps: yamlData.fps == null ? 24.0 : yamlData.fps
 		};
 	}
 
-	public static function parseCharacter(charName:String, charVariant:String = 'none', pathType:FunkinPath = UNI):CharData {
+	public static function level(fileName:String, ?pathType:FunkinPath):fnf.states.menus.StoryMenuState.LevelData {
+		var levelInfo = yaml('levels/$fileName', pathType);
+		return cast levelInfo == null ? FailsafeUtil.levelYaml : {
+			name: fileName,
+			title: levelInfo.title,
+			songs: levelInfo.songs,
+			diffs: levelInfo.difficulties,
+			chars: levelInfo.characters,
+			color: FlxColor.fromString(levelInfo.color)
+		};
+	}
+	public static function song(songName:String, ?pathType:FunkinPath):fnf.states.menus.FreeplayState.SongData {
+		var songInfo = yaml('songs/$songName/SongMetaData', pathType);
+		return cast songInfo == null ? FailsafeUtil.songMetaYaml : {
+			name: songInfo.display,
+			icon: songInfo.icon,
+			color: FlxColor.fromString(songInfo.color),
+			diffs: songInfo.difficulties,
+			measure: songInfo.measure
+		};
+	}
+
+	public static function character(charName:String, charVariant:String = 'none', ?pathType:FunkinPath):CharData {
 		var path:String = '';
 		var applyFailsafe:Bool = false;
 
@@ -33,7 +55,7 @@ class ParseUtil {
 				case 'yaml': Paths.yaml;
 				case 'json': Paths.json;
 				case 'xml': Paths.xml;
-				default: (key:String, pathType:FunkinPath = UNI) -> return key;
+				default: (file:String, ?pathType:FunkinPath) -> return file;
 
 			};
 			if (charVariant == 'none') {
@@ -63,7 +85,7 @@ class ParseUtil {
 		switch (charDataType) {
 			// case BASE:
 			case PSYCH:
-				var jsonData:Dynamic = parseJson(path);
+				var jsonData:Dynamic = json(path);
 
 				var sprite:String = jsonData.image;
 				var pathSplit:Array<String> = sprite.split('/');
@@ -92,9 +114,8 @@ class ParseUtil {
 					var info:Dynamic = jsonData.animations[index];
 
 					var animName:String = info.anim;
-					if (animName.contains('danceLeft')) animName.replace('danceLeft', 'idle');
-					if (animName.contains('danceRight')) animName.replace('danceRight', 'sway');
-					trace(animName);
+					animName = animName.replace('danceLeft', 'idle');
+					animName = animName.replace('danceRight', 'sway');
 
 					var flipAnim:String = switch (animName) {
 						case 'singLEFT': 'singRIGHT'; case 'singRIGHT': 'singLEFT';
@@ -116,7 +137,7 @@ class ParseUtil {
 					});
 				}
 			// case CNE:
-			case IMAG: theData = parseYaml(path, pathType);
+			case IMAG: theData = yaml(path, pathType);
 			default: applyFailsafe = true;
 		}
 

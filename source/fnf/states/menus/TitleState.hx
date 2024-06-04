@@ -166,7 +166,7 @@ class TitleState extends MusicBeatState {
 		credGroup.add(blackScreen);
 
 		// var atlasBullShit:FlxSprite = new FlxSprite();
-		// atlasBullShit.frames = CoolUtil.fromAnimate(Paths.image('money'), Paths.getRoot('images/money.json'));
+		// atlasBullShit.frames = CoolUtil.fromAnimate(Paths.image('money'), Paths.applyRoot('images/money.json'));
 		// credGroup.add(atlasBullShit);
 
 		credTextShit = new Alphabet(0, 0, "ninjamuffin99\nPhantomArcade\nkawaisprite\nevilsk8er", true);
@@ -249,7 +249,7 @@ class TitleState extends MusicBeatState {
 		{
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.onComplete = null;
-			// netStream.play(Paths.getRoot('music/kickstarterTrailer.mp4'));
+			// netStream.play(Paths.applyRoot('music/kickstarterTrailer.mp4'));
 
 			// If it's Friday according to da clock
 			if (Date.now().getDay() == 5)

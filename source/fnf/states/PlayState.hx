@@ -119,7 +119,6 @@ class PlayState extends MusicBeatState {
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.bpm = SONG.bpm;
-		Conductor.songPosition = -5000;
 
 		FlxG.cameras.reset(camGame = new FunkinCamera());
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
@@ -128,7 +127,7 @@ class PlayState extends MusicBeatState {
 
 		gameScripts.load();
 
-		characters.push(dad = new Character(100, 100, false, 'dad', 'none'));
+		characters.push(dad = new Character(100, 100, false, SONG.player2, 'none'));
 		characters.push(boyfriend = new Character(770, 100, true, 'boyfriend', 'normal'));
 		characters.push(gf = new Character(400, 130, false, 'gf', 'normal'));
 		add(gf);
@@ -184,6 +183,7 @@ class PlayState extends MusicBeatState {
 			}
 
 			health += 0.023;
+			trace({min: minHealth, cur: health, max: maxHealth});
 
 			event.strumGroup.character.playSingAnim(event.direction, '');
 			event.note.parentStrum.playAnim('confirm', true);

@@ -27,6 +27,7 @@ class Note extends FlxSprite {
 	public var canHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasHit:Bool = false;
+	public var wasMissed:Bool = false;
 	public var prevNote(get, default):Note; private function get_prevNote():Note return prevNote == null ? this : prevNote;
 	public var nextNote(get, default):Note; private function get_nextNote():Note return nextNote == null ? this : nextNote;
 	public var scrollAngle:Float = 90;

@@ -27,7 +27,7 @@ class DifficultyMeta {
 
 	public var diffData:DiffData;
 	public function new(diffName:String) {
-		diffData = ParseUtil.parseDifficulty(this.diffName = diffName);
+		diffData = ParseUtil.difficulty(this.diffName = diffName);
 		audioVariant = diffData.audioVariant;
 		scoreMult = diffData.scoreMult;
 		spriteFps = diffData.fps == null ? 24 : diffData.fps;

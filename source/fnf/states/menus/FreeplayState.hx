@@ -1,12 +1,17 @@
 package fnf.states.menus;
 
-import haxe.Json;
-import flixel.addons.display.FlxGridOverlay;
-import openfl.utils.Assets;
-
 import fnf.backend.metas.*;
 import fnf.ui.Alphabet;
 import fnf.ui.HealthIcon;
+
+typedef SongData = {
+	var name:String;
+	var icon:String;
+	var color:FlxColor;
+	var diffs:Array<String>;
+	var measure:Array<Int>;
+	@:optional @default(false) var failedLoad:Bool;
+}
 
 class FreeplayState extends MusicBeatState {
 	var songs:Array<SongMeta> = [];
@@ -27,26 +32,40 @@ class FreeplayState extends MusicBeatState {
 	var bg:FlxSprite;
 	var scoreBG:FlxSprite;
 
-	function loadSongs(weekPath:FunkinPath) {
-		for (file in Paths.readFolderOrderTxt('levels', 'yaml', weekPath)) {
-			var weekInfo = ParseUtil.parseYaml('levels/$file', weekPath);
+	function loadSongs(?pathType:FunkinPath) {
+		for (file in Paths.readFolderOrderTxt('levels', 'yaml', pathType)) {
+			final levelData = ParseUtil.level(file, pathType);
+			trace('');
+			trace({path: Paths.yaml('levels/$file'), level: file});
+			if (levelData.failedLoad) continue;
+
 			if (/* StoryMenuState.weekUnlocked[iterator] */ true #if debug || true #end) {
-				var songs:Array<String> = weekInfo.songs;
-				for (name in songs) {
-					final songMeta = ParseUtil.parseYaml('songs/$name/SongMetaData', weekPath);
-					final color:String = songMeta.color == null ? weekInfo.color : songMeta.color;
-					final pathCheck:String = Paths.yaml('levels/$file', weekPath);
+				for (name in levelData.songs) {
+					final songData = ParseUtil.song(name, pathType);
+					trace({path: Paths.yaml('songs/$name/SongMetaData'), song: name});
+					if (songData.failedLoad) continue;
+
+					final mergedData:fnf.utils.FailsafeUtil.MergedLevelSongData = FailsafeUtil.mergeLevelAndSongData(levelData, songData);
+					if (mergedData.failedLoad) continue; // jic
+
 					addSong(
-						name,
-						songMeta.difficulties == null ? weekInfo.difficulties : songMeta.difficulties,
+						songData.name,
+						mergedData.diffs,
 						file,
-						songMeta.icon == null ? 'face' : songMeta.icon,
-						color == null ? FlxColor.WHITE : FlxColor.fromString(color),
-						[FunkinPath.typeFromPath(pathCheck), FunkinPath.modNameFromPath(pathCheck)]
+						mergedData.icon,
+						mergedData.color,
+						FunkinPath.getTypeAndModName(Paths.yaml('songs/${songData.name}/SongMetaData', pathType))
 					);
 				}
 			}
 		}
+	}
+
+	public function addSong(song:String, diffs:Array<String>, week:String, icon:String, color:FlxColor = FlxColor.WHITE, ?modShit:Array<Dynamic> = null) {
+		var songMeta:SongMeta = new SongMeta(song, week, icon, color);
+		if (modShit != null) songMeta.setModType(modShit[0] == 'solo', modShit[1]);
+		songMeta.diffs = diffs;
+		songs.push(songMeta);
 	}
 
 	override function create() {
@@ -55,14 +74,14 @@ class FreeplayState extends MusicBeatState {
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		#if debug addSong('Test', ['Normal'], 'Testing', 'bf-pixel', FlxColor.WHITE, [FUNK, 'funkin']); #end
-
 		if (FlxG.sound.music != null)
 			if (!FlxG.sound.music.playing)
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-		loadSongs(SOLO);
-		if (!ModUtil.isSoloOnly) loadSongs(MODS);
+		#if debug addSong('Test', ['Normal'], 'Testing', 'bf-pixel', FlxColor.WHITE, [ROOT, 'funkin']); #end
+		loadSongs();
+		// loadSongs(SOLO);
+		// if (!ModUtil.isSoloOnly) loadSongs(MOD);
 
 		// LOAD MUSIC
 
@@ -113,12 +132,6 @@ class FreeplayState extends MusicBeatState {
 		super.create();
 	}
 
-	public function addSong(song:String, diffs:Array<String>, week:String, icon:String, color:FlxColor = FlxColor.WHITE, ?modShit:Array<Dynamic> = null) {
-		var songMeta:SongMeta = new SongMeta(song, week, icon, color);
-		if (modShit != null) songMeta.setModType(modShit[0] == 'solo', modShit[1]);
-		songMeta.diffs = diffs;
-		songs.push(songMeta);
-	}
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
