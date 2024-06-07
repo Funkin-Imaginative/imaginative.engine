@@ -15,13 +15,13 @@ class ParseUtil {
 	public static function json(path:String, ?pathType:FunkinPath):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
 
 	// What? We're you expecting it to be complex?
-	public static function difficulty(diffName:String, ?pathType:FunkinPath):fnf.backend.metas.DifficultyMeta.DiffData {
+	public static function difficulty(diffName:String, ?pathType:FunkinPath):DifficultyMeta.DiffData {
 		var yamlData:Dynamic = yaml('content/difficulties/$diffName', pathType);
 		return cast yamlData == null ? FailsafeUtil.diffYaml : {
 			audioVariant: yamlData.audioVariant,
 			scoreMult: yamlData.scoreMult,
 			fps: yamlData.fps == null ? 24.0 : yamlData.fps
-		};
+		}
 	}
 
 	public static function level(fileName:String, ?pathType:FunkinPath):fnf.states.menus.StoryMenuState.LevelData {
@@ -33,7 +33,7 @@ class ParseUtil {
 			diffs: levelInfo.difficulties,
 			chars: levelInfo.characters,
 			color: FlxColor.fromString(levelInfo.color)
-		};
+		}
 	}
 	public static function song(songName:String, ?pathType:FunkinPath):fnf.states.menus.FreeplayState.SongData {
 		var songInfo = yaml('songs/$songName/SongMetaData', pathType);
@@ -43,10 +43,10 @@ class ParseUtil {
 			color: FlxColor.fromString(songInfo.color),
 			diffs: songInfo.difficulties,
 			measure: songInfo.measure
-		};
+		}
 	}
 
-	public static function character(charName:String, charVariant:String = 'none', ?pathType:FunkinPath):CharData {
+	public static function character(charName:String, charVariant:String = 'none'):CharData {
 		var path:String = '';
 		var applyFailsafe:Bool = false;
 
@@ -57,15 +57,15 @@ class ParseUtil {
 				case 'xml': Paths.xml;
 				default: (file:String, ?pathType:FunkinPath) -> return file;
 
-			};
+			}
 			if (charVariant == 'none') {
-				if (sys.FileSystem.exists(funclol('characters/$charName', pathType))) {
+				if (FileSystem.exists(funclol('characters/$charName'))) {
 					path = 'characters/$charName';
 					break;
 				}
 			} else {
-				if (!sys.FileSystem.exists(funclol('characters/$charName', pathType))) {
-					if (sys.FileSystem.exists(funclol('characters/$charName/$charVariant', pathType))) {
+				if (!FileSystem.exists(funclol('characters/$charName'))) {
+					if (FileSystem.exists(funclol('characters/$charName/$charVariant'))) {
 						path = 'characters/$charName/$charVariant';
 						break;
 					}
@@ -77,9 +77,9 @@ class ParseUtil {
 		}
 
 		var charDataType:CharDataType = null;
-		if (sys.FileSystem.exists(Paths.json(path, pathType))) charDataType = PSYCH;
-		else if (sys.FileSystem.exists(Paths.yaml(path, pathType))) charDataType = IMAG;
-		else if (sys.FileSystem.exists(Paths.xml(path, pathType))) charDataType = CNE;
+		if (FileSystem.exists(Paths.json(path))) charDataType = PSYCH;
+		else if (FileSystem.exists(Paths.yaml(path))) charDataType = IMAG;
+		else if (FileSystem.exists(Paths.xml(path))) charDataType = CNE;
 
 		var theData:CharData = FailsafeUtil.charYaml;
 		switch (charDataType) {
@@ -108,7 +108,7 @@ class ParseUtil {
 					aliasing: !jsonData.no_antialiasing,
 					color: FlxColor.fromRGB(jsonData.healthbar_colors[0], jsonData.healthbar_colors[1], jsonData.healthbar_colors[2]).toHexString(false, false),
 					beat: 0
-				};
+				}
 
 				for (index in 0...jsonData.animations.length) {
 					var info:Dynamic = jsonData.animations[index];
@@ -123,7 +123,7 @@ class ParseUtil {
 						case 'singLEFTmiss': 'singRIGHTmiss'; case 'singRIGHTmiss': 'singLEFTmiss';
 						case 'singLEFTmiss-alt': 'singRIGHTmiss-alt'; case 'singRIGHTmiss-alt': 'singLEFTmiss-alt';
 						default: '';
-					};
+					}
 
 					theData.anims.insert(index, {
 						name: animName,
@@ -137,7 +137,7 @@ class ParseUtil {
 					});
 				}
 			// case CNE:
-			case IMAG: theData = yaml(path, pathType);
+			case IMAG: theData = yaml(path);
 			default: applyFailsafe = true;
 		}
 

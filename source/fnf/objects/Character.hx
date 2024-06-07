@@ -9,7 +9,7 @@ typedef AnimSuffixes = { // will still work even if alt isn't found
 	@:default('') var anim:String; // for any anim
 }
 
-enum abstract SpriteFacing(String) {
+enum abstract SpriteFacing(String) from String to String {
 	/**
 	 * States that the object is facing left.
 	 */
@@ -22,7 +22,7 @@ enum abstract SpriteFacing(String) {
 }
 
 // after some thinking I see why cne did it capitalized
-enum abstract AnimType(String) {
+enum abstract AnimType(String) from String to String {
 	/**
 	 * States that the object was/is dancing.
 	 */
@@ -83,7 +83,7 @@ typedef AnimList = {
 	/**
 	 * The animation offsets.
 	 */
-	var offset:XY;
+	var offset:PositionMeta;
 
 	/**
 	 * The specified frame order to play out.
@@ -120,12 +120,12 @@ typedef CharData = {
 	/**
 	 * Offset xy position.
 	 */
-	var position:XY;
+	var position:PositionMeta;
 
 	/**
 	 * Camera xy position.
 	 */
-	var camera:XY;
+	var camera:PositionMeta;
 
 
 
@@ -158,11 +158,6 @@ typedef CharData = {
 	 * Bops ber beat.
 	 */
 	@:optional @:default(0) var beat:Int;
-}
-
-private typedef XY = {
-	@:default(0) var x:Float;
-	@:default(0) var y:Float;
 }
 
 private typedef AnimHas = {
@@ -207,7 +202,7 @@ class Character extends FlxSprite {
 	public var bopSpeed(default, set):Int = 1; function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0; function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
-	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''}; // even tho @:default is used it didn't actually work lol
+	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''} // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
 	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animExists('sway') : animExists('sway${suffixes.idle}');
@@ -238,7 +233,7 @@ class Character extends FlxSprite {
 	function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
 	public var charData:CharData;
-	public static function applyCharData(content:Dynamic):CharData
+	public static function applyCharData(content:Dynamic):CharData {
 		return cast content == null ? FailsafeUtil.charYaml : {
 			sprite: content.sprite,
 			flip: content.flip,
@@ -251,8 +246,11 @@ class Character extends FlxSprite {
 			icon: content.icon,
 			aliasing: content.aliasing,
 			color: content.color,
-			beat: content.beat
-		};
+			beat: content.beat,
+
+			pathType: content.pathType
+		}
+	}
 
 	public var scripts:ScriptGroup; // just for effecting both scripts at once lmao
 	public var charScript:Script;
@@ -412,14 +410,14 @@ class Character extends FlxSprite {
 
 				flipSprite = true;
 				quickAnimAdd('idle', 'Pico Idle Dance');
-				quickAnimAdd('singLEFT', 'Pico NOTE LEFT0');
+				quickAnimAdd('singLEFT', 'Pico NOTE Right0');
 				quickAnimAdd('singDOWN', 'Pico Down Note0');
 				quickAnimAdd('singUP', 'pico Up note0');
-				quickAnimAdd('singRIGHT', 'Pico Note Right0');
-				quickAnimAdd('singLEFTmiss', 'Pico NOTE LEFT miss');
+				quickAnimAdd('singRIGHT', 'Pico Note LEFT0');
+				quickAnimAdd('singLEFTmiss', 'Pico NOTE Right miss');
 				quickAnimAdd('singDOWNmiss', 'Pico Down Note MISS');
 				quickAnimAdd('singUPmiss', 'pico Up note miss');
-				quickAnimAdd('singRIGHTmiss', 'Pico Note Right Miss');
+				quickAnimAdd('singRIGHTmiss', 'Pico Note LEFT Miss');
 
 				loadOffsetFile(charName);
 
@@ -604,14 +602,14 @@ class Character extends FlxSprite {
 
 				flipSprite = true;
 				quickAnimAdd('idle', 'Tankman Idle Dance');
-				quickAnimAdd('singLEFT', 'Tankman Note Left ');
+				quickAnimAdd('singLEFT', 'Tankman Right Note ');
 				quickAnimAdd('singDOWN', 'Tankman DOWN note ');
 				quickAnimAdd('singUP', 'Tankman UP note ');
-				quickAnimAdd('singRIGHT', 'Tankman Right Note ');
-				// quickAnimAdd('singLEFTmiss', 'Tankman Note Left MISS');
+				quickAnimAdd('singRIGHT', 'Tankman Note Left ');
+				// quickAnimAdd('singLEFTmiss', 'Tankman Right Note MISS');
 				// quickAnimAdd('singDOWNmiss', 'Tankman DOWN note MISS');
 				// quickAnimAdd('singUPmiss', 'Tankman UP note MISS');
-				// quickAnimAdd('singRIGHTmiss', 'Tankman Right Note MISS');
+				// quickAnimAdd('singRIGHTmiss', 'Tankman Note Left MISS');
 				quickAnimAdd('singDOWN-alt', 'PRETTY GOOD'); // PRETTY GOOD tankman
 				quickAnimAdd('singUP-alt', 'TANKMAN UGH'); // TANKMAN UGH instanc
 
@@ -769,11 +767,11 @@ class Character extends FlxSprite {
 		var has:AnimHas = {
 			miss: animExists('${sing}miss$suffix') || animExists('${sing}miss'),
 			suffix: suffix.trim() == '' ? false : animExists('$sing$miss$suffix')
-		};
+		}
 		var cool:AnimCheck = {
 			miss: has.miss ? miss : '',
 			suffix: has.suffix ? suffix : ''
-		};
+		}
 		return [sing, cool.miss, cool.suffix];
 	}
 

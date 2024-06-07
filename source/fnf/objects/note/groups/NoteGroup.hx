@@ -5,26 +5,18 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		super();
 	}
 
-	public static function noteSortFunc(i, n1, n2):Int {
+	static function sortCode(n1:Note, n2:Note):Int {
 		if (n1.strumTime == n2.strumTime) {
 			var level:Int = 0;
-			if (n1.strumTime == n2.strumTime) n1.isSustain ? level++ : level--;
+			// n1.isSustain ? level++ : level--;
 			if (n1.lowPriority && !n2.lowPriority) level++;
 			else if (!n1.lowPriority && n2.lowPriority) level--;
 			return level;
 		}
 		return FlxSort.byValues(FlxSort.DESCENDING, n1.strumTime, n2.strumTime);
 	}
-	public static function noteSortFunc_ArrayVer(n1, n2):Int {
-		if (n1.strumTime == n2.strumTime) {
-			var level:Int = 0;
-			if (n1.strumTime == n2.strumTime) n1.isSustain ? level++ : level--;
-			if (n1.lowPriority && !n2.lowPriority) level++;
-			else if (!n1.lowPriority && n2.lowPriority) level--;
-			return level;
-		}
-		return FlxSort.byValues(FlxSort.DESCENDING, n1.strumTime, n2.strumTime);
-	}
+	public static function noteSortGroup(i:Int, n1:Note, n2:Note):Int return sortCode(n1, n2);
+	public static function noteSortArray(n1:Note, n2:Note):Int return sortCode(n1, n2);
 
 	override public function add(basic:Note):Note {
 		var toReturn:Note = super.add(basic);
@@ -32,5 +24,10 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		return toReturn;
 	}
 
-	public inline function sortSelf():Void sort(noteSortFunc);
+	public inline function sortSelf():Void {
+		sort(noteSortGroup);
+		for (note in members)
+			if (note.hasTail)
+				note.tail.sort(noteSortArray);
+	}
 }

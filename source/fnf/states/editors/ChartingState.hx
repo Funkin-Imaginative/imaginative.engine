@@ -108,7 +108,7 @@ class ChartingState extends MusicBeatState
 				player2: 'dad',
 				speed: 1,
 				validScore: false
-			};
+			}
 		}
 
 		FlxG.mouse.visible = true;
@@ -175,7 +175,7 @@ class ChartingState extends MusicBeatState
 				vol = 0;
 
 			FlxG.sound.music.volume = vol;
-		};
+		}
 
 		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
 		{
@@ -343,7 +343,7 @@ class ChartingState extends MusicBeatState
 			FlxG.sound.music.pause();
 			FlxG.sound.music.time = 0;
 			changeSection();
-		};
+		}
 	}
 
 	function generateUI():Void
@@ -846,13 +846,12 @@ class ChartingState extends MusicBeatState
 			}
 		 */
 
-		for (i in sectionInfo)
-		{
+		for (i in sectionInfo) {
 			var daNoteInfo = i[1];
 			var daStrumTime = i[0];
 			var daSus = i[2];
 
-			var note:Note = new Note(daStrumTime, daNoteInfo % 4);
+			var note:Note = new Note(daStrumTime, daNoteInfo % 4, null, NOTE);
 			note.sustainLength = daSus;
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
@@ -861,10 +860,8 @@ class ChartingState extends MusicBeatState
 
 			curRenderedNotes.add(note);
 
-			if (daSus > 0)
-			{
-				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2),
-					note.y + GRID_SIZE).makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepCrochet * 16, 0, gridBG.height)));
+			if (daSus > 0) {
+				var sustainVis:FlxSprite = new FlxSprite(note.x + (GRID_SIZE / 2), note.y + GRID_SIZE).makeGraphic(8, Math.floor(FlxMath.remapToRange(daSus, 0, Conductor.stepCrochet * 16, 0, gridBG.height)));
 				curRenderedSustains.add(sustainVis);
 			}
 		}
@@ -880,7 +877,7 @@ class ChartingState extends MusicBeatState
 			sectionNotes: [],
 			typeOfSection: 0,
 			altAnim: false
-		};
+		}
 
 		_song.notes.push(sec);
 	}
@@ -1035,7 +1032,7 @@ class ChartingState extends MusicBeatState
 	{
 		var json = {
 			"song": _song
-		};
+		}
 
 		var data:String = Json.stringify(json);
 

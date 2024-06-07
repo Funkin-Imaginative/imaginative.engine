@@ -234,7 +234,7 @@ class DialogueBox extends FlxSpriteGroup
 			trace("dialogue finish");
 			handSelect.visible = true;
 			dialogueEnded = true;
-		};
+		}
 		handSelect.visible = false;
 		dialogueEnded = false;
 

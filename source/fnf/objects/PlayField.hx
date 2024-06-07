@@ -37,14 +37,17 @@ class PlayField extends FlxGroup {
 			healthBar.setRange(minHealth, healthBar.max);
 		return minHealth = value;
 	}
+
+	var __health:Float;
+	public var health(default, set):Float;
+	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
+
 	public var maxHealth(default, set):Float = 2;
 	inline function set_maxHealth(value:Float):Float {
 		if (healthBar != null && healthBar.max == maxHealth)
 			healthBar.setRange(healthBar.min, value);
 		return maxHealth = value;
 	}
-	public var health(default, set):Float;
-	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
 	public function new(state:Dynamic, ?setup:PlayFieldSetup):Void {
 		super(); // note using the state var in source is a bitch
@@ -57,21 +60,21 @@ class PlayField extends FlxGroup {
 			opponent: {color: FlxColor.RED, icon: 'face'},
 			player: {color: 0xFF66FF33, icon: 'face'}
 		} : setup.barStuff;
-		this.stateScripts = setup.scriptGroup == null ? new ScriptGroup(this) : setup.scriptGroup;
+		stateScripts = setup.scriptGroup == null ? new ScriptGroup(this) : setup.scriptGroup;
 		fieldScripts = new ScriptGroup(direct = this);
 		fieldScripts.add(Script.create('content/fieldscripts/script'));
 		fieldScripts.load();
 
-		health = (maxHealth - minHealth) / 2; // health setup lol
+		__health = health = (maxHealth - minHealth) / 2; // health setup lol
 		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
 
 		healthBarBG = new FlxSprite().loadGraphic(Paths.image('healthBar'));
-		healthBarBG.screenCenter(XY);
+		healthBarBG.screenCenter();
 		healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
 		#if debug trace(setup); #end
-		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), 'health', 0, 2);
+		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
 		healthBar.createFilledBar(setup.barStuff.opponent.color, setup.barStuff.player.color);
 		add(healthBar);
 
@@ -120,6 +123,7 @@ class PlayField extends FlxGroup {
 	override function update(elapsed:Float):Void {
 		fieldScripts.call('update', [elapsed]);
 		super.update(elapsed);
+		__health = FlxMath.lerp(__health, health, 0.15);
 		if (updateIconPos) {
 			var iconOffset:Int = 26;
 			var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);

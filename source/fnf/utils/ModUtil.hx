@@ -1,6 +1,6 @@
 package fnf.utils;
 
-enum abstract FunkinPath(String) {
+enum abstract FunkinPath(String) from String to String {
 	// Base Paths
 	/**
 	 * Base Game Assets.
@@ -59,7 +59,7 @@ enum abstract FunkinPath(String) {
 			case SOLO: (incomingPath == SOLO || incomingPath == LEAD || incomingPath == MODDED || incomingPath == ANY) /* && ModUtil.curSolo != 'funkin' */;
 			case MOD: (incomingPath == MOD || incomingPath == MODDED || incomingPath == ANY) && !ModUtil.isSoloOnly;
 			default: false;
-		};
+		}
 	}
 }
 

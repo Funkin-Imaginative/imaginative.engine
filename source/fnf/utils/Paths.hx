@@ -19,29 +19,25 @@ class Paths {
 	 * Prepend's root folder name.
 	 */
 	public static function applyRoot(simplePath:String, ?pathType:FunkinPath):String {
-		var prevent:Bool = false;
 		var checkPath:String;
 		var path:String = '';
+		// the if around this shit technically doesn't need to be here
+		if (FunkinPath.isPath(ROOT, pathType)) {
+			if (FileSystem.exists(checkPath = 'assets/$simplePath')) // will be "solo/funkin" soon
+				return removeInvaildChars(path = checkPath);
+		}
+		if (FunkinPath.isPath(SOLO, pathType)) {
+			if (FileSystem.exists(checkPath = 'solo/${ModUtil.curSolo}/$simplePath'))
+				return removeInvaildChars(path = checkPath);
+		}
 		if (FunkinPath.isPath(MOD, pathType)) {
 			var mods:Array<String> = ModUtil.globalMods.copy(); mods.push(ModUtil.curMod); // lol
 			for (curMod in mods) {
 				if (FileSystem.exists(checkPath = 'mods/$curMod/$simplePath')) {
-					path = checkPath;
-					prevent = true;
+					return removeInvaildChars(path = checkPath);
 					break;
 				}
 			}
-		}
-		if (!prevent && FunkinPath.isPath(SOLO, pathType)) {
-			if (FileSystem.exists(checkPath = 'solo/${ModUtil.curSolo}/$simplePath')) {
-				path = checkPath;
-				prevent = true;
-			}
-		}
-		// the if around this shit technically doesn't need to be here
-		if (!prevent && FunkinPath.isPath(ROOT, pathType)) {
-			if (FileSystem.exists(checkPath = 'assets/$simplePath')) // will be "solo/funkin" soon
-				path = checkPath;
 		}
 		return removeInvaildChars(path);
 	}
@@ -55,7 +51,7 @@ class Paths {
 			case SOLO: 'solo/${ModUtil.curSolo}';
 			case ROOT: 'solo/funkin';
 			default: '';
-		};
+		}
 	}
 
 	inline public static function txt(file:String, ?pathType:FunkinPath) return applyRoot('$file.txt', pathType);

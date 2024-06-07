@@ -75,19 +75,19 @@ class PlayerSettings
 	public function saveControls()
 	{
 		if (FlxG.save.data.controls == null)
-			FlxG.save.data.controls = {};
+			FlxG.save.data.controls = {}
 
 		var playerData:{ ?keys:Dynamic, ?pad:Dynamic }
 		if (id == 0)
 		{
 			if (FlxG.save.data.controls.p1 == null)
-				FlxG.save.data.controls.p1 = {};
+				FlxG.save.data.controls.p1 = {}
 			playerData = FlxG.save.data.controls.p1;
 		}
 		else
 		{
 			if (FlxG.save.data.controls.p2 == null)
-				FlxG.save.data.controls.p2 = {};
+				FlxG.save.data.controls.p2 = {}
 			playerData = FlxG.save.data.controls.p2;
 		}
 

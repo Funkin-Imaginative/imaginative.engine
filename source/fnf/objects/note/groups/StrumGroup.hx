@@ -57,17 +57,26 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		return status;
 	}
 
+	public var __helper:Null<Bool> = null;
+	public var helper(get, set):Null<Bool>;
+	private function get_helper():Null<Bool> return status == null ? __helper : status;
+	private function set_helper(value:Null<Bool>):Null<Bool> return __helper = value;
+	public function helperConvert(value:Float):Float {
+		if (helper == null) return 0;
+		else return value * (helper ? 1 : -1);
+	}
+
 	public static var baseSignals(default, never):BaseNoteSignals = {
 		noteHit: new FlxTypedSignal<NoteHitEvent->Void>(),
 		noteMiss: new FlxTypedSignal<NoteMissEvent->Void>()
-	};
+	}
 	public var signals(default, never):NoteSignals = {
 		noteHit: new FlxTypedSignal<NoteHitEvent->Void>(),
 		noteMiss: new FlxTypedSignal<NoteMissEvent->Void>(),
 		noteSpawn: new FlxTypedSignal<BasicNoteEvent->Void>(),
 		noteDestroy: new FlxTypedSignal<BasicNoteEvent->Void>(),
 		splashSpawn: new FlxTypedSignal<SplashSpawnEvent->Void>()
-	};
+	}
 
 	public var notes(default, null):NoteGroup;
 	public var splashes(default, null):SplashGroup;
@@ -92,6 +101,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	}
 
 	private function generateNotes(noteData:Array<SwagSection>) {
+		var oldNote:Note;
 		for (section in noteData) {
 			for (songNotes in section.sectionNotes) {
 				var daStrumTime:Float = songNotes[0];
@@ -101,33 +111,31 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				if (songNotes[1] > 3) gottaHitNote = !section.mustHitSection;
 
 				if (status == gottaHitNote) {
-					var oldNote:Note;
-					if (notes.length > 0) oldNote = notes.members[Std.int(notes.length - 1)];
-					else oldNote = null;
+					oldNote = notes.length > 0 ? notes.members[notes.length - 1] : null;
 
-					var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
+					var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, NOTE);
+
 					swagNote.sustainLength = songNotes[2];
 					swagNote.altNote = songNotes[3];
 
 					var susLength:Float = swagNote.sustainLength;
-
 					susLength = susLength / Conductor.stepCrochet;
-					notes.add(swagNote);
-					@:bypassAccessor swagNote.strumGroup = this;
 
 					for (susNote in 0...Math.floor(susLength)) {
-						oldNote = notes.members[Std.int(notes.length - 1)];
-						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
-						swagNote.tail.push(sustainNote);
-						sustainNote.parent = swagNote;
-						notes.add(sustainNote);
+						oldNote = notes.members[notes.length - 1];
+						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, susNote == Math.floor(susLength) ? END : HOLD);
+						(sustainNote.parent = swagNote).tail.push(sustainNote);
 						@:bypassAccessor sustainNote.strumGroup = this;
+						notes.add(sustainNote);
 					}
+					@:bypassAccessor swagNote.strumGroup = this;
+					notes.add(swagNote);
 				}
 			}
 		}
 
-		vocals = FlxG.sound.load(Paths.voices(PlayState.SONG.song, status ? 'Player' : 'Opponent'));
+		var vocalsPath:String = Paths.voices(PlayState.SONG.song, status ? 'Player' : 'Opponent');
+		vocals = FileSystem.exists(vocalsPath) ? FlxG.sound.load(vocalsPath) : new FlxSound();
 
 		vocals.group = FlxG.sound.defaultMusicGroup;
 		vocals.persist = false;
@@ -144,9 +152,16 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		notes.forEachAlive(function(note:Note) {
 			if ((note.tooLate || note.wasHit) && !note.isOnScreen()) deleteNote(note);
 			if (note.willDraw) {
-				var angleDir:Float = note.scrollAngle * Math.PI / 180;
-				note.setPosition(note.isSustain ? members[note.ID].x + (members[note.ID].width / 2.4) : members[note.ID].x, (members[note.ID].y + (Conductor.songPosition - note.strumTime) * (0.45 * PlayState.SONG.speed)) + (note.isSustain ? (Note.swagWidth / 2) : 0) * note.downscrollMult);
-				if (note.isSustain) note.angle = note.scrollAngle - 90;
+				var angleDir:Float = Math.PI / 180;
+				if (note.isSustain) {
+					var scrollAngle:Float = note.parent.scrollAngle + note.scrollAngle;
+					angleDir = scrollAngle * angleDir;
+					note.angle = scrollAngle - 90;
+				} else {
+					angleDir = note.scrollAngle * angleDir;
+					note.angle = note.parentStrum.angle;
+				}
+				note.setPosition(note.parentStrum.x - (note.isSustain ? (note.width / 2) : 0) + (note.isSustain ? (Note.swagWidth / 2) : 0), note.parentStrum.y - (((Conductor.songPosition - note.strumTime) * (0.45 * note.__scrollSpeed) + (note.isSustain ? (Note.swagWidth / 2) : 0)) * (SaveManager.getOption('gameplay.downscroll') ? -1 : 1)));
 			}
 		});
 
@@ -155,7 +170,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			hold: [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT],
 			press: [controls.NOTE_LEFT_P, controls.NOTE_DOWN_P, controls.NOTE_UP_P, controls.NOTE_RIGHT_P],
 			release: [controls.NOTE_LEFT_R, controls.NOTE_DOWN_R, controls.NOTE_UP_R, controls.NOTE_RIGHT_R]
-		};
+		}
 		if (status != null && status == !PlayUtil.opponentPlay && !PlayUtil.botplay) {
 			if (keys.hold.contains(true) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
@@ -195,7 +210,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 				for (note in dumbNotes) deleteNote(note);
 
-				possibleNotes.sort(NoteGroup.noteSortFunc_ArrayVer);
+				possibleNotes.sort(NoteGroup.noteSortArray);
 
 				if (possibleNotes.length > 0) {
 					for (deNote in possibleNotes) {
@@ -212,7 +227,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			}
 
 			for (index => strum in members) {
-				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]};
+				var key:KeySetup = {hold: keys.hold[index], press: keys.press[index], release: keys.release[index]}
 				if (key.press && strum.animation.name != 'confirm') strum.playAnim('press');
 				if (!key.hold) strum.playAnim('static');
 			}

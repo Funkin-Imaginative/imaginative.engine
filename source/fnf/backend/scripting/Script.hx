@@ -26,7 +26,7 @@ class Script extends FlxBasic {
 
 	public static function create(file:String, type:String = ''):Script {
 		final path:String = Paths.script(switch (type) {
-			case 'song': 'data/${PlayState.SONG.song.toLowerCase(/*jic*/)}/$file';
+			case 'song': 'songs/${PlayState.SONG.song}/$file';
 			case 'state': 'content/states/$file';
 			case 'char': 'characters/$file';
 			default: '$file';

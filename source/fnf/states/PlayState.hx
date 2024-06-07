@@ -89,14 +89,10 @@ class PlayState extends MusicBeatState {
 	 * @Zyflx
 	 */
 	public var playField(default, null):PlayField;
-	public var strumLines(get, never):Array<StrumGroup>;
-	public var opponentStrumLine(get, never):StrumGroup;
-	public var playerStrumLine(get, never):StrumGroup;
-	public var healthBar(get, never):FunkinBar;
-	inline function get_strumLines():Array<StrumGroup> return playField.strumLines;
-	inline function get_opponentStrumLine():StrumGroup return playField.opponentStrumLine;
-	inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
-	inline function get_healthBar():FunkinBar return playField.healthBar;
+	public var strumLines(get, never):Array<StrumGroup>; inline function get_strumLines():Array<StrumGroup> return playField.strumLines;
+	public var opponentStrumLine(get, never):StrumGroup; inline function get_opponentStrumLine():StrumGroup return playField.opponentStrumLine;
+	public var playerStrumLine(get, never):StrumGroup; inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
+	public var healthBar(get, never):FunkinBar; inline function get_healthBar():FunkinBar return playField.healthBar;
 
 	public var minHealth(get, set):Float; // >:)
 	inline function get_minHealth():Float return playField.minHealth;
@@ -116,6 +112,10 @@ class PlayState extends MusicBeatState {
 
 		gameScripts = new ScriptGroup(this);
 		if (SONG == null) SONG = Song.loadFromJson('Tutorial', 'Normal');
+		for (ext in Script.exts) {
+			for (file in Paths.readFolder('songs', ext)) gameScripts.add(Script.create('songs/$file'));
+			for (file in Paths.readFolder('songs/$curSong', ext)) gameScripts.add(Script.create(file, 'song'));
+		}
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.bpm = SONG.bpm;
@@ -182,7 +182,7 @@ class PlayState extends MusicBeatState {
 				// popUpScore(event.note.strumTime, event.note);
 			}
 
-			health += 0.023;
+			health += event.strumGroup.helperConvert(event.note.hitHealth);
 			trace({min: minHealth, cur: health, max: maxHealth});
 
 			event.strumGroup.character.playSingAnim(event.direction, '');
@@ -192,13 +192,13 @@ class PlayState extends MusicBeatState {
 			// 	camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
 			// }
 			// if (coolCamReturn != null) coolCamReturn.cancel();
-			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (event.note.isSustain ? 0.6 : 1.6), function(timer:FlxTimer) camPoint.setOffset());
+			// coolCamReturn.start((Conductor.stepCrochet / 1000) * (!event.note.isSustain ? 1.6 : 0.6), function(timer:FlxTimer) camPoint.setOffset());
 
 			vocals.volume = 1;
 			event.strumGroup.vocals.volume = 1;
 		});
 		StrumGroup.baseSignals.noteMiss.add(function(event:NoteMissEvent) {
-			health -= 0.04;
+			health -= event.strumGroup.helperConvert(event.note.missHealth);
 			// killCombo();
 
 			// if (!practiceMode) songScore -= 10;
@@ -254,7 +254,7 @@ class PlayState extends MusicBeatState {
 
 		startedCountdown = true;
 		Conductor.songPosition = 0;
-		Conductor.songPosition -= Conductor.crochet * countdownLength;
+		Conductor.songPosition -= Conductor.crochet * (countdownLength + 1);
 
 		var onCount:Int = 0;
 		countdownTimer.start(Conductor.crochet / 1000, function(tmr:FlxTimer) {
@@ -273,21 +273,21 @@ class PlayState extends MusicBeatState {
 
 				var introSndPaths:Array<String> = ['intro3', 'intro2', 'intro1', 'introGo'];
 
-				try {
-					if (onCount > 0 || introSprPaths[onCount].trim() != '') {
-						var spr:FlxSprite = new FlxSprite(0, 0, Paths.image(introSprPaths[onCount] + altSuffix));
-						if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
-						spr.updateHitbox();
-						spr.screenCenter();
-						spr.cameras = [camHUD];
-						add(spr);
-						FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
-							ease: FlxEase.cubeInOut,
-							onComplete: function(tween:FlxTween) {spr.destroy();}
-						});
-					}
-					if (introSndPaths[onCount].trim() != '') FlxG.sound.play(Paths.sound(introSndPaths[onCount] + altSuffix), 0.6);
-				} catch(e) {trace('Null Object on Countdown');}
+				var spritePath:String = Paths.image(introSprPaths[onCount] + altSuffix);
+				var soundPath:String = Paths.sound(introSndPaths[onCount] + altSuffix);
+				if (FileSystem.exists(spritePath)) {
+					var spr:FlxSprite = new FlxSprite(0, 0, spritePath);
+					if (curStage.startsWith('school')) spr.setGraphicSize(Std.int(spr.width * daPixelZoom));
+					spr.cameras = [camHUD];
+					add(spr);
+					spr.updateHitbox();
+					spr.screenCenter();
+					FlxTween.tween(spr, {y: spr.y += 100, alpha: 0}, Conductor.crochet / 1000, {
+						ease: FlxEase.cubeInOut,
+						onComplete: function(tween:FlxTween) {spr.destroy();}
+					});
+				}
+				if (FileSystem.exists(soundPath)) FlxG.sound.play(soundPath, 0.6);
 			}
 
 			onCount += 1;
@@ -300,8 +300,11 @@ class PlayState extends MusicBeatState {
 		Conductor.bpm = songData.bpm;
 		curSong = songData.song;
 
-		FlxG.sound.music = inst = FlxG.sound.load(Paths.inst(curSong));
-		vocals = FlxG.sound.load(Paths.voices(curSong));
+		var instPath:String = Paths.inst(curSong);
+		var vocalsPath:String = Paths.voices(curSong);
+
+		FlxG.sound.music = inst = FileSystem.exists(instPath) ? FlxG.sound.load(instPath) : new FlxSound();
+		vocals = FileSystem.exists(vocalsPath) ? FlxG.sound.load(vocalsPath) : new FlxSound();
 
 		inst.group = vocals.group = FlxG.sound.defaultMusicGroup;
 		inst.persist = vocals.persist = false;
@@ -316,11 +319,9 @@ class PlayState extends MusicBeatState {
 		inst.onComplete = endSong;
 		if (!paused) inst.play();
 
-		if (vocals == null) vocals = new FlxSound();
 		vocals.onComplete = function() vocalsFinished = true;
 		if (!paused) vocals.play();
 		for (strumLine in strumLines) {
-			if (strumLine.vocals == null) strumLine.vocals = new FlxSound();
 			strumLine.vocals.onComplete = function() strumLine.vocalsFinished = true;
 			if (!paused) strumLine.vocals.play();
 		}
@@ -443,15 +444,17 @@ class PlayState extends MusicBeatState {
 	}
 
 	function resyncVocals() {
-		for (strumLine in strumLines) strumLine.vocals.pause();
-		vocals.pause();
+		for (strumLine in strumLines) if (!strumLine.vocalsFinished) strumLine.vocals.pause();
+		if (!vocalsFinished) vocals.pause();
 		Conductor.songPosition = inst.time;
-		vocals.time = Conductor.songPosition;
+		if (!vocalsFinished) vocals.time = Conductor.songPosition;
 		for (strumLine in strumLines) {
-			strumLine.vocals.time = vocals.time;
-			strumLine.vocals.resume();
+			if (!strumLine.vocalsFinished) {
+				strumLine.vocals.time = inst.time;
+				strumLine.vocals.resume();
+			}
 		}
-		vocals.resume();
+		if (!vocalsFinished) vocals.resume();
 		gameScripts.call('resyncedVocals');
 	}
 

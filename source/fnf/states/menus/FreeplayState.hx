@@ -1,6 +1,5 @@
 package fnf.states.menus;
 
-import fnf.backend.metas.*;
 import fnf.ui.Alphabet;
 import fnf.ui.HealthIcon;
 

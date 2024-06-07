@@ -1,7 +1,6 @@
 package fnf.states.menus;
 
 import flixel.addons.transition.FlxTransitionableState;
-import fnf.backend.metas.*;
 
 import fnf.objects.MenuCharacter;
 import fnf.objects.MenuItem;

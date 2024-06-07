@@ -22,6 +22,7 @@ import flixel.FlxState;
 import flixel.FlxG;
 
 // alphabetical order
+import fnf.backend.metas.*;
 import fnf.backend.musicbeat.*;
 import fnf.backend.scripting.*; import fnf.backend.scripting.events.*;
 import fnf.backend.BareCameraPoint; // backend

@@ -50,7 +50,7 @@ class Conductor
 					stepTime: totalSteps,
 					songTime: totalPos,
 					bpm: curBPM
-				};
+				}
 				bpmChangeMap.push(event);
 			}
 

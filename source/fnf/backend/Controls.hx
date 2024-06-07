@@ -633,7 +633,7 @@ class Controls extends FlxActionSet
 	public function createSaveData(device:Device):Dynamic
 	{
 		var isEmpty = true;
-		var data = {};
+		var data = {}
 		for (control in Control.createAll())
 		{
 			var inputs = getInputsFor(control, device);
@@ -661,4 +661,4 @@ class Controls extends FlxActionSet
 }
 
 
-typedef SaveInputLists = {?keys:Array<Int>, ?pad:Array<Int>};
+typedef SaveInputLists = {?keys:Array<Int>, ?pad:Array<Int>}

@@ -12,7 +12,7 @@ class Main extends Sprite {
 		fps: 144,
 		skipSplash: false,
 		startFullscreen: false
-	};
+	}
 
 	public static var fpsCounter:FPS;
 
