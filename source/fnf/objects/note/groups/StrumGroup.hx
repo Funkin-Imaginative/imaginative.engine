@@ -80,7 +80,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public var notes(default, null):NoteGroup;
 	public var splashes(default, null):SplashGroup;
-	// public var holdCovers(default, null):FlxTypedGroup<HoldCover>;
+	public var holdCovers(default, null):FlxTypedGroup<HoldCover>;
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
 	public var character:Character;
@@ -97,7 +97,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		}
 		notes = new NoteGroup();
 		splashes = new SplashGroup();
-		// holdCovers = new FlxTypedGroup<HoldCover>();
+		holdCovers = new FlxTypedGroup<HoldCover>();
 	}
 
 	private function generateNotes(noteData:Array<SwagSection>) {
@@ -146,7 +146,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 		notes.update(elapsed);
-		// holdCovers.update(elapsed);
+		holdCovers.update(elapsed);
 		splashes.update(elapsed);
 
 		notes.forEachAlive(function(note:Note) {
@@ -248,7 +248,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		note.destroy();
 	}
 
-	private function drawNotes(drawNote:Bool, drawSustain:Bool) {
+	function drawNotes(drawNote:Bool, drawSustain:Bool) {
 		for (note in notes) {
 			if (note != null && note.exists && note.visible) {
 				if (drawSustain && note.isSustain) {
@@ -267,15 +267,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		drawNotes(false, sustainsUnderStrums);
 		super.draw();
 		drawNotes(true, !sustainsUnderStrums);
-		// holdCovers.cameras = cameras;
-		// holdCovers.draw();
+		holdCovers.cameras = cameras;
+		holdCovers.draw();
 		splashes.cameras = cameras;
 		splashes.draw();
 	}
 
 	override function destroy() {
 		if (status) PlayUtil.botplay = false; // resets botplay
-		// holdCovers.destroy();
+		holdCovers.destroy();
 		splashes.destroy();
 		notes.destroy();
 		super.destroy();

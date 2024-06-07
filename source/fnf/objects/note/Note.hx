@@ -64,13 +64,19 @@ class Note extends FlxSprite {
 
 	public static var swagWidth:Float = 160 * 0.7;
 
-	public var hitHealth:Float = 0.023;
-	public var missHealth:Float = 0.04;
+	public var healthAmount:{gain:Float, drain:Float} = {
+		gain: 0.03,
+		drain: 0.05
+	};
 
+	var __applyScaleFrfr:Bool = false; // ofc this didn't fucking work
 	var baseScale:PositionMeta = new PositionMeta(0.7, 0.7);
-	public function reapplyBaseScale(?func:Void->Void) {
+	public function setBaseScale(func:Void->Void) {
+		__applyScaleFrfr = false;
 		if (func != null) func();
 		baseScale.set(scale.x, scale.y);
+		updateHitbox();
+		__applyScaleFrfr = true;
 	}
 	public var __scrollSpeed(get, never):Float; inline function get___scrollSpeed():Float return PlayState.SONG.speed * mods.speed;
 
@@ -127,11 +133,6 @@ class Note extends FlxSprite {
 						default:
 					}
 			}
-
-			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-			updateHitbox();
-
 		} else {
 			frames = Paths.getSparrowAtlas('notes/NOTE_assets');
 
@@ -140,33 +141,32 @@ class Note extends FlxSprite {
 				case HOLD: animation.addByPrefix('lol', '$col hold piece', 24);
 				case END: animation.addByPrefix('lol', '$col hold end', 24);
 			}
-
-			antialiasing = true;
-			setGraphicSize(Std.int(width * 0.7));
-			updateHitbox();
 		}
+		antialiasing = !pixel;
+		animation.play('lol');
+
 		// colorSwap = new ColorSwap();
 		// shader = colorSwap.shader;
 
-		animation.play('lol');
-		reapplyBaseScale(function() { // example usage
-			// scale shiz
-		}); // or without making the function
+		setBaseScale(function() {
+			setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7)));
+		});
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
 		if (applyMods.alpha) alpha = parentStrum.alpha * mods.alpha;
-		if (applyMods.scale) {
-			var sy:Float = mods.scale.y;
-			if (isSustain) sy *= Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed; else {
-				sy *= parentStrum.scaleMult.y;
-				sy *= mods.scale.y;
-			}
-			scale.set(baseScale.x * mods.scale.x * parentStrum.scaleMult.x * mods.scale.x, baseScale.y * sy);
-			// updateHitbox();
-		} else {if (isSustain) scale.y = baseScale.y * (Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed);}
+		if (__applyScaleFrfr) {
+			if (applyMods.scale) {
+				var sy:Float = mods.scale.y;
+				if (isSustain) sy *= Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed; else {
+					sy *= parentStrum.scaleMult.y;
+					sy *= mods.scale.y;
+				}
+				scale.set(baseScale.x * mods.scale.x * parentStrum.scaleMult.x * mods.scale.x, baseScale.y * sy);
+			} else {if (isSustain) scale.y = baseScale.y * (Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed);}
+		}
 
 		if (!parentStrum.cpu) {
 			// miss on the NEXT frame so lag doesnt make u miss notes

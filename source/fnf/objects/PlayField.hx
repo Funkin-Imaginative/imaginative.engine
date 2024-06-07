@@ -99,10 +99,9 @@ class PlayField extends FlxGroup {
 
 	public static function noteHit(note:Note, strumGroup:StrumGroup) {
 		if (!note.wasHit && !note.wasMissed) {
-			if (note.hitCausesMiss) return noteMiss(note, strumGroup);
+			if (note.hitCausesMiss) return noteMiss(note, note.ID, strumGroup);
 			note.wasHit = true;
 			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note, note.ID, strumGroup));
-			// FlxG.state.noteHit(event);
 			StrumGroup.baseSignals.noteHit.dispatch(event);
 			note.strumGroup.signals.noteHit.dispatch(event);
 			direct.stateScripts.call('noteHitPost', [event]);
@@ -112,7 +111,6 @@ class PlayField extends FlxGroup {
 		if (!note.wasHit && !note.wasMissed) {
 			note.wasMissed = true;
 			var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction, strumGroup));
-			// FlxG.state.noteMiss(note);
 			StrumGroup.baseSignals.noteMiss.dispatch(event);
 			note.strumGroup.signals.noteMiss.dispatch(event);
 			direct.stateScripts.call('noteMissPost', [event]);

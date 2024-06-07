@@ -182,7 +182,7 @@ class PlayState extends MusicBeatState {
 				// popUpScore(event.note.strumTime, event.note);
 			}
 
-			health += event.strumGroup.helperConvert(event.note.hitHealth);
+			health += event.strumGroup.helperConvert(event.note.healthAmount.gain);
 			trace({min: minHealth, cur: health, max: maxHealth});
 
 			event.strumGroup.character.playSingAnim(event.direction, '');
@@ -198,7 +198,7 @@ class PlayState extends MusicBeatState {
 			event.strumGroup.vocals.volume = 1;
 		});
 		StrumGroup.baseSignals.noteMiss.add(function(event:NoteMissEvent) {
-			health -= event.strumGroup.helperConvert(event.note.missHealth);
+			health -= event.strumGroup.helperConvert(event.note.healthAmount.drain);
 			// killCombo();
 
 			// if (!practiceMode) songScore -= 10;
