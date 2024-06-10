@@ -11,7 +11,7 @@ final class NoteMissEvent extends ScriptEvent {
 	override public function new(note:Note, ?direction:Int, strumGroup:StrumGroup) {
 		super();
 		this.note = note;
-		this.direction = direction == null ? note.ID : direction;
+		this.direction = direction == null ? note.data : direction;
 		this.strumGroup = strumGroup == null ? note.strumGroup : strumGroup;
 	}
 }

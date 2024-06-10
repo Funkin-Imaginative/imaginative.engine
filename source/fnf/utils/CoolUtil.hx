@@ -40,11 +40,9 @@ class CoolUtil {
 	inline public static function coolLerp(a:Float, b:Float, ratio:Float):Float return FlxMath.lerp(a, b, camLerpShit(ratio));
 
 	public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
-		if (provideFullPath) return Type.getClassName(Type.getClass(direct)); else {
+		if (provideFullPath) return cast Type.getClassName(Type.getClass(direct)); else {
 			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
-			return path[path.length - 1];
+			return cast path[path.length - 1];
 		}
 	}
-
-	inline public static function quantize(Value:Float, Quant:Float) return Math.fround(Value * Quant) / Quant;
 }

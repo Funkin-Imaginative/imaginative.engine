@@ -1,7 +1,7 @@
 package fnf.objects;
 
-import fnf.objects.note.groups.StrumGroup;
-import fnf.objects.note.Note;
+import fnf.objects.note.groups.*;
+import fnf.objects.note.*;
 import fnf.ui.HealthIcon;
 
 private typedef StupidLOL = {
@@ -99,20 +99,45 @@ class PlayField extends FlxGroup {
 
 	public static function noteHit(note:Note, strumGroup:StrumGroup) {
 		if (!note.wasHit && !note.wasMissed) {
-			if (note.hitCausesMiss) return noteMiss(note, note.ID, strumGroup);
+			// pre call checks
+			if (note.hitCausesMiss) return noteMiss(note, note.data, strumGroup);
 			note.wasHit = true;
-			var event:NoteHitEvent = direct.stateScripts.event('noteHit', new NoteHitEvent(note, note.ID, strumGroup));
+
+			// event creation
+			var event:NoteHitEvent = new NoteHitEvent(note, note.data, strumGroup);
 			StrumGroup.baseSignals.noteHit.dispatch(event);
-			note.strumGroup.signals.noteHit.dispatch(event);
+
+			// note calls
+			direct.stateScripts.event('noteHit', event);
+			strumGroup.signals.noteHit.dispatch(event);
+
+			// splashes/holdcovers
+			if (note.isSustain) note.getHoldCover((cover:HoldCover) -> cover.playAnim('hold'));
+			else {
+				if (strumGroup.status) strumGroup.spawn(Splash, note);
+				if (note.tail.length > 0) strumGroup.spawn(HoldCover, note);
+			}
+
 			direct.stateScripts.call('noteHitPost', [event]);
 		}
 	}
 	public static function noteMiss(note:Note, ?direction:Int, strumGroup:StrumGroup) {
 		if (!note.wasHit && !note.wasMissed) {
-			note.wasMissed = true;
-			var event:NoteMissEvent = direct.stateScripts.event('noteMiss', new NoteMissEvent(note, direction, strumGroup));
+			// pre call checks
+			if (note.isSustain) {note.parent.wasMissed = true; for (sus in note.parent.tail) sus.wasMissed = true;}
+			else {note.wasMissed = true; for (sus in note.tail) sus.wasMissed = true;}
+
+			// event creation
+			var event:NoteMissEvent = new NoteMissEvent(note, direction, strumGroup);
 			StrumGroup.baseSignals.noteMiss.dispatch(event);
-			note.strumGroup.signals.noteMiss.dispatch(event);
+
+			// note calls
+			direct.stateScripts.event('noteMiss', event);
+			strumGroup.signals.noteMiss.dispatch(event);
+
+			// kill the cover
+			note.getHoldCover((cover:HoldCover) -> cover.kill());
+
 			direct.stateScripts.call('noteMissPost', [event]);
 		}
 	}

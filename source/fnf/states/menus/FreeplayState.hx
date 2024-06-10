@@ -99,7 +99,7 @@ class FreeplayState extends MusicBeatState {
 			grpSongs.add(songText);
 
 			var icon:HealthIcon = new HealthIcon(songs[i].icon);
-			icon.setupTracking(songText, function(spr:FlxSprite):FlxPoint return FlxPoint.get(spr.x + spr.width + 10, spr.y - 30));
+			icon.setupTracking(songText, (spr:FlxSprite) -> return PositionMeta.get(spr.x + spr.width + 10, spr.y - 30));
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
@@ -158,7 +158,7 @@ class FreeplayState extends MusicBeatState {
 		if (controls.UI_RIGHT_P) changeDiff(1);
 
 		if (controls.BACK) {
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.sound('menu/cancelMenu'));
 			FlxG.switchState(new MainMenuState());
 		}
 
@@ -189,7 +189,7 @@ class FreeplayState extends MusicBeatState {
 	}
 
 	function changeSelection(change:Int = 0) {
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.sound('menu/scrollMenu'), 0.4);
 
 		curSelected += change;
 

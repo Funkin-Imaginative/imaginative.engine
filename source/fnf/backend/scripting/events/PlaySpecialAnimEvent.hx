@@ -3,8 +3,10 @@ package fnf.backend.scripting.events;
 import fnf.objects.Character.AnimType;
 
 final class PlaySpecialAnimEvent extends ScriptEvent {
-	@:unreflective /*lol*/ private var __animTypeName:String = '';
-	public var animTypeName(get, never):String; private function get_animTypeName():String return __animTypeName;
+	var __animTypeName:String = '';
+	public var animTypeName(get, never):String;
+	inline function get_animTypeName():String return __animTypeName;
+
 	public var force:Bool = false;
 	public var animType:AnimType = NONE;
 	public var reverse:Bool = false;

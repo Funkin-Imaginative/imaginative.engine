@@ -27,7 +27,7 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 		menuCamera.deadzone.set(0, 160, menuCamera.width, 40);
 		menuCamera.minScrollY = 0;
 
-		items.onChange.add(function(selected) {camPoint.y = selected.y;});
+		items.onChange.add((selected) -> camPoint.y = selected.y);
 	}
 
 	public function onPrefCreation() {}
@@ -37,7 +37,7 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 	private function setPref(pref:String, value:Dynamic):Dynamic return SaveManager.setOption('$optionCategory.$pref', value);
 
 	private function createPrefItem(prefName:String, prefString:String, prefValue:Dynamic):Void {
-		items.createItem(120, (120 * items.length) + 30, prefName, AtlasFont.Bold, function() {
+		items.createItem(120, (120 * items.length) + 30, prefName, AtlasFont.Bold, () -> {
 			preferenceCheck(prefString, prefValue);
 			switch (Type.typeof(prefValue).getName()) {
 				case 'TBool': prefToggle(prefString);
@@ -75,9 +75,7 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 
 		// menuCamera.followLerp = CoolUtil.camLerpShit(0.05);
 
-		items.forEach(function(daItem:TextMenuItem) {
-			daItem.x = items.selectedItem == daItem ? 150 : 120;
-		});
+		items.forEach((daItem:TextMenuItem) -> daItem.x = items.selectedItem == daItem ? 150 : 120);
 	}
 
 	private function preferenceCheck(prefString:String, prefValue:Dynamic):Void {

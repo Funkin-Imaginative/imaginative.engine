@@ -18,7 +18,7 @@ class SongMeta {
 		this.color = color;
 	}
 
-	public function setModType(isSolo:Bool, modName:String) {
+	inline public function setModType(isSolo:Bool, modName:String) {
 		this.isSolo = isSolo;
 		inMod = modName;
 	}

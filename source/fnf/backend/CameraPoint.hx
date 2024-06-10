@@ -13,9 +13,9 @@ class CameraPoint extends BareCameraPoint {
 	// lerp math
 	public var lerpMult:Float = 1;
 	public var pointLerp(get, default):Dynamic; // VoidORFloat
-	private function get_pointLerp():Float return lerpTranslate(pointLerp, 0.04);
+	inline function get_pointLerp():Float return lerpTranslate(pointLerp, 0.04);
 	public var offsetLerp(get, default):Dynamic; // VoidORFloat
-	private function get_offsetLerp():Float return lerpTranslate(offsetLerp, pointLerp);
+	inline function get_offsetLerp():Float return lerpTranslate(offsetLerp, pointLerp);
 
 	private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
 		var output:Float;

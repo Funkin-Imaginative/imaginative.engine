@@ -15,7 +15,7 @@ class DifficultyMeta {
 	public var spriteFps:Float = 24;
 
 	// for stuff like story menu
-	public function createSprite():FlxSprite { // wip
+	inline public function createSprite():FlxSprite { // wip
 		var sprite:FlxSprite = new FlxSprite(0, 0, Paths.image('difficulties/$diffName'));
 		if (FileSystem.exists(Paths.xml('images/difficulties/$diffName'))) {
 			sprite.frames = Paths.getSparrowAtlas('difficulties/$diffName');

@@ -6,8 +6,8 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 	public var stopped:Bool = false;
 	private var continueLoop:Bool = true;
 
-	public function fullyStop(finishLoop:Bool = true) stopCompletely(finishLoop);
-	public function stopCompletely(finishLoop:Bool = true) {
+	inline public function fullyStop(finishLoop:Bool = true) stopCompletely(finishLoop);
+	inline public function stopCompletely(finishLoop:Bool = true) {
 		stopped = true;
 		continueLoop = finishLoop;
 	}
@@ -15,7 +15,7 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 	public var data:Dynamic = {}
 	public function new(?data:Dynamic) this.data = data;
 
-	public function toString():String return '[${CoolUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
+	inline public function toString():String return '[${CoolUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
 
 	public function destroy() {}
 }

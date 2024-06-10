@@ -92,7 +92,6 @@ class Script extends FlxBasic {
 			'Controls' => Controls,
 			'SaveManager' => SaveManager,
 			'NoteGroup' => fnf.objects.note.groups.NoteGroup, // objects.note.groups
-			'SplashGroup' => fnf.objects.note.groups.SplashGroup,
 			'StrumGroup' => fnf.objects.note.groups.StrumGroup,
 			'Note' => fnf.objects.note.Note, // objects.note
 			'Splash' => fnf.objects.note.Splash,

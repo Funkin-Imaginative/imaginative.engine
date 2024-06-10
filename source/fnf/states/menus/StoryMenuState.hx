@@ -112,9 +112,6 @@ class StoryMenuState extends MusicBeatState {
 		loadLevels();
 		// loadLevels(SOLO);
 		// if (!ModUtil.isSoloOnly) loadLevels(MOD);
-		for (level in levels) {
-			trace(level.name);
-		}
 
 		for (i => level in levels) {
 			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, level.name);
@@ -220,9 +217,7 @@ class StoryMenuState extends MusicBeatState {
 
 		difficultySelectors.visible = weekUnlocked[curLevel];
 
-		lockIndicators.forEach(function(lock:FlxSprite) {
-			lock.y = weekSprites.members[lock.ID].y;
-		});
+		lockIndicators.forEach((lock:FlxSprite) -> lock.y = weekSprites.members[lock.ID].y);
 
 		if (!movedBack) {
 			if (!selectedWeek) {
@@ -240,7 +235,7 @@ class StoryMenuState extends MusicBeatState {
 		}
 
 		if (controls.BACK && !movedBack && !selectedWeek) {
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.sound('menu/cancelMenu'));
 			movedBack = true;
 			FlxG.switchState(new MainMenuState());
 		}
@@ -255,7 +250,7 @@ class StoryMenuState extends MusicBeatState {
 	function selectWeek() {
 		if (weekUnlocked[curLevel]) {
 			if (stopspamming == false) {
-				FlxG.sound.play(Paths.sound('confirmMenu'));
+				FlxG.sound.play(Paths.sound('menu/confirmMenu'));
 
 				weekSprites.members[curLevel].startFlashing();
 				characters.members[1].animation.play('bfConfirm');
@@ -277,9 +272,7 @@ class StoryMenuState extends MusicBeatState {
 			PlayState.SONG = Song.loadFromJson(PlayState.campaignList[0], diffic);
 			PlayState.storyWeek = curLevel;
 			PlayState.campaignScore = 0;
-			new FlxTimer().start(1, function(tmr:FlxTimer) {
-				LoadingState.loadAndSwitchState(new PlayState(), true);
-			});
+			new FlxTimer().start(1, (tmr:FlxTimer) -> LoadingState.loadAndSwitchState(new PlayState(), true));
 		}
 	}
 
@@ -330,7 +323,7 @@ class StoryMenuState extends MusicBeatState {
 			bullShit++;
 		}
 
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.sound('menu/scrollMenu'));
 
 		updateText();
 	}

@@ -119,7 +119,7 @@ class Page extends FlxGroup {
 	{
 		if (canExit && controls.BACK)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.sound('menu/cancelMenu'));
 			exit();
 		}
 	}
@@ -132,8 +132,7 @@ class Page extends FlxGroup {
 	function openPrompt(prompt:Prompt, onClose:Void->Void)
 	{
 		enabled = false;
-		prompt.closeCallback = function()
-		{
+		prompt.closeCallback = () -> {
 			enabled = true;
 			if (onClose != null)
 				onClose();
@@ -158,11 +157,11 @@ class OptionsMenu extends Page
 		super();
 
 		add(items = new TextMenuList());
-		createItem('preferences', function() switchPage(Preferences));
-		createItem('gameplay', function() switchPage(Gameplay));
-		createItem('graphics', function() switchPage(Graphics));
-		createItem('sensitivity', function() switchPage(Sensitivity));
-		createItem('controls', function() switchPage(Controls));
+		createItem('preferences', () -> switchPage(Preferences));
+		createItem('gameplay', () -> switchPage(Gameplay));
+		createItem('graphics', () -> switchPage(Graphics));
+		createItem('sensitivity', () -> switchPage(Sensitivity));
+		createItem('controls', () -> switchPage(Controls));
 	}
 
 	function createItem(name:String, callback:Void->Void, fireInstantly = false)

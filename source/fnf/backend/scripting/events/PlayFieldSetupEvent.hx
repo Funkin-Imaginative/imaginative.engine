@@ -9,8 +9,8 @@ final class PlayFieldSetupEvent extends ScriptEvent {
 
 	public var cameras:Array<FlxCamera> = [];
 	public var camera(get, set):FlxCamera;
-	private function get_camera():FlxCamera return cameras[0];
-	private function set_camera(value:FlxCamera):FlxCamera return cameras[0] = value;
+	inline function get_camera():FlxCamera return cameras[0];
+	inline function set_camera(value:FlxCamera):FlxCamera return cameras[0] = value;
 
 	override public function new(oppoIconColor:FlxColor = FlxColor.RED, oppoIcon:String = 'face', playIconColor:FlxColor = 0xFF66FF33, playIcon:String = 'face', cameras:Array<FlxCamera>) {
 		super();

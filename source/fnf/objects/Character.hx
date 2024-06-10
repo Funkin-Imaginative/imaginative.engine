@@ -170,7 +170,7 @@ private typedef AnimCheck = {
 }
 
 private typedef AnimMapInfo = {
-	var offset:FlxPoint;
+	var offset:PositionMeta;
 	var flipAnim:String;
 }
 
@@ -184,14 +184,14 @@ class Character extends FlxSprite {
 	@:unreflective var __name:String = 'boyfriend';
 	@:unreflective var __variant:String = 'normal';
 	// vars to actually use
-	@:isVar public var charName(get, never):String; function get_charName():String return __name;
-	@:isVar public var charVariant(get, never):String; function get_charVariant():String return __variant;
-	public var hasVariant(get, never):Bool; function get_hasVariant():Bool return charVariant != 'none';
+	@:isVar public var charName(get, never):String; inline function get_charName():String return __name;
+	@:isVar public var charVariant(get, never):String; inline function get_charVariant():String return __variant;
+	public var hasVariant(get, never):Bool; inline function get_hasVariant():Bool return charVariant != 'none';
 
 	// quick way to set which direction the character is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
-	function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	function set_isFacing(value:SpriteFacing):SpriteFacing {
+	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
+	inline function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
@@ -207,9 +207,9 @@ class Character extends FlxSprite {
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
 	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animExists('sway') : animExists('sway${suffixes.idle}');
 
-	public var xyOffset(default, never):FlxPoint = new FlxPoint();
-	public var camPoint(default, never):BareCameraPoint = new BareCameraPoint();
-	public function getCamPos():FlxPoint {
+	public var xyOffset(default, never):PositionMeta = new PositionMeta();
+	public var camPoint(default, never):PositionMeta = new PositionMeta();
+	public function getCamPos():PositionMeta {
 		var basePos:FlxPoint = getMidpoint();
 		var event:PointEvent = new PointEvent(
 			basePos.x + (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1),
@@ -217,7 +217,7 @@ class Character extends FlxSprite {
 		);
 		basePos.put();
 		scripts.call('getCameraPos', [event]);
-		return new FlxPoint(event.x, event.y);
+		return new PositionMeta(event.x, event.y);
 	}
 
 	public var icon(get, default):String = 'face';
@@ -233,7 +233,7 @@ class Character extends FlxSprite {
 	function get_iconColor():FlxColor return iconColor == null ? 0xa1a1a1 : iconColor;
 
 	public var charData:CharData;
-	public static function applyCharData(content:Dynamic):CharData {
+	inline public static function applyCharData(content:Dynamic):CharData {
 		return cast content == null ? FailsafeUtil.charYaml : {
 			sprite: content.sprite,
 			flip: content.flip,
@@ -629,7 +629,7 @@ class Character extends FlxSprite {
 					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.flipAnim);
 				}
 				xyOffset.set(charData.position.x, charData.position.y);
-				camPoint.setPoint(charData.camera.x, charData.camera.y);
+				camPoint.set(charData.camera.x, charData.camera.y);
 
 				scaleMult = charData.scale;
 				singLength = charData.singLen;
@@ -662,10 +662,10 @@ class Character extends FlxSprite {
 		animationNotes.sort(sortAnims);
 	}
 
-	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
+	inline function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
 
-	function quickAnimAdd(name:String, prefix:String)
+	inline function quickAnimAdd(name:String, prefix:String)
 		animation.addByPrefix(name, prefix, 24, false, flipSprite);
 
 	private function loadOffsetFile(offsetCharacter:String) {
@@ -753,10 +753,9 @@ class Character extends FlxSprite {
 		if (animExists(anim)) {
 			if (!animName().endsWith('-loop')) animB4Loop = anim;
 			this.animType = event.animType;
-			final daOffset:FlxPoint = animInfo.get(anim).offset;
+			final daOffset:PositionMeta = animInfo.get(anim).offset;
 			animation.play(anim, event.force, event.reverse, event.frame);
 			offset.set((daOffset.x - xyOffset.x) * (isFacing == rightFace ? -1 : 1), daOffset.y - xyOffset.y);
-			daOffset.putWeak();
 			if (animType == SING || animType == MISS)
 				lastHit = Conductor.songPosition;
 			scripts.call('playingAnimPost', [event]);
@@ -794,16 +793,14 @@ class Character extends FlxSprite {
 		scripts.call('playingSingAnimPost', [event]);
 	}
 
-	public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: FlxPoint.get(x, y), flipAnim: flipAnim});
+	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: PositionMeta.get(x, y), flipAnim: flipAnim});
 
-	public function animName():String return (animation == null || animation.name == null) ? '' : animation.name;
-	public function animFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	public function animExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
+	inline public function animName():String return (animation == null || animation.name == null) ? '' : animation.name;
+	inline public function animFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	inline public function animExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
 
 	override public function destroy() {
 		scripts.destroy();
-		xyOffset.put();
-		camPoint.destroy();
 		super.destroy();
 	}
 

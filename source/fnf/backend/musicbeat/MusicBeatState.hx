@@ -1,12 +1,12 @@
 package fnf.backend.musicbeat;
 
-import fnf.objects.note.groups.StrumGroup;
 import fnf.backend.Conductor.BPMChangeEvent;
 import flixel.addons.transition.FlxTransitionableState;
 
 class MusicBeatState extends FlxTransitionableState {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
+	private var curMeasure:Int = 0;
 	private var controls(get, never):Controls;
 	inline function get_controls():Controls return PlayerSettings.player1.controls;
 
@@ -41,11 +41,15 @@ class MusicBeatState extends FlxTransitionableState {
 		return def;
 	}
 
-	override function create() {
+	override public function create() {
 		loadScript();
 		super.create();
 		call('create');
-		call('postCreate');
+	}
+
+	override public function createPost() {
+		super.createPost();
+		call('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
@@ -61,12 +65,13 @@ class MusicBeatState extends FlxTransitionableState {
 		if (subState != null) subState.tryUpdate(elapsed);
 	}
 
-	override function update(elapsed:Float) {
+	override public function update(elapsed:Float) {
 		// everyStep();
 		var oldStep:Int = curStep;
 
 		updateCurStep();
-		updateBeat();
+		curBeat = Math.floor(curStep / 4);
+		curMeasure = Math.floor(curBeat / 4);
 
 		if (oldStep != curStep && curStep >= 0)
 			stepHit();
@@ -90,10 +95,6 @@ class MusicBeatState extends FlxTransitionableState {
 			paused = false;
 		}
 		super.closeSubState();
-	}
-
-	private function updateBeat():Void {
-		curBeat = Math.floor(curStep / 4);
 	}
 
 	private function updateCurStep():Void {
@@ -122,12 +123,18 @@ class MusicBeatState extends FlxTransitionableState {
 
 	public function beatHit():Void {
 		call('beatHit', [curBeat]);
+		if (curBeat & 4 == 0) measureHit();
+	}
+
+	public function measureHit():Void {
+		call('measureHit', [curMeasure]);
 	}
 
 	override public function destroy() {
 		stateScripts.destroy();
-		StrumGroup.baseSignals.noteHit.removeAll();
-		StrumGroup.baseSignals.noteMiss.removeAll();
+		fnf.objects.note.groups.StrumGroup.baseSignals.noteHit.removeAll();
+		fnf.objects.note.groups.StrumGroup.baseSignals.noteMiss.removeAll();
+		try {if (PlayField.direct.state == this) PlayField.direct.state = null;} catch(e) {}
 		super.destroy();
 	}
 }

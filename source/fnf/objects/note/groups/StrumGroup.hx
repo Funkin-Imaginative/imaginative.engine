@@ -24,11 +24,13 @@ typedef NoteSignals = {
 	var splashSpawn:FlxTypedSignal<SplashSpawnEvent->Void>;
 }
 
+private typedef SplashXCover = flixel.util.typeLimit.OneOfTwo<Splash, HoldCover>;
+
 class StrumGroup extends FlxTypedGroup<Strum> {
 	public var extra:Map<String, Dynamic> = [];
 
 	// Even tho you can have a but ton of StrumGroup's you can ONLY play as one!
-	public static function swapTargetGroups() {
+	inline public static function swapTargetGroups() {
 		var prevOppo:StrumGroup = opponent;
 		var prevPlay:StrumGroup = player;
 		opponent = prevPlay;
@@ -37,12 +39,12 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	public static var opponent:Null<StrumGroup> = null; // opponent play be like
 	public static var player:Null<StrumGroup> = null;
 	public var status(get, set):Null<Bool>;
-	private function get_status():Null<Bool> {
+	inline function get_status():Null<Bool> {
 		if (this == opponent) return false;
 		if (this == player) return true;
 		return null;
 	}
-	private function set_status(value:Null<Bool>):Null<Bool> {
+	function set_status(value:Null<Bool>):Null<Bool> {
 		switch (value) {
 			case false:
 				if (opponent == player) swapTargetGroups();
@@ -59,8 +61,8 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	public var __helper:Null<Bool> = null;
 	public var helper(get, set):Null<Bool>;
-	private function get_helper():Null<Bool> return status == null ? __helper : status;
-	private function set_helper(value:Null<Bool>):Null<Bool> return __helper = value;
+	function get_helper():Null<Bool> return status == null ? __helper : status;
+	function set_helper(value:Null<Bool>):Null<Bool> return __helper = value;
 	public function helperConvert(value:Float):Float {
 		if (helper == null) return 0;
 		else return value * (helper ? 1 : -1);
@@ -79,14 +81,20 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	}
 
 	public var notes(default, null):NoteGroup;
-	public var splashes(default, null):SplashGroup;
+	public var splashes(default, null):FlxTypedGroup<Splash>;
 	public var holdCovers(default, null):FlxTypedGroup<HoldCover>;
+	public function spawn(classType:Class<SplashXCover>, note:Note):SplashXCover {
+		if (classType == Splash) return splashes.add(splashes.recycle(Splash).setupSplash(note));
+		if (classType == HoldCover) return holdCovers.add(holdCovers.recycle(HoldCover).setupCover(note));
+		return null;
+	}
+
 	public var vocals:FlxSound;
 	public var vocalsFinished:Bool = false;
 	public var character:Character;
 
 	public function new(x:Float, y:Float, pixel:Bool = false, amount:Int = 4) {
-		super();
+		super(9); // lol
 		for (i in 0...amount) {
 			var babyArrow:Strum = new Strum(x - (Note.swagWidth / 2), y, i, pixel);
 			babyArrow.x += Note.swagWidth * i;
@@ -96,8 +104,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			insert(i, babyArrow);
 		}
 		notes = new NoteGroup();
-		splashes = new SplashGroup();
+		splashes = new FlxTypedGroup<Splash>();
 		holdCovers = new FlxTypedGroup<HoldCover>();
+
+		var splash:Splash = new Splash(notes.members[0]);
+		splash.alpha = 0.0001;
+		splashes.add(splash);
+		var cover:HoldCover = new HoldCover(notes.members[0]);
+		cover.alpha = 0.0001;
+		holdCovers.add(cover);
 	}
 
 	private function generateNotes(noteData:Array<SwagSection>) {
@@ -146,24 +161,13 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 		notes.update(elapsed);
-		holdCovers.update(elapsed);
 		splashes.update(elapsed);
+		holdCovers.update(elapsed);
 
-		notes.forEachAlive(function(note:Note) {
-			if ((note.tooLate || note.wasHit) && !note.isOnScreen()) deleteNote(note);
-			if (note.willDraw) {
-				var angleDir:Float = Math.PI / 180;
-				if (note.isSustain) {
-					var scrollAngle:Float = note.parent.scrollAngle + note.scrollAngle;
-					angleDir = scrollAngle * angleDir;
-					note.angle = scrollAngle - 90;
-				} else {
-					angleDir = note.scrollAngle * angleDir;
-					note.angle = note.parentStrum.angle;
-				}
-				note.setPosition(note.parentStrum.x - (note.isSustain ? (note.width / 2) : 0) + (note.isSustain ? (Note.swagWidth / 2) : 0), note.parentStrum.y - (((Conductor.songPosition - note.strumTime) * (0.45 * note.__scrollSpeed) + (note.isSustain ? (Note.swagWidth / 2) : 0)) * (SaveManager.getOption('gameplay.downscroll') ? -1 : 1)));
-			}
-		});
+		notes.forEachAlive((note:Note) ->
+			if (note.strumTime <= Conductor.songPosition)
+				if (note.forceHit) PlayField.noteHit(note, this)
+		);
 
 		var controls:Controls = PlayerSettings.player1.controls;
 		var keys:KeySetupArray = {
@@ -174,10 +178,10 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		if (status != null && status == !PlayUtil.opponentPlay && !PlayUtil.botplay) {
 			if (keys.hold.contains(true) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
-				notes.forEachAlive(function(note:Note) {
-					if (note.isSustain && note.canHit && keys.hold[note.ID])
-						PlayField.noteHit(note, this);
-				});
+				notes.forEachAlive((note:Note) ->
+					if (note.isSustain && note.canHit && keys.hold[note.data])
+						PlayField.noteHit(note, this)
+				);
 			}
 
 			if (keys.press.contains(true) /* && !boyfriend.stunned */) {
@@ -185,16 +189,16 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				var directionList:Array<Int> = []; // directions that can be hit
 				var dumbNotes:Array<Note> = []; // notes to kill later
 
-				notes.forEachAlive(function(note:Note) {
+				notes.forEachAlive((note:Note) ->
 					if (note.canHit && !note.tooLate && !note.wasHit) {
-						if (directionList.contains(note.ID)) {
+						if (directionList.contains(note.data)) {
 							for (coolNote in possibleNotes) {
-								if (coolNote.ID == note.ID && Math.abs(note.strumTime - coolNote.strumTime) < 10){
+								if (coolNote.data == note.data && Math.abs(note.strumTime - coolNote.strumTime) < 10){
 									// if it's the same note twice at < 10ms distance, just delete it
 									// EXCEPT u cant delete it in this loop cuz it fucks with the collection lol
 									dumbNotes.push(note);
 									break;
-								} else if (coolNote.ID == note.ID && note.strumTime < coolNote.strumTime) {
+								} else if (coolNote.data == note.data && note.strumTime < coolNote.strumTime) {
 									// if note is earlier than existing note (coolNote), replace
 									possibleNotes.remove(coolNote);
 									possibleNotes.push(note);
@@ -203,10 +207,10 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 							}
 						} else {
 							possibleNotes.push(note);
-							directionList.push(note.ID);
+							directionList.push(note.data);
 						}
 					}
-				});
+				);
 
 				for (note in dumbNotes) deleteNote(note);
 
@@ -214,10 +218,11 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 				if (possibleNotes.length > 0) {
 					for (deNote in possibleNotes) {
-						for (shit in 0...keys.press.length) // if a direction is hit that shouldn't be
-							if (keys.press[shit] && !directionList.contains(deNote.ID))
-								PlayField.noteMiss(deNote, deNote.ID, this);
-						if (keys.press[deNote.ID])
+						// for (shit in 0...keys.press.length)
+						// if a direction is hit that shouldn't be
+						if (keys.press[deNote.data] && !directionList.contains(deNote.data))
+							PlayField.noteMiss(deNote, deNote.data, this);
+						if (keys.press[deNote.data])
 							PlayField.noteHit(deNote, this);
 					}
 				} else
@@ -232,20 +237,35 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				if (!key.hold) strum.playAnim('static');
 			}
 		} else {
-			notes.forEachAlive(function(note:Note) {
+			notes.forEachAlive((note:Note) ->
 				if (note.strumTime <= Conductor.songPosition)
-					if (note.forceMiss) PlayField.noteMiss(note, note.ID, this);
-					else PlayField.noteHit(note, this);
-			});
+					if (note.forceMiss) PlayField.noteMiss(note, note.data, this)
+					else PlayField.noteHit(note, this)
+			);
+		}
+
+		for (note in notes) {
+			if (!note.isSustain) {
+				var doKill:Bool = false;
+				var array:Array<Note> = note.tail.copy(); array.push(note);
+				for (lol in array) {
+					doKill = (lol.wasHit || lol.wasMissed) && !lol.isOnScreen();
+					if (!doKill) break;
+				}
+				if (doKill)
+					for (lol in array)
+						deleteNote(lol);
+			}
 		}
 	}
 
-	public function deleteNote(note:Note) {
-		if (note == null) return;
-		signals.noteDestroy.dispatch(new BasicNoteEvent(note));
-		note.kill();
-		notes.remove(note, true);
-		note.destroy();
+	inline public function deleteNote(note:Note) {
+		if (note != null) {
+			signals.noteDestroy.dispatch(new BasicNoteEvent(note));
+			note.kill();
+			notes.remove(note, true);
+			note.destroy();
+		}
 	}
 
 	function drawNotes(drawNote:Bool, drawSustain:Bool) {
@@ -273,7 +293,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		splashes.draw();
 	}
 
-	override function destroy() {
+	override public function destroy() {
 		if (status) PlayUtil.botplay = false; // resets botplay
 		holdCovers.destroy();
 		splashes.destroy();

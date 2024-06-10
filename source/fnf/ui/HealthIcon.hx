@@ -4,18 +4,18 @@ import fnf.objects.Character.SpriteFacing;
 
 class HealthIcon extends FlxSprite {
 	/**
-	 * Used for FreeplayState! If you use it elsewhere, prob gonna annoying
+	 * Mostly used for FreeplayState.
 	 */
 	public var sprTracker:FlxSprite;
-	public var trackerFunc:FlxSprite->FlxPoint;
-	public function setupTracking(spr:FlxSprite, func:FlxSprite->FlxPoint) {
+	public var trackerFunc:FlxSprite->PositionMeta;
+	inline public function setupTracking(spr:FlxSprite, func:FlxSprite->PositionMeta) {
 		sprTracker = spr;
 		trackerFunc = func;
 	}
 
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
-	private function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	private function set_isFacing(value:SpriteFacing):SpriteFacing {
+	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
+	function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
@@ -29,16 +29,16 @@ class HealthIcon extends FlxSprite {
 
 	var _lastIcon:String;
 	public var isOldIcon:Bool = false;
-	public function swapOldIcon():Void curIcon = (isOldIcon = !isOldIcon) ? 'bf-old' : _lastIcon;
+	inline public function swapOldIcon():Void curIcon = (isOldIcon = !isOldIcon) ? 'bf-old' : _lastIcon;
 
 	public var curIcon(default, set):String;
-	private function set_curIcon(value:String):String {
+	function set_curIcon(value:String):String {
 		if (value != 'bf-pixel' && value != 'bf-old')
 			value = value.split('-')[0].trim();
 
 		if (value != curIcon) {
 			if (animation.getByName(value) == null) {
-				loadGraphic(Paths.image('icons/' + value), true, 150, 150);
+				loadGraphic(Paths.image('icons/$value'), true, 150, 150);
 				animation.add(value, [0, 1], 0, false);
 			}
 			animation.play(value);
@@ -48,12 +48,11 @@ class HealthIcon extends FlxSprite {
 		return curIcon;
 	}
 
-	override function update(elapsed:Float) {
+	override public function update(elapsed:Float) {
 		super.update(elapsed);
 		if (sprTracker != null && trackerFunc != null) {
-			final trackPoint:FlxPoint = trackerFunc(sprTracker);
-			setPosition(trackPoint.x, trackPoint.y);
-			trackPoint.putWeak();
+			final pos:PositionMeta = trackerFunc(sprTracker);
+			setPosition(pos.x, pos.y);
 		}
 	}
 }

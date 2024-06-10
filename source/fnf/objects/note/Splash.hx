@@ -1,42 +1,29 @@
 package fnf.objects.note;
 
 class Splash extends FlxSprite {
-	public function new(x:Float, y:Float, data:Int = 0):Void {
-		super(x, y);
+	public var note:Note;
+	public var killTimer:FlxTimer = new FlxTimer();
+
+	public function new(?note:Note) {super(); if (note != null) setupSplash(note);}
+
+	public function setupSplash(note:Note):Splash {
+		this.note = note;
 
 		frames = Paths.getSparrowAtlas('noteSplashes');
+		animation.addByPrefix('splash', 'note impact ${FlxG.random.int(1, 2)} ${['purple', 'blue', 'green', 'red'][note.data]}', 24 + FlxG.random.float(-2, 2), false);
 
-		animation.addByPrefix('note1-0', 'note impact 1  blue', 24, false);
-		animation.addByPrefix('note2-0', 'note impact 1 green', 24, false);
-		animation.addByPrefix('note0-0', 'note impact 1 purple', 24, false);
-		animation.addByPrefix('note3-0', 'note impact 1 red', 24, false);
-		animation.addByPrefix('note1-1', 'note impact 2 blue', 24, false);
-		animation.addByPrefix('note2-1', 'note impact 2 green', 24, false);
-		animation.addByPrefix('note0-1', 'note impact 2 purple', 24, false);
-		animation.addByPrefix('note3-1', 'note impact 2 red', 24, false);
-
-		setupNoteSplash(x, y, data);
-
-		// alpha = 0.75;
-	}
-
-	public function setupNoteSplash(x:Float, y:Float, data:Int = 0)
-	{
-		setPosition(x, y);
-		alpha = 0.6;
-
-		animation.play('note' + data + '-' + FlxG.random.int(0, 1), true);
-		animation.curAnim.frameRate += FlxG.random.int(-2, 2);
+		setPosition(note.parentStrum.x, note.parentStrum.y);
+		animation.play('splash', true);
 		updateHitbox();
 
 		offset.set(width * 0.3, height * 0.3);
-	}
 
-	override function update(elapsed:Float)
-	{
-		if (animation.curAnim.finished)
-			kill();
+		animation.finishCallback = (name:String) ->
+			switch (name) {
+				case 'splash': kill();
+			}
 
-		super.update(elapsed);
+		if (animation.name == null) killTimer.start(0.3, (timer:FlxTimer) -> kill());
+		return this;
 	}
 }
