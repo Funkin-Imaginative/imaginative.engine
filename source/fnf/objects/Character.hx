@@ -1,5 +1,6 @@
 package fnf.objects;
 
+import fnf.objects.FunkinSprite;
 import flixel.math.FlxRect;
 import flixel.util.FlxStringUtil;
 
@@ -9,96 +10,12 @@ typedef AnimSuffixes = { // will still work even if alt isn't found
 	@:default('') var anim:String; // for any anim
 }
 
-enum abstract SpriteFacing(String) from String to String {
-	/**
-	 * States that the object is facing left.
-	 */
-	 var leftFace = 'left';
-
-	/**
-	 * States that the object is facing right.
-	 */
-	var rightFace = 'right';
-}
-
-// after some thinking I see why cne did it capitalized
-enum abstract AnimType(String) from String to String {
-	/**
-	 * States that the object was/is dancing.
-	 */
-	var DANCE = 'dance';
-
-	/**
-	 * States that the character was/is singing.
-	 */
-	var SING = 'sing';
-
-	/**
-	 * States that the character is/had missed a note.
-	 */
-	var MISS = 'miss';
-
-	/**
-	 * Prevent's idle animation.
-	 */
-	var LOCK = 'lock';
-
-	/**
-	 * Allow's the idle to overwrite the current animation.
-	 */
-	var VOID = 'void';
-
-	/**
-	 * Play's the idle after the animation has finished.
-	 */
-	var NONE = null;
-}
-
-typedef AnimList = {
-	/**
-	 * The name of the animatiom.
-	 */
-	var name:String;
-
+typedef CharAnimList = {
+	> fnf.objects.FunkinSprite.AnimList,
 	/**
 	 * The name of the animation to play instead if facing right.
 	 */
 	@:optional var flipAnim:String;
-
-	/**
-	 * The internal animation name on the objects xml/json.
-	 */
-	var tag:String;
-
-	/**
-	 * The frames per second (FPS) of the animation.
-	 */
-	@:default(24) var fps:Float;
-
-	/**
-	 * Should the animation loop?
-	 */
-	@:default(false) var loop:Bool;
-
-	/**
-	 * The animation offsets.
-	 */
-	var offset:PositionMeta;
-
-	/**
-	 * The specified frame order to play out.
-	 */
-	@:default([]) var indices:Array<Int>;
-
-	/**
-	 * The alternate sprite path for this animation.
-	 */
-	@:optional var spritePath:String;
-
-	/**
-	 * Should the animation face the other way?
-	 */
-	@:optional @:default(false) var flip:Bool;
 }
 
 typedef CharData = {
@@ -115,7 +32,7 @@ typedef CharData = {
 	/**
 	 * The animation(s) information.
 	 */
-	var anims:Array<AnimList>;
+	var anims:Array<CharAnimList>;
 
 	/**
 	 * Offset xy position.
@@ -169,17 +86,7 @@ private typedef AnimCheck = {
 	var suffix:String;
 }
 
-private typedef AnimMapInfo = {
-	var offset:PositionMeta;
-	var flipAnim:String;
-}
-
-class Character extends FlxSprite {
-	public var debugMode:Bool = false; // for editors
-
-	public var animInfo:Map<String, AnimMapInfo> = new Map<String, AnimMapInfo>(); // the offsets
-	public var animType:AnimType = NONE;
-
+class Character extends FunkinSprite {
 	// internal set to prevent setting
 	@:unreflective var __name:String = 'boyfriend';
 	@:unreflective var __variant:String = 'normal';
@@ -205,7 +112,7 @@ class Character extends FlxSprite {
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''} // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	function get_hasSway():Bool return suffixes.idle.trim() == '' ? animExists('sway') : animExists('sway${suffixes.idle}');
+	function get_hasSway():Bool return suffixes.idle.trim() == '' ? doesAnimExists('sway') : doesAnimExists('sway${suffixes.idle}');
 
 	public var xyOffset(default, never):PositionMeta = new PositionMeta();
 	public var camPoint(default, never):PositionMeta = new PositionMeta();
@@ -626,7 +533,7 @@ class Character extends FlxSprite {
 					if (anim.indices != null && anim.indices.length > 0)
 						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipSprite);
 					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipSprite);
-					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.flipAnim);
+					setupCharAnim(anim.name, anim.offset.x, anim.offset.y, anim.flipAnim);
 				}
 				xyOffset.set(charData.position.x, charData.position.y);
 				camPoint.set(charData.camera.x, charData.camera.y);
@@ -671,7 +578,7 @@ class Character extends FlxSprite {
 	private function loadOffsetFile(offsetCharacter:String) {
 		for (i in CoolUtil.splitTextByLine(Paths.txt('images/characters/${offsetCharacter}Offsets'))) {
 			final splitWords:Array<String> = i.split(' ');
-			setupAnim(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]), splitWords[3]);
+			setupCharAnim(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]), splitWords[3]);
 		}
 	}
 
@@ -690,13 +597,13 @@ class Character extends FlxSprite {
 						playAnim('shoot' + noteData, true);
 						animationNotes.shift();
 					}
-					if (animFinished()) playAnim(animName(), false, false, animation.curAnim.frames.length - 3);
+					if (isAnimFinished()) playAnim(getAnimName(), false, false, animation.curAnim.frames.length - 3);
 			}
 
-			if (animFinished() && animExists('${animName()}-loop') && !animName().endsWith('-loop')) {
+			if (isAnimFinished() && doesAnimExists('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (event.stopped) return;
-				playAnim('${animName()}-loop', event.force, event.animType, event.reverse, event.frame);
+				playAnim('${getAnimName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			}
 
@@ -710,7 +617,7 @@ class Character extends FlxSprite {
 	public function dance() {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
-			if (animFinished() && animExists('$animB4Loop-end') && !animName().endsWith('-end')) {
+			if (isAnimFinished() && doesAnimExists('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
 				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
@@ -718,7 +625,7 @@ class Character extends FlxSprite {
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				final suffix:String = animExists('$anim${suffixes.idle}') ? suffixes.idle : '';
+				final suffix:String = doesAnimExists('$anim${suffixes.idle}') ? suffixes.idle : '';
 				playAnim('$anim$suffix', true, DANCE);
 			}
 		}
@@ -734,38 +641,35 @@ class Character extends FlxSprite {
 			case DANCE:
 				dance();
 			case LOCK:
-				if (animName() == null)
+				if (getAnimName() == null)
 					dance();
 			case VOID:
 				dance();
 			default:
-				if (animName() == null || animFinished())
+				if (getAnimName() == null || isAnimFinished())
 					dance();
 		}
 	}
 
-	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
-		final flipAnim:String = animExists(name) ? animInfo.get(name).flipAnim : '';
+	override public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0) {
+		final flipAnim:String = doesAnimExists(name) ? animInfo.get(name).flipAnim : '';
 		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(isFacing == leftFace ? name : (flipAnim.trim() == '' ? name : flipAnim), force, animType, reverse, frame));
 		if (event.stopped) return;
-		final suffix:String = animExists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
+		final suffix:String = doesAnimExists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
 		final anim:String = '${event.anim}$suffix';
-		if (animExists(anim)) {
-			if (!animName().endsWith('-loop')) animB4Loop = anim;
-			this.animType = event.animType;
-			final daOffset:PositionMeta = animInfo.get(anim).offset;
-			animation.play(anim, event.force, event.reverse, event.frame);
-			offset.set((daOffset.x - xyOffset.x) * (isFacing == rightFace ? -1 : 1), daOffset.y - xyOffset.y);
-			if (animType == SING || animType == MISS)
-				lastHit = Conductor.songPosition;
+		if (doesAnimExists(anim)) {
+			if (!getAnimName().endsWith('-loop')) animB4Loop = anim;
+			super.playAnim(anim, event.force, event.animType, event.reverse, event.frame);
+			offset.set((offset.x - xyOffset.x) * (isFacing == rightFace ? -1 : 1), offset.y - xyOffset.y);
+			if (animType == SING || animType == MISS) lastHit = Conductor.songPosition;
 			scripts.call('playingAnimPost', [event]);
 		}
 	}
 
 	public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
 		var has:AnimHas = {
-			miss: animExists('${sing}miss$suffix') || animExists('${sing}miss'),
-			suffix: suffix.trim() == '' ? false : animExists('$sing$miss$suffix')
+			miss: doesAnimExists('${sing}miss$suffix') || doesAnimExists('${sing}miss'),
+			suffix: suffix.trim() == '' ? false : doesAnimExists('$sing$miss$suffix')
 		}
 		var cool:AnimCheck = {
 			miss: has.miss ? miss : '',
@@ -785,19 +689,15 @@ class Character extends FlxSprite {
 		var event:PlaySingAnimEvent = scripts.event('playingSingAnim', new PlaySingAnimEvent(direction, suffix, animType, force, reverse, frame));
 		if (event.stopped) return;
 		var checkedAnims:Array<String> = singAnimCheck(
-			singAnims[event.direction],
-			event.animType == MISS ? 'miss' : '',
+			event.checkAnim(singAnims, event.direction),
+			event.missed ? 'miss' : '',
 			event.suffix.trim() == '' ? suffixes.sing : event.suffix
 		);
 		playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', event.force, event.animType, event.reverse, event.frame);
 		scripts.call('playingSingAnimPost', [event]);
 	}
 
-	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: PositionMeta.get(x, y), flipAnim: flipAnim});
-
-	inline public function animName():String return (animation == null || animation.name == null) ? '' : animation.name;
-	inline public function animFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	inline public function animExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
+	inline public function setupCharAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: PositionMeta.get(x, y), flipAnim: flipAnim});
 
 	override public function destroy() {
 		scripts.destroy();

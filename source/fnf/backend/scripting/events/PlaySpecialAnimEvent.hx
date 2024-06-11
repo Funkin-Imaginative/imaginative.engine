@@ -1,6 +1,6 @@
 package fnf.backend.scripting.events;
 
-import fnf.objects.Character.AnimType;
+import fnf.objects.FunkinSprite.AnimType;
 
 final class PlaySpecialAnimEvent extends ScriptEvent {
 	var __animTypeName:String = '';

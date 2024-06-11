@@ -3,7 +3,7 @@ package fnf.backend.musicbeat;
 import fnf.backend.Conductor.BPMChangeEvent;
 import flixel.addons.transition.FlxTransitionableState;
 
-class MusicBeatState extends FlxTransitionableState {
+class MusicBeatState extends FlxTransitionableState /* implements IMusicBeat */ {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 	private var curMeasure:Int = 0;

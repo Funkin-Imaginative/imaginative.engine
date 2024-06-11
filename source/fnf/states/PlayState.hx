@@ -11,7 +11,7 @@ import fnf.states.menus.StoryMenuState;
 
 import fnf.objects.BGSprite;
 import fnf.objects.Character;
-import fnf.objects.FunkinBar;
+import fnf.objects.BetterBar;
 import fnf.objects.background.*;
 import fnf.objects.note.groups.*;
 import fnf.objects.note.*;
@@ -92,7 +92,7 @@ class PlayState extends MusicBeatState {
 	public var strumLines(get, never):Array<StrumGroup>; inline function get_strumLines():Array<StrumGroup> return playField.strumLines;
 	public var opponentStrumLine(get, never):StrumGroup; inline function get_opponentStrumLine():StrumGroup return playField.opponentStrumLine;
 	public var playerStrumLine(get, never):StrumGroup; inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
-	public var healthBar(get, never):FunkinBar; inline function get_healthBar():FunkinBar return playField.healthBar;
+	public var healthBar(get, never):BetterBar; inline function get_healthBar():BetterBar return playField.healthBar;
 
 	public var minHealth(get, set):Float; // >:)
 	inline function get_minHealth():Float return playField.minHealth;

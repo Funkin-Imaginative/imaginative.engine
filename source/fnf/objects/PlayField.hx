@@ -22,7 +22,7 @@ class PlayField extends FlxGroup {
 	public var opponentStrumLine:StrumGroup;
 	public var playerStrumLine:StrumGroup;
 	public var healthBarBG:FlxSprite;
-	public var healthBar:FunkinBar;
+	public var healthBar:BetterBar;
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 
@@ -74,7 +74,7 @@ class PlayField extends FlxGroup {
 		add(healthBarBG);
 
 		#if debug trace(setup); #end
-		healthBar = new FunkinBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
+		healthBar = new BetterBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
 		healthBar.createFilledBar(setup.barStuff.opponent.color, setup.barStuff.player.color);
 		add(healthBar);
 
@@ -105,11 +105,11 @@ class PlayField extends FlxGroup {
 
 			// event creation
 			var event:NoteHitEvent = new NoteHitEvent(note, note.data, strumGroup);
-			StrumGroup.baseSignals.noteHit.dispatch(event);
+			StrumGroup.baseSignals.noteHit.dispatch(event); if (event.stopped) return;
 
 			// note calls
 			direct.stateScripts.event('noteHit', event);
-			strumGroup.signals.noteHit.dispatch(event);
+			strumGroup.signals.noteHit.dispatch(event); if (event.stopped) return;
 
 			// splashes/holdcovers
 			if (note.isSustain) note.getHoldCover((cover:HoldCover) -> cover.playAnim('hold'));
@@ -121,24 +121,34 @@ class PlayField extends FlxGroup {
 			direct.stateScripts.call('noteHitPost', [event]);
 		}
 	}
-	public static function noteMiss(note:Note, ?direction:Int, strumGroup:StrumGroup) {
-		if (!note.wasHit && !note.wasMissed) {
-			// pre call checks
-			if (note.isSustain) {note.parent.wasMissed = true; for (sus in note.parent.tail) sus.wasMissed = true;}
-			else {note.wasMissed = true; for (sus in note.tail) sus.wasMissed = true;}
-
+	public static function noteMiss(note:Null<Note>, ?direction:Int, strumGroup:StrumGroup) {
+		if (note == null) {
 			// event creation
-			var event:NoteMissEvent = new NoteMissEvent(note, direction, strumGroup);
-			StrumGroup.baseSignals.noteMiss.dispatch(event);
+			var event:MissEvent = new MissEvent(direction, strumGroup);
 
 			// note calls
-			direct.stateScripts.event('noteMiss', event);
-			strumGroup.signals.noteMiss.dispatch(event);
+			direct.stateScripts.event('miss', event); if (event.stopped) return;
 
-			// kill the cover
-			note.getHoldCover((cover:HoldCover) -> cover.kill());
+			direct.stateScripts.call('missPost', [event]);
+		} else {
+			if (!note.wasHit && !note.wasMissed) {
+				// pre call checks
+				if (note.isSustain) {note.parent.wasMissed = true; for (sus in note.parent.tail) sus.wasMissed = true;}
+				else {note.wasMissed = true; for (sus in note.tail) sus.wasMissed = true;}
 
-			direct.stateScripts.call('noteMissPost', [event]);
+				// event creation
+				var event:NoteMissEvent = new NoteMissEvent(note, direction, strumGroup);
+				StrumGroup.baseSignals.noteMiss.dispatch(event); if (event.stopped) return;
+
+				// note calls
+				direct.stateScripts.event('noteMiss', event);
+				strumGroup.signals.noteMiss.dispatch(event); if (event.stopped) return;
+
+				// kill the cover
+				note.getHoldCover((cover:HoldCover) -> cover.kill());
+
+				direct.stateScripts.call('noteMissPost', [event]);
+			}
 		}
 	}
 

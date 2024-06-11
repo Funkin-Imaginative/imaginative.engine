@@ -1,11 +1,8 @@
 package fnf.ui;
 
-import fnf.objects.Character.SpriteFacing;
+import fnf.objects.FunkinSprite;
 
-class HealthIcon extends FlxSprite {
-	/**
-	 * Mostly used for FreeplayState.
-	 */
+class HealthIcon extends FunkinSprite {
 	public var sprTracker:FlxSprite;
 	public var trackerFunc:FlxSprite->PositionMeta;
 	inline public function setupTracking(spr:FlxSprite, func:FlxSprite->PositionMeta) {
@@ -20,10 +17,9 @@ class HealthIcon extends FlxSprite {
 		return isFacing = value;
 	}
 
-	public function new(char:String = 'bf', faceLeft:Bool = false) {
+	public function new(char:String = 'face', faceLeft:Bool = false) {
 		super();
 		curIcon = char;
-		antialiasing = true;
 		isFacing = faceLeft ? leftFace : rightFace;
 	}
 
@@ -38,10 +34,13 @@ class HealthIcon extends FlxSprite {
 
 		if (value != curIcon) {
 			if (animation.getByName(value) == null) {
-				loadGraphic(Paths.image('icons/$value'), true, 150, 150);
-				animation.add(value, [0, 1], 0, false);
+				var path:String = 'icons/$value';
+				if (!FileSystem.exists(Paths.image(path))) path = 'icons/face';
+				loadGraphic(Paths.image(path), true, 150, 150);
+				animation.add('idle', [0], 0, false);
+				animation.add('losing', [1], 0, false);
 			}
-			animation.play(value);
+			animation.play('idle');
 			if (value == 'bf-old' && isOldIcon) _lastIcon = curIcon;
 			return curIcon = value;
 		}

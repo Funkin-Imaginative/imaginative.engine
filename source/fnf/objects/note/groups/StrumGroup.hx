@@ -190,7 +190,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 				var dumbNotes:Array<Note> = []; // notes to kill later
 
 				notes.forEachAlive((note:Note) ->
-					if (note.canHit && !note.tooLate && !note.wasHit) {
+					if (note.canHit && !note.tooLate && !note.wasHit && !note.wasMissed) {
 						if (directionList.contains(note.data)) {
 							for (coolNote in possibleNotes) {
 								if (coolNote.data == note.data && Math.abs(note.strumTime - coolNote.strumTime) < 10){
@@ -220,7 +220,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 					for (deNote in possibleNotes) {
 						// for (shit in 0...keys.press.length)
 						// if a direction is hit that shouldn't be
-						if (keys.press[deNote.data] && !directionList.contains(deNote.data))
+						if (!keys.press[deNote.data] && !directionList.contains(deNote.data))
 							PlayField.noteMiss(deNote, deNote.data, this);
 						if (keys.press[deNote.data])
 							PlayField.noteHit(deNote, this);
