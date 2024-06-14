@@ -101,7 +101,7 @@ typedef AnimMapInfo = {
 	var offset:PositionMeta;
 
 	/**
-	 * Mostly used for the character class.
+	 * The animation to use when the object is flipped.
 	 */
 	@:optional var flipAnim:String;
 }
@@ -112,6 +112,14 @@ class FunkinSprite extends FlxSkewedSprite implements IMusicBeat {
 
 	public var animInfo:Map<String, AnimMapInfo> = new Map<String, AnimMapInfo>();
 	public var animType:AnimType = NONE;
+
+	// quick way to set which direction the object is facing
+	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
+	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
+	function set_isFacing(value:SpriteFacing):SpriteFacing {
+		flipX = value == leftFace;
+		return isFacing = value;
+	}
 
     public function new(x:Float = 0, y:Float = 0) {
         super(x, y);

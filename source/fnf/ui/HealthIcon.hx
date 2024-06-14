@@ -1,6 +1,5 @@
 package fnf.ui;
 
-import flixel.util.typeLimit.OneOfTwo;
 import fnf.objects.FunkinSprite;
 
 typedef AnimlessList = {
@@ -51,13 +50,6 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 	inline public function setupTracking(spr:Dynamic, func:Dynamic->PositionMeta) {
 		sprTracker = spr;
 		trackerFunc = func;
-	}
-
-	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
-	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	function set_isFacing(value:SpriteFacing):SpriteFacing {
-		flipX = value == leftFace;
-		return isFacing = value;
 	}
 
 	public var iconScript:Script;

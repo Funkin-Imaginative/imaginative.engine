@@ -93,14 +93,6 @@ class Character extends FunkinSprite implements IMusicBeat {
 	@:isVar public var charVariant(get, never):String; inline function get_charVariant():String return __variant;
 	public var hasVariant(get, never):Bool; inline function get_hasVariant():Bool return charVariant != 'none';
 
-	// quick way to set which direction the character is facing
-	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
-	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	inline function set_isFacing(value:SpriteFacing):SpriteFacing {
-		flipX = value == leftFace;
-		return isFacing = value;
-	}
-
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
 
