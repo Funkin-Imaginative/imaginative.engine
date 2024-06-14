@@ -3,7 +3,7 @@ package fnf.backend.musicbeat;
 import fnf.backend.Conductor.BPMChangeEvent;
 import flixel.FlxSubState;
 
-class MusicBeatSubstate extends FlxSubState /* implements IMusicBeat */ {
+class MusicBeatSubstate extends FlxSubState implements IMusicBeat {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 	private var curMeasure:Int = 0;
@@ -54,7 +54,7 @@ class MusicBeatSubstate extends FlxSubState /* implements IMusicBeat */ {
 		if (persistentUpdate || subState == null) {
 			call('preUpdate', [elapsed]);
 			update(elapsed);
-			call('postUpdate', [elapsed]);
+			call('updatePost', [elapsed]);
 		}
 		if (_requestSubStateReset) {
 			_requestSubStateReset = false;
@@ -72,7 +72,7 @@ class MusicBeatSubstate extends FlxSubState /* implements IMusicBeat */ {
 		curMeasure = Math.floor(curBeat / 4);
 
 		if (oldStep != curStep && curStep >= 0)
-			stepHit();
+			stepHit(curStep);
 
 		call('update', [elapsed]);
 		super.update(elapsed);
@@ -98,22 +98,19 @@ class MusicBeatSubstate extends FlxSubState /* implements IMusicBeat */ {
 	}
 
 	var oldBeat:Int = 0;
-	public function stepHit():Void {
-		if (curStep % 4 == 0 && oldBeat != curBeat) {
-			oldBeat = curBeat;
-			beatHit();
-		}
+	public function stepHit(curStep:Int):Void {
+		if (curStep % 4 == 0 && oldBeat != curBeat)
+			beatHit(oldBeat = curBeat);
 		call('stepHit', [curStep]);
 	}
 
-	public function beatHit():Void {
+	public function beatHit(curBeat:Int):Void {
 		call('beatHit', [curBeat]);
-		if (curBeat & 4 == 0) measureHit();
+		if (curBeat & 4 == 0) measureHit(curMeasure);
 	}
 
-	public function measureHit():Void {
+	public function measureHit(curMeasure:Int):Void
 		call('measureHit', [curMeasure]);
-	}
 
 	override public function destroy() {
 		stateScripts.destroy();

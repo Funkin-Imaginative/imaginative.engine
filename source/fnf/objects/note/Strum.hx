@@ -7,7 +7,7 @@ class Strum extends FlxSprite {
 
 	public var strumGroup(default, null):StrumGroup;
 	@:unreflective inline private static function setStrumGroup(strum:Strum, group:StrumGroup) strum.strumGroup = group;
-	public var cpu(get, never):Bool; function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == PlayUtil.opponentPlay && !PlayUtil.enableP2) || PlayUtil.botplay;
+	public var cpu(get, never):Bool; function get_cpu():Bool return strumGroup.status == null || (strumGroup.status == PlayUtil.enemyPlay && !PlayUtil.enableP2) || PlayUtil.botplay;
 
 	// public var colorSwap:ColorSwap;
 	public var data:Int;
@@ -46,7 +46,7 @@ class Strum extends FlxSprite {
 			animation.add('press', [data + 4, data + 8], 24, false);
 			animation.add('confirm', [data + 12, data + 16], 24, false);
 		} else {
-			frames = Paths.getSparrowAtlas('notes/NOTE_assets');
+			frames = Paths.getSparrowAtlas('gameplay/notes/NOTE_assets');
 
 			animation.addByPrefix('note', '${col}0');
 

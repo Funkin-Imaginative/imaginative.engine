@@ -54,6 +54,11 @@ typedef AnimList = {
 	var name:String;
 
 	/**
+	 * The name of the animation to play instead if facing right.
+	 */
+	@:optional var flipAnim:String;
+
+	/**
 	 * The internal animation name on the objects xml/json.
 	 */
 	var tag:String;
@@ -66,7 +71,7 @@ typedef AnimList = {
 	/**
 	 * Should the animation loop?
 	 */
-	@:default(false) var loop:Bool;
+	@:optional @:default(false) var loop:Bool;
 
 	/**
 	 * The animation offsets.
@@ -76,7 +81,7 @@ typedef AnimList = {
 	/**
 	 * The specified frame order to play out.
 	 */
-	@:default([]) var indices:Array<Int>;
+	@:optional @:default([]) var indices:Array<Int>;
 
 	/**
 	 * The alternate sprite path for this animation.
@@ -90,7 +95,14 @@ typedef AnimList = {
 }
 
 typedef AnimMapInfo = {
+	/**
+	 * The offset, what else?
+	 */
 	var offset:PositionMeta;
+
+	/**
+	 * Mostly used for the character class.
+	 */
 	@:optional var flipAnim:String;
 }
 
@@ -114,10 +126,10 @@ class FunkinSprite extends FlxSkewedSprite implements IMusicBeat {
 		}
 	}
 
-	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0) animInfo.set(name, {offset: PositionMeta.get(x, y)});
+	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: {x: x, y: y}, flipAnim: flipAnim});
 
-	inline public function getAnimName():String return (animation == null || animation.name == null) ? '' : animation.name;
-	inline public function getAnimOffset(name:String):PositionMeta return animInfo.exists(name) ? animInfo.get(name).offset : PositionMeta.get();
+	inline public function getAnimName(ignoreFlipAnim:Bool = true):String return (animation == null || animation.name == null) ? '' : (animInfo.exists(animation.name) && !ignoreFlipAnim ? animInfo.get(animation.name).flipAnim : animation.name);
+	inline public function getAnimOffset(name:String):PositionMeta return animInfo.exists(name) ? animInfo.get(name).offset : {x: 0, y: 0};
 	inline public function isAnimFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
 	inline public function doesAnimExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
 

@@ -168,7 +168,7 @@
 	],
 	"vocals_file": "",
 	"no_antialiasing": false,
-	"image": "characters/BOYFRIEND",
+	"image": "characters/boyfriend/BOYFRIEND",
 	"position": [
 		0,
 		350
@@ -181,8 +181,8 @@
 		209
 	],
 	"camera_position": [
-		0,
-		0
+		-170,
+		-20
 	],
 	"sing_duration": 4,
 	"scale": 1,

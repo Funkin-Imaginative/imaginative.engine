@@ -5,7 +5,7 @@ import fnf.objects.note.*;
 import fnf.ui.HealthIcon;
 
 private typedef StupidLOL = {
-	var opponent:HealthBarSetup;
+	var enemy:HealthBarSetup;
 	var player:HealthBarSetup;
 }
 private typedef HealthBarSetup = {
@@ -17,14 +17,15 @@ typedef PlayFieldSetup = {
 	@:optional var barStuff:StupidLOL;
 }
 
-class PlayField extends FlxGroup {
+class PlayField extends MusicBeatGroup implements IMusicBeat {
 	public var strumLines:Array<StrumGroup> = [];
-	public var opponentStrumLine:StrumGroup;
+	public var enemyStrumLine:StrumGroup;
 	public var playerStrumLine:StrumGroup;
-	public var healthBarBG:FlxSprite;
+	public var healthBarBG:FunkinSprite;
 	public var healthBar:BetterBar;
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
+	public var iconOffset:Int = 26;
 
 	public static var fieldScripts:ScriptGroup;
 	public var stateScripts:ScriptGroup;
@@ -57,8 +58,8 @@ class PlayField extends FlxGroup {
 		}
 		setup == null ? {stateScripts: null} : setup;
 		setup.barStuff == null ? {
-			opponent: {color: FlxColor.RED, icon: 'face'},
-			player: {color: 0xFF66FF33, icon: 'face'}
+			enemy: {color: null, icon: 'face'},
+			player: {color: null, icon: 'face'}
 		} : setup.barStuff;
 		stateScripts = setup.scriptGroup == null ? new ScriptGroup(this) : setup.scriptGroup;
 		fieldScripts = new ScriptGroup(direct = this);
@@ -66,29 +67,29 @@ class PlayField extends FlxGroup {
 		fieldScripts.load();
 
 		__health = health = (maxHealth - minHealth) / 2; // health setup lol
-		var downscroll:Bool = SaveManager.getOption('gameplay.downscroll');
+		var downscroll:Bool = SaveManager.getOption('downscroll');
 
-		healthBarBG = new FlxSprite().loadGraphic(Paths.image('healthBar'));
+		(healthBarBG = new FunkinSprite()).makeGraphic(600, 20);
+		healthBarBG.color = FlxColor.BLACK;
 		healthBarBG.screenCenter();
 		healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
 		#if debug trace(setup); #end
-		healthBar = new BetterBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
-		healthBar.createFilledBar(setup.barStuff.opponent.color, setup.barStuff.player.color);
+		healthBar = new BetterBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
+		healthBar.changeColors(FlxColor.RED, 0xFF66FF33, true);
+		healthBar.changeColorsUnsafe(setup.barStuff.enemy.color, setup.barStuff.player.color);
 		add(healthBar);
 
-		iconP1 = new HealthIcon(setup.barStuff.player.icon, true);
-		iconP2 = new HealthIcon(setup.barStuff.opponent.icon);
-		for(icon in [iconP1, iconP2]) {
-			icon.y = healthBar.y - (icon.height * .5);
-			add(icon);
-		}
+		add(iconP1 = new HealthIcon(setup.barStuff.player.icon, true));
+		add(iconP2 = new HealthIcon(setup.barStuff.enemy.icon));
+		iconP1.setupTracking(healthBar, (bar:BetterBar) -> return PositionMeta.get(bar.midPoint.x - iconOffset, bar.midPoint.y - (iconP1.height / 2)));
+		iconP2.setupTracking(healthBar, (bar:BetterBar) -> return PositionMeta.get(bar.midPoint.x - (iconP2.width - iconOffset), bar.midPoint.y - (iconP2.height / 2)));
 
-		add(StrumGroup.opponent = opponentStrumLine = new StrumGroup((FlxG.width * .5) - (FlxG.width * .25), 0, false));
+		add(StrumGroup.enemy = enemyStrumLine = new StrumGroup((FlxG.width * .5) - (FlxG.width * .25), 0, false));
 		add(StrumGroup.player = playerStrumLine = new StrumGroup((FlxG.width * .5) + (FlxG.width * .25), 0, false));
 
-		for (strumLine in [opponentStrumLine, playerStrumLine]) {
+		for (strumLine in [enemyStrumLine, playerStrumLine]) {
 			for (strum in strumLine) {
 				strum.screenCenter(Y);
 				strum.y += FlxG.height / 2.7 * (downscroll ? 1 : -1);
@@ -105,7 +106,7 @@ class PlayField extends FlxGroup {
 
 			// event creation
 			var event:NoteHitEvent = new NoteHitEvent(note, note.data, strumGroup);
-			StrumGroup.baseSignals.noteHit.dispatch(event); if (event.stopped) return;
+			StrumGroup.hitFuncs.noteHit(event); if (event.stopped) return;
 
 			// note calls
 			direct.stateScripts.event('noteHit', event);
@@ -127,9 +128,9 @@ class PlayField extends FlxGroup {
 			var event:MissEvent = new MissEvent(direction, strumGroup);
 
 			// note calls
-			direct.stateScripts.event('miss', event); if (event.stopped) return;
+			direct.stateScripts.event('generalMiss', event); if (event.stopped) return;
 
-			direct.stateScripts.call('missPost', [event]);
+			direct.stateScripts.call('generalMissPost', [event]);
 		} else {
 			if (!note.wasHit && !note.wasMissed) {
 				// pre call checks
@@ -138,7 +139,7 @@ class PlayField extends FlxGroup {
 
 				// event creation
 				var event:NoteMissEvent = new NoteMissEvent(note, direction, strumGroup);
-				StrumGroup.baseSignals.noteMiss.dispatch(event); if (event.stopped) return;
+				StrumGroup.hitFuncs.noteMiss(event); if (event.stopped) return;
 
 				// note calls
 				direct.stateScripts.event('noteMiss', event);
@@ -152,23 +153,30 @@ class PlayField extends FlxGroup {
 		}
 	}
 
-	public var updateIconPos:Bool = true;
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		fieldScripts.call('update', [elapsed]);
 		super.update(elapsed);
 		__health = FlxMath.lerp(__health, health, 0.15);
-		if (updateIconPos) {
-			var iconOffset:Int = 26;
-			var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
-			iconP1.x = center - iconOffset;
-			iconP2.x = center - (iconP2.width - iconOffset);
-			stateScripts.call('updateIconPos', [elapsed]);
-		}
 		if (FlxG.keys.justPressed.F4) PlayUtil.botplay = !PlayUtil.botplay;
 		fieldScripts.call('updatePost', [elapsed]);
 	}
 
-	override function destroy():Void {
+	override public function stepHit(curStep:Int) {
+		super.stepHit(curStep);
+		fieldScripts.call('stepHit', [curStep]);
+	}
+
+	override public function beatHit(curBeat:Int) {
+		super.beatHit(curBeat);
+		fieldScripts.call('beatHit', [curBeat]);
+	}
+
+	override public function measureHit(curMeasure:Int) {
+		super.measureHit(curMeasure);
+		fieldScripts.call('measureHit', [curMeasure]);
+	}
+
+	override public function destroy():Void {
 		fieldScripts.destroy();
 		direct = null;
 		state = null;
@@ -181,11 +189,11 @@ class PlayField extends FlxGroup {
 /** original concept, made in psych lua
 ```lua
 local function shared(downscroll)
-	for index, value in pairs({'iconP1', 'iconP2', 'healthBar'}) do
+	for index, value in pairs({ 'iconP1', 'iconP2', 'healthBar' }) do
 		screenCenter(value, 'Y')
 		setProperty(value .. '.y', getProperty(value .. '.y') + (screenHeight / 2.6) * (downscroll and -1 or 1))
 	end
-	for index, value in pairs({'timeBar', 'timeTxt', 'botplayTxt'}) do
+	for index, value in pairs({ 'timeBar', 'timeTxt', 'botplayTxt' }) do
 		screenCenter(value, 'Y')
 		setProperty(value .. '.y', getProperty(value .. '.y') + (screenHeight / (value == 'botplayTxt' and 2.7 or 2.15)) * (downscroll and 1 or -1))
 	end
@@ -200,32 +208,33 @@ local function shared(downscroll)
 	}
 end
 
+local breaksInfoDoesCombos = true
 function onCreatePost()
 	local yCalc = shared(downscroll)
-	makeLuaText('missesInfo', 'Misses: 0', screenWidth / 3.2, 0, yCalc[1] - yCalc[2])
+	makeLuaText('breakInfo', (breaksInfoDoesCombos and 'Combo Breaks' or 'Misses') .. ': 0', screenWidth / 3.2, 0, yCalc[1] - yCalc[2])
 	makeLuaText('accuracyInfo', 'Accuracy: 0% Start playing! (...)', screenWidth / 3.2, 0, yCalc[1] + yCalc[2])
 	makeLuaText('scoreInfo', 'Score: 0', screenWidth / 3.2, 0, yCalc[1] - yCalc[2])
-	addLuaText('missesInfo')
+	addLuaText('breakInfo')
 	addLuaText('accuracyInfo')
 	addLuaText('scoreInfo')
-	setTextFont('missesInfo', 'PhantomMuff.ttf')
+	setTextFont('breakInfo', 'PhantomMuff.ttf')
 	setTextFont('accuracyInfo', 'PhantomMuff.ttf')
 	setTextFont('scoreInfo', 'PhantomMuff.ttf')
 
 	setTextWidth('scoreTxt', 1) -- completely hide original
 	screenCenter('accuracyInfo', 'x')
-	setProperty('missesInfo.x', getProperty('accuracyInfo.x') - (screenWidth / 4.3))
+	setProperty('breakInfo.x', getProperty('accuracyInfo.x') - (screenWidth / 4.3))
 	setProperty('scoreInfo.x', getProperty('accuracyInfo.x') + (screenWidth / 4.3))
 end
 
 function ChaSrlTyp_onUpdateHud(_, downscroll, _, _)
 	local yCalc = shared(downscroll)
-	setProperty('missesInfo.y', yCalc[1] - yCalc[2])
+	setProperty('breakInfo.y', yCalc[1] - yCalc[2])
 	setProperty('accuracyInfo.y', yCalc[1] + yCalc[2])
 	setProperty('scoreInfo.y', yCalc[1] - yCalc[2])
 
 	screenCenter('accuracyInfo', 'x')
-	setProperty('missesInfo.x', getProperty('accuracyInfo.x') - (screenWidth / 4.3))
+	setProperty('breakInfo.x', getProperty('accuracyInfo.x') - (screenWidth / 4.3))
 	setProperty('scoreInfo.x', getProperty('accuracyInfo.x') + (screenWidth / 4.3))
 end
 
@@ -235,29 +244,33 @@ function onUpdate()
 	percent = clamp(math.floor(rating * 100), 0, 100)
 end
 
+local function sharedNoteMiss(membersIndex, noteData, noteType, isSustainNote)
+	if scoreZoom then
+		cancelTween('breakInfoTweens')
+		scaleObject('breakInfo', getRandomFloat(0.7, 0.99), getRandomFloat(0.7, 0.99), false)
+		setProperty('breakInfo.angle', getRandomFloat(-50, 50, '-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10'))
+		startTween('breakInfoTweens', 'breakInfo', { ['scale.x'] = 1, ['scale.y'] = 1, angle = 0 }, 1, { ease = 'smootherstepInOut' })
+	end
+	cancelTween('breakInfoColor')
+	setTextColor('breakInfo', 'ff0000')
+	doTweenColor('breakInfoColor', 'breakInfo', 'ffffff', 1, 'smootherstepInOut')
+end
+function noteMiss(membersIndex, noteData, noteType, isSustainNote) sharedNoteMiss(membersIndex, noteData, noteType, isSustainNote) end
+function noteMissPress(direction) sharedNoteMiss(nil, direction, '', false) end
+
 function goodNoteHit(membersIndex, noteData, noteType, isSustainNote)
 	if scoreZoom then
 		cancelTween('scoreInfoZoomX')
 		cancelTween('scoreInfoZoomY')
 		scaleObject('scoreInfo', 1.2, 1.2, false)
-		startTween('scoreInfoZoomX', 'scoreInfo.scale', {x = 1}, 0.2, {ease = 'bounceOut'})
-		startTween('scoreInfoZoomY', 'scoreInfo.scale', {y = 1}, 0.2, {ease = 'smootherstepInOut'})
+		startTween('scoreInfoZoomX', 'scoreInfo.scale', { x = 1 }, 0.2, { ease = 'bounceOut' })
+		startTween('scoreInfoZoomY', 'scoreInfo.scale', { y = 1 }, 0.2, { ease = 'smootherstepInOut' })
+	end
+	if breaksInfoDoesCombos and (getPropertyFromGroup('notes', membersIndex, 'rating') == 'bad' or getPropertyFromGroup('notes', membersIndex, 'rating') == 'shit') then
+		sharedNoteMiss(membersIndex, noteData, noteType, isSustainNote)
+		onUpdateScore(true)
 	end
 end
-
-local function sharedNoteMiss(membersIndex, noteData, noteType, isSustainNote)
-	if scoreZoom then
-		cancelTween('missesInfoTweens')
-		scaleObject('missesInfo', getRandomFloat(0.7, 0.99), getRandomFloat(0.7, 0.99), false)
-		setProperty('missesInfo.angle', getRandomFloat(-50, 50, '-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10'))
-		startTween('missesInfoTweens', 'missesInfo', {['scale.x'] = 1, ['scale.y'] = 1, angle = 0}, 1, {ease = 'smootherstepInOut'})
-	end
-	cancelTween('missesInfoColor')
-	setTextColor('missesInfo', 'ff0000')
-	doTweenColor('missesInfoColor', 'missesInfo', 'ffffff', 1, 'smootherstepInOut')
-end
-function noteMiss(membersIndex, noteData, noteType, isSustainNote) sharedNoteMiss(membersIndex, noteData, noteType, isSustainNote) end
-function noteMissPress(direction) sharedNoteMiss(nil, direction, '', false) end
 
 function onCountdownTick(swagCounter) onBop(swagCounter) end
 function onBeatHit() onBop(curBeat) end
@@ -265,11 +278,11 @@ function onBop(onPercent)
 	local spedCalc = 0
 	if scoreZoom then
 		local spedLevel = {
-			{90, 1},
-			{70, 2},
-			{50, 3},
-			{30, 4},
-			{0, 0}
+			{ 90, 1 },
+			{ 70, 2 },
+			{ 50, 3 },
+			{ 30, 4 },
+			{ 0,  0 }
 		}
 		local v
 		for i = #spedLevel, 1, -1 do
@@ -286,8 +299,8 @@ function onBop(onPercent)
 		cancelTween('accuracyInfoZoomY')
 		scaleObject('accuracyInfo', 1.2, 1.2, false)
 		local beatCalc = (crochet / 1000) / 2.3
-		startTween('accuracyInfoZoomX', 'accuracyInfo.scale', {x = 1}, beatCalc, {ease = 'bounceOut'})
-		startTween('accuracyInfoZoomY', 'accuracyInfo.scale', {y = 1}, beatCalc, {ease = 'smootherstepInOut'})
+		startTween('accuracyInfoZoomX', 'accuracyInfo.scale', { x = 1 }, beatCalc, { ease = 'bounceOut' })
+		startTween('accuracyInfoZoomY', 'accuracyInfo.scale', { y = 1 }, beatCalc, { ease = 'smootherstepInOut' })
 	end
 end
 
@@ -296,7 +309,9 @@ function onRecalculateRating()
 end
 
 function onUpdateScore(miss)
-	setTextString(miss and 'missesInfo' or 'scoreInfo', miss and ('Misses: ' .. getMisses()) or ('Score: ' .. getScore()))
+	local text = miss and (breaksInfoDoesCombos and 'Combo Breaks' or 'Misses') or 'Score'
+	local info = miss and (getMisses() + (breaksInfoDoesCombos and (getProperty('ratingsData[2].hits') + getProperty('ratingsData[3].hits')) or 0)) or getScore()
+	setTextString(miss and 'breakInfo' or 'scoreInfo', text .. ': ' .. tostring(info))
 end
 ```
 */

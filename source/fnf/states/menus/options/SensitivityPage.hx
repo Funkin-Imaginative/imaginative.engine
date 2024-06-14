@@ -8,6 +8,6 @@ class SensitivityPage extends PageTemplate {
 	override function onPrefCreation() {
 		createPrefItem('Allow Naughtiness~', 'naughtiness', true);
 		createPrefItem('VIOLENCE BABY', 'violence', true);
-		createPrefItem('Allow Flashing Lights', 'lights', true);
+		createPrefItem('Allow Flashing Lights', 'flashingLights', true);
 	}
 }

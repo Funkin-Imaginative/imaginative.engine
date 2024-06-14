@@ -3,7 +3,7 @@ package fnf.utils;
 import fnf.objects.Character;
 import yaml.*;
 
-enum abstract CharDataType(String) {
+enum abstract CharDataType(String) from String to String {
 	var BASE = 'base';
 	var PSYCH = 'psych';
 	var CNE = 'codename';
@@ -16,16 +16,16 @@ class ParseUtil {
 
 	// What? We're you expecting it to be complex?
 	public static function difficulty(diffName:String, ?pathType:FunkinPath):DifficultyMeta.DiffData {
-		var yamlData:Dynamic = yaml('content/difficulties/$diffName', pathType);
-		return cast yamlData == null ? FailsafeUtil.diffYaml : {
-			audioVariant: yamlData.audioVariant,
-			scoreMult: yamlData.scoreMult,
-			fps: yamlData.fps == null ? 24.0 : yamlData.fps
+		var diffData:Dynamic = yaml('content/difficulties/$diffName', pathType);
+		return cast diffData == null ? FailsafeUtil.diffYaml : {
+			audioVariant: diffData.audioVariant,
+			scoreMult: diffData.scoreMult,
+			fps: diffData.fps == null ? 24.0 : diffData.fps
 		}
 	}
 
 	public static function level(fileName:String, ?pathType:FunkinPath):fnf.states.menus.StoryMenuState.LevelData {
-		var levelInfo = yaml('levels/$fileName', pathType);
+		var levelInfo:Dynamic = yaml('levels/$fileName', pathType);
 		return cast levelInfo == null ? FailsafeUtil.levelYaml : {
 			name: fileName,
 			title: levelInfo.title,
@@ -36,7 +36,7 @@ class ParseUtil {
 		}
 	}
 	public static function song(songName:String, ?pathType:FunkinPath):fnf.states.menus.FreeplayState.SongData {
-		var songInfo = yaml('songs/$songName/SongMetaData', pathType);
+		var songInfo:Dynamic = yaml('songs/$songName/SongMetaData', pathType);
 		return cast songInfo == null ? FailsafeUtil.songMetaYaml : {
 			name: songInfo.display,
 			icon: songInfo.icon,
@@ -44,6 +44,18 @@ class ParseUtil {
 			diffs: songInfo.difficulties,
 			measure: songInfo.measure
 		}
+	}
+
+	public static function icon(iconName:String, ?pathType:FunkinPath):fnf.ui.HealthIcon.IconData {
+		var iconData:Dynamic = yaml('images/icons/$iconName', pathType);
+		return cast iconData == null ? FailsafeUtil.iconYaml : {
+			dimensions: iconData.dimensions,
+			scale: iconData.scale,
+			flip: iconData.flip,
+			aliasing: iconData.aliasing,
+			anims: iconData.anims,
+			frames: iconData.frames
+		};
 	}
 
 	public static function character(charName:String, charVariant:String = 'none'):CharData {
@@ -99,14 +111,20 @@ class ParseUtil {
 					sprite: pathSplit.join('/'),
 					flip: jsonData.flip_x,
 					anims: [],
-					position: {x: jsonData.position[0], y: jsonData.position[1]},
-					camera: {x: jsonData.camera_position[0], y: jsonData.camera_position[1]},
+					position: {
+						x: jsonData.position[0] * (jsonData._editor_isPlayer ? -1 : 1),
+						y: jsonData.position[1]
+					},
+					camera: {
+						x: jsonData.camera_position[0] /* + (jsonData._editor_isPlayer ? -100 : 150) */,
+						y: jsonData.camera_position[1] /* - 100 */
+					},
 
 					scale: jsonData.scale,
 					singLen: jsonData.sing_duration,
 					icon: iconSplit.join('-'),
 					aliasing: !jsonData.no_antialiasing,
-					color: FlxColor.fromRGB(jsonData.healthbar_colors[0], jsonData.healthbar_colors[1], jsonData.healthbar_colors[2]).toHexString(false, false),
+					color: FlxColor.fromRGB(jsonData.healthbar_colors[0], jsonData.healthbar_colors[1], jsonData.healthbar_colors[2]).toWebString(),
 					beat: 0
 				}
 
@@ -118,10 +136,18 @@ class ParseUtil {
 					animName = animName.replace('danceRight', 'sway');
 
 					var flipAnim:String = switch (animName) {
+						// idle
+						case 'idle': 'sway'; case 'sway': 'idle';
+						case 'idle-alt': 'sway-alt'; case 'sway-alt': 'idle-alt';
+						case 'idle-loop': 'sway-loop'; case 'sway-loop': 'idle-loop';
+						case 'idle-alt-loop': 'sway-alt-loop'; case 'sway-alt-loop': 'idle-alt-loop';
+						// sing
 						case 'singLEFT': 'singRIGHT'; case 'singRIGHT': 'singLEFT';
 						case 'singLEFT-alt': 'singRIGHT-alt'; case 'singRIGHT-alt': 'singLEFT-alt';
 						case 'singLEFTmiss': 'singRIGHTmiss'; case 'singRIGHTmiss': 'singLEFTmiss';
 						case 'singLEFTmiss-alt': 'singRIGHTmiss-alt'; case 'singRIGHTmiss-alt': 'singLEFTmiss-alt';
+						case 'singLEFT-loop': 'singRIGHT-loop'; case 'singRIGHT-loop': 'singLEFT-loop';
+						case 'singLEFT-alt-loop': 'singRIGHT-alt-loop'; case 'singRIGHT-alt-loop': 'singLEFT-alt-loop';
 						default: '';
 					}
 
@@ -131,7 +157,10 @@ class ParseUtil {
 						tag: info.name,
 						fps: info.fps,
 						loop: info.loop,
-						offset: {x: info.offsets[0], y: info.offsets[1]},
+						offset: {
+							x: info.offsets[0] * (jsonData._editor_isPlayer ? -1 : 1),
+							y: info.offsets[1]
+						},
 						indices: info.indices,
 						flip: false
 					});
@@ -140,6 +169,8 @@ class ParseUtil {
 			case IMAG: theData = yaml(path);
 			default: applyFailsafe = true;
 		}
+
+		theData.isFromEngine = charDataType;
 
 		return cast applyFailsafe ? FailsafeUtil.charYaml : Character.applyCharData(theData);
 	}

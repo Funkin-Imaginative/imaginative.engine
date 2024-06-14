@@ -51,7 +51,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		var randomCensor:Array<Int> = [];
 
-		if (!SaveManager.getOption('sensitivity.naughtiness')) randomCensor = [1, 3, 8, 13, 17, 21];
+		if (!SaveManager.getOption('naughtiness')) randomCensor = [1, 3, 8, 13, 17, 21];
 		randomGameover = FlxG.random.int(1, 25, randomCensor);
 	}
 
@@ -110,11 +110,9 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.playMusic(Paths.music('gameover/gameOver$stageSuffix'), vol);
 	}
 
-	override function beatHit()
+	override function beatHit(curBeat:Int)
 	{
-		super.beatHit();
-
-		FlxG.log.add('beat');
+		super.beatHit(curBeat);
 	}
 
 	var isEnding:Bool = false;

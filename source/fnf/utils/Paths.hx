@@ -54,16 +54,16 @@ class Paths {
 		}
 	}
 
-	inline public static function txt(file:String, ?pathType:FunkinPath) return applyRoot('$file.txt', pathType);
+	inline public static function txt(file:String, ?pathType:FunkinPath):String return applyRoot('$file.txt', pathType);
 
-	inline public static function xml(file:String, ?pathType:FunkinPath) return applyRoot('$file.xml', pathType);
+	inline public static function xml(file:String, ?pathType:FunkinPath):String return applyRoot('$file.xml', pathType);
 
-	inline public static function yaml(file:String, ?pathType:FunkinPath) return applyRoot('$file.yaml', pathType);
+	inline public static function yaml(file:String, ?pathType:FunkinPath):String return applyRoot('$file.yaml', pathType);
 
-	inline public static function json(file:String, ?pathType:FunkinPath) return applyRoot('$file.json', pathType);
+	inline public static function json(file:String, ?pathType:FunkinPath):String return applyRoot('$file.json', pathType);
 
-	public static function multExst(path:String, exts:Array<String>, ?pathType:FunkinPath) {
-		var filePath = path;
+	public static function multExst(path:String, exts:Array<String>, ?pathType:FunkinPath):String {
+		var filePath:String = path;
 		var pathWext:String;
 		for (ext in exts) {
 			pathWext = applyRoot('$filePath.$ext', pathType);
@@ -75,9 +75,9 @@ class Paths {
 		return filePath;
 	}
 
-	inline public static function script(file:String, ?pathType:FunkinPath) return multExst(file, Script.exts, pathType);
+	inline public static function script(file:String, ?pathType:FunkinPath):String return multExst(file, Script.exts, pathType);
 
-	inline public static function audio(file:String, ?pathType:FunkinPath) return multExst(file, soundExts, pathType);
+	inline public static function audio(file:String, ?pathType:FunkinPath):String return multExst(file, soundExts, pathType);
 
 	public static function readFolder(folderPath:String, ?setExt:String = null, ?pathType:FunkinPath):Array<String> {
 		var files:Array<String> = [];
@@ -97,23 +97,34 @@ class Paths {
 		return result;
 	}
 
-	inline public static function sound(file:String, ?pathType:FunkinPath) return audio('sounds/$file', pathType);
+	inline public static function sound(file:String, ?pathType:FunkinPath):String return audio('sounds/$file', pathType);
 
-	inline public static function soundRandom(file:String, min:Int, max:Int, ?pathType:FunkinPath) return sound(file + FlxG.random.int(min, max), pathType);
+	inline public static function soundRandom(file:String, min:Int, max:Int, ?pathType:FunkinPath):String return sound(file + FlxG.random.int(min, max), pathType);
 
-	inline public static function music(file:String, ?pathType:FunkinPath) return audio('music/$file', pathType);
+	inline public static function music(file:String, ?pathType:FunkinPath):String return audio('music/$file', pathType);
 
-	inline public static function inst(song:String, variant:String = '') return audio('songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Inst');
+	inline public static function inst(song:String, variant:String = ''):String return audio('songs/${song.replace('.', '')}/audio/${variant.trim() == '' ? '' : '$variant/'}Inst');
 
-	inline public static function voices(song:String, suffix:String = '', variant:String = '') return audio('songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
+	inline public static function voices(song:String, suffix:String = '', variant:String = ''):String return audio('songs/${song.replace('.', '')}/audio/${variant.trim() == '' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 
-	inline public static function image(file:String, ?pathType:FunkinPath) return applyRoot('images/$file.png', pathType);
+	inline public static function image(file:String, ?pathType:FunkinPath):String return applyRoot('images/$file.png', pathType);
 
-	inline public static function font(file:String, ?pathType:FunkinPath) return applyRoot('fonts/$file', pathType);
+	inline public static function font(file:String, ?pathType:FunkinPath):String return applyRoot('fonts/$file', pathType);
 
-	inline public static function getSparrowAtlas(file:String, ?pathType:FunkinPath) return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
+	inline public static function getSparrowAtlas(file:String, ?pathType:FunkinPath):FlxAtlasFrames return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
 
-	inline public static function getPackerAtlas(file:String, ?pathType:FunkinPath) return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
+	inline public static function getPackerAtlas(file:String, ?pathType:FunkinPath):FlxAtlasFrames return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
+
+	public static function getAtlasFrames(file:String, ?pathType:FunkinPath):FlxAtlasFrames {
+		var type:String = '';
+		if (FileSystem.exists(xml('images/$file', pathType))) type = 'sparrow';
+		if (FileSystem.exists(txt('images/$file', pathType))) type = 'packer';
+		return switch (type) {
+			case 'sparrow': getSparrowAtlas(file, pathType);
+			case 'packer': getPackerAtlas(file, pathType);
+			default: getSparrowAtlas(file, pathType);
+		}
+	}
 
 	public static function getContent(fullPath:String):String return FileSystem.exists(fullPath) ? sys.io.File.getContent(fullPath) : '';
 }

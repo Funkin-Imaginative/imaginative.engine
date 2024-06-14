@@ -35,18 +35,10 @@ class Highscore
 	 */
 	static function setScore(formattedSong:String, score:Int):Void
 	{
-		/** GeoKureli
-		 * References to Highscore were wrapped in `#if !switch` blocks. I wasn't sure if this
-		 * is because switch doesn't use NGio, or because switch has a different saving method.
-		 * I moved the compiler flag here, rather than using it everywhere else.
-		 */
-		#if !switch
-		
 		// Reminder that I don't need to format this song, it should come formatted!
 		songScores.set(formattedSong, score);
 		FlxG.save.data.songScores = songScores;
 		FlxG.save.flush();
-		#end
 	}
 
 	public static function formatSong(song:String, diff:Int):String

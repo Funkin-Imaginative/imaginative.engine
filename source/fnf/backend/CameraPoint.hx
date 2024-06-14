@@ -4,6 +4,12 @@ import flixel.util.FlxStringUtil;
 
 typedef VoidORFloat = flixel.util.typeLimit.OneOfTwo<Void->Float, Float>;
 
+enum abstract SnapPoint(String) from String to String {
+	var POINT = 'point';
+	var OFFSET = 'offset';
+	var BOTH = 'Why isn\'t this null? I don\'t really care.';
+}
+
 class CameraPoint extends BareCameraPoint {
 	// these are the positions, the non follow versions are now what these lerp to
 	public var pointFollow(default, never):FlxPoint = new FlxPoint();
@@ -19,8 +25,8 @@ class CameraPoint extends BareCameraPoint {
 
 	private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
 		var output:Float;
-		if (Std.string(followLerp) == '<function>') output = followLerp();
-		else output = followLerp;
+		if (Std.isOfType(followLerp, Void->Float)) output = followLerp();
+		else if (Std.isOfType(followLerp, Float)) output = followLerp;
 		return !(output is Float) || output <= 0 ? ifNull : output;
 	}
 
@@ -30,11 +36,11 @@ class CameraPoint extends BareCameraPoint {
 		pointLerp = followLerp;
 	}
 
-	public function snapPoint(which:String = 'Why this is a string? I don\'t really care.') {
+	public function snapPoint(which:SnapPoint = BOTH) {
 		switch (which) {
-			case 'point':
+			case POINT:
 				point.set(pointFollow.x, pointFollow.y);
-			case 'offset':
+			case OFFSET:
 				offset.set(offsetFollow.x, offsetFollow.y);
 			default:
 				point.set(pointFollow.x, pointFollow.y);

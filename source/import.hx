@@ -29,6 +29,7 @@ import fnf.backend.BareCameraPoint; // backend
 import fnf.backend.CameraPoint;
 import fnf.backend.Conductor;
 import fnf.backend.Controls;
+import fnf.backend.FunkinMap;
 import fnf.backend.Highscore;
 import fnf.backend.PlayerSettings;
 import fnf.backend.SaveManager;

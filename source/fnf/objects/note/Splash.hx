@@ -9,7 +9,7 @@ class Splash extends FlxSprite {
 	public function setupSplash(note:Note):Splash {
 		this.note = note;
 
-		frames = Paths.getSparrowAtlas('noteSplashes');
+		frames = Paths.getSparrowAtlas('gameplay/splashes/noteSplashes');
 		animation.addByPrefix('splash', 'note impact ${FlxG.random.int(1, 2)} ${['purple', 'blue', 'green', 'red'][note.data]}', 24 + FlxG.random.float(-2, 2), false);
 
 		setPosition(note.parentStrum.x, note.parentStrum.y);

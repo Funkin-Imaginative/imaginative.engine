@@ -5,7 +5,7 @@ import openfl.display.FPS;
 import openfl.display.Sprite;
 
 class Main extends Sprite {
-	final gameData:Dynamic = {
+	final gameData:{width:Int, height:Int, initState:Null<Class<FlxState>>, fps:Int, skipSplash:Bool, startFullscreen:Bool} = {
 		width: 1280,
 		height: 720,
 		initState: fnf.states.menus.TitleState,

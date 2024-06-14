@@ -33,8 +33,8 @@ class PageTemplate extends OptionsState.Page { // this class is not used for Con
 	public function onPrefCreation() {}
 
 	// easy shorthand
-	private function getPref(pref:String):Dynamic return SaveManager.getOption('$optionCategory.$pref');
-	private function setPref(pref:String, value:Dynamic):Dynamic return SaveManager.setOption('$optionCategory.$pref', value);
+	private function getPref(pref:String):Dynamic return SaveManager.getOption('$pref');
+	private function setPref(pref:String, value:Dynamic):Dynamic return SaveManager.setOption('$pref', value);
 
 	private function createPrefItem(prefName:String, prefString:String, prefValue:Dynamic):Void {
 		items.createItem(120, (120 * items.length) + 30, prefName, AtlasFont.Bold, () -> {

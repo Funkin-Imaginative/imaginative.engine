@@ -10,7 +10,6 @@ class GameplayPage extends PageTemplate {
 		createPrefItem('Ghost Tapping', 'ghostTapping', true);
 		createPrefItem('Prevent Death Key', 'stopDeathKey', false);
 		createPrefItem('Camera Bop Zooms', 'camZooming', true);
-		createPrefItem('Notes Vwoosh Away', 'doVwoosh', true);
-		createPrefItem('Pause on Lost Focus', 'pauseOnLostFocus', false);
+		createPrefItem('Notes Vwoosh Away', 'notesVwooshOnRestart', true);
 	}
 }

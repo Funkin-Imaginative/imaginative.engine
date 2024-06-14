@@ -3,7 +3,7 @@ package fnf.backend.musicbeat;
 import fnf.backend.Conductor.BPMChangeEvent;
 import flixel.addons.transition.FlxTransitionableState;
 
-class MusicBeatState extends FlxTransitionableState /* implements IMusicBeat */ {
+class MusicBeatState extends FlxTransitionableState implements IMusicBeat {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 	private var curMeasure:Int = 0;
@@ -56,7 +56,7 @@ class MusicBeatState extends FlxTransitionableState /* implements IMusicBeat */ 
 		if (persistentUpdate || subState == null) {
 			call('preUpdate', [elapsed]);
 			update(elapsed);
-			call('postUpdate', [elapsed]);
+			call('updatePost', [elapsed]);
 		}
 		if (_requestSubStateReset) {
 			_requestSubStateReset = false;
@@ -74,7 +74,7 @@ class MusicBeatState extends FlxTransitionableState /* implements IMusicBeat */ 
 		curMeasure = Math.floor(curBeat / 4);
 
 		if (oldStep != curStep && curStep >= 0)
-			stepHit();
+			stepHit(curStep);
 
 		call('update', [elapsed]);
 		super.update(elapsed);
@@ -113,27 +113,28 @@ class MusicBeatState extends FlxTransitionableState /* implements IMusicBeat */ 
 	}
 
 	var oldBeat:Int = 0;
-	public function stepHit():Void {
-		if (curStep % 4 == 0 && oldBeat != curBeat) {
-			oldBeat = curBeat;
-			beatHit();
-		}
+	public function stepHit(curStep:Int):Void {
+		for (member in members) if (member is IMusicBeat) cast(member, IMusicBeat).stepHit(curStep);
+		if (curStep % 4 == 0 && oldBeat != curBeat)
+			beatHit(oldBeat = curBeat);
 		call('stepHit', [curStep]);
 	}
 
-	public function beatHit():Void {
+	public function beatHit(curBeat:Int):Void {
+		for (member in members) if (member is IMusicBeat) cast(member, IMusicBeat).beatHit(curBeat);
 		call('beatHit', [curBeat]);
-		if (curBeat & 4 == 0) measureHit();
+		if (curBeat & 4 == 0) measureHit(curMeasure);
 	}
 
-	public function measureHit():Void {
+	public function measureHit(curMeasure:Int):Void {
+		for (member in members) if (member is IMusicBeat) cast(member, IMusicBeat).measureHit(curMeasure);
 		call('measureHit', [curMeasure]);
 	}
 
 	override public function destroy() {
 		stateScripts.destroy();
-		fnf.objects.note.groups.StrumGroup.baseSignals.noteHit.removeAll();
-		fnf.objects.note.groups.StrumGroup.baseSignals.noteMiss.removeAll();
+		fnf.objects.note.groups.StrumGroup.hitFuncs.noteHit = null;
+		fnf.objects.note.groups.StrumGroup.hitFuncs.noteMiss = null;
 		try {if (PlayField.direct.state == this) PlayField.direct.state = null;} catch(e) {}
 		super.destroy();
 	}

@@ -48,10 +48,25 @@ class FailsafeUtil {
 		}
 	}
 
+	public static final iconYaml:fnf.ui.HealthIcon.IconData = {
+		dimensions: 150,
+		scale: 1,
+		flip: false,
+		aliasing: true,
+		anims: [
+			{name: 'idle', tag: 'idle', fps: 24, loop: false, offset: {x: 0, y: 0}},
+			{name: 'losing', tag: 'losing', fps: 24, loop: false, offset: {x: 0, y: 0}}
+		],
+		frames: [
+			{name: 'idle', index: 0, offset: {x: 0, y: 0}},
+			{name: 'losing', index: 1, offset: {x: 0, y: 0}}
+		]
+	}
+
 	public static final charYaml:fnf.objects.Character.CharData = {
 		sprite: 'BOYFRIEND',
 		flip: true,
-		anims: [{name: 'idle', tag: 'BF idle dance', fps: 24, loop: false, offset: {x: -5, y: 0}, indices: []}],
+		anims: [{name: 'idle', tag: 'BF idle dance', fps: 24, loop: false, offset: {x: -5, y: 0}}],
 		position: {x: 0, y: 350},
 		camera: {x: 0, y: 0},
 

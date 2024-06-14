@@ -5,10 +5,10 @@
 				0,
 				0
 			],
-			"indices": [],
+			"loop": false,
 			"fps": 24,
 			"anim": "idle",
-			"loop": false,
+			"indices": [],
 			"name": "idle"
 		},
 		{
@@ -16,10 +16,10 @@
 				-9,
 				10
 			],
-			"indices": [],
+			"loop": false,
 			"fps": 24,
 			"anim": "singLEFT",
-			"loop": false,
+			"indices": [],
 			"name": "singLEFT"
 		},
 		{
@@ -27,10 +27,10 @@
 				1,
 				-30
 			],
-			"indices": [],
+			"loop": false,
 			"fps": 24,
 			"anim": "singDOWN",
-			"loop": false,
+			"indices": [],
 			"name": "singDOWN"
 		},
 		{
@@ -38,10 +38,10 @@
 				-8,
 				51
 			],
-			"indices": [],
+			"loop": false,
 			"fps": 24,
 			"anim": "singUP",
-			"loop": false,
+			"indices": [],
 			"name": "singUP"
 		},
 		{
@@ -49,10 +49,10 @@
 				-3,
 				27
 			],
-			"indices": [],
+			"loop": false,
 			"fps": 24,
 			"anim": "singRIGHT",
-			"loop": false,
+			"indices": [],
 			"name": "singRIGHT"
 		},
 		{
@@ -60,15 +60,15 @@
 				0,
 				0
 			],
-			"indices": [
-				10,
-				11,
-				12,
-				12
-			],
+			"loop": true,
 			"fps": 24,
 			"anim": "idle-loop",
-			"loop": true,
+			"indices": [
+				1,
+				2,
+				11,
+				12
+			],
 			"name": "idle"
 		},
 		{
@@ -76,15 +76,15 @@
 				-9,
 				10
 			],
-			"indices": [
-				12,
-				13,
-				14,
-				15
-			],
+			"loop": true,
 			"fps": 24,
 			"anim": "singLEFT-loop",
-			"loop": true,
+			"indices": [
+				3,
+				4,
+				5,
+				6
+			],
 			"name": "singLEFT"
 		},
 		{
@@ -92,15 +92,15 @@
 				-8,
 				51
 			],
-			"indices": [
-				56,
-				57,
-				58,
-				59
-			],
+			"loop": true,
 			"fps": 24,
 			"anim": "singUP-loop",
-			"loop": true,
+			"indices": [
+				3,
+				4,
+				5,
+				6
+			],
 			"name": "singUP"
 		},
 		{
@@ -108,15 +108,15 @@
 				-3,
 				27
 			],
-			"indices": [
-				15,
-				16,
-				17,
-				18
-			],
+			"loop": true,
 			"fps": 24,
 			"anim": "singRIGHT-loop",
-			"loop": true,
+			"indices": [
+				3,
+				4,
+				5,
+				6
+			],
 			"name": "singRIGHT"
 		}
 	],
@@ -135,10 +135,10 @@
 		206
 	],
 	"camera_position": [
-		0,
+		-130,
 		0
 	],
-	"sing_duration": 4,
+	"sing_duration": 6.1,
 	"scale": 1,
 	"_editor_isPlayer": false
 }

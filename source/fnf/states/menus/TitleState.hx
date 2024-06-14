@@ -236,11 +236,6 @@ class TitleState extends MusicBeatState {
 		{
 			if (gamepad.justPressed.START)
 				pressedEnter = true;
-
-			#if switch
-			if (gamepad.justPressed.B)
-				pressedEnter = true;
-			#end
 		}
 
 		if (pressedEnter && !transitioning && skippedIntro)
@@ -311,9 +306,9 @@ class TitleState extends MusicBeatState {
 
 	var isRainbow:Bool = false;
 
-	override function beatHit()
+	override function beatHit(curBeat:Int)
 	{
-		super.beatHit();
+		super.beatHit(curBeat);
 
 		if (!startedIntro)
 			return ;

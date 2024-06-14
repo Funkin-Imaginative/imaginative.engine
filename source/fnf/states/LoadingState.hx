@@ -96,9 +96,9 @@ class LoadingState extends MusicBeatState
 		}
 	}
 
-	override function beatHit()
+	override function beatHit(curBeat:Int)
 	{
-		super.beatHit();
+		super.beatHit(curBeat);
 
 		// logo.animation.play('bump');
 		idle = !idle;

@@ -27,7 +27,6 @@ class PauseSubState extends MusicBeatSubstate {
 
 	override public function new() {
 		super();
-		FlxG.autoPause = false;
 		menuItems = pauseOG;
 
 		pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
@@ -185,10 +184,7 @@ class PauseSubState extends MusicBeatSubstate {
 	override function destroy() {
 		if (FlxG.cameras.list.contains(camera))
 			FlxG.cameras.remove(camera, true);
-
 		pauseMusic.destroy();
-		FlxG.autoPause = SaveManager.getOption('prefs.autoPause');
-
 		super.destroy();
 	}
 

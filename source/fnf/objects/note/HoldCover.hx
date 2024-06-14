@@ -11,7 +11,7 @@ class HoldCover extends FlxSprite {
 		this.note = note;
 		note.holdCover = this;
 
-		frames = Paths.getSparrowAtlas('holdCovers');
+		frames = Paths.getSparrowAtlas('gameplay/holdcovers/holdCovers');
 		var col:String = ['Purple', 'Blue', 'Green', 'Red'][note.data];
 
 		animation.addByPrefix('start', 'holdCoverStart$col', 24, false);
@@ -50,7 +50,7 @@ class HoldCover extends FlxSprite {
 
 	var animCheck:Map<String, HoldCover->Bool> = [
 		'start' => (cover:HoldCover) -> return cover.animation.name == null,
-		'hold' => (cover:HoldCover) -> return cover.animation.name == 'start' || cover.animation.name == 'hold',
+		'hold' => (cover:HoldCover) -> return cover.animation.name == 'start' || (cover.animation.name == 'hold' && SaveManager.getOption('beatLoop')),
 		'end' => (cover:HoldCover) -> return cover.animation.name == 'hold'
 	];
 	public function playAnim(name:String, force:Bool = false) {

@@ -10,5 +10,6 @@ class PreferencesPage extends PageTemplate {
 		createPrefItem('FPS Counter', 'showFpsCounter', false);
 		createPrefItem('StrumLine Shift', 'strumShift', false);
 		createPrefItem('Sustain Notes under StrumLine', 'sustainsUnderStrums', false);
+		createPrefItem('Beat Loop', 'beatLoop', true);
 	}
 }

@@ -41,15 +41,21 @@ class Note extends FlxSprite {
 	public var nextNote(get, default):Note; function get_nextNote():Note return nextNote == null ? this : nextNote;
 
 	public var scrollAngle(get, default):Null<Float>;
-	function get_scrollAngle():Float return scrollAngle == null ? scrollAngle = (isSustain ? 0 : (SaveManager.getOption('gameplay.downscroll') ? 90 : 270)) : scrollAngle;
+	function get_scrollAngle():Float return scrollAngle == null ? scrollAngle = (isSustain ? 0 : (SaveManager.getOption('downscroll') ? 90 : 270)) : scrollAngle;
 
 	private var willMiss:Bool = false;
 	public var hitCausesMiss:Bool = false; // psych be like
-	public var forceMiss:Bool = false; // opponent specific
+	public var forceMiss:Bool = false; // enemy specific
 	public var forceHit:Bool = false; // player specific
 
 	public var altNote:Bool = false;
 	public var invisNote:Bool = false;
+
+	public var shouldIgnore:Bool = false;
+	public var preventHit:Bool = false;
+	public var animSuffix:String = '';
+	public var earlyHitMult:Float = 1;
+	public var lateHitMult:Float = 1;
 
 	public var parent:Note;
 	public var lowPriority:Bool = false;
@@ -75,6 +81,15 @@ class Note extends FlxSprite {
 		gain: 0.03,
 		drain: 0.05
 	};
+	public var ratingData:{name:String, mod:Float, prevent:Bool} = {
+		name: null,
+		mod: 0,
+		prevent: false
+	}
+	public var preventAnims:{sing:Bool, miss:Bool} = {
+		sing: false,
+		miss: false
+	}
 
 	private var __applyScaleFrfr:Bool = false; // ofc this didn't fucking work
 	private var baseScale:PositionMeta = new PositionMeta(0.7, 0.7);
@@ -140,7 +155,7 @@ class Note extends FlxSprite {
 					}
 			}
 		} else {
-			frames = Paths.getSparrowAtlas('notes/NOTE_assets');
+			frames = Paths.getSparrowAtlas('gameplay/notes/NOTE_assets');
 			var col:String = ['purple', 'blue', 'green', 'red'][data];
 
 			switch (noteState) {
@@ -222,8 +237,8 @@ class Note extends FlxSprite {
 				tooLate = true;
 				canHit = false;
 			} else {
-				if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset) {
-					if (strumTime < Conductor.songPosition + Conductor.safeZoneOffset)
+				if (strumTime > Conductor.songPosition - (Conductor.safeZoneOffset * earlyHitMult)) {
+					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * lateHitMult))
 						canHit = true;
 				} else {
 					canHit = true;

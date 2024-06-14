@@ -26,8 +26,9 @@ class Script extends FlxBasic {
 
 	public static function create(file:String, type:String = ''):Script {
 		final path:String = Paths.script(switch (type) {
-			case 'song': 'songs/${PlayState.SONG.song}/$file';
 			case 'state': 'content/states/$file';
+			case 'icon': 'images/icons/$file';
+			case 'song': 'songs/${PlayState.SONG.song}/$file';
 			case 'char': 'characters/$file';
 			default: '$file';
 		});
@@ -63,6 +64,7 @@ class Script extends FlxBasic {
 			'FlxBasic' => FlxBasic,
 			'FlxObject' => FlxObject,
 			'FlxSprite' => FlxSprite,
+			'FlxSkewedSprite' => flixel.addons.effects.FlxSkewedSprite,
 			'FlxText' => FlxText,
 			'FlxCamera' => FlxCamera,
 			'FlxMath' => FlxMath,
@@ -74,14 +76,15 @@ class Script extends FlxBasic {
 			'FlxTypedSpriteGroup' => FlxTypedSpriteGroup,
 			'FlxTimer' => FlxTimer,
 			'FlxSound' => FlxSound,
-			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
+			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'), 'FlxColorHelper' => FlxColorHelper,
 			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
 			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
 
 			// Engine //
+			'PositionMeta' => PositionMeta, // backend.metas
 			'MusicBeatState' => MusicBeatState, // backend.musicbeat
 			'MusicBeatSubstate' => MusicBeatSubstate,
-			'ScriptEvent' => ScriptEvent, // backend.scripting.events , will preadd more soon
+			'ScriptEvent' => ScriptEvent, // backend.scripting.events , may preadd more soon
 			'ModState' => ModState, // backend.scripting
 			'ModSubstate' => ModSubstate,
 			'Script' => Script,
@@ -93,10 +96,13 @@ class Script extends FlxBasic {
 			'SaveManager' => SaveManager,
 			'NoteGroup' => fnf.objects.note.groups.NoteGroup, // objects.note.groups
 			'StrumGroup' => fnf.objects.note.groups.StrumGroup,
-			'Note' => fnf.objects.note.Note, // objects.note
+			'HoldCover' => fnf.objects.note.HoldCover, // objects.note
+			'Note' => fnf.objects.note.Note,
 			'Splash' => fnf.objects.note.Splash,
 			'Strum' => fnf.objects.note.Strum,
-			'Character' => fnf.objects.Character, // objects
+			'BarColors' => fnf.objects.BetterBar.BarColors,	'BetterBarFillDirection' => Type.resolveClass('fnf.objects.BetterBar.BetterBarFillDirection_HSC'), 'BetterBar' => fnf.objects.BetterBar, // objects
+			'Character' => fnf.objects.Character,
+			'SpriteFacing' => Type.resolveClass('fnf.objects.FunkinSprite.SpriteFacing_HSC'), 'AnimType' => Type.resolveClass('fnf.objects.FunkinSprite.AnimType_HSC'), 'FunkinSprite' => fnf.objects.FunkinSprite,
 			'PlayField' => PlayField,
 			'FreeplayState' => fnf.states.menus.FreeplayState, // states.menus
 			'MainMenuState' => fnf.states.menus.MainMenuState,
@@ -110,7 +116,10 @@ class Script extends FlxBasic {
 			'Alphabet' => fnf.ui.Alphabet, // ui
 			'HealthIcon' => fnf.ui.HealthIcon,
 			'CoolUtil' => CoolUtil, // utils
+			'FailsafeUtil' => FailsafeUtil,
+			'ModUtil' => ModUtil,
 			'Paths' => Paths,
+			'PlayUtil' => PlayUtil,
 
 			// Custom Functions //
 			'addInfrontOfObject' => (obj:FlxBasic, ?infrontOfThis:FlxBasic = null, ?into:Dynamic) -> {

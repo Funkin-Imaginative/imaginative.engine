@@ -13,12 +13,13 @@ private typedef KeySetup = {
 	var release:Bool;
 }
 
-typedef BaseNoteSignals = {
-	var noteHit:FlxTypedSignal<NoteHitEvent->Void>;
-	var noteMiss:FlxTypedSignal<NoteMissEvent->Void>;
+typedef HitFuncs = {
+	var noteHit:NoteHitEvent->Void;
+	var noteMiss:NoteMissEvent->Void;
 }
 typedef NoteSignals = {
-	> BaseNoteSignals,
+	var noteHit:FlxTypedSignal<NoteHitEvent->Void>;
+	var noteMiss:FlxTypedSignal<NoteMissEvent->Void>;
 	var noteSpawn:FlxTypedSignal<BasicNoteEvent->Void>;
 	var noteDestroy:FlxTypedSignal<BasicNoteEvent->Void>;
 	var splashSpawn:FlxTypedSignal<SplashSpawnEvent->Void>;
@@ -31,30 +32,30 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 
 	// Even tho you can have a but ton of StrumGroup's you can ONLY play as one!
 	inline public static function swapTargetGroups() {
-		var prevOppo:StrumGroup = opponent;
+		var prevOppo:StrumGroup = enemy;
 		var prevPlay:StrumGroup = player;
-		opponent = prevPlay;
+		enemy = prevPlay;
 		player = prevOppo;
 	}
-	public static var opponent:Null<StrumGroup> = null; // opponent play be like
+	public static var enemy:Null<StrumGroup> = null; // enemy play be like
 	public static var player:Null<StrumGroup> = null;
 	public var status(get, set):Null<Bool>;
 	inline function get_status():Null<Bool> {
-		if (this == opponent) return false;
+		if (this == enemy) return false;
 		if (this == player) return true;
 		return null;
 	}
 	function set_status(value:Null<Bool>):Null<Bool> {
 		switch (value) {
 			case false:
-				if (opponent == player) swapTargetGroups();
-				else opponent = this;
+				if (enemy == player) swapTargetGroups();
+				else enemy = this;
 			case true:
-				if (player == opponent) swapTargetGroups();
+				if (player == enemy) swapTargetGroups();
 				else player = this;
 			case null:
 				var prevStatus:Null<Bool> = status; // jic
-				if (prevStatus != null) prevStatus ? player = null : opponent = null;
+				if (prevStatus != null) prevStatus ? player = null : enemy = null;
 		}
 		return status;
 	}
@@ -68,10 +69,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		else return value * (helper ? 1 : -1);
 	}
 
-	public static var baseSignals(default, never):BaseNoteSignals = {
-		noteHit: new FlxTypedSignal<NoteHitEvent->Void>(),
-		noteMiss: new FlxTypedSignal<NoteMissEvent->Void>()
-	}
+	public static var hitFuncs(default, never):HitFuncs = {noteHit: null, noteMiss: null}
 	public var signals(default, never):NoteSignals = {
 		noteHit: new FlxTypedSignal<NoteHitEvent->Void>(),
 		noteMiss: new FlxTypedSignal<NoteMissEvent->Void>(),
@@ -100,7 +98,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			babyArrow.x += Note.swagWidth * i;
 			babyArrow.x -= (Note.swagWidth * ((amount - 1) / 2));
 			@:privateAccess Strum.setStrumGroup(babyArrow, this);
-			if (SaveManager.getOption('prefs.strumShift')) babyArrow.x -= Note.swagWidth / 2.4;
+			if (SaveManager.getOption('strumShift')) babyArrow.x -= Note.swagWidth / 2.4;
 			insert(i, babyArrow);
 		}
 		notes = new NoteGroup();
@@ -149,7 +147,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			}
 		}
 
-		var vocalsPath:String = Paths.voices(PlayState.SONG.song, status ? 'Player' : 'Opponent');
+		var vocalsPath:String = Paths.voices(PlayState.SONG.song, status ? 'Player' : 'Enemy');
 		vocals = FileSystem.exists(vocalsPath) ? FlxG.sound.load(vocalsPath) : new FlxSound();
 
 		vocals.group = FlxG.sound.defaultMusicGroup;
@@ -175,7 +173,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 			press: [controls.NOTE_LEFT_P, controls.NOTE_DOWN_P, controls.NOTE_UP_P, controls.NOTE_RIGHT_P],
 			release: [controls.NOTE_LEFT_R, controls.NOTE_DOWN_R, controls.NOTE_UP_R, controls.NOTE_RIGHT_R]
 		}
-		if (status != null && status == !PlayUtil.opponentPlay && !PlayUtil.botplay) {
+		if (status != null && status == !PlayUtil.enemyPlay && !PlayUtil.botplay) {
 			if (keys.hold.contains(true) /* && !boyfriend.stunned */) {
 				// trace('hit the fucking note you idiot');
 				notes.forEachAlive((note:Note) ->
@@ -227,7 +225,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 					}
 				} else
 					for (shit in 0...keys.press.length)
-						if (!SaveManager.getOption('gameplay.ghostTapping') && keys.press[shit])
+						if (!SaveManager.getOption('ghostTapping') && keys.press[shit])
 							PlayField.noteMiss(null, shit, this);
 			}
 
@@ -283,7 +281,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		}
 	}
 	override public function draw() {
-		var sustainsUnderStrums:Bool = SaveManager.getOption('prefs.sustainsUnderStrums');
+		var sustainsUnderStrums:Bool = SaveManager.getOption('sustainsUnderStrums');
 		drawNotes(false, sustainsUnderStrums);
 		super.draw();
 		drawNotes(true, !sustainsUnderStrums);
