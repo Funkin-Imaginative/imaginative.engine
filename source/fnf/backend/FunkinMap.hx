@@ -1,6 +1,6 @@
 package fnf.backend;
 
-/* private */ class FunkinMapHelper<ObjectClass:FlxBasic> extends FlxBasic {
+class FunkinMapHelper<ObjectClass:FlxBasic> extends FlxBasic {
 	public var members:Map<String, ObjectClass> = [];
 	public var topMember(get, never):ObjectClass; public
 	inline function get_topMember():ObjectClass return members.get(topMemberName);
@@ -18,9 +18,14 @@ package fnf.backend;
 		return topMemberName = value;
 	}
 
-	public function set(tag:String, instance:ObjectClass):ObjectClass {members.set(tag, instance); return instance;}
-	public function get(tag:String):ObjectClass return members.get(tag);
-	public function remove(tag:String):Bool return members.remove(tag);
+	public function set(tag:String, instance:ObjectClass):ObjectClass {
+		members.set(tag, instance);
+		return instance;
+	}
+	public function get(tag:String):ObjectClass
+		return members.get(tag);
+	public function remove(tag:String):Bool
+		return members.remove(tag);
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
@@ -60,29 +65,88 @@ class FunkinMap<ObjectClass:FlxBasic> extends FlxBasic {
 		helper.topMemberName = tag;
 		return instance;
 	}
+	/**
+	 * Add a(n) `ObjectClass` instance to a `FunkinMapHelper` group.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @param instance An instance of `ObjectClass`.
+	 * @return ObjectClass
+	 */
 	public function addSlotMember(key:String, tag:String, instance:ObjectClass):ObjectClass {
 		if (slotExists(key, tag)) {trace('Slot already exists.'); return null;}
 		return internalMap.get(key).set(tag, instance);
 	}
-	public function getSlotMember(key:String, tag:String):Null<ObjectClass> return internalMap.get(key).get(tag);
+	/**
+	 * Get a(n) `ObjectClass` instance from a `FunkinMapHelper` group.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @param instance An instance of `ObjectClass`.
+	 * @return Null<ObjectClass>
+	 */
+	public function getSlotMember(key:String, tag:String):Null<ObjectClass>
+		return internalMap.get(key).get(tag);
 
+	/**
+	 * Set a(n) `ObjectClass` instance to the top of a `FunkinMapHelper` group.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @return ObjectClass
+	 */
 	public function setTopSlot(key:String, tag:String):ObjectClass {
 		if (slotExists(key, tag)) internalMap.get(key).topMemberName = tag;
 		return internalMap.get(key).topMember;
 	}
+	/**
+	 * Get a(n) `ObjectClass` instance to the top of a `FunkinMapHelper` group.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @return Null<ObjectClass>
+	 */
 	public function getTopSlot(key:String):Null<ObjectClass>
 		return internalMap.get(key).topMember;
 
-	public function groupExists(key:String):Bool return internalMap.exists(key);
-	public function slotExists(key:String, tag:String):Bool return groupExists(key) ? internalMap.get(key).members.exists(tag) : false;
+	/**
+	 * Check if the `FunkinMapHelper` group exists.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @return Bool
+	 */
+	public function groupExists(key:String):Bool
+		return internalMap.exists(key);
+	/**
+	 * Check if the `ObjectClass` object exists.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @return Bool
+	 */
+	public function slotExists(key:String, tag:String):Bool
+		return groupExists(key) ? internalMap.get(key).members.exists(tag) : false;
 
+	/**
+	 * Kills the set `FunkinMapHelper` group.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 */
 	public function destroyGroup(key:String):Void {
 		internalMap.get(key).destroy();
 		internalMap.remove(key);
 	}
-	public function destroySlot(key:String, tag:String):Void internalMap.get(key).remove(tag);
+	/**
+	 * Kills the set `ObjectClass` object.
+	 * @param key Name of the `FunkinMapHelper` group.
+	 * @param tag Name of the `ObjectClass` object tag.
+	 * @return Void
+	 */
+	public function destroySlot(key:String, tag:String):Void
+		internalMap.get(key).remove(tag);
 
-	public function keys():Iterator<String> return members.keys();
-	public function iterator():Iterator<ObjectClass> return members.iterator();
-	public function keyValueIterator():KeyValueIterator<String, ObjectClass> return members.keyValueIterator();
+	override public function destroy() {
+		for (key in internalMap.keys()) destroyGroup(key);
+		super.destroy();
+	}
+
+	public function keys():Iterator<String>
+		return members.keys();
+	public function iterator():Iterator<ObjectClass>
+		return members.iterator();
+	public function keyValueIterator():KeyValueIterator<String, ObjectClass>
+		return members.keyValueIterator();
 }
