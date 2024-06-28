@@ -1,9 +1,10 @@
 package fnf.objects;
 
+import fnf.backend.interfaces.IPlayAnim;
 import fnf.utils.ParseUtil.CharDataType;
 import fnf.objects.FunkinSprite;
-import flixel.math.FlxRect;
 import flixel.util.FlxStringUtil;
+import flixel.math.FlxRect;
 
 typedef AnimSuffixes = { // will still work even if alt isn't found
 	@:default('') var idle:String; // for idle/sway
@@ -12,6 +13,11 @@ typedef AnimSuffixes = { // will still work even if alt isn't found
 }
 
 typedef CharData = {
+	/**
+	 * The display name.
+	 */
+	@:optional @:default('') var name:String;
+
 	/**
 	 * The sprite path.
 	 */
@@ -75,105 +81,67 @@ typedef CharData = {
 	@:optional @default(IMAG) var isFromEngine:CharDataType;
 }
 
-private typedef AnimHas = {
-	var miss:Bool;
-	var suffix:Bool;
-}
-private typedef AnimCheck = {
-	var miss:String;
-	var suffix:String;
-}
-
-class Character extends FunkinSprite implements IMusicBeat {
-	// internal set to prevent setting
-	@:unreflective var __name:String = 'boyfriend';
-	@:unreflective var __variant:String = 'normal';
-	// vars to actually use
-	@:isVar public var charName(get, never):String; inline function get_charName():String return __name;
-	@:isVar public var charVariant(get, never):String; inline function get_charVariant():String return __variant;
+class Character extends FunkinSprite implements INoteTriggers {
+	public var charName(default, null):String;
+	public var charVariant(default, null):String;
 	public var hasVariant(get, never):Bool; inline function get_hasVariant():Bool return charVariant != 'none';
+
+	public var quickDisplay(get, null):String; inline function get_quickDisplay():String return '$charName${hasVariant ? ' $charVariant' : ''}';
+	public var displayName(get, null):String; inline function get_displayName():String return charData.name.trim() == '' ? '$charName${hasVariant ? ' ($charVariant)' : ''}' : displayName;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var stunned:Bool = false;
 
-	public var bopSpeed(default, set):Int = 1; function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
-	public var beatInterval(get, default):Int = 0; function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
+	public var bopSpeed(default, set):Int = 1; inline function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
+	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var singLength:Float = 4; // Multiplier of how long a character holds the sing pose.
 	public var suffixes:AnimSuffixes = {idle: '', sing: '', anim: ''} // even tho @:default is used it didn't actually work lol
 	public var preventIdle:Bool = false;
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	function get_hasSway():Bool return suffixes.idle.trim() == '' ? doesAnimExists('sway') : doesAnimExists('sway${suffixes.idle}');
+	inline function get_hasSway():Bool return doesAnimExist('sway${suffixes.idle}') ? true : doesAnimExist('sway');
 
 	public var xyOffset(default, never):PositionMeta = new PositionMeta();
 	public var camPoint(default, never):PositionMeta = new PositionMeta();
 	public function getCamPos():PositionMeta {
 		var basePos:FlxPoint = getMidpoint();
+		final isImag:Bool = isFromEngine == IMAG;
 		var event:PointEvent = new PointEvent(
-			basePos.x + (isFacing == rightFace && isFromEngine == PSYCH ? -100 : 150) + (xyOffset.x + camPoint.x) * (isFacing == rightFace ? 1 : -1),
-			basePos.y - (isFromEngine == PSYCH ? 100 : 0) + xyOffset.y + camPoint.y
+			basePos.x + (isImag ? 0 : (isFacing == leftFace ? -100 : 150)) + (xyOffset.x + camPoint.x) * (isImag ? (isFacing == rightFace ? 1 : -1) : 1),
+			basePos.y - (isImag ? 0 : 100) + xyOffset.y + camPoint.y
 		);
 		basePos.put();
-		scripts.call('getCameraPos', [event]);
+		script.call('getCameraPos', [event]);
 		return new PositionMeta(event.x, event.y);
 	}
 
-	public var icon(get, default):String = 'face';
-	function get_icon():String return icon.trim() == '' ? spritePath : icon;
-
-	public var animationNotes:Array<Dynamic> = [];
+	public var icon(get, null):String = 'face';
+	inline function get_icon():String return icon.trim() == '' ? spritePath : icon;
 
 	public var spritePath(default, null):String;
 	public var scaleMult(default, null):Float;
 	public var aliasing(default, null):Bool;
 	public var flipSprite(default, null):Bool;
-	@:isVar public var iconColor(get, set):Null<FlxColor>;
-	inline function get_iconColor():FlxColor return iconColor == null ? 0xffa1a1a1 : iconColor;
-	inline function set_iconColor(value:FlxColor):FlxColor {value.alphaFloat = 1; return iconColor = value;}
+	@:isVar public var selfColor(get, set):Null<FlxColor>;
+	inline function get_selfColor():FlxColor return selfColor == null ? 0xffffffff : selfColor;
+	inline function set_selfColor(value:FlxColor):FlxColor {value.alphaFloat = 1; return selfColor = value;}
 	public var isFromEngine(default, null):CharDataType;
 
-	public var charData:CharData;
-	inline public static function applyCharData(content:Dynamic):CharData {
-		return cast content == null ? FailsafeUtil.charYaml : {
-			sprite: content.sprite,
-			flip: content.flip,
-			anims: content.anims,
-			position: content.position,
-			camera: content.camera,
+	public var script(default, null):Script;
 
-			scale: content.scale,
-			singLen: content.singLen,
-			icon: content.icon,
-			aliasing: content.aliasing,
-			color: content.color,
-			beat: content.beat,
-
-			isFromEngine: content.isFromEngine
-		}
-	}
-
-	public var scripts:ScriptGroup; // just for effecting both scripts at once lmao
-	public var charScript:Script;
-	public var variantScript:Script;
-
+	public var charData(default, null):CharData;
 	public function new(x:Float, y:Float, faceLeft:Bool = false, character:String = 'making this whatever to force failsafe', variant:String = 'Peanut Butter & (Blue) Cheese') {
 		super(x, y);
 
-		__name = character;
-		__variant = variant;
+		charName = character;
+		charVariant = variant;
 		isFacing = faceLeft ? leftFace : rightFace;
 
-		scripts = new ScriptGroup(this);
-		charScript = Script.create(charName, 'char');
-		if (hasVariant) variantScript = Script.create('$charName/$charVariant', 'char');
-		for (script in [charScript, variantScript]) {
-			if (script == null) script = new Script(FailsafeUtil.invaildScriptKey);
-			scripts.add(script);
-		}
-		scripts.load(true);
-		scripts.call('create');
+		script = Script.create('$charName${hasVariant ? '/$charVariant' : ''}', 'char');
+		script.load(true);
+		script.call('create');
 
 		switch (charName) {
-			case 'bf-pixel-dead':
+			/* case 'bf-pixel-dead':
 				frames = Paths.getSparrowAtlas('characters/${spritePath = 'bfPixelsDEAD'}');
 
 				flipSprite = true;
@@ -199,10 +167,12 @@ class Character extends FunkinSprite implements IMusicBeat {
 				loadOffsetFile(charName);
 
 				scaleMult = 1;
-				aliasing = true;
+				aliasing = true; */
 
 			default:
-				charData = ParseUtil.character(charName, charVariant); // get char data
+				charData = ParseUtil.character(charName, charVariant); // get data
+
+				displayName = charData.name;
 				isFromEngine = charData.isFromEngine;
 
 				frames = Paths.getAtlasFrames('characters/${spritePath = charData.sprite}');
@@ -212,10 +182,8 @@ class Character extends FunkinSprite implements IMusicBeat {
 					// multsparrow support soon
 					var shouldFlip:Bool = flipSprite;
 					if (anim.flip) shouldFlip = !shouldFlip;
-					if (anim.indices != null && anim.indices.length > 0)
-						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, shouldFlip);
-					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, shouldFlip);
-					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.flipAnim);
+					addAnimation(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, shouldFlip);
+					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.swapAnim, anim.flipAnim);
 				}
 				xyOffset.set(charData.position.x, charData.position.y);
 				camPoint.set(charData.camera.x, charData.camera.y);
@@ -224,7 +192,7 @@ class Character extends FunkinSprite implements IMusicBeat {
 				singLength = charData.singLen;
 				icon = charData.icon;
 				aliasing = charData.aliasing;
-				iconColor = FlxColor.fromString(charData.color);
+				selfColor = FlxColor.fromString(charData.color);
 				beatInterval = charData.beat;
 		}
 
@@ -236,19 +204,18 @@ class Character extends FunkinSprite implements IMusicBeat {
 
 		dance();
 
-		scripts.call('createPost');
+		script.call('createPost');
 	}
 
-	public function loadMappedAnims() {
-		final swagshit = Song.loadFromJson('Stress', 'picolol');
-
-		final notes = swagshit.notes;
-		for (section in notes)
-			for (idk in section.sectionNotes)
-				animationNotes.push(idk);
-
-		fnf.objects.background.TankmenBG.animationNotes = animationNotes;
-		animationNotes.sort(sortAnims);
+	override public function reload(hard:Bool = false) {
+		script.call('parentReload', [hard, reloading]);
+		lastHit = Math.NEGATIVE_INFINITY;
+		super.reload(hard);
+		stunned = preventIdle = onSway = false;
+		bopSpeed = 1;
+		suffixes = {idle: '', sing: '', anim: ''}
+		script.call('parentReloadPost', [hard, reloading]);
+		script.reload(hard);
 	}
 
 	inline function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
@@ -257,63 +224,41 @@ class Character extends FunkinSprite implements IMusicBeat {
 	inline function quickAnimAdd(name:String, prefix:String)
 		animation.addByPrefix(name, prefix, 24, false, flipSprite);
 
-	private function loadOffsetFile(offsetCharacter:String) {
-		for (i in CoolUtil.splitTextByLine(Paths.txt('images/characters/${offsetCharacter}Offsets'))) {
-			final splitWords:Array<String> = i.split(' ');
-			setupAnim(splitWords[0], Std.parseInt(splitWords[1]), Std.parseInt(splitWords[2]), splitWords[3]);
-		}
-	}
-
-	// "-end" anim code by @HIGGAMEON
-	private var animB4Loop:String = '';
+	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON
 	override public function update(elapsed:Float) {
-		scripts.call('update', [elapsed]);
-		if (!debugMode && animation.curAnim != null) {
-			switch (charName) {
-				case 'pico-speaker':
-					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0]) {
-						var noteData:Int = 1;
-						if (animationNotes[0][1] > 2) noteData = 3;
-
-						noteData += FlxG.random.int(0, 1);
-						playAnim('shoot' + noteData, true);
-						animationNotes.shift();
-					}
-					if (isAnimFinished()) playAnim(getAnimName(), false, false, animation.curAnim.frames.length - 3);
-			}
-
-			if (isAnimFinished() && doesAnimExists('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', false, NONE, false, 0));
+		script.call('update', [elapsed]);
+		if (!debugMode) {
+			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
+				var event:PlaySpecialAnimEvent = script.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (event.stopped) return;
 				var prevAnimType:AnimType = animType;
 				playAnim('${getAnimName()}-loop', event.force, event.animType, event.reverse, event.frame);
 				if (prevAnimType == SING || prevAnimType == MISS) animType = prevAnimType; // for `tryDance()` checks
-				scripts.call('playingSpecialAnimPost', [event]);
+				script.call('playingSpecialAnimPost', [event]);
 			}
 
-			if (/* animType != VOID || */ animType != DANCE) tryDance();
+			if (animType != DANCE) tryDance();
 		}
 		super.update(elapsed);
-		scripts.call('updatePost', [elapsed]);
+		script.call('updatePost', [elapsed]);
 	}
 
 	public var onSway:Bool = false;
 	public function dance() {
-		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
+		var event:BopEvent = script.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
-			if (isAnimFinished() && doesAnimExists('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
+			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
+				var event:PlaySpecialAnimEvent = script.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
-				scripts.call('playingSpecialAnimPost', [event]);
+				script.call('playingSpecialAnimPost', [event]);
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				final suffix:String = doesAnimExists('$anim${suffixes.idle}') ? suffixes.idle : '';
-				playAnim('$anim$suffix', true, DANCE);
+				playAnim('$anim${doesAnimExist('$anim${suffixes.idle}') ? suffixes.idle : ''}', true, DANCE);
 			}
 		}
-		scripts.call('dancingPost', [event]);
+		script.call('dancingPost', [event]);
 	}
 
 	public function tryDance() {
@@ -326,67 +271,91 @@ class Character extends FunkinSprite implements IMusicBeat {
 			case LOCK:
 				if (getAnimName() == null)
 					dance();
-			case VOID:
-				dance();
 			default:
 				if (getAnimName() == null || isAnimFinished())
 					dance();
 		}
 	}
 
-	override public function stepHit(curStep:Int) {
-		super.stepHit(curStep);
-		scripts.call('stepHit', [curStep]);
+	public function noteHit(event:NoteHitEvent) {
+		script.call('noteHit', [event]);
+		if (!event.note.preventAnims.sing) {
+			if (SaveManager.getOption('beatLoop')) playSingAnim(event.direction, event.note.animSuffix); else {
+				if (!event.note.isSustain) playSingAnim(event.direction, event.note.animSuffix);
+				else lastHit = Conductor.songPosition;
+			}
+		}
+		script.call('noteHitPost', [event]);
+	}
+	public function noteMiss(event:NoteMissEvent) {
+		script.call('noteMiss', [event]);
+		if (!event.note.preventAnims.miss) {
+			if (SaveManager.getOption('beatLoop')) playSingAnim(event.direction, event.note.animSuffix, MISS); else {
+				if (!event.note.isSustain) playSingAnim(event.direction, event.note.animSuffix, MISS);
+				else lastHit = Conductor.songPosition;
+			}
+		}
+		script.call('noteMissPost', [event]);
+	}
+	public function generalMiss(event:MissEvent) {
+		script.call('generalMiss', [event]);
+		playSingAnim(event.direction, '', MISS);
+		script.call('generalMissPost', [event]);
 	}
 
-	public var preventIdleBopping:Bool = false;
+	override public function stepHit(curStep:Int) {
+		super.stepHit(curStep);
+		script.call('stepHit', [curStep]);
+	}
+
 	override public function beatHit(curBeat:Int) {
 		super.beatHit(curBeat);
-		if (!preventIdleBopping && curBeat % Math.round(bopSpeed * beatInterval) == 0) tryDance();
-		scripts.call('beatHit', [curBeat]);
+		if (curBeat % Math.round(bopSpeed * beatInterval) == 0) {
+			tryDance();
+			if (animType != DANCE && getAnimName().endsWith('-loop')) finishAnim(); // why tf
+		}
+		script.call('beatHit', [curBeat]);
 	}
 
 	override public function measureHit(curMeasure:Int) {
 		super.measureHit(curMeasure);
-		scripts.call('measureHit', [curMeasure]);
+		script.call('measureHit', [curMeasure]);
 	}
 
 	override public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0) {
-		final flipAnim:String = doesAnimExists(name) ? animInfo.get(name).flipAnim : '';
-		var event:PlayAnimEvent = scripts.event('playingAnim', new PlayAnimEvent(isFacing == leftFace ? name : (doesAnimExists(flipAnim) ? flipAnim : name), force, animType, reverse, frame));
+		var event:PlayAnimEvent = script.event('playingAnim', new PlayAnimEvent(checkAnimStatus(name), force, animType, reverse, frame));
 		if (event.stopped) return;
-		final suffix:String = doesAnimExists('${event.anim}${suffixes.anim}') ? suffixes.anim : '';
-		final anim:String = '${event.anim}$suffix';
-		if (doesAnimExists(anim)) {
+		final anim:String = '${event.anim}${doesAnimExist('${event.anim}${suffixes.anim}') ? suffixes.anim : ''}';
+		if (doesAnimExist(anim)) {
 			if (!getAnimName().endsWith('-loop')) animB4Loop = anim;
 			super.playAnim(anim, event.force, event.animType, event.reverse, event.frame);
-			offset.set((offset.x - xyOffset.x) * (isFacing == rightFace ? -1 : 1), offset.y - xyOffset.y);
+			offset.set((offset.x - xyOffset.x) * (isFacing == leftFace ? 1 : -1), offset.y - xyOffset.y);
 			if (animType == SING || animType == MISS) lastHit = Conductor.songPosition;
-			scripts.call('playingAnimPost', [event]);
+			script.call('playingAnimPost', [event]);
 		}
 	}
 
-	public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
-		var has:AnimHas = {
-			miss: doesAnimExists('${sing}miss$suffix') || doesAnimExists('${sing}miss'),
-			suffix: suffix.trim() == '' ? false : doesAnimExists('$sing$miss$suffix')
+	inline public function singAnimCheck(sing:String, miss:String, suffix:String):Array<String> {
+		final has:{miss:Bool, suffix:Bool} = {
+			miss: doesAnimExist('${sing}miss$suffix') || doesAnimExist('${sing}miss'),
+			suffix: suffix.trim() == '' ? false : doesAnimExist('$sing$miss$suffix')
 		}
-		var cool:AnimCheck = {
+		final cool:{miss:String, suffix:String} = {
 			miss: has.miss ? miss : '',
 			suffix: has.suffix ? suffix : ''
 		}
 		return [sing, cool.miss, cool.suffix];
 	}
 
-	public static final globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-	public var singAnims(get, default):Null<Array<Null<String>>>;
+	public static var globalSingAnims:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	public var singAnims(get, default):Array<String>;
 	function get_singAnims():Array<String> {
 		var theAnims:Array<String> = singAnims == null ? globalSingAnims : singAnims;
 		for (index => anim in theAnims) theAnims[index] = anim == null ? globalSingAnims[index] : anim;
 		return theAnims;
 	}
 	public function playSingAnim(direction:Int, suffix:String = '', animType:AnimType = SING, force:Bool = true, reverse:Bool = false, frame:Int = 0) {
-		var event:PlaySingAnimEvent = scripts.event('playingSingAnim', new PlaySingAnimEvent(direction, suffix, animType, force, reverse, frame));
+		var event:PlaySingAnimEvent = script.event('playingSingAnim', new PlaySingAnimEvent(direction, suffix, animType, force, reverse, frame));
 		if (event.stopped) return;
 		var checkedAnims:Array<String> = singAnimCheck(
 			event.checkAnim(singAnims, event.direction),
@@ -394,11 +363,11 @@ class Character extends FunkinSprite implements IMusicBeat {
 			event.suffix.trim() == '' ? suffixes.sing : event.suffix
 		);
 		playAnim('${checkedAnims[0]}${checkedAnims[1]}${checkedAnims[2]}', event.force, event.animType, event.reverse, event.frame);
-		scripts.call('playingSingAnimPost', [event]);
+		script.call('playingSingAnimPost', [event]);
 	}
 
 	override public function destroy() {
-		scripts.destroy();
+		script.destroy();
 		super.destroy();
 	}
 

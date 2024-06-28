@@ -2,7 +2,7 @@ package fnf.states.sub;
 
 import fnf.objects.Character;
 
-class GameOverSubstate extends MusicBeatSubstate
+class GameOverSubstate extends SongSubstate
 {
 	var bf:Character;
 	var camPoint:BareCameraPoint;

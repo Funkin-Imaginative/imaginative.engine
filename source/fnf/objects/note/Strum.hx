@@ -2,7 +2,7 @@ package fnf.objects.note;
 
 import fnf.graphics.shaders.ColorSwap;
 
-class Strum extends FlxSprite {
+class Strum extends FlxSprite implements INoteTriggers implements IReloadable {
 	public var extra:Map<String, Dynamic> = [];
 
 	public var strumGroup(default, null):StrumGroup;
@@ -54,22 +54,34 @@ class Strum extends FlxSprite {
 			animation.addByPrefix('press', '$dir press', 24, false);
 			animation.addByPrefix('confirm', '$dir confirm', 24, false);
 		}
-
 		antialiasing = !pixel;
-		// setBaseScale(() -> setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7))));
-		setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7)));
-		updateHitbox();
-
-		baseScale.set(scale.x, scale.y);
-		applyScaling = true;
 		playAnim('static', true);
+
+		setBaseScale(() -> setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7))));
+		applyScaling = true;
+	}
+
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		lastHit = Math.NEGATIVE_INFINITY;
+		if (hard) extra.clear();
+		scaleMult.set(1, 1);
 	}
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
-		// if (applyScaling) scale.set(baseScale.x * scaleMult.x, baseScale.y * scaleMult.y);
+		if (applyScaling) scale.set(baseScale.x * scaleMult.x, baseScale.y * scaleMult.y);
 		if (cpu && lastHit + (Conductor.crochet / 2) < Conductor.songPosition && animation.name == 'confirm' && animation.curAnim.finished) playAnim('static', true);
 	}
+
+	public function noteHit(event:NoteHitEvent) {
+		if (SaveManager.getOption('beatLoop')) playAnim('confirm', true); else {
+			if (!event.note.isSustain) playAnim('confirm', true);
+			else lastHit = Conductor.songPosition;
+		}
+	}
+	public function noteMiss(event:NoteMissEvent) {}
+	public function generalMiss(event:MissEvent) {}
 
 	public function playAnim(name:String, force:Bool = false) {
 		animation.play(name, force);

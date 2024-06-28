@@ -8,7 +8,7 @@ enum abstract NoteState(String) from String to String {
 	var END = 'end';
 }
 
-class Note extends FlxSprite {
+class Note extends FlxSprite implements INoteTriggers implements IReloadable {
 	public var extra:Map<String, Dynamic> = [];
 
 	public var strumGroup(default, set):StrumGroup;
@@ -41,21 +41,17 @@ class Note extends FlxSprite {
 	public var nextNote(get, default):Note; function get_nextNote():Note return nextNote == null ? this : nextNote;
 
 	public var scrollAngle(get, default):Null<Float>;
-	function get_scrollAngle():Float return scrollAngle == null ? scrollAngle = (isSustain ? 0 : (SaveManager.getOption('downscroll') ? 90 : 270)) : scrollAngle;
+	inline function get_scrollAngle():Null<Float> {return scrollAngle == null ? scrollAngle = (isSustain ? 0 : (SaveManager.getOption('downscroll') ? 90 : 270)) : scrollAngle;}
 
 	private var willMiss:Bool = false;
 	public var hitCausesMiss:Bool = false; // psych be like
 	public var forceMiss:Bool = false; // enemy specific
 	public var forceHit:Bool = false; // player specific
 
-	public var altNote:Bool = false;
-	public var invisNote:Bool = false;
-
 	public var shouldIgnore:Bool = false;
 	public var preventHit:Bool = false;
 	public var animSuffix:String = '';
-	public var earlyHitMult:Float = 1;
-	public var lateHitMult:Float = 1;
+	public var hitMult:{early:Float, late:Float} = DefaultsUtil.noteHitMult;
 
 	public var parent:Note;
 	public var lowPriority:Bool = false;
@@ -65,9 +61,9 @@ class Note extends FlxSprite {
 	public var sustainLength:Float = 0;
 
 	// public var colorSwap:ColorSwap;
-	public var noteScore:Float = 1;
-	public var kind(default, set):String = 'Normal';
+	public var kind(default, set):String = 'Default';
 	function set_kind(value:String) {
+		reload();
 		switch (value) {
 			default:
 				// script call?
@@ -77,10 +73,7 @@ class Note extends FlxSprite {
 
 	public static var swagWidth:Float = 160 * 0.7;
 
-	public var healthAmount:{gain:Float, drain:Float} = {
-		gain: 0.03,
-		drain: 0.05
-	};
+	public var healthAmount:{gain:Float, drain:Float} = DefaultsUtil.healthAmount;
 	public var ratingData:{name:String, mod:Float, prevent:Bool} = {
 		name: null,
 		mod: 0,
@@ -94,11 +87,11 @@ class Note extends FlxSprite {
 	private var __applyScaleFrfr:Bool = false; // ofc this didn't fucking work
 	private var baseScale:PositionMeta = new PositionMeta(0.7, 0.7);
 	public function setBaseScale(func:Void->Void) {
-		__applyScaleFrfr = false;
+		var prev:Bool = __applyScaleFrfr; __applyScaleFrfr = false;
 		if (func != null) func();
 		updateHitbox();
 		baseScale.set(scale.x, scale.y);
-		__applyScaleFrfr = true;
+		__applyScaleFrfr = prev;
 	}
 	public var __scrollSpeed(get, never):Float; inline function get___scrollSpeed():Float return PlayState.SONG.speed * mods.speed;
 
@@ -109,8 +102,8 @@ class Note extends FlxSprite {
 	}
 	public var applyMods:{alpha:Bool, scale:Bool, angle:Bool} = {
 		alpha: true,
-		scale: false,
-		angle: true,
+		scale: true,
+		angle: true
 	}
 
 	@:unreflective var __state(default, set):NoteState;
@@ -171,14 +164,24 @@ class Note extends FlxSprite {
 		// colorSwap = new ColorSwap();
 		// shader = colorSwap.shader;
 
-		// setBaseScale(() -> setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7))));
-		setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7)));
-		updateHitbox();
-		if (noteState == HOLD) {
-			scale.y *= Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed;
-			updateHitbox();
+		setBaseScale(() -> setGraphicSize(Std.int(width * (pixel ? PlayState.daPixelZoom : 0.7))));
+	}
+
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		if (hard) {
+			extra.clear();
+			canHit = tooLate = wasHit = wasMissed = willMiss = false;
+			mods.alpha = 1; mods.scale.set(1, 1); mods.speed = 1;
+			applyMods = {alpha: true, scale: true, angle: true}
 		}
-		baseScale.set(scale.x, scale.y);
+		scrollAngle = null;
+		hitCausesMiss = forceMiss = forceHit = shouldIgnore = preventHit = lowPriority = false;
+		animSuffix = '';
+		hitMult = DefaultsUtil.noteHitMult;
+		healthAmount = DefaultsUtil.healthAmount;
+		ratingData = {name: null, mod: 0, prevent: false}
+		preventAnims = {sing: false, miss: false}
 	}
 
 	public var distance:{position:Float, time:Float} = {position: 0, time: 0}
@@ -186,7 +189,7 @@ class Note extends FlxSprite {
 		super.update(elapsed);
 
 		if (applyMods.alpha) alpha = parentStrum.alpha * mods.alpha;
-		/* if (__applyScaleFrfr) {
+		if (__applyScaleFrfr) {
 			if (applyMods.scale && !isSustain) {
 				var sy:Float = mods.scale.y;
 				if (noteState == HOLD) {sy *= Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed;} else {
@@ -194,8 +197,8 @@ class Note extends FlxSprite {
 					sy *= mods.scale.y;
 				}
 				scale.set(baseScale.x * mods.scale.x * parentStrum.scaleMult.x * mods.scale.x, baseScale.y * sy);
-			} //else {if (noteState == HOLD) scale.y = baseScale.y * (Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed);}
-		} */
+			} else {if (noteState == HOLD) scale.y = baseScale.y * (Conductor.stepCrochet / 100 * 1.5 * __scrollSpeed);}
+		}
 
 		var angleDir:Float = Math.PI / 180;
 		if (isSustain) {
@@ -219,7 +222,7 @@ class Note extends FlxSprite {
 		pos.y += Math.sin(angleDir) * distance.position;
 		setPosition(pos.x, pos.y);
 
-		/* var strumCenter:Float = parentStrum.y + offset.y + (parentStrum.width / 2) + Math.sin(angleDir) * distance.position;
+		final strumCenter:Float = parentStrum.y + offset.y + (parentStrum.width / 2) + Math.sin(angleDir) * distance.position;
 		if (isSustain && (wasHit || (prevNote.wasHit || !canHit))) {
 			var swagRect:flixel.math.FlxRect = clipRect;
 			if (swagRect == null) swagRect = new flixel.math.FlxRect(0, 0, frameWidth, frameHeight);
@@ -229,7 +232,7 @@ class Note extends FlxSprite {
 				swagRect.height = (height / scale.y) - swagRect.y;
 			}
 			clipRect = swagRect;
-		} */
+		}
 
 		if (!parentStrum.cpu) {
 			// miss on the NEXT frame so lag doesnt make u miss notes
@@ -237,8 +240,8 @@ class Note extends FlxSprite {
 				tooLate = true;
 				canHit = false;
 			} else {
-				if (strumTime > Conductor.songPosition - (Conductor.safeZoneOffset * earlyHitMult)) {
-					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * lateHitMult))
+				if (strumTime > Conductor.songPosition - (Conductor.safeZoneOffset * hitMult.early)) {
+					if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * hitMult.late))
 						canHit = true;
 				} else {
 					canHit = true;
@@ -252,9 +255,27 @@ class Note extends FlxSprite {
 				alpha = 0.3;
 	}
 
+	public function noteHit(event:NoteHitEvent) {
+		if (isSustain) getHoldCover((cover:HoldCover) -> if (SaveManager.getOption('beatLoop')) cover.playAnim('hold', true));
+		else {
+			if (strumGroup.status) strumGroup.spawn(Splash, this);
+			if (tail.length > 0) strumGroup.spawn(HoldCover, this);
+		}
+		strumGroup.vocals.volume = 1;
+	}
+	public function noteMiss(event:NoteMissEvent) {
+		getHoldCover((cover:HoldCover) -> cover.kill());
+		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+		strumGroup.vocals.volume = 0;
+	}
+	public function generalMiss(event:MissEvent) {
+		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+		strumGroup.vocals.volume = 0;
+	}
+
 	// thats it lol
 	public var forceDraw:Bool = false;
-	public var willDraw(get, never):Bool; inline function get_willDraw():Bool return forceDraw || !wasHit;// || isSustain;
+	public var willDraw(get, never):Bool; inline function get_willDraw():Bool return forceDraw || !wasHit || isSustain;
 	override public function draw()
 		if (willDraw) // made var for if statement shit lol
 			super.draw();

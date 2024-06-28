@@ -10,7 +10,7 @@ class DifficultyMeta {
 	public static var curDiffData:DiffData; // is set outside of this class
 
 	public var diffName:String;
-	public var audioVariant:Null<String> = null;
+	public var audioVariant:String = null;
 	public var scoreMult:Float = 1;
 	public var spriteFps:Float = 24;
 

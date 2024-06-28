@@ -4,15 +4,15 @@ import fnf.objects.Character;
 import yaml.*;
 
 enum abstract CharDataType(String) from String to String {
-	var BASE = 'base';
-	var PSYCH = 'psych';
-	var CNE = 'codename';
-	var IMAG = 'imag';
+	var BASE = 'Funkin';
+	var PSYCH = 'Psych';
+	var CNE = 'Codename';
+	var IMAG = 'Imaginative';
 }
 
 class ParseUtil {
-	public static function yaml(path:String, ?pathType:FunkinPath):Dynamic return Yaml.parse(Paths.getContent(Paths.yaml(path, pathType)), Parser.options().useObjects());
-	public static function json(path:String, ?pathType:FunkinPath):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
+	inline public static function yaml(path:String, ?pathType:FunkinPath):Dynamic return Yaml.parse(Paths.getContent(Paths.yaml(path, pathType)), Parser.options().useObjects());
+	inline public static function json(path:String, ?pathType:FunkinPath):Dynamic return haxe.Json.parse(Paths.getContent(Paths.json(path, pathType)));
 
 	// What? We're you expecting it to be complex?
 	public static function difficulty(diffName:String, ?pathType:FunkinPath):DifficultyMeta.DiffData {
@@ -24,7 +24,7 @@ class ParseUtil {
 		}
 	}
 
-	public static function level(fileName:String, ?pathType:FunkinPath):fnf.states.menus.StoryMenuState.LevelData {
+	inline public static function level(fileName:String, ?pathType:FunkinPath):fnf.states.menus.StoryMenuState.LevelData {
 		var levelInfo:Dynamic = yaml('levels/$fileName', pathType);
 		return cast levelInfo == null ? FailsafeUtil.levelYaml : {
 			name: fileName,
@@ -35,7 +35,7 @@ class ParseUtil {
 			color: FlxColor.fromString(levelInfo.color)
 		}
 	}
-	public static function song(songName:String, ?pathType:FunkinPath):fnf.states.menus.FreeplayState.SongData {
+	inline public static function song(songName:String, ?pathType:FunkinPath):fnf.states.menus.FreeplayState.SongData {
 		var songInfo:Dynamic = yaml('songs/$songName/SongMetaData', pathType);
 		return cast songInfo == null ? FailsafeUtil.songMetaYaml : {
 			name: songInfo.display,
@@ -46,7 +46,7 @@ class ParseUtil {
 		}
 	}
 
-	public static function icon(iconName:String, ?pathType:FunkinPath):fnf.ui.HealthIcon.IconData {
+	inline public static function icon(iconName:String, ?pathType:FunkinPath):fnf.ui.HealthIcon.IconData {
 		var iconData:Dynamic = yaml('images/icons/$iconName', pathType);
 		return cast iconData == null ? FailsafeUtil.iconYaml : {
 			dimensions: iconData.dimensions,
@@ -55,10 +55,10 @@ class ParseUtil {
 			aliasing: iconData.aliasing,
 			anims: iconData.anims,
 			frames: iconData.frames
-		};
+		}
 	}
 
-	public static function character(charName:String, charVariant:String = 'none'):CharData {
+	inline public static function character(charName:String, charVariant:String = 'none'):CharData {
 		var path:String = '';
 		var applyFailsafe:Bool = false;
 
@@ -135,13 +135,7 @@ class ParseUtil {
 					animName = animName.replace('danceLeft', 'idle');
 					animName = animName.replace('danceRight', 'sway');
 
-					var flipAnim:String = switch (animName) {
-						// idle
-						case 'idle': 'sway'; case 'sway': 'idle';
-						case 'idle-alt': 'sway-alt'; case 'sway-alt': 'idle-alt';
-						case 'idle-loop': 'sway-loop'; case 'sway-loop': 'idle-loop';
-						case 'idle-alt-loop': 'sway-alt-loop'; case 'sway-alt-loop': 'idle-alt-loop';
-						// sing
+					var swapAnim:String = switch (animName) {
 						case 'singLEFT': 'singRIGHT'; case 'singRIGHT': 'singLEFT';
 						case 'singLEFT-alt': 'singRIGHT-alt'; case 'singRIGHT-alt': 'singLEFT-alt';
 						case 'singLEFTmiss': 'singRIGHTmiss'; case 'singRIGHTmiss': 'singLEFTmiss';
@@ -153,7 +147,8 @@ class ParseUtil {
 
 					theData.anims.insert(index, {
 						name: animName,
-						flipAnim: flipAnim,
+						swapAnim: swapAnim,
+						flipAnim: '',
 						tag: info.name,
 						fps: info.fps,
 						loop: info.loop,
@@ -172,6 +167,22 @@ class ParseUtil {
 
 		theData.isFromEngine = charDataType;
 
-		return cast applyFailsafe ? FailsafeUtil.charYaml : Character.applyCharData(theData);
+		return cast applyFailsafe ? FailsafeUtil.charYaml : {
+			name: theData.name,
+			sprite: theData.sprite,
+			flip: theData.flip,
+			anims: theData.anims,
+			position: theData.position,
+			camera: theData.camera,
+
+			scale: theData.scale,
+			singLen: theData.singLen,
+			icon: theData.icon,
+			aliasing: theData.aliasing,
+			color: theData.color,
+			beat: theData.beat,
+
+			isFromEngine: theData.isFromEngine
+		}
 	}
 }

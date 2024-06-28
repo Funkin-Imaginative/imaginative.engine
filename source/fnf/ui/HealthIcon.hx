@@ -1,5 +1,7 @@
 package fnf.ui;
 
+import flixel.math.FlxRect;
+import fnf.backend.interfaces.IPlayAnim.AnimType;
 import fnf.objects.FunkinSprite;
 
 typedef AnimlessList = {
@@ -9,7 +11,12 @@ typedef AnimlessList = {
 	var name:String;
 
 	/**
-	 * The name of the animation to play instead if facing right.
+	 * This is mostly used for swapping left and right anims when the character is flipped.
+	 */
+	@:optional var swapAnim:String;
+
+	/**
+	 * This is if you want your character to flip properly.
 	 */
 	@:optional var flipAnim:String;
 
@@ -43,7 +50,7 @@ typedef IconData = {
 	@:optional var frames:Array<AnimlessList>;
 }
 
-class HealthIcon extends FunkinSprite implements IMusicBeat {
+class HealthIcon extends FunkinSprite {
 	public var sprTracker:Dynamic;
 	public var trackerFunc:Dynamic->PositionMeta;
 	public var updateTracking:Bool = true;
@@ -52,16 +59,16 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 		trackerFunc = func;
 	}
 
-	public var iconScript:Script;
+	public var script:Script;
 	private function reloadScript(newIcon:String) {
-		if (iconScript != null) {
-			iconScript.call('iconChanged', [newIcon]);
-			iconScript.destroy();
+		if (script != null) {
+			script.call('iconChanged', [newIcon]);
+			script.destroy();
 		}
-		if (iconScript == null) {
-			iconScript = Script.create(newIcon, 'icon');
-			iconScript.load(true);
-			iconScript.call('create');
+		if (script == null) {
+			script = Script.create(newIcon, 'icon');
+			script.load(true);
+			script.call('create');
 		}
 	}
 
@@ -72,9 +79,15 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 		isFacing = faceLeft ? leftFace : rightFace;
 	}
 
+	override public function reload(hard:Bool = false) super.reload(hard);
+
 	var _lastIcon:String;
 	public var isOldIcon:Bool = false;
 	inline public function swapOldIcon():Void curIcon = (isOldIcon = !isOldIcon) ? 'bf-old' : _lastIcon;
+
+	@:isVar public var selfColor(get, set):Null<FlxColor>;
+	inline function get_selfColor():FlxColor return selfColor == null ? CoolUtil.dominantColor(this) : selfColor;
+	inline function set_selfColor(value:FlxColor):FlxColor {value.alphaFloat = 1; return selfColor = value;}
 
 	public var size:{scale:Float, mult:Float, upBy:Float} = {
 		scale: 1,
@@ -87,7 +100,7 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 		if (value != curIcon) {
 			var theIcon:String = value;
 			if (!FileSystem.exists(Paths.image('icons/$theIcon'))) theIcon = 'face';
-			iconData = ParseUtil.icon(theIcon);
+			iconData = ParseUtil.icon(theIcon); // get data
 			reloadScript(theIcon);
 			if (FileSystem.exists(Paths.xml('images/icons/$theIcon'))) {
 				if (iconData.anims != null)
@@ -98,7 +111,7 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 					if (anim.indices != null && anim.indices.length > 0)
 						animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, shouldFlip);
 					else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, shouldFlip);
-					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.flipAnim);
+					setupAnim(anim.name, anim.offset.x, anim.offset.y, anim.swapAnim, anim.flipAnim);
 				}
 			} else {
 				if (iconData.frames == null) {
@@ -111,7 +124,7 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 						var shouldFlip:Bool = iconData.flip;
 						if (frame.flip) shouldFlip = !shouldFlip;
 						animation.add(frame.name, [frame.index], 0, false, shouldFlip);
-						setupAnim(frame.name, frame.offset.x, frame.offset.y, frame.flipAnim);
+						setupAnim(frame.name, frame.offset.x, frame.offset.y, frame.swapAnim, frame.flipAnim);
 					}
 				}
 			}
@@ -119,41 +132,79 @@ class HealthIcon extends FunkinSprite implements IMusicBeat {
 			antialiasing = iconData.aliasing;
 			playAnim('idle', true);
 			if (value == 'bf-old' && isOldIcon) _lastIcon = curIcon;
-			iconScript.call('createPost');
+			script.call('createPost');
 			return curIcon = value;
 		}
 		return curIcon;
 	}
 
 	override public function update(elapsed:Float) {
+		script.call('update', [elapsed]);
+		scale.x = scale.y = FlxMath.lerp(scale.x, size.scale * size.mult, 0.33);
 		super.update(elapsed);
-		iconScript.call('update', [elapsed]);
 		if (updateTracking && sprTracker != null && trackerFunc != null) {
 			final pos:PositionMeta = trackerFunc(sprTracker);
 			setPosition(pos.x, pos.y);
 		}
-		scale.x = scale.y = FlxMath.lerp(scale.x, size.scale * size.mult, 1);
-		iconScript.call('updatePost', [elapsed]);
+		script.call('updatePost', [elapsed]);
+	}
+
+	override function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0) {
+		var event:PlayAnimEvent = script.event('playingAnim', new PlayAnimEvent(checkAnimStatus(name), force, animType, reverse, frame));
+		if (event.stopped) return;
+		final anim:String = event.anim;
+		if (doesAnimExist(anim)) {
+			super.playAnim(anim, event.force, event.animType, event.reverse, event.frame);
+			offset.set((offset.x) * (isFacing == leftFace ? 1 : -1), offset.y);
+			script.call('playingAnimPost', [event]);
+		}
 	}
 
 	override public function stepHit(curStep:Int) {
 		super.stepHit(curStep);
-		iconScript.call('stepHit', [curStep]);
+		script.call('stepHit', [curStep]);
 	}
 
 	override public function beatHit(curBeat:Int) {
 		super.beatHit(curBeat);
 		scale.x = scale.y = size.upBy * size.mult;
-		iconScript.call('beatHit', [curBeat]);
+		script.call('beatHit', [curBeat]);
 	}
 
 	override public function measureHit(curMeasure:Int) {
 		super.measureHit(curMeasure);
-		iconScript.call('measureHit', [curMeasure]);
+		script.call('measureHit', [curMeasure]);
 	}
 
 	override public function destroy() {
-		iconScript.destroy();
+		script.destroy();
 		super.destroy();
+	}
+
+	// make offset flipping look not broken, and yes cne also does this
+	var __offsetFlip:Bool = false;
+
+	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
+		if (__offsetFlip) {
+			scale.x *= -1;
+			var bounds = super.getScreenBounds(newRect, camera);
+			scale.x *= -1;
+			return bounds;
+		}
+		return super.getScreenBounds(newRect, camera);
+	}
+
+	override public function draw() {
+		if (isFacing == rightFace) {
+			__offsetFlip = true;
+
+			flipX = !flipX;
+			scale.x *= -1;
+			super.draw();
+			flipX = !flipX;
+			scale.x *= -1;
+
+			__offsetFlip = false;
+		} else super.draw();
 	}
 }

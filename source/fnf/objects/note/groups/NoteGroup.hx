@@ -1,15 +1,27 @@
 package fnf.objects.note.groups;
 
-class NoteGroup extends FlxTypedGroup<Note> {
+class NoteGroup extends FlxTypedGroup<Note> implements IReloadable {
 	// cne go brrrrrrrrrr
 	var _loop:Note;
 	var _cur:Int = 0;
 	var _curLoop:Bool = false;
 	var _time:Float = -1;
 
-	public var viewTimeLimit:Float = 1500;
+	public var viewTimeLimit:Float = DefaultsUtil.noteTimeViewLimit;
 
 	override public function new() super(); // just to prevent max size setting lol
+
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		for (member in members) member.reload(hard);
+		if (hard) {
+			_loop = null;
+			_cur = 0;
+			_curLoop = false;
+			_time = -1;
+		}
+		viewTimeLimit = DefaultsUtil.noteTimeViewLimit;
+	}
 
 	override public function update(elapsed:Float) {
 		_cur = length - 1;
@@ -105,5 +117,10 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		if (_memberRemoved != null) _memberRemoved.dispatch(Object);
 
 		return Object;
+	}
+
+	override function destroy() {
+		reloading = false;
+		super.destroy();
 	}
 }

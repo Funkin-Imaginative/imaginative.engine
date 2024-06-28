@@ -1,4 +1,5 @@
 {
+	"name": "Monster",
 	"animations": [
 		{
 			"loop": false,

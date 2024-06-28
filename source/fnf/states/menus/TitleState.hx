@@ -13,7 +13,7 @@ import openfl.net.NetStream;
 import fnf.ui.Alphabet;
 import fnf.graphics.shaders.ColorSwap;
 
-class TitleState extends MusicBeatState {
+class TitleState extends SongState {
 	public static var initialized:Bool = false;
 	var startedIntro:Bool;
 

@@ -7,7 +7,7 @@ import fnf.ui.Prompt;
 import fnf.ui.TextMenuList;
 import fnf.states.menus.options.*;
 
-class OptionsState extends MusicBeatState {
+class OptionsState extends SongState {
 	public var pages = new Map<PageName, Page>();
 	public var currentName:PageName = Options;
 	public var currentPage(get, never):Page;

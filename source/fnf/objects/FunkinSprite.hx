@@ -1,50 +1,18 @@
 package fnf.objects;
 
+import fnf.backend.interfaces.IPlayAnim;
 import flixel.addons.effects.FlxSkewedSprite;
 
 enum abstract SpriteFacing(String) from String to String {
 	/**
 	 * States that the object is facing left.
 	 */
-	 var leftFace = 'left';
+	var leftFace = 'left';
 
 	/**
 	 * States that the object is facing right.
 	 */
 	var rightFace = 'right';
-}
-
-// after some thinking I see why cne did it capitalized
-enum abstract AnimType(String) from String to String {
-	/**
-	 * States that the object was/is dancing.
-	 */
-	var DANCE = 'dance';
-
-	/**
-	 * States that the character was/is singing.
-	 */
-	var SING = 'sing';
-
-	/**
-	 * States that the character is/had missed a note.
-	 */
-	var MISS = 'miss';
-
-	/**
-	 * Prevent's idle animation.
-	 */
-	var LOCK = 'lock';
-
-	/**
-	 * Allow's the idle to overwrite the current animation.
-	 */
-	var VOID = 'void';
-
-	/**
-	 * Play's the idle after the animation has finished.
-	 */
-	var NONE = null;
 }
 
 typedef AnimList = {
@@ -54,7 +22,12 @@ typedef AnimList = {
 	var name:String;
 
 	/**
-	 * The name of the animation to play instead if facing right.
+	 * This is mostly used for swapping left and right anims when the character is flipped.
+	 */
+	@:optional var swapAnim:String;
+
+	/**
+	 * This is if you want your character to flip properly.
 	 */
 	@:optional var flipAnim:String;
 
@@ -94,20 +67,9 @@ typedef AnimList = {
 	@:optional @:default(false) var flip:Bool;
 }
 
-typedef AnimMapInfo = {
-	/**
-	 * The offset, what else?
-	 */
-	var offset:PositionMeta;
-
-	/**
-	 * The animation to use when the object is flipped.
-	 */
-	@:optional var flipAnim:String;
-}
-
-class FunkinSprite extends FlxSkewedSprite implements IMusicBeat {
-	public var extra:Map<String, Dynamic> = [];
+class FunkinSprite extends FlxSkewedSprite implements ISong implements IPlayAnim implements IReloadable {
+	public var _update:Float->Void;
+	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var debugMode:Bool = false; // for editors
 
 	public var animInfo:Map<String, AnimMapInfo> = new Map<String, AnimMapInfo>();
@@ -116,7 +78,7 @@ class FunkinSprite extends FlxSkewedSprite implements IMusicBeat {
 	// quick way to set which direction the object is facing
 	@:isVar public var isFacing(get, set):SpriteFacing = rightFace;
 	inline function get_isFacing():SpriteFacing return flipX ? rightFace : leftFace;
-	function set_isFacing(value:SpriteFacing):SpriteFacing {
+	inline function set_isFacing(value:SpriteFacing):SpriteFacing {
 		flipX = value == leftFace;
 		return isFacing = value;
 	}
@@ -125,23 +87,80 @@ class FunkinSprite extends FlxSkewedSprite implements IMusicBeat {
         super(x, y);
     }
 
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		reloading = true;
+		if (hard) {
+			extra.clear();
+			_update = null;
+		}
+		reloading = false;
+	}
+
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+		if (_update != null) _update(elapsed);
+	}
+
+	inline public static function addAnimationToObject<Sprite:FlxSprite>(sprite:Sprite, name:String, tag:String, ?indices:Array<Int>, fps:Float = 24, loop:Bool = false, flipX:Bool = false, flipY:Bool = false):Void {
+		if (indices != null && indices.length > 0) sprite.animation.addByIndices(name, tag, indices, '', fps, loop, flipX, flipY);
+		else sprite.animation.addByPrefix(name, tag, fps, loop, flipX, flipY);
+	}
+	inline public function addAnimation(name:String, tag:String, ?indices:Array<Int>, fps:Float = 24, loop:Bool = false, flipX:Bool = false, flipY:Bool = false):Void {
+		if (indices != null && indices.length > 0) animation.addByIndices(name, tag, indices, '', fps, loop, flipX, flipY);
+		else animation.addByPrefix(name, tag, fps, loop, flipX, flipY);
+	}
+
+	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0, swapAnim:String = '', flipAnim:String = '')
+		if (!animInfo.exists(name)) animInfo.set(name, {offset: {x: x, y: y}, swapAnim: swapAnim, flipAnim: flipAnim});
 	public function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0) {
-		if (doesAnimExists(name)) {
-			final daOffset:PositionMeta = getAnimOffset(name);
-			animation.play(name, force, reverse, frame);
+		final anim:String = checkAnimStatus(name);
+		if (doesAnimExist(anim)) {
+			final daOffset:PositionMeta = getAnimInfo(anim).offset;
+			animation.play(anim, force, reverse, frame);
 			offset.set(daOffset.x, daOffset.y);
 			this.animType = animType;
 		}
 	}
+	inline public function checkAnimStatus(name:String):String {
+		var targetName:String = name;
+		// trace('OG: $targetName');
 
-	inline public function setupAnim(name:String, x:Float = 0, y:Float = 0, flipAnim:String = '') animInfo.set(name, {offset: {x: x, y: y}, flipAnim: flipAnim});
+		if (!debugMode) {
+			final swapName:String = doesAnimExist(targetName) ? animInfo.get(targetName).swapAnim : '';
+			targetName = isFacing == leftFace ? targetName : (doesAnimExist(swapName) ? swapName : targetName);
+			// trace('Swap: $targetName');
 
-	inline public function getAnimName(ignoreFlipAnim:Bool = true):String return (animation == null || animation.name == null) ? '' : (animInfo.exists(animation.name) && !ignoreFlipAnim ? animInfo.get(animation.name).flipAnim : animation.name);
-	inline public function getAnimOffset(name:String):PositionMeta return animInfo.exists(name) ? animInfo.get(name).offset : {x: 0, y: 0};
+			final flipName:String = doesAnimExist(targetName) ? animInfo.get(targetName).flipAnim : '';
+			targetName = isFacing == leftFace ? targetName : (doesAnimExist(flipName) ? flipName : targetName);
+			// trace('Flip: $targetName');
+		}
+
+		return targetName;
+	}
+
+	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):String {
+		if (animation.name != null) {
+			var targetAnim:String = animation.name;
+			targetAnim = (!ignoreSwap && doesAnimExist(targetAnim)) ? animInfo.get(targetAnim).swapAnim : targetAnim;
+			targetAnim = (!ignoreFlip && doesAnimExist(targetAnim)) ? animInfo.get(targetAnim).flipAnim : targetAnim;
+			return targetAnim;
+		}
+		return animation.name;
+	}
+	inline public function getAnimInfo(name:String):AnimMapInfo return doesAnimExist(name) ? animInfo.get(name) : {offset: {x: 0, y: 0}, swapAnim: '', flipAnim: ''}
 	inline public function isAnimFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	inline public function doesAnimExists(name:String):Bool return animation.exists(name) && animInfo.exists(name);
 
-	public function stepHit(curStep:Int) {};
-	public function beatHit(curBeat:Int) {};
-    public function measureHit(curMeasure:Int) {};
+	inline public function finishAnim():Void if (animation.curAnim != null) animation.curAnim.finish();
+
+	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool return inGeneral ? animation.exists(name) : (animation.exists(name) && animInfo.exists(name));
+
+	public function stepHit(curStep:Int) {}
+	public function beatHit(curBeat:Int) {}
+    public function measureHit(curMeasure:Int) {}
+
+	override function destroy() {
+		reloading = false;
+		super.destroy();
+	}
 }

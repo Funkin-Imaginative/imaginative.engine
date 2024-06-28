@@ -1,6 +1,6 @@
 package fnf.backend.scripting;
 
-class ScriptGroup extends FlxBasic {
+class ScriptGroup extends FlxBasic implements IReloadable {
 	public var members:Array<Script> = [];
 	public var publicVars:Map<String, Dynamic> = [];
 	public var extraVars:Map<String, Dynamic> = [];
@@ -52,7 +52,7 @@ class ScriptGroup extends FlxBasic {
 		return null;
 	}
 
-	public function event(func:String, event:Dynamic):Dynamic {
+	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		for (script in members) {
 			if (!script.active) continue;
 			call(func, [event]);
@@ -72,9 +72,14 @@ class ScriptGroup extends FlxBasic {
 		super.destroy();
 	}
 
-	public function reload()
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		reloading = true;
 		for (script in members)
-			script.reload();
+			if (hard) script.destroy();
+			else script.reload(true);
+		reloading = false;
+	}
 
 	public function remove(script:Script)
 		members.remove(script);
@@ -99,17 +104,17 @@ class ScriptGroup extends FlxBasic {
 		}
 	}
 
-	// whitsleing noises
+	// whitsling noises
 	public function getByPath(name:String) {
-		for(s in members)
-			if (s.path == name)
-				return s;
+		for (script in members)
+			if (script.path == name)
+				return script;
 		return null;
 	}
 	public function getByName(name:String) {
-		for(s in members)
-			if (s.fileName == name)
-				return s;
+		for (script in members)
+			if (script.fileName == name)
+				return script;
 		return null;
 	}
 }

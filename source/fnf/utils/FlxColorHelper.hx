@@ -1,5 +1,37 @@
 package fnf.utils;
 
+typedef RGB = {
+	var red:Int;
+	var green:Int;
+	var blue:Int;
+	@:optional var alpha:Int;
+}
+typedef FloatRGB = {
+	var red:Float;
+	var green:Float;
+	var blue:Float;
+	@:optional var alpha:Float;
+}
+typedef CMYK = {
+	var cyan:Float;
+	var magenta:Float;
+	var yellow:Float;
+	var black:Float;
+	@:optional var alpha:Float;
+}
+typedef HSB = {
+	var hue:Float;
+	var saturation:Float;
+	var brightness:Float;
+	@:optional var alpha:Float;
+}
+typedef HSL = {
+	var hue:Float;
+	var saturation:Float;
+	var lightness:Float;
+	@:optional var alpha:Float;
+}
+
 /**
  * Note: This class only really does the functions in `FlxColor` that WEREN'T `static`!
  * For all your scripting needs!
@@ -71,4 +103,11 @@ class FlxColorHelper {
 	inline public static function setCMYK(color:FlxColor, cyan:Float, magenta:Float, yellow:Float, black:Float, alpha:Float = 1):FlxColor return color.setCMYK(cyan, magenta, yellow, black, alpha);
 	inline public static function setHSB(color:FlxColor, hue:Float, saturation:Float, brightness:Float, alpha:Float):FlxColor return color.setHSB(hue, saturation, brightness, alpha);
 	inline public static function setHSL(color:FlxColor, hue:Float, saturation:Float, lightness:Float, alpha:Float):FlxColor return color.setHSL(hue, saturation, lightness, alpha);
+
+	// Custom Extras
+	inline public static function getRGB(color:FlxColor):RGB return {red: color.red, green: color.green, blue: color.blue, alpha: color.alpha}
+	inline public static function getRGBFloat(color:FlxColor):FloatRGB return {red: color.redFloat, green: color.greenFloat, blue: color.blueFloat, alpha: color.alphaFloat}
+	inline public static function getCMYK(color:FlxColor):CMYK return {cyan: color.cyan, magenta: color.magenta, yellow: color.yellow, black: color.black, alpha: color.alphaFloat}
+	inline public static function getHSB(color:FlxColor):HSB return {hue: color.hue, saturation: color.saturation, brightness: color.brightness, alpha: color.alphaFloat}
+	inline public static function getHSL(color:FlxColor):HSL return {hue: color.hue, saturation: color.saturation, lightness: color.lightness, alpha: color.alphaFloat}
 }

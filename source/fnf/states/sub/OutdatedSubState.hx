@@ -7,7 +7,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.app.Application;
 
-class OutdatedSubState extends MusicBeatState
+class OutdatedSubState extends SongState
 {
 	public static var leftState:Bool = false;
 

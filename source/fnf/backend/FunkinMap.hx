@@ -53,9 +53,9 @@ class FunkinMap<ObjectClass:FlxBasic> extends FlxBasic {
 	 * @param key Name of the `FunkinMapHelper` group.
 	 * @param tag Name of the `ObjectClass` object tag.
 	 * @param instance An instance of `ObjectClass`.
-	 * @return Null<ObjectClass>
+	 * @return ObjectClass
 	 */
-	public function createGroup(key:String, ?tag:String, ?instance:ObjectClass):Null<ObjectClass> {
+	public function createGroup(key:String, ?tag:String, ?instance:ObjectClass):ObjectClass {
 		if (groupExists(key)) {trace('Group "$key" already exists.'); return null;}
 		if (slotExists(key, tag)) {trace('Slot "$tag" already exists.'); return null;}
 		var helper:FunkinMapHelper<ObjectClass>;
@@ -81,9 +81,9 @@ class FunkinMap<ObjectClass:FlxBasic> extends FlxBasic {
 	 * @param key Name of the `FunkinMapHelper` group.
 	 * @param tag Name of the `ObjectClass` object tag.
 	 * @param instance An instance of `ObjectClass`.
-	 * @return Null<ObjectClass>
+	 * @return ObjectClass
 	 */
-	public function getSlotMember(key:String, tag:String):Null<ObjectClass>
+	public function getSlotMember(key:String, tag:String):ObjectClass
 		return internalMap.get(key).get(tag);
 
 	/**
@@ -100,9 +100,9 @@ class FunkinMap<ObjectClass:FlxBasic> extends FlxBasic {
 	 * Get a(n) `ObjectClass` instance to the top of a `FunkinMapHelper` group.
 	 * @param key Name of the `FunkinMapHelper` group.
 	 * @param tag Name of the `ObjectClass` object tag.
-	 * @return Null<ObjectClass>
+	 * @return ObjectClass
 	 */
-	public function getTopSlot(key:String):Null<ObjectClass>
+	public function getTopSlot(key:String):ObjectClass
 		return internalMap.get(key).topMember;
 
 	/**

@@ -36,7 +36,7 @@ class FailsafeUtil {
 		failedLoad: true
 	}
 
-	public static function mergeLevelAndSongData(?levelInfo:fnf.states.menus.StoryMenuState.LevelData, ?songInfo:fnf.states.menus.FreeplayState.SongData):MergedLevelSongData {
+	inline public static function mergeLevelAndSongData(?levelInfo:fnf.states.menus.StoryMenuState.LevelData, ?songInfo:fnf.states.menus.FreeplayState.SongData):MergedLevelSongData {
 		if (levelInfo == null) levelInfo = levelYaml;
 		if (songInfo == null) songInfo = songMetaYaml;
 		return cast {
@@ -64,6 +64,7 @@ class FailsafeUtil {
 	}
 
 	public static final charYaml:fnf.objects.Character.CharData = {
+		name: 'Failsafe Character',
 		sprite: 'BOYFRIEND',
 		flip: true,
 		anims: [{name: 'idle', tag: 'BF idle dance', fps: 24, loop: false, offset: {x: -5, y: 0}}],

@@ -1,6 +1,8 @@
 package fnf.objects.note;
 
-class Splash extends FlxSprite {
+import fnf.backend.interfaces.IPlayAnim.AnimType;
+
+class Splash extends FunkinSprite {
 	public var note:Note;
 	public var killTimer:FlxTimer = new FlxTimer();
 
@@ -10,20 +12,28 @@ class Splash extends FlxSprite {
 		this.note = note;
 
 		frames = Paths.getSparrowAtlas('gameplay/splashes/noteSplashes');
-		animation.addByPrefix('splash', 'note impact ${FlxG.random.int(1, 2)} ${['purple', 'blue', 'green', 'red'][note.data]}', 24 + FlxG.random.float(-2, 2), false);
+		var set:Int = FlxG.random.int(1, 2);
+		var offsets:Array<Array<Float>> = [
+			[-46, -20],
+			[-33, -14]
+		];
+		addAnimation('splash', 'note impact $set ${['purple', 'blue', 'green', 'red'][note.data]}', [], 24 + FlxG.random.float(-2, 2));
+		setupAnim('splash', offsets[set - 1][0], offsets[set - 1][1]);
 
-		setPosition(note.parentStrum.x, note.parentStrum.y);
-		animation.play('splash', true);
-		updateHitbox();
-
-		offset.set(width * 0.3, height * 0.3);
-
-		animation.finishCallback = (name:String) ->
+		animation.finishCallback = (name:String) -> {
 			switch (name) {
 				case 'splash': kill();
 			}
+		}
 
-		if (animation.name == null) killTimer.start(0.3, (timer:FlxTimer) -> kill());
+		setPosition(note.parentStrum.x, note.parentStrum.y);
+		playAnim('splash', true);
+
 		return this;
+	}
+
+	override function playAnim(name:String, force:Bool = false, animType:AnimType = NONE, reverse:Bool = false, frame:Int = 0) {
+		super.playAnim(name, force, animType, reverse, frame);
+		if (getAnimName() == null && !killTimer.active) killTimer.start(0.3, (timer:FlxTimer) -> kill());
 	}
 }

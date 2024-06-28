@@ -4,7 +4,7 @@ import fnf.backend.Controls.Control;
 import flixel.addons.transition.FlxTransitionableState;
 import fnf.ui.Alphabet;
 
-class PauseSubState extends MusicBeatSubstate {
+class PauseSubState extends SongSubstate {
 	@:unreflective private static var bfStare:Bool = false; // prevent script edits
 
 	var grpMenuShit:FlxTypedGroup<Alphabet>;

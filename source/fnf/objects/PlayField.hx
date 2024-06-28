@@ -4,20 +4,7 @@ import fnf.objects.note.groups.*;
 import fnf.objects.note.*;
 import fnf.ui.HealthIcon;
 
-private typedef StupidLOL = {
-	var enemy:HealthBarSetup;
-	var player:HealthBarSetup;
-}
-private typedef HealthBarSetup = {
-	var color:FlxColor;
-	var icon:String;
-}
-typedef PlayFieldSetup = {
-	var scriptGroup:Null<ScriptGroup>;
-	@:optional var barStuff:StupidLOL;
-}
-
-class PlayField extends MusicBeatGroup implements IMusicBeat {
+class PlayField extends SongGroup implements ISong implements IReloadable {
 	public var strumLines:Array<StrumGroup> = [];
 	public var enemyStrumLine:StrumGroup;
 	public var playerStrumLine:StrumGroup;
@@ -25,66 +12,74 @@ class PlayField extends MusicBeatGroup implements IMusicBeat {
 	public var healthBar:BetterBar;
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
-	public var iconOffset:Int = 26;
+	public static var iconOffset:Int = 45;
 
-	public static var fieldScripts:ScriptGroup;
-	public var stateScripts:ScriptGroup;
 	public static var direct:PlayField = null;
-	public var state:Dynamic; // ideas, ideas
+	public static var scripts:ScriptGroup;
+	public var state:ISongLoadable<SongState>; // ideas, ideas
+	public var stateScripts(default, null):ScriptGroup;
 
-	public var minHealth(default, set):Float = 0; // >:)
+	public var minHealth(default, set):Float = DefaultsUtil.startingHealths.min; // >:)
 	inline function set_minHealth(value:Float):Float {
 		if (healthBar != null && healthBar.min == minHealth)
 			healthBar.setRange(minHealth, healthBar.max);
 		return minHealth = value;
 	}
 
-	var __health:Float;
-	public var health(default, set):Float;
+	var __health:Float = DefaultsUtil.startingHealths.start;
+	public var health(default, set):Float = DefaultsUtil.startingHealths.start;
 	inline function set_health(value:Float):Float return health = FlxMath.bound(value, minHealth, maxHealth);
 
-	public var maxHealth(default, set):Float = 2;
+	public var maxHealth(default, set):Float = DefaultsUtil.startingHealths.max;
 	inline function set_maxHealth(value:Float):Float {
 		if (healthBar != null && healthBar.max == maxHealth)
 			healthBar.setRange(healthBar.min, value);
 		return maxHealth = value;
 	}
 
-	public function new(state:Dynamic, ?setup:PlayFieldSetup):Void {
-		super(); // note using the state var in source is a bitch
-		if (direct == null || (this.state = state) is MusicBeatState) {/*Satety first!*/} else {
-			trace('Either you have a PlayField instance already or you didn\'t make it in a MusicBeatState instance.');
+	/**
+	 * Sets up icon position relative to the healthbar center.
+	 * @param icon The icon ofc.
+	 * @param bar The bar to get the center point of.
+	 * @param posMult -1 is left to 1 being right.
+	 * @return PositionMeta
+	 */
+	inline public static function setupIconPos(icon:HealthIcon, bar:BetterBar, posMult:Float = 0):PositionMeta {
+		return PositionMeta.get((bar.centerPoint.x - (icon.width / 2)) + (iconOffset * posMult), bar.centerPoint.y - (icon.height / 2));
+	}
+
+	public function new(state:ISongLoadable<SongState>, enemyIcon:String = 'face', playerIcon = 'face'):Void {
+		super(); // note using the state var in source is a bit of a bitch
+		if (direct != null) {
+			trace('You have a PlayField instance already.');
 			destroy();
 		}
-		setup == null ? {stateScripts: null} : setup;
-		setup.barStuff == null ? {
-			enemy: {color: null, icon: 'face'},
-			player: {color: null, icon: 'face'}
-		} : setup.barStuff;
-		stateScripts = setup.scriptGroup == null ? new ScriptGroup(this) : setup.scriptGroup;
-		fieldScripts = new ScriptGroup(direct = this);
-		fieldScripts.add(Script.create('content/fieldscripts/script'));
-		fieldScripts.load();
+
+		stateScripts = state.scripts == null ? new ScriptGroup(state) : state.scripts;
+		scripts = new ScriptGroup(direct = this);
+		for (ext in Script.exts)
+			for (file in Paths.readFolder('content/field', ext))
+				scripts.add(Script.create('content/field/$file'));
+		scripts.load();
+
 
 		__health = health = (maxHealth - minHealth) / 2; // health setup lol
-		var downscroll:Bool = SaveManager.getOption('downscroll');
+		final downscroll:Bool = SaveManager.getOption('downscroll');
 
-		(healthBarBG = new FunkinSprite()).makeGraphic(600, 20);
-		healthBarBG.color = FlxColor.BLACK;
+		(healthBarBG = new FunkinSprite()).makeGraphic(600, 20).color = FlxColor.BLACK;
 		healthBarBG.screenCenter();
 		healthBarBG.y += FlxG.height / 2.6 * (downscroll ? -1 : 1);
 		add(healthBarBG);
 
-		#if debug trace(setup); #end
 		healthBar = new BetterBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, '__health', minHealth, maxHealth);
-		healthBar.changeColors(FlxColor.RED, 0xFF66FF33, true);
-		healthBar.changeColorsUnsafe(setup.barStuff.enemy.color, setup.barStuff.player.color);
+		healthBar.changeBlankColors(DefaultsUtil.barColors.enemy, DefaultsUtil.barColors.player);
 		add(healthBar);
 
-		add(iconP1 = new HealthIcon(setup.barStuff.player.icon, true));
-		add(iconP2 = new HealthIcon(setup.barStuff.enemy.icon));
-		iconP1.setupTracking(healthBar, (bar:BetterBar) -> return PositionMeta.get(bar.midPoint.x - iconOffset, bar.midPoint.y - (iconP1.height / 2)));
-		iconP2.setupTracking(healthBar, (bar:BetterBar) -> return PositionMeta.get(bar.midPoint.x - (iconP2.width - iconOffset), bar.midPoint.y - (iconP2.height / 2)));
+		add(iconP1 = new HealthIcon(playerIcon, true));
+		add(iconP2 = new HealthIcon(enemyIcon));
+		healthBar.changeColors(iconP2.selfColor, iconP1.selfColor);
+		iconP1.setupTracking(healthBar, (bar:BetterBar) -> return setupIconPos(iconP1, bar, 1));
+		iconP2.setupTracking(healthBar, (bar:BetterBar) -> return setupIconPos(iconP2, bar, -1));
 
 		add(StrumGroup.enemy = enemyStrumLine = new StrumGroup((FlxG.width * .5) - (FlxG.width * .25), 0, false));
 		add(StrumGroup.player = playerStrumLine = new StrumGroup((FlxG.width * .5) + (FlxG.width * .25), 0, false));
@@ -95,6 +90,17 @@ class PlayField extends MusicBeatGroup implements IMusicBeat {
 				strum.y += FlxG.height / 2.7 * (downscroll ? 1 : -1);
 			}
 			strumLines.push(strumLine);
+		}
+	}
+
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+
+		for (strumLine in strumLines) strumLine.reload(hard);
+		if (hard) {
+			minHealth = DefaultsUtil.startingHealths.min;
+			health = DefaultsUtil.startingHealths.start;
+			maxHealth = DefaultsUtil.startingHealths.max;
 		}
 	}
 
@@ -112,23 +118,37 @@ class PlayField extends MusicBeatGroup implements IMusicBeat {
 			direct.stateScripts.event('noteHit', event);
 			strumGroup.signals.noteHit.dispatch(event); if (event.stopped) return;
 
-			// splashes/holdcovers
-			if (note.isSustain) note.getHoldCover((cover:HoldCover) -> cover.playAnim('hold'));
-			else {
-				if (strumGroup.status) strumGroup.spawn(Splash, note);
-				if (note.tail.length > 0) strumGroup.spawn(HoldCover, note);
-			}
+			// health
+			direct.health += event.strumGroup.helperConvert(note.healthAmount.gain);
+
+			// `INoteTriggers` call
+			var I:Array<INoteTriggers> = [note, note.parentStrum, strumGroup.character];
+			for (lol in I) {
+				if (lol == null || event.stopped) continue;
+				if (lol is INoteTriggers) cast(lol, INoteTriggers).noteHit(event);
+			} if (event.stopped) return;
 
 			direct.stateScripts.call('noteHitPost', [event]);
 		}
 	}
 	public static function noteMiss(note:Null<Note>, ?direction:Int, strumGroup:StrumGroup) {
+		// certain things between these are shared
 		if (note == null) {
 			// event creation
 			var event:MissEvent = new MissEvent(direction, strumGroup);
 
 			// note calls
 			direct.stateScripts.event('generalMiss', event); if (event.stopped) return;
+
+			// health
+			direct.health -= event.strumGroup.helperConvert(DefaultsUtil.healthAmount.drain);
+
+			// `INoteTriggers` call
+			var I:Array<INoteTriggers> = [strumGroup.members[direction], strumGroup.character];
+			for (lol in I) {
+				if (lol == null || event.stopped) continue;
+				if (lol is INoteTriggers) cast(lol, INoteTriggers).generalMiss(event);
+			} if (event.stopped) return;
 
 			direct.stateScripts.call('generalMissPost', [event]);
 		} else {
@@ -145,8 +165,15 @@ class PlayField extends MusicBeatGroup implements IMusicBeat {
 				direct.stateScripts.event('noteMiss', event);
 				strumGroup.signals.noteMiss.dispatch(event); if (event.stopped) return;
 
-				// kill the cover
-				note.getHoldCover((cover:HoldCover) -> cover.kill());
+				// health
+				direct.health -= event.strumGroup.helperConvert(event.note.healthAmount.drain);
+
+				// `INoteTriggers` call
+				var I:Array<INoteTriggers> = [note, note.parentStrum, strumGroup.character];
+				for (lol in I) {
+					if (lol == null || event.stopped) continue;
+					if (lol is INoteTriggers) cast(lol, INoteTriggers).noteMiss(event);
+				} if (event.stopped) return;
 
 				direct.stateScripts.call('noteMissPost', [event]);
 			}
@@ -154,30 +181,31 @@ class PlayField extends MusicBeatGroup implements IMusicBeat {
 	}
 
 	override public function update(elapsed:Float):Void {
-		fieldScripts.call('update', [elapsed]);
+		scripts.call('update', [elapsed]);
 		super.update(elapsed);
-		__health = FlxMath.lerp(__health, health, 0.15);
+		__health = FlxMath.lerp(__health, health, DefaultsUtil.healthLerp);
 		if (FlxG.keys.justPressed.F4) PlayUtil.botplay = !PlayUtil.botplay;
-		fieldScripts.call('updatePost', [elapsed]);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	override public function stepHit(curStep:Int) {
 		super.stepHit(curStep);
-		fieldScripts.call('stepHit', [curStep]);
+		scripts.call('stepHit', [curStep]);
 	}
 
 	override public function beatHit(curBeat:Int) {
 		super.beatHit(curBeat);
-		fieldScripts.call('beatHit', [curBeat]);
+		scripts.call('beatHit', [curBeat]);
 	}
 
 	override public function measureHit(curMeasure:Int) {
 		super.measureHit(curMeasure);
-		fieldScripts.call('measureHit', [curMeasure]);
+		scripts.call('measureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {
-		fieldScripts.destroy();
+		reloading = false;
+		scripts.destroy();
 		direct = null;
 		state = null;
 		super.destroy();

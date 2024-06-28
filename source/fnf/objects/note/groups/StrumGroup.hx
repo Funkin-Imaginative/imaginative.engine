@@ -27,8 +27,8 @@ typedef NoteSignals = {
 
 private typedef SplashXCover = flixel.util.typeLimit.OneOfTwo<Splash, HoldCover>;
 
-class StrumGroup extends FlxTypedGroup<Strum> {
-	public var extra:Map<String, Dynamic> = [];
+class StrumGroup extends FlxTypedGroup<Strum> implements IReloadable {
+	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	// Even tho you can have a but ton of StrumGroup's you can ONLY play as one!
 	inline public static function swapTargetGroups() {
@@ -37,15 +37,15 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		enemy = prevPlay;
 		player = prevOppo;
 	}
-	public static var enemy:Null<StrumGroup> = null; // enemy play be like
-	public static var player:Null<StrumGroup> = null;
+	public static var enemy:StrumGroup; // enemy play be like
+	public static var player:StrumGroup;
 	public var status(get, set):Null<Bool>;
 	inline function get_status():Null<Bool> {
 		if (this == enemy) return false;
 		if (this == player) return true;
 		return null;
 	}
-	function set_status(value:Null<Bool>):Null<Bool> {
+	inline function set_status(value:Null<Bool>):Null<Bool> {
 		switch (value) {
 			case false:
 				if (enemy == player) swapTargetGroups();
@@ -60,11 +60,10 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		return status;
 	}
 
-	public var __helper:Null<Bool> = null;
-	public var helper(get, set):Null<Bool>;
-	function get_helper():Null<Bool> return status == null ? __helper : status;
-	function set_helper(value:Null<Bool>):Null<Bool> return __helper = value;
-	public function helperConvert(value:Float):Float {
+	@:isVar public var helper(get, set):Null<Bool>;
+	inline function get_helper():Null<Bool> return status == null ? helper : status;
+	inline function set_helper(value:Null<Bool>):Null<Bool> return helper = value;
+	inline public function helperConvert(value:Float):Float {
 		if (helper == null) return 0;
 		else return value * (helper ? 1 : -1);
 	}
@@ -113,6 +112,20 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 		holdCovers.add(cover);
 	}
 
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		notes.reload(hard);
+		for (member in members) member.reload(hard);
+		for (member in holdCovers) member.reload(hard);
+		helper = null;
+		if (hard) {
+			extra.clear();
+			vocalsFinished = false;
+			if (status) PlayUtil.botplay = false; // resets botplay
+			// generateNotes();
+		}
+	}
+
 	private function generateNotes(noteData:Array<SwagSection>) {
 		var oldNote:Note;
 		for (section in noteData) {
@@ -129,7 +142,7 @@ class StrumGroup extends FlxTypedGroup<Strum> {
 					var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, NOTE);
 
 					swagNote.sustainLength = songNotes[2];
-					swagNote.altNote = songNotes[3];
+					swagNote.kind = songNotes[3] is Bool ? (songNotes[3] ? 'Alt Animation' : swagNote.kind) : songNotes[3];
 
 					var susLength:Float = swagNote.sustainLength;
 					susLength = susLength / Conductor.stepCrochet;

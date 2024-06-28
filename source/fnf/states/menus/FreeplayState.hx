@@ -12,7 +12,7 @@ typedef SongData = {
 	@:optional @default(false) var failedLoad:Bool;
 }
 
-class FreeplayState extends MusicBeatState {
+class FreeplayState extends SongState {
 	var songs:Array<SongMeta> = [];
 
 	// var selector:FlxText;

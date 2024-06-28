@@ -1,6 +1,6 @@
 package fnf.backend.scripting.events;
 
-import fnf.objects.FunkinSprite.AnimType;
+import fnf.backend.interfaces.IPlayAnim.AnimType;
 
 final class PlaySingAnimEvent extends ScriptEvent {
 	public var direction:Int;
@@ -11,10 +11,10 @@ final class PlaySingAnimEvent extends ScriptEvent {
 	public var frame:Int = 0;
 
 	public var missed:Bool = false;
-	public var animName:String;
+	public var animName:String = '';
 	inline public function checkAnim(singAnims:Array<String>, ?direction:Int):String {
 		var data:Int = direction == null ? this.direction : direction;
-		return (animName == null || animName.trim() == '') ? singAnims[data] : animName;
+		return animName.trim() == '' ? singAnims[data] : animName;
 	}
 
 	public function new(direction:Int, suffix:String = '', animType:AnimType = SING, force:Bool = true, reverse:Bool = false, frame:Int = 0) {

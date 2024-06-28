@@ -23,7 +23,7 @@ class CameraPoint extends BareCameraPoint {
 	public var offsetLerp(get, default):Dynamic; // VoidORFloat
 	inline function get_offsetLerp():Float return lerpTranslate(offsetLerp, pointLerp);
 
-	private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
+	inline private static function lerpTranslate(followLerp:Dynamic, ifNull:Float = 0.04):Float {
 		var output:Float;
 		if (Std.isOfType(followLerp, Void->Float)) output = followLerp();
 		else if (Std.isOfType(followLerp, Float)) output = followLerp;
@@ -36,7 +36,7 @@ class CameraPoint extends BareCameraPoint {
 		pointLerp = followLerp;
 	}
 
-	public function snapPoint(which:SnapPoint = BOTH) {
+	inline public function snapPoint(which:SnapPoint = BOTH) {
 		switch (which) {
 			case POINT:
 				point.set(pointFollow.x, pointFollow.y);
@@ -73,21 +73,19 @@ class CameraPoint extends BareCameraPoint {
 	}
 
 	override public function toString():String {
-		var realPosString:String = FlxStringUtil.getDebugString([
-			LabelValuePair.weak('x', x),
-			LabelValuePair.weak('y', y)
-		]);
-		var realPosFollowString:String = FlxStringUtil.getDebugString([
-			LabelValuePair.weak('x', realPosFollow.x),
-			LabelValuePair.weak('y', realPosFollow.y)
-		]);
 		return FlxStringUtil.getDebugString([
 			LabelValuePair.weak('Upcoming Point Position', point),
 			LabelValuePair.weak('Upcoming Offset Position', offset),
-			LabelValuePair.weak('Upcoming Current Position', realPosString),
+			LabelValuePair.weak('Upcoming Current Position', FlxStringUtil.getDebugString([
+				LabelValuePair.weak('x', x),
+				LabelValuePair.weak('y', y)
+			])),
 			LabelValuePair.weak('Current Point Position', pointFollow),
 			LabelValuePair.weak('Current Offset Position', offsetFollow),
-			LabelValuePair.weak('Current Current Position', realPosFollowString),
+			LabelValuePair.weak('Current Current Position', FlxStringUtil.getDebugString([
+				LabelValuePair.weak('x', realPosFollow.x),
+				LabelValuePair.weak('y', realPosFollow.y)
+			])),
 			LabelValuePair.weak('Lerp Multiplier', lerpMult),
 			LabelValuePair.weak('Point Lerp', pointLerp),
 			LabelValuePair.weak('Offset Lerp', offsetLerp)

@@ -9,7 +9,6 @@ import flixel.ui.FlxBar;
 
 import fnf.states.menus.StoryMenuState;
 
-import fnf.objects.BGSprite;
 import fnf.objects.Character;
 import fnf.objects.BetterBar;
 import fnf.objects.background.*;
@@ -26,9 +25,7 @@ import fnf.graphics.shaders.BuildingShaders.BuildingShader;
 import fnf.graphics.shaders.BuildingShaders;
 import fnf.graphics.shaders.ColorSwap;
 
-class PlayState extends MusicBeatState implements IMusicBeat {
-	public static var direct:PlayState = null; // SCRIPTING BABY
-
+class PlayState extends SongState implements ISong {
 	// keeping for now since there static and get used in other states
 	public static var storyDifficulty:Int = 1;
 	public static var daPixelZoom:Float = 6;
@@ -53,9 +50,9 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	public var defaultCamZoom:Float = 0.9;
 
 	public var characterMap:FunkinMap<Character> = new FunkinMap<Character>();
-	public var dad(get, never):Character; inline function get_dad():Character return characterMap.getTopSlot('dad');
-	public var gf(get, never):Character; inline function get_gf():Character return characterMap.getTopSlot('gf');
-	public var boyfriend(get, never):Character; inline function get_boyfriend():Character return characterMap.getTopSlot('boyfriend');
+	public var enemy(get, never):Character; inline function get_enemy():Character return characterMap.getTopSlot('enemy');
+	public var spectator(get, never):Character; inline function get_spectator():Character return characterMap.getTopSlot('spectator');
+	public var player(get, never):Character; inline function get_player():Character return characterMap.getTopSlot('player');
 	public function addCharToMap(tag:String, char:Character):Character {
 		var resultChar:Character;
 		if (characterMap.groupExists(tag)) resultChar = characterMap.addSlotMember(tag, char.charName, char);
@@ -82,14 +79,12 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	public var canPause:Bool = true;
 
 	public static var curStage:String = '';
-	public var gameScripts:ScriptGroup;
 
 	/**
 	 * for convenience sake
 	 * and my sanity
 	 * @Zyflx
 	 */
-	public var playField(default, null):PlayField;
 	public var strumLines(get, never):Array<StrumGroup>; inline function get_strumLines():Array<StrumGroup> return playField.strumLines;
 	public var enemyStrumLine(get, never):StrumGroup; inline function get_enemyStrumLine():StrumGroup return playField.enemyStrumLine;
 	public var playerStrumLine(get, never):StrumGroup; inline function get_playerStrumLine():StrumGroup return playField.playerStrumLine;
@@ -105,6 +100,17 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	inline function get_maxHealth():Float return playField.maxHealth;
 	inline function set_maxHealth(value:Float):Float return playField.maxHealth = value;
 
+	function getSpectatorNames(song:String):Array<String> {
+		return switch (song) {
+			case 'Satin Panties' | 'High' | 'M.I.L.F.': ['gf', 'windy'];
+			case 'Cocoa' | 'Eggnog' | 'Winter Horrorland': ['gf', 'winterwear'];
+			case 'Senpai' | 'Roses' | 'Thorns': ['gf', 'pixel'];
+			case 'Ugh' | 'Guns': ['gf', 'tankmen'];
+			case 'Stress': ['pico', 'speaker'];
+			default: ['gf', 'normal'];
+		}
+	}
+
 	function convertNames(name:String):Array<String> {
 		return switch (name) {
 			// boyfriend
@@ -118,7 +124,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			case 'gf-car': ['gf', 'windy'];
 			case 'gf-christmas': ['gf', 'winterwear'];
 			case 'gf-pixel': ['gf', 'pixel'];
-			case 'gf-tankman': ['gf', 'tankman'];
+			case 'gf-tankmen': ['gf', 'tankmen'];
 			// mom
 			case 'mom': ['mom', 'normal'];
 			case 'mom-car': ['mom', 'windy'];
@@ -138,16 +144,15 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	}
 
 	override public function create():Void {
-		direct = this;
 		if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
 		persistentUpdate = persistentDraw = true;
 
-		gameScripts = new ScriptGroup(this);
+		scripts = new ScriptGroup(this);
 		if (SONG == null) SONG = Song.loadFromJson('Tutorial', 'Normal');
 		for (ext in Script.exts) {
-			for (file in Paths.readFolder('songs', ext)) gameScripts.add(Script.create('songs/$file'));
-			for (file in Paths.readFolder('songs/$curSong', ext)) gameScripts.add(Script.create(file, 'song'));
+			for (file in Paths.readFolder('songs', ext)) scripts.add(Script.create('songs/$file'));
+			for (file in Paths.readFolder('songs/${SONG.song}', ext)) scripts.add(Script.create(file, 'song'));
 		}
 
 		Conductor.mapBPMChanges(SONG);
@@ -158,31 +163,25 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		gameScripts.load();
+		scripts.load();
 
 		var dadNaming:Array<String> = convertNames(SONG.player2);
+		var gfNaming:Array<String> = getSpectatorNames(SONG.song);
 		var boyfriendNaming:Array<String> = convertNames(SONG.player1);
-		add(addCharToMap('gf', new Character(400, 130, false, 'gf', 'normal')));
-		add(addCharToMap('dad', new Character(100, 100, false, dadNaming[0], dadNaming[1])));
-		add(addCharToMap('boyfriend', new Character(770, 100, true, boyfriendNaming[0], boyfriendNaming[1])));
+		add(addCharToMap('spectator', new Character(400, 130, false, gfNaming[0], gfNaming[1])));
+		add(addCharToMap('enemy', new Character(100, 100, false, dadNaming[0], dadNaming[1])));
+		add(addCharToMap('player', new Character(770, 100, true, boyfriendNaming[0], boyfriendNaming[1])));
 
-		var event:PlayFieldSetupEvent = gameScripts.event('playFieldSetup', new PlayFieldSetupEvent(dad.iconColor, dad.icon, boyfriend.iconColor, boyfriend.icon, [camHUD]));
-		playField = new PlayField(this, {
-			scriptGroup: gameScripts,
-			barStuff: {
-				enemy: {color: event.oppoIconColor, icon: event.oppoIcon},
-				player: {color: event.playIconColor, icon: event.playIcon}
-			}
-		});
-		playField.cameras = event.cameras;
-		add(playField);
-		enemyStrumLine.character = dad;
-		playerStrumLine.character = boyfriend;
-		gameScripts.call('playFieldSetupPost', [event]);
+		var event:PlayFieldSetupEvent = scripts.event('playFieldSetup', new PlayFieldSetupEvent(enemy.icon, player.icon, [camHUD]));
+		add(playField = new PlayField(this, event.enemyIcon, event.playerIcon)).cameras = event.cameras;
+		enemyStrumLine.character = enemy;
+		playerStrumLine.character = player;
+		scripts.call('playFieldSetupPost', [event]);
 
 		generateSong();
+		scripts.call('create');
 
-		var lol:PositionMeta = gf.getCamPos();
+		var lol:PositionMeta = spectator.getCamPos();
 		camPoint = new CameraPoint(lol.x, lol.y, 0.04);
 		camPoint.offsetLerp = () -> return camPoint.pointLerp * 1.5;
 		camPoint.setPoint(lol.x, lol.y);
@@ -192,8 +191,6 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		FlxG.camera.zoom = defaultCamZoom;
 		FlxG.camera.followLerp = 0.04;
 		camPoint.snapPoint();
-
-		gameScripts.call('create');
 
 		startingSong = true;
 		if (isStoryMode && !seenCutscene) {
@@ -205,7 +202,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		} else startCountdown();
 
 		super.create();
-		gameScripts.call('createPost');
+		scripts.call('createPost');
 
 		StrumGroup.hitFuncs.noteHit = (event:NoteHitEvent) -> {
 			if (!event.note.isSustain && event.strumGroup.status) {
@@ -213,52 +210,34 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 				// popUpScore(event.note.strumTime, event.note);
 			}
 
-			health += event.strumGroup.helperConvert(event.note.healthAmount.gain);
-
-			if (!event.note.preventAnims.sing) {
-				if (SaveManager.getOption('beatLoop')) event.strumGroup.character.playSingAnim(event.direction, ''); else {
-					if (!event.note.isSustain) event.strumGroup.character.playSingAnim(event.direction, '');
-					else event.strumGroup.character.lastHit = Conductor.songPosition;
-				}
-			}
-			if (SaveManager.getOption('beatLoop')) event.note.parentStrum.playAnim('confirm', true); else {
-				if (!event.note.isSustain) event.note.parentStrum.playAnim('confirm', true);
-				else event.note.parentStrum.lastHit = Conductor.songPosition;
-			}
 			if (facingPlayer == event.strumGroup.status) {
 				var ah = hate(event.direction);
 				camPoint.setOffset(ah[0] / FlxG.camera.zoom, ah[1] / FlxG.camera.zoom);
+				camPoint.offsetLerp = () -> return camPoint.pointLerp * 1.5 / FlxG.camera.zoom;
 			}
 			if (coolCamReturn != null) coolCamReturn.cancel();
-			coolCamReturn.start((Conductor.stepCrochet / 1000) * (SaveManager.getOption('beatLoop') ? (!event.note.isSustain ? 1.6 : 0.6) : 1), (timer:FlxTimer) -> camPoint.setOffset());
+			coolCamReturn.start(
+				(Conductor.stepCrochet / 1000) * (SaveManager.getOption('beatLoop') ? (!event.note.isSustain ? 1.6 : 0.6) : 1),
+				(timer:FlxTimer) -> {
+					camPoint.setOffset();
+					camPoint.offsetLerp = () -> return camPoint.pointLerp * 1.5;
+				}
+			);
 
 			vocals.volume = 1;
-			event.strumGroup.vocals.volume = 1;
-		};
+		}
 		StrumGroup.hitFuncs.noteMiss = (event:NoteMissEvent) -> {
-			health -= event.strumGroup.helperConvert(event.note.healthAmount.drain);
 			// killCombo();
 
 			// if (!practiceMode) songScore -= 10;
 
 			vocals.volume = 0;
-			event.strumGroup.vocals.volume = 0;
-			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 
-			if (!event.note.preventAnims.miss) {
-				if (!event.note.isSustain) event.strumGroup.character.playSingAnim(event.direction, '', MISS);
-				else event.strumGroup.character.lastHit = Conductor.songPosition;
-
-				if (SaveManager.getOption('beatLoop')) event.strumGroup.character.playSingAnim(event.direction, '', MISS); else {
-					if (!event.note.isSustain) event.strumGroup.character.playSingAnim(event.direction, '', MISS);
-					else event.strumGroup.character.lastHit = Conductor.songPosition;
-				}
-			}
 			// event.note.parentStrum.playAnim('press', true);
 			if (coolCamReturn != null) coolCamReturn.cancel();
 			camPoint.setOffset();
 			camPoint.snapPoint();
-		};
+		}
 	}
 
 	public var displacement:Float = 30;
@@ -273,7 +252,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	var coolCamReturn:FlxTimer = new FlxTimer();
 
 	override public function openSubState(SubState:FlxSubState) {
-		gameScripts.call('openingSubState', [SubState]);
+		scripts.call('openingSubState', [SubState]);
 		if (paused) {
 			for (strumLine in strumLines) strumLine.vocals.pause();
 			vocals.pause();
@@ -283,7 +262,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		super.openSubState(SubState);
 	}
 	override public function closeSubState() {
-		gameScripts.call('closingSubState', [subState]);
+		scripts.call('closingSubState', [subState]);
 		if (paused) {
 			for (strumLine in strumLines) strumLine.vocals.resume();
 			vocals.resume();
@@ -309,7 +288,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			}
 		}
 
-		gameScripts.call('onStartCountdown');
+		scripts.call('onStartCountdown');
 
 		startedCountdown = true;
 		Conductor.songPosition = 0;
@@ -318,13 +297,13 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 
 		var onCount:Int = 0;
 		countdownTimer.start(Conductor.crochet / 1000, (timer:FlxTimer) -> {onCountdownTick(onCount, timer); onCount += 1;}, countdownLength + 1);
-		gameScripts.call('onStartCountdownPost');
+		scripts.call('onStartCountdownPost');
 	}
 
 	public function onCountdownTick(onTick:Int, ?timer:FlxTimer) {
-		for (char in characterMap)
-			if (!char.preventIdleBopping && onTick % Math.round(char.bopSpeed * char.beatInterval) == 0)
-				char.tryDance();
+		/* for (char in characterMap)
+			if (onTick % Math.round(char.bopSpeed * char.beatInterval) == 0)
+				char.tryDance(); */
 
 		if (onTick != countdownLength + 1) {
 			var introSprPaths:Array<String> = [
@@ -369,20 +348,20 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 
 	override public function stepHit(curStep:Int) {
 		super.stepHit(curStep);
-		gameScripts.call('stepHit', [curStep]);
+		scripts.call('stepHit', [curStep]);
 		resyncVocals();
 	}
 
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
-		gameScripts.call('beatHit', [curBeat]);
+		scripts.call('beatHit', [curBeat]);
 	}
 
 	override public function measureHit(curMeasure:Int) {
 		super.measureHit(curMeasure);
 		if (generatedMusic && SONG.notes[curMeasure] != null)
-			updateCamPos((facingPlayer = SONG.notes[curMeasure].mustHitSection) ? 'boyfriend' : 'dad');
-		gameScripts.call('measureHit', [curMeasure]);
+			updateCamPos((facingPlayer = SONG.notes[curMeasure].mustHitSection) ? 'player' : 'enemy');
+		scripts.call('measureHit', [curMeasure]);
 	}
 
 	private function generateSong():Void {
@@ -443,7 +422,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 				// FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
 				FlxG.save.flush();
 
-				var lol:PositionMeta = gf.getCamPos();
+				var lol:PositionMeta = spectator.getCamPos();
 				camPoint.setPoint(lol.x, lol.y);
 			} else {
 				var difficulty:String = 'Normal';
@@ -485,7 +464,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		} else {
 			trace('WENT BACK TO FREEPLAY??');
 			// unloadAssets();
-			var lol:PositionMeta = gf.getCamPos();
+			var lol:PositionMeta = spectator.getCamPos();
 				camPoint.setPoint(lol.x, lol.y);
 			FlxG.switchState(new fnf.states.menus.FreeplayState());
 		}
@@ -498,7 +477,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 		if (realChar != null) {
 			var lol:PositionMeta = realChar.getCamPos();
 			camPoint.setPoint(lol.x, lol.y);
-			gameScripts.call('updateCamPos');
+			scripts.call('updateCamPos');
 		}
 	}
 
@@ -506,11 +485,11 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 	override public function update(elapsed:Float):Void {
 		Conductor.songPosition += Conductor.offset + elapsed * 1000;
 
-		gameScripts.call('update', [elapsed]);
+		scripts.call('update', [elapsed]);
 
 		if (inCutscene) {
 			super.update(elapsed);
-			gameScripts.call('updatePost', [elapsed]);
+			scripts.call('updatePost', [elapsed]);
 			return;
 		}
 
@@ -533,7 +512,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			else openSubState(new fnf.states.sub.PauseSubState());
 		}
 
-		gameScripts.call('updatePost', [elapsed]);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	function resyncVocals() {
@@ -548,7 +527,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			}
 		}
 		if (!vocalsFinished) vocals.resume();
-		gameScripts.call('resyncedVocals');
+		scripts.call('resyncedVocals');
 	}
 
 	override public function onFocus():Void {
@@ -557,7 +536,7 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			vocals.resume();
 			inst.resume();
 		}
-		gameScripts.call('focus');
+		scripts.call('focus');
 		super.onFocus();
 	}
 	override public function onFocusLost():Void {
@@ -566,13 +545,12 @@ class PlayState extends MusicBeatState implements IMusicBeat {
 			vocals.pause();
 			inst.pause();
 		}
-		gameScripts.call('lostFocus');
+		scripts.call('lostFocus');
 		super.onFocusLost();
 	}
 
 	override public function destroy():Void {
-		gameScripts.destroy();
-		direct = null;
+		scripts.destroy();
 		super.destroy();
 	}
 }

@@ -45,7 +45,7 @@ class Paths {
 	/**
 	 * It's like `applyRoot` but it just gets the path without asking for a file, it's just the start path. Excludes grouped types.
 	 */
-	public static function getRoot(pathType:FunkinPath):String {
+	inline public static function getRoot(pathType:FunkinPath):String {
 		return switch (pathType) {
 			case MOD: 'mods/${ModUtil.curMod}';
 			case SOLO: 'solo/${ModUtil.curSolo}';
@@ -126,5 +126,5 @@ class Paths {
 		}
 	}
 
-	public static function getContent(fullPath:String):String return FileSystem.exists(fullPath) ? sys.io.File.getContent(fullPath) : '';
+	inline public static function getContent(fullPath:String):String return FileSystem.exists(fullPath) ? sys.io.File.getContent(fullPath) : '';
 }

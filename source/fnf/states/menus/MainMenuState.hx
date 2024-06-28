@@ -13,7 +13,7 @@ import fnf.ui.Prompt;
 
 import fnf.graphics.FunkinCamera;
 
-class MainMenuState extends MusicBeatState {
+class MainMenuState extends SongState {
 	var menuItems:MainMenuList;
 
 	var magenta:FlxSprite;

@@ -1,4 +1,5 @@
 {
+	"name": "Girlfriend (Pixel)",
 	"animations": [
 		{
 			"loop": false,
@@ -58,7 +59,7 @@
 	],
 	"vocals_file": "",
 	"no_antialiasing": true,
-	"image": "characters/gfPixel",
+	"image": "characters/gf/gfPixel",
 	"position": [
 		105,
 		365

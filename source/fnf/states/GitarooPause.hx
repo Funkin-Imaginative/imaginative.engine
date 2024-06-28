@@ -1,6 +1,6 @@
 package fnf.states;
 
-class GitarooPause extends MusicBeatState
+class GitarooPause extends SongState
 {
 	var replayButton:FlxSprite;
 	var cancelButton:FlxSprite;

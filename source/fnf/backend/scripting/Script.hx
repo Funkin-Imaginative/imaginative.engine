@@ -6,7 +6,7 @@ import hscript.Expr;
 import haxe.io.Path;
 
 // This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.
-class Script extends FlxBasic {
+class Script extends FlxBasic implements IReloadable {
 	// because parent being null returns the script itself I think it would be best to make this unreflective
 	@:unreflective var interp:Interp;
 	@:unreflective var parser:Parser;
@@ -81,9 +81,10 @@ class Script extends FlxBasic {
 			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
 
 			// Engine //
+			'AnimType' => Type.resolveClass('fnf.backend.interfaces.IPlayAnim.AnimType_HSC'), // backend.interfaces
 			'PositionMeta' => PositionMeta, // backend.metas
-			'MusicBeatState' => MusicBeatState, // backend.musicbeat
-			'MusicBeatSubstate' => MusicBeatSubstate,
+			'SongState' => SongState, // backend.song
+			'SongSubstate' => SongSubstate,
 			'ScriptEvent' => ScriptEvent, // backend.scripting.events , may preadd more soon
 			'ModState' => ModState, // backend.scripting
 			'ModSubstate' => ModSubstate,
@@ -100,9 +101,9 @@ class Script extends FlxBasic {
 			'Note' => fnf.objects.note.Note,
 			'Splash' => fnf.objects.note.Splash,
 			'Strum' => fnf.objects.note.Strum,
-			'BarColors' => fnf.objects.BetterBar.BarColors,	'BetterBarFillDirection' => Type.resolveClass('fnf.objects.BetterBar.BetterBarFillDirection_HSC'), 'BetterBar' => fnf.objects.BetterBar, // objects
+			'BetterBarFillDirection' => Type.resolveClass('fnf.objects.BetterBar.BetterBarFillDirection_HSC'), 'BetterBar' => fnf.objects.BetterBar, // objects
 			'Character' => fnf.objects.Character,
-			'SpriteFacing' => Type.resolveClass('fnf.objects.FunkinSprite.SpriteFacing_HSC'), 'AnimType' => Type.resolveClass('fnf.objects.FunkinSprite.AnimType_HSC'), 'FunkinSprite' => fnf.objects.FunkinSprite,
+			'SpriteFacing' => Type.resolveClass('fnf.objects.FunkinSprite.SpriteFacing_HSC'), 'FunkinSprite' => fnf.objects.FunkinSprite,
 			'PlayField' => PlayField,
 			'FreeplayState' => fnf.states.menus.FreeplayState, // states.menus
 			'MainMenuState' => fnf.states.menus.MainMenuState,
@@ -122,7 +123,7 @@ class Script extends FlxBasic {
 			'PlayUtil' => PlayUtil,
 
 			// Custom Functions //
-			'addInfrontOfObject' => (obj:FlxBasic, ?infrontOfThis:FlxBasic = null, ?into:Dynamic) -> {
+			'addInfrontOfObject' => (obj:FlxBasic, infrontOfThis:FlxBasic = null, ?into:Dynamic) -> {
 				if (script == null || script.parent == null)
 					return trace('addInfrontOfObject: Script and/or parent not found.');
 				var resolvedGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
@@ -130,7 +131,7 @@ class Script extends FlxBasic {
 				final group:Dynamic = into == null ? resolvedGroup : into;
 				if (infrontOfThis != null) group.insert(group.members.indexOf(infrontOfThis) + 1, obj);
 			},
-			'addBehindObject' => (obj:FlxBasic, ?behindThis:FlxBasic = null, ?into:Dynamic) -> {
+			'addBehindObject' => (obj:FlxBasic, behindThis:FlxBasic = null, ?into:Dynamic) -> {
 				if (script == null || script.parent == null)
 					return trace('addBehindObject: Script and/or parent not found.');
 				var resolvedGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
@@ -167,11 +168,10 @@ class Script extends FlxBasic {
 		for (name => thing in getDefaults(this)) set(name, thing);
 	}
 
-	function getFilenameFromLibFile(path:String) {
+	inline function getFilenameFromLibFile(path:String) {
 		var file = new Path(path);
-		if (file.file.startsWith('LIB_')) {
+		if (file.file.startsWith('LIB_'))
 			return file.dir + '.' + file.ext;
-		}
 		return path;
 	}
 
@@ -183,8 +183,8 @@ class Script extends FlxBasic {
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 
 		if (path == FailsafeUtil.invaildScriptKey) invalid = true; else {
-			try {scriptCode = Paths.getContent(path);} catch (e:haxe.Exception) {
-				trace('Error while trying to initialize script: $e');
+			try {scriptCode = Paths.getContent(path);} catch(e:haxe.Exception) {
+				trace('Error while trying to initialize script: ${e.message}');
 				scriptCode = '';
 			}
 		}
@@ -200,17 +200,17 @@ class Script extends FlxBasic {
 					loaded = true;
 					if (!stopNewCall) call('new');
 				}
-			} catch (e:haxe.Exception) trace('Error while trying to execute script: $e');
+			} catch(e:haxe.Exception) trace('Error while trying to execute script: ${e.message}');
 		}
 	}
 
-	public function load(stopNewCall:Bool = false) {
+	inline public function load(stopNewCall:Bool = false) {
 		if (loaded) return;
 		onLoad(stopNewCall);
 	}
 
-	public function set(variable:String, value:Dynamic):Void interp.variables.set(variable, value);
-	public function get(variable:String):Dynamic return interp.variables.get(variable);
+	inline public function set(variable:String, value:Dynamic):Void interp.variables.set(variable, value);
+	inline public function get(variable:String):Dynamic return interp.variables.get(variable);
 
 	public function call(funcName:String, ?args:Array<Dynamic>):Dynamic {
 		if (interp == null || !interp.variables.exists(funcName)) return null;
@@ -218,12 +218,12 @@ class Script extends FlxBasic {
 		final func = interp.variables.get(funcName);
 		if (func != null && Reflect.isFunction(func))
 			try {return Reflect.callMethod(null, func, args == null ? [] : args);}
-			catch (e:haxe.Exception) trace('Error while trying to call function $funcName: $e');
+			catch(e:haxe.Exception) trace('Error while trying to call function $funcName: ${e.message}');
 
 		return null;
 	}
 
-	public function event(func:String, event:Dynamic):Dynamic {
+	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		call(func, [event]);
 		if (event.stopped) event;
 		return event;
@@ -233,7 +233,7 @@ class Script extends FlxBasic {
 	inline function get_parent():Dynamic return interp.scriptObject == null ? this : interp.scriptObject; // lol
 	inline function set_parent(value:Dynamic):Dynamic return interp.scriptObject = value;
 
-	public function setPublicVars(map:Map<String, Dynamic>) interp.publicVariables = map;
+	inline public function setPublicVars(map:Map<String, Dynamic>) interp.publicVariables = map;
 
 	override public function destroy():Void {
 		call('destroy');
@@ -242,26 +242,31 @@ class Script extends FlxBasic {
 		super.destroy();
 	}
 
-	public function reload() {
-		// save variables
-		interp.allowStaticVariables = interp.allowPublicVariables = false;
-		var savedVariables:Map<String, Dynamic> = [];
-		for (name => thing in interp.variables)
-			if (!Reflect.isFunction(thing))
-				savedVariables[name] = thing;
-		final oldParent = parent;
-		scriptCreation(path);
+	public var reloading(default, null):Bool = false;
+	public function reload(hard:Bool = false) {
+		call('reload', [hard, reloading = true]);
+		if (hard) {
+			// save variables
+			interp.allowStaticVariables = interp.allowPublicVariables = false;
+			var savedVariables:Map<String, Dynamic> = [];
+			for (name => thing in interp.variables)
+				if (!Reflect.isFunction(thing))
+					savedVariables[name] = thing;
+			final oldParent = parent;
+			scriptCreation(path);
 
-		for (name => thing in getDefaults(this))
-			set(name, thing);
+			for (name => thing in getDefaults(this))
+				set(name, thing);
 
-		load();
-		parent = oldParent;
+			load();
+			parent = oldParent;
 
-		for (name => thing in savedVariables)
-			interp.variables.set(name, thing);
+			for (name => thing in savedVariables)
+				interp.variables.set(name, thing);
 
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
+			interp.allowStaticVariables = interp.allowPublicVariables = true;
+		}
+		call('reloadPost', [hard, reloading = false]);
 	}
 
 	private function loadCodeFromString(code:String):Void {
@@ -270,9 +275,9 @@ class Script extends FlxBasic {
 				expr = parser.parseString(code);
 				canExecute = true;
 			}
-		} catch (e:haxe.Exception) {
+		} catch(e:haxe.Exception) {
 			canExecute = false;
-			trace('Error while parsing script: $e');
+			trace('Error while parsing script: ${e.message}');
 		}
 	}
 }

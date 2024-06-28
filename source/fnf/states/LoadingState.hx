@@ -8,7 +8,7 @@ import lime.utils.AssetManifest;
 import lime.utils.Assets as LimeAssets;
 import openfl.utils.Assets;
 
-class LoadingState extends MusicBeatState
+class LoadingState extends SongState
 {
 	inline static var MIN_TIME = 1.0;
 

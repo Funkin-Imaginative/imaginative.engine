@@ -16,10 +16,7 @@ class BareCameraPoint extends FlxBasic {
 	public var offset(default, never):FlxPoint = new FlxPoint();
 	public var realPos(default, never):FlxObject = new FlxObject(); // this is what you set as the camera target
 
-	override public function new(startX:Float = 0, startY:Float = 0) {
-		super();
-		point.set(startX, startY);
-	}
+	override public function new(startX:Float = 0, startY:Float = 0) {super(); point.set(startX, startY);}
 
 	inline public function setPoint(x:Float = 0, y:Float = 0) point.set(x, y);
 	inline public function setOffset(x:Float = 0, y:Float = 0) offset.set(x, y);
@@ -41,14 +38,13 @@ class BareCameraPoint extends FlxBasic {
 	}
 
 	override public function toString():String {
-		var realPosString:String = FlxStringUtil.getDebugString([
-			LabelValuePair.weak('x', x),
-			LabelValuePair.weak('y', y)
-		]);
 		return FlxStringUtil.getDebugString([
 			LabelValuePair.weak('Point Position', point),
 			LabelValuePair.weak('Offset Position', offset),
-			LabelValuePair.weak('Current Position', realPosString)
+			LabelValuePair.weak('Current Position', FlxStringUtil.getDebugString([
+				LabelValuePair.weak('x', x),
+				LabelValuePair.weak('y', y)
+			]))
 		]);
 	}
 }

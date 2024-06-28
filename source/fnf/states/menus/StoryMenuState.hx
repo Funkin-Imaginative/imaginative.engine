@@ -15,7 +15,7 @@ typedef LevelData = {
 	@:optional @default(false) var failedLoad:Bool;
 }
 
-class StoryMenuState extends MusicBeatState {
+class StoryMenuState extends SongState {
 	var scoreTxt:FlxText;
 
 	var curDifficulty:Int = 1;

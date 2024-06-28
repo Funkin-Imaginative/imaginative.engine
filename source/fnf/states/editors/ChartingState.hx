@@ -24,7 +24,7 @@ import fnf.objects.note.*;
 
 import fnf.ui.HealthIcon;
 
-class ChartingState extends MusicBeatState
+class ChartingState extends SongState
 {
 	var _file:FileReference;
 

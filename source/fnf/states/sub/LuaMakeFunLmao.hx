@@ -2,7 +2,7 @@
 package fnf.states.sub;
 
 // prevent script edits
-@:unreflective class LuaMakeFunLmao extends MusicBeatSubstate {
+@:unreflective class LuaMakeFunLmao extends SongSubstate {
 	private static var alreadyOpened:Bool = false;
 
 	override public function new() super(false); // prevent scripting

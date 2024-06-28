@@ -1,6 +1,6 @@
 package fnf.backend.metas;
 
-@:struct @:structInit class PositionMeta {
+@:structInit class PositionMeta {
 	public var x:Float;
 	public var y:Float;
 
