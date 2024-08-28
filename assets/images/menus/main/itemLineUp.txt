@@ -1,0 +1,6 @@
+storymode
+freeplay
+donate
+merch
+options
+credits

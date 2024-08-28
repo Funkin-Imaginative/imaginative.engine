@@ -1,15 +1,22 @@
 package;
 
-import flixel.FlxGame;
-import openfl.display.FPS;
 import openfl.display.Sprite;
+import openfl.display.FPS;
+import flixel.FlxGame;
 
 class Main extends Sprite {
-	final gameData:{width:Int, height:Int, initState:Null<Class<FlxState>>, fps:Int, skipSplash:Bool, startFullscreen:Bool} = {
+	final gameData:{
+		width:Int,
+		height:Int,
+		initState:Null<Class<FlxState>>,
+		fps:Int,
+		skipSplash:Bool,
+		startFullscreen:Bool
+	} = {
 		width: 1280,
 		height: 720,
-		initState: fnf.states.menus.TitleState,
-		fps: 144,
+		initState: states.menus.TitleScreen,
+		fps: 60,
 		skipSplash: false,
 		startFullscreen: false
 	}
@@ -17,7 +24,8 @@ class Main extends Sprite {
 	public static var fpsCounter:FPS;
 
 	public static var engineVersion(get, never):String;
-	private static function get_engineVersion():String return lime.app.Application.current.meta.get('version');
+	private static function get_engineVersion():String
+		return lime.app.Application.current.meta.get('version');
 
 	public function new():Void {
 		super();

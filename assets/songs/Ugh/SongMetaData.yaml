@@ -1,5 +1,0 @@
-display: 'Ugh'
-icon: 'tankman'
-color: '#F6B604'
-difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
-measure: [4, 4]

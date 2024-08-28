@@ -1,5 +1,0 @@
-display: 'Monster'
-icon: 'monster'
-color: '#223344'
-difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
-measure: [4, 4]

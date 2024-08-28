@@ -1,5 +1,0 @@
-display: 'Cocoa'
-icon: 'parents'
-color: '#A0D1FF'
-difficulties: ['Easy', 'Normal', 'Hard'] #, 'Erect', 'Nightmare']
-measure: [4, 4]

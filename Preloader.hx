@@ -12,39 +12,40 @@ import flixel.FlxG;
 @:bitmap('art/preloaderArt.png') class LogoImage extends BitmapData {}
 
 class Preloader extends FlxBasePreloader {
-    public function new(MinDisplayTime:Float=3, ?AllowedURLs:Array<String>) super(MinDisplayTime, AllowedURLs);
+	public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
+		super(MinDisplayTime, AllowedURLs);
 
-    var logo:Sprite;
+	var logo:Sprite;
 
-    override function create():Void {
-        _width = Lib.current.stage.stageWidth;
-        _height = Lib.current.stage.stageHeight;
+	override function create():Void {
+		_width = Lib.current.stage.stageWidth;
+		_height = Lib.current.stage.stageHeight;
 
-        var ratio:Float = _width / 2560; //This allows us to scale assets depending on the size of the screen.
+		var ratio:Float = _width / 2560; // This allows us to scale assets depending on the size of the screen.
 
-        logo = new Sprite();
-        logo.addChild(new Bitmap(new LogoImage(0, 0))); //Sets the graphic of the sprite to a Bitmap object, which uses our embedded BitmapData class.
-        logo.scaleX = logo.scaleY = ratio;
-        logo.x = ((_width) / 2) - ((logo.width) / 2);
-        logo.y = (_height / 2) - ((logo.height) / 2);
-        addChild(logo); //Adds the graphic to the NMEPreloader's buffer.
+		logo = new Sprite();
+		logo.addChild(new Bitmap(new LogoImage(0, 0))); // Sets the graphic of the sprite to a Bitmap object, which uses our embedded BitmapData class.
+		logo.scaleX = logo.scaleY = ratio;
+		logo.x = ((_width) / 2) - ((logo.width) / 2);
+		logo.y = (_height / 2) - ((logo.height) / 2);
+		addChild(logo); // Adds the graphic to the NMEPreloader's buffer.
 
-        super.create();
-    }
+		super.create();
+	}
 
-    override function update(Percent:Float):Void {
-        if (Percent < 69) {
-            logo.scaleX += Percent / 1920;
-            logo.scaleY += Percent / 1920;
-            logo.x -= Percent * 0.6;
-            logo.y -= Percent / 2;
-        } else {
-            logo.scaleX = _width / 1280;
-            logo.scaleY = _width / 1280;
-            logo.x = ((_width) / 2) - ((logo.width) / 2);
-            logo.y = (_height / 2) - ((logo.height) / 2);
-        }
+	override function update(Percent:Float):Void {
+		if (Percent < 69) {
+			logo.scaleX += Percent / 1920;
+			logo.scaleY += Percent / 1920;
+			logo.x -= Percent * 0.6;
+			logo.y -= Percent / 2;
+		} else {
+			logo.scaleX = _width / 1280;
+			logo.scaleY = _width / 1280;
+			logo.x = ((_width) / 2) - ((logo.width) / 2);
+			logo.y = (_height / 2) - ((logo.height) / 2);
+		}
 
-        super.update(Percent);
-    }
+		super.update(Percent);
+	}
 }

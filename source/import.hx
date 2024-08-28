@@ -1,49 +1,60 @@
 package;
 
-// funny longest to shortest :> @RodneyAnImaginativePerson
-import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+// flixel
+import flixel.FlxG;
+import flixel.FlxBasic;
+import flixel.FlxObject;
+import flixel.FlxSprite;
+import flixel.FlxCamera;
+import flixel.FlxState;
+import flixel.FlxSubState;
+
+// groups
+import flixel.group.FlxGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.group.FlxSpriteGroup;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+
+// util
+import flixel.util.FlxSort;
+import flixel.util.FlxTimer;
+import flixel.util.FlxColor;
+
+// tweens
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
-import flixel.sound.FlxSound;
-import flixel.group.FlxGroup;
-import flixel.math.FlxPoint;
-import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
-import flixel.text.FlxText;
-import flixel.math.FlxMath;
-import flixel.util.FlxSort;
-import flixel.FlxSubState;
-import flixel.FlxSprite;
-import flixel.FlxObject;
-import flixel.FlxCamera;
-import flixel.FlxBasic;
-import flixel.FlxState;
-import flixel.FlxG;
 
-// alphabetical order
-import fnf.backend.interfaces.*;
-import fnf.backend.metas.*;
-import fnf.backend.song.*;
-import fnf.backend.scripting.*; import fnf.backend.scripting.events.*;
-import fnf.backend.BareCameraPoint; // backend
-import fnf.backend.CameraPoint;
-import fnf.backend.Conductor;
-import fnf.backend.Controls;
-import fnf.backend.FunkinMap;
-import fnf.backend.Highscore;
-import fnf.backend.PlayerSettings;
-import fnf.backend.SaveManager;
-import fnf.backend.Section; import fnf.backend.Section.SwagSection;
-import fnf.backend.Song; import fnf.backend.Song.SwagSong;
-import fnf.objects.PlayField;
-import fnf.states.LoadingState; // states
-import fnf.states.PlayState;
-import fnf.utils.*; import fnf.utils.ModUtil.FunkinPath;
+// math
+import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
+
+//sound
+import flixel.sound.FlxSound;
+
+// text
+import flixel.text.FlxText;
 
 import sys.FileSystem;
 
 #if discord_rpc import discord_rpc.DiscordRpc; #end
 #if hxvlc import hxvlc.flixel.*; #end
+
+// engine related
+
+// backend
+import backend.conducting.*;
+import backend.configs.*;
+import backend.interfaces.*;
+import backend.metas.*;
+import backend.scripting.*;
+import backend.scripting.events.*;
+import backend.*;
+import backend.Paths.FunkinPath;
+
+import objects.*;
+
+// import states.*;
+
+import utils.*;
 
 using StringTools;

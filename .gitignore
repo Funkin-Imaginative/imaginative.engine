@@ -1,3 +1,4 @@
+*.ini
 export/
 .vscode/
 .DS_STORE
