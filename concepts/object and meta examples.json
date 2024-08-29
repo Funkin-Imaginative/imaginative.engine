@@ -78,10 +78,13 @@
 		
 		// some data for your song meta
 		"song": {
-			"name": "Test"
+			"name": "Test", // FOLDER NAME
 			"icon": "bf-pixel",
 			"difficulties": ["Normal"],
-			"color": "#FFFFFF"
+			"color": "#FFFFFF",
+			"modes": {
+				"enemyPlay"
+			}
 		},
 		
 		"audio": {
