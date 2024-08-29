@@ -179,6 +179,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		if (lastSongPos != (lastSongPos = audio.time - posOffset))
 			songPosition = lastSongPos; // update conductor
 		else songPosition += posOffset + FlxG.elapsed * 1000;
+		audio.update(FlxG.elapsed);
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChangeDef = {
