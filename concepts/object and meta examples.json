@@ -80,6 +80,7 @@
 		"song": {
 			"name": "Test", // FOLDER NAME
 			"icon": "bf-pixel",
+			"startingDiff": 0,
 			"difficulties": ["Normal"],
 			"color": "#FFFFFF",
 			// there are no custom shiz
