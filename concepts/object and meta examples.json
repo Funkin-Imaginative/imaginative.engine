@@ -82,11 +82,14 @@
 			"icon": "bf-pixel",
 			"difficulties": ["Normal"],
 			"color": "#FFFFFF",
-			"modes": {
-				"enemyPlay"
+			// there are no custom shiz
+			"allowedModes": {
+				"playAsEnemy": true,
+				"p2AsEnemy": true
 			}
 		},
 		
+		// audio information
 		"audio": {
 			"artist": "Kawai Sprite",
 			"name": "Test",
@@ -98,7 +101,8 @@
 					"bpm": 150,
 					"measure": [4, 4]
 				}
-			]
+			],
+			"offset": 0
 		}
 	},
 	
