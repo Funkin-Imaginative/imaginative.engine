@@ -1,38 +1,115 @@
 {
-	"character": {
-		"position": {"x": 0, "y": 350},
-		"camera": {"x": 0, "y": 0},
-		"color": "#31b0d1",
-		"icon": "bf",
-		"singlength": 4
-	},
+	// for if it's a sprite object
 	"sprite": {
-		"asset": {
-			"image": "character/boyfriend/normal",
-			"type": "sparrow"
+		// character specific data
+		"character": {
+			"camera": {"x": 0, "y": 0},
+			"color": "#31B0D1",
+			"icon": "bf",
+			"singlength": 4 // putting 0 will have the anims play in full
 		},
-		// awaiting animated vs static stuff here
+		
+		// specific data for sprites that can bop to the beat
+		"beat": {
+			"interval": 2,
+			"skipnegative": false // if it shouldn't bop on countdown ticking
+		},
+		
+		// offsets things
+		"offsets": {
+			"position": {"x": 0, "y": 350},
+			"flip": {"x": true, "y": false},
+			"scale": {"x": 1, "y": 1}
+		},
+		
+		// below is general sprite stuff
 		"animations": [
 			{
 				"asset": {
-					"image": "lmfao",
-					"type": "deeznuts"
+					"image": "character/boyfriend/normal",
+					"type": "sparrow"
 				},
 				"name": "idle",
-				"prefix": "BF idle dance",
+				"tag": "BF idle dance",
 				"indices": [],
 				"offset": {"x": 0, "y": 0},
-				"flip": {"x": true, "y": false},
+				"flip": {"x": false, "y": false},
+				"loop": false,
+				"fps": 24
+			},
+			// graphic example
+			{
+				"asset": {
+					"image": "ui/icons/bf",
+					"type": "graphic"
+				},
+				"name": "normal",
+				"dimensions": {"width": 150, "height": 150},
+				"indices": [0],
+				"offset": {"x": 0, "y": 0},
+				"flip": {"x": false, "y": false},
 				"loop": false,
 				"fps": 24
 			}
 		],
-		"aliasing": true,
-		"flip": {"x": true, "y": false},
-		"scale": 1
+		"antialiasing": true,
+		"flip": {"x": false, "y": false},
+		"scale": {"x": 1, "y": 1}
 	},
-	"bopper": {
-		"interval": 2,
-		"skipnegative": false
-	}
+	
+	// meta data for softmodding shenanigan's
+	"meta": {
+		// level data for weeks and shit
+		"level": {
+			"title": "Teaching Time",
+			"songs": ["Tutorial"],
+			"startingDiff": 1, // goes by index of the difficulties array instead of the name
+			"difficulties": ["Easy", "Normal", "Hard"], // this only really applies for story menu
+			"characters": ["characters/gf", "characters/boyfriend"],
+			"color": "#F9CF51" // this is the default
+		},
+		
+		// basic difficulty information
+		"difficulty": {
+			"display": "Hard",
+			"variant": null, // "erect" also being a thing lol
+			"scoreMult": 1
+		},
+		
+		// some data for your song meta
+		"song": {
+			"name": "Test", // FOLDER NAME
+			"icon": "bf-pixel",
+			"startingDiff": 0,
+			"difficulties": ["Normal"],
+			"color": "#FFFFFF",
+			// there are no custom shiz
+			"allowedModes": {
+				"playAsEnemy": true,
+				"p2AsEnemy": true
+			}
+		},
+		
+		// audio information
+		"audio": {
+			"artist": "Kawai Sprite",
+			"name": "Test",
+			"bpm": 150,
+			"measure": [4, 4],
+			"checkpoints": [
+				{
+					"time": 0
+					"bpm": 150,
+					"measure": [4, 4]
+				}
+			],
+			"offset": 0
+		}
+	},
+	
+	// extra data that will be stored, note that only certain types of things will receive this data, like sprites
+	"extra": [
+		{"name": "there fucking dead", "data": null},
+		{"name": "isPibby", "data": true}
+	]
 }
