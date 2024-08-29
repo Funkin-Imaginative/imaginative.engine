@@ -30,7 +30,7 @@
 					"type": "sparrow"
 				},
 				"name": "idle",
-				"prefix": "BF idle dance",
+				"tag": "BF idle dance",
 				"indices": [],
 				"offset": {"x": 0, "y": 0},
 				"flip": {"x": false, "y": false},
