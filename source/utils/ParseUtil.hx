@@ -23,7 +23,8 @@ typedef DifficultyData = {
 }
 
 class ParseUtil {
-	inline public static function json(path:String, ?pathType:FunkinPath):Dynamic return haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType)));
+	inline public static function json(path:String, ?pathType:FunkinPath):Dynamic
+		return haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType)));
 
 	inline public static function difficulty(name:String, ?pathType:FunkinPath):DifficultyData
 		return cast json('content/difficulties/$name', pathType);
@@ -34,9 +35,9 @@ class ParseUtil {
 			title: contents.title,
 			songs: contents.songs,
 			startingDiff: contents.startingDiff,
-			difficulties: contents.difficulties,
+			difficulties: [for (d in contents.difficulties) d.toLowerCase()],
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color),
-		};
+		}
 	}
 }

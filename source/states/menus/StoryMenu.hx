@@ -5,6 +5,7 @@ import backend.scripting.events.menus.story.*;
 class StoryMenu extends BeatState {
 	// Menu related vars.
 	var canSelect:Bool = true;
+
 	static var prevSelected:Int = 0;
 	static var curSelected:Int = 0;
 
@@ -13,8 +14,9 @@ class StoryMenu extends BeatState {
 	var prevDiffList:Array<String> = [];
 	var curDiffList:Array<String> = [];
 
-	var prevDiffString:String = '';
-	var curDiffString:String = '';
+	var curDiffString(get, never):String;
+	private function get_curDiffString():String
+		return curDiffList[curDiff];
 
 	var prevDiff:Int = 0;
 	var curDiff:Int = 0;
@@ -52,14 +54,18 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
+		var loadedObjects:Array<String> = [];
 		levels = new FlxTypedGroup<LevelMeta>();
 		for (i => name in Paths.readFolderOrderTxt('content/levels', 'json')) {
 			var level:LevelMeta = new LevelMeta(0, 150 * (i + 1), name, true);
 			levels.add(level);
 
 			for (diff in level.data.difficulties)
-				if (!loadedDiffs.contains(diff.toLowerCase()))
-					loadedDiffs.push(diff.toLowerCase());
+				if (!loadedDiffs.contains(diff))
+					loadedDiffs.push(diff);
+			for (object in level.data.objects)
+				if (!loadedObjects.contains(object))
+					loadedObjects.push(object);
 		}
 		add(levels);
 
@@ -81,10 +87,10 @@ class StoryMenu extends BeatState {
 
 		for (dir in ['left', 'right']) {
 			var arrow:FlxSprite = dir == 'left' ? leftArrow : rightArrow;
-
 			arrow.frames = Paths.frames('ui/arrows');
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
+
 			arrow.animation.finishCallback = (name:String) -> {
 				switch (name) {
 					case 'confirm':
@@ -105,9 +111,12 @@ class StoryMenu extends BeatState {
 			add(arrow);
 		}
 
-		leftArrow.x -= leftArrow.width / 2; leftArrow.y -= leftArrow.height / 2;
-		rightArrow.x -= rightArrow.width / 2; rightArrow.y -= rightArrow.height / 2;
-		leftArrow.x -= arrowDistance; rightArrow.x += arrowDistance;
+		leftArrow.x -= leftArrow.width / 2;
+		leftArrow.y -= leftArrow.height / 2;
+		rightArrow.x -= rightArrow.width / 2;
+		rightArrow.y -= rightArrow.height / 2;
+		leftArrow.x -= arrowDistance;
+		rightArrow.x += arrowDistance;
 
 		weekTopBg = new FlxSprite().makeGraphic(FlxG.width, 56);
 		weekTopBg.color = camera.bgColor;
@@ -116,6 +125,13 @@ class StoryMenu extends BeatState {
 		weekBg = new FlxSprite(0, weekTopBg.height).makeGraphic(FlxG.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
+
+		/* weekObjects = new FlxTypedGroup<FlxSprite>();
+		for (name in loadedObjects) {
+			var object:FlxSprite = new FlxSprite();
+			weekObjects.add(object);
+		}
+		add(weekObjects); */
 
 		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0');
 		scoreText.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, LEFT);
@@ -198,11 +214,17 @@ class StoryMenu extends BeatState {
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
-
 		prevDiffList = curDiffList;
 		curDiffList = level.data.difficulties;
-		if (prevDiffList[prevSelected] != curDiffList[curSelected])
-			changeDifficulty(level.data.startingDiff, true);
+		var newIndex:Int = level.data.startingDiff;
+		if (prevDiffList[curDiff] == prevDiffList[curDiff]) {
+			for (i => diff in curDiffList)
+				if (diff == prevDiffList[curDiff]) {
+					newIndex = i;
+					break;
+				}
+		}
+		changeDifficulty(newIndex, true);
 	}
 
 	public function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
@@ -213,12 +235,12 @@ class StoryMenu extends BeatState {
 			arrow.centerOrigin();
 		}
 
-		prevDiffString = curDiffString; prevDiff = curDiff;
-		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1); curDiffString = curDiffList[curDiff];
+		prevDiff = curDiff;
+		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
 		if (prevDiff != curDiff)
 			CoolUtil.playMenuSFX(SCROLL, 0.7);
 
-		if (diffMap.exists(prevDiffString)) diffMap.get(prevDiffString).sprite.alpha = 0.0001;
+		for (diff in diffMap) diff.sprite.alpha = 0.0001;
 		if (diffMap.exists(curDiffString)) diffMap.get(curDiffString).sprite.alpha = 1;
 	}
 
