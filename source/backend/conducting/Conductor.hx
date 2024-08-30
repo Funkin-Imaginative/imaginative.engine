@@ -328,7 +328,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 			bpm: bpm,
 			beatsPM: beatsPerMeasure,
 			stepsPB: stepsPerBeat
-		};
+		}
 
 		for (change in bpmChanges)
 			if (change.stepTime < step && change.stepTime >= bpmChange.stepTime)
@@ -344,7 +344,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 			bpm: bpm,
 			beatsPM: beatsPerMeasure,
 			stepsPB: stepsPerBeat
-		};
+		}
 
 		for (change in bpmChanges)
 			if (change.songTime < time && change.songTime >= bpmChange.songTime)
