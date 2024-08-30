@@ -5,6 +5,17 @@ import hscript.Interp;
 import hscript.Expr;
 import haxe.io.Path;
 
+enum abstract ScriptType(String) from String to String {
+	var DIFFICULTY = 'difficulty';
+	var LEVEL = 'level';
+	var CHARACTER = 'character';
+	var ICON = 'icon';
+	// var SONG = 'song';
+	var STAGE = 'stage';
+	var STATE = 'state';
+	var ANY = null;
+}
+
 // This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.
 class Script extends FlxBasic {
 	// because parent being null returns the script itself I think it would be best to make this unreflective
@@ -26,13 +37,16 @@ class Script extends FlxBasic {
 
 	public static final exts:Array<String> = ['hx', 'hscript', 'hsc', 'hxs', 'hxc', 'lua'];
 
-	public static function create(file:String, type:String = ''):Script {
+	public static function create(file:String, type:ScriptType = ANY):Script {
 		final path:String = Paths.script(switch (type) {
-			case 'state': 'content/states/$file';
-			case 'icon': 'objects/icons/$file';
-			// case 'song': 'songs/${PlayState.SONG.song}/$file';
-			case 'char': 'objects/characters/$file';
-			default: file;
+			case DIFFICULTY: 'content/difficulties/$file';
+			case LEVEL: 'content/levels/$file';
+			case CHARACTER: 'objects/characters/$file';
+			case ICON: 'objects/icons/$file';
+			// case SONG: 'songs/${PlayState.SONG.song}/$file';
+			case STAGE: 'content/stages/$file';
+			case STATE: 'content/states/$file';
+			case ANY: file;
 		});
 		#if debug trace(path); #end
 		switch (Path.extension(path).toLowerCase()) {
@@ -59,7 +73,6 @@ class Script extends FlxBasic {
 		return new Script(FallbackUtil.invaildScriptKey);
 	}
 
-	// idk what to call this
 	public static function getScriptImports(script:Script):Map<String, Dynamic> {
 		return [
 			// Haxe //

@@ -1,0 +1,8 @@
+{
+	"title": "Pico",
+	"songs": ["Pico", "Philly Nice", "Blammed"],
+	"startingDiff": 1,
+	"difficulties": ["Easy", "Normal", "Hard", "Erect", "Nightmare"],
+	"objects": ["characters/pico", "characters/boyfriend", "characters/gf"],
+	"color": "#F9CF51"
+}

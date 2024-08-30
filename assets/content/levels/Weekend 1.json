@@ -1,0 +1,8 @@
+{
+	"title": "Due Debts",
+	"songs": ["Darnell", "Lit Up", "2hot", "Blazin'"],
+	"startingDiff": 1,
+	"difficulties": ["Easy", "Normal", "Hard"],
+	"objects": ["characters/Tankman", "characters/pico", "characters/nene"],
+	"color": "#413CAE"
+}

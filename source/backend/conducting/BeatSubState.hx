@@ -4,10 +4,12 @@ class BeatSubState extends FlxSubState implements IBeat {
 	/**
 	 * The states conductor.
 	 */
-	public var conductor(get, never):Conductor;
-	// this to for overriding when it comes to game play
+	@:isVar public var conductor(get, set):Conductor;
 	function get_conductor():Conductor
 		return Conductor.menu;
+	function set_conductor(value:Conductor):Conductor
+		return Conductor.menu;
+	// this to for overriding when it comes to game play
 
 	// BPM's.
 	/**
@@ -129,7 +131,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length == 0) {
-				var script = Script.create(CoolUtil.getClassName(this), 'state');
+				var script:Script = Script.create(CoolUtil.getClassName(this), STATE);
 				if (!script.isInvalid) scriptName = script.fileName;
 				stateScripts.add(script);
 				script.load();
