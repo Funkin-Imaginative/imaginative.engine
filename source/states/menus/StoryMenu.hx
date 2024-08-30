@@ -232,7 +232,7 @@ class StoryMenu extends BeatState {
 			canSelect = true;
 		} else {
 			CoolUtil.playMenuSFX(CONFIRM);
-			PlayState.loadLevel(level, curDiffString);
+			PlayState.loadLevel(level.data, curDiffString);
 		}
 	}
 }
