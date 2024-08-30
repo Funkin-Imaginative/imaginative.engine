@@ -1,8 +1,8 @@
-package objects;
+package backend.metas;
 
 import utils.ParseUtil.LevelData;
 
-class LevelObject extends FlxBasic {
+class LevelMeta extends FlxBasic {
 	public var data:LevelData;
 	public var sprite:FlxSprite;
 	public var lock:FlxSprite;
@@ -16,7 +16,7 @@ class LevelObject extends FlxBasic {
 		return result;
 	}
 
-	public function new(x:Float = 0, y:Float = 0, name:String) {
+	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false) {
 		super();
 
 		data = ParseUtil.level(name);
@@ -27,17 +27,22 @@ class LevelObject extends FlxBasic {
 		}
 		scripts.load();
 
-		sprite = new FlxSprite(x, y, Paths.image('menus/story/levels/$name'));
-		sprite.screenCenter(X);
-		sprite.antialiasing = true;
-		if (isLocked) sprite.color = FlxColor.subtract(data.color, FlxColor.fromRGB(100, 100, 100));
+		if (loadSprites) {
+			sprite = new FlxSprite(x, y, Paths.image('menus/story/levels/$name'));
+			sprite.screenCenter(X);
+			sprite.antialiasing = true;
 
-		lock = new FlxSprite(Paths.image('ui/lock'));
-		lock.antialiasing = true;
-		updateLockPosition();
+			if (isLocked)
+				sprite.color = FlxColor.subtract(data.color, FlxColor.fromRGB(100, 100, 100));
+
+			lock = new FlxSprite(Paths.image('ui/lock'));
+			lock.antialiasing = true;
+			updateLockPosition();
+		}
 	}
 
 	public function updateLockPosition():Void {
+		if (sprite == null || lock == null) return;
 		var mid:FlxPoint = sprite.getMidpoint();
 		lock.setPosition(mid.x, mid.y);
 		lock.x -= lock.width / 2;
@@ -47,13 +52,13 @@ class LevelObject extends FlxBasic {
 
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
-		sprite.update(elapsed);
-		if (isLocked) lock.update(elapsed);
+		if (sprite != null) sprite.update(elapsed);
+		if (isLocked && lock != null) lock.update(elapsed);
 	}
 
 	override public function draw() {
 		super.draw();
-		sprite.draw();
-		if (isLocked) lock.draw();
+		if (sprite != null) sprite.draw();
+		if (isLocked && lock != null) lock.draw();
 	}
 }

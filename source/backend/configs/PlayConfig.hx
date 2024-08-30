@@ -1,6 +1,6 @@
-package utils;
+package backend.configs;
 
-class PlayUtil {
+class PlayConfig {
 	public static var botplay(get, default):Bool = false;
 	private static function get_botplay():Bool return enableP2 ? false : botplay;
 	public static var enemyPlay:Bool = false;

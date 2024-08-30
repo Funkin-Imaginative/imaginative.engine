@@ -8,7 +8,7 @@ class StoryMenu extends BeatState {
 	static var prevSelected:Int = 0;
 	static var curSelected:Int = 0;
 
-	var diffMap:Map<String, DifficultyObject> = new Map<String, DifficultyObject>();
+	var diffMap:Map<String, DifficultyMeta> = new Map<String, DifficultyMeta>();
 
 	var prevDiffList:Array<String> = [];
 	var curDiffList:Array<String> = [];
@@ -30,9 +30,8 @@ class StoryMenu extends BeatState {
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
 
-	var levels:FlxTypedGroup<LevelObject>;
-
-	var diffs:FlxTypedGroup<DifficultyObject>;
+	var levels:FlxTypedGroup<LevelMeta>;
+	var diffs:FlxTypedGroup<DifficultyMeta>;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
 
@@ -53,9 +52,9 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
-		levels = new FlxTypedGroup<LevelObject>();
+		levels = new FlxTypedGroup<LevelMeta>();
 		for (i => name in Paths.readFolderOrderTxt('content/levels', 'json')) {
-			var level:LevelObject = new LevelObject(0, 150 * (i + 1), name);
+			var level:LevelMeta = new LevelMeta(0, 150 * (i + 1), name, true);
 			levels.add(level);
 
 			for (diff in level.data.difficulties)
@@ -64,10 +63,10 @@ class StoryMenu extends BeatState {
 		}
 		add(levels);
 
-		diffs = new FlxTypedGroup<DifficultyObject>();
+		diffs = new FlxTypedGroup<DifficultyMeta>();
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
-			var diff:DifficultyObject = new DifficultyObject(name);
+			var diff:DifficultyMeta = new DifficultyMeta(name, true);
 			diff.sprite.screenCenter();
 			diff.sprite.x += FlxG.width / 2.95;
 			diff.sprite.y += FlxG.height / 3.5;
@@ -195,7 +194,7 @@ class StoryMenu extends BeatState {
 		if (prevSelected != curSelected)
 			CoolUtil.playMenuSFX(SCROLL, 0.7);
 
-		var level:LevelObject = levels.members[curSelected];
+		var level:LevelMeta = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
@@ -226,7 +225,7 @@ class StoryMenu extends BeatState {
 	public function selectCurrent():Void {
 		canSelect = false;
 
-		var level:LevelObject = levels.members[curSelected];
+		var level:LevelMeta = levels.members[curSelected];
 		if (level.isLocked) {
 			CoolUtil.playMenuSFX(CANCEL);
 			canSelect = true;

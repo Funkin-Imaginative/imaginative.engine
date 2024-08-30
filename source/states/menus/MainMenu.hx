@@ -1,5 +1,6 @@
 package states.menus;
 
+import backend.scripting.events.menus.main.*;
 import flixel.effects.FlxFlicker;
 
 class MainMenu extends BeatState {
