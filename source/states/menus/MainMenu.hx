@@ -37,7 +37,7 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		bg = new FlxSprite(Paths.image('menus/menuBG'));
-		bg.scrollFactor.set(0.22, 0.22);
+		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.set(1.2, 1.2);
 		bg.updateHitbox();
 		bg.screenCenter();
@@ -69,6 +69,7 @@ class MainMenu extends BeatState {
 			item.animation.addByPrefix('selected', '$name selected', 24);
 			item.animation.play('idle');
 			item.centerOffsets();
+			item.centerOrigin();
 			item.screenCenter(X);
 			item.antialiasing = true;
 			menuItems.add(item);
@@ -86,8 +87,6 @@ class MainMenu extends BeatState {
 			FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
 		);
 		camera.snapToTarget();
-		for (setBg in [bg, bg2])
-			setBg.y = FlxMath.lerp(highMid.y, lowMid.y, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)) - (setBg.height / 1.3);
 		highMid.put();
 		lowMid.put();
 
@@ -118,13 +117,10 @@ class MainMenu extends BeatState {
 				changeSelection(-1 * FlxG.mouse.wheel);
 				visualSelected = curSelected;
 			}
-			if (CoolUtil.mouseJustMoved()) {
-				for (i => item in menuItems.members) {
-					if (FlxG.mouse.overlaps(item)) {
+			if (CoolUtil.mouseJustMoved())
+				for (i => item in menuItems.members)
+					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
-					}
-				}
-			}
 
 			if (FlxG.keys.justPressed.HOME) {
 				changeSelection(0, true);
@@ -135,13 +131,15 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (FlxG.keys.justPressed.BACKSPACE)
+			if (FlxG.keys.justPressed.BACKSPACE) {
+				CoolUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new TitleScreen());
+			}
 			if (FlxG.keys.justPressed.ENTER || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
-				if (visualSelected != curSelected)
+				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
-				else
-					selectCurrent();
+					CoolUtil.playMenuSFX(SCROLL, 0.7);
+				} else selectCurrent();
 			}
 		}
 
@@ -157,6 +155,7 @@ class MainMenu extends BeatState {
 		for (i => item in menuItems.members) {
 			item.animation.play(i == curSelected ? 'selected' : 'idle');
 			item.centerOffsets();
+			item.centerOrigin();
 		}
 	}
 

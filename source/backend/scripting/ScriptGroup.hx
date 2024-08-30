@@ -19,8 +19,8 @@ class ScriptGroup extends FlxBasic {
 	}
 
 	// as of rn this func is ripped from cne
-	public function importScript(path:String, stopNewCall:Bool = false):Script {
-		final script = Script.create(path);
+	public function importScript(path:String, type:backend.scripting.Script.ScriptType = ANY, stopNewCall:Bool = false):Script {
+		final script = Script.create(path, type);
 		if (script.isInvalid) {
 			throw 'Script at $path does not exist.';
 			return cast null;

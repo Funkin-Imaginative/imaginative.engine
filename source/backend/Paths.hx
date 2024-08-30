@@ -129,11 +129,9 @@ class Paths {
 
 	public static function multExst(path:String, exts:Array<String>, ?pathType:FunkinPath):String {
 		var result:String = '';
-		for (ext in exts) {
-			result = applyRoot('$path.$ext', pathType);
-			if (FileSystem.exists(result))
+		for (ext in exts)
+			if (FileSystem.exists(result = applyRoot('$path.$ext', pathType)))
 				break;
-		}
 		return result;
 	}
 

@@ -27,7 +27,7 @@ typedef AllowedModesTyping = {
 }
 typedef CheckpointTyping = {
 	var time:Float;
-	var bpm:Float
+	var bpm:Float;
 	var measure:Array<Float>;
 }
 
@@ -47,9 +47,9 @@ typedef OffsetsSection = {
 	var scale:TypeXY<Float>;
 }
 typedef SpriteSection = {
-	> CharacterSection;
-	> BeatSection;
-	> OffsetsSection;
+	> CharacterSection,
+	> BeatSection,
+	> OffsetsSection,
 	var animations:Array<AnimationTyping>;
 	var antialiasing:Bool;
 	var flip:TypeXY<Bool>;
@@ -58,10 +58,10 @@ typedef SpriteSection = {
 
 typedef LevelSection = {
 	var title:String;
-	var songs:String;
+	var songs:Array<String>;
 	var startingDiff:Int;
 	var difficulties:Array<String>;
-	var characters:Array<String>;
+	var objects:Array<String>;
 	var color:String;
 }
 typedef DifficultySection = {
@@ -73,7 +73,7 @@ typedef SongSection = {
 	var name:String;
 	var icon:String;
 	var startingDiff:Int;
-	var difficulties;Array<String>;
+	var difficulties:Array<String>;
 	var color:String;
 	var allowedModes:AllowedModesTyping;
 }
@@ -86,10 +86,10 @@ typedef AudioSection = {
 	var offset:Float;
 }
 typedef MetaSection = {
-	> LevelSection;
-	> DifficultySection;
-	> SongSection;
-	> AudioSection;
+	> LevelSection,
+	> DifficultySection,
+	> SongSection,
+	> AudioSection,
 }
 typedef ExtraSection = {
 	var name:String;

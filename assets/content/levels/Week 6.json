@@ -1,0 +1,8 @@
+{
+	"title": "Hating Simulator ft. Moawling",
+	"songs": ["Senpai", "Roses", "Thorns"],
+	"startingDiff": 1,
+	"difficulties": ["Easy", "Normal", "Hard", "Erect", "Nightmare"],
+	"objects": ["characters/senpai", "characters/boyfriend", "characters/gf"],
+	"color": "#F9CF51"
+}
