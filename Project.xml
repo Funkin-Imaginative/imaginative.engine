@@ -1,37 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project>
-	<!-- _________________________ Application Settings _________________________ -->
+	<!-- Application Settings -->
 
-	<app title="Friday Night Funkin': Imaginative Engine" file='Imaginative' packageName='com.ImagEngine.funkin' package='com.ImagEngine.funkin' main='Main' version='0.1a' company='RodneyAnImaginativePerson'/>
+	<app title="Friday Night Funkin': Imaginative Engine" file='Imaginative' packageName='com.ImagEngine.funkin' package='com.ImagEngine.funkin' main='Main' version='0.1a' company='rodney528'/>
 
-	<!--Switch
-	Export with Unique ApplicationID and Icon-->
-	<set name='APP_ID' value='0x0100f6c013bbc000'/>
-
-	<!--The
-	flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a
-	html file
-		or you can set the actual size of your file manually at 'FlxPreloaderBase-onUpdate-bytesTotal'-->
+	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file or you can set the actual size of your file manually at 'FlxPreloaderBase-onUpdate-bytesTotal'-->
 	<!-- <app preloader='Preloader' resizable='true'/> -->
 	<app preloader='flixel.system.FlxPreloader'/>
 
-	<!--Minimum
-	without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
+	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
 	<set name='SWF_VERSION' value='11.8'/>
 
-	<!-- ____________________________ Window Settings ___________________________ -->
+	<!-- Window Settings -->
 
-	<!--These
-	window settings apply to all targets-->
+	<!--These window settings apply to all targets-->
 	<window width='1280' height='720' fps='' background='#000000' hardware='true' vsync='false'/>
 
 	<!--Desktop-specific-->
-	<window if='desktop' orientation='landscape' fullscreen='false' resizable='true' vsync='false'/>
+	<window if='desktop' orientation='landscape' fullscreen='false' resizable='true'/>
 
 	<!--Mobile-specific-->
-	<window if='mobile' orientation='landscape' fullscreen='true' width='0' height='0' resizable='false'/>
+	<window if='mobile' orientation='landscape' fullscreen='true' resizable='false'/>
 
-	<!-- _____________________________ Path Settings ____________________________ -->
+	<!-- Path Settings -->
 
 	<set name='BUILD_DIR' value='export/debug' if='debug'/>
 	<set name='BUILD_DIR' value='export/release' unless='debug'/>
@@ -39,18 +30,22 @@
 
 	<classpath name='source'/>
 	<assets path='assets' preload='true'/>
-	<!-- MODDING BULLSHIT -->
-	<!-- <assets path='solo'/>
-	<assets path='mods'/> -->
+	<!-- MODDING PATHS -->
+	<assets path='solo'/>
+	<assets path='mods'/>
 
 	<define name='CUSTOM_CLASSES'/>
 	<define name='SOFTCODED_STATES'/>
 	<!-- <define name='THROW_LUA_MAKEFUN'/> -->
+	<section if='cpp'>
+		<define name='DISCORD_RPC' if='desktop'/>
+		<define name='ALLOW_VIDEOS' if='desktop || mobile'/>
+	</section>
 
 	<!-- <assets path='art/readme.txt' rename='do NOT readme.txt'/> -->
-
 	<!-- <assets path='CHANGELOG.md' rename='changelog.txt'/> -->
-	<!-- _______________________________ Libraries ______________________________ -->
+
+	<!-- Libraries -->
 
 	<haxelib name='openfl' version='9.2.2'/>
 	<haxelib name='lime' version='8.1.2'/>
@@ -59,33 +54,28 @@
 	<haxelib name='flixel-addons'/>
 
 	<haxelib name='hscript-improved'/>
-	<section if='cpp'>
-		<haxelib name='hxdiscord_rpc' if='desktop'/>
-		<haxelib name='hxvlc' if='desktop || mobile'/>
-	</section>
+	<haxelib name='hxdiscord_rpc' if='DISCORD_RPC'/>
+	<haxelib name='hxvlc' if='ALLOW_VIDEOS'/>
 
 	<!-- for debug -->
 	<haxelib name='hxcpp-debug-server' if='desktop debug'/>
 
-	<!--Disable
-	the Flixel core focus lost screen-->
+	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name='FLX_NO_FOCUS_LOST_SCREEN'/>
 
-	<!--Disable
-	the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
+	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
 	<haxedef name='FLX_NO_DEBUG' unless='debug'/>
 
-	<!--Enable
-	this for Nape release builds for a serious peformance improvement-->
+	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name='NAPE_RELEASE_BUILD' unless='debug'/>
 
-	<!-- _________________________________ Custom _______________________________ -->
+	<!-- Custom -->
 
-	<!--Place
-	custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
-
-	<!-- <icon path='art/icon16.png' size='16'/>
+	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	<!--
+	<icon path='art/icon16.png' size='16'/>
 	<icon path='art/icon32.png' size='32'/>
 	<icon path='art/icon64.png' size='64'/>
-	<icon path='art/iconOG.png'/> -->
+	<icon path='art/iconOG.png'/>
+	-->
 </project>
