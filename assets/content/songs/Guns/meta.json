@@ -1,0 +1,11 @@
+{
+	"folder": "Guns",
+	"icon": "tankman",
+	"color": "#F6B604",
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard"],
+	"allowedModes": {
+		"playAsEnemy": true,
+		"p2AsEnemy": true
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"folder": "Test",
+	"icon": "bf-pixel",
+	"color": "#FFFFFF",
+	"startingDiff": 0,
+	"difficulties": ["normal"],
+	"allowedModes": {
+		"playAsEnemy": true,
+		"p2AsEnemy": true
+	}
+}

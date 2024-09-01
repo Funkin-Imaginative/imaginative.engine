@@ -1,70 +1,41 @@
-characters:
-	boyfriend:
-		- normal.yaml
-		- windy.yaml
-		- winterwear.yaml
-		- pixel.yaml
-		- holding-gf.yaml
+content/
 
-	dad.yaml
+	difficulties/
+		hard.json
 
+	events/
+		Set Property.hx
+		Set Property.json
 
+	levels/
+		global.hx
+		Weekend 1.hx
+		Weekend 1.json
 
-songs:
-	DadBattle:
-		audio:
-			- Inst.ogg
-			- VoicesOpponent.ogg
-			- VoicesPlayer.ogg
-			Erect:
-				- Inst.wav
-				- VoicesDad.wav
-				- VoicesBF.wav
+	objects/
+		characters/
+			global.hx
+			dad.json
 
-		- SongMetaData.yaml
-		- Hard.json
-		- events.json
-		- script.hx
+		icons/
+			bf-pixel.json
 
-		Erect:
-			- Erect.json
-			- events.json
-			- erect *specific* script.hx
+	songs/
+		Test/
+			audio/
+				erect/
+					Inst.wav
+				Inst.ogg
+			charts/
+				erect/
+					erect.json
+				normal.json
+			audio.json
+			meta.json
 
-	- global *song specific* script.hx
+	stages/
+		mainStage.hx
+		mainStage.json
 
-
-
-content:
-	- global.hx
-
-	notes:
-		- Alt Sing.hx
-
-	events:
-		- Cam Bounce.hx
-		- Cam Bounce.yaml
-
-	stages:
-		- mainStage.hx
-		- mainStage.yaml
-
-	difficulties:
-		- Easy.yaml
-		- Normal.yaml
-		- Hard.yaml
-		- Erect.yaml
-		- Nightmare.yaml
-
-
-
-levels:
-	- Tutorial.yaml
-	- Week 1.yaml
-	- Week 2.yaml
-	- Week 3.yaml
-	- Week 4.yaml
-	- Week 5.yaml
-	- Week 6.yaml
-	- Week 7.yaml
-	- Weekend 1.yaml
+	states/
+		StoryMenu.hx

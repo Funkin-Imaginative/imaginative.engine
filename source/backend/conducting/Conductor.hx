@@ -9,8 +9,43 @@ typedef BPMChangeDef = {
 	var stepTime:Float;
 	var songTime:Float;
 	var bpm:Float;
-	var beatsPM:Float;
-	var stepsPB:Float;
+	var beatsPM:Int;
+	var stepsPB:Int;
+}
+
+typedef AllowedModesTyping = {
+	var playAsEnemy:Bool;
+	var p2AsEnemy:Bool;
+}
+typedef CheckpointTyping = {
+	var time:Float;
+	var bpm:Float;
+	var signature:Array<Int>;
+}
+
+typedef SongParse = {
+	var name:String;
+	var icon:String;
+	var startingDiff:Int;
+	var difficulties:Array<String>;
+	var color:String;
+	var allowedModes:AllowedModesTyping;
+}
+typedef SongData = {
+	var name:String;
+	var icon:String;
+	var startingDiff:Int;
+	var difficulties:Array<String>;
+	var color:String;
+	var allowedModes:AllowedModesTyping;
+}
+typedef AudioData = {
+	var artist:String;
+	var name:String;
+	var bpm:Float;
+	var signature:Array<Int>;
+	var checkpoints:Array<CheckpointTyping>;
+	var offset:Float;
 }
 
 enum abstract SongTimeType(String) from String to String {
@@ -22,7 +57,7 @@ enum abstract SongTimeType(String) from String to String {
 class Conductor implements IBeat implements IFlxDestroyable {
 	// FlxSignals.
 	public var onBPMChange:FlxTypedSignal<Float->Void> = new FlxTypedSignal<Float->Void>();
-	public var onTimeChange:FlxTypedSignal<(Float, Float) -> Void> = new FlxTypedSignal<(Float, Float) -> Void>();
+	public var onTimeChange:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
 	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
@@ -31,6 +66,17 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	public static var menu:Conductor;
 	public static var song:Conductor;
 
+	/**
+	 * Contains data for the song to play.
+	 */
+	public var data:AudioData = {
+		artist: 'None',
+		name: 'None',
+		bpm: 100,
+		signature: [4, 4],
+		checkpoints: [],
+		offset: 0
+	};
 	/**
 	 * The song tied to the conductor.
 	 */
@@ -80,15 +126,15 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	inline function get_curMeasureFloat():Float
 		return curBeatFloat / beatsPerMeasure;
 
-	// beats/steps
+	// time signature
 	/**
 	 * The number of beats per measure.
 	 */
-	public var beatsPerMeasure(default, null):Float = 4;
+	public var beatsPerMeasure(default, null):Int = 4;
 	/**
 	 * The number of steps per beat.
 	 */
-	public var stepsPerBeat(default, null):Float = 4;
+	public var stepsPerBeat(default, null):Int = 4;
 
 	/**
 	 * How long a beat is in milliseconds.
@@ -118,9 +164,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 
 	public var lastSongPos(default, null):Float;
 	public var posOffset(get, null):Float = 0;
-
 	inline function get_posOffset():Float {
-		// if (posOffset != Options.posOffset) trace(posOffset = Options.posOffset);
+		if (posOffset != data.offset) trace(posOffset = data.offset);
 		return posOffset;
 	}
 
@@ -151,12 +196,13 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
 	 */
-	inline public function setAudio(music:String, volume:Float = 1):Void {
+	inline public function playMusic(music:String, volume:Float = 1):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
 		audio.loadEmbedded(Paths.music(music), true);
-		changeBPM(102);
+		data = getMetadata(Paths.json('music/$music'));
+		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 	}
 
 	/**
@@ -164,12 +210,17 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * @param song The name of the song.
 	 * @param variant The variant of the song to play.
 	 */
-	inline public function setSong(song:String, variant:String):Void {
+	inline public function playSong(song:String, variant:String):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
 		audio.loadEmbedded(Paths.inst(song, variant));
+		data = getMetadata(Paths.json('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}'));
+		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 	}
+
+	inline public function getMetadata(path:String):AudioData
+		return cast ParseUtil.json(path);
 
 	public function update():Void {
 		if (audio == null || !audio.playing) {
@@ -275,7 +326,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		onMeasureHit.dispatch(curMeasure);
 	}
 
-	inline public function changeBPM(bpm:Float = 100, beatsPerMeasure:Float = 4, stepsPerBeat:Float = 4):Void {
+	inline public function changeBPM(bpm:Float = 100, beatsPerMeasure:Int = 4, stepsPerBeat:Int = 4):Void {
 		prevBpm = this.bpm;
 
 		this.bpm = bpm;

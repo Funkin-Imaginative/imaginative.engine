@@ -1,0 +1,11 @@
+{
+	"folder": "Thorns",
+	"icon": "spirit",
+	"color": "#FF78Bf",
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
+	"allowedModes": {
+		"playAsEnemy": true,
+		"p2AsEnemy": true
+	}
+}

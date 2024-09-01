@@ -178,10 +178,10 @@ class Paths {
 		return audio('music/$file', pathType);
 
 	inline public static function inst(song:String, variant:String = ''):String
-		return audio('songs/${song.replace('.', '')}/audio/${variant.trim() == '' ? '' : '$variant/'}Inst');
+		return audio('content/songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Inst');
 
 	inline public static function voices(song:String, suffix:String = '', variant:String = ''):String
-		return audio('songs/${song.replace('.', '')}/audio/${variant.trim() == '' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
+		return audio('content/songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 
 	inline public static function font(file:String, ?pathType:FunkinPath):String
 		return applyRoot('fonts/$file', pathType);

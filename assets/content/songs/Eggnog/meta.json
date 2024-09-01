@@ -1,0 +1,11 @@
+{
+	"folder": "Eggnog",
+	"icon": "parents",
+	"color": "#A0D1FF",
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
+	"allowedModes": {
+		"playAsEnemy": true,
+		"p2AsEnemy": true
+	}
+}

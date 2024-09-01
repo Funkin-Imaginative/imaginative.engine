@@ -2,7 +2,7 @@
 	"title": "Daddy Dearest",
 	"songs": ["Bopeebo", "Fresh", "DadBattle"],
 	"startingDiff": 1,
-	"difficulties": ["Easy", "Normal", "Hard", "Erect", "Nightmare"],
+	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
 	"objects": ["characters/dad", "characters/boyfriend", "characters/gf"],
 	"color": "#F9CF51"
 }
