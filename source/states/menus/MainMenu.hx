@@ -29,7 +29,7 @@ class MainMenu extends BeatState {
 		super.create();
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
 		if (conductor.audio == null || !conductor.audio.playing) {
-			conductor.setAudio('freakyMenu', 0.8);
+			conductor.playMusic('freakyMenu', 0.8);
 			conductor.audio.persist = true;
 		}
 

@@ -2,7 +2,7 @@
 	"title": "Teaching Time",
 	"songs": ["Tutorial"],
 	"startingDiff": 1,
-	"difficulties": ["Easy", "Normal", "Hard"],
+	"difficulties": ["easy", "normal", "hard"],
 	"objects": ["characters/gf", "characters/boyfriend"],
 	"color": "#F9CF51"
 }

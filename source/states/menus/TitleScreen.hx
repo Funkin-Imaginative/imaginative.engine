@@ -12,7 +12,7 @@ class TitleScreen extends BeatState {
 		new FlxTimer().start(played ? 0.0001 : 1, (timer:FlxTimer) -> {
 			if (Conductor.menu == null) Conductor.menu = new Conductor();
 			if (conductor.audio == null || !conductor.audio.playing) {
-				conductor.setAudio('freakyMenu', 0);
+				conductor.playMusic('freakyMenu', 0);
 				conductor.audio.fadeIn(4, 0, 0.7);
 				conductor.audio.persist = true;
 			}

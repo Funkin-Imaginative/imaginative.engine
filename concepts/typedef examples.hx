@@ -28,7 +28,7 @@ typedef AllowedModesTyping = {
 typedef CheckpointTyping = {
 	var time:Float;
 	var bpm:Float;
-	var measure:Array<Float>;
+	var signature:Array<Int>;
 }
 
 typedef CharacterSection = {
@@ -81,7 +81,7 @@ typedef AudioSection = {
 	var artist:String;
 	var name:String;
 	var bpm:Float;
-	var measure:Array<Float>;
+	var signature:Array<Int>;
 	var checkpoints:Array<CheckpointTyping>;
 	var offset:Float;
 }

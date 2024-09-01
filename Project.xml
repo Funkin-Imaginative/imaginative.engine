@@ -31,8 +31,10 @@
 	<classpath name='source'/>
 	<assets path='assets' preload='true'/>
 	<!-- MODDING PATHS -->
+	<!--
 	<assets path='solo'/>
 	<assets path='mods'/>
+	-->
 
 	<define name='CUSTOM_CLASSES'/>
 	<define name='SOFTCODED_STATES'/>

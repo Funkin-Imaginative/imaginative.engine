@@ -2,7 +2,7 @@
 	"title": "Tankman ft. JohnnyUtah",
 	"songs": ["Ugh", "Guns", "Stress"],
 	"startingDiff": 1,
-	"difficulties": ["Easy", "Normal", "Hard", "Erect", "Nightmare"],
+	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
 	"objects": ["characters/Tankman", "characters/boyfriend", "characters/gf"],
 	"color": "#F9CF51"
 }

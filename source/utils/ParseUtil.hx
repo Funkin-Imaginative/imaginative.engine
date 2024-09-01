@@ -1,6 +1,6 @@
 package utils;
 
-typedef LevelSection = {
+typedef LevelParse = {
 	var title:String;
 	var songs:Array<String>;
 	var startingDiff:Int;
@@ -30,7 +30,7 @@ class ParseUtil {
 		return cast json('content/difficulties/$name', pathType);
 
 	inline public static function level(name:String, ?pathType:FunkinPath):LevelData {
-		var contents:LevelSection = json('content/levels/$name', pathType);
+		var contents:LevelParse = json('content/levels/$name', pathType);
 		return cast {
 			title: contents.title,
 			songs: contents.songs,

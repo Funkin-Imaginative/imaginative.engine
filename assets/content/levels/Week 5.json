@@ -2,7 +2,7 @@
 	"title": "Red Snow",
 	"songs": ["Cocoa", "Eggnog", "Winter Horrorland"],
 	"startingDiff": 1,
-	"difficulties": ["Easy", "Normal", "Hard", "Erect", "Nightmare"],
+	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
 	"objects": ["characters/parents", "characters/boyfriend", "characters/gf"],
 	"color": "#F9CF51"
 }

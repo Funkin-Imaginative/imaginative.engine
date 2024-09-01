@@ -69,18 +69,18 @@ class BeatState extends FlxState implements IBeat {
 	inline function get_curMeasureFloat():Float
 		return conductor.curMeasureFloat;
 
-	// beats/steps
+	// time signature
 	/**
 	 * The number of beats per measure.
 	 */
-	public var beatsPerMeasure(get, never):Float;
-	inline function get_beatsPerMeasure():Float
+	public var beatsPerMeasure(get, never):Int;
+	inline function get_beatsPerMeasure():Int
 		return conductor.beatsPerMeasure;
 	/**
 	 * The number of steps per beat.
 	 */
-	public var stepsPerBeat(get, never):Float;
-	inline function get_stepsPerBeat():Float
+	public var stepsPerBeat(get, never):Int;
+	inline function get_stepsPerBeat():Int
 		return conductor.stepsPerBeat;
 
 	/**

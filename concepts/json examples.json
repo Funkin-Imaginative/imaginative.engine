@@ -64,7 +64,7 @@
 			"title": "Teaching Time",
 			"songs": ["Tutorial"],
 			"startingDiff": 1, // goes by index of the difficulties array instead of the name
-			"difficulties": ["Easy", "Normal", "Hard"], // this only really applies for story menu
+			"difficulties": ["easy", "normal", "hard"], // this only really applies for story menu
 			"characters": ["characters/gf", "characters/boyfriend"],
 			"color": "#F9CF51" // this is the default
 		},
@@ -78,10 +78,10 @@
 
 		// some data for your song meta
 		"song": {
-			"name": "Test", // FOLDER NAME
+			"folder": "Test",
 			"icon": "bf-pixel",
 			"startingDiff": 0,
-			"difficulties": ["Normal"],
+			"difficulties": ["normal"],
 			"color": "#FFFFFF",
 			// there are no custom shiz
 			"allowedModes": {
@@ -95,12 +95,12 @@
 			"artist": "Kawai Sprite",
 			"name": "Test",
 			"bpm": 150,
-			"measure": [4, 4],
+			"signature": [4, 4],
 			"checkpoints": [
 				{
-					"time": 0
+					"time": 0,
 					"bpm": 150,
-					"measure": [4, 4]
+					"signature": [4, 4]
 				}
 			],
 			"offset": 0
