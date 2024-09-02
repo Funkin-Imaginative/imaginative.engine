@@ -2,7 +2,6 @@ package backend.conducting;
 
 import backend.conducting.Section.SwagSection;
 import haxe.Json;
-import openfl.utils.Assets;
 
 typedef SwagSong = {
 	var song:String;

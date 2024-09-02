@@ -3,6 +3,10 @@
 	"songs": ["Pico", "Philly Nice", "Blammed"],
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
-	"objects": ["characters/pico", "characters/boyfriend", "characters/gf"],
+	"objects": [
+		{"object": "characters/pico"},
+		{"object": "characters/boyfriend"},
+		{"object": "characters/gf"}
+	],
 	"color": "#F9CF51"
 }

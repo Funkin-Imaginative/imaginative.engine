@@ -1,12 +1,14 @@
 package backend.scripting.events.menus.story;
 
+import utils.ParseUtil.SongData;
+
 final class LevelSongListEvent extends ScriptEvent {
 	public var beatLevel:Bool = false;
 	public var songs:Array<String> = [];
 
-	override public function new(songs:Array<String>, beaten:Bool = false) {
+	override public function new(songs:Array<SongData>, beaten:Bool = false) {
 		super();
-		this.songs = songs;
+		this.songs = [for (s in songs) s.name];
 		beatLevel = beaten;
 	}
 }

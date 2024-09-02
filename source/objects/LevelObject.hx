@@ -1,8 +1,8 @@
-package backend.metas;
+package objects;
 
 import utils.ParseUtil.LevelData;
 
-class LevelMeta extends FlxBasic {
+class LevelObject extends FlxBasic {
 	public var data:LevelData;
 	public var sprite:FlxSprite;
 	public var lock:FlxSprite;
@@ -16,15 +16,16 @@ class LevelMeta extends FlxBasic {
 		return result;
 	}
 
-	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false) {
+	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
 
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
-		for (s in ['global', name]) {
-			var script:Script = Script.create(s, LEVEL);
-			scripts.add(script);
-		}
+		if (allowScripts)
+			for (s in ['global', name])
+				scripts.add(Script.create(s, LEVEL));
+		else
+			scripts.add(Script.create(''));
 		scripts.load();
 
 		if (loadSprites) {
@@ -37,17 +38,16 @@ class LevelMeta extends FlxBasic {
 
 			lock = new FlxSprite(Paths.image('ui/lock'));
 			lock.antialiasing = true;
-			updateLockPosition();
+			updateLock();
 		}
 	}
 
-	public function updateLockPosition():Void {
+	public function updateLock():Void {
 		if (sprite == null || lock == null) return;
-		var mid:FlxPoint = sprite.getMidpoint();
+		var mid:PositionStruct = PositionStruct.getObjMidpoint(sprite);
 		lock.setPosition(mid.x, mid.y);
 		lock.x -= lock.width / 2;
 		lock.y -= lock.height / 2;
-		mid.put();
 	}
 
 	override public function update(elapsed:Float) {
