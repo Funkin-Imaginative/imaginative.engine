@@ -3,6 +3,10 @@
 	"songs": ["Senpai", "Roses", "Thorns"],
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
-	"objects": ["characters/senpai", "characters/boyfriend", "characters/gf"],
+	"objects": [
+		{"object": "characters/senpai"},
+		{"object": "characters/boyfriend"},
+		{"object": "characters/gf"}
+	],
 	"color": "#F9CF51"
 }

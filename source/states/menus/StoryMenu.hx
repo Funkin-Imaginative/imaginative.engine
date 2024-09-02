@@ -5,11 +5,10 @@ import backend.scripting.events.menus.story.*;
 class StoryMenu extends BeatState {
 	// Menu related vars.
 	var canSelect:Bool = true;
-
 	static var prevSelected:Int = 0;
 	static var curSelected:Int = 0;
 
-	var diffMap:Map<String, DifficultyMeta> = new Map<String, DifficultyMeta>();
+	var diffMap:Map<String, DifficultyObject> = new Map<String, DifficultyObject>();
 
 	var prevDiffList:Array<String> = [];
 	var curDiffList:Array<String> = [];
@@ -32,8 +31,8 @@ class StoryMenu extends BeatState {
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
 
-	var levels:FlxTypedGroup<LevelMeta>;
-	var diffs:FlxTypedGroup<DifficultyMeta>;
+	var levels:FlxTypedGroup<LevelObject>;
+	var diffs:FlxTypedGroup<DifficultyObject>;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
 
@@ -44,35 +43,36 @@ class StoryMenu extends BeatState {
 		statePathShortcut = 'menus/story/';
 		super.create();
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
-		if (conductor.audio == null || !conductor.audio.playing) {
-			conductor.playMusic('freakyMenu', 0.8);
-			conductor.audio.persist = true;
-		}
+			if (conductor.audio == null || !conductor.audio.playing)
+				conductor.playMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
-		FlxG.camera.follow(camPoint, LOCKON, 0.2);
+		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
 		var loadedObjects:Array<String> = [];
-		levels = new FlxTypedGroup<LevelMeta>();
+		levels = new FlxTypedGroup<LevelObject>();
 		for (i => name in Paths.readFolderOrderTxt('content/levels', 'json')) {
-			var level:LevelMeta = new LevelMeta(0, 150 * (i + 1), name, true);
+			var level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
 			levels.add(level);
 
 			for (diff in level.data.difficulties)
 				if (!loadedDiffs.contains(diff))
 					loadedDiffs.push(diff);
-			for (object in level.data.objects)
-				if (!loadedObjects.contains(object))
-					loadedObjects.push(object);
+			for (data in level.data.objects)
+				if (!loadedObjects.contains(data.object))
+					loadedObjects.push(data.object);
 		}
 		add(levels);
 
-		diffs = new FlxTypedGroup<DifficultyMeta>();
+		diffs = new FlxTypedGroup<DifficultyObject>();
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
-			var diff:DifficultyMeta = new DifficultyMeta(name, true);
+			var diff:DifficultyObject = new DifficultyObject(name, true);
+			diff.sprite.scale.set(0.85, 0.85);
+			diff.sprite.updateHitbox();
+			diff.refreshAnim();
 			diff.sprite.screenCenter();
 			diff.sprite.x += FlxG.width / 2.95;
 			diff.sprite.y += FlxG.height / 3.5;
@@ -82,7 +82,7 @@ class StoryMenu extends BeatState {
 		add(diffs);
 
 		var arrowDistance:Float = 200 * 0.85;
-		leftArrow = new FlxSprite(diffs.members[0].sprite.x + diffs.members[0].sprite.width * 0.5, diffs.members[0].sprite.y + diffs.members[0].sprite.height * 0.5);
+		leftArrow = new FlxSprite(PositionStruct.getObjMidpoint(diffs.members[0].sprite).x, PositionStruct.getObjMidpoint(diffs.members[0].sprite).y);
 		rightArrow = new FlxSprite(leftArrow.x, leftArrow.y);
 
 		for (dir in ['left', 'right']) {
@@ -146,18 +146,19 @@ class StoryMenu extends BeatState {
 		trackList.setFormat(Paths.font('vcr.ttf'), 32, 0xFFE55778, CENTER);
 		add(trackList);
 
-		for (l in diffs)
+		for (l in diffs) {
 			l.sprite.scrollFactor.set();
+			l.lock.scrollFactor.set();
+		}
 		for (l in [leftArrow, rightArrow, weekTopBg, weekBg, scoreText, titleText, trackList])
 			l.scrollFactor.set();
 
 		changeSelection();
 		changeDifficulty(levels.members[curSelected].data.startingDiff, true);
 
-		var mid:FlxPoint = levels.members[curSelected].sprite.getMidpoint();
+		var mid:PositionStruct = PositionStruct.getObjMidpoint(levels.members[curSelected].sprite);
 		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
 		camera.snapToTarget();
-		mid.put();
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -200,7 +201,7 @@ class StoryMenu extends BeatState {
 		}
 
 		var item:FlxSprite = levels.members[curSelected].sprite;
-		camPoint.y = (item.y + item.height * 0.5) - (FlxG.height / 3.4);
+		camPoint.y = PositionStruct.getObjMidpoint(item).y - (FlxG.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
@@ -210,20 +211,19 @@ class StoryMenu extends BeatState {
 		if (prevSelected != curSelected)
 			CoolUtil.playMenuSFX(SCROLL, 0.7);
 
-		var level:LevelMeta = levels.members[curSelected];
+		var level:LevelObject = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
 		prevDiffList = curDiffList;
 		curDiffList = level.data.difficulties;
 		var newIndex:Int = level.data.startingDiff;
-		if (prevDiffList[curDiff] == prevDiffList[curDiff]) {
+		if (prevDiffList[curDiff] == prevDiffList[curDiff])
 			for (i => diff in curDiffList)
 				if (diff == prevDiffList[curDiff]) {
 					newIndex = i;
 					break;
 				}
-		}
 		changeDifficulty(newIndex, true);
 	}
 
@@ -247,8 +247,8 @@ class StoryMenu extends BeatState {
 	public function selectCurrent():Void {
 		canSelect = false;
 
-		var level:LevelMeta = levels.members[curSelected];
-		if (level.isLocked) {
+		var level:LevelObject = levels.members[curSelected];
+		if (level.isLocked || (diffMap.exists(curDiffString) && diffMap.get(curDiffString).isLocked)) {
 			CoolUtil.playMenuSFX(CANCEL);
 			canSelect = true;
 		} else {

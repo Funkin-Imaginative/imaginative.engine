@@ -13,39 +13,18 @@ typedef BPMChangeDef = {
 	var stepsPB:Int;
 }
 
-typedef AllowedModesTyping = {
-	var playAsEnemy:Bool;
-	var p2AsEnemy:Bool;
-}
 typedef CheckpointTyping = {
 	var time:Float;
 	var bpm:Float;
 	var signature:Array<Int>;
 }
-
-typedef SongParse = {
-	var name:String;
-	var icon:String;
-	var startingDiff:Int;
-	var difficulties:Array<String>;
-	var color:String;
-	var allowedModes:AllowedModesTyping;
-}
-typedef SongData = {
-	var name:String;
-	var icon:String;
-	var startingDiff:Int;
-	var difficulties:Array<String>;
-	var color:String;
-	var allowedModes:AllowedModesTyping;
-}
 typedef AudioData = {
-	var artist:String;
+	@:optional var artist:String;
 	var name:String;
 	var bpm:Float;
 	var signature:Array<Int>;
+	@:optional var offset:Float;
 	var checkpoints:Array<CheckpointTyping>;
-	var offset:Float;
 }
 
 enum abstract SongTimeType(String) from String to String {
@@ -70,13 +49,11 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * Contains data for the song to play.
 	 */
 	public var data:AudioData = {
-		artist: 'None',
 		name: 'None',
 		bpm: 100,
 		signature: [4, 4],
-		checkpoints: [],
-		offset: 0
-	};
+		checkpoints: []
+	}
 	/**
 	 * The song tied to the conductor.
 	 */
@@ -196,13 +173,20 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
 	 */
-	inline public function playMusic(music:String, volume:Float = 1):Void {
+	inline public function playMusic(music:String, volume:Float = 1, ?onStart:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
+
 		audio.loadEmbedded(Paths.music(music), true);
-		data = getMetadata(Paths.json('music/$music'));
+		audio.pause();
+		audio.time = 0;
+		audio.volume = volume;
+		audio.persist = true;
+
+		data = getMetadata('music/$music');
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
+		if (onStart != null) onStart(audio);
 	}
 
 	/**
@@ -210,17 +194,38 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * @param song The name of the song.
 	 * @param variant The variant of the song to play.
 	 */
-	inline public function playSong(song:String, variant:String):Void {
+	inline public function playSong(song:String, variant:String, ?onStart:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
+
 		audio.loadEmbedded(Paths.inst(song, variant));
-		data = getMetadata(Paths.json('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}'));
+		audio.pause();
+		audio.time = 0;
+		audio.volume = 1;
+		audio.persist = false;
+
+		data = getMetadata('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}');
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
+		if (onStart != null) onStart(audio);
 	}
 
-	inline public function getMetadata(path:String):AudioData
-		return cast ParseUtil.json(path);
+	inline public function getMetadata(path:String):AudioData {
+		try {
+			var content:Dynamic = cast ParseUtil.json(path);
+			trace(content);
+			return content;
+		} catch(e) {
+			trace(e);
+			trace('This error ^^^ occured when attempting to parse the json.');
+			return {
+				name: 'None',
+				bpm: 100,
+				signature: [4, 4],
+				checkpoints: []
+			}
+		}
+	}
 
 	public function update():Void {
 		if (audio == null || !audio.playing) {

@@ -3,6 +3,6 @@
 	"name": "Pico",
 	"bpm": 150,
 	"signature": [4, 4],
-	"checkpoints": [],
-	"offset": 0
+	"offset": 0,
+	"checkpoints": []
 }

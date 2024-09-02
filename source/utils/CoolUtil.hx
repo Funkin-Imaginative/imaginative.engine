@@ -21,7 +21,7 @@ class CoolUtil {
 			case CONFIRM: 'confirm';
 			case CANCEL: 'cancel';
 			case SCROLL: 'scroll';
-		}), volume, false, null, true, onComplete == null ?() -> {} : onComplete);
+		}), volume, false, null, true, onComplete == null ? () -> {} : onComplete);
 		return menuSound;
 	}
 
@@ -32,12 +32,37 @@ class CoolUtil {
 			return FlxG.mouse.justMoved;
 	}
 
+	public static function getSongDisplayNames(?pathType:FunkinPath):Array<String> {
+		var result:Array<String> = [];
+		for (folder in Paths.readFolder('content/songs', pathType))
+			result.push(ParseUtil.json('${folder}audio').name);
+		return result;
+	}
+
 	inline public static function trimSplit(text:String):Array<String> {
 		var daList:Array<String> = text.split('\n');
 		for (i in 0...daList.length)
 			daList[i] = daList[i].trim();
 		return daList;
 	}
+
+	// Using CNE's because mine was a bitch to use.
+	/**
+	 * Returns `v` if not null, `defaultValue` otherwise.
+	 * @param v The value
+	 * @param defaultValue The default value
+	 * @return The return value
+	 */
+	public static inline function getDefault<T>(v:Null<T>, defaultValue:T):T
+		return (v == null || isNaN(v)) ? defaultValue : v;
+	/**
+	 * Whenever a value is NaN or not.
+	 * @param v Value
+	 */
+	public static inline function isNaN(v:Dynamic)
+		if (v is Float || v is Int)
+			return Math.isNaN(cast(v, Float));
+		else return false;
 
 	inline public static function getDominantColor(sprite:FlxSprite):FlxColor {
 		var countByColor:Map<Int, Int> = [];
@@ -83,7 +108,7 @@ class CoolUtil {
 	inline public static function getGroup(obj:FlxBasic):FlxGroup {
 		var resolvedGroup:FlxGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
 		if (resolvedGroup == null)
-			resolvedGroup = FlxG.state;
+			resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState;
 		return resolvedGroup;
 	}
 

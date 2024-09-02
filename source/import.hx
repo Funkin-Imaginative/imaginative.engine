@@ -45,9 +45,9 @@ import sys.FileSystem;
 import backend.conducting.*;
 import backend.configs.*;
 import backend.interfaces.*;
-import backend.metas.*;
 import backend.scripting.events.ScriptEvent;
 import backend.scripting.*;
+import backend.structures.*;
 import backend.*;
 import backend.Paths.FunkinPath;
 

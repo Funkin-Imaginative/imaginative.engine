@@ -2,7 +2,11 @@
 	"title": "Spooky Month",
 	"songs": ["Spookeez", "South", "Monster"],
 	"startingDiff": 1,
-	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
-	"objects": ["characters/spooky", "characters/boyfriend", "characters/gf"],
+	"difficulties": ["easy", "normal", "hard"],
+	"objects": [
+		{"object": "characters/spooky"},
+		{"object": "characters/boyfriend"},
+		{"object": "characters/gf"}
+	],
 	"color": "#F9CF51"
 }

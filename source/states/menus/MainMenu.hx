@@ -28,13 +28,11 @@ class MainMenu extends BeatState {
 		statePathShortcut = 'menus/main/';
 		super.create();
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
-		if (conductor.audio == null || !conductor.audio.playing) {
-			conductor.playMusic('freakyMenu', 0.8);
-			conductor.audio.persist = true;
-		}
+			if (conductor.audio == null || !conductor.audio.playing)
+				conductor.playMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
-		FlxG.camera.follow(camPoint, LOCKON, 0.2);
+		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
 
 		bg = new FlxSprite(Paths.image('menus/menuBG'));
@@ -78,8 +76,8 @@ class MainMenu extends BeatState {
 		changeSelection();
 		add(menuItems);
 
-		var highMid:FlxPoint = menuItems.members[0].getMidpoint();
-		var lowMid:FlxPoint = menuItems.members[menuItems.length - 1].getMidpoint();
+		var highMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[0]);
+		var lowMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[menuItems.length - 1]);
 
 		highestY = highMid.y;
 		lowestY = lowMid.y;
@@ -88,10 +86,8 @@ class MainMenu extends BeatState {
 			FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
 		);
 		camera.snapToTarget();
-		highMid.put();
-		lowMid.put();
 
-		versionTxt = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nInsert Version Warning Here\nBuilt off Friday Night Funkin\' v0.2.8');
+		versionTxt = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nInsert Version Warning Here\nMade mostly from scratch!');
 		versionTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		versionTxt.y = FlxG.height - versionTxt.height - 5;
 		versionTxt.scrollFactor.set();

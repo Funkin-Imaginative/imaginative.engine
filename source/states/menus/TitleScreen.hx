@@ -11,11 +11,8 @@ class TitleScreen extends BeatState {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (timer:FlxTimer) -> {
 			if (Conductor.menu == null) Conductor.menu = new Conductor();
-			if (conductor.audio == null || !conductor.audio.playing) {
-				conductor.playMusic('freakyMenu', 0);
-				conductor.audio.fadeIn(4, 0, 0.7);
-				conductor.audio.persist = true;
-			}
+			if (conductor.audio == null || !conductor.audio.playing)
+				conductor.playMusic('freakyMenu', 0, (audio:FlxSound) -> audio.fadeIn(4, 0, 0.7));
 
 			logo = new FlxSprite(-150, -100);
 			logo.frames = Paths.frames('${statePathShortcut}logoBumpin');
@@ -77,7 +74,7 @@ class TitleScreen extends BeatState {
 			for (l in [logo, menuDancer, titleText])
 				if (l != null)
 					l.visible = true;
-			FlxG.camera.flash(FlxColor.WHITE, 4);
+			camera.flash(FlxColor.WHITE, 4);
 			skipped = true;
 		}
 	}
@@ -85,7 +82,7 @@ class TitleScreen extends BeatState {
 	override public function update(elapsed:Float):Void {
 		if (FlxG.keys.justPressed.ENTER && !leaving && skipped) {
 			titleText.animation.play('press', true);
-			FlxG.camera.flash(FlxColor.WHITE, 1);
+			camera.flash(FlxColor.WHITE, 1);
 			CoolUtil.playMenuSFX(CONFIRM, 0.7);
 			leaving = true;
 			FlxG.switchState(new MainMenu());
