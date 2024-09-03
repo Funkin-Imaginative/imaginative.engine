@@ -22,6 +22,7 @@ class CoolUtil {
 			case CANCEL: 'cancel';
 			case SCROLL: 'scroll';
 		}), volume, false, null, true, onComplete == null ? () -> {} : onComplete);
+		menuSound.persist = true;
 		return menuSound;
 	}
 

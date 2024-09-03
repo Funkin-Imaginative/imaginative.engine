@@ -3,5 +3,4 @@
 *.ini
 export/
 RECOVER_*.fla
-.DS_STORE
 vscode-project.hxml
