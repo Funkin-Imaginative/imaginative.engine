@@ -165,9 +165,9 @@ class StoryMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (FlxG.keys.justPressed.UP)
+			if (controls.uiUp)
 				changeSelection(-1);
-			if (FlxG.keys.justPressed.DOWN)
+			if (controls.uiDown)
 				changeSelection(1);
 
 			if (FlxG.mouse.wheel != 0)
@@ -182,9 +182,9 @@ class StoryMenu extends BeatState {
 						changeSelection(i, true);
 			}
 
-			if (FlxG.keys.justPressed.LEFT)
+			if (controls.uiLeft)
 				changeDifficulty(-1);
-			if (FlxG.keys.justPressed.RIGHT)
+			if (controls.uiRight)
 				changeDifficulty(1);
 
 			if (FlxG.keys.justPressed.HOME)
@@ -192,11 +192,11 @@ class StoryMenu extends BeatState {
 			if (FlxG.keys.justPressed.END)
 				changeSelection(levels.length - 1, true);
 
-			if (FlxG.keys.justPressed.BACKSPACE) {
+			if (controls.back) {
 				CoolUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new MainMenu());
 			}
-			if (FlxG.keys.justPressed.ENTER)
+			if (controls.accept)
 				selectCurrent();
 		}
 

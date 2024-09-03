@@ -58,8 +58,8 @@ class MainMenu extends BeatState {
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		for (i => name in itemLineUp) {
 			if ( // funny null check
-				FileSystem.exists(Paths.image('$statePathShortcut$name')) ||
-				FileSystem.exists(Paths.xml('images/$statePathShortcut$name'))
+				Paths.fileExists('images/$statePathShortcut$name.png') ||
+				Paths.fileExists('images/$statePathShortcut$name.xml')
 			) {} else continue;
 
 			var item:FlxSprite = new FlxSprite(0, 60 + (i * 160));
@@ -101,11 +101,11 @@ class MainMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (FlxG.keys.justPressed.UP) {
+			if (controls.uiUp) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (FlxG.keys.justPressed.DOWN) {
+			if (controls.uiDown) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -128,11 +128,11 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (FlxG.keys.justPressed.BACKSPACE) {
+			if (controls.back) {
 				CoolUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new TitleScreen());
 			}
-			if (FlxG.keys.justPressed.ENTER || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
+			if (controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					CoolUtil.playMenuSFX(SCROLL, 0.7);

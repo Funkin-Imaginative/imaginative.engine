@@ -1,6 +1,6 @@
-package backend.conducting;
+package backend.music;
 
-import backend.conducting.Section.SwagSection;
+import backend.music.Section.SwagSection;
 import haxe.Json;
 
 typedef SwagSong = {

@@ -7,13 +7,36 @@ enum abstract MenuSFX(String) to String from String {
 }
 
 class CoolUtil {
-	inline public static function getAsset(path:String, type:String = 'image', ?pathType:FunkinPath):String {
+	inline public static function getAsset(path:String, type:String = 'image', pathType:FunkinPath = ANY):String {
 		return switch (type) {
 			case 'txt': Paths.txt(path, pathType);
 			case 'xml': Paths.xml(path, pathType);
 			case 'json': Paths.json(path, pathType);
 			default: Paths.image(path, pathType);
 		}
+	}
+
+	inline public static function addMissingFolders(modFolderPath:String):Void {
+		var folders:Array<String> = [
+			'content',
+			'content/difficulties',
+			'content/events',
+			'content/objects',
+			'content/objects/characters',
+			'content/objects/icons',
+			'content/songs',
+			'content/stages',
+			'content/states',
+			'fonts',
+			'images',
+			'music',
+			'shaders',
+			'sounds',
+			'videos',
+		];
+		for (folder in folders)
+			if (!Paths.folderExists(folder, false))
+				FileSystem.createDirectory('$modFolderPath/$folder');
 	}
 
 	inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:Void->Void):FlxSound {
@@ -33,11 +56,21 @@ class CoolUtil {
 			return FlxG.mouse.justMoved;
 	}
 
-	public static function getSongDisplayNames(?pathType:FunkinPath):Array<String> {
-		var result:Array<String> = [];
-		for (folder in Paths.readFolder('content/songs', pathType))
-			result.push(ParseUtil.json('${folder}audio').name);
-		return result;
+	public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:FunkinPath = ANY):Array<String> {
+		var results:Array<String> = [];
+		try {
+			if (sortOrderByLevel)
+				for (name in Paths.readFolderOrderTxt('content/levels', 'json'))
+					for (song in ParseUtil.level(name).songs)
+						results.push(song.folder);
+		} catch(e)
+			trace('Missing level json.');
+		for (folder in Paths.readFolder('content/songs', pathType)) {
+			if (haxe.io.Path.extension(folder) == '')
+				if (!results.contains(folder))
+					results.push(folder);
+		}
+		return results;
 	}
 
 	inline public static function trimSplit(text:String):Array<String> {

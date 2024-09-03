@@ -30,6 +30,9 @@ class Main extends Sprite {
 	public function new():Void {
 		super();
 
+		Controls.p1 = new Controls();
+		Controls.p2 = new Controls();
+
 		addChild(new FlxGame(gameData.width, gameData.height, gameData.initState, gameData.fps, gameData.fps, gameData.skipSplash, gameData.startFullscreen));
 
 		fpsCounter = new FPS(10, 3, 0xFFFFFF);

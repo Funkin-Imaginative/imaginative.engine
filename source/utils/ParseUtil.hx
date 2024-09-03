@@ -51,10 +51,10 @@ typedef DifficultyData = {
 }
 
 class ParseUtil {
-	inline public static function json(path:String, ?pathType:FunkinPath):Dynamic
+	inline public static function json(path:String, pathType:FunkinPath = ANY):Dynamic
 		return haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType)));
 
-	inline public static function difficulty(name:String, ?pathType:FunkinPath):DifficultyData {
+	inline public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
 		var contents:DifficultyData = json('content/difficulties/$name', pathType);
 		return {
 			display: contents.display,
@@ -63,7 +63,7 @@ class ParseUtil {
 		}
 	}
 
-	inline public static function level(name:String, ?pathType:FunkinPath):LevelData {
+	inline public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
 		var contents:LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
 			data.flip = CoolUtil.getDefault(data.flip, (i + 1) > Math.floor(contents.objects.length / 2));
@@ -79,7 +79,7 @@ class ParseUtil {
 		}
 	}
 
-	inline public static function song(name:String, ?pathType:FunkinPath):SongData {
+	inline public static function song(name:String, pathType:FunkinPath = ANY):SongData {
 		var contents:SongParse = json('content/songs/$name/meta', pathType);
 		return {
 			name: json('content/songs/$name/audio', pathType).name,
