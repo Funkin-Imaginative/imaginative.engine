@@ -16,7 +16,7 @@ class TitleScreen extends BeatState {
 
 			logo = new FlxSprite(-150, -100);
 			logo.frames = Paths.frames('${statePathShortcut}logoBumpin');
-			logo.animation.addByPrefix('bump', 'logo bumpin', 24);
+			logo.animation.addByPrefix('bump', 'logo bumpin', 24, false);
 			logo.animation.play('bump', true);
 			logo.animation.finish();
 			logo.antialiasing = true;
@@ -34,6 +34,8 @@ class TitleScreen extends BeatState {
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
 			titleText.animation.play('idle', true);
+			titleText.centerOffsets();
+			titleText.centerOrigin();
 			titleText.antialiasing = true;
 			add(titleText);
 
@@ -80,15 +82,17 @@ class TitleScreen extends BeatState {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (controls.accept && !leaving && skipped) {
+		if (Controls.accept && !leaving && skipped) {
 			titleText.animation.play('press', true);
+			titleText.centerOffsets();
+			titleText.centerOrigin();
 			camera.flash(FlxColor.WHITE, 1);
 			CoolUtil.playMenuSFX(CONFIRM, 0.7);
 			leaving = true;
 			FlxG.switchState(new MainMenu());
 		}
 
-		if (controls.accept && !skipped && played)
+		if (Controls.accept && !skipped && played)
 			skipIntro();
 
 		super.update(elapsed);

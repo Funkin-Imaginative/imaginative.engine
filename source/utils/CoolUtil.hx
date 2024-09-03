@@ -39,7 +39,7 @@ class CoolUtil {
 				FileSystem.createDirectory('$modFolderPath/$folder');
 	}
 
-	inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:Void->Void):FlxSound {
+	inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:()->Void):FlxSound {
 		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/' + switch (sound) {
 			case CONFIRM: 'confirm';
 			case CANCEL: 'cancel';

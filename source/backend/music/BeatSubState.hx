@@ -158,8 +158,8 @@ class BeatSubState extends FlxSubState implements IBeat {
 	}
 
 	override public function create() {
+		Conductor.beatSubStates.push(direct = this);
 		persistentUpdate = true;
-		direct = this;
 		loadScript();
 		super.create();
 		call('create');
@@ -245,9 +245,10 @@ class BeatSubState extends FlxSubState implements IBeat {
 	}
 
 	override public function destroy() {
-		scripts.destroy();
+		if (scripts != null) scripts.destroy();
 		stateScripts.destroy();
 		direct = null;
+		Conductor.beatSubStates.remove(this);
 		super.destroy();
 	}
 }

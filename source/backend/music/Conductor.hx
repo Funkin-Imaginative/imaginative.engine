@@ -33,8 +33,7 @@ enum abstract SongTimeType(String) from String to String {
 
 class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	// FlxSignals.
-	public var onBPMChange:FlxTypedSignal<Float->Void> = new FlxTypedSignal<Float->Void>();
-	public var onTimeChange:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
+	public var onTimeChange:FlxTypedSignal<(Float, Int, Int)->Void> = new FlxTypedSignal<(Float, Int, Int)->Void>();
 	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
@@ -183,6 +182,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		audio.persist = true;
 
 		data = getMetadata('music/$music');
+		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 		if (onStart != null) onStart(audio);
 	}
@@ -204,6 +204,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		audio.persist = false;
 
 		data = getMetadata('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}');
+		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 		if (onStart != null) onStart(audio);
 	}
@@ -289,44 +290,48 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		if (audio != null)
 			@:privateAccess audio.onFocusLost();
 
+	public static var beatStates:Array<BeatState> = [];
+	public static var beatSubStates:Array<BeatSubState> = [];
 	inline private function callToState(timeType:SongTimeType, curTime:Int):Void {
-		if (FlxG.state != null && FlxG.state.persistentUpdate) {
-			var state = cast(FlxG.state, IBeat);
-			switch (timeType) {
-				case STEP:
-					state.stepHit(curTime);
-				case BEAT:
-					state.beatHit(curTime);
-				case MEASURE:
-					state.measureHit(curTime);
+		for (state in beatStates) {
+			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null)) {
+				switch (timeType) {
+					case STEP:
+						state.stepHit(curTime);
+					case BEAT:
+						state.beatHit(curTime);
+					case MEASURE:
+						state.measureHit(curTime);
+				}
 			}
 		}
-		if (FlxG.state.subState != null && FlxG.state.subState.persistentUpdate) {
-			var subState = cast(FlxG.state.subState, IBeat);
-			switch (timeType) {
-				case STEP:
-					subState.stepHit(curTime);
-				case BEAT:
-					subState.beatHit(curTime);
-				case MEASURE:
-					subState.measureHit(curTime);
+		for (state in beatSubStates) {
+			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null)) {
+				switch (timeType) {
+					case STEP:
+						state.stepHit(curTime);
+					case BEAT:
+						state.beatHit(curTime);
+					case MEASURE:
+						state.measureHit(curTime);
+				}
 			}
 		}
 	}
 
 	inline public function stepHit(curStep:Int):Void {
-		callToState(STEP, curStep);
 		onStepHit.dispatch(curStep);
+		callToState(STEP, curStep);
 	}
 
 	inline public function beatHit(curBeat:Int):Void {
-		callToState(BEAT, curBeat);
 		onBeatHit.dispatch(curBeat);
+		callToState(BEAT, curBeat);
 	}
 
 	inline public function measureHit(curMeasure:Int):Void {
-		callToState(MEASURE, curMeasure);
 		onMeasureHit.dispatch(curMeasure);
+		callToState(MEASURE, curMeasure);
 	}
 
 	inline public function changeBPM(bpm:Float = 100, beatsPerMeasure:Int = 4, stepsPerBeat:Int = 4):Void {
@@ -336,43 +341,45 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		this.beatsPerMeasure = beatsPerMeasure;
 		this.stepsPerBeat = stepsPerBeat;
 
-		if (prevBpm != bpm) onBPMChange.dispatch(bpm);
-		if (this.beatsPerMeasure != beatsPerMeasure || this.stepsPerBeat != stepsPerBeat)
-			onTimeChange.dispatch(beatsPerMeasure, stepsPerBeat);
+		if (prevBpm != bpm || this.beatsPerMeasure != beatsPerMeasure || this.stepsPerBeat != stepsPerBeat)
+			onTimeChange.dispatch(bpm, beatsPerMeasure, stepsPerBeat);
 	}
 
-	public function applyBPMChanges(song:SwagSong):Void {
+	public function applyBPMChanges():Void {
 		bpmChanges = [
 			{
 				stepTime: 0,
 				songTime: 0,
-				bpm: song.bpm,
+				bpm: data.bpm,
 				beatsPM: 4,
 				stepsPB: 4
 			}
 		];
 
-		var curBPM:Float = song.bpm;
-		var totalSteps:Int = 0;
-		var totalPos:Float = 0;
-		for (i in 0...song.notes.length) {
-			if (song.notes[i].changeBPM && song.notes[i].bpm != curBPM) {
-				curBPM = song.notes[i].bpm;
-				var event:BPMChange = {
-					stepTime: totalSteps,
-					songTime: totalPos,
-					bpm: curBPM,
-					beatsPM: 4,
-					stepsPB: 4
-				}
-				bpmChanges.push(event);
-			}
+		var curBPM:Float = data.bpm;
+		var curSig:Array<Int> = data.signature;
+		var songTime:Float = 0;
+		var stepTime:Float = 0;
+		for (checkpoint in data.checkpoints) {
+			if (
+				checkpoint.bpm == curBPM &&
+				curSig[0] == checkpoint.signature[0] &&
+				curSig[1] == checkpoint.signature[1]
+			) continue;
+			stepTime += (checkpoint.time - songTime) / ((60 / curBPM) * 1000 / checkpoint.signature[1]);
+			songTime = checkpoint.time;
+			curBPM = checkpoint.bpm;
+			curSig = checkpoint.signature;
 
-			var deltaSteps:Int = song.notes[i].lengthInSteps;
-			totalSteps += deltaSteps;
-			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
+			bpmChanges.push({
+				stepTime: stepTime,
+				songTime: songTime,
+				bpm: curBPM,
+				beatsPM: curSig[0],
+				stepsPB: curSig[1]
+			});
 		}
-		trace('new BPM map BUDDY ' + bpmChanges);
+		trace('Applied BPM Changes: ' + bpmChanges);
 	}
 
 	public function getTimeForStep(step:Float):Float {
@@ -419,7 +426,6 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		FlxG.signals.preUpdate.remove(update);
 		FlxG.signals.focusGained.remove(onFocus);
 		FlxG.signals.focusLost.remove(onFocusLost);
-		onBPMChange.destroy();
 		onTimeChange.destroy();
 		onStepHit.destroy();
 		onBeatHit.destroy();

@@ -101,11 +101,11 @@ class MainMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (controls.uiUp) {
+			if (Controls.uiUp) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (controls.uiDown) {
+			if (Controls.uiDown) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -128,11 +128,11 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (controls.back) {
+			if (Controls.back) {
 				CoolUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new TitleScreen());
 			}
-			if (controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
+			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					CoolUtil.playMenuSFX(SCROLL, 0.7);
