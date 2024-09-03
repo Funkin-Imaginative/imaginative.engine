@@ -37,4 +37,4 @@ vVv meta json example below vVv
 	}
 }
 ```
-`../content/songs/Philly Nice/meta.json`
+example from: `../content/songs/Philly Nice/meta.json`
