@@ -23,9 +23,10 @@ class LevelObject extends FlxBasic {
 		scripts = new ScriptGroup(this);
 		if (allowScripts)
 			for (s in ['global', name])
-				scripts.add(Script.create(s, LEVEL));
+				for (script in Script.create(s, LEVEL))
+					scripts.add(script);
 		else
-			scripts.add(Script.create(''));
+			scripts.add(Script.create('', false)[0]);
 		scripts.load();
 
 		if (loadSprites) {

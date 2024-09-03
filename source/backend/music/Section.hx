@@ -1,4 +1,4 @@
-package backend.conducting;
+package backend.music;
 
 typedef SwagSection = {
 	var sectionNotes:Array<Dynamic>;

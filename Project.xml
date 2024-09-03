@@ -29,7 +29,7 @@
 	<set name='BUILD_DIR' value='export/32bit' if='32bit'/>
 
 	<classpath name='source'/>
-	<assets path='assets' rename='solo/funkin' preload='true'/>
+	<assets path='assets' rename='solo/funkin' preload='true' exclude='*readme.md'/>
 	<!-- MODDING PATHS -->
 	<assets path='modding/upfront' rename='solo'/>
 	<assets path='modding/lowerend' rename='mods'/>

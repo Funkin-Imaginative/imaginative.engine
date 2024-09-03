@@ -1,6 +1,6 @@
-package backend.conducting;
+package backend.music;
 
-class BeatSubState extends FlxSubState implements IBeat {
+class BeatState extends FlxState implements IBeat {
 	/**
 	 * The states conductor.
 	 */
@@ -109,7 +109,10 @@ class BeatSubState extends FlxSubState implements IBeat {
 	inline function get_songPosition():Float
 		return conductor.songPosition;
 
-	public static var direct:BeatSubState;
+	/* vVv Actual state stuff below. vVv */
+	public static var direct:BeatState;
+
+	public var controls:Controls = Controls.p1;
 
 	// public var playField(default, null):PlayField;
 	public var scripts:ScriptGroup;
@@ -118,7 +121,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 	public var scriptName:String = null;
 
 	public var statePathShortcut(default, null):String = '';
-	inline public function getAsset(path:String, type:String = 'image', ?pathType:FunkinPath):String
+	inline public function getAsset(path:String, type:String = 'image', pathType:FunkinPath = ANY):String
 		return CoolUtil.getAsset('$statePathShortcut$path', type, pathType);
 
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
@@ -130,11 +133,12 @@ class BeatSubState extends FlxSubState implements IBeat {
 	function loadScript() {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			if (stateScripts.length == 0) {
-				var script:Script = Script.create(CoolUtil.getClassName(this), STATE);
-				if (!script.isInvalid) scriptName = script.fileName;
-				stateScripts.add(script);
-				script.load();
+			if (stateScripts.length < 1) {
+				for (script in Script.create(CoolUtil.getClassName(this), STATE)) {
+					if (!script.isInvalid) scriptName = script.fileName;
+					stateScripts.add(script);
+					script.load();
+				}
 			} else stateScripts.reload();
 		}
 	}
@@ -145,12 +149,10 @@ class BeatSubState extends FlxSubState implements IBeat {
 		return def;
 	}
 
-	override public function close() {
-		// var event = event('onClose', new CancellableEvent());
-		// if (!event.cancelled) {
-		super.close();
-		call('onClosePost');
-		// }
+	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+		if (stateScripts != null)
+			return stateScripts.event(func, event);
+		return cast null;
 	}
 
 	override public function create() {
@@ -226,23 +228,23 @@ class BeatSubState extends FlxSubState implements IBeat {
 		call('measureHit', [curMeasure]);
 	}
 
-	public var parent:FlxState;
-
-	public function onSubstateOpen() {}
-
 	override public function resetSubState() {
+		super.resetSubState();
 		if (subState != null && subState is BeatSubState) {
 			cast(subState, BeatSubState).parent = this;
-			super.resetSubState();
 			cast(subState, BeatSubState).onSubstateOpen();
-			return;
 		}
-		super.resetSubState();
 	}
 
 	override public function destroy() {
-		scripts.destroy();
+		if (scripts != null) scripts.destroy();
 		stateScripts.destroy();
+		// objects.note.groups.StrumGroup.hitFuncs.noteHit = (event) -> {}
+		// objects.note.groups.StrumGroup.hitFuncs.noteMiss = (event) -> {}
+		// try {
+		// 	if (PlayField.direct.state == this)
+		// 		PlayField.direct.state = null;
+		// } catch (e:haxe.Exception) {}
 		direct = null;
 		super.destroy();
 	}

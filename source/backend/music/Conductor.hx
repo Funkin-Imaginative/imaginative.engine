@@ -1,11 +1,9 @@
-package backend.conducting;
+package backend.music;
 
-import backend.conducting.Song.SwagSong;
 import flixel.util.FlxSignal.FlxTypedSignal;
-import flixel.util.FlxDestroyUtil;
-import flixel.util.FlxDestroyUtil.IFlxDestroyable;
+import backend.music.Song.SwagSong;
 
-typedef BPMChangeDef = {
+typedef BPMChange = {
 	var stepTime:Float;
 	var songTime:Float;
 	var bpm:Float;
@@ -33,7 +31,7 @@ enum abstract SongTimeType(String) from String to String {
 	var MEASURE = 'measure';
 }
 
-class Conductor implements IBeat implements IFlxDestroyable {
+class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	// FlxSignals.
 	public var onBPMChange:FlxTypedSignal<Float->Void> = new FlxTypedSignal<Float->Void>();
 	public var onTimeChange:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
@@ -142,14 +140,14 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	public var lastSongPos(default, null):Float;
 	public var posOffset(get, null):Float = 0;
 	inline function get_posOffset():Float {
-		if (posOffset != data.offset) trace(posOffset = data.offset);
+		if (posOffset != data.offset) posOffset = data.offset;
 		return posOffset;
 	}
 
 	/**
 	 * Array of all the BPM changes that will occur.
 	 */
-	public var bpmChanges:Array<BPMChangeDef> = [];
+	public var bpmChanges:Array<BPMChange> = [];
 
 	public function new() {
 		audio = new FlxSound();
@@ -238,7 +236,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		audio.update(FlxG.elapsed);
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
-			var lastChange:BPMChangeDef = {
+			var lastChange:BPMChange = {
 				stepTime: 0,
 				songTime: 0,
 				bpm: 0,
@@ -360,7 +358,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		for (i in 0...song.notes.length) {
 			if (song.notes[i].changeBPM && song.notes[i].bpm != curBPM) {
 				curBPM = song.notes[i].bpm;
-				var event:BPMChangeDef = {
+				var event:BPMChange = {
 					stepTime: totalSteps,
 					songTime: totalPos,
 					bpm: curBPM,
@@ -378,7 +376,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	}
 
 	public function getTimeForStep(step:Float):Float {
-		var bpmChange:BPMChangeDef = {
+		var bpmChange:BPMChange = {
 			stepTime: 0,
 			songTime: 0,
 			bpm: bpm,
@@ -394,7 +392,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	}
 
 	public function getStepForTime(time:Float):Float {
-		var bpmChange:BPMChangeDef = {
+		var bpmChange:BPMChange = {
 			stepTime: 0,
 			songTime: 0,
 			bpm: bpm,

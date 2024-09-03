@@ -80,7 +80,7 @@ class TitleScreen extends BeatState {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (FlxG.keys.justPressed.ENTER && !leaving && skipped) {
+		if (controls.accept && !leaving && skipped) {
 			titleText.animation.play('press', true);
 			camera.flash(FlxColor.WHITE, 1);
 			CoolUtil.playMenuSFX(CONFIRM, 0.7);
@@ -88,7 +88,7 @@ class TitleScreen extends BeatState {
 			FlxG.switchState(new MainMenu());
 		}
 
-		if (FlxG.keys.justPressed.ENTER && !skipped && played)
+		if (controls.accept && !skipped && played)
 			skipIntro();
 
 		super.update(elapsed);

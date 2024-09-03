@@ -17,17 +17,17 @@ class DifficultyObject extends FlxBasic {
 
 		data = ParseUtil.difficulty(name = diff.toLowerCase());
 		scripts = new ScriptGroup(this);
-		scripts = new ScriptGroup(this);
 		if (allowScripts)
 			for (s in ['global', name])
-				scripts.add(Script.create(s, DIFFICULTY));
+				for (script in Script.create(s, DIFFICULTY))
+					scripts.add(script);
 		else
-			scripts.add(Script.create(''));
+			scripts.add(Script.create('', false)[0]);
 		scripts.load();
 
 		if (loadSprites) {
 			sprite = new FlxSprite(x, y);
-			if (FileSystem.exists(Paths.xml('images/ui/difficulties/$name'))) {
+			if (Paths.fileExists('images/ui/difficulties/$name.xml')) {
 				sprite.frames = Paths.frames('ui/difficulties/$name');
 				sprite.animation.addByPrefix('idle', 'idle', 24);
 			} else {

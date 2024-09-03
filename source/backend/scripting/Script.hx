@@ -37,8 +37,17 @@ class Script extends FlxBasic {
 
 	public static final exts:Array<String> = ['hx', 'hscript', 'hsc', 'hxs', 'hxc', 'lua'];
 
-	public static function create(file:String, type:ScriptType = ANY):Script {
-		final path:String = Paths.script(switch (type) {
+	public static function create(file:String, type:ScriptType = ANY, pathType:FunkinPath = ANY, getAllInstances:Bool = true):Array<Script> {
+		var scriptPath:String->Array<String> = (file:String) -> {
+			if (getAllInstances) {
+				var result:Array<String> = [];
+				for (ext in exts)
+					for (instance in ModConfig.getAllInstancesOfFile('$file.$ext', pathType))
+						result.push(instance);
+				return result;
+			} else return [Paths.script(file, pathType)];
+		}
+		final paths:Array<String> = scriptPath(switch (type) {
 			case DIFFICULTY: 'content/difficulties/$file';
 			case LEVEL: 'content/levels/$file';
 			case CHARACTER: 'objects/characters/$file';
@@ -48,29 +57,38 @@ class Script extends FlxBasic {
 			case STATE: 'content/states/$file';
 			case ANY: file;
 		});
-		#if debug trace(path); #end
-		switch (Path.extension(path).toLowerCase()) {
-			case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
-				return new Script(path);
-			case 'lua':
-				#if THROW_LUA_MAKEFUN
-				@:privateAccess if (!states.sub.LuaMakeFunLmao.alreadyOpened) {
-					var target:Dynamic;
-					if (!FlxG.state.persistentUpdate && FlxG.state.subState != null)
-						target = FlxG.state.subState;
-					else
-						target = FlxG.state;
-					target.persistentUpdate = false;
-					target.persistentDraw = false;
-					target.openSubState(new states.sub.LuaMakeFunLmao());
-				} else
-					states.sub.PauseSubState.bfStare = true;
-				#else
-				trace('LUA SCRIPTS AIN\'T SUPPORTED BITCH!!!');
-				#end
-				// doing a cne but more trollish lmao
+		#if debug
+		for (path in paths)
+			if (path.trim() != '')
+				trace(path);
+		#end
+		var scripts:Array<Script> = [];
+		for (path in paths) {
+			switch (Path.extension(path).toLowerCase()) {
+				case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
+					scripts.push(new Script(path));
+				case 'lua':
+					#if THROW_LUA_MAKEFUN
+					@:privateAccess if (!states.sub.LuaMakeFunLmao.alreadyOpened) {
+						var target:Dynamic;
+						if (!FlxG.state.persistentUpdate && FlxG.state.subState != null)
+							target = FlxG.state.subState;
+						else
+							target = FlxG.state;
+						target.persistentUpdate = false;
+						target.persistentDraw = false;
+						target.openSubState(new states.sub.LuaMakeFunLmao());
+					} else
+						states.sub.PauseSubState.bfStare = true;
+					#else
+					trace('LUA SCRIPTS AIN\'T SUPPORTED BITCH!!!');
+					#end
+					// doing a cne but more trollish lmao
+			}
 		}
-		return new Script(FallbackUtil.invaildScriptKey);
+		if (scripts.length < 1)
+			scripts.push(new Script(FallbackUtil.invaildScriptKey));
+		return scripts;
 	}
 
 	public static function getScriptImports(script:Script):Map<String, Dynamic> {
