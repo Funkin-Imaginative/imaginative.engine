@@ -54,12 +54,13 @@ class DifficultyObject extends FlxBasic {
 
 	public function updateLock():Void {
 		if (sprite == null || lock == null) return;
-		lock.scale.set();
+		lock.scale.copyFrom(sprite.scale);
 		lock.updateHitbox();
 		var mid:PositionStruct = PositionStruct.getObjMidpoint(sprite);
 		lock.setPosition(mid.x, mid.y);
 		lock.x -= lock.width / 2;
 		lock.y -= lock.height / 2;
+		lock.alpha = sprite.alpha;
 	}
 
 	override public function update(elapsed:Float) {

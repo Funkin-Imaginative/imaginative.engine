@@ -156,8 +156,8 @@ class BeatState extends FlxState implements IBeat {
 	}
 
 	override public function create() {
+		Conductor.beatStates.push(direct = this);
 		persistentUpdate = true;
-		direct = this;
 		loadScript();
 		super.create();
 		call('create');
@@ -246,6 +246,7 @@ class BeatState extends FlxState implements IBeat {
 		// 		PlayField.direct.state = null;
 		// } catch (e:haxe.Exception) {}
 		direct = null;
+		Conductor.beatStates.remove(this);
 		super.destroy();
 	}
 }
