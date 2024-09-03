@@ -11,4 +11,4 @@ vVv difficulty json example below vVv
 	"scoreMult": 1.5
 }
 ```
-example from: `../content/difficulties/nightmare.json`
+example from: [`../content/difficulties/nightmare.json`](https://github.com/rodney528/Imaginative-Engine-Development/blob/main/assets/content/difficulties/nightmare.json)
