@@ -12,4 +12,4 @@ vVv audio json example below vVv
 	"checkpoints": []
 }
 ```
-`../music/gameover/gameOver.json`
+example from: `../music/gameover/gameOver.json`
