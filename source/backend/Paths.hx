@@ -51,9 +51,9 @@ enum abstract FunkinPath(String) from String to String {
 	 */
 	public static function typeFromPath(path:String):FunkinPath {
 		return switch (path.split('/')[0]) {
-			case 'solo': SOLO;
+			case 'solo': path.split('/')[1] == 'funkin' ? ROOT : SOLO;
 			case 'mods': MOD;
-			default: path.split('/')[1] == 'funkin' ? ROOT : ANY;
+			default: ANY;
 		}
 	}
 
