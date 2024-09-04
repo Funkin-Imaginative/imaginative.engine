@@ -44,14 +44,14 @@ class ModConfig {
 		}
 
 		if (FunkinPath.isPath(SOLO, pathType)) {
-			if (curSolo != null && curSolo.trim() != '' && !soloIsRoot) {
+			if (curSolo != null && curSolo.trim() != '') {
 				var asset:String = 'solo/$curSolo/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 					potentialPaths.push(asset);
 			}
 		}
 
-		if (FunkinPath.isPath(MOD, pathType)) {
+		if (FunkinPath.isPath(MODS, pathType)) {
 			for (mod in globalMods) {
 				var asset:String = 'mods/$mod/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))

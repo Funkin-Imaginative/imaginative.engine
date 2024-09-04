@@ -20,7 +20,7 @@ enum abstract FunkinPath(String) from String to String {
 	/**
 	 * LowerEnd mods.
 	 */
-	var MOD = 'mod';
+	var MODS = 'mods';
 
 	// Potential Paths
 	/**
@@ -28,11 +28,11 @@ enum abstract FunkinPath(String) from String to String {
 	 */
 	var LEAD = 'lead';
 	/**
-	 * `SOLO` or `MOD`.
+	 * `SOLO` or `MODS`.
 	 */
 	var MODDED = 'modded';
 	/**
-	 * `ROOT`, `SOLO` or `MOD`.
+	 * `ROOT`, `SOLO` or `MODS`.
 	 */
 	var ANY = null;
 
@@ -41,10 +41,12 @@ enum abstract FunkinPath(String) from String to String {
 	 * @return String
 	 */
 	public function returnRoot():String {
-		if (isPath(ROOT, this)) return 'solo/funkin';
-		if (isPath(SOLO, this)) return 'solo/${ModConfig.curSolo}';
-		if (isPath(MOD, this)) return 'mods/${ModConfig.curMod}';
-		return '';
+		return switch (this) {
+			case ROOT: 'solo/funkin';
+			case SOLO: ModConfig.soloIsRoot ? '' : 'solo/${ModConfig.curSolo}';
+			case MODS: 'mods/${ModConfig.curMod}';
+			default: '';
+		}
 	}
 	/**
 	 * Excludes grouped types, besides `ANY` for null check reasons.
@@ -52,7 +54,7 @@ enum abstract FunkinPath(String) from String to String {
 	public static function typeFromPath(path:String):FunkinPath {
 		return switch (path.split('/')[0]) {
 			case 'solo': path.split('/')[1] == 'funkin' ? ROOT : SOLO;
-			case 'mods': MOD;
+			case 'mods': MODS;
 			default: ANY;
 		}
 	}
@@ -67,19 +69,27 @@ enum abstract FunkinPath(String) from String to String {
 		return switch (wantedPath) {
 			case ROOT: incomingPath == ROOT || incomingPath == LEAD || incomingPath == ANY;
 			case SOLO: !ModConfig.soloIsRoot && (incomingPath == SOLO || incomingPath == LEAD || incomingPath == MODDED || incomingPath == ANY);
-			case MOD: (incomingPath == MOD || incomingPath == MODDED || incomingPath == ANY) && !ModConfig.isSoloOnly;
+			case MODS: !ModConfig.isSoloOnly && (incomingPath == MODS || incomingPath == MODDED || incomingPath == ANY);
 			default: false;
 		}
 	}
 }
 
 class Paths {
-	public static final invaildChars:Array<String> = ['\\' /* , '/' */, ':', '*', '?', '"', '<', '>', '|' /* , '.' */];
+	public static final invaildChars:Array<String> = ['\\', ':', '*', '?', '"', '<', '>', '|'];
 	public static function removeInvaildChars(string:String):String {
 		var splitUp:Array<String> = string.split('/');
-		for (i => s in splitUp) {
-			for (char in invaildChars) s = s.replace(char, '');
-			// if (i != splitUp.length - 1) s = s.replace('.', '');
+		for (i in 0...splitUp.length) {
+			for (char in invaildChars)
+				splitUp[i] = splitUp[i].replace(char, '');
+			/* var again:Array<String> = splitUp[i].split('');
+			for (a in -again.length + 1...1) {
+				var j:Int = a * -1;
+				again.remove(again[j]);
+				if (again[j + 1] != '.')
+					break;
+			}
+			splitUp[i] = again.join(''); */
 		}
 		return splitUp.join('/');
 	}
@@ -91,7 +101,7 @@ class Paths {
 		var result:String = null;
 		var check:String = '';
 
-		if (result == null && FunkinPath.isPath(MOD, pathType))
+		if (result == null && FunkinPath.isPath(MODS, pathType))
 			if (fileExists(check = ModConfig.getModsRoot(assetPath), false))
 				result = check;
 		if (result == null && FunkinPath.isPath(SOLO, pathType))
@@ -107,14 +117,8 @@ class Paths {
 	/**
 	 * It's like `applyRoot` but it just gets the path without asking for a file, it's just the start path. Excludes grouped types.
 	 */
-	inline public static function getRoot(pathType:FunkinPath = ANY):String {
-		return switch (pathType) {
-			case ROOT: 'solo/funkin';
-			case SOLO: 'solo/${ModConfig.curSolo}';
-			case MOD: 'mods/${ModConfig.curMod}';
-			default: '';
-		}
-	}
+	inline public static function getRoot(pathType:FunkinPath = ANY):String
+		return pathType.returnRoot();
 
 	inline public static function txt(file:String, pathType:FunkinPath = ANY):String
 		return applyRoot('$file.txt', pathType);
