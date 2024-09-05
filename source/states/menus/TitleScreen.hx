@@ -6,31 +6,32 @@ class TitleScreen extends BeatState {
 	var skipped:Bool = false;
 	var leaving:Bool = false;
 
+	var logo:BaseSprite;
+	var menuDancer:BaseSprite;
+	var titleText:BaseSprite;
+	var ngLogo:BaseSprite;
+
 	override public function create():Void {
-		statePathShortcut = 'menus/title/';
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (timer:FlxTimer) -> {
 			if (Conductor.menu == null) Conductor.menu = new Conductor();
 			if (conductor.audio == null || !conductor.audio.playing)
-				conductor.playMusic('freakyMenu', 0, (audio:FlxSound) -> audio.fadeIn(4, 0, 0.7));
+				conductor.loadMusic('freakyMenu', 0, (audio:FlxSound) -> audio.fadeIn(4, 0, 0.7));
 
-			logo = new FlxSprite(-150, -100);
-			logo.frames = Paths.frames('${statePathShortcut}logoBumpin');
+			logo = new BaseSprite(-150, -100, 'menus/title/logoBumpin');
 			logo.animation.addByPrefix('bump', 'logo bumpin', 24, false);
 			logo.animation.play('bump', true);
 			logo.animation.finish();
 			logo.antialiasing = true;
 			add(logo);
 
-			menuDancer = new FlxSprite(FlxG.width * 0.4, FlxG.height * 0.07);
-			menuDancer.frames = Paths.frames('${statePathShortcut}gfDanceTitle');
+			menuDancer = new BaseSprite(FlxG.width * 0.4, FlxG.height * 0.07, 'menus/title/gfDanceTitle');
 			menuDancer.animation.addByIndices('idle', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
 			menuDancer.animation.addByIndices('sway', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], '', 24, false);
 			menuDancer.antialiasing = true;
 			add(menuDancer);
 
-			titleText = new FlxSprite(100, FlxG.height * 0.8);
-			titleText.frames = Paths.frames('${statePathShortcut}titleEnter');
+			titleText = new BaseSprite(100, FlxG.height * 0.8, 'menus/title/titleEnter');
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
 			titleText.animation.play('idle', true);
@@ -43,11 +44,6 @@ class TitleScreen extends BeatState {
 		});
 	}
 
-	var logo:FlxSprite;
-	var menuDancer:FlxSprite;
-	var titleText:FlxSprite;
-	var ngLogo:FlxSprite;
-
 	function startIntro():Void {
 		if (!played) {}
 
@@ -55,7 +51,7 @@ class TitleScreen extends BeatState {
 			if (l != null)
 				l.visible = false;
 
-		ngLogo = new FlxSprite().loadGraphic(getAsset('newgrounds'));
+		ngLogo = new BaseSprite('menus/title/newgrounds');
 		ngLogo.scale.set(0.8, 0.8);
 		ngLogo.updateHitbox();
 		ngLogo.screenCenter(X);
@@ -87,7 +83,7 @@ class TitleScreen extends BeatState {
 			titleText.centerOffsets();
 			titleText.centerOrigin();
 			camera.flash(FlxColor.WHITE, 1);
-			CoolUtil.playMenuSFX(CONFIRM, 0.7);
+			FunkinUtil.playMenuSFX(CONFIRM, 0.7);
 			leaving = true;
 			FlxG.switchState(new MainMenu());
 		}

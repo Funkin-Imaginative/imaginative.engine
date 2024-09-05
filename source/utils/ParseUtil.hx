@@ -59,20 +59,20 @@ class ParseUtil {
 		return {
 			display: contents.display,
 			variant: contents.variant,
-			scoreMult: CoolUtil.getDefault(contents.scoreMult, 1),
+			scoreMult: FunkinUtil.getDefault(contents.scoreMult, 1),
 		}
 	}
 
 	inline public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
 		var contents:LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
-			data.flip = CoolUtil.getDefault(data.flip, (i + 1) > Math.floor(contents.objects.length / 2));
-			data.offsets = CoolUtil.getDefault(data.offsets, {x: 0, y: 0});
+			data.flip = FunkinUtil.getDefault(data.flip, (i + 1) > Math.floor(contents.objects.length / 2));
+			data.offsets = FunkinUtil.getDefault(data.offsets, {x: 0, y: 0});
 		}
 		return cast {
 			title: contents.title,
 			songs: [for (s in contents.songs) song(s, pathType)],
-			startingDiff: CoolUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
+			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
@@ -85,7 +85,7 @@ class ParseUtil {
 			name: json('content/songs/$name/audio', pathType).name,
 			folder: contents.folder,
 			icon: contents.icon,
-			startingDiff: CoolUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
+			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
 			color: FlxColor.fromString(contents.color),
 			allowedModes: contents.allowedModes

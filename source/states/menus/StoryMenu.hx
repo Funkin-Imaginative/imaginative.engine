@@ -24,27 +24,26 @@ class StoryMenu extends BeatState {
 	var scoreText:FlxText;
 	var titleText:FlxText;
 
-	var weekTopBg:FlxSprite;
-	var weekBg:FlxSprite;
-	var weekObjects:FlxTypedGroup<FlxSprite>;
+	var weekTopBg:BaseSprite;
+	var weekBg:BaseSprite;
+	var weekObjects:FlxTypedGroup<BaseSprite>;
 
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
 
 	var levels:FlxTypedGroup<LevelObject>;
 	var diffs:FlxTypedGroup<DifficultyObject>;
-	var leftArrow:FlxSprite;
-	var rightArrow:FlxSprite;
+	var leftArrow:BaseSprite;
+	var rightArrow:BaseSprite;
 
 	// Camera management.
 	var camPoint:FlxObject;
 
 	override public function create():Void {
-		statePathShortcut = 'menus/story/';
 		super.create();
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
 			if (conductor.audio == null || !conductor.audio.playing)
-				conductor.playMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
+				conductor.loadMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
@@ -53,16 +52,21 @@ class StoryMenu extends BeatState {
 		var loadedDiffs:Array<String> = [];
 		var loadedObjects:Array<String> = [];
 		levels = new FlxTypedGroup<LevelObject>();
-		for (i => name in Paths.readFolderOrderTxt('content/levels', 'json')) {
-			var level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
-			levels.add(level);
+		for (list in [
+			// Paths.readFolderOrderTxt('content/levels', 'json', FunkinPath.getSolo()),
+			Paths.readFolderOrderTxt('content/levels', 'json')
+		]) {
+			for (i => name in list) {
+				var level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
+				levels.add(level);
 
-			for (diff in level.data.difficulties)
-				if (!loadedDiffs.contains(diff))
-					loadedDiffs.push(diff);
-			for (data in level.data.objects)
-				if (!loadedObjects.contains(data.object))
-					loadedObjects.push(data.object);
+				for (diff in level.data.difficulties)
+					if (!loadedDiffs.contains(diff))
+						loadedDiffs.push(diff);
+				for (data in level.data.objects)
+					if (!loadedObjects.contains(data.object))
+						loadedObjects.push(data.object);
+			}
 		}
 		add(levels);
 
@@ -83,12 +87,11 @@ class StoryMenu extends BeatState {
 		add(diffs);
 
 		var arrowDistance:Float = 200 * 0.85;
-		leftArrow = new FlxSprite(PositionStruct.getObjMidpoint(diffs.members[0].sprite).x, PositionStruct.getObjMidpoint(diffs.members[0].sprite).y);
-		rightArrow = new FlxSprite(leftArrow.x, leftArrow.y);
+		leftArrow = new BaseSprite(PositionStruct.getObjMidpoint(diffs.members[0].sprite).x, PositionStruct.getObjMidpoint(diffs.members[0].sprite).y, 'ui/arrows');
+		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
 		for (dir in ['left', 'right']) {
-			var arrow:FlxSprite = dir == 'left' ? leftArrow : rightArrow;
-			arrow.frames = Paths.frames('ui/arrows');
+			var arrow:BaseSprite = dir == 'left' ? leftArrow : rightArrow;
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
 
@@ -119,17 +122,17 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new FlxSprite().makeGraphic(FlxG.width, 56);
+		weekTopBg = new BaseSprite().loadSolid(FlxG.width, 56);
 		weekTopBg.color = camera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new FlxSprite(0, weekTopBg.height).makeGraphic(FlxG.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).loadSolid(FlxG.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
-		/* weekObjects = new FlxTypedGroup<FlxSprite>();
+		/* weekObjects = new FlxTypedGroup<BaseSprite>();
 		for (name in loadedObjects) {
-			var object:FlxSprite = new FlxSprite();
+			var object:BaseSprite = new BaseSprite();
 			weekObjects.add(object);
 		}
 		add(weekObjects); */
@@ -194,14 +197,14 @@ class StoryMenu extends BeatState {
 				changeSelection(levels.length - 1, true);
 
 			if (Controls.back) {
-				CoolUtil.playMenuSFX(CANCEL);
+				FunkinUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new MainMenu());
 			}
 			if (Controls.accept)
 				selectCurrent();
 		}
 
-		var item:FlxSprite = levels.members[curSelected].sprite;
+		var item:BaseSprite = levels.members[curSelected].sprite;
 		camPoint.y = PositionStruct.getObjMidpoint(item).y - (FlxG.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
@@ -210,7 +213,7 @@ class StoryMenu extends BeatState {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1);
 		if (prevSelected != curSelected)
-			CoolUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(SCROLL, 0.7);
 
 		var level:LevelObject = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
@@ -230,7 +233,7 @@ class StoryMenu extends BeatState {
 
 	public function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (!pureSelect) {
-			var arrow:FlxSprite = move == -1 ? leftArrow : rightArrow;
+			var arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
 			arrow.animation.play('confirm', true);
 			arrow.centerOffsets();
 			arrow.centerOrigin();
@@ -239,7 +242,7 @@ class StoryMenu extends BeatState {
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
 		if (prevDiff != curDiff)
-			CoolUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(SCROLL, 0.7);
 
 		for (diff in diffMap) diff.sprite.alpha = 0.0001;
 		if (diffMap.exists(curDiffString)) diffMap.get(curDiffString).sprite.alpha = 1;
@@ -278,11 +281,11 @@ class StoryMenu extends BeatState {
 						}
 					});
 				}
-				CoolUtil.playMenuSFX(CANCEL);
+				FunkinUtil.playMenuSFX(CANCEL);
 				new FlxTimer().start(0.2, (timer:FlxTimer) -> canSelect = true);
 			}
 		} else {
-			CoolUtil.playMenuSFX(CONFIRM);
+			FunkinUtil.playMenuSFX(CONFIRM);
 			PlayState.loadLevel(level.data, curDiffString);
 		}
 	}

@@ -4,15 +4,15 @@ import utils.ParseUtil.LevelData;
 
 class LevelObject extends FlxBasic {
 	public var data:LevelData;
-	public var sprite:FlxSprite;
-	public var lock:FlxSprite;
+	public var sprite:BaseSprite;
+	public var lock:BaseSprite;
 
 	public var scripts:ScriptGroup;
 
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool {
 		var theCall:Dynamic = scripts.call('shouldLock');
-		var result:Bool = theCall is Bool ? theCall : true;
+		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
 
@@ -30,14 +30,14 @@ class LevelObject extends FlxBasic {
 		scripts.load();
 
 		if (loadSprites) {
-			sprite = new FlxSprite(x, y, Paths.image('menus/story/levels/$name'));
+			sprite = new BaseSprite(x, y, 'menus/story/levels/$name');
 			sprite.screenCenter(X);
 			sprite.antialiasing = true;
 
 			if (isLocked)
 				sprite.color = FlxColor.subtract(data.color, FlxColor.fromRGB(100, 100, 100));
 
-			lock = new FlxSprite(Paths.image('ui/lock'));
+			lock = new BaseSprite('ui/lock');
 			lock.antialiasing = true;
 			updateLock();
 		}

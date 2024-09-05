@@ -6,14 +6,41 @@ enum abstract MenuSFX(String) to String from String {
 	var SCROLL = 'scroll';
 }
 
-class CoolUtil {
-	inline public static function getAsset(path:String, type:String = 'image', pathType:FunkinPath = ANY):String {
-		return switch (type) {
-			case 'txt': Paths.txt(path, pathType);
-			case 'xml': Paths.xml(path, pathType);
-			case 'json': Paths.json(path, pathType);
-			default: Paths.image(path, pathType);
+class FunkinUtil {
+	public static function loadTexture(sprite:FlxSprite, newTexture:String):FlxSprite {
+		if (sprite is BaseSprite) {
+			cast(sprite, BaseSprite).loadTexture(newTexture);
+			return sprite;
 		}
+
+		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		if (Paths.fileExists('images/$newTexture.png'))
+			if (hasSheet) loadSheet(sprite, newTexture);
+			else loadImage(sprite, newTexture);
+		return sprite;
+	}
+
+	public static function loadImage(sprite:FlxSprite, newTexture:String):FlxSprite {
+		if (sprite is BaseSprite) {
+			cast(sprite, BaseSprite).loadImage(newTexture);
+			return sprite;
+		}
+
+		if (Paths.fileExists('images/$newTexture.png'))
+			sprite.loadGraphic(Paths.image(newTexture));
+		return sprite;
+	}
+
+	public static function loadSheet(sprite:FlxSprite, newTexture:String):FlxSprite {
+		if (sprite is BaseSprite) {
+			cast(sprite, BaseSprite).loadSheet(newTexture);
+			return sprite;
+		}
+
+		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		if (Paths.fileExists('images/$newTexture.png') && hasSheet)
+			sprite.frames = Paths.frames(newTexture);
+		return sprite;
 	}
 
 	inline public static function addMissingFolders(modFolderPath:String):Void {
@@ -65,11 +92,10 @@ class CoolUtil {
 						results.push(song.folder);
 		} catch(e)
 			trace('Missing level json.');
-		for (folder in Paths.readFolder('content/songs', pathType)) {
-			if (haxe.io.Path.extension(folder) == '')
+		for (folder in Paths.readFolder('content/songs', pathType))
+			if (HaxePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);
-		}
 		return results;
 	}
 

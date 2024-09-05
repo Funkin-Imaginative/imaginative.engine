@@ -11,12 +11,12 @@ class MainMenu extends BeatState {
 	var visualSelected:Int = curSelected;
 
 	// Things to select.
-	var itemLineUp:Array<String> = CoolUtil.trimSplit(Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')));
+	var itemLineUp:Array<String> = FunkinUtil.trimSplit(Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')));
 
 	// Objects in the state.
-	var bg:FlxSprite;
-	var bg2:FlxSprite;
-	var menuItems:FlxTypedGroup<FlxSprite>;
+	var bg:BaseSprite;
+	var bg2:BaseSprite;
+	var menuItems:FlxTypedGroup<BaseSprite>;
 	var versionTxt:FlxText;
 
 	// Camera management.
@@ -25,17 +25,16 @@ class MainMenu extends BeatState {
 	var lowestY:Float = 0;
 
 	override public function create():Void {
-		statePathShortcut = 'menus/main/';
 		super.create();
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
 			if (conductor.audio == null || !conductor.audio.playing)
-				conductor.playMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
+				conductor.loadMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
 
-		bg = new FlxSprite(Paths.image('menus/menuBG'));
+		bg = new BaseSprite('menus/menuBG');
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.set(1.2, 1.2);
 		bg.updateHitbox();
@@ -43,7 +42,7 @@ class MainMenu extends BeatState {
 		bg.antialiasing = true;
 		add(bg);
 
-		bg2 = new FlxSprite(Paths.image('menus/menuDesat'));
+		bg2 = new BaseSprite('menus/menuDesat');
 		bg2.scrollFactor.copyFrom(bg.scrollFactor);
 		bg2.scale.copyFrom(bg.scale);
 		bg2.updateHitbox();
@@ -55,15 +54,14 @@ class MainMenu extends BeatState {
 		if (itemLineUp == null || itemLineUp.length < 1)
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
-		menuItems = new FlxTypedGroup<FlxSprite>();
+		menuItems = new FlxTypedGroup<BaseSprite>();
 		for (i => name in itemLineUp) {
 			if ( // funny null check
-				Paths.fileExists('images/$statePathShortcut$name.png') ||
-				Paths.fileExists('images/$statePathShortcut$name.xml')
+				Paths.fileExists('images/menus/main/$name.png') ||
+				Paths.multExst('images/menus/main/$name', Paths.atlasFrameExts) != ''
 			) {} else continue;
 
-			var item:FlxSprite = new FlxSprite(0, 60 + (i * 160));
-			item.frames = Paths.frames('$statePathShortcut$name');
+			var item:BaseSprite = new BaseSprite(0, 60 + (i * 160), 'menus/main/$name');
 			item.animation.addByPrefix('idle', '$name idle', 24);
 			item.animation.addByPrefix('selected', '$name selected', 24);
 			item.animation.play('idle');
@@ -114,7 +112,7 @@ class MainMenu extends BeatState {
 				changeSelection(-1 * FlxG.mouse.wheel);
 				visualSelected = curSelected;
 			}
-			if (CoolUtil.mouseJustMoved())
+			if (FunkinUtil.mouseJustMoved())
 				for (i => item in menuItems.members)
 					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
@@ -129,13 +127,13 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				CoolUtil.playMenuSFX(CANCEL);
+				FunkinUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
-					CoolUtil.playMenuSFX(SCROLL, 0.7);
+					FunkinUtil.playMenuSFX(SCROLL, 0.7);
 				} else selectCurrent();
 			}
 		}
@@ -147,7 +145,7 @@ class MainMenu extends BeatState {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
 		if (prevSelected != curSelected)
-			CoolUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(SCROLL, 0.7);
 
 		for (i => item in menuItems.members) {
 			item.animation.play(i == curSelected ? 'selected' : 'idle');
@@ -159,7 +157,7 @@ class MainMenu extends BeatState {
 	public function selectCurrent():Void {
 		canSelect = false;
 
-		CoolUtil.playMenuSFX(CONFIRM);
+		FunkinUtil.playMenuSFX(CONFIRM);
 
 		FlxFlicker.flicker(bg2, 1.1, 0.6, false);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {

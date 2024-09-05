@@ -170,7 +170,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
 	 */
-	inline public function playMusic(music:String, volume:Float = 1, ?onStart:FlxSound->Void):Void {
+	inline public function loadMusic(music:String, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
@@ -184,7 +184,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		data = getMetadata('music/$music');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
-		if (onStart != null) onStart(audio);
+		if (afterLoad != null) afterLoad(audio);
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 	 * @param song The name of the song.
 	 * @param variant The variant of the song to play.
 	 */
-	inline public function playSong(song:String, variant:String, ?onStart:FlxSound->Void):Void {
+	inline public function loadSong(song:String, variant:String, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
@@ -206,7 +206,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		data = getMetadata('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
-		if (onStart != null) onStart(audio);
+		if (afterLoad != null) afterLoad(audio);
 	}
 
 	inline public function getMetadata(path:String):AudioData {

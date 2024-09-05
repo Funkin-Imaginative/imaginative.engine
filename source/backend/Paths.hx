@@ -48,6 +48,7 @@ enum abstract FunkinPath(String) from String to String {
 			default: '';
 		}
 	}
+
 	/**
 	 * Excludes grouped types, besides `ANY` for null check reasons.
 	 */
@@ -58,10 +59,8 @@ enum abstract FunkinPath(String) from String to String {
 			default: ANY;
 		}
 	}
-
 	inline public static function modNameFromPath(path:String):String
 		return path.split('/')[1]; // lol
-
 	inline public static function getTypeAndModName(path:String):ModTyping
 		return {type: typeFromPath(path), name: modNameFromPath(path)}
 
@@ -73,6 +72,14 @@ enum abstract FunkinPath(String) from String to String {
 			default: false;
 		}
 	}
+
+	/**
+	 * This nifty function is for when solo is root, so you can grab the right path!
+	 * Since whenever `ROOT` is techincally the current `SOLO` I've made it so it doesn't work so this function well alr?
+	 * @return FunkinPath
+	 */
+	public static function getSolo():FunkinPath
+		return ModConfig.soloIsRoot ? ROOT : SOLO;
 }
 
 class Paths {
@@ -98,26 +105,25 @@ class Paths {
 	 * Prepend's root folder name.
 	 */
 	public static function applyRoot(assetPath:String, pathType:FunkinPath = ANY):String {
-		var result:String = null;
+		var result:String = '';
 		var check:String = '';
 
-		if (result == null && FunkinPath.isPath(MODS, pathType))
+		if (result == '' && FunkinPath.isPath(MODS, pathType))
 			if (fileExists(check = ModConfig.getModsRoot(assetPath), false))
 				result = check;
-		if (result == null && FunkinPath.isPath(SOLO, pathType))
+		if (result == '' && FunkinPath.isPath(SOLO, pathType))
 			if (fileExists(check = 'solo/${ModConfig.curSolo}/$assetPath', false))
 				result = check;
-		if (result == null && FunkinPath.isPath(ROOT, pathType))
+		if (result == '' && FunkinPath.isPath(ROOT, pathType))
 			if (fileExists(check = 'solo/funkin/$assetPath', false)) // will be "solo/funkin" soon
 				result = check;
 
 		return removeInvaildChars(result);
 	}
-
 	/**
 	 * It's like `applyRoot` but it just gets the path without asking for a file, it's just the start path. Excludes grouped types.
 	 */
-	inline public static function getRoot(pathType:FunkinPath = ANY):String
+	inline public static function getRoot(pathType:FunkinPath):String
 		return pathType.returnRoot();
 
 	inline public static function txt(file:String, pathType:FunkinPath = ANY):String
@@ -140,18 +146,18 @@ class Paths {
 	inline public static function script(file:String, pathType:FunkinPath = ANY):String
 		return multExst(file, Script.exts, pathType);
 
-	public static function readFolder(folderPath:String, setExt:String = null, pathType:FunkinPath = ANY):Array<String> {
+	public static function readFolder(folderPath:String, ?setExt:String, pathType:FunkinPath = ANY):Array<String> {
 		var files:Array<String> = [];
 		for (file in FileSystem.readDirectory(Paths.applyRoot(folderPath.endsWith('/') ? folderPath : '$folderPath/', pathType)))
 			if (setExt == null)
 				files.push(file);
-			else if (haxe.io.Path.extension(file) == setExt)
+			else if (HaxePath.extension(file) == setExt)
 				files.push(file.replace('.$setExt', ''));
 		return files;
 	}
 
 	public static function readFolderOrderTxt(folderPath:String, setExt:String, pathType:FunkinPath = ANY):Array<String> {
-		var orderText:Array<String> = CoolUtil.trimSplit(Paths.getFileContent(Paths.txt('$folderPath/order')));
+		var orderText:Array<String> = FunkinUtil.trimSplit(Paths.getFileContent(Paths.txt('$folderPath/order')));
 		var files:Array<String> = [];
 		var result:Array<String> = [];
 		for (file in readFolder(folderPath, setExt, pathType))
@@ -168,19 +174,15 @@ class Paths {
 	public static final soundExts:Array<String> = ['wav', 'ogg'];
 	inline public static function audio(file:String, pathType:FunkinPath = ANY):String
 		return multExst(file, soundExts, pathType);
-
 	inline public static function sound(file:String, pathType:FunkinPath = ANY):String
 		return audio('sounds/$file', pathType);
-
 	inline public static function soundRandom(file:String, min:Int, max:Int, pathType:FunkinPath = ANY):String
 		return sound(file + FlxG.random.int(min, max), pathType);
-
 	inline public static function music(file:String, pathType:FunkinPath = ANY):String
 		return audio('music/$file', pathType);
 
 	inline public static function inst(song:String, variant:String = ''):String
 		return audio('content/songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Inst');
-
 	inline public static function voices(song:String, suffix:String = '', variant:String = ''):String
 		return audio('content/songs/$song/audio/${variant.trim() == '' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 
@@ -190,7 +192,8 @@ class Paths {
 	inline public static function image(file:String, pathType:FunkinPath = ANY):String
 		return applyRoot('images/$file.png', pathType);
 
-	inline public static function frames(file:String, type:String = null, pathType:FunkinPath = ANY):FlxAtlasFrames {
+	public static final atlasFrameExts:Array<String> = ['xml', 'txt'];
+	inline public static function frames(file:String, ?type:String, pathType:FunkinPath = ANY):FlxAtlasFrames {
 		if (fileExists('images/$file.xml', pathType)) type = 'sparrow';
 		if (fileExists('images/$file.txt', pathType)) type = 'packer';
 		return switch (type) {
@@ -199,16 +202,13 @@ class Paths {
 			default: getSparrowAtlas(file, pathType);
 		}
 	}
-
 	inline public static function getSparrowAtlas(file:String, pathType:FunkinPath = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
-
 	inline public static function getPackerAtlas(file:String, pathType:FunkinPath = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
 
 	inline public static function folderExists(path:String, applyRoot:Bool = true, pathType:FunkinPath = ANY):Bool
 		return FileSystem.isDirectory(applyRoot ? Paths.applyRoot(path, pathType) : path);
-
 	inline public static function fileExists(path:String, applyRoot:Bool = true, pathType:FunkinPath = ANY):Bool
 		return FileSystem.exists(applyRoot ? Paths.applyRoot(path, pathType) : path);
 

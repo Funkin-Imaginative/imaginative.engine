@@ -15,7 +15,7 @@ class ScriptEvent implements IFlxDestroyable {
 	public var data:Dynamic = {}
 	public function new(?data:Dynamic) this.data = data;
 
-	inline public function toString():String return '[${CoolUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
+	inline public function toString():String return '[${FunkinUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
 
 	public function destroy() {}
 }

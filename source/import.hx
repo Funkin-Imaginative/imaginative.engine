@@ -39,6 +39,8 @@ import sys.FileSystem;
 #if discord_rpc import discord_rpc.DiscordRpc; #end
 #if hxvlc import hxvlc.flixel.*; #end
 
+import haxe.io.Path as HaxePath;
+
 // engine related
 
 // backend
@@ -51,6 +53,7 @@ import backend.structures.*;
 import backend.*;
 import backend.Paths.FunkinPath;
 
+import objects.sprites.*;
 import objects.*;
 
 // import states.*;
