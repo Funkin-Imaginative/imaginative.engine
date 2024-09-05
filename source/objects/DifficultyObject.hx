@@ -4,13 +4,13 @@ import utils.ParseUtil.DifficultyData;
 
 class DifficultyObject extends FlxBasic {
 	public var data:DifficultyData;
-	public var sprite:FlxSprite;
-	public var lock:FlxSprite;
+	public var sprite:BaseSprite;
+	public var lock:BaseSprite;
 
 	public var scripts:ScriptGroup;
 
 	public var name:String;
-	public var isLocked:Bool = true;
+	public var isLocked:Bool = false;
 
 	public function new(x:Float = 0, y:Float = 0, diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
@@ -26,21 +26,16 @@ class DifficultyObject extends FlxBasic {
 		scripts.load();
 
 		if (loadSprites) {
-			sprite = new FlxSprite(x, y);
-			if (Paths.fileExists('images/ui/difficulties/$name.xml')) {
-				sprite.frames = Paths.frames('ui/difficulties/$name');
+			sprite = new BaseSprite(x, y, 'ui/difficulties/$name');
+			if (Paths.fileExists('images/ui/difficulties/$name.xml'))
 				sprite.animation.addByPrefix('idle', 'idle', 24);
-			} else {
-				sprite.loadGraphic(Paths.image('ui/difficulties/$name'));
-				sprite.loadGraphic(Paths.image('ui/difficulties/$name'), true, Math.floor(sprite.width), Math.floor(sprite.height));
-				sprite.animation.add('idle', [0], 24, false);
-			}
+			else sprite.animation.add('idle', [0], 24, false);
 			refreshAnim();
 
 			if (isLocked)
 				sprite.color = FlxColor.subtract(sprite.color, FlxColor.fromRGB(100, 100, 100));
 
-			lock = new FlxSprite(Paths.image('ui/lock'));
+			lock = new BaseSprite('ui/lock');
 			lock.antialiasing = true;
 			updateLock();
 		}

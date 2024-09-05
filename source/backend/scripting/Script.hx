@@ -3,7 +3,6 @@ package backend.scripting;
 import hscript.Parser;
 import hscript.Interp;
 import hscript.Expr;
-import haxe.io.Path;
 
 enum abstract ScriptType(String) from String to String {
 	var DIFFICULTY = 'difficulty';
@@ -64,7 +63,7 @@ class Script extends FlxBasic {
 		#end
 		var scripts:Array<Script> = [];
 		for (path in paths) {
-			switch (Path.extension(path).toLowerCase()) {
+			switch (HaxePath.extension(path).toLowerCase()) {
 				case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
 					scripts.push(new Script(path));
 				case 'lua':
@@ -136,10 +135,10 @@ class Script extends FlxBasic {
 
 			// Custom Functions //
 			'addInfrontOf' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				CoolUtil.addInfrontOf(obj, fromThis, into);
+				FunkinUtil.addInfrontOf(obj, fromThis, into);
 			},
 			'addBehind' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				CoolUtil.addBehind(obj, fromThis, into);
+				FunkinUtil.addBehind(obj, fromThis, into);
 			},
 			'disableScript' => () -> {
 				script.active = false;
@@ -163,8 +162,8 @@ class Script extends FlxBasic {
 		super();
 		rawPath = path;
 		path = getFilenameFromLibFile(path);
-		fileName = Path.withoutDirectory(path);
-		extension = Path.extension(path);
+		fileName = HaxePath.withoutDirectory(path);
+		extension = HaxePath.extension(path);
 		this.path = path;
 		scriptCreation(path);
 		for (name => thing in getScriptImports(this))
@@ -172,7 +171,7 @@ class Script extends FlxBasic {
 	}
 
 	inline function getFilenameFromLibFile(path:String) {
-		var file = new Path(path);
+		var file = new HaxePath(path);
 		if (file.file.startsWith('LIB_'))
 			return file.dir + '.' + file.ext;
 		return path;

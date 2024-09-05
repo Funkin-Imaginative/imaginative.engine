@@ -120,10 +120,6 @@ class BeatSubState extends FlxSubState implements IBeat {
 	public var scriptsAllowed:Bool = true;
 	public var scriptName:String = null;
 
-	public var statePathShortcut(default, null):String = '';
-	inline public function getAsset(path:String, type:String = 'image', pathType:FunkinPath = ANY):String
-		return CoolUtil.getAsset('$statePathShortcut$path', type, pathType);
-
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
 		this.scriptsAllowed = #if SOFTCODED_STATES scriptsAllowed #else false #end;
@@ -134,7 +130,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
-				for (script in Script.create(CoolUtil.getClassName(this), STATE)) {
+				for (script in Script.create(FunkinUtil.getClassName(this), STATE)) {
 					if (!script.isInvalid) scriptName = script.fileName;
 					stateScripts.add(script);
 					script.load();
