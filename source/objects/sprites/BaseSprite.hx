@@ -1,7 +1,6 @@
 package objects.sprites;
 
 import flixel.addons.effects.FlxSkewedSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
 
 @:structInit class TextureData {
 	public var image(default, null):String;
@@ -19,8 +18,16 @@ class BaseSprite extends FlxSkewedSprite {
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var debugMode:Bool = false; // for editors
 
+	/**
+	 * The main texture the sprite is using.
+	 */
+	public var texture(get, never):TextureData;
+	inline function get_texture():TextureData return textures[0];
+	/**
+	 * All textures the sprite is using.
+	 */
 	public var textures(default, null):Array<TextureData>;
-	@:unreflective private function resetTextures(newTexture:String, spriteType:String):String {
+	@:unreflective inline private function resetTextures(newTexture:String, spriteType:String):String {
 		textures = [];
 		textures.push({
 			image: HaxePath.withoutExtension(newTexture),
@@ -29,7 +36,7 @@ class BaseSprite extends FlxSkewedSprite {
 		return newTexture;
 	}
 
-	public function loadTexture(newTexture:String):BaseSprite {
+	inline public function loadTexture(newTexture:String):TypeSprite {
 		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png'))
 			if (hasSheet) loadSheet(newTexture);
@@ -37,33 +44,37 @@ class BaseSprite extends FlxSkewedSprite {
 		return this;
 	}
 
-	public function loadImage(newTexture:String):BaseSprite {
+	inline public function loadImage(newTexture:String):TypeSprite {
 		if (Paths.fileExists('images/$newTexture.png'))
 			loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
 		return this;
 	}
 
-	public function loadSheet(newTexture:String):BaseSprite {
-		var spriteType:String = switch (HaxePath.extension(Paths.multExst('images/$newTexture', Paths.atlasFrameExts))) {
-			case 'xml': 'sparrow';
-			case 'txt': 'packer';
-			default: 'unknown';
-		}
+	inline public function loadSheet(newTexture:String):TypeSprite {
 		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png') && hasSheet) {
 			frames = Paths.frames(newTexture);
-			resetTextures(Paths.applyRoot('images/$newTexture.png'), spriteType);
+			resetTextures(Paths.applyRoot('images/$newTexture.png'), switch (HaxePath.extension(Paths.multExst('images/$newTexture', Paths.atlasFrameExts))) {
+				case 'xml': 'sparrow';
+				case 'txt': 'packer';
+				default: 'unknown';
+			});
 		}
 		return this;
 	}
 
-	public function loadSolid(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):BaseSprite
-		return cast makeSolid(Width, Height, Color, Unique, Key);
+	inline public function loadSolid(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):TypeSprite
+		return makeSolid(Width, Height, Color, Unique, Key);
 
 	public function new(x:Float = 0, y:Float = 0, ?startTexture:String) {
 		super(x, y);
 
 		if (startTexture != null)
 			loadTexture(startTexture);
+	}
+
+	override public function update(elapsed:Float) {
+		super.update(elapsed);
+		if (_update != null) _update(elapsed);
 	}
 }

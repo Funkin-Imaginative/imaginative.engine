@@ -4,9 +4,9 @@
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
 	"objects": [
-		{"object": "characters/senpai"},
-		{"object": "characters/boyfriend"},
-		{"object": "characters/gf"}
+		{"path": "characters/senpai"},
+		{"path": "characters/boyfriend"},
+		{"path": "characters/gf"}
 	],
 	"color": "#F9CF51"
 }

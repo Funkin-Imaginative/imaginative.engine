@@ -1,7 +1,7 @@
 package utils;
 
 typedef ObjectsTyping = {
-	var object:String;
+	var path:String;
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
 }

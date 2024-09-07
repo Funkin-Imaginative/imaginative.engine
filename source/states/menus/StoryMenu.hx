@@ -64,8 +64,8 @@ class StoryMenu extends BeatState {
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
 				for (data in level.data.objects)
-					if (!loadedObjects.contains(data.object))
-						loadedObjects.push(data.object);
+					if (!loadedObjects.contains(data.path))
+						loadedObjects.push(data.path);
 			}
 		}
 		add(levels);

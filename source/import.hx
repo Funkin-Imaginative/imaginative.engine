@@ -19,6 +19,7 @@ import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
+import flixel.util.typeLimit.*;
 
 // tweens
 import flixel.tweens.FlxTween;
@@ -58,6 +59,7 @@ import objects.*;
 
 // import states.*;
 
+import utils.SpriteUtil.TypeSprite;
 import utils.*;
 
 using StringTools;
