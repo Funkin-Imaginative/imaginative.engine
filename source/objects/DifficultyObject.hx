@@ -1,6 +1,10 @@
 package objects;
 
-import utils.ParseUtil.DifficultyData;
+typedef DifficultyData = {
+	var display:String;
+	@:optional var variant:Null<String>;
+	@:optional var scoreMult:Float;
+}
 
 class DifficultyObject extends FlxBasic {
 	public var data:DifficultyData;

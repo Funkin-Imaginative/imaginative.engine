@@ -1,6 +1,7 @@
 package objects.sprites;
 
 import flixel.addons.effects.FlxSkewedSprite;
+import backend.structures.PositionStruct.TypeXY;
 
 @:structInit class TextureData {
 	public var image(default, null):String;
@@ -10,7 +11,13 @@ import flixel.addons.effects.FlxSkewedSprite;
 		return FunkinPath.typeFromPath(image);
 
 	public function toString():String
-		return '{ image => $image, path => $path, type => $type }';
+		return '{image => $image, type => $type, path => $path}';
+}
+
+typedef SpriteData = {
+	var antialiasing:Bool;
+	var flip:TypeXY<Bool>;
+	var scale:PositionStruct;
 }
 
 class BaseSprite extends FlxSkewedSprite {
@@ -65,6 +72,8 @@ class BaseSprite extends FlxSkewedSprite {
 
 	inline public function loadSolid(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):TypeSprite
 		return makeSolid(Width, Height, Color, Unique, Key);
+
+	public var data = null;
 
 	public function new(x:Float = 0, y:Float = 0, ?startTexture:String) {
 		super(x, y);

@@ -4,6 +4,11 @@ import flixel.graphics.frames.FlxAtlasFrames;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
 
+typedef AssetTyping = {
+	var image:String;
+	var type:String;
+}
+
 class SpriteUtil {
 	inline public static function loadTexture(sprite:TypeSprite, newTexture:String):TypeSprite {
 		if (sprite is BaseSprite) {

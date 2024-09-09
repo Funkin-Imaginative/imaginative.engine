@@ -1,5 +1,10 @@
 package backend.structures;
 
+typedef TypeXY<T> = {
+	var x:T;
+	var y:T;
+}
+
 @:structInit class PositionStruct {
 	public var x:Float;
 	public var y:Float;

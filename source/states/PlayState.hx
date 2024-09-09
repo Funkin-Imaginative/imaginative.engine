@@ -1,6 +1,6 @@
 package states;
 
-import utils.ParseUtil.LevelData;
+import objects.LevelObject.LevelData;
 
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor
