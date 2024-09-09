@@ -96,7 +96,7 @@
 		},
 		{
 			"props": {
-				"enforceEmptyPackage": true
+				"enforceEmptyPackage": false
 			},
 			"type": "EmptyPackage"
 		},
@@ -162,7 +162,7 @@
 				"character": "tab",
 				"wrapPolicy": "exact",
 				"ignoreComments": false,
-				"ignoreConditionals": false,
+				"ignoreConditionals": true,
 				"conditionalPolicy": "aligned"
 			},
 			"type": "Indentation"
@@ -203,7 +203,7 @@
 		},
 		{
 			"props": {
-				"ignoreSingleline": false,
+				"ignoreSingleline": true,
 				"tokens": [
 					"TYPEDEF_DEF"
 				],
@@ -214,7 +214,7 @@
 		},
 		{
 			"props": {
-				"max": 180,
+				"max": 0,
 				"ignorePattern": "^$"
 			},
 			"type": "LineLength"
@@ -229,26 +229,26 @@
 		},
 		{
 			"props": {
-				"max": 60,
+				"max": 0,
 				"ignoreEmptyLines": true
 			},
 			"type": "MethodLength"
 		},
 		{
 			"props": {
-				"max": 3
+				"max": 0
 			},
 			"type": "NestedControlFlow"
 		},
 		{
 			"props": {
-				"max": 2
+				"max": 0
 			},
 			"type": "NestedForDepth"
 		},
 		{
 			"props": {
-				"max": 2
+				"max": 0
 			},
 			"type": "NestedIfDepth"
 		},
@@ -419,10 +419,10 @@
 		{
 			"props": {
 				"spaceIfCondition": "should",
-				"spaceAroundBinop": false,
+				"spaceAroundBinop": true,
 				"spaceForLoop": "should",
 				"ignoreRangeOperator": true,
-				"spaceWhileLoop": "any",
+				"spaceWhileLoop": "should",
 				"spaceCatch": "should_not",
 				"spaceSwitchCase": "should",
 				"noSpaceAroundUnop": false

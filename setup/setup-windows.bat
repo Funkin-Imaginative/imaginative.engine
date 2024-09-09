@@ -3,6 +3,7 @@ color 0a
 cd ..
 @echo on
 echo Thank you for wanting to use Imaginative Engine!
+pause
 haxelib install openfl 9.2.2 --always
 haxelib install lime 8.1.2 --always
 haxelib git flixel https://github.com/FNF-CNE-Devs/flixel --always
