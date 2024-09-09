@@ -135,10 +135,10 @@ class Script extends FlxBasic {
 
 			// Custom Functions //
 			'addInfrontOf' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				FunkinUtil.addInfrontOf(obj, fromThis, into);
+				SpriteUtil.addInfrontOf(obj, fromThis, into);
 			},
 			'addBehind' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				FunkinUtil.addBehind(obj, fromThis, into);
+				SpriteUtil.addBehind(obj, fromThis, into);
 			},
 			'disableScript' => () -> {
 				script.active = false;

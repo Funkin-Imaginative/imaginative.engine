@@ -1,6 +1,28 @@
 package objects;
 
-import utils.ParseUtil.LevelData;
+import utils.ParseUtil.SongData;
+
+typedef ObjectsTyping = {
+	var path:String;
+	@:optional var flip:Bool;
+	@:optional var offsets:PositionStruct;
+}
+typedef LevelParse = {
+	var title:String;
+	var songs:Array<String>;
+	@:optional var startingDiff:Int;
+	var difficulties:Array<String>;
+	var objects:Array<ObjectsTyping>;
+	@:optional var color:String;
+}
+typedef LevelData = {
+	var title:String;
+	var songs:Array<SongData>;
+	@:optional public var startingDiff:Int;
+	var difficulties:Array<String>;
+	var objects:Array<ObjectsTyping>;
+	var color:FlxColor;
+}
 
 class LevelObject extends FlxBasic {
 	public var data:LevelData;

@@ -80,6 +80,17 @@ enum abstract FunkinPath(String) from String to String {
 	 */
 	public static function getSolo():FunkinPath
 		return ModConfig.soloIsRoot ? ROOT : SOLO;
+
+	public function toString():String
+		return switch (this) {
+			case ROOT: 'ROOT';
+			case SOLO: 'SOLO';
+			case MODS: 'MODS';
+			case LEAD: 'LEAD';
+			case MODDED: 'MODDED';
+			case ANY: 'ANY';
+			default: '';
+		}
 }
 
 class Paths {

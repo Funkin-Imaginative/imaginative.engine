@@ -1,5 +1,5 @@
 {
-	"version": "2.0.0",
+	"version": "1.0.0",
 	"tasks": [
 		{
 			"type": "lime",
@@ -11,11 +11,47 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "lime: test windows -debug",
+			"label": "Windows Debug Build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "lime",
+			"command": "build",
+			"targetConfiguration": "Windows / Final",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Windows Release Build"
+		},
+		{
+			"type": "lime",
+			"command": "clean",
+			"targetConfiguration": "Windows / Debug",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Clean Windows Debug Build"
+		},
+		{
+			"type": "lime",
+			"command": "clean",
+			"targetConfiguration": "Windows / Final",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Clean Windows Release Build"
 		}
 	]
 }

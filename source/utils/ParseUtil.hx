@@ -1,26 +1,8 @@
 package utils;
 
-typedef ObjectsTyping = {
-	var object:String;
-	@:optional var flip:Bool;
-	@:optional var offsets:PositionStruct;
-}
-typedef LevelParse = {
-	var title:String;
-	var songs:Array<String>;
-	@:optional var startingDiff:Int;
-	var difficulties:Array<String>;
-	var objects:Array<ObjectsTyping>;
-	@:optional var color:String;
-}
-typedef LevelData = {
-	var title:String;
-	var songs:Array<SongData>;
-	@:optional public var startingDiff:Int;
-	var difficulties:Array<String>;
-	var objects:Array<ObjectsTyping>;
-	var color:FlxColor;
-}
+import objects.DifficultyObject.DifficultyData;
+import objects.LevelObject.LevelParse;
+import objects.LevelObject.LevelData;
 
 typedef AllowedModesTyping = {
 	var playAsEnemy:Bool;
@@ -42,12 +24,6 @@ typedef SongData = {
 	var difficulties:Array<String>;
 	var color:FlxColor;
 	var allowedModes:AllowedModesTyping;
-}
-
-typedef DifficultyData = {
-	var display:String;
-	@:optional var variant:Null<String>;
-	@:optional var scoreMult:Float;
 }
 
 class ParseUtil {
