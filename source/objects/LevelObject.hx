@@ -2,17 +2,18 @@ package objects;
 
 import utils.ParseUtil.SongData;
 
-typedef ObjectsTyping = {
-	var path:String;
+typedef ObjectTyping = {
+	var object:OneOfTwo<String, utils.SpriteUtil.SpriteData>;
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
 }
+
 typedef LevelParse = {
 	var title:String;
 	var songs:Array<String>;
 	@:optional var startingDiff:Int;
 	var difficulties:Array<String>;
-	var objects:Array<ObjectsTyping>;
+	var objects:Array<ObjectTyping>;
 	@:optional var color:String;
 }
 typedef LevelData = {
@@ -20,7 +21,7 @@ typedef LevelData = {
 	var songs:Array<SongData>;
 	@:optional public var startingDiff:Int;
 	var difficulties:Array<String>;
-	var objects:Array<ObjectsTyping>;
+	var objects:Array<ObjectTyping>;
 	var color:FlxColor;
 }
 
@@ -73,13 +74,13 @@ class LevelObject extends FlxBasic {
 		lock.y -= lock.height / 2;
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (sprite != null) sprite.update(elapsed);
 		if (isLocked && lock != null) lock.update(elapsed);
 	}
 
-	override public function draw() {
+	override public function draw():Void {
 		super.draw();
 		if (sprite != null) sprite.draw();
 		if (isLocked && lock != null) lock.draw();

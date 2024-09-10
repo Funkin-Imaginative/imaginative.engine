@@ -3,10 +3,26 @@ package utils;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
+typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
 
-typedef AssetTyping = {
-	var image:String;
-	var type:String;
+typedef CharacterSpriteData = {
+	> BeatSpriteData,
+	var character:objects.sprites.Character.CharacterData;
+}
+typedef BeatSpriteData = {
+	> SpriteData,
+	var beat:objects.sprites.BeatSprite.BeatData;
+}
+typedef SpriteData = {
+	> objects.sprites.BaseSprite.ObjectData,
+	@:optional var offsets:objects.sprites.BaseSprite.OffsetsData;
+	@:optional var extra:Array<utils.ParseUtil.ExtraData>;
+}
+
+enum abstract ObjectType(String) from String to String {
+	var CHARACTER = 'character';
+	var BEAT = 'beat';
+	var BASE = null;
 }
 
 class SpriteUtil {
@@ -49,13 +65,6 @@ class SpriteUtil {
 		return sprite;
 	}
 
-	public static function setupSprite(sprite:TypeSprite, canBop:Bool = false):Void {}
-	public static function makeSprite(canBop:Bool = false):TypeSprite {
-		var sprite = canBop ? new BeatSprite() : new BaseSprite();
-		setupSprite(sprite, canBop);
-		return sprite;
-	}
-
 	inline public static function getDominantColor(sprite:FlxSprite):FlxColor {
 		var countByColor:Map<Int, Int> = [];
 		for (col in 0...sprite.frameWidth) {
@@ -90,8 +99,7 @@ class SpriteUtil {
 	 */
 	inline public static function getGroup(obj:FlxBasic):FlxGroup {
 		var resolvedGroup:FlxGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
-		if (resolvedGroup == null)
-			resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
+		if (resolvedGroup == null) resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
 		return resolvedGroup;
 	}
 

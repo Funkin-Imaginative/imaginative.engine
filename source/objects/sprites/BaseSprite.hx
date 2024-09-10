@@ -1,7 +1,9 @@
 package objects.sprites;
 
-import flixel.addons.effects.FlxSkewedSprite;
+import utils.SpriteUtil.SpriteData;
 import backend.structures.PositionStruct.TypeXY;
+import flixel.math.FlxRect;
+import flixel.addons.effects.FlxSkewedSprite;
 
 @:structInit class TextureData {
 	public var image(default, null):String;
@@ -14,7 +16,31 @@ import backend.structures.PositionStruct.TypeXY;
 		return '{image => $image, type => $type, path => $path}';
 }
 
-typedef SpriteData = {
+@:optional typedef OffsetsData = {
+	var position:PositionStruct;
+	var flip:TypeXY<Bool>;
+	var scale:PositionStruct;
+}
+
+typedef AssetTyping = {
+	var image:String;
+	var type:String;
+}
+typedef AnimationTyping = {
+	@:optional var asset:AssetTyping;
+	var name:String;
+	@:optional var tag:String;
+	@:optional var dimensions:TypeXY<Bool>;
+	var indices:Array<Int>;
+	var offset:PositionStruct;
+	var flip:TypeXY<Bool>;
+	var loop:Bool;
+	var fps:Int;
+}
+
+typedef ObjectData = {
+	var asset:AssetTyping;
+	var animations:Array<AnimationTyping>;
 	var antialiasing:Bool;
 	var flip:TypeXY<Bool>;
 	var scale:PositionStruct;
@@ -34,7 +60,7 @@ class BaseSprite extends FlxSkewedSprite {
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData>;
-	@:unreflective inline private function resetTextures(newTexture:String, spriteType:String):String {
+	@:unreflective inline function resetTextures(newTexture:String, spriteType:String):String {
 		textures = [];
 		textures.push({
 			image: HaxePath.withoutExtension(newTexture),
@@ -73,7 +99,12 @@ class BaseSprite extends FlxSkewedSprite {
 	inline public function loadSolid(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):TypeSprite
 		return makeSolid(Width, Height, Color, Unique, Key);
 
-	public var data = null;
+	public var data:ObjectData = null;
+	public static function makeSprite(path:String, pathType:FunkinPath = ANY):BaseSprite {
+		var data:SpriteData = ParseUtil.object(path, pathType);
+		var sprite:BaseSprite = new BaseSprite();
+		return sprite;
+	}
 
 	public function new(x:Float = 0, y:Float = 0, ?startTexture:String) {
 		super(x, y);
@@ -82,8 +113,35 @@ class BaseSprite extends FlxSkewedSprite {
 			loadTexture(startTexture);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (_update != null) _update(elapsed);
 	}
+
+	// make offset flipping look not broken, and yes cne also does this
+	var __offsetFlip:Bool = false;
+
+	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
+		if (__offsetFlip) {
+			scale.x *= -1;
+			var bounds = super.getScreenBounds(newRect, camera);
+			scale.x *= -1;
+			return bounds;
+		}
+		return super.getScreenBounds(newRect, camera);
+	}
+
+	/* override public function draw():Void {
+		if (isFacing == rightFace) {
+			__offsetFlip = true;
+
+			flipX = !flipX;
+			scale.x *= -1;
+			super.draw();
+			flipX = !flipX;
+			scale.x *= -1;
+
+			__offsetFlip = false;
+		} else super.draw();
+	} */
 }

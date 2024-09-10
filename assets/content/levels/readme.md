@@ -11,9 +11,9 @@ vVv level json example below vVv
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
 	"objects": [
-		{"path": "characters/dad"},
-		{"path": "characters/boyfriend"},
-		{"path": "characters/gf"}
+		{"object": "characters/dad"},
+		{"object": "characters/boyfriend"},
+		{"object": "characters/gf"}
 	],
 	"color": "#F9CF51"
 }

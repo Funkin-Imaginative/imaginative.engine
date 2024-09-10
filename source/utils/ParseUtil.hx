@@ -1,5 +1,10 @@
 package utils;
 
+import utils.SpriteUtil.TypeSpriteData;
+import utils.SpriteUtil.ObjectType;
+import utils.SpriteUtil.CharacterSpriteData;
+import utils.SpriteUtil.BeatSpriteData;
+import utils.SpriteUtil.SpriteData;
 import objects.DifficultyObject.DifficultyData;
 import objects.LevelObject.LevelParse;
 import objects.LevelObject.LevelData;
@@ -24,6 +29,11 @@ typedef SongData = {
 	var difficulties:Array<String>;
 	var color:FlxColor;
 	var allowedModes:AllowedModesTyping;
+}
+
+typedef ExtraData = {
+	var name:String;
+	var data:Dynamic;
 }
 
 class ParseUtil {
@@ -53,6 +63,29 @@ class ParseUtil {
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
 		}
+	}
+
+	inline public static function object(path:String, type:ObjectType = BASE, pathType:FunkinPath = ANY):TypeSpriteData {
+		var data:Dynamic = json('content/objects/$path', pathType);
+
+		switch (type) {
+			case CHARACTER:
+				var gottenData:objects.sprites.Character.CharacterParse;
+				var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
+				try {
+					gottenData = json('content/objects/$path', pathType).character;
+					typeData.character.color = FlxColor.fromString(gottenData.color);
+				} catch(e) trace(e);
+				data = typeData;
+			case BEAT:
+				var typeData:BeatSpriteData = json('content/objects/$path', pathType);
+				data = typeData;
+			case BASE:
+				var typeData:SpriteData = json('content/objects/$path', pathType);
+				data = typeData;
+		}
+
+		return data;
 	}
 
 	inline public static function song(name:String, pathType:FunkinPath = ANY):SongData {

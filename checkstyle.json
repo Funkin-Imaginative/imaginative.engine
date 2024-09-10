@@ -20,7 +20,9 @@
 			"type": "ArrowFunction"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "AvoidStarImport"
 		},
 		{
@@ -36,7 +38,9 @@
 			"type": "CodeSimilarity"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "CommentedOutCode"
 		},
 		{
@@ -50,9 +54,7 @@
 			"props": {
 				"ignoreExtern": false,
 				"format": "^[a-z][a-zA-Z0-9]*$",
-				"tokens": [
-					"NOTINLINE"
-				]
+				"tokens": ["NOTINLINE"]
 			},
 			"type": "ConstantName"
 		},
@@ -67,19 +69,23 @@
 						"complexity": 26,
 						"severity": "ERROR"
 					}
-				]
+				],
+				"severity": "IGNORE"
 			},
 			"type": "CyclomaticComplexity"
 		},
 		{
 			"props": {
-				"lineStyle": "onestar",
-				"startStyle": "onestar"
+				"lineStyle": "none",
+				"startStyle": "none",
+				"severity": "IGNORE"
 			},
 			"type": "DocCommentStyle"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "Dynamic"
 		},
 		{
@@ -96,7 +102,7 @@
 		},
 		{
 			"props": {
-				"enforceEmptyPackage": false
+				"enforceEmptyPackage": true
 			},
 			"type": "EmptyPackage"
 		},
@@ -108,7 +114,8 @@
 					"beforeUsing",
 					"typeDefinition",
 					"afterLeftCurly",
-					"beforeRightCurly"
+					"beforeRightCurly",
+					"betweenInterfaceFields"
 				],
 				"upto": [],
 				"defaultPolicy": "ignore",
@@ -116,16 +123,18 @@
 				"max": 1,
 				"ignore": [],
 				"atleast": [],
-				"skipSingleLineTypes": true
+				"severity": "IGNORE",
+				"skipSingleLineTypes": false
 			},
 			"type": "ExtendedEmptyLines"
 		},
 		{
 			"props": {
-				"requireParams": false,
+				"requireParams": true,
 				"fieldType": "FUNCTIONS",
-				"requireReturn": false,
+				"requireReturn": true,
 				"ignoreOverride": true,
+				"severity": "IGNORE",
 				"tokens": [
 					"ABSTRACT_DEF",
 					"CLASS_DEF",
@@ -134,10 +143,7 @@
 					"TYPEDEF_DEF"
 				],
 				"modifier": "PUBLIC",
-				"excludeNames": [
-					"new",
-					"toString"
-				]
+				"excludeNames": ["new", "toString"]
 			},
 			"type": "FieldDocComment"
 		},
@@ -146,7 +152,9 @@
 			"type": "FileNameCase"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "Final"
 		},
 		{
@@ -162,7 +170,7 @@
 				"character": "tab",
 				"wrapPolicy": "exact",
 				"ignoreComments": false,
-				"ignoreConditionals": true,
+				"ignoreConditionals": false,
 				"conditionalPolicy": "aligned"
 			},
 			"type": "Indentation"
@@ -176,13 +184,14 @@
 		},
 		{
 			"props": {
-				"ignoreReturnAssignments": true
+				"ignoreReturnAssignments": true,
+				"severity": "IGNORE"
 			},
 			"type": "InnerAssignment"
 		},
 		{
 			"props": {
-				"ignoreSingleline": false,
+				"ignoreSingleline": true,
 				"tokens": [
 					"CLASS_DEF",
 					"ENUM_DEF",
@@ -204,17 +213,15 @@
 		{
 			"props": {
 				"ignoreSingleline": true,
-				"tokens": [
-					"TYPEDEF_DEF"
-				],
-				"ignoreEmptySingleline": false,
+				"tokens": ["TYPEDEF_DEF"],
+				"ignoreEmptySingleline": true,
 				"option": "eol"
 			},
 			"type": "LeftCurly"
 		},
 		{
 			"props": {
-				"max": 0,
+				"max": 999999,
 				"ignorePattern": "^$"
 			},
 			"type": "LineLength"
@@ -229,26 +236,26 @@
 		},
 		{
 			"props": {
-				"max": 0,
-				"ignoreEmptyLines": true
+				"max": 999999,
+				"ignoreEmptyLines": false
 			},
 			"type": "MethodLength"
 		},
 		{
 			"props": {
-				"max": 0
+				"max": 999999
 			},
 			"type": "NestedControlFlow"
 		},
 		{
 			"props": {
-				"max": 0
+				"max": 999999
 			},
 			"type": "NestedForDepth"
 		},
 		{
 			"props": {
-				"max": 0
+				"max": 999999
 			},
 			"type": "NestedIfDepth"
 		},
@@ -356,7 +363,7 @@
 		{
 			"props": {
 				"ignoreFormat": "^$",
-				"max": 3
+				"max": 999999
 			},
 			"type": "ReturnCount"
 		},
@@ -376,24 +383,22 @@
 					"TRY",
 					"CATCH"
 				],
-				"option": "same"
+				"option": "aloneorsingle",
+				"severity": "IGNORE"
 			},
 			"type": "RightCurly"
 		},
 		{
 			"props": {
-				"tokens": [
-					"IF"
-				],
-				"option": "same"
+				"tokens": ["IF"],
+				"option": "aloneorsingle",
+				"severity": "IGNORE"
 			},
 			"type": "RightCurly"
 		},
 		{
 			"props": {
-				"tokens": [
-					"OBJECT_DECL"
-				],
+				"tokens": ["OBJECT_DECL"],
 				"option": "same"
 			},
 			"type": "RightCurly"
@@ -409,9 +414,7 @@
 		},
 		{
 			"props": {
-				"tokens": [
-					","
-				],
+				"tokens": [","],
 				"option": "eol"
 			},
 			"type": "SeparatorWrap"
@@ -443,7 +446,9 @@
 			"type": "TODOComment"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "Trace"
 		},
 		{
@@ -458,6 +463,7 @@
 		},
 		{
 			"props": {
+				"severity": "IGNORE",
 				"tokens": [
 					"ABSTRACT_DEF",
 					"CLASS_DEF",
