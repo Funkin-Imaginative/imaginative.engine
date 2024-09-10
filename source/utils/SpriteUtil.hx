@@ -18,7 +18,7 @@ typedef BeatSpriteData = {
 typedef SpriteData = {
 	> objects.sprites.BaseSprite.ObjectData,
 	@:optional var offsets:objects.sprites.BaseSprite.OffsetsData;
-	@:optional var extra:utils.ParseUtil.ExtraData;
+	@:optional var extra:Array<utils.ParseUtil.ExtraData>;
 }
 
 enum abstract ObjectType(String) from String to String {
