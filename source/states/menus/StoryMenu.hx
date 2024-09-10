@@ -14,7 +14,7 @@ class StoryMenu extends BeatState {
 	var curDiffList:Array<String> = [];
 
 	var curDiffString(get, never):String;
-	private function get_curDiffString():String
+	inline function get_curDiffString():String
 		return curDiffList[curDiff];
 
 	var prevDiff:Int = 0;
@@ -26,7 +26,7 @@ class StoryMenu extends BeatState {
 
 	var weekTopBg:BaseSprite;
 	var weekBg:BaseSprite;
-	var weekObjects:FlxTypedGroup<BaseSprite>;
+	var weekObjects:FlxTypedGroup<BeatSprite>;
 
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
@@ -50,7 +50,7 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
-		var loadedObjects:Array<String> = [];
+		var loadedObjects:Array<objects.LevelObject.ObjectTyping> = [];
 		levels = new FlxTypedGroup<LevelObject>();
 		for (list in [
 			// Paths.readFolderOrderTxt('content/levels', 'json', FunkinPath.getSolo()),
@@ -64,8 +64,8 @@ class StoryMenu extends BeatState {
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
 				for (data in level.data.objects)
-					if (!loadedObjects.contains(data.path))
-						loadedObjects.push(data.path);
+					if (!loadedObjects.contains(data))
+						loadedObjects.push(data);
 			}
 		}
 		add(levels);
@@ -130,10 +130,14 @@ class StoryMenu extends BeatState {
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
-		/* weekObjects = new FlxTypedGroup<BaseSprite>();
-		for (name in loadedObjects) {
-			var object:BaseSprite = new BaseSprite();
-			weekObjects.add(object);
+		/* weekObjects = new FlxTypedGroup<BeatSprite>();
+		for (data in loadedObjects) {
+			var sprite:BeatSprite;
+			if (data.object is String)
+				sprite;
+			else
+				sprite;
+			weekObjects.add(sprite);
 		}
 		add(weekObjects); */
 

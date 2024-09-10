@@ -1,7 +1,7 @@
 package objects.sprites;
 
-import flixel.addons.effects.FlxSkewedSprite;
 import backend.structures.PositionStruct.TypeXY;
+import flixel.addons.effects.FlxSkewedSprite;
 
 @:structInit class TextureData {
 	public var image(default, null):String;
@@ -14,7 +14,31 @@ import backend.structures.PositionStruct.TypeXY;
 		return '{image => $image, type => $type, path => $path}';
 }
 
-typedef SpriteData = {
+@:optional typedef OffsetsData = {
+	var position:PositionStruct;
+	var flip:TypeXY<Bool>;
+	var scale:PositionStruct;
+}
+
+typedef AssetTyping = {
+	var image:String;
+	var type:String;
+}
+typedef AnimationTyping = {
+	@:optional var asset:AssetTyping;
+	var name:String;
+	@:optional var tag:String;
+	@:optional var dimensions:TypeXY<Bool>;
+	var indices:Array<Int>;
+	var offset:PositionStruct;
+	var flip:TypeXY<Bool>;
+	var loop:Bool;
+	var fps:Int;
+}
+
+typedef ObjectData = {
+	var asset:AssetTyping;
+	var animations:Array<AnimationTyping>;
 	var antialiasing:Bool;
 	var flip:TypeXY<Bool>;
 	var scale:PositionStruct;
@@ -34,7 +58,7 @@ class BaseSprite extends FlxSkewedSprite {
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData>;
-	@:unreflective inline private function resetTextures(newTexture:String, spriteType:String):String {
+	@:unreflective inline function resetTextures(newTexture:String, spriteType:String):String {
 		textures = [];
 		textures.push({
 			image: HaxePath.withoutExtension(newTexture),
@@ -82,7 +106,7 @@ class BaseSprite extends FlxSkewedSprite {
 			loadTexture(startTexture);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (_update != null) _update(elapsed);
 	}

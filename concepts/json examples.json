@@ -44,7 +44,7 @@
 					"type": "graphic"
 				},
 				"name": "normal",
-				"dimensions": {"width": 150, "height": 150},
+				"dimensions": {"x": 150, "y": 150},
 				"indices": [0],
 				"offset": {"x": 0, "y": 0},
 				"flip": {"x": false, "y": false},

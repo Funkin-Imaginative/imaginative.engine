@@ -1,5 +1,9 @@
 package utils;
 
+import utils.SpriteUtil.ObjectType;
+import utils.SpriteUtil.CharacterSpriteData;
+import utils.SpriteUtil.BeatSpriteData;
+import utils.SpriteUtil.SpriteData;
 import objects.DifficultyObject.DifficultyData;
 import objects.LevelObject.LevelParse;
 import objects.LevelObject.LevelData;
@@ -24,6 +28,11 @@ typedef SongData = {
 	var difficulties:Array<String>;
 	var color:FlxColor;
 	var allowedModes:AllowedModesTyping;
+}
+
+typedef ExtraData = {
+	var name:String;
+	var data:Dynamic;
 }
 
 class ParseUtil {
@@ -52,6 +61,34 @@ class ParseUtil {
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
+		}
+	}
+
+	inline public static function object(path:String, pathType:FunkinPath = ANY):OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData> {
+		var tempData:Dynamic = json('content/objects/$path', pathType);
+		var type:ObjectType = BASE;
+		if (Reflect.hasField(tempData, 'beat')) type = BEAT;
+		if (Reflect.hasField(tempData, 'character')) type = CHARACTER;
+		var data:OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData> = json('content/objects/$path', pathType);
+		/* var charData:objects.sprites.Character.CharacterData = {
+			camera: {x: data.character.camera.x, y: data.character.camera.y},
+			color: FlxColor.fromString(data.character.color),
+			icon: data.character.icon,
+			singlength: data.character.singlength
+		};
+		var beatData:objects.sprites.BeatSprite.BeatData = {
+			invertal: data.beat.invertal,
+			skipnegative: data.beat.skipnegative
+		};
+		var objData:objects.sprites.BaseSprite.ObjectData = {
+			asset: {image: data.asset.image, type: data.asset.type},
+			animations: data.animations,
+			antialiasing: data.antialiasing,
+			flip: {x: data.flip.x, y: data.flip.y},
+			scale: {x: data.scale.x, y: data.scale.y}
+		}; */
+		return cast {
+
 		}
 	}
 

@@ -4,9 +4,9 @@
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard"],
 	"objects": [
-		{"path": "characters/spooky"},
-		{"path": "characters/boyfriend"},
-		{"path": "characters/gf"}
+		{"object": "characters/spooky"},
+		{"object": "characters/boyfriend"},
+		{"object": "characters/gf"}
 	],
 	"color": "#F9CF51"
 }

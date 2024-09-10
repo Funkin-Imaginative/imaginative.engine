@@ -2,6 +2,11 @@ package objects.sprites;
 
 import flixel.math.FlxRect;
 
+typedef BeatData = {
+	var invertal:Int;
+	var skipnegative:Bool;
+}
+
 class BeatSprite extends BaseSprite implements IBeat {
 	/* public var bopSpeed(default, set):Int = 1; inline function set_bopSpeed(value:Int):Int return bopSpeed = bopSpeed < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
@@ -12,11 +17,11 @@ class BeatSprite extends BaseSprite implements IBeat {
 		super(x, y);
 	}
 
-	public function stepHit(curStep:Int) {}
+	public function stepHit(curStep:Int):Void {}
 
-	public function beatHit(curBeat:Int) {}
+	public function beatHit(curBeat:Int):Void {}
 
-	public function measureHit(curMeasure:Int) {}
+	public function measureHit(curMeasure:Int):Void {}
 
 	// make offset flipping look not broken, and yes cne also does this
 	var __offsetFlip:Bool = false;
@@ -31,7 +36,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 		return super.getScreenBounds(newRect, camera);
 	}
 
-	/* override public function draw() {
+	/* override public function draw():Void {
 		if (isFacing == rightFace) {
 			__offsetFlip = true;
 

@@ -1,12 +1,30 @@
 package utils;
 
 import flixel.graphics.frames.FlxAtlasFrames;
+import backend.structures.PositionStruct.TypeXY;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
 
-typedef AssetTyping = {
-	var image:String;
-	var type:String;
+
+
+typedef CharacterSpriteData = {
+	> BeatSpriteData,
+	var character:objects.sprites.Character.CharacterData;
+}
+typedef BeatSpriteData = {
+	> SpriteData,
+	var beat:objects.sprites.BeatSprite.BeatData;
+}
+typedef SpriteData = {
+	> objects.sprites.BaseSprite.ObjectData,
+	@:optional var offsets:objects.sprites.BaseSprite.OffsetsData;
+	@:optional var extra:utils.ParseUtil.ExtraData;
+}
+
+enum abstract ObjectType(String) from String to String {
+	var CHARACTER = 'character';
+	var BEAT = 'beat';
+	var BASE = null;
 }
 
 class SpriteUtil {
@@ -90,8 +108,7 @@ class SpriteUtil {
 	 */
 	inline public static function getGroup(obj:FlxBasic):FlxGroup {
 		var resolvedGroup:FlxGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
-		if (resolvedGroup == null)
-			resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
+		if (resolvedGroup == null) resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
 		return resolvedGroup;
 	}
 
