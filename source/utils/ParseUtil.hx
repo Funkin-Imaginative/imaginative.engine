@@ -1,5 +1,6 @@
 package utils;
 
+import utils.SpriteUtil.TypeSpriteData;
 import utils.SpriteUtil.ObjectType;
 import utils.SpriteUtil.CharacterSpriteData;
 import utils.SpriteUtil.BeatSpriteData;
@@ -64,32 +65,27 @@ class ParseUtil {
 		}
 	}
 
-	inline public static function object(path:String, pathType:FunkinPath = ANY):OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData> {
-		var tempData:Dynamic = json('content/objects/$path', pathType);
-		var type:ObjectType = BASE;
-		if (Reflect.hasField(tempData, 'beat')) type = BEAT;
-		if (Reflect.hasField(tempData, 'character')) type = CHARACTER;
-		var data:OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData> = json('content/objects/$path', pathType);
-		/* var charData:objects.sprites.Character.CharacterData = {
-			camera: {x: data.character.camera.x, y: data.character.camera.y},
-			color: FlxColor.fromString(data.character.color),
-			icon: data.character.icon,
-			singlength: data.character.singlength
-		};
-		var beatData:objects.sprites.BeatSprite.BeatData = {
-			invertal: data.beat.invertal,
-			skipnegative: data.beat.skipnegative
-		};
-		var objData:objects.sprites.BaseSprite.ObjectData = {
-			asset: {image: data.asset.image, type: data.asset.type},
-			animations: data.animations,
-			antialiasing: data.antialiasing,
-			flip: {x: data.flip.x, y: data.flip.y},
-			scale: {x: data.scale.x, y: data.scale.y}
-		}; */
-		return cast {
+	inline public static function object(path:String, type:ObjectType = BASE, pathType:FunkinPath = ANY):TypeSpriteData {
+		var data:Dynamic = json('content/objects/$path', pathType);
 
+		switch (type) {
+			case CHARACTER:
+				var gottenData:objects.sprites.Character.CharacterParse;
+				var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
+				try {
+					gottenData = json('content/objects/$path', pathType).character;
+					typeData.character.color = FlxColor.fromString(gottenData.color);
+				} catch(e) trace(e);
+				data = typeData;
+			case BEAT:
+				var typeData:BeatSpriteData = json('content/objects/$path', pathType);
+				data = typeData;
+			case BASE:
+				var typeData:SpriteData = json('content/objects/$path', pathType);
+				data = typeData;
 		}
+
+		return data;
 	}
 
 	inline public static function song(name:String, pathType:FunkinPath = ANY):SongData {

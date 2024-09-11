@@ -1,11 +1,9 @@
 package utils;
 
 import flixel.graphics.frames.FlxAtlasFrames;
-import backend.structures.PositionStruct.TypeXY;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
-
-
+typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
 
 typedef CharacterSpriteData = {
 	> BeatSpriteData,
@@ -64,13 +62,6 @@ class SpriteUtil {
 				cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
 			return sprite;
 		}
-		return sprite;
-	}
-
-	public static function setupSprite(sprite:TypeSprite, canBop:Bool = false):Void {}
-	public static function makeSprite(canBop:Bool = false):TypeSprite {
-		var sprite = canBop ? new BeatSprite() : new BaseSprite();
-		setupSprite(sprite, canBop);
 		return sprite;
 	}
 

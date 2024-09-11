@@ -77,7 +77,8 @@
 		{
 			"props": {
 				"lineStyle": "none",
-				"startStyle": "none"
+				"startStyle": "none",
+				"severity": "IGNORE"
 			},
 			"type": "DocCommentStyle"
 		},
@@ -190,7 +191,7 @@
 		},
 		{
 			"props": {
-				"ignoreSingleline": false,
+				"ignoreSingleline": true,
 				"tokens": [
 					"CLASS_DEF",
 					"ENUM_DEF",
@@ -204,16 +205,16 @@
 					"TRY",
 					"CATCH"
 				],
-				"ignoreEmptySingleline": false,
+				"ignoreEmptySingleline": true,
 				"option": "eol"
 			},
 			"type": "LeftCurly"
 		},
 		{
 			"props": {
-				"ignoreSingleline": false,
+				"ignoreSingleline": true,
 				"tokens": ["TYPEDEF_DEF"],
-				"ignoreEmptySingleline": false,
+				"ignoreEmptySingleline": true,
 				"option": "eol"
 			},
 			"type": "LeftCurly"
@@ -382,14 +383,16 @@
 					"TRY",
 					"CATCH"
 				],
-				"option": "aloneorsingle"
+				"option": "aloneorsingle",
+				"severity": "IGNORE"
 			},
 			"type": "RightCurly"
 		},
 		{
 			"props": {
 				"tokens": ["IF"],
-				"option": "alone"
+				"option": "aloneorsingle",
+				"severity": "IGNORE"
 			},
 			"type": "RightCurly"
 		},
@@ -443,7 +446,9 @@
 			"type": "TODOComment"
 		},
 		{
-			"props": {},
+			"props": {
+				"severity": "IGNORE"
+			},
 			"type": "Trace"
 		},
 		{

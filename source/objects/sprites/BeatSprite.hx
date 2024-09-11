@@ -1,6 +1,6 @@
 package objects.sprites;
 
-import flixel.math.FlxRect;
+import utils.SpriteUtil.BeatSpriteData;
 
 typedef BeatData = {
 	var invertal:Int;
@@ -13,6 +13,13 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var hasSway(get, never):Bool; // Replaces 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
 	inline function get_hasSway():Bool return doesAnimExist('sway${suffixes.idle}') ? true : doesAnimExist('sway'); */
 
+	public var beatData:BeatData = null;
+	public static function makeSprite(path:String, pathType:FunkinPath = ANY):BeatSprite {
+		var data:BeatSpriteData = ParseUtil.object(path, BEAT, pathType);
+		var sprite:BeatSprite = new BeatSprite();
+		return sprite;
+	}
+
 	public function new(x:Float = 0, y:Float = 0, ?objectPath:String) {
 		super(x, y);
 	}
@@ -22,31 +29,4 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public function beatHit(curBeat:Int):Void {}
 
 	public function measureHit(curMeasure:Int):Void {}
-
-	// make offset flipping look not broken, and yes cne also does this
-	var __offsetFlip:Bool = false;
-
-	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
-		if (__offsetFlip) {
-			scale.x *= -1;
-			var bounds = super.getScreenBounds(newRect, camera);
-			scale.x *= -1;
-			return bounds;
-		}
-		return super.getScreenBounds(newRect, camera);
-	}
-
-	/* override public function draw():Void {
-		if (isFacing == rightFace) {
-			__offsetFlip = true;
-
-			flipX = !flipX;
-			scale.x *= -1;
-			super.draw();
-			flipX = !flipX;
-			scale.x *= -1;
-
-			__offsetFlip = false;
-		} else super.draw();
-	} */
 }
