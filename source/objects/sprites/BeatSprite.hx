@@ -14,14 +14,14 @@ class BeatSprite extends BaseSprite implements IBeat {
 	inline function get_hasSway():Bool return doesAnimExist('sway${suffixes.idle}') ? true : doesAnimExist('sway'); */
 
 	public var beatData:BeatData = null;
-	public static function makeSprite(path:String, pathType:FunkinPath = ANY):BeatSprite {
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
 		var data:BeatSpriteData = ParseUtil.object(path, BEAT, pathType);
-		var sprite:BeatSprite = new BeatSprite();
+		var sprite:BeatSprite = new BeatSprite(x, y, cast data);
 		return sprite;
 	}
 
-	public function new(x:Float = 0, y:Float = 0, ?objectPath:String) {
-		super(x, y);
+	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<utils.SpriteUtil.TypeSpriteData, String>) {
+		super(x, y, sprite);
 	}
 
 	public function stepHit(curStep:Int):Void {}

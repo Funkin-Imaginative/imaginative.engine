@@ -45,7 +45,7 @@ class DifficultyObject extends FlxBasic {
 		}
 	}
 
-	inline public function refreshAnim() {
+	inline public function refreshAnim():Void {
 		sprite.animation.play('idle', true);
 		sprite.centerOffsets();
 		sprite.centerOrigin();
@@ -62,13 +62,13 @@ class DifficultyObject extends FlxBasic {
 		lock.alpha = sprite.alpha;
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (sprite != null) sprite.update(elapsed);
 		if (isLocked && lock != null) lock.update(elapsed);
 	}
 
-	override public function draw() {
+	override public function draw():Void {
 		super.draw();
 		if (sprite != null) sprite.draw();
 		if (isLocked && lock != null) lock.draw();

@@ -74,15 +74,101 @@ class ParseUtil {
 				var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
 				try {
 					gottenData = json('content/objects/$path', pathType).character;
-					typeData.character.color = FlxColor.fromString(gottenData.color);
+					typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
 				} catch(e) trace(e);
-				data = typeData;
+				data = {
+					character: {
+						camera: {x: FunkinUtil.getDefault(typeData.character.camera.x, 0), y: FunkinUtil.getDefault(typeData.character.camera.y, 0)},
+						color: typeData.character.color,
+						icon: FunkinUtil.getDefault(typeData.character.icon, 'face'),
+						singlength: FunkinUtil.getDefault(typeData.character.singlength, 0)
+					},
+					beat: {
+						invertal: FunkinUtil.getDefault(typeData.beat.invertal, 0),
+						skipnegative: FunkinUtil.getDefault(typeData.beat.skipnegative, false)
+					},
+					offsets: {
+						position: {x: FunkinUtil.getDefault(typeData.offsets.position.x, 0), y: FunkinUtil.getDefault(typeData.offsets.position.y, 0)},
+						flip: {x: FunkinUtil.getDefault(typeData.offsets.flip.x, false), y: FunkinUtil.getDefault(typeData.offsets.flip.y, false)},
+						scale: {x: FunkinUtil.getDefault(typeData.offsets.scale.x, 0), y: FunkinUtil.getDefault(typeData.offsets.scale.y, 0)}
+					},
+					asset: typeData.asset,
+					animations: [
+						for (anim in typeData.animations) {
+							asset: FunkinUtil.getDefault(anim.asset, typeData.asset),
+							name: anim.name,
+							tag: FunkinUtil.getDefault(anim.tag, anim.name),
+							dimensions: {x: FunkinUtil.getDefault(anim.dimensions.x, 0), y: FunkinUtil.getDefault(anim.dimensions.y, 0)},
+							indices: FunkinUtil.getDefault(anim.indices, []),
+							offset: {x: FunkinUtil.getDefault(anim.offset.x, 0), y: FunkinUtil.getDefault(anim.offset.y, 0)},
+							flip: {x: FunkinUtil.getDefault(anim.flip.x, false), y: FunkinUtil.getDefault(anim.flip.y, false)},
+							loop: FunkinUtil.getDefault(anim.loop, false),
+							fps: FunkinUtil.getDefault(anim.fps, 24)
+						}
+					],
+					position: {x: FunkinUtil.getDefault(typeData.position.x, 0), y: FunkinUtil.getDefault(typeData.position.y, 0)},
+					flip: {x: FunkinUtil.getDefault(typeData.flip.x, false), y: FunkinUtil.getDefault(typeData.flip.y, false)},
+					scale: {x: FunkinUtil.getDefault(typeData.scale.x, 0), y: FunkinUtil.getDefault(typeData.scale.y, 0)},
+					antialiasing: FunkinUtil.getDefault(typeData.antialiasing, true)
+				}
 			case BEAT:
 				var typeData:BeatSpriteData = json('content/objects/$path', pathType);
-				data = typeData;
+				data = {
+					beat: {
+						invertal: FunkinUtil.getDefault(typeData.beat.invertal, 0),
+						skipnegative: FunkinUtil.getDefault(typeData.beat.skipnegative, false)
+					},
+					offsets: {
+						position: {x: FunkinUtil.getDefault(typeData.offsets.position.x, 0), y: FunkinUtil.getDefault(typeData.offsets.position.y, 0)},
+						flip: {x: FunkinUtil.getDefault(typeData.offsets.flip.x, false), y: FunkinUtil.getDefault(typeData.offsets.flip.y, false)},
+						scale: {x: FunkinUtil.getDefault(typeData.offsets.scale.x, 0), y: FunkinUtil.getDefault(typeData.offsets.scale.y, 0)}
+					},
+					asset: typeData.asset,
+					animations: [
+						for (anim in typeData.animations) {
+							asset: FunkinUtil.getDefault(anim.asset, typeData.asset),
+							name: anim.name,
+							tag: FunkinUtil.getDefault(anim.tag, anim.name),
+							dimensions: {x: FunkinUtil.getDefault(anim.dimensions.x, 0), y: FunkinUtil.getDefault(anim.dimensions.y, 0)},
+							indices: FunkinUtil.getDefault(anim.indices, []),
+							offset: {x: FunkinUtil.getDefault(anim.offset.x, 0), y: FunkinUtil.getDefault(anim.offset.y, 0)},
+							flip: {x: FunkinUtil.getDefault(anim.flip.x, false), y: FunkinUtil.getDefault(anim.flip.y, false)},
+							loop: FunkinUtil.getDefault(anim.loop, false),
+							fps: FunkinUtil.getDefault(anim.fps, 24)
+						}
+					],
+					position: {x: FunkinUtil.getDefault(typeData.position.x, 0), y: FunkinUtil.getDefault(typeData.position.y, 0)},
+					flip: {x: FunkinUtil.getDefault(typeData.flip.x, false), y: FunkinUtil.getDefault(typeData.flip.y, false)},
+					scale: {x: FunkinUtil.getDefault(typeData.scale.x, 0), y: FunkinUtil.getDefault(typeData.scale.y, 0)},
+					antialiasing: FunkinUtil.getDefault(typeData.antialiasing, true)
+				}
 			case BASE:
 				var typeData:SpriteData = json('content/objects/$path', pathType);
-				data = typeData;
+				data = {
+					offsets: {
+						position: {x: FunkinUtil.getDefault(typeData.offsets.position.x, 0), y: FunkinUtil.getDefault(typeData.offsets.position.y, 0)},
+						flip: {x: FunkinUtil.getDefault(typeData.offsets.flip.x, false), y: FunkinUtil.getDefault(typeData.offsets.flip.y, false)},
+						scale: {x: FunkinUtil.getDefault(typeData.offsets.scale.x, 0), y: FunkinUtil.getDefault(typeData.offsets.scale.y, 0)}
+					},
+					asset: typeData.asset,
+					animations: [
+						for (anim in typeData.animations) {
+							asset: FunkinUtil.getDefault(anim.asset, typeData.asset),
+							name: anim.name,
+							tag: FunkinUtil.getDefault(anim.tag, anim.name),
+							dimensions: {x: FunkinUtil.getDefault(anim.dimensions.x, 0), y: FunkinUtil.getDefault(anim.dimensions.y, 0)},
+							indices: FunkinUtil.getDefault(anim.indices, []),
+							offset: {x: FunkinUtil.getDefault(anim.offset.x, 0), y: FunkinUtil.getDefault(anim.offset.y, 0)},
+							flip: {x: FunkinUtil.getDefault(anim.flip.x, false), y: FunkinUtil.getDefault(anim.flip.y, false)},
+							loop: FunkinUtil.getDefault(anim.loop, false),
+							fps: FunkinUtil.getDefault(anim.fps, 24)
+						}
+					],
+					position: {x: FunkinUtil.getDefault(typeData.position.x, 0), y: FunkinUtil.getDefault(typeData.position.y, 0)},
+					flip: {x: FunkinUtil.getDefault(typeData.flip.x, false), y: FunkinUtil.getDefault(typeData.flip.y, false)},
+					scale: {x: FunkinUtil.getDefault(typeData.scale.x, 0), y: FunkinUtil.getDefault(typeData.scale.y, 0)},
+					antialiasing: FunkinUtil.getDefault(typeData.antialiasing, true)
+				}
 		}
 
 		return data;
