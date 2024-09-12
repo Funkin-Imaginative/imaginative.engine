@@ -7,7 +7,7 @@ class TitleScreen extends BeatState {
 	var leaving:Bool = false;
 
 	var logo:BaseSprite;
-	var menuDancer:BaseSprite;
+	var menuDancer:BeatSprite;
 	var titleText:BaseSprite;
 	var ngLogo:BaseSprite;
 
@@ -20,12 +20,12 @@ class TitleScreen extends BeatState {
 
 			logo = new BaseSprite(-150, -100, 'menus/title/logoBumpin');
 			logo.animation.addByPrefix('bump', 'logo bumpin', 24, false);
-			logo.animation.play('bump', true);
+			logo.playAnim('bump', true);
 			logo.animation.finish();
 			logo.antialiasing = true;
 			add(logo);
 
-			menuDancer = new BaseSprite(FlxG.width * 0.4, FlxG.height * 0.07, 'menus/title/gfDanceTitle');
+			menuDancer = new BeatSprite(FlxG.width * 0.4, FlxG.height * 0.07, 'menus/title/gfDanceTitle');
 			menuDancer.animation.addByIndices('idle', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
 			menuDancer.animation.addByIndices('sway', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], '', 24, false);
 			menuDancer.antialiasing = true;
@@ -103,10 +103,10 @@ class TitleScreen extends BeatState {
 			return;
 
 		if (skipped) {
-			logo.animation.play('bump', true);
-			menuDancer.animation.play((hasSwayed = !hasSwayed) ? 'sway' : 'idle', true);
+			logo.playAnim('bump', true);
+			menuDancer.playAnim((hasSwayed = !hasSwayed) ? 'sway' : 'idle', true);
 		} else {
-			if (curBeat == 16)
+			if (curBeat >= 16)
 				skipIntro();
 		}
 	}

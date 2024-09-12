@@ -30,7 +30,7 @@ typedef AnimationTyping = {
 	@:optional var asset:AssetTyping;
 	var name:String;
 	@:optional var tag:String;
-	@:optional var dimensions:TypeXY<Bool>;
+	@:optional var dimensions:TypeXY<Int>;
 	var indices:Array<Int>;
 	var offset:PositionStruct;
 	var flip:TypeXY<Bool>;
@@ -41,9 +41,10 @@ typedef AnimationTyping = {
 typedef ObjectData = {
 	var asset:AssetTyping;
 	var animations:Array<AnimationTyping>;
+	@:optional var position:PositionStruct;
+	@:optional var flip:TypeXY<Bool>;
+	@:optional var scale:PositionStruct;
 	var antialiasing:Bool;
-	var flip:TypeXY<Bool>;
-	var scale:PositionStruct;
 }
 
 class BaseSprite extends FlxSkewedSprite {
@@ -100,22 +101,32 @@ class BaseSprite extends FlxSkewedSprite {
 		return makeSolid(Width, Height, Color, Unique, Key);
 
 	public var data:ObjectData = null;
-	public static function makeSprite(path:String, pathType:FunkinPath = ANY):BaseSprite {
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
 		var data:SpriteData = ParseUtil.object(path, pathType);
-		var sprite:BaseSprite = new BaseSprite();
+		var sprite:BaseSprite = new BaseSprite(x, y, cast data);
 		return sprite;
 	}
 
-	public function new(x:Float = 0, y:Float = 0, ?startTexture:String) {
+	public function renderData():Void {
+
+	}
+
+	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<utils.SpriteUtil.TypeSpriteData, String>) {
 		super(x, y);
 
-		if (startTexture != null)
-			loadTexture(startTexture);
+		if (sprite is String) {
+			if (Paths.fileExists(Paths.object(sprite), false)) renderData();
+			else loadTexture(sprite);
+		}
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (_update != null) _update(elapsed);
+	}
+
+	public function playAnim(name:String, force:Bool = false, reverse:Bool = false, frame:Int = 0):Void {
+		animation.play(name, force, reverse, frame);
 	}
 
 	// make offset flipping look not broken, and yes cne also does this

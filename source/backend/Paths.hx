@@ -146,6 +146,9 @@ class Paths {
 	inline public static function json(file:String, pathType:FunkinPath = ANY):String
 		return applyRoot('$file.json', pathType);
 
+	inline public static function object(file:String, pathType:FunkinPath = ANY):String
+		return json('content/objects/$file', pathType);
+
 	public static function multExst(path:String, exts:Array<String>, pathType:FunkinPath = ANY):String {
 		var result:String = '';
 		for (ext in exts)
