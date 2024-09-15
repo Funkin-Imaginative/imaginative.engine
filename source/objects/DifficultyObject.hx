@@ -26,7 +26,7 @@ class DifficultyObject extends FlxBasic {
 				for (script in Script.create(s, DIFFICULTY))
 					scripts.add(script);
 		else
-			scripts.add(Script.create('', false)[0]);
+			scripts.add(new Script());
 		scripts.load();
 
 		if (loadSprites) {

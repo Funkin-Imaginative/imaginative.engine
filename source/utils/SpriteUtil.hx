@@ -7,16 +7,22 @@ typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteD
 
 typedef CharacterSpriteData = {
 	> BeatSpriteData,
-	var character:objects.sprites.Character.CharacterData;
+	var character:Character.CharacterData;
 }
 typedef BeatSpriteData = {
 	> SpriteData,
-	var beat:objects.sprites.BeatSprite.BeatData;
+	var beat:BeatSprite.BeatData;
 }
 typedef SpriteData = {
-	> objects.sprites.BaseSprite.ObjectData,
-	@:optional var offsets:objects.sprites.BaseSprite.OffsetsData;
+	> BaseSprite.ObjectData,
+	@:optional var offsets:BaseSprite.OffsetsData;
 	@:optional var extra:Array<utils.ParseUtil.ExtraData>;
+}
+
+typedef AnimMapping = {
+	var offset:PositionStruct;
+	var swappedAnim:String;
+	var flippedAnim:String;
 }
 
 enum abstract ObjectType(String) from String to String {

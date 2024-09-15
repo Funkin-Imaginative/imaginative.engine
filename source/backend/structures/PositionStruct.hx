@@ -3,11 +3,28 @@ package backend.structures;
 @:structInit class TypeXY<T> {
 	public var x:T;
 	public var y:T;
+
+	public function new(x:T, y:T)
+		set(x, y);
+
+	inline public function set(x:T, y:T):TypeXY<T> {
+		this.x = FunkinUtil.getDefault(x, this.x);
+		this.y = FunkinUtil.getDefault(y, this.y);
+		return this;
+	}
+
+	public function copyFrom(from:TypeXY<T>):TypeXY<T> {
+		set(from.x, from.y);
+		return this;
+	}
+
+	inline public function toString():String
+		return '{x: $x, y: $y}';
 }
 
-@:structInit class PositionStruct {
-	public var x:Float;
-	public var y:Float;
+@:structInit class PositionStruct /* extends TypeXY<Float> */ {
+	public var x:Float = 0;
+	public var y:Float = 0;
 
 	public function new(x:Float = 0, y:Float = 0)
 		set(x, y);
@@ -15,6 +32,11 @@ package backend.structures;
 	inline public function set(x:Float = 0, y:Float = 0):PositionStruct {
 		this.x = x;
 		this.y = y;
+		return this;
+	}
+
+	public function copyFrom(from:PositionStruct):PositionStruct {
+		set(from.x, from.y);
 		return this;
 	}
 

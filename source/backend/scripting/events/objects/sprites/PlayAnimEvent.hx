@@ -1,6 +1,4 @@
-package backend.scripting.events;
-
-import backend.interfaces.IPlayAnim.AnimType;
+package backend.scripting.events.objects.sprites;
 
 final class PlayAnimEvent extends ScriptEvent {
 	public var anim:String;
