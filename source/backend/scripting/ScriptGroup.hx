@@ -3,7 +3,7 @@ package backend.scripting;
 class ScriptGroup extends FlxBasic {
 	public var members:Array<Script> = [];
 	public var length(get, never):Int;
-	private function get_length():Int
+	inline function get_length():Int
 		return members.length;
 
 	public var publicVars:Map<String, Dynamic> = [];
@@ -14,7 +14,8 @@ class ScriptGroup extends FlxBasic {
 		return parent;
 	inline function set_parent(value:Dynamic):Dynamic {
 		for (script in members)
-			script.parent = value;
+			if (script != null)
+				script.parent = value;
 		return parent = value;
 	}
 
@@ -36,26 +37,30 @@ class ScriptGroup extends FlxBasic {
 		this.parent = parent;
 	}
 
-	public function load(stopNewCall:Bool = false, clearInvaild:Bool = true) {
+	public function load(stopNewCall:Bool = false, clearInvaild:Bool = true):Void {
 		if (clearInvaild)
 			this.clearInvaild();
 		for (script in members)
-			script.load(stopNewCall);
+			if (script != null)
+				script.load(stopNewCall);
 	}
 
-	public function set(variable:String, value:Dynamic)
+	public function set(variable:String, value:Dynamic):Void
 		for (script in members)
-			script.set(variable, value);
+			if (script != null)
+				script.set(variable, value);
 
 	public function get(variable:String, ?def:Dynamic):Dynamic {
 		for (script in members)
-			return script.get(variable);
+			if (script != null)
+				return script.get(variable);
 		return def;
 	}
 
 	public function call(funcName:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		for (script in members)
-			return script.call(funcName, args);
+			if (script != null)
+				return script.call(funcName, args);
 		return def;
 	}
 
@@ -68,60 +73,73 @@ class ScriptGroup extends FlxBasic {
 		return event;
 	}
 
-	public function reload()
+	public function reload():Void
 		for (script in members)
-			script.reload();
+			if (script != null)
+				script.reload();
 
-	public function add(script:Script) {
+	public function add(script:Script):Void {
+		if (isDuplicate(script)) return;
 		members.push(script);
 		setupScript(script);
 	}
 
 	override public function destroy():Void {
 		for (script in members)
-			script.destroy();
+			if (script != null)
+				script.destroy();
 		super.destroy();
 	}
 
-	public function remove(script:Script)
+	public function remove(script:Script):Void
 		members.remove(script);
 
-	public function insert(pos:Int, script:Script) {
+	public function insert(pos:Int, script:Script):Void {
+		if (isDuplicate(script)) return;
 		members.insert(pos, script);
 		setupScript(script);
 	}
 
-	private function setupScript(script:Script) {
+	function isDuplicate(script:Script):Bool {
+		var check:Script = getByPath(script.path);
+		var isDup:Bool = check != null;
+		if (isDup) script.destroy();
+		return isDup;
+	}
+
+	function setupScript(script:Script):Void {
 		if (parent != null) script.parent = parent;
 		script.setPublicVars(publicVars);
 		for (name => thing in extraVars)
 			script.set(name, thing);
 	}
 
-	public function clearInvaild() {
+	public function clearInvaild():Void {
 		for (script in members) {
-			if (script.isInvalid) {
+			if (script != null && script.isInvalid) {
 				remove(script);
 				script.destroy();
 			}
 		}
+		if (members.length < 1)
+			add(new Script());
 	}
 
 	// whitsling noises
-	public function getByPath(name:String) {
+	public function getByPath(name:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script.path == name) {
+			if (script != null && script.path == name) {
 				result = script;
 				break;
 			}
 		return result;
 	}
 
-	public function getByName(name:String) {
+	public function getByName(name:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script.fileName == name) {
+			if (script != null && script.fileName == name) {
 				result = script;
 				break;
 			}

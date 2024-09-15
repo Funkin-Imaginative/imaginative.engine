@@ -6,7 +6,7 @@ class TitleScreen extends BeatState {
 	var skipped:Bool = false;
 	var leaving:Bool = false;
 
-	var logo:BaseSprite;
+	var logo:BeatSprite;
 	var menuDancer:BeatSprite;
 	var titleText:BaseSprite;
 	var ngLogo:BaseSprite;
@@ -18,9 +18,10 @@ class TitleScreen extends BeatState {
 			if (conductor.audio == null || !conductor.audio.playing)
 				conductor.loadMusic('freakyMenu', 0, (audio:FlxSound) -> audio.fadeIn(4, 0, 0.7));
 
-			logo = new BaseSprite(-150, -100, 'menus/title/logoBumpin');
+			logo = new BeatSprite(-150, -100, 'menus/title/logoBumpin');
 			logo.animation.addByPrefix('bump', 'logo bumpin', 24, false);
 			logo.playAnim('bump', true);
+			logo.beatInterval = 1;
 			logo.animation.finish();
 			logo.antialiasing = true;
 			add(logo);
@@ -28,7 +29,6 @@ class TitleScreen extends BeatState {
 			menuDancer = new BeatSprite(FlxG.width * 0.4, FlxG.height * 0.07, 'menus/title/gfDanceTitle');
 			menuDancer.animation.addByIndices('idle', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
 			menuDancer.animation.addByIndices('sway', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], '', 24, false);
-			menuDancer.antialiasing = true;
 			add(menuDancer);
 
 			titleText = new BaseSprite(100, FlxG.height * 0.8, 'menus/title/titleEnter');
@@ -94,18 +94,13 @@ class TitleScreen extends BeatState {
 		super.update(elapsed);
 	}
 
-	var hasSwayed:Bool = false;
-
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 
 		if (!started)
 			return;
 
-		if (skipped) {
-			logo.playAnim('bump', true);
-			menuDancer.playAnim((hasSwayed = !hasSwayed) ? 'sway' : 'idle', true);
-		} else {
+		if (!skipped) {
 			if (curBeat >= 16)
 				skipIntro();
 		}

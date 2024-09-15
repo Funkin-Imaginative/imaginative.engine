@@ -7,8 +7,7 @@ import hscript.Expr;
 enum abstract ScriptType(String) from String to String {
 	var DIFFICULTY = 'difficulty';
 	var LEVEL = 'level';
-	var CHARACTER = 'character';
-	var ICON = 'icon';
+	var OBJECT = 'object';
 	// var SONG = 'song';
 	var STAGE = 'stage';
 	var STATE = 'state';
@@ -31,7 +30,7 @@ class Script extends FlxBasic {
 	@:unreflective var invalid:Bool = false;
 
 	public var isInvalid(get, never):Bool;
-	private function get_isInvalid():Bool
+	inline function get_isInvalid():Bool
 		return invalid;
 
 	public static final exts:Array<String> = ['hx', 'hscript', 'hsc', 'hxs', 'hxc', 'lua'];
@@ -49,8 +48,7 @@ class Script extends FlxBasic {
 		final paths:Array<String> = scriptPath(switch (type) {
 			case DIFFICULTY: 'content/difficulties/$file';
 			case LEVEL: 'content/levels/$file';
-			case CHARACTER: 'objects/characters/$file';
-			case ICON: 'objects/icons/$file';
+			case OBJECT: 'objects/$file';
 			// case SONG: 'songs/${PlayState.SONG.song}/$file';
 			case STAGE: 'content/stages/$file';
 			case STATE: 'content/states/$file';
@@ -86,7 +84,7 @@ class Script extends FlxBasic {
 			}
 		}
 		if (scripts.length < 1)
-			scripts.push(new Script(FallbackUtil.invaildScriptKey));
+			scripts.push(new Script());
 		return scripts;
 	}
 
@@ -153,12 +151,12 @@ class Script extends FlxBasic {
 	}
 
 	// I wanted to have a reload func for scripts but I couldn't figure it out without error's so this part is mostly ripped from cne
-	private var rawPath:String;
+	var rawPath:String;
 	public var path:String;
 	public var fileName:String;
 	public var extension:String;
 
-	public function new(path:String):Void {
+	public function new(?path:String):Void {
 		super();
 		rawPath = path;
 		path = getFilenameFromLibFile(path);
@@ -170,32 +168,32 @@ class Script extends FlxBasic {
 			set(name, thing);
 	}
 
-	inline function getFilenameFromLibFile(path:String) {
+	inline function getFilenameFromLibFile(path:String):String {
 		var file = new HaxePath(path);
 		if (file.file.startsWith('LIB_'))
 			return file.dir + '.' + file.ext;
 		return path;
 	}
 
-	private function scriptCreation(path:String) {
+	function scriptCreation(path:String):Void {
 		interp = new Interp();
 		parser = new Parser();
 
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 
-		if (path == FallbackUtil.invaildScriptKey)
+		if (path == null)
 			invalid = true;
 		else
 			try {
 				scriptCode = Paths.getFileContent(path);
-			} catch (e:haxe.Exception) {
+			} catch(e:haxe.Exception) {
 				trace('Error while trying to initialize script: ${e.message}');
 				scriptCode = '';
 			}
 	}
 
-	public function onLoad(stopNewCall:Bool = false) {
+	public function onLoad(stopNewCall:Bool = false):Void {
 		loadCodeFromString(scriptCode);
 		if (canExecute && !loaded) {
 			try {
@@ -206,12 +204,12 @@ class Script extends FlxBasic {
 					if (!stopNewCall)
 						call('new');
 				}
-			} catch (e:haxe.Exception)
+			} catch(e:haxe.Exception)
 				trace('Error while trying to execute script: ${e.message}');
 		}
 	}
 
-	inline public function load(stopNewCall:Bool = false) {
+	inline public function load(stopNewCall:Bool = false):Void {
 		if (loaded) return;
 		onLoad(stopNewCall);
 	}
@@ -232,7 +230,7 @@ class Script extends FlxBasic {
 		if (func != null && Reflect.isFunction(func))
 			try {
 				return Reflect.callMethod(null, func, args == null ? [] : args);
-			} catch (e:haxe.Exception)
+			} catch(e:haxe.Exception)
 				trace('Error while trying to call function $funcName: ${e.message}');
 
 		return null;
@@ -243,7 +241,7 @@ class Script extends FlxBasic {
 		return event;
 	}
 
-	public function reload() {
+	public function reload():Void {
 		// save variables
 		interp.allowStaticVariables = interp.allowPublicVariables = false;
 		var savedVariables:Map<String, Dynamic> = [];
@@ -271,7 +269,7 @@ class Script extends FlxBasic {
 	inline function set_parent(value:Dynamic):Dynamic
 		return interp.scriptObject = value;
 
-	inline public function setPublicVars(map:Map<String, Dynamic>)
+	inline public function setPublicVars(map:Map<String, Dynamic>):Void
 		interp.publicVariables = map;
 
 	override public function destroy():Void {
@@ -281,7 +279,7 @@ class Script extends FlxBasic {
 		super.destroy();
 	}
 
-	private function loadCodeFromString(code:String):Void {
+	function loadCodeFromString(code:String):Void {
 		try {
 			if (code != null && code.trim() != '') {
 				expr = parser.parseString(code);

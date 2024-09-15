@@ -6,8 +6,8 @@ class ScriptEvent implements IFlxDestroyable {
 	public var stopped:Bool = false;
 	private var continueLoop:Bool = true;
 
-	inline public function fullyStop(finishLoop:Bool = true) stopCompletely(finishLoop);
-	inline public function stopCompletely(finishLoop:Bool = true) {
+	inline public function fullyStop(finishLoop:Bool = true):Void stopCompletely(finishLoop);
+	inline public function stopCompletely(finishLoop:Bool = true):Void {
 		stopped = true;
 		continueLoop = finishLoop;
 	}
@@ -17,5 +17,5 @@ class ScriptEvent implements IFlxDestroyable {
 
 	inline public function toString():String return '[${FunkinUtil.getClassName(this)}${stopped ? ' (Stopped)' : ''}]';
 
-	public function destroy() {}
+	public function destroy():Void {}
 }

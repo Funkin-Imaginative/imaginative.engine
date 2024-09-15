@@ -55,6 +55,7 @@ import backend.*;
 import backend.Paths.FunkinPath;
 
 import objects.sprites.*;
+import objects.sprites.BaseSprite.AnimType;
 import objects.*;
 
 // import states.*;
