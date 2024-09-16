@@ -51,7 +51,9 @@ class SpriteUtil {
 		}
 		if (sprite is FlxSprite) {
 			if (Paths.fileExists('images/$newTexture.png'))
-				cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
+				try {
+					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
+				}
 			return sprite;
 		}
 		return sprite;
@@ -65,7 +67,9 @@ class SpriteUtil {
 		if (sprite is FlxSprite) {
 			var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 			if (Paths.fileExists('images/$newTexture.png') && hasSheet)
-				cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
+				try {
+					cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
+				}
 			return sprite;
 		}
 		return sprite;

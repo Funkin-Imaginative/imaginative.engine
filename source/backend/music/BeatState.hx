@@ -126,7 +126,7 @@ class BeatState extends FlxState implements IBeat {
 		this.scriptName = scriptName;
 	}
 
-	function loadScript() {
+	function loadScript():Void {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
@@ -151,7 +151,7 @@ class BeatState extends FlxState implements IBeat {
 		return cast null;
 	}
 
-	override public function create() {
+	override public function create():Void {
 		Conductor.beatStates.push(direct = this);
 		persistentUpdate = true;
 		loadScript();
@@ -159,7 +159,7 @@ class BeatState extends FlxState implements IBeat {
 		call('create');
 	}
 
-	override public function createPost() {
+	override public function createPost():Void {
 		super.createPost();
 		call('createPost');
 	}
@@ -178,27 +178,27 @@ class BeatState extends FlxState implements IBeat {
 			subState.tryUpdate(elapsed);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
 		super.update(elapsed);
 	}
 
-	override public function openSubState(SubState:FlxSubState) {
+	override public function openSubState(SubState:FlxSubState):Void {
 		call('openingSubState', [SubState]);
 		super.openSubState(SubState);
 	}
 
-	override public function closeSubState() {
+	override public function closeSubState():Void {
 		call('closingSubState', [subState]);
 		super.closeSubState();
 	}
 
-	override public function onFocus() {
+	override public function onFocus():Void {
 		super.onFocus();
 		call('onFocus');
 	}
 
-	override public function onFocusLost() {
+	override public function onFocusLost():Void {
 		super.onFocusLost();
 		call('onFocusLost');
 	}
@@ -224,7 +224,7 @@ class BeatState extends FlxState implements IBeat {
 		call('measureHit', [curMeasure]);
 	}
 
-	override public function resetSubState() {
+	override public function resetSubState():Void {
 		super.resetSubState();
 		if (subState != null && subState is BeatSubState) {
 			cast(subState, BeatSubState).parent = this;
@@ -232,7 +232,7 @@ class BeatState extends FlxState implements IBeat {
 		}
 	}
 
-	override public function destroy() {
+	override public function destroy():Void {
 		if (scripts != null) scripts.destroy();
 		stateScripts.destroy();
 		// objects.note.groups.StrumGroup.hitFuncs.noteHit = (event) -> {}

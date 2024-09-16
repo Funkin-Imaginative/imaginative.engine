@@ -1,7 +1,6 @@
 package backend.music;
 
 import flixel.util.FlxSignal.FlxTypedSignal;
-import backend.music.Song.SwagSong;
 
 typedef BPMChange = {
 	var stepTime:Float;
@@ -282,17 +281,17 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		}
 	}
 
-	inline public function onFocus()
+	inline public function onFocus():Void
 		if (audio != null)
 			@:privateAccess audio.onFocus();
 
-	inline public function onFocusLost()
+	inline public function onFocusLost():Void
 		if (audio != null)
 			@:privateAccess audio.onFocusLost();
 
 	public static var beatStates:Array<BeatState> = [];
 	public static var beatSubStates:Array<BeatSubState> = [];
-	inline private function callToState(timeType:SongTimeType, curTime:Int):Void {
+	inline function callToState(timeType:SongTimeType, curTime:Int):Void {
 		for (state in beatStates) {
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null)) {
 				switch (timeType) {

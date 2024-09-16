@@ -4,7 +4,7 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 
 class ScriptEvent implements IFlxDestroyable {
 	public var stopped:Bool = false;
-	private var continueLoop:Bool = true;
+	var continueLoop:Bool = true;
 
 	inline public function fullyStop(finishLoop:Bool = true):Void stopCompletely(finishLoop);
 	inline public function stopCompletely(finishLoop:Bool = true):Void {

@@ -12,8 +12,7 @@ class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	public static var p1:Controls;
 	public static var p2:Controls;
 
-	// UI
-
+	// UI //
 	// Just Pressed
 	public static var uiLeft(get, never):Bool;
 	inline static function get_uiLeft():Bool
@@ -65,10 +64,7 @@ class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	inline static function get_uiRightReleased():Bool
 		return globalReleased('uiRight');
 
-
-
-	// Controls
-
+	// Controls //
 	// Just Pressed
 	public var noteLeft(get, never):Bool;
 	inline function get_noteLeft():Bool
@@ -120,9 +116,7 @@ class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	inline function get_noteRightReleased():Bool
 		return released('noteRight');
 
-
-
-	// Actions
+	// Actions //
 	public static var accept(get, never):Bool;
 	inline static function get_accept():Bool
 		return globalPressed('accept');
@@ -139,31 +133,31 @@ class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 	inline static function get_reset():Bool
 		return globalPressed('reset');
 
-	// Extras
+	// Extras //
 	public static var fullscreen(get, never):Bool;
 	inline static function get_fullscreen():Bool
 		return globalPressed('fullscreen');
 
-	// The Main Powerhouses
+	// The Main Powerhouses //
 	public static var globalBinds:Map<String, Array<FlxKey>> = [
-		// UI
+		// UI //
 		'uiLeft' => [A, LEFT],
 		'uiDown' => [S, DOWN],
 		'uiUp' => [W, UP],
 		'uiRight' => [D, RIGHT],
 
-		// Actions
+		// Actions //
 		'accept' => [ENTER, SPACE],
 		'back' => [BACKSPACE, ESCAPE],
 		'pause' => [ENTER, ESCAPE],
 		'reset' => [R, DELETE],
 
-		// Volume
+		// Volume //
 		'volumeUp' => [PLUS, NUMPADPLUS],
 		'volumeDown' => [MINUS, NUMPADMINUS],
 		'volumeMute' => [ZERO, NUMPADZERO],
 
-		// Extras
+		// Extras //
 		'fullscreen' => [F11]
 	];
 	inline public static function globalPressed(key:String):Bool return FlxG.keys.anyJustPressed(globalBinds[key]);
@@ -185,7 +179,7 @@ class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
 
 	public function new() {
 		setBinds = [
-			// Controls
+			// Controls //
 			'noteLeft' => [D, LEFT],
 			'noteDown' => [F, DOWN],
 			'noteUp' => [K, UP],

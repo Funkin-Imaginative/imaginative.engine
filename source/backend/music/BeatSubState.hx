@@ -126,7 +126,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		this.scriptName = scriptName;
 	}
 
-	function loadScript() {
+	function loadScript():Void {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
@@ -145,7 +145,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		return def;
 	}
 
-	override public function close() {
+	override public function close():Void {
 		// var event = event('onClose', new CancellableEvent());
 		// if (!event.cancelled) {
 		super.close();
@@ -153,7 +153,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		// }
 	}
 
-	override public function create() {
+	override public function create():Void {
 		Conductor.beatSubStates.push(direct = this);
 		persistentUpdate = true;
 		loadScript();
@@ -161,7 +161,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		call('create');
 	}
 
-	override public function createPost() {
+	override public function createPost():Void {
 		super.createPost();
 		call('createPost');
 	}
@@ -180,27 +180,27 @@ class BeatSubState extends FlxSubState implements IBeat {
 			subState.tryUpdate(elapsed);
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
 		super.update(elapsed);
 	}
 
-	override public function openSubState(SubState:FlxSubState) {
+	override public function openSubState(SubState:FlxSubState):Void {
 		call('openingSubState', [SubState]);
 		super.openSubState(SubState);
 	}
 
-	override public function closeSubState() {
+	override public function closeSubState():Void {
 		call('closingSubState', [subState]);
 		super.closeSubState();
 	}
 
-	override public function onFocus() {
+	override public function onFocus():Void {
 		super.onFocus();
 		call('onFocus');
 	}
 
-	override public function onFocusLost() {
+	override public function onFocusLost():Void {
 		super.onFocusLost();
 		call('onFocusLost');
 	}
@@ -228,9 +228,9 @@ class BeatSubState extends FlxSubState implements IBeat {
 
 	public var parent:FlxState;
 
-	public function onSubstateOpen() {}
+	public function onSubstateOpen():Void {}
 
-	override public function resetSubState() {
+	override public function resetSubState():Void {
 		if (subState != null && subState is BeatSubState) {
 			cast(subState, BeatSubState).parent = this;
 			super.resetSubState();
@@ -240,7 +240,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		super.resetSubState();
 	}
 
-	override public function destroy() {
+	override public function destroy():Void {
 		if (scripts != null) scripts.destroy();
 		stateScripts.destroy();
 		direct = null;

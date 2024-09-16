@@ -1,0 +1,22 @@
+{
+	"beat": {
+		"interval": 2,
+		"skipnegative": false
+	},
+	"asset": {
+		"image": "menus/title/logoBumpin",
+		"type": "sparrow"
+	},
+	"animations": [
+		{
+			"name": "idle",
+			"tag": "logo bumpin",
+			"indices": [],
+			"offset": {"x": 0, "y": 0},
+			"flip": {"x": false, "y": false},
+			"loop": false,
+			"fps": 24
+		}
+	],
+	"antialiasing": true
+}

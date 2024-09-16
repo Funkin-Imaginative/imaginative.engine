@@ -109,7 +109,7 @@ class Paths {
 			}
 			splitUp[i] = again.join(''); */
 		}
-		return splitUp.join('/');
+		return HaxePath.normalize(splitUp.join('/'));
 	}
 
 	/**

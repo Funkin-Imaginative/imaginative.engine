@@ -83,7 +83,7 @@ class FunkinUtil {
 	 * Whenever a value is NaN or not.
 	 * @param v Value
 	 */
-	public static inline function isNaN(v:Dynamic)
+	public static inline function isNaN(v:Dynamic):Bool
 		if (v is Float || v is Int)
 			return Math.isNaN(cast(v, Float));
 		else return false;

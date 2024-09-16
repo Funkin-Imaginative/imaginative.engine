@@ -29,7 +29,7 @@ import flixel.tweens.FlxEase;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 
-//sound
+// sound
 import flixel.sound.FlxSound;
 
 // text
@@ -37,8 +37,8 @@ import flixel.text.FlxText;
 
 import sys.FileSystem;
 
-#if discord_rpc import discord_rpc.DiscordRpc; #end
-#if hxvlc import hxvlc.flixel.*; #end
+#if (DISCORD_RICH_PRESENCE && discord_rpc) import discord_rpc.DiscordRpc; #end
+#if (ALLOW_VIDEOS && hxvlc) import hxvlc.flixel.*; #end
 
 import haxe.io.Path as HaxePath;
 

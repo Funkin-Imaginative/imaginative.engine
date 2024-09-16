@@ -38,7 +38,7 @@
 	<define name='SOFTCODED_STATES'/>
 	<!-- <define name='THROW_LUA_MAKEFUN'/> -->
 	<section if='cpp'>
-		<define name='DISCORD_RPC' if='desktop'/>
+		<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
 		<define name='ALLOW_VIDEOS' if='desktop || mobile'/>
 	</section>
 

@@ -45,7 +45,6 @@ class Character extends BeatSprite {
 	}
 
 	override function loadScript(path:String):Void {
-		scripts = new ScriptGroup(this);
 		for (s in ['global', path])
 			for (script in Script.create('characters/$s', OBJECT))
 				scripts.add(script);
@@ -55,8 +54,6 @@ class Character extends BeatSprite {
 
 		scripts.load();
 	}
-
-	public var charData:CharacterData = null;
 
 	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
 		super(x, y, ParseUtil.object('characters/${theirName = name}', CHARACTER));

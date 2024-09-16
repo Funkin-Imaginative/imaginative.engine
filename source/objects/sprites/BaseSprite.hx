@@ -83,31 +83,6 @@ typedef ObjectData = {
 	var antialiasing:Bool;
 }
 
-typedef AssetTyping = {
-	var image:String;
-	var type:String;
-}
-typedef AnimationTyping = {
-	@:optional var asset:AssetTyping;
-	var name:String;
-	@:optional var tag:String;
-	@:optional var dimensions:TypeXY<Int>;
-	var indices:Array<Int>;
-	var offset:PositionStruct;
-	var flip:TypeXY<Bool>;
-	var loop:Bool;
-	var fps:Int;
-}
-
-typedef ObjectData = {
-	var asset:AssetTyping;
-	var animations:Array<AnimationTyping>;
-	@:optional var position:PositionStruct;
-	@:optional var flip:TypeXY<Bool>;
-	@:optional var scale:PositionStruct;
-	var antialiasing:Bool;
-}
-
 class BaseSprite extends FlxSkewedSprite {
 	// Cool variables.
 	public var _update:Float->Void;
@@ -143,19 +118,23 @@ class BaseSprite extends FlxSkewedSprite {
 
 	inline public function loadImage(newTexture:String):TypeSprite {
 		if (Paths.fileExists('images/$newTexture.png'))
-			loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
+			try {
+				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
+			}
 		return this;
 	}
 
 	inline public function loadSheet(newTexture:String):TypeSprite {
 		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png') && hasSheet) {
-			frames = Paths.frames(newTexture);
-			resetTextures(Paths.applyRoot('images/$newTexture.png'), switch (HaxePath.extension(Paths.multExst('images/$newTexture', Paths.atlasFrameExts))) {
-				case 'xml': 'sparrow';
-				case 'txt': 'packer';
-				default: 'unknown';
-			});
+			try {
+				frames = Paths.frames(newTexture);
+				resetTextures(Paths.applyRoot('images/$newTexture.png'), switch (HaxePath.extension(Paths.multExst('images/$newTexture', Paths.atlasFrameExts))) {
+					case 'xml': 'sparrow';
+					case 'txt': 'packer';
+					default: 'unknown';
+				});
+			}
 		}
 		return this;
 	}
@@ -178,54 +157,75 @@ class BaseSprite extends FlxSkewedSprite {
 	public function renderData(inputData:TypeSpriteData):Void {
 		var baseData:SpriteData = cast inputData;
 		try {
-			loadTexture(baseData.asset.image);
+			try {
+				loadTexture(baseData.asset.image);
+			} catch(e) trace('Couldn\'t load image "${baseData.asset.image}", type "${baseData.asset.type}".');
 
-			for (anim in baseData.animations) {
-				switch (anim.asset.type) {
-					case 'graphic':
-						animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
-					default:
-						if (anim.indices != null || anim.indices.length > 1) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
-						else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+			try {
+				for (anim in baseData.animations) {
+					try {
+						switch (anim.asset.type) {
+							case 'graphic':
+								animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+							default:
+								if (anim.indices != null || anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+						}
+						anims.set(anim.name, {
+							offset: {x: anim.offset.x, y: anim.offset.y},
+							swappedAnim: '',
+							flippedAnim: ''
+						});
+					} catch(e) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
 				}
-				anims.set(anim.name, {
-					offset: {x: anim.offset.x, y: anim.offset.y},
-					swappedAnim: '',
-					flippedAnim: ''
-				});
-			}
+			} catch(e) trace('Couldn\'t add the animations.');
 
 			if (Reflect.hasField(baseData, 'position')) {
-				var thing:PositionStruct = FunkinUtil.getDefault(baseData.position, {x: x, y: y});
-				setPosition(thing.x, thing.y);
+				try {
+					var thing:PositionStruct = FunkinUtil.getDefault(baseData.position, {x: x, y: y});
+					setPosition(thing.x, thing.y);
+				} catch(e) trace('Invaild information in position var or the null check failed.');
 			}
 			if (Reflect.hasField(baseData, 'flip')) {
-				var thing:TypeXY<Bool> = FunkinUtil.getDefault(baseData.flip, {x: flipX, y: flipY});
-				flipX = thing.x;
-				flipY = thing.y;
+				try {
+					var thing:TypeXY<Bool> = FunkinUtil.getDefault(baseData.flip, {x: flipX, y: flipY});
+					flipX = thing.x;
+					flipY = thing.y;
+				} catch(e) trace('Invaild information in flip var or the null check failed.');
 			}
 			if (Reflect.hasField(baseData, 'scale')) {
-				var thing:PositionStruct = FunkinUtil.getDefault(baseData.scale, {x: scale.x, y: scale.y});
-				scale.set(thing.x, thing.y);
+				try {
+					var thing:PositionStruct = FunkinUtil.getDefault(baseData.scale, {x: scale.x, y: scale.y});
+					scale.set(thing.x, thing.y);
+				} catch(e) trace('Invaild information in scale var or the null check failed.');
 			}
 
-			antialiasing = FunkinUtil.getDefault(baseData.antialiasing, true);
+			try {
+				antialiasing = FunkinUtil.getDefault(baseData.antialiasing, true);
+			} catch(e) trace('The antialiasing null check failed.');
 
 			if (Reflect.hasField(baseData, 'extra'))
-				if (baseData.extra != null || baseData.extra.length > 1)
-					for (extraData in baseData.extra)
-						extra.set(extraData.name, extraData.data);
+				try {
+					if (baseData.extra != null || baseData.extra.length > 1)
+						for (extraData in baseData.extra)
+							extra.set(extraData.name, extraData.data);
+				} catch(e) trace('Invaild information in extra array or the null check failed.');
 
 			data = baseData;
-		} catch(e) trace('Something fucking died!');
+		} catch(e) trace('Something went very wrong! What could bypass all the try\'s???');
 	}
 
 	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();
 	public var animType:AnimType;
 
-	public var scripts:ScriptGroup;
+	var _scripts:ScriptGroup;
+	public var scripts(get, never):ScriptGroup;
+	function get_scripts():ScriptGroup {
+		if (_scripts == null)
+			_scripts = new ScriptGroup(this);
+		return _scripts;
+	}
 	public function loadScript(path:String):Void {
-		scripts = new ScriptGroup(this);
 		for (s in ['global', path])
 			for (script in Script.create(s, OBJECT))
 				scripts.add(script);
