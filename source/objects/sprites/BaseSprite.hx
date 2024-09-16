@@ -146,8 +146,8 @@ class BaseSprite extends FlxSkewedSprite {
 	 * ```
 	 * would work.
 	 */
-	inline public function loadSolid(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):TypeSprite
-		return makeSolid(Width, Height, Color, Unique, Key);
+	inline public function loadSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):TypeSprite
+		return makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
 	public var data:SpriteData = null;
@@ -168,7 +168,7 @@ class BaseSprite extends FlxSkewedSprite {
 							case 'graphic':
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 							default:
-								if (anim.indices != null || anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 						}
 						anims.set(anim.name, {

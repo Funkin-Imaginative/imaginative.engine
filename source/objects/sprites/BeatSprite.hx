@@ -14,7 +14,9 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var animSuffix:String = '';
 
 	public var skipNegativeBeats:Bool = false;
-	public var bopSpeed(default, set):Int = 1; inline function set_bopSpeed(value:Int):Int return bopSpeed = value < 1 ? 1 : value;
+	public var bopRate(get, never):Int;
+	inline function get_bopRate():Int return Math.round(beatInterval * bopSpeed);
+	public var bopSpeed(default, set):Float = 1; inline function set_bopSpeed(value:Float):Float return bopSpeed = value < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 	public var hasSway(get, never):Bool; // Replaced 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
 	inline function get_hasSway():Bool return animation.exists('sway$idleSuffix}') ? true : animation.exists('sway');
@@ -26,11 +28,12 @@ class BeatSprite extends BaseSprite implements IBeat {
 		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
 
 	override public function renderData(inputData:TypeSpriteData):Void {
-		var newData:BeatSpriteData = inputData;
+		var newData:BeatSpriteData = cast inputData;
 		super.renderData(inputData);
 
-		beatInterval = Reflect.hasField(newData.beat, 'invertal') ? FunkinUtil.getDefault(newData.beat.invertal, 0) : 0;
-		skipNegativeBeats = Reflect.hasField(newData.beat, 'skipnegative') ? FunkinUtil.getDefault(newData.beat.skipnegative, false) : false;
+		trace(newData);
+		beatInterval = FunkinUtil.getDefault(newData.beat.invertal, 0);
+		skipNegativeBeats = FunkinUtil.getDefault(newData.beat.skipnegative, false);
 
 		beatData = newData.beat;
 	}
@@ -92,7 +95,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public function stepHit(curStep:Int):Void {}
 
 	public function beatHit(curBeat:Int):Void {
-		if (curBeat % Math.round(bopSpeed * beatInterval) == 0) {
+		if (curBeat % bopRate == 0) {
 			tryDance();
 			if (animType != DANCE && getAnimName().endsWith('-loop')) finishAnim(); // why tf
 		}

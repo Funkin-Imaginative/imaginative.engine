@@ -17,6 +17,7 @@ typedef CharacterData = {
 }
 
 class Character extends BeatSprite {
+	public var singSuffix:String = '';
 	public var cameraOffset:PositionStruct = new PositionStruct();
 
 	public var singLength:Float = 0;
@@ -33,7 +34,7 @@ class Character extends BeatSprite {
 	public var charData:CharacterData = null;
 
 	override public function renderData(inputData:TypeSpriteData):Void {
-		var newData:CharacterSpriteData = inputData;
+		var newData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);
 
 		cameraOffset.copyFrom(newData.character.camera);
