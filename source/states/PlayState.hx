@@ -17,7 +17,7 @@ class PlayState extends BeatState {
 	public static var songList:Array<String> = [];
 
 	public static var difficulty:String = 'normal';
-	public static var variant:String = null;
+	public static var variant:String = 'normal';
 
 	public var canPlayerDie:Bool = !PlayConfig.enemyPlay && !PlayConfig.enableP2;
 	public var canEnemyDie:Bool = PlayConfig.enemyPlay && !PlayConfig.enableP2;
@@ -28,7 +28,7 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	public static function loadLevel(level:LevelData, difficulty:String, ?variant:String):Void {
+	public static function loadLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
 		levelData = level;
 		songList = [for (s in levelData.songs) s.folder];
 		storyMode = true;
@@ -44,7 +44,7 @@ class PlayState extends BeatState {
 	 * @param playAsEnemy Should the player be the enemy instead?
 	 * @param p2AsEnemy Should the enemy be another player?
 	 */
-	public static function loadSong(song:String = 'test', difficulty:String = 'normal', ?variant:String, playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
+	public static function loadSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
 		PlayConfig.enemyPlay = playAsEnemy;
 		PlayConfig.enableP2 = p2AsEnemy;
@@ -57,7 +57,7 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	public static function _loadSong(song:String = 'test', difficulty:String = 'normal', ?variant:String):Void {
+	public static function _loadSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal'):Void {
 		PlayState.difficulty = difficulty;
 		PlayState.variant = variant;
 		//songChart = blah;

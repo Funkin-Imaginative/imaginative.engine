@@ -61,12 +61,13 @@ typedef LevelSection = {
 	var songs:Array<String>;
 	var startingDiff:Int;
 	var difficulties:Array<String>;
+	var variants:Array<String>;
 	var objects:Array<String>;
 	var color:String;
 }
 typedef DifficultySection = {
 	var display:String;
-	var variant:Null<String>;
+	var variant:String;
 	var scoreMult:Float;
 }
 typedef SongSection = {
@@ -74,6 +75,7 @@ typedef SongSection = {
 	var icon:String;
 	var startingDiff:Int;
 	var difficulties:Array<String>;
+	var variants:Array<String>;
 	var color:String;
 	var allowedModes:AllowedModesTyping;
 }

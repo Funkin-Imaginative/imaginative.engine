@@ -1,9 +1,7 @@
 package objects;
 
-import utils.ParseUtil.SongData;
-
 typedef ObjectTyping = {
-	var object:OneOfTwo<String, utils.SpriteUtil.SpriteData>;
+	var object:OneOfTwo<String, SpriteUtil.SpriteData>;
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
 }
@@ -13,14 +11,16 @@ typedef LevelParse = {
 	var songs:Array<String>;
 	@:optional var startingDiff:Int;
 	var difficulties:Array<String>;
+	@:optional var variants:Array<String>;
 	var objects:Array<ObjectTyping>;
 	@:optional var color:String;
 }
 typedef LevelData = {
 	var title:String;
-	var songs:Array<SongData>;
+	var songs:Array<ParseUtil.SongData>;
 	@:optional public var startingDiff:Int;
 	var difficulties:Array<String>;
+	var variants:Array<String>;
 	var objects:Array<ObjectTyping>;
 	var color:FlxColor;
 }

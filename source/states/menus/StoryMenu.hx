@@ -10,6 +10,10 @@ class StoryMenu extends BeatState {
 
 	var diffMap:Map<String, DifficultyObject> = new Map<String, DifficultyObject>();
 
+	var diffObject(get, never):DifficultyObject;
+	function get_diffObject():DifficultyObject
+		return diffMap[curDiffString];
+
 	var prevDiffList:Array<String> = [];
 	var curDiffList:Array<String> = [];
 
@@ -57,7 +61,7 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('content/levels', 'json')
 		]) {
 			for (i => name in list) {
-				var level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
+				final level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
@@ -73,7 +77,7 @@ class StoryMenu extends BeatState {
 		diffs = new FlxTypedGroup<DifficultyObject>();
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
-			var diff:DifficultyObject = new DifficultyObject(name, true);
+			final diff:DifficultyObject = new DifficultyObject(name, true);
 			diff.sprite.scale.set(0.85, 0.85);
 			diff.sprite.updateHitbox();
 			diff.refreshAnim();
@@ -86,12 +90,13 @@ class StoryMenu extends BeatState {
 		}
 		add(diffs);
 
-		var arrowDistance:Float = 200 * 0.85;
-		leftArrow = new BaseSprite(PositionStruct.getObjMidpoint(diffs.members[0].sprite).x, PositionStruct.getObjMidpoint(diffs.members[0].sprite).y, 'ui/arrows');
+		final arrowDistance:Float = 200 * 0.85;
+		var arrowPos:PositionStruct = PositionStruct.getObjMidpoint(diffs.members[0].sprite);
+		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
 		for (dir in ['left', 'right']) {
-			var arrow:BaseSprite = dir == 'left' ? leftArrow : rightArrow;
+			final arrow:BaseSprite = dir == 'left' ? leftArrow : rightArrow;
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
 
@@ -164,9 +169,13 @@ class StoryMenu extends BeatState {
 		changeSelection();
 		changeDifficulty(levels.members[curSelected].data.startingDiff, true);
 
-		var mid:PositionStruct = PositionStruct.getObjMidpoint(levels.members[curSelected].sprite);
+		final mid:PositionStruct = PositionStruct.getObjMidpoint(levels.members[curSelected].sprite);
 		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
 		camera.snapToTarget();
+	}
+
+	function hoverIsCorrect(item:LevelObject):Bool {
+		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -186,7 +195,7 @@ class StoryMenu extends BeatState {
 				if (FlxG.mouse.overlaps(rightArrow))
 					changeDifficulty(1);
 				for (i => item in levels.members)
-					if (!(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock))))
+					if (hoverIsCorrect(item))
 						changeSelection(i, true);
 			}
 
@@ -204,11 +213,11 @@ class StoryMenu extends BeatState {
 				FunkinUtil.playMenuSFX(CANCEL);
 				FlxG.switchState(new MainMenu());
 			}
-			if (Controls.accept)
+			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected])))
 				selectCurrent();
 		}
 
-		var item:BaseSprite = levels.members[curSelected].sprite;
+		final item:BaseSprite = levels.members[curSelected].sprite;
 		camPoint.y = PositionStruct.getObjMidpoint(item).y - (FlxG.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
@@ -219,7 +228,7 @@ class StoryMenu extends BeatState {
 		if (prevSelected != curSelected)
 			FunkinUtil.playMenuSFX(SCROLL, 0.7);
 
-		var level:LevelObject = levels.members[curSelected];
+		final level:LevelObject = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
@@ -237,7 +246,7 @@ class StoryMenu extends BeatState {
 
 	public function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (!pureSelect) {
-			var arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
+			final arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
 			arrow.animation.play('confirm', true);
 			arrow.centerOffsets();
 			arrow.centerOrigin();
@@ -249,7 +258,7 @@ class StoryMenu extends BeatState {
 			FunkinUtil.playMenuSFX(SCROLL, 0.7);
 
 		for (diff in diffMap) diff.sprite.alpha = 0.0001;
-		if (diffMap.exists(curDiffString)) diffMap.get(curDiffString).sprite.alpha = 1;
+		diffObject.sprite.alpha = 1;
 		for (diff in diffMap) diff.updateLock();
 	}
 
@@ -260,13 +269,14 @@ class StoryMenu extends BeatState {
 
 		var level:LevelObject = levels.members[curSelected];
 		var levelLocked:Bool = level.isLocked;
-		var diffLocked:Bool = diffMap.exists(curDiffString) && diffMap.get(curDiffString).isLocked;
+		var diffLocked:Bool = diffObject.isLocked;
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
+				var time:Float = FunkinUtil.playMenuSFX(CANCEL).time / 1000;
 				if (levelLocked) {
 					var ogX:Float = level.sprite.x;
-					levelShake = FlxTween.shake(level.sprite, 0.02, 0.2, X, {
+					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
 						onUpdate: (tween:FlxTween) -> level.updateLock(),
 						onComplete: (tween:FlxTween) -> {
 							level.sprite.x = ogX;
@@ -275,22 +285,18 @@ class StoryMenu extends BeatState {
 					});
 				}
 				if (diffLocked) {
-					var diff:DifficultyObject = diffMap.get(curDiffString);
-					var ogY:Float = diff.sprite.y;
-					diffShake = FlxTween.shake(diff.sprite, 0.1, 0.2, Y, {
-						onUpdate: (tween:FlxTween) -> diff.updateLock(),
+					var ogY:Float = diffObject.sprite.y;
+					diffShake = FlxTween.shake(diffObject.sprite, 0.1, time, Y, {
+						onUpdate: (tween:FlxTween) -> diffObject.updateLock(),
 						onComplete: (tween:FlxTween) -> {
-							diff.sprite.y = ogY;
+							diffObject.sprite.y = ogY;
 							diffShake = null;
 						}
 					});
 				}
-				FunkinUtil.playMenuSFX(CANCEL);
-				new FlxTimer().start(0.2, (timer:FlxTimer) -> canSelect = true);
+				new FlxTimer().start(time, (timer:FlxTimer) -> canSelect = true);
 			}
-		} else {
-			FunkinUtil.playMenuSFX(CONFIRM);
-			PlayState.loadLevel(level.data, curDiffString);
-		}
+		} else
+			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (timer:FlxTimer) -> PlayState.loadLevel(level.data, curDiffString, level.data.variants[curDiff]));
 	}
 }

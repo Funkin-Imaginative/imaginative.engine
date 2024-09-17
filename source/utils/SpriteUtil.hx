@@ -5,16 +5,13 @@ import flixel.graphics.frames.FlxAtlasFrames;
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
 typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
 
-typedef CharacterSpriteData = {
-	> BeatSpriteData,
+typedef CharacterSpriteData = BeatSpriteData & {
 	var character:Character.CharacterData;
 }
-typedef BeatSpriteData = {
-	> SpriteData,
+typedef BeatSpriteData = SpriteData & {
 	var beat:BeatSprite.BeatData;
 }
-typedef SpriteData = {
-	> BaseSprite.ObjectData,
+typedef SpriteData = BaseSprite.ObjectData & {
 	@:optional var offsets:BaseSprite.OffsetsData;
 	@:optional var extra:Array<utils.ParseUtil.ExtraData>;
 }
@@ -25,22 +22,18 @@ typedef AnimMapping = {
 	var flippedAnim:String;
 }
 
-enum abstract ObjectType(String) from String to String {
-	var CHARACTER = 'character';
-	var BEAT = 'beat';
-	var BASE = null;
-}
-
 class SpriteUtil {
 	inline public static function loadTexture(sprite:TypeSprite, newTexture:String):TypeSprite {
 		if (sprite is BaseSprite) {
 			cast(sprite, BaseSprite).loadTexture(newTexture);
 			return sprite;
 		}
-		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png'))
-			if (hasSheet) loadSheet(sprite, newTexture);
-			else loadImage(sprite, newTexture);
+			try {
+				if (hasSheet) loadSheet(sprite, newTexture);
+				else loadImage(sprite, newTexture);
+			}
 		return sprite;
 	}
 
@@ -65,7 +58,7 @@ class SpriteUtil {
 			return sprite;
 		}
 		if (sprite is FlxSprite) {
-			var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+			final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 			if (Paths.fileExists('images/$newTexture.png') && hasSheet)
 				try {
 					cast(sprite, FlxSprite).frames = Paths.frames(newTexture);

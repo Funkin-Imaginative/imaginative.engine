@@ -1,6 +1,6 @@
 {
 	"beat": {
-		"interval": 4,
+		"interval": 1,
 		"skipnegative": false
 	},
 	"asset": {

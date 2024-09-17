@@ -202,7 +202,7 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 		audio.volume = 1;
 		audio.persist = false;
 
-		data = getMetadata('content/songs/$song/audio${variant.trim() == '' ? '' : '-$variant'}');
+		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 		if (afterLoad != null) afterLoad(audio);

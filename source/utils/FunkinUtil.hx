@@ -8,7 +8,7 @@ enum abstract MenuSFX(String) to String from String {
 
 class FunkinUtil {
 	inline public static function addMissingFolders(modFolderPath:String):Void {
-		var folders:Array<String> = [
+		final folders:Array<String> = [
 			'content',
 			'content/difficulties',
 			'content/events',
@@ -63,6 +63,14 @@ class FunkinUtil {
 		return results;
 	}
 
+	/**
+	 * Returns the default variant of a difficulty
+	 * @param diff The difficulty name.
+	 * @return The difficulties default variant.
+	 */
+	inline public static function getDifficultyVariant(diff:String):String
+		return ParseUtil.difficulty(diff).variant;
+
 	inline public static function trimSplit(text:String):Array<String> {
 		var daList:Array<String> = text.split('\n');
 		for (i in 0...daList.length)
@@ -70,20 +78,30 @@ class FunkinUtil {
 		return daList;
 	}
 
-	// Using CNE's because mine was a bitch to use.
+	/**
+	 * It's like `getDefault` but it uses `Reflect` but it only supports structures.
+	 * @param v
+	 * @param defaultValue
+	 * @return T
+	 */
+	inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
+		return Reflect.hasField(data, field) ? getDefault(Reflect.getProperty(data, field), defaultValue) : defaultValue;
+
+	// Using CNE's because mine was a bitch to use. May try making my own as this is also being a bitch to use.
 	/**
 	 * Returns `v` if not null, `defaultValue` otherwise.
 	 * @param v The value
 	 * @param defaultValue The default value
-	 * @return The return value
+	 * @return T
 	 */
-	public static inline function getDefault<T>(v:Null<T>, defaultValue:T):T
+	inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
 		return (v == null || isNaN(v)) ? defaultValue : v;
 	/**
 	 * Whenever a value is NaN or not.
 	 * @param v Value
+	 * @return Bool
 	 */
-	public static inline function isNaN(v:Dynamic):Bool
+	inline public static function isNaN(v:Dynamic):Bool
 		if (v is Float || v is Int)
 			return Math.isNaN(cast(v, Float));
 		else return false;

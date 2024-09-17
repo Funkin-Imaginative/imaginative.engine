@@ -2,7 +2,7 @@ package objects;
 
 typedef DifficultyData = {
 	var display:String;
-	@:optional var variant:Null<String>;
+	@:optional var variant:String;
 	@:optional var scoreMult:Float;
 }
 

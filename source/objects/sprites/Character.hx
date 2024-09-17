@@ -28,20 +28,17 @@ class Character extends BeatSprite {
 
 	public var healthColor:FlxColor = FlxColor.GRAY;
 
-	override function get_parseType():ObjectType
-		return CHARACTER;
-
 	public var charData:CharacterData = null;
 	override public function renderData(inputData:TypeSpriteData):Void {
-		var newData:CharacterSpriteData = cast inputData;
+		final incomingData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);
 
-		cameraOffset.copyFrom(newData.character.camera);
-		healthColor = newData.character.color;
-		theirIcon = newData.character.icon;
-		singLength = FunkinUtil.getDefault(newData.character.singlength, 4);
+		cameraOffset.copyFrom(incomingData.character.camera);
+		healthColor = incomingData.character.color;
+		theirIcon = incomingData.character.icon;
+		singLength = FunkinUtil.getDefault(incomingData.character.singlength, 4);
 
-		charData = newData.character;
+		charData = incomingData.character;
 	}
 
 	override function loadScript(path:String):Void {

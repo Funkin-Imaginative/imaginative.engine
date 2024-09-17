@@ -19,21 +19,18 @@ class BeatSprite extends BaseSprite implements IBeat {
 	inline function get_hasSway():Bool return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
 	public var preventIdle:Bool = false;
 
-	override function get_parseType():ObjectType
-		return BEAT;
-
 	public var beatData:BeatData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
-		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
+		return new BeatSprite(x, y, cast ParseUtil.object(path, pathType));
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
-		var newData:BeatSpriteData = inputData;
+		final incomingData:BeatSpriteData = cast inputData;
 		super.renderData(inputData);
 
-		beatInterval = FunkinUtil.getDefault(newData.beat.invertal, 0);
-		skipNegativeBeats = FunkinUtil.getDefault(newData.beat.skipnegative, false);
+		beatInterval = FunkinUtil.getDefault(incomingData.beat.invertal, 0);
+		skipNegativeBeats = FunkinUtil.getDefault(incomingData.beat.skipnegative, false);
 
-		beatData = newData.beat;
+		beatData = incomingData.beat;
 	}
 
 	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {
@@ -45,9 +42,9 @@ class BeatSprite extends BaseSprite implements IBeat {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {
 			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
 				if (!event.stopped) {
-					var prevAnimType:AnimType = animType;
+					final prevAnimType:AnimType = animType;
 					playAnim('${getAnimName()}-loop', event.force, event.animType, event.reverse, event.frame);
 					if (prevAnimType == SING || prevAnimType == MISS) animType = prevAnimType; // for `tryDance()` checks
 					scripts.call('playingSpecialAnimPost', [event]);
@@ -74,10 +71,10 @@ class BeatSprite extends BaseSprite implements IBeat {
 
 	public var onSway:Bool = false;
 	public function dance():Void {
-		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
+		final event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);

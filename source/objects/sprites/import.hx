@@ -10,4 +10,3 @@ import utils.SpriteUtil.BeatSpriteData;
 import utils.SpriteUtil.SpriteData;
 
 import utils.SpriteUtil.AnimMapping;
-import utils.SpriteUtil.ObjectType;

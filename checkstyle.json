@@ -267,12 +267,12 @@
 		},
 		{
 			"props": {
-				"newFunctionTypePolicy": "none",
+				"newFunctionTypePolicy": "around",
 				"ternaryOpPolicy": "around",
 				"unaryOpPolicy": "none",
-				"oldFunctionTypePolicy": "none",
+				"oldFunctionTypePolicy": "around",
 				"boolOpPolicy": "around",
-				"intervalOpPolicy": "none",
+				"intervalOpPolicy": "around",
 				"assignOpPolicy": "around",
 				"bitwiseOpPolicy": "around",
 				"arithmeticOpPolicy": "around",

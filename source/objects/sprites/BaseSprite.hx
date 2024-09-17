@@ -105,10 +105,12 @@ class BaseSprite extends FlxSkewedSprite {
 	}
 
 	inline public function loadTexture(newTexture:String):TypeSprite {
-		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png'))
-			if (hasSheet) loadSheet(newTexture);
-			else loadImage(newTexture);
+			try {
+				if (hasSheet) loadSheet(newTexture);
+				else loadImage(newTexture);
+			}
 		return this;
 	}
 
@@ -121,7 +123,7 @@ class BaseSprite extends FlxSkewedSprite {
 	}
 
 	inline public function loadSheet(newTexture:String):TypeSprite {
-		var hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
 		if (Paths.fileExists('images/$newTexture.png') && hasSheet) {
 			try {
 				frames = Paths.frames(newTexture);
@@ -146,21 +148,19 @@ class BaseSprite extends FlxSkewedSprite {
 		return makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
-	public var parseType(get, never):ObjectType;
-	function get_parseType():ObjectType
-		return BASE;
-
 	public var data:SpriteData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
 		return new BaseSprite(x, y, cast ParseUtil.object(path, pathType));
 	}
 	public function renderData(inputData:TypeSpriteData):Void {
-		var baseData:SpriteData = inputData;
+		final incomingData:SpriteData = cast inputData;
 		try {
-			loadTexture(baseData.asset.image);
+			try {
+				loadTexture(incomingData.asset.image);
+			} catch(e) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
 
 			try {
-				for (anim in baseData.animations)
+				for (anim in incomingData.animations)
 					try {
 						switch (anim.asset.type) {
 							case 'graphic':
@@ -177,43 +177,48 @@ class BaseSprite extends FlxSkewedSprite {
 					} catch(e) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
 			} catch(e) trace('Couldn\'t add the animations.');
 
-			if (Reflect.hasField(baseData, 'position'))
+			if (Reflect.hasField(incomingData, 'position'))
 				try {
-					var thing:PositionStruct = FunkinUtil.getDefault(baseData.position, {x: x, y: y});
+					final thing:PositionStruct = FunkinUtil.getDefault(incomingData.position, {x: x, y: y});
 					setPosition(thing.x, thing.y);
 				} catch(e) trace('Invaild information in position var or the null check failed.');
-			if (Reflect.hasField(baseData, 'flip'))
+			if (Reflect.hasField(incomingData, 'flip'))
 				try {
-					var thing:PositionStruct.TypeXY<Bool> = FunkinUtil.getDefault(baseData.flip, {x: flipX, y: flipY});
+					final thing:PositionStruct.TypeXY<Bool> = FunkinUtil.getDefault(incomingData.flip, {x: flipX, y: flipY});
 					flipX = thing.x;
 					flipY = thing.y;
 				} catch(e) trace('Invaild information in flip var or the null check failed.');
-			if (Reflect.hasField(baseData, 'scale'))
+			if (Reflect.hasField(incomingData, 'scale'))
 				try {
-					var thing:PositionStruct = FunkinUtil.getDefault(baseData.scale, {x: scale.x, y: scale.y});
+					final thing:PositionStruct = FunkinUtil.getDefault(incomingData.scale, {x: scale.x, y: scale.y});
 					scale.set(thing.x, thing.y);
 				} catch(e) trace('Invaild information in scale var or the null check failed.');
 
 			try {
-				antialiasing = FunkinUtil.getDefault(baseData.antialiasing, true);
+				antialiasing = FunkinUtil.getDefault(incomingData.antialiasing, true);
 			} catch(e) trace('The antialiasing null check failed.');
 
-			if (Reflect.hasField(baseData, 'extra'))
+			if (Reflect.hasField(incomingData, 'extra'))
 				try {
-					if (baseData.extra != null || baseData.extra.length > 1)
-						for (extraData in baseData.extra)
+					if (incomingData.extra != null || incomingData.extra.length > 1)
+						for (extraData in incomingData.extra)
 							extra.set(extraData.name, extraData.data);
 				} catch(e) trace('Invaild information in extra array or the null check failed.');
 
-			data = baseData;
-		} catch(e) trace('Something went very wrong! What could bypass all the try\'s???');
+			try {
+				data = incomingData;
+			} catch(e) trace('Couldn\'t set data variable.');
+		} catch(e)
+			try {
+				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
+			} catch(e) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 	}
 
 	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();
 	public var animType:AnimType;
 
-	var _scripts:ScriptGroup;
 	public var scripts(get, never):ScriptGroup;
+	var _scripts:ScriptGroup;
 	function get_scripts():ScriptGroup {
 		if (_scripts == null)
 			_scripts = new ScriptGroup(this);
@@ -233,7 +238,7 @@ class BaseSprite extends FlxSkewedSprite {
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite, parseType));
+				renderData(ParseUtil.object(sprite));
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);
@@ -250,7 +255,7 @@ class BaseSprite extends FlxSkewedSprite {
 	inline public function getAnimInfo(name:String):AnimMapping return doesAnimExist(name) ? anims.get(name) : {offset: {x: 0, y: 0}, swappedAnim: '', flippedAnim: ''}
 	public function playAnim(name:String, force:Bool = false, type:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
 		if (doesAnimExist(name, true)) {
-			var animInfo:AnimMapping = getAnimInfo(name);
+			final animInfo:AnimMapping = getAnimInfo(name);
 			animation.play(name, force, reverse, frame);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 		}
@@ -274,7 +279,7 @@ class BaseSprite extends FlxSkewedSprite {
 	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		if (__offsetFlip) {
 			scale.x *= -1;
-			var bounds = super.getScreenBounds(newRect, camera);
+			final bounds = super.getScreenBounds(newRect, camera);
 			scale.x *= -1;
 			return bounds;
 		}

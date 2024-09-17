@@ -1,14 +1,5 @@
 package utils;
 
-import utils.SpriteUtil.TypeSpriteData;
-import utils.SpriteUtil.ObjectType;
-import utils.SpriteUtil.CharacterSpriteData;
-import utils.SpriteUtil.BeatSpriteData;
-import utils.SpriteUtil.SpriteData;
-import objects.DifficultyObject.DifficultyData;
-import objects.LevelObject.LevelParse;
-import objects.LevelObject.LevelData;
-
 typedef AllowedModesTyping = {
 	var playAsEnemy:Bool;
 	var p2AsEnemy:Bool;
@@ -18,6 +9,7 @@ typedef SongParse = {
 	var icon:String;
 	@:optional var startingDiff:Int;
 	var difficulties:Array<String>;
+	@:optional var variants:Array<String>;
 	@:optional var color:String;
 	var allowedModes:AllowedModesTyping;
 }
@@ -27,6 +19,7 @@ typedef SongData = {
 	var icon:String;
 	var startingDiff:Int;
 	var difficulties:Array<String>;
+	var variants:Array<String>;
 	var color:FlxColor;
 	var allowedModes:AllowedModesTyping;
 }
@@ -37,24 +30,24 @@ typedef ExtraData = {
 }
 
 class ParseUtil {
-	inline public static function json(path:String, pathType:FunkinPath = ANY):Dynamic {
+	public static function json(path:String, pathType:FunkinPath = ANY):Dynamic {
 		var content = {}
 		try { content = haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType))); }
 		catch(e) trace(e);
 		return content;
 	}
 
-	inline public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
-		var contents:DifficultyData = json('content/difficulties/$name', pathType);
+	public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyObject.DifficultyData {
+		final contents:DifficultyObject.DifficultyData = json('content/difficulties/$name', pathType);
 		return {
 			display: contents.display,
-			variant: contents.variant,
+			variant: FunkinUtil.getDefault(contents.variant, 'normal'),
 			scoreMult: FunkinUtil.getDefault(contents.scoreMult, 1),
 		}
 	}
 
-	inline public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
-		var contents:LevelParse = json('content/levels/$name', pathType);
+	public static function level(name:String, pathType:FunkinPath = ANY):LevelObject.LevelData {
+		var contents:LevelObject.LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
 			data.flip = FunkinUtil.getDefault(data.flip, (i + 1) > Math.floor(contents.objects.length / 2));
 			data.offsets = FunkinUtil.getDefault(data.offsets, {x: 0, y: 0});
@@ -64,19 +57,22 @@ class ParseUtil {
 			songs: [for (s in contents.songs) song(s, pathType)],
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
+			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v],
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
 		}
 	}
 
-	inline public static function object(path:String, type:ObjectType = BASE, pathType:FunkinPath = ANY):TypeSpriteData {
+	public static function object(path:String, pathType:FunkinPath = ANY):SpriteUtil.TypeSpriteData {
+		final parse:Void->Dynamic = () -> return json('content/objects/$path', pathType);
+		final tempData:Dynamic = parse();
+
 		var charData:Character.CharacterData = null;
-		var beatData:BeatSprite.BeatData = null;
-		if (type == CHARACTER) {
-			var gottenData:Character.CharacterParse;
-			var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
+		if (Reflect.hasField(tempData, 'character')) {
+			var gottenData:Character.CharacterParse = null;
+			var typeData:SpriteUtil.CharacterSpriteData = cast parse();
 			try {
-				gottenData = json('content/objects/$path', pathType).character;
+				gottenData = cast parse().character;
 				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
 			} catch(e) trace(e);
 			charData = {
@@ -86,16 +82,17 @@ class ParseUtil {
 				singlength: FunkinUtil.getDefault(typeData.character.singlength, 4)
 			}
 		}
-		if (type == BEAT) {
-			var typeData:BeatSpriteData = json('content/objects/$path', pathType);
+
+		var beatData:BeatSprite.BeatData = null;
+		if (Reflect.hasField(tempData, 'beat')) {
+			var typeData:BeatSprite.BeatData = cast parse().beat;
 			beatData = {
-				invertal: FunkinUtil.getDefault(typeData.beat.invertal, 0),
-				skipnegative: FunkinUtil.getDefault(typeData.beat.skipnegative, false)
+				invertal: FunkinUtil.getDefault(typeData.invertal, 0),
+				skipnegative: FunkinUtil.getDefault(typeData.skipnegative, false)
 			}
-			trace(typeData.beat);
 		}
 
-		var typeData:SpriteData = json('content/objects/$path', pathType);
+		final typeData:SpriteUtil.SpriteData = cast tempData;
 
 		var data:Dynamic = {}
 		if (Reflect.hasField(typeData, 'offsets')) {
@@ -170,14 +167,15 @@ class ParseUtil {
 		return data;
 	}
 
-	inline public static function song(name:String, pathType:FunkinPath = ANY):SongData {
-		var contents:SongParse = json('content/songs/$name/meta', pathType);
+	public static function song(name:String, pathType:FunkinPath = ANY):SongData {
+		final contents:SongParse = json('content/songs/$name/meta', pathType);
 		return {
 			name: json('content/songs/$name/audio', pathType).name,
 			folder: contents.folder,
 			icon: contents.icon,
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
+			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v],
 			color: FlxColor.fromString(contents.color),
 			allowedModes: contents.allowedModes
 		}
