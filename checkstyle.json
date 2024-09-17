@@ -399,7 +399,8 @@
 		{
 			"props": {
 				"tokens": ["OBJECT_DECL"],
-				"option": "same"
+				"option": "same",
+				"severity": "IGNORE"
 			},
 			"type": "RightCurly"
 		},

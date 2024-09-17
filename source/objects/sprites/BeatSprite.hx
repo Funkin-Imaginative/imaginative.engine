@@ -1,9 +1,5 @@
 package objects.sprites;
 
-import backend.scripting.events.objects.sprites.*;
-import utils.SpriteUtil.TypeSpriteData;
-import utils.SpriteUtil.BeatSpriteData;
-
 typedef BeatData = {
 	var invertal:Int;
 	var skipnegative:Bool;
@@ -13,25 +9,27 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var idleSuffix:String = '';
 	public var animSuffix:String = '';
 
-	public var skipNegativeBeats:Bool = false;
 	public var bopRate(get, never):Int;
 	inline function get_bopRate():Int return Math.round(beatInterval * bopSpeed);
 	public var bopSpeed(default, set):Float = 1; inline function set_bopSpeed(value:Float):Float return bopSpeed = value < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
-	public var hasSway(get, never):Bool; // Replaced 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	inline function get_hasSway():Bool return animation.exists('sway$idleSuffix}') ? true : animation.exists('sway');
 
+	public var skipNegativeBeats:Bool = false;
+	public var hasSway(get, never):Bool; // Replaced 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
+	inline function get_hasSway():Bool return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
 	public var preventIdle:Bool = false;
 
-	public var beatData:BeatData = null;
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite
-		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
+	override function get_parseType():ObjectType
+		return BEAT;
 
+	public var beatData:BeatData = null;
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
+		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
+	}
 	override public function renderData(inputData:TypeSpriteData):Void {
-		var newData:BeatSpriteData = cast inputData;
+		var newData:BeatSpriteData = inputData;
 		super.renderData(inputData);
 
-		trace(newData);
 		beatInterval = FunkinUtil.getDefault(newData.beat.invertal, 0);
 		skipNegativeBeats = FunkinUtil.getDefault(newData.beat.skipnegative, false);
 

@@ -70,29 +70,31 @@ class ParseUtil {
 	}
 
 	inline public static function object(path:String, type:ObjectType = BASE, pathType:FunkinPath = ANY):TypeSpriteData {
-		var charData:objects.sprites.Character.CharacterData = null;
-		var beatData:objects.sprites.BeatSprite.BeatData = null;
-		switch (type) {
-			case CHARACTER:
-				var gottenData:objects.sprites.Character.CharacterParse;
-				var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
-				try {
-					gottenData = json('content/objects/$path', pathType).character;
-					typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
-				} catch(e) trace(e);
-				charData = {
-					camera: {x: FunkinUtil.getDefault(typeData.character.camera.x, 0), y: FunkinUtil.getDefault(typeData.character.camera.y, 0)},
-					color: typeData.character.color,
-					icon: FunkinUtil.getDefault(typeData.character.icon, 'face'),
-					singlength: FunkinUtil.getDefault(typeData.character.singlength, 4)
-				}
-			case BEAT:
-				var typeData:BeatSpriteData = json('content/objects/$path', pathType);
-				beatData = {
-					invertal: FunkinUtil.getDefault(typeData.beat.invertal, 0),
-					skipnegative: FunkinUtil.getDefault(typeData.beat.skipnegative, false)
-				}
+		var charData:Character.CharacterData = null;
+		var beatData:BeatSprite.BeatData = null;
+		if (type == CHARACTER) {
+			var gottenData:Character.CharacterParse;
+			var typeData:CharacterSpriteData = json('content/objects/$path', pathType);
+			try {
+				gottenData = json('content/objects/$path', pathType).character;
+				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
+			} catch(e) trace(e);
+			charData = {
+				camera: {x: FunkinUtil.getDefault(typeData.character.camera.x, 0), y: FunkinUtil.getDefault(typeData.character.camera.y, 0)},
+				color: typeData.character.color,
+				icon: FunkinUtil.getDefault(typeData.character.icon, 'face'),
+				singlength: FunkinUtil.getDefault(typeData.character.singlength, 4)
+			}
 		}
+		if (type == BEAT) {
+			var typeData:BeatSpriteData = json('content/objects/$path', pathType);
+			beatData = {
+				invertal: FunkinUtil.getDefault(typeData.beat.invertal, 0),
+				skipnegative: FunkinUtil.getDefault(typeData.beat.skipnegative, false)
+			}
+			trace(typeData.beat);
+		}
+
 		var typeData:SpriteData = json('content/objects/$path', pathType);
 
 		var data:Dynamic = {}
@@ -133,40 +135,37 @@ class ParseUtil {
 			slot.fps = FunkinUtil.getDefault(anim.fps, 24);
 			data.animations.push(slot);
 		}
-		if (Reflect.hasField(typeData, 'position')) {
+		if (Reflect.hasField(typeData, 'position'))
 			try {
 				data.position = {x: typeData.position.x, y: typeData.position.y}
 			} catch(e) {
 				trace('position got fucked');
 				data.position = {x: null, y: null}
 			}
-		} else {
+		else
 			data.position = {x: null, y: null}
-		}
-		if (Reflect.hasField(typeData, 'flip')) {
+		if (Reflect.hasField(typeData, 'flip'))
 			try {
 				data.flip = {x: typeData.flip.x, y: typeData.flip.y}
 			} catch(e) {
 				trace('flip got fucked');
 				data.flip = {x: null, y: null}
 			}
-		} else {
+		else
 			data.flip = {x: null, y: null}
-		}
-		if (Reflect.hasField(typeData, 'scale')) {
+		if (Reflect.hasField(typeData, 'scale'))
 			try {
 				data.scale = {x: typeData.scale.x, y: typeData.scale.y}
 			} catch(e) {
 				trace('scale got fucked');
 				data.scale = {x: null, y: null}
 			}
-		} else {
+		else
 			data.scale = {x: null, y: null}
-		}
 		data.antialiasing = FunkinUtil.getDefault(typeData.antialiasing, true);
 
-		if (type == CHARACTER) data.character = charData;
-		if (type == BEAT || type == CHARACTER) data.beat = beatData;
+		if (charData != null) data.character = charData;
+		if (beatData != null) data.beat = beatData;
 
 		return data;
 	}

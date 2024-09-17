@@ -60,7 +60,6 @@ import objects.*;
 
 // import states.*;
 
-import utils.SpriteUtil.TypeSprite;
 import utils.*;
 
 using StringTools;

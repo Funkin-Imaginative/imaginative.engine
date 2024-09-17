@@ -78,8 +78,8 @@ class ScriptGroup extends FlxBasic {
 			if (script != null)
 				script.reload();
 
-	public function add(script:Script):Void {
-		if (isDuplicate(script)) return;
+	public function add(script:Script, allowDuplicate:Bool = false):Void {
+		if (!allowDuplicate && isDuplicate(script)) return;
 		members.push(script);
 		setupScript(script);
 	}
@@ -94,8 +94,8 @@ class ScriptGroup extends FlxBasic {
 	public function remove(script:Script):Void
 		members.remove(script);
 
-	public function insert(pos:Int, script:Script):Void {
-		if (isDuplicate(script)) return;
+	public function insert(pos:Int, script:Script, allowDuplicate:Bool = false):Void {
+		if (!allowDuplicate && isDuplicate(script)) return;
 		members.insert(pos, script);
 		setupScript(script);
 	}
@@ -121,8 +121,6 @@ class ScriptGroup extends FlxBasic {
 				script.destroy();
 			}
 		}
-		if (members.length < 1)
-			add(new Script());
 	}
 
 	// whitsling noises

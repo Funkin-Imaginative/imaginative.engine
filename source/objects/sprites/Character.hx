@@ -1,8 +1,5 @@
 package objects.sprites;
 
-import utils.SpriteUtil.TypeSpriteData;
-import utils.SpriteUtil.CharacterSpriteData;
-
 typedef CharacterParse = {
 	var camera:PositionStruct;
 	var color:String;
@@ -18,21 +15,23 @@ typedef CharacterData = {
 
 class Character extends BeatSprite {
 	public var singSuffix:String = '';
-	public var cameraOffset:PositionStruct = new PositionStruct();
-
-	public var singLength:Float = 0;
-	public var lastHit:Float = Math.NEGATIVE_INFINITY;
-
-	public var healthColor:FlxColor = FlxColor.GRAY;
-
 	public var theirName:String;
 	public var theirIcon(get, default):String;
 	inline function get_theirIcon():String {
 		return theirIcon;
 	}
 
-	public var charData:CharacterData = null;
+	public var lastHit:Float = Math.NEGATIVE_INFINITY;
+	public var singLength:Float = 0;
 
+	public var cameraOffset:PositionStruct = new PositionStruct();
+
+	public var healthColor:FlxColor = FlxColor.GRAY;
+
+	override function get_parseType():ObjectType
+		return CHARACTER;
+
+	public var charData:CharacterData = null;
 	override public function renderData(inputData:TypeSpriteData):Void {
 		var newData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);
@@ -50,14 +49,11 @@ class Character extends BeatSprite {
 			for (script in Script.create('characters/$s', OBJECT))
 				scripts.add(script);
 
-		if (scripts.length < 1)
-			scripts.add(new Script());
-
 		scripts.load();
 	}
 
 	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
-		super(x, y, ParseUtil.object('characters/${theirName = name}', CHARACTER));
+		super(x, y, 'characters/${theirName = name}');
 	}
 
 	override public function tryDance():Void {

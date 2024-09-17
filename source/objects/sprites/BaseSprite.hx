@@ -1,9 +1,5 @@
 package objects.sprites;
 
-import utils.SpriteUtil.TypeSpriteData;
-import utils.SpriteUtil.AnimMapping;
-import utils.SpriteUtil.SpriteData;
-import backend.structures.PositionStruct.TypeXY;
 import flixel.math.FlxRect;
 import flixel.addons.effects.FlxSkewedSprite;
 
@@ -56,7 +52,7 @@ enum abstract AnimType(String) from String to String {
 
 typedef OffsetsData = {
 	@:optional var position:PositionStruct;
-	@:optional var flip:TypeXY<Bool>;
+	@:optional var flip:PositionStruct.TypeXY<Bool>;
 	@:optional var scale:PositionStruct;
 }
 
@@ -68,10 +64,10 @@ typedef AnimationTyping = {
 	@:optional var asset:AssetTyping;
 	var name:String;
 	@:optional var tag:String;
-	@:optional var dimensions:TypeXY<Int>;
+	@:optional var dimensions:PositionStruct.TypeXY<Int>;
 	var indices:Array<Int>;
 	var offset:PositionStruct;
-	var flip:TypeXY<Bool>;
+	var flip:PositionStruct.TypeXY<Bool>;
 	var loop:Bool;
 	var fps:Int;
 }
@@ -150,19 +146,21 @@ class BaseSprite extends FlxSkewedSprite {
 		return makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
+	public var parseType(get, never):ObjectType;
+	function get_parseType():ObjectType
+		return BASE;
+
 	public var data:SpriteData = null;
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
 		return new BaseSprite(x, y, cast ParseUtil.object(path, pathType));
-
+	}
 	public function renderData(inputData:TypeSpriteData):Void {
-		var baseData:SpriteData = cast inputData;
+		var baseData:SpriteData = inputData;
 		try {
-			try {
-				loadTexture(baseData.asset.image);
-			} catch(e) trace('Couldn\'t load image "${baseData.asset.image}", type "${baseData.asset.type}".');
+			loadTexture(baseData.asset.image);
 
 			try {
-				for (anim in baseData.animations) {
+				for (anim in baseData.animations)
 					try {
 						switch (anim.asset.type) {
 							case 'graphic':
@@ -177,28 +175,24 @@ class BaseSprite extends FlxSkewedSprite {
 							flippedAnim: ''
 						});
 					} catch(e) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
-				}
 			} catch(e) trace('Couldn\'t add the animations.');
 
-			if (Reflect.hasField(baseData, 'position')) {
+			if (Reflect.hasField(baseData, 'position'))
 				try {
 					var thing:PositionStruct = FunkinUtil.getDefault(baseData.position, {x: x, y: y});
 					setPosition(thing.x, thing.y);
 				} catch(e) trace('Invaild information in position var or the null check failed.');
-			}
-			if (Reflect.hasField(baseData, 'flip')) {
+			if (Reflect.hasField(baseData, 'flip'))
 				try {
-					var thing:TypeXY<Bool> = FunkinUtil.getDefault(baseData.flip, {x: flipX, y: flipY});
+					var thing:PositionStruct.TypeXY<Bool> = FunkinUtil.getDefault(baseData.flip, {x: flipX, y: flipY});
 					flipX = thing.x;
 					flipY = thing.y;
 				} catch(e) trace('Invaild information in flip var or the null check failed.');
-			}
-			if (Reflect.hasField(baseData, 'scale')) {
+			if (Reflect.hasField(baseData, 'scale'))
 				try {
 					var thing:PositionStruct = FunkinUtil.getDefault(baseData.scale, {x: scale.x, y: scale.y});
 					scale.set(thing.x, thing.y);
 				} catch(e) trace('Invaild information in scale var or the null check failed.');
-			}
 
 			try {
 				antialiasing = FunkinUtil.getDefault(baseData.antialiasing, true);
@@ -230,9 +224,6 @@ class BaseSprite extends FlxSkewedSprite {
 			for (script in Script.create(s, OBJECT))
 				scripts.add(script);
 
-		if (scripts.length < 1)
-			scripts.add(new Script());
-
 		scripts.load();
 	}
 
@@ -242,7 +233,7 @@ class BaseSprite extends FlxSkewedSprite {
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite));
+				renderData(ParseUtil.object(sprite, parseType));
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);
