@@ -57,7 +57,7 @@ class ParseUtil {
 			songs: [for (s in contents.songs) song(s, pathType)],
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
-			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v],
+			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
 		}
@@ -175,7 +175,7 @@ class ParseUtil {
 			icon: contents.icon,
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
-			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v],
+			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
 			color: FlxColor.fromString(contents.color),
 			allowedModes: contents.allowedModes
 		}
