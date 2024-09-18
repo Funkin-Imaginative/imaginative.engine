@@ -1,5 +1,6 @@
 package utils;
 
+import objects.sprites.BaseSprite.TextureType;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
@@ -24,46 +25,52 @@ typedef AnimMapping = {
 
 class SpriteUtil {
 	inline public static function loadTexture(sprite:TypeSprite, newTexture:String):TypeSprite {
-		if (sprite is BaseSprite) {
+		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadTexture(newTexture);
-			return sprite;
+
+		if (sprite is FlxSprite) {
+			final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+			final hasSheet:Bool = sheetPath != '';
+			final textureType:TextureType = TextureType.getTypeFromPath(sheetPath);
+
+			if (Paths.fileExists('images/$newTexture.png'))
+				try {
+					if (hasSheet) loadSheet(sprite, newTexture);
+					else loadImage(sprite, newTexture);
+				} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 		}
-		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
-		if (Paths.fileExists('images/$newTexture.png'))
-			try {
-				if (hasSheet) loadSheet(sprite, newTexture);
-				else loadImage(sprite, newTexture);
-			}
 		return sprite;
 	}
 
 	inline public static function loadImage(sprite:TypeSprite, newTexture:String):TypeSprite {
-		if (sprite is BaseSprite) {
+		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadImage(newTexture);
-			return sprite;
-		}
-		if (sprite is FlxSprite) {
+
+		if (sprite is FlxSprite)
 			if (Paths.fileExists('images/$newTexture.png'))
 				try {
 					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
-				}
-			return sprite;
-		}
+				} catch(e) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
+
 		return sprite;
 	}
 
 	inline public static function loadSheet(sprite:TypeSprite, newTexture:String):TypeSprite {
-		if (sprite is BaseSprite) {
+		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadSheet(newTexture);
-			return sprite;
-		}
+
 		if (sprite is FlxSprite) {
-			final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
-			if (Paths.fileExists('images/$newTexture.png') && hasSheet)
-				try {
-					cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
-				}
-			return sprite;
+			final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+			final hasSheet:Bool = sheetPath != '';
+			final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
+
+			if (Paths.fileExists('images/$newTexture.png')) {
+				if (hasSheet)
+					try {
+						cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
+					} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+				else loadImage(sprite, newTexture);
+			}
 		}
 		return sprite;
 	}

@@ -35,7 +35,7 @@ class FunkinUtil {
 			case CONFIRM: 'confirm';
 			case CANCEL: 'cancel';
 			case SCROLL: 'scroll';
-		}), volume, false, null, true, onComplete == null ? () -> {} : onComplete);
+		}), volume, onComplete == null ? () -> {} : onComplete);
 		menuSound.persist = true;
 		return menuSound;
 	}
@@ -63,6 +63,13 @@ class FunkinUtil {
 		return results;
 	}
 
+	/**
+	 * Returns the default variant of a difficulty
+	 * @param diff The difficulty name.
+	 * @return The difficulties default variant.
+	 */
+	inline public static function getDifficultyDisplay(diff:String):String
+		return ParseUtil.difficulty(diff).display;
 	/**
 	 * Returns the default variant of a difficulty
 	 * @param diff The difficulty name.

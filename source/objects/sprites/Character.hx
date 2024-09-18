@@ -32,13 +32,28 @@ class Character extends BeatSprite {
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);
+		try {
+			try {
+				cameraOffset.copyFrom(FunkinUtil.getDefault(incomingData.character.camera, new PositionStruct()));
+			} catch(e) trace('Couldn\'t set camera offsets.');
+			try {
+				healthColor = incomingData.character.color;
+			} catch(e) trace('Couldn\'t set the health bar color.');
+			try {
+				theirIcon = incomingData.character.icon;
+			} catch(e) trace('Couldn\'t set the characters icon.');
+			try {
+				singLength = FunkinUtil.getDefault(incomingData.character.singlength, 4);
+			} catch(e) trace('Couldn\'t set the sing length.');
 
-		cameraOffset.copyFrom(incomingData.character.camera);
-		healthColor = incomingData.character.color;
-		theirIcon = incomingData.character.icon;
-		singLength = FunkinUtil.getDefault(incomingData.character.singlength, 4);
+			try {
+				charData = incomingData.character;
+			} catch(e) trace('Couldn\'t set the character data variable.');
+		} catch(e)
+			try {
+				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
+			} catch(e) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 
-		charData = incomingData.character;
 	}
 
 	override function loadScript(path:String):Void {
@@ -46,7 +61,7 @@ class Character extends BeatSprite {
 			for (script in Script.create('characters/$s', OBJECT))
 				scripts.add(script);
 
-		scripts.load();
+		super.loadScript(path);
 	}
 
 	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {

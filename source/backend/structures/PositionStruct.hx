@@ -1,6 +1,6 @@
 package backend.structures;
 
-@:structInit class TypeXY<T> {
+class TypeXY<T> {
 	public var x:T;
 	public var y:T;
 
@@ -22,7 +22,7 @@ package backend.structures;
 		return '{x: $x, y: $y}';
 }
 
-@:structInit class PositionStruct /* extends TypeXY<Float> */ {
+class PositionStruct {
 	public var x:Float = 0;
 	public var y:Float = 0;
 
@@ -41,10 +41,7 @@ package backend.structures;
 	}
 
 	inline public static function getObjMidpoint<Object:FlxObject>(obj:Object):PositionStruct {
-		return {
-			x: obj.x + obj.width * 0.5,
-			y: obj.y + obj.height * 0.5
-		}
+		return new PositionStruct(obj.x + obj.width * 0.5, obj.y + obj.height * 0.5);
 	}
 
 	inline public function toString():String

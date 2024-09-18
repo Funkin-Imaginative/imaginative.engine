@@ -26,11 +26,21 @@ class BeatSprite extends BaseSprite implements IBeat {
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:BeatSpriteData = cast inputData;
 		super.renderData(inputData);
+		try {
+			try {
+				beatInterval = FunkinUtil.getDefault(incomingData.beat.invertal, 0);
+			} catch(e) trace('Couldn\'t set object bop rate.');
+			try {
+				skipNegativeBeats = FunkinUtil.getDefault(incomingData.beat.skipnegative, false);
+			} catch(e) trace('Couldn\'t set skipping negative beats.');
 
-		beatInterval = FunkinUtil.getDefault(incomingData.beat.invertal, 0);
-		skipNegativeBeats = FunkinUtil.getDefault(incomingData.beat.skipnegative, false);
-
-		beatData = incomingData.beat;
+			try {
+				beatData = incomingData.beat;
+			} catch(e) trace('Couldn\'t set the beat data variable.');
+		} catch(e)
+			try {
+				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
+			} catch(e) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 	}
 
 	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {

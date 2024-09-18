@@ -1,9 +1,11 @@
 package objects;
 
 typedef ObjectTyping = {
-	var object:OneOfTwo<String, SpriteUtil.SpriteData>;
+	var object:OneOfTwo<String, SpriteUtil.TypeSpriteData>;
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
+	@:optional var size:Float;
+	var willHey:Bool;
 }
 
 typedef LevelParse = {
@@ -38,6 +40,7 @@ class LevelObject extends FlxBasic {
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
+	public var weekObjects:Array<BeatSprite> = [];
 
 	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();

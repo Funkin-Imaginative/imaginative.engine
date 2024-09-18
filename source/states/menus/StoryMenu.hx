@@ -54,7 +54,7 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
-		var loadedObjects:Array<objects.LevelObject.ObjectTyping> = [];
+		var loadedObjects:Array<Array<objects.LevelObject.ObjectTyping>> = [];
 		levels = new FlxTypedGroup<LevelObject>();
 		for (list in [
 			// Paths.readFolderOrderTxt('content/levels', 'json', FunkinPath.getSolo()),
@@ -67,9 +67,10 @@ class StoryMenu extends BeatState {
 				for (diff in level.data.difficulties)
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
+				var temp:Array<objects.LevelObject.ObjectTyping> = [];
 				for (data in level.data.objects)
-					if (!loadedObjects.contains(data))
-						loadedObjects.push(data);
+					temp.push(data);
+				loadedObjects.push(temp);
 			}
 		}
 		add(levels);
@@ -91,7 +92,7 @@ class StoryMenu extends BeatState {
 		add(diffs);
 
 		final arrowDistance:Float = 200 * 0.85;
-		var arrowPos:PositionStruct = PositionStruct.getObjMidpoint(diffs.members[0].sprite);
+		final arrowPos:PositionStruct = PositionStruct.getObjMidpoint(diffs.members[0].sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
@@ -135,16 +136,19 @@ class StoryMenu extends BeatState {
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
-		/* weekObjects = new FlxTypedGroup<BeatSprite>();
-		for (data in loadedObjects) {
-			var sprite:BeatSprite;
-			if (data.object is String)
-				sprite;
-			else
-				sprite;
-			weekObjects.add(sprite);
+		weekObjects = new FlxTypedGroup<BeatSprite>();
+		for (i => loop in loadedObjects) {
+			for (data in loop) {
+				var sprite:BeatSprite = new BeatSprite(data.object);
+				if (data.object is String) {
+					if (Reflect.hasField(data, 'flip')) sprite.flipX = data.flip;
+					if (Reflect.hasField(data, 'offsets')) sprite.setPosition(data.offsets.x, data.offsets.y);
+				}
+				sprite.screenCenter();
+				levels.members[i].weekObjects.push(weekObjects.add(sprite));
+			}
 		}
-		add(weekObjects); */
+		add(weekObjects);
 
 		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0');
 		scoreText.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, LEFT);
@@ -174,14 +178,12 @@ class StoryMenu extends BeatState {
 		camera.snapToTarget();
 	}
 
-	function hoverIsCorrect(item:LevelObject):Bool {
-		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
-	}
-
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
 		if (canSelect) {
+			final hoverIsCorrect:LevelObject->Bool = (item:LevelObject) -> return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
+
 			if (Controls.uiUp)
 				changeSelection(-1);
 			if (Controls.uiDown)
@@ -267,15 +269,15 @@ class StoryMenu extends BeatState {
 	public function selectCurrent():Void {
 		canSelect = false;
 
-		var level:LevelObject = levels.members[curSelected];
-		var levelLocked:Bool = level.isLocked;
-		var diffLocked:Bool = diffObject.isLocked;
+		final level:LevelObject = levels.members[curSelected];
+		final levelLocked:Bool = level.isLocked;
+		final diffLocked:Bool = diffObject.isLocked;
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				var time:Float = FunkinUtil.playMenuSFX(CANCEL).time / 1000;
+				final time:Float = FunkinUtil.playMenuSFX(CANCEL).time / 1000;
 				if (levelLocked) {
-					var ogX:Float = level.sprite.x;
+					final ogX:Float = level.sprite.x;
 					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
 						onUpdate: (tween:FlxTween) -> level.updateLock(),
 						onComplete: (tween:FlxTween) -> {
@@ -285,7 +287,7 @@ class StoryMenu extends BeatState {
 					});
 				}
 				if (diffLocked) {
-					var ogY:Float = diffObject.sprite.y;
+					final ogY:Float = diffObject.sprite.y;
 					diffShake = FlxTween.shake(diffObject.sprite, 0.1, time, Y, {
 						onUpdate: (tween:FlxTween) -> diffObject.updateLock(),
 						onComplete: (tween:FlxTween) -> {
@@ -297,6 +299,9 @@ class StoryMenu extends BeatState {
 				new FlxTimer().start(time, (timer:FlxTimer) -> canSelect = true);
 			}
 		} else
-			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (timer:FlxTimer) -> PlayState.loadLevel(level.data, curDiffString, level.data.variants[curDiff]));
+			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (timer:FlxTimer) -> {
+				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
+				FlxG.switchState(new PlayState());
+			});
 	}
 }

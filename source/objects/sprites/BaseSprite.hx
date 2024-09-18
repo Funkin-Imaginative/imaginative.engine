@@ -39,12 +39,32 @@ enum abstract AnimType(String) from String to String {
 		} */
 }
 
+enum abstract TextureType(String) from String to String {
+	var SPARROW = 'sparrow';
+	var PACKER = 'packer';
+	var GRAPHIC = 'graphic';
+	var UNKNOWN = null;
+
+	inline public static function getTypeFromPath(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
+		return switch (HaxePath.extension(sheetPath)) {
+			case 'xml': SPARROW;
+			case 'txt': PACKER;
+			default: defaultIsUnknown ? UNKNOWN : GRAPHIC;
+		}
+	}
+}
+
 @:structInit class TextureData {
 	public var image(default, null):String;
-	public var type(default, null):String;
+	public var type(default, null):TextureType;
 	public var path(get, never):FunkinPath;
 	inline function get_path():FunkinPath
 		return FunkinPath.typeFromPath(image);
+
+	public function new(image:String, type:TextureType) {
+		this.image = image;
+		this.type = type;
+	}
 
 	public function toString():String
 		return '{image => $image, type => $type, path => $path}';
@@ -58,7 +78,7 @@ typedef OffsetsData = {
 
 typedef AssetTyping = {
 	var image:String;
-	var type:String;
+	var type:TextureType;
 }
 typedef AnimationTyping = {
 	@:optional var asset:AssetTyping;
@@ -95,22 +115,22 @@ class BaseSprite extends FlxSkewedSprite {
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData>;
-	@:unreflective inline function resetTextures(newTexture:String, spriteType:String):String {
+	@:unreflective inline function resetTextures(newTexture:String, spriteType:TextureType):String {
 		textures = [];
-		textures.push({
-			image: HaxePath.withoutExtension(newTexture),
-			type: spriteType
-		});
+		textures.push(new TextureData(HaxePath.withoutExtension(newTexture), spriteType));
 		return newTexture;
 	}
 
 	inline public function loadTexture(newTexture:String):TypeSprite {
-		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
+		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+		final hasSheet:Bool = sheetPath != '';
+		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath);
+
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				if (hasSheet) loadSheet(newTexture);
 				else loadImage(newTexture);
-			}
+			} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 		return this;
 	}
 
@@ -118,21 +138,22 @@ class BaseSprite extends FlxSkewedSprite {
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
-			}
+			} catch(e) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
 		return this;
 	}
 
 	inline public function loadSheet(newTexture:String):TypeSprite {
-		final hasSheet:Bool = Paths.multExst('images/$newTexture', Paths.atlasFrameExts) != '';
-		if (Paths.fileExists('images/$newTexture.png') && hasSheet) {
-			try {
-				frames = Paths.frames(newTexture);
-				resetTextures(Paths.applyRoot('images/$newTexture.png'), switch (HaxePath.extension(Paths.multExst('images/$newTexture', Paths.atlasFrameExts))) {
-					case 'xml': 'sparrow';
-					case 'txt': 'packer';
-					default: 'unknown';
-				});
-			}
+		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+		final hasSheet:Bool = sheetPath != '';
+		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
+
+		if (Paths.fileExists('images/$newTexture.png')) {
+			if (hasSheet)
+				try {
+					frames = Paths.frames(newTexture);
+					resetTextures(Paths.applyRoot('images/$newTexture.png'), textureType);
+				} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+			else loadImage(newTexture);
 		}
 		return this;
 	}
@@ -163,39 +184,40 @@ class BaseSprite extends FlxSkewedSprite {
 				for (anim in incomingData.animations)
 					try {
 						switch (anim.asset.type) {
-							case 'graphic':
+							case UNKNOWN:
+							case GRAPHIC:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 							default:
 								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 						}
 						anims.set(anim.name, {
-							offset: {x: anim.offset.x, y: anim.offset.y},
+							offset: new PositionStruct(anim.offset.x, anim.offset.y),
 							swappedAnim: '',
 							flippedAnim: ''
 						});
 					} catch(e) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
 			} catch(e) trace('Couldn\'t add the animations.');
 
-			if (Reflect.hasField(incomingData, 'position'))
+			if (Reflect.hasField(incomingData, 'position')) {
 				try {
-					final thing:PositionStruct = FunkinUtil.getDefault(incomingData.position, {x: x, y: y});
-					setPosition(thing.x, thing.y);
-				} catch(e) trace('Invaild information in position var or the null check failed.');
-			if (Reflect.hasField(incomingData, 'flip'))
+					setPosition(incomingData.position.x, incomingData.position.y);
+				}
+			}
+			if (Reflect.hasField(incomingData, 'flip')) {
 				try {
-					final thing:PositionStruct.TypeXY<Bool> = FunkinUtil.getDefault(incomingData.flip, {x: flipX, y: flipY});
-					flipX = thing.x;
-					flipY = thing.y;
-				} catch(e) trace('Invaild information in flip var or the null check failed.');
-			if (Reflect.hasField(incomingData, 'scale'))
+					flipX = incomingData.flip.x;
+					flipY = incomingData.flip.y;
+				}
+			}
+			if (Reflect.hasField(incomingData, 'scale')) {
 				try {
-					final thing:PositionStruct = FunkinUtil.getDefault(incomingData.scale, {x: scale.x, y: scale.y});
-					scale.set(thing.x, thing.y);
-				} catch(e) trace('Invaild information in scale var or the null check failed.');
+					scale.set(incomingData.scale.x, incomingData.scale.y);
+				}
+			}
 
 			try {
-				antialiasing = FunkinUtil.getDefault(incomingData.antialiasing, true);
+				antialiasing = FunkinUtil.reflectDefault(incomingData, 'antialiasing', true);
 			} catch(e) trace('The antialiasing null check failed.');
 
 			if (Reflect.hasField(incomingData, 'extra'))
@@ -207,7 +229,7 @@ class BaseSprite extends FlxSkewedSprite {
 
 			try {
 				data = incomingData;
-			} catch(e) trace('Couldn\'t set data variable.');
+			} catch(e) trace('Couldn\'t set the data variable.');
 		} catch(e)
 			try {
 				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
@@ -217,14 +239,16 @@ class BaseSprite extends FlxSkewedSprite {
 	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();
 	public var animType:AnimType;
 
-	public var scripts(get, never):ScriptGroup;
+	public var scripts:ScriptGroup;
 	var _scripts:ScriptGroup;
-	function get_scripts():ScriptGroup {
-		if (_scripts == null)
-			_scripts = new ScriptGroup(this);
-		return _scripts;
-	}
+	// function get_scripts():ScriptGroup {
+	// 	if (_scripts == null)
+	// 		_scripts = new ScriptGroup(this);
+	// 	return _scripts;
+	// }
 	public function loadScript(path:String):Void {
+		scripts = new ScriptGroup(this);
+
 		for (s in ['global', path])
 			for (script in Script.create(s, OBJECT))
 				scripts.add(script);
@@ -242,7 +266,7 @@ class BaseSprite extends FlxSkewedSprite {
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);
-		if (scripts != null) loadScript(script);
+		if (scripts == null) loadScript(script);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -252,7 +276,7 @@ class BaseSprite extends FlxSkewedSprite {
 		if (_update != null) _update(elapsed);
 	}
 
-	inline public function getAnimInfo(name:String):AnimMapping return doesAnimExist(name) ? anims.get(name) : {offset: {x: 0, y: 0}, swappedAnim: '', flippedAnim: ''}
+	inline public function getAnimInfo(name:String):AnimMapping return doesAnimExist(name) ? anims.get(name) : {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''}
 	public function playAnim(name:String, force:Bool = false, type:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
 		if (doesAnimExist(name, true)) {
 			final animInfo:AnimMapping = getAnimInfo(name);

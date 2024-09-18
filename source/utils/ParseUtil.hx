@@ -49,8 +49,10 @@ class ParseUtil {
 	public static function level(name:String, pathType:FunkinPath = ANY):LevelObject.LevelData {
 		var contents:LevelObject.LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
-			data.flip = FunkinUtil.getDefault(data.flip, (i + 1) > Math.floor(contents.objects.length / 2));
-			data.offsets = FunkinUtil.getDefault(data.offsets, {x: 0, y: 0});
+			data.flip = FunkinUtil.reflectDefault(data, 'flip', (i + 1) > Math.floor(contents.objects.length / 2));
+			data.offsets = FunkinUtil.reflectDefault(data, 'offsets', new PositionStruct());
+			data.size = FunkinUtil.reflectDefault(data, 'size', 1);
+			data.willHey = FunkinUtil.getDefault(data.willHey, i == Math.floor(contents.objects.length / 2));
 		}
 		return cast {
 			title: contents.title,
@@ -76,7 +78,7 @@ class ParseUtil {
 				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
 			} catch(e) trace(e);
 			charData = {
-				camera: {x: FunkinUtil.getDefault(typeData.character.camera.x, 0), y: FunkinUtil.getDefault(typeData.character.camera.y, 0)},
+				camera: new PositionStruct(FunkinUtil.getDefault(typeData.character.camera.x, 0), FunkinUtil.getDefault(typeData.character.camera.y, 0)),
 				color: typeData.character.color,
 				icon: FunkinUtil.getDefault(typeData.character.icon, 'face'),
 				singlength: FunkinUtil.getDefault(typeData.character.singlength, 4)
@@ -95,36 +97,35 @@ class ParseUtil {
 		final typeData:SpriteUtil.SpriteData = cast tempData;
 
 		var data:Dynamic = {}
-		if (Reflect.hasField(typeData, 'offsets')) {
+		if (Reflect.hasField(typeData, 'offsets'))
 			try {
 				data.offsets = {
-					position: {x: FunkinUtil.getDefault(typeData.offsets.position.x, 0), y: FunkinUtil.getDefault(typeData.offsets.position.y, 0)},
-					flip: {x: FunkinUtil.getDefault(typeData.offsets.flip.x, false), y: FunkinUtil.getDefault(typeData.offsets.flip.y, false)},
-					scale: {x: FunkinUtil.getDefault(typeData.offsets.scale.x, 0), y: FunkinUtil.getDefault(typeData.offsets.scale.y, 0)}
+					position: new PositionStruct(FunkinUtil.getDefault(typeData.offsets.position.x, 0), FunkinUtil.getDefault(typeData.offsets.position.y, 0)),
+					flip: new PositionStruct.TypeXY<Bool>(FunkinUtil.getDefault(typeData.offsets.flip.x, false), FunkinUtil.getDefault(typeData.offsets.flip.y, false)),
+					scale: new PositionStruct(FunkinUtil.getDefault(typeData.offsets.scale.x, 0), FunkinUtil.getDefault(typeData.offsets.scale.y, 0))
 				}
 			} catch(e) {
 				trace('offsets were fucked');
 				data.offsets = {
-					position: {x: 0, y: 0},
-					flip: {x: false, y: false},
-					scale: {x: 0, y: 0}
+					position: new PositionStruct(),
+					flip: new PositionStruct.TypeXY<Bool>(false, false),
+					scale: new PositionStruct()
 				}
 			}
-		} else {
+		else
 			data.offsets = {
-				position: {x: 0, y: 0},
-				flip: {x: false, y: false},
-				scale: {x: 0, y: 0}
+				position: new PositionStruct(),
+				flip: new PositionStruct.TypeXY<Bool>(false, false),
+				scale: new PositionStruct()
 			}
-		}
 		data.asset = typeData.asset;
 		data.animations = [];
 		for (anim in typeData.animations) {
-			var slot:Dynamic = {};
-			slot.asset = Reflect.hasField(anim, 'asset') ? FunkinUtil.getDefault(anim.asset, data.asset) : data.asset;
+			var slot:BaseSprite.AnimationTyping = cast {};
+			slot.asset = FunkinUtil.reflectDefault(anim, 'asset', data.asset);
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = FunkinUtil.getDefault(anim.tag, slot.name);
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = {x: FunkinUtil.getDefault(anim.dimensions.x, 0), y: FunkinUtil.getDefault(anim.dimensions.y, 0)}
+			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new PositionStruct.TypeXY<Int>(FunkinUtil.getDefault(anim.dimensions.x, 0), FunkinUtil.getDefault(anim.dimensions.y, 0));
 			slot.indices = FunkinUtil.getDefault(anim.indices, []);
 			slot.offset = FunkinUtil.getDefault(anim.offset, new PositionStruct());
 			slot.flip = FunkinUtil.getDefault(anim.flip, new PositionStruct.TypeXY<Bool>(false, false));
@@ -134,31 +135,16 @@ class ParseUtil {
 		}
 		if (Reflect.hasField(typeData, 'position'))
 			try {
-				data.position = {x: typeData.position.x, y: typeData.position.y}
-			} catch(e) {
-				trace('position got fucked');
-				data.position = {x: null, y: null}
+				data.position = new PositionStruct(typeData.position.x, typeData.position.y);
 			}
-		else
-			data.position = {x: null, y: null}
 		if (Reflect.hasField(typeData, 'flip'))
 			try {
-				data.flip = {x: typeData.flip.x, y: typeData.flip.y}
-			} catch(e) {
-				trace('flip got fucked');
-				data.flip = {x: null, y: null}
+				data.flip = new PositionStruct.TypeXY<Bool>(typeData.flip.x, typeData.flip.y);
 			}
-		else
-			data.flip = {x: null, y: null}
 		if (Reflect.hasField(typeData, 'scale'))
 			try {
-				data.scale = {x: typeData.scale.x, y: typeData.scale.y}
-			} catch(e) {
-				trace('scale got fucked');
-				data.scale = {x: null, y: null}
+				data.scale = new PositionStruct(typeData.scale.x, typeData.scale.y);
 			}
-		else
-			data.scale = {x: null, y: null}
 		data.antialiasing = FunkinUtil.getDefault(typeData.antialiasing, true);
 
 		if (charData != null) data.character = charData;

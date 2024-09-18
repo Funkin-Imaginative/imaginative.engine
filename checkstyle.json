@@ -159,7 +159,7 @@
 		},
 		{
 			"props": {
-				"ignoreSetter": false,
+				"ignoreSetter": true,
 				"ignoreFormat": "^(main|run)$",
 				"ignoreConstructorParameter": true
 			},
@@ -168,10 +168,10 @@
 		{
 			"props": {
 				"character": "tab",
-				"wrapPolicy": "exact",
+				"wrapPolicy": "larger",
 				"ignoreComments": false,
-				"ignoreConditionals": false,
-				"conditionalPolicy": "aligned"
+				"ignoreConditionals": true,
+				"conditionalPolicy": "fixed_zero"
 			},
 			"type": "Indentation"
 		},
@@ -269,10 +269,10 @@
 			"props": {
 				"newFunctionTypePolicy": "around",
 				"ternaryOpPolicy": "around",
-				"unaryOpPolicy": "none",
-				"oldFunctionTypePolicy": "around",
+				"unaryOpPolicy": "ignore",
+				"oldFunctionTypePolicy": "none",
 				"boolOpPolicy": "around",
-				"intervalOpPolicy": "around",
+				"intervalOpPolicy": "none",
 				"assignOpPolicy": "around",
 				"bitwiseOpPolicy": "around",
 				"arithmeticOpPolicy": "around",
