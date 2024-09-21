@@ -1,0 +1,45 @@
+name: Builds
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+  workflow_dispatch:
+
+jobs:
+
+  windows:
+    permissions: write-all
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Haxe environment
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.5
+
+      - name: Install Haxelib
+        run: |
+          setup/setup-windows.bat
+        shell: cmd
+
+      - name: Create Version Tag
+        run: echo "${{github.run_id}}" > VERSION
+      - name: Compile
+        run: haxelib run lime test windows --app-version="4.0.0-${{github.run_id}}"
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows
+          path: export/release/windows/bin
+
+  # mac:
+  #   permissions: write-all
+  #   runs-on: macos-latest
+
+  # linux:
+  #   permissions: write-all
+  #   runs-on: ubuntu-latest
