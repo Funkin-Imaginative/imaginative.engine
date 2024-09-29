@@ -436,7 +436,7 @@
 		{
 			"props": {
 				"policy": "onlySingle",
-				"allowException": true
+				"allowException": false
 			},
 			"type": "StringLiteral"
 		},
@@ -464,7 +464,6 @@
 		},
 		{
 			"props": {
-				"severity": "IGNORE",
 				"tokens": [
 					"ABSTRACT_DEF",
 					"CLASS_DEF",

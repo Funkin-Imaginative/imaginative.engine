@@ -1,8 +1,8 @@
 package backend.scripting;
 
-import hscript.Parser;
-import hscript.Interp;
 import hscript.Expr;
+import hscript.Interp;
+import hscript.Parser;
 
 enum abstract ScriptType(String) from String to String {
 	var DIFFICULTY = 'difficulty';
@@ -124,7 +124,7 @@ class Script extends FlxBasic {
 			'FlxTimer' => FlxTimer,
 			'FlxSound' => FlxSound,
 			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
-			'FlxColorHelper' => FlxColorHelper,
+			'FlxColorUtil' => FlxColorUtil,
 			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
 			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
 

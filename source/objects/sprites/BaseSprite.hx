@@ -1,7 +1,7 @@
 package objects.sprites;
 
-import flixel.math.FlxRect;
 import flixel.addons.effects.FlxSkewedSprite;
+import flixel.math.FlxRect;
 
 enum abstract AnimType(String) from String to String {
 	/**

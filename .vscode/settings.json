@@ -1,8 +1,27 @@
 {
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always",
+		"source.sortImports": "always"
+	},
+
 	"files.associations": {
 		"*.hx": "haxe",
 		"*.hscript": "haxe",
 		"*.hsc": "haxe",
 		"*.hxs": "haxe"
-	}
+	},
+	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
+	"files.insertFinalNewline": false,
+
+	"haxe.enableBraceBodyWrapping": true,
+	"haxe.enableCodeLens": true,
+	"haxe.enableExtendedIndentation": true,
+	"haxe.enableServerView": true,
+	"haxe.importsSortOrder": "stdlib -> libs -> project",
+
+	"prettier.bracketSameLine": true,
+	"prettier.enableDebugLogs": true,
+	"prettier.singleQuote": true,
+	"prettier.tabWidth": 4,
+	"prettier.useTabs": true
 }

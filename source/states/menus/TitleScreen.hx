@@ -27,7 +27,7 @@ class TitleScreen extends BeatState {
 			titleText = new BaseSprite(100, FlxG.height * 0.8, 'menus/title/titleEnter');
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
-			titleText.animation.play('idle', true);
+			titleText.playAnim('idle', true);
 			titleText.centerOffsets();
 			titleText.centerOrigin();
 			titleText.antialiasing = true;
@@ -72,7 +72,7 @@ class TitleScreen extends BeatState {
 
 	override public function update(elapsed:Float):Void {
 		if (Controls.accept && !leaving && skipped) {
-			titleText.animation.play('press', true);
+			titleText.playAnim('press', true);
 			titleText.centerOffsets();
 			titleText.centerOrigin();
 			camera.flash(FlxColor.WHITE, 1);

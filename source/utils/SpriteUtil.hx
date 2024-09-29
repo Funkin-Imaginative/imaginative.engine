@@ -1,7 +1,6 @@
 package utils;
 
 import objects.sprites.BaseSprite.TextureType;
-import flixel.graphics.frames.FlxAtlasFrames;
 
 typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
 typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
@@ -121,5 +120,14 @@ class SpriteUtil {
 	inline public static function addBehind(obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup):Void {
 		final group:FlxGroup = into == null ? getGroup(obj) : into;
 		group.insert(group.members.indexOf(fromThis), obj);
+	}
+
+	inline public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
+		if (provideFullPath)
+			return cast Type.getClassName(Type.getClass(direct));
+		else {
+			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
+			return cast path[path.length - 1];
+		}
 	}
 }

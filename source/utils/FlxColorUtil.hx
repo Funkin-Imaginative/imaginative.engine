@@ -1,20 +1,22 @@
 package utils;
 
-typedef RGB = {
+import flixel.util.FlxColor;
+
+@:dox(hide) typedef RGB = {
 	@:optional var alpha:Int;
 	var red:Int;
 	var green:Int;
 	var blue:Int;
 }
 
-typedef FloatRGB = {
+@:dox(hide) typedef FloatRGB = {
 	@:optional var alpha:Float;
 	var red:Float;
 	var green:Float;
 	var blue:Float;
 }
 
-typedef CMYK = {
+@:dox(hide) typedef CMYK = {
 	@:optional var alpha:Float;
 	var cyan:Float;
 	var magenta:Float;
@@ -22,14 +24,14 @@ typedef CMYK = {
 	var black:Float;
 }
 
-typedef HSB = {
+@:dox(hide) typedef HSB = {
 	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;
 	var brightness:Float;
 }
 
-typedef HSL = {
+@:dox(hide) typedef HSL = {
 	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;
@@ -40,8 +42,9 @@ typedef HSL = {
  * Note: This class only really does the functions in `FlxColor` that WEREN'T `static`!
  * For all your scripting needs!
  * `inline` is still called because it just felt right to me.
+ * You could also actually do `using` for this class if you wanted to I guess?
  */
-class FlxColorHelper {
+class FlxColorUtil {
 	// RGB
 	inline public static function getRed(color:FlxColor):Int
 		return color.red;

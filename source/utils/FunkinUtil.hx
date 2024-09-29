@@ -112,13 +112,4 @@ class FunkinUtil {
 		if (v is Float || v is Int)
 			return Math.isNaN(cast(v, Float));
 		else return false;
-
-	inline public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
-		if (provideFullPath)
-			return cast Type.getClassName(Type.getClass(direct));
-		else {
-			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
-			return cast path[path.length - 1];
-		}
-	}
 }

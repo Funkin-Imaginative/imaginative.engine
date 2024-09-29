@@ -85,7 +85,8 @@ class MainMenu extends BeatState {
 		);
 		camera.snapToTarget();
 
-		versionTxt = new FlxText(5, 0, 0, 'Imaginative Engine v${Main.engineVersion} (EARLY ALPHA)\nInsert Version Warning Here\nMade mostly from scratch!');
+		// TODO: finish this
+		versionTxt = new FlxText(5, 0, 0, 'Imaginative Engine!\nVersion ${Main.engineVersion}\nInsert Version Warning Here\nMade mostly from scratch!');
 		versionTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		versionTxt.y = FlxG.height - versionTxt.height - 5;
 		versionTxt.scrollFactor.set();
