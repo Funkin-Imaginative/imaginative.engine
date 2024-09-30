@@ -35,13 +35,14 @@ class Update {
 		}
 
 		for (lib in libs) {
-			var globalism:Null<String> = lib.global == 'true' ? '--global' : null;
+			var isGlobal:Bool = lib.global == 'true' || args.contains('--global');
+			var globalism:Null<String> = isGlobal ? '--global' : null;
 			switch(lib.type) {
 				case 'lib':
-					prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}"...');
+					prettyPrint((isGlobal ? 'Globally installing' : 'Locally installing') + ' "${lib.name}"...');
 					Sys.command('haxelib install ${lib.name} ${lib.version != null ? ' ' + lib.version : ' '}${globalism != null ? ' $globalism' : ''} --always');
 				case 'git':
-					prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git url "${lib.url}"');
+					prettyPrint((isGlobal ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git url "${lib.url}"');
 					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
 				default:
 					prettyPrint('Cannot resolve library of type "${lib.type}"');

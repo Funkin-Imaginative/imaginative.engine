@@ -1,2 +1,3 @@
-# Ignore artifacts
-export/*
+export/
+concepts/
+art/

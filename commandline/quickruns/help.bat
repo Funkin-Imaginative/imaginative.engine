@@ -1,1 +1,1 @@
-@haxe -cp commandline -D analyzer-optimize --run Main %*
+@haxe -cp commandline -D analyzer-optimize --run Main help %*

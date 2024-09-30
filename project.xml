@@ -2,7 +2,7 @@
 <project>
 	<app
 		title="Friday Night Funkin': Imaginative Engine" main='backend.system.Main'
-		packageName='com.ImagEngine.funkin' package='com.ImagEngine.funkin'
+		packageName='funkin.imaginative.com' package='funkin.imaginative.com'
 		file='Imaginative' version='0.0.0' company='rodney528'
 		preloader='backend.system.Preloader'
 	/>
@@ -18,7 +18,8 @@
 	<!-- Window Settings -->
 
 	<!-- Define Setup -->
-		<define name='CHECK_FOR_UPDATES' if='final' unless='debug'/>
+	 	<define name='CONTAIN_VERSION_ID'/>
+		<define name='CHECK_FOR_UPDATES' if='final CONTAIN_VERSION_ID' unless='debug'/>
 		<define name='USING_OPTIONAL_LIBS'/>
 		<define name='MOD_SUPPORT'/>
 		<define name='SCRIPT_SUPPORT' if='MOD_SUPPORT'/>
@@ -35,7 +36,7 @@
 	<!-- Define Setup -->
 
 	<!-- Path Settings -->
-		<!-- Exports -->
+		<!-- Export Directories -->
 		<set name='BUILD_DIR' value='export/release' if='final' unless='debug'/>
 		<set name='BUILD_DIR' value='export/build' unless='debug'/>
 		<set name='BUILD_DIR' value='export/debug' if='debug'/>
@@ -46,16 +47,16 @@
 
 		<!-- Pathing -->
 		<source name='source'/>
-		<assets path='assets' rename='solo/funkin' embed='false' preload='true' exclude='*readme.md'/>
-		<assets path='assets/embed' rename='solo/funkin' embed='true' preload='true' exclude='*readme.md'/>
-		<assets path='root' rename='' embed='false' preload='true'/>
-		<assets path='root/embed' rename='' embed='true' preload='true'/>
+		<assets path='engine/assets' rename='solo/funkin' embed='false' preload='true' exclude='*readme.md'/>
+		<assets path='embed/assets' rename='solo/funkin' embed='true' preload='true' exclude='*readme.md'/>
+		<assets path='engine/root' rename='' embed='false' preload='true' exclude='*readme.md'/>
+		<assets path='embed/root' rename='' embed='true' preload='true' exclude='*readme.md'/>
 
 		<!-- Modding -->
-		<assets path='modding/upfront' rename='solo' embed='false' preload='false'/>
-		<assets path='modding/lowerend' rename='mods' embed='false' preload='false'/>
-		<assets path='modding/upfront/embed' rename='solo' embed='true' preload='true'/>
-		<assets path='modding/lowerend/embed' rename='mods' embed='true' preload='true'/>
+		<assets path='engine/modding/upfront' rename='solo' embed='false' preload='false' exclude='*readme.md'/>
+		<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
+		<assets path='embed/modding/upfront' rename='solo' embed='true' preload='true' exclude='*readme.md'/>
+		<assets path='embed/modding/lowerend' rename='mods' embed='true' preload='true' exclude='*readme.md'/>
 	<!-- Path Settings -->
 
 	<!-- <assets path='art/readme.txt' rename='do NOT readme.txt'/> -->
@@ -71,10 +72,10 @@
 		<haxelib name='hscript-improved' if='SCRIPT_SUPPORT'/>
 		<haxelib name='hxdiscord_rpc' if='DISCORD_RICH_PRESENCE'/>
 		<haxelib name='hxvlc' if='ALLOW_VIDEOS'/>
-		<haxelib name='thx.semver'/>
+		<haxelib name='thx.semver' if='CONTAIN_VERSION_ID'/>
 
 		<haxelib name='json2object'/>
-		<haxelib name='extension-androidtools' if='android'/>
+		<!-- <haxelib name='extension-androidtools' if='android'/> -->
 
 		<section if='USING_OPTIONAL_LIBS'>
 			<haxelib name='hxWindowColorMode'/>

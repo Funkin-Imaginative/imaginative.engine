@@ -7,10 +7,10 @@ class Compiler {
 	public static function compile(args:Array<String>) {
 		__build(args, ['build', getBuildTarget(), '-debug']);
 	}
-	public static function runRelease(args:Array<String>) {
+	public static function compileRelease(args:Array<String>) {
 		__build(args, ['build', getBuildTarget(), '-final']);
 	}
-	public static function compileRelease(args:Array<String>) {
+	public static function runRelease(args:Array<String>) {
 		__build(args, ['test', getBuildTarget(), '-final']);
 	}
 

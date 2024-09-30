@@ -21,6 +21,6 @@
 		<lib name='hxWindowColorMode'/>
 		<!-- Kinda Optional??? -->
 		<lib name='thx.semver'/>
-		<lib name='extension-androidtools'/>
+		<!-- <lib name='extension-androidtools'/> -->
 	<!-- Optional Stuff -->
 </libraries>

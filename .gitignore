@@ -1,6 +1,6 @@
 .DS_STORE
 .haxelib/
-*.ini
+*desktop.ini
 export/
 RECOVER_*.fla
 vscode-project.hxml

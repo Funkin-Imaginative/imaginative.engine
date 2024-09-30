@@ -57,7 +57,7 @@ class MainMenu extends BeatState {
 		menuItems = new FlxTypedGroup<BaseSprite>();
 		for (i => name in itemLineUp) {
 			if ( // funny null check
-				Paths.fileExists('images/menus/main/$name.png') ||
+				Paths.fileExists('images/menus/main/$name.png') &&
 				Paths.multExst('images/menus/main/$name', Paths.atlasFrameExts) != ''
 			) {} else continue;
 
@@ -85,13 +85,16 @@ class MainMenu extends BeatState {
 		);
 		camera.snapToTarget();
 
-		var theText:String = 'Imaginative Engine: Version ${Main.engineVersion}';
+		var theText:String = 'Imaginative Engine';
+		#if CONTAIN_VERSION_ID
+		theText += ' v${Main.engineVersion}';
 		#if debug
-		theText += ' ~ Debug Build';
+		theText += ' ~ Debug Build ~ ';
 		#elseif !final
-		theText += ' ~ Test Build';
+		theText += ' ~ Test Build ~ ';
 		#end
 		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion}, please stay up-to-date.';
+		#end
 		theText += '\nMade relatively from scratch!';
 
 		versionTxt = new FlxText(5, 0, 0, theText);
