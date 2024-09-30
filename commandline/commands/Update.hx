@@ -12,7 +12,7 @@ class Update {
 		prettyPrint('Preparing installation...');
 
 		// to prevent messing with currently installed libs
-		if (!FileSystem.exists('.haxelib'))
+		if (!args.contains('--global') && !FileSystem.exists('.haxelib'))
 			FileSystem.createDirectory('.haxelib');
 
 		for (lib in parseXml()) {
@@ -42,7 +42,7 @@ class Update {
 		prettyPrint('Preparing installation...');
 
 		// to prevent messing with currently installed libs
-		if (!FileSystem.exists('.haxelib'))
+		if (!args.contains('--global') && !FileSystem.exists('.haxelib'))
 			FileSystem.createDirectory('.haxelib');
 
 		for (lib in parseXml()) {

@@ -11,7 +11,7 @@
 	<set name='SWF_VERSION' value='11.8'/>
 
 	<!-- Window Settings -->
-		<window orientation='landscape' width='1280' height='720' fps='' background='#000000' hardware='true' vsync='false' fullscreen='false' resizable='true'/>
+		<window orientation='landscape' width='1280' height='720' background='#000000' hardware='true' vsync='false' fullscreen='false' resizable='true'/>
 		<!-- <window if='desktop'/> -->
 		<window if='mac' allow-high-dpi='true'/>
 		<window if='mobile' fullscreen='true' resizable='false'/>
@@ -42,7 +42,7 @@
 	<!-- Path Settings -->
 
 	<!-- Define Setup -->
-		<!-- <define name='USING_OPTIONAL_LIBS'/> -->
+		<define name='USING_OPTIONAL_LIBS'/>
 
 		<!-- script related -->
 		<define name='COMPILE_ALL_CLASSES'/>

@@ -19,6 +19,22 @@
 		},
 		{
 			"type": "lime",
+			"command": "test",
+			"targetConfiguration": "Windows",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Complie Windows",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "lime",
 			"command": "build",
 			"targetConfiguration": "Windows / Final",
 			"problemMatcher": [
