@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<libraries>
+	<!-- OpenFL & Lime (Required for Flixel) -->
+	<lib name='openfl' version='9.2.2'/>
+	<lib name='lime' version='8.1.2'/>
+
+	<!-- Flixel -->
+	<git name='flixel' url='https://github.com/FNF-CNE-Devs/flixel'/>
+	<git name='flixel-addons' url='https://github.com/FNF-CNE-Devs/flixel-addons'/>
+
+	<!-- Other Libraries -->
+	<git name='hscript-improved' url='https://github.com/FNF-CNE-Devs/hscript-improved' ref='custom-classes'/>
+	<lib name='hxdiscord_rpc'/>
+	<lib name='hxvlc'/>
+	<lib name='thx.semver'/>
+	<lib name='json2object'/>
+
+	<!-- Optional Stuff -->
+	<lib name='hxWindowColorMode' optional='true'/>
+	<!-- Kinda Optional??? --> <lib name='extension-androidtools' optional='false'/>
+</libraries>

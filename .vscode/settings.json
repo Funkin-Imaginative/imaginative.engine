@@ -3,25 +3,40 @@
 		"source.organizeImports": "always",
 		"source.sortImports": "always"
 	},
+	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.hx": "haxe",
-		"*.hscript": "haxe",
 		"*.hsc": "haxe",
+		"*.hscript": "haxe",
+		"*.hx": "haxe",
 		"*.hxs": "haxe"
 	},
+	"files.autoGuessEncoding": true,
 	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
 	"files.insertFinalNewline": false,
+	"files.simpleDialog.enable": true,
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
 
 	"haxe.enableBraceBodyWrapping": true,
 	"haxe.enableCodeLens": true,
 	"haxe.enableExtendedIndentation": true,
-	"haxe.enableServerView": true,
 	"haxe.importsSortOrder": "stdlib -> libs -> project",
+	"haxe.inlayHints": {
+		"conditionals": true,
+		"parameterTypes": true
+	},
 
-	"prettier.bracketSameLine": true,
-	"prettier.enableDebugLogs": true,
 	"prettier.singleQuote": true,
 	"prettier.tabWidth": 4,
-	"prettier.useTabs": true
+	"prettier.trailingComma": "none",
+	"prettier.useTabs": true,
+
+	"xml.format.emptyElements": "collapse",
+	"xml.format.enforceQuoteStyle": "preferred",
+	"xml.format.joinCDATALines": true,
+	"xml.format.joinCommentLines": true,
+	"xml.format.joinContentLines": true,
+	"xml.format.splitAttributesIndentSize": 4,
+	"xml.preferences.quoteStyle": "single"
 }
