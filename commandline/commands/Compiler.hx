@@ -1,17 +1,17 @@
 package commands;
 
 class Compiler {
-	public static function test(args:Array<String>) {
-		__build(args, ['test', getBuildTarget(), '-D']);
+	public static function run(args:Array<String>) {
+		__build(args, ['test', getBuildTarget(), '-debug']);
 	}
-	public static function build(args:Array<String>) {
-		__build(args, ['build', getBuildTarget(), '-D']);
+	public static function compile(args:Array<String>) {
+		__build(args, ['build', getBuildTarget(), '-debug']);
 	}
-	public static function release(args:Array<String>) {
-		__build(args, ['build', getBuildTarget()]);
+	public static function runRelease(args:Array<String>) {
+		__build(args, ['build', getBuildTarget(), '-final']);
 	}
-	public static function testRelease(args:Array<String>) {
-		__build(args, ['test', getBuildTarget()]);
+	public static function compileRelease(args:Array<String>) {
+		__build(args, ['test', getBuildTarget(), '-final']);
 	}
 
 	private static function __build(args:Array<String>, arg:Array<String>) {

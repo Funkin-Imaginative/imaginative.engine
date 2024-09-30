@@ -144,7 +144,16 @@ class StoryMenu extends BeatState {
 					if (Reflect.hasField(data, 'flip')) sprite.flipX = data.flip;
 					if (Reflect.hasField(data, 'offsets')) sprite.setPosition(data.offsets.x, data.offsets.y);
 				}
+
+				// SpriteUtil.setGraphicSizeUnstretched(sprite, Math.floor(weekBg.width), Math.floor(weekBg.height));
+				// sprite.updateHitbox();
+
 				sprite.screenCenter();
+				sprite.x += (sprite.width + (weekBg.width / (loop.length - 1))) * i;
+				sprite.x -= (sprite.width + (weekBg.width / (loop.length - 1))) / (loop.length - 1);
+				sprite.y = (weekBg.height - sprite.height) / 2 + weekTopBg.height;
+
+				sprite.scrollFactor.set();
 				levels.members[i].weekObjects.push(weekObjects.add(sprite));
 			}
 		}

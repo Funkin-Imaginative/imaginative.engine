@@ -9,8 +9,8 @@ class ModConfig {
 	inline static function get_isSoloOnly():Bool
 		return soloOnlyMode || personalSolo;
 
-	public static var curSolo(default, null):String = 'testing';
-	public static var curMod(default, null):String = 'testing';
+	public static var curSolo(default, null):String = 'example';
+	public static var curMod(default, null):String = 'example';
 	public static var globalMods(default, null):Array<String> = [];
 
 	public static var soloIsRoot(get, never):Bool;

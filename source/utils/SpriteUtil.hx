@@ -101,6 +101,14 @@ class SpriteUtil {
 		return FlxColor.fromInt(maxKey);
 	}
 
+	inline public static function setGraphicSizeUnstretched(sprite:FlxSprite, width:Int, height:Int):Void {
+		sprite.setGraphicSize(width, height);
+		if (sprite.width > sprite.height)
+			sprite.scale.y = sprite.scale.x;
+		else
+			sprite.scale.x = sprite.scale.y;
+	}
+
 	/**
 	 * Is basically FlxTypedGroup.resolveGroup().
 	 * @param obj

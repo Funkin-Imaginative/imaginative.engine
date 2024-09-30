@@ -1,3 +1,6 @@
-credits
+# Welcome to Imaginative Engine!
 
-`commandline` folder from CNE devs
+## Credits
+
+`hscript-improved`
+`commandline` folder from the @FNF-CNE-Devs

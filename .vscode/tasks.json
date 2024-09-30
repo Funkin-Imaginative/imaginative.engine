@@ -11,7 +11,7 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Complie Windows Debug",
+			"label": "Run Windows Debug",
 			"group": {
 				"kind": "build",
 				"isDefault": true
@@ -27,11 +27,43 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Complie Windows",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
+			"label": "Run Windows Test"
+		},
+		{
+			"type": "lime",
+			"command": "test",
+			"targetConfiguration": "Windows / Final",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Run Windows Release"
+		},
+		{
+			"type": "lime",
+			"command": "build",
+			"targetConfiguration": "Windows / Debug",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Compile Windows Debug"
+		},
+		{
+			"type": "lime",
+			"command": "build",
+			"targetConfiguration": "Windows",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"label": "Compile Windows Test"
 		},
 		{
 			"type": "lime",
@@ -43,19 +75,7 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Complie Windows Release"
-		},
-		{
-			"type": "lime",
-			"command": "clean",
-			"targetConfiguration": "Windows / Debug",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
-			"label": "Re-complie Windows Debug"
+			"label": "Compile Windows Release"
 		}
 	]
 }

@@ -1,4 +1,4 @@
-package states.menus;
+package states;
 
 class TitleScreen extends BeatState {
 	static var played:Bool = false;
@@ -78,7 +78,7 @@ class TitleScreen extends BeatState {
 			camera.flash(FlxColor.WHITE, 1);
 			FunkinUtil.playMenuSFX(CONFIRM, 0.7);
 			leaving = true;
-			FlxG.switchState(new MainMenu());
+			FlxG.switchState(new states.menus.MainMenu());
 		}
 
 		if (Controls.accept && !skipped && played)

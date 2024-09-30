@@ -15,60 +15,6 @@ class Update {
 		if (!args.contains('--global') && !FileSystem.exists('.haxelib'))
 			FileSystem.createDirectory('.haxelib');
 
-		for (lib in parseXml()) {
-			var globalism:Null<String> = lib.global == 'true' ? '--global' : null;
-			switch(lib.type) {
-				case 'lib':
-					if (lib.optional == null || lib.optional == 'false') {
-						prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}"...');
-						Sys.command('haxelib install ${lib.name} ${lib.version != null ? ' ' + lib.version : ' '}${globalism != null ? ' $globalism' : ''} --always');
-					}
-				case 'git':
-					if (lib.optional == null || lib.optional == 'false') {
-						prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git url "${lib.url}"');
-						Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
-					}
-				default:
-					prettyPrint('Cannot resolve library of type "${lib.type}"');
-			}
-		}
-
-		haxeVerCheck();
-
-		checkForRequiredComponents();
-	}
-
-	public static function optional(args:Array<String>):Void {
-		prettyPrint('Preparing installation...');
-
-		// to prevent messing with currently installed libs
-		if (!args.contains('--global') && !FileSystem.exists('.haxelib'))
-			FileSystem.createDirectory('.haxelib');
-
-		for (lib in parseXml()) {
-			var globalism:Null<String> = lib.global == 'true' ? '--global' : null;
-			switch(lib.type) {
-				case 'lib':
-					if (lib.optional != null || lib.optional == 'true') {
-						prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}"...');
-						Sys.command('haxelib install ${lib.name} ${lib.version != null ? ' ' + lib.version : ' '}${globalism != null ? ' $globalism' : ''} --always');
-					}
-				case 'git':
-					if (lib.optional != null || lib.optional == 'true') {
-						prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git url "${lib.url}"');
-						Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
-					}
-				default:
-					prettyPrint('Cannot resolve library of type "${lib.type}"');
-			}
-		}
-
-		haxeVerCheck();
-
-		checkForRequiredComponents();
-	}
-
-	public static function parseXml():Array<Library> {
 		var libs:Array<Library> = [];
 		var libsXML:Access = new Access(Xml.parse(File.getContent('./libs.xml')).firstElement());
 
@@ -81,18 +27,27 @@ class Update {
 			switch (lib.type) {
 				case 'lib':
 					if (libNode.has.version) lib.version = libNode.att.version;
-					if (libNode.has.optional) lib.optional = libNode.att.optional;
 				case 'git':
 					if (libNode.has.url) lib.url = libNode.att.url;
 					if (libNode.has.ref) lib.ref = libNode.att.ref;
-					if (libNode.has.optional) lib.optional = libNode.att.optional;
 			}
 			libs.push(lib);
 		}
-		return libs;
-	}
 
-	public static function haxeVerCheck():Void {
+		for (lib in libs) {
+			var globalism:Null<String> = lib.global == 'true' ? '--global' : null;
+			switch(lib.type) {
+				case 'lib':
+					prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}"...');
+					Sys.command('haxelib install ${lib.name} ${lib.version != null ? ' ' + lib.version : ' '}${globalism != null ? ' $globalism' : ''} --always');
+				case 'git':
+					prettyPrint((lib.global == 'true' ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git url "${lib.url}"');
+					Sys.command('haxelib git ${lib.name} ${lib.url}${lib.ref != null ? ' ${lib.ref}' : ''}${globalism != null ? ' $globalism' : ''} --always');
+				default:
+					prettyPrint('Cannot resolve library of type "${lib.type}"');
+			}
+		}
+
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
 		var haxeVer:String = proc.stdout.readLine();
@@ -116,9 +71,7 @@ class Update {
 				}
 			}
 		}
-	}
 
-	public static function checkForRequiredComponents():Void {
 		// vswhere.exe its used to find any visual studio related installations on the system, including full visual studio ide installations, visual studio build tools installations, and other related components - Nex
 		if (Compiler.getBuildTarget().toLowerCase() == 'windows' && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
 			prettyPrint('Installing Microsoft Visual Studio Community (Dependency)');
@@ -133,7 +86,6 @@ class Update {
 			if (Sys.stdin().readLine().toLowerCase() == 'y') Sys.command('shutdown /r /t 0 /f');
 		}
 	}
-
 	public static function prettyPrint(text:String) {
 		var lines:Array<String> = text.split('\n');
 		var length:Int = -1;
@@ -150,7 +102,6 @@ class Update {
 		}
 		Sys.println('╚$header╝');
 	}
-
 
 	public static function centerText(text:String, width:Int):String {
 		var centerOffset:Float = (width - text.length) / 2;
@@ -174,5 +125,4 @@ typedef Library = {
 	var ?version:String;
 	var ?ref:String;
 	var ?url:String;
-	var ?optional:String;
 }

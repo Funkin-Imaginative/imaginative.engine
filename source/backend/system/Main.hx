@@ -23,9 +23,12 @@ class Main extends Sprite {
 		engineVersion = lime.app.Application.current.meta.get('version');
 		latestVersion = engineVersion;
 
+		#if (debug && final)
+		throw 'Please dont\' so debug and final at the same time.';
+		#else
 		Controls.p1 = new Controls();
 		Controls.p2 = new Controls();
-
-		addChild(new FlxGame(states.menus.TitleScreen, 60, 60));
+		addChild(new FlxGame(states.TitleScreen, 60, 60));
+		#end
 	}
 }

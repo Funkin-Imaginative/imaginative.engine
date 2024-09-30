@@ -85,8 +85,16 @@ class MainMenu extends BeatState {
 		);
 		camera.snapToTarget();
 
-		// TODO: finish this
-		versionTxt = new FlxText(5, 0, 0, 'Imaginative Engine!\nVersion ${Main.engineVersion}\nInsert Version Warning Here\nMade mostly from scratch!');
+		var theText:String = 'Imaginative Engine: Version ${Main.engineVersion}';
+		#if debug
+		theText += ' ~ Debug Build';
+		#elseif !final
+		theText += ' ~ Test Build';
+		#end
+		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion}, please stay up-to-date.';
+		theText += '\nMade relatively from scratch!';
+
+		versionTxt = new FlxText(5, 0, 0, theText);
 		versionTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		versionTxt.y = FlxG.height - versionTxt.height - 5;
 		versionTxt.scrollFactor.set();
@@ -113,7 +121,7 @@ class MainMenu extends BeatState {
 				changeSelection(-1 * FlxG.mouse.wheel);
 				visualSelected = curSelected;
 			}
-			if (FunkinUtil.mouseJustMoved())
+			if (PlatformUtil.mouseJustMoved())
 				for (i => item in menuItems.members)
 					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
@@ -168,10 +176,10 @@ class MainMenu extends BeatState {
 				case 'freeplay':
 					FlxG.switchState(new FreeplayMenu());
 				case 'donate':
-					FlxG.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
+					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
 					canSelect = true;
 				case 'merch':
-					FlxG.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
+					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 					canSelect = true;
 				case 'options':
 					FlxG.switchState(new OptionsMenu());

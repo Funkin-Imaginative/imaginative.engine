@@ -40,13 +40,6 @@ class FunkinUtil {
 		return menuSound;
 	}
 
-	inline public static function mouseJustMoved(relativeToScreen:Bool = true):Bool {
-		if (relativeToScreen)
-			@:privateAccess return FlxG.mouse._prevScreenX != FlxG.mouse.screenX || FlxG.mouse._prevScreenY != FlxG.mouse.screenY;
-		else
-			return FlxG.mouse.justMoved;
-	}
-
 	public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:FunkinPath = ANY):Array<String> {
 		var results:Array<String> = [];
 		try {

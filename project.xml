@@ -17,6 +17,23 @@
 		<window if='mobile' fullscreen='true' resizable='false'/>
 	<!-- Window Settings -->
 
+	<!-- Define Setup -->
+		<define name='CHECK_FOR_UPDATES' if='final' unless='debug'/>
+		<define name='USING_OPTIONAL_LIBS'/>
+		<define name='MOD_SUPPORT'/>
+		<define name='SCRIPT_SUPPORT' if='MOD_SUPPORT'/>
+
+		<!-- script related -->
+		<define name='COMPILE_ALL_CLASSES' if='SCRIPT_SUPPORT final'/> <!-- you can remove the final check here if you feel its needed -->
+		<define name='CUSTOM_CLASSES' if='SCRIPT_SUPPORT'/>
+		<define name='SOFTCODED_STATES' if='SCRIPT_SUPPORT'/>
+		<!-- <define name='THROW_LUA_MAKEFUN'/> -->
+		<section if='cpp USING_OPTIONAL_LIBS'>
+			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
+			<define name='ALLOW_VIDEOS' if='desktop || android'/>
+		</section>
+	<!-- Define Setup -->
+
 	<!-- Path Settings -->
 		<!-- Exports -->
 		<set name='BUILD_DIR' value='export/release' if='final' unless='debug'/>
@@ -30,30 +47,16 @@
 		<!-- Pathing -->
 		<source name='source'/>
 		<assets path='assets' rename='solo/funkin' embed='false' preload='true' exclude='*readme.md'/>
-		<!-- <assets path='assets/embed' rename='solo/funkin' embed='true' preload='true' exclude='*readme.md'/> -->
+		<assets path='assets/embed' rename='solo/funkin' embed='true' preload='true' exclude='*readme.md'/>
 		<assets path='root' rename='' embed='false' preload='true'/>
 		<assets path='root/embed' rename='' embed='true' preload='true'/>
 
 		<!-- Modding -->
 		<assets path='modding/upfront' rename='solo' embed='false' preload='false'/>
 		<assets path='modding/lowerend' rename='mods' embed='false' preload='false'/>
-		<!-- <assets path='modding/embed/upfront' rename='solo' embed='true' preload='true'/>
-		<assets path='modding/embed/lowerend' rename='mods' embed='true' preload='true'/> -->
+		<assets path='modding/upfront/embed' rename='solo' embed='true' preload='true'/>
+		<assets path='modding/lowerend/embed' rename='mods' embed='true' preload='true'/>
 	<!-- Path Settings -->
-
-	<!-- Define Setup -->
-		<define name='USING_OPTIONAL_LIBS'/>
-
-		<!-- script related -->
-		<define name='COMPILE_ALL_CLASSES'/>
-		<define name='CUSTOM_CLASSES'/>
-		<define name='SOFTCODED_STATES'/>
-		<!-- <define name='THROW_LUA_MAKEFUN'/> -->
-		<section if='cpp'>
-			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
-			<define name='ALLOW_VIDEOS' if='desktop || android'/>
-		</section>
-	<!-- Define Setup -->
 
 	<!-- <assets path='art/readme.txt' rename='do NOT readme.txt'/> -->
 	<!-- <assets path='CHANGELOG.md' rename='changelog.txt'/> -->
@@ -65,7 +68,7 @@
 		<haxelib name='flixel'/>
 		<haxelib name='flixel-addons'/>
 
-		<haxelib name='hscript-improved'/>
+		<haxelib name='hscript-improved' if='SCRIPT_SUPPORT'/>
 		<haxelib name='hxdiscord_rpc' if='DISCORD_RICH_PRESENCE'/>
 		<haxelib name='hxvlc' if='ALLOW_VIDEOS'/>
 		<haxelib name='thx.semver'/>
@@ -84,6 +87,8 @@
 	<!-- Debug Things -->
 
 	<haxedef name='FLX_NO_FOCUS_LOST_SCREEN'/>
+
+	<haxeflag name='-dce' value='no' if='COMPILE_ALL_CLASSES'/>
 
 	<!-- This is even actually being used?? @rodney528 -->
 	<haxedef name='NAPE_RELEASE_BUILD' unless='debug'/>

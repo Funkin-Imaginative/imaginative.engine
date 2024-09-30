@@ -121,7 +121,7 @@ class ParseUtil {
 		data.asset = typeData.asset;
 		data.animations = [];
 		for (anim in typeData.animations) {
-			var slot:BaseSprite.AnimationTyping = cast {};
+			var slot:BaseSprite.AnimationTyping = cast {}
 			slot.asset = FunkinUtil.reflectDefault(anim, 'asset', data.asset);
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = FunkinUtil.getDefault(anim.tag, slot.name);

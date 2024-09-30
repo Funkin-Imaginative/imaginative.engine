@@ -1,21 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <libraries>
-	<!-- OpenFL & Lime (Required for Flixel) -->
-	<lib name='openfl' version='9.2.2'/>
-	<lib name='lime' version='8.1.2'/>
+	<!-- Required for Flixel -->
+		<lib name='openfl' version='9.2.2'/>
+		<lib name='lime' version='8.1.2'/>
+	<!-- Required for Flixel -->
 
 	<!-- Flixel -->
-	<git name='flixel' url='https://github.com/FNF-CNE-Devs/flixel'/>
-	<git name='flixel-addons' url='https://github.com/FNF-CNE-Devs/flixel-addons'/>
+		<git name='flixel' url='https://github.com/FNF-CNE-Devs/flixel'/>
+		<git name='flixel-addons' url='https://github.com/FNF-CNE-Devs/flixel-addons'/>
+	<!-- Flixel -->
 
 	<!-- Other Libraries -->
-	<git name='hscript-improved' url='https://github.com/FNF-CNE-Devs/hscript-improved' ref='custom-classes'/>
-	<lib name='hxdiscord_rpc'/>
-	<lib name='hxvlc'/>
-	<lib name='thx.semver'/>
-	<lib name='json2object'/>
+		<git name='hscript-improved' url='https://github.com/FNF-CNE-Devs/hscript-improved' ref='custom-classes'/>
+		<lib name='json2object'/>
+	<!-- Other Libraries -->
 
 	<!-- Optional Stuff -->
-	<lib name='hxWindowColorMode' optional='true'/>
-	<!-- Kinda Optional??? --> <lib name='extension-androidtools' optional='false'/>
+		<lib name='hxdiscord_rpc'/>
+		<lib name='hxvlc'/>
+		<lib name='hxWindowColorMode'/>
+		<!-- Kinda Optional??? -->
+		<lib name='thx.semver'/>
+		<lib name='extension-androidtools'/>
+	<!-- Optional Stuff -->
 </libraries>
