@@ -12,29 +12,29 @@ enum abstract FunkinPath(String) from String to String {
 	/**
 	 * Base assets.
 	 */
-	var ROOT = 'root';
+	var ROOT;
 	/**
 	 * UpFront mods.
 	 */
-	var SOLO = 'solo';
+	var SOLO;
 	/**
 	 * LowerEnd mods.
 	 */
-	var MODS = 'mods';
+	var MODS;
 
 	// Potential Paths
 	/**
 	 * `ROOT` or `SOLO`.
 	 */
-	var LEAD = 'lead';
+	var LEAD;
 	/**
 	 * `SOLO` or `MODS`.
 	 */
-	var MODDED = 'modded';
+	var MODDED;
 	/**
 	 * `ROOT`, `SOLO` or `MODS`.
 	 */
-	var ANY = null;
+	var ANY;
 
 	/**
 	 * Causes Error: String should be backend.FunkinPath For function argument 'incomingPath'
@@ -80,17 +80,6 @@ enum abstract FunkinPath(String) from String to String {
 	 */
 	public static function getSolo():FunkinPath
 		return ModConfig.soloIsRoot ? ROOT : SOLO;
-
-	public function toString():String
-		return switch (this) {
-			case ROOT: 'ROOT';
-			case SOLO: 'SOLO';
-			case MODS: 'MODS';
-			case LEAD: 'LEAD';
-			case MODDED: 'MODDED';
-			case ANY: 'ANY';
-			default: '';
-		}
 }
 
 class Paths {

@@ -2,8 +2,8 @@ package objects;
 
 typedef DifficultyData = {
 	var display:String;
-	@:optional var variant:String;
-	@:optional var scoreMult:Float;
+	@:default('normal') var variant:String;
+	@:default(1) var scoreMult:Float;
 }
 
 class DifficultyObject extends FlxBasic {

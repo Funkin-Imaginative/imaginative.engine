@@ -1,7 +1,7 @@
 package objects.sprites;
 
 typedef CharacterParse = {
-	var camera:PositionStruct;
+	@:default({x: 0, y: 0}) var camera:PositionStruct;
 	var color:String;
 	var icon:String;
 	var singlength:Float;
@@ -29,6 +29,9 @@ class Character extends BeatSprite {
 	public var healthColor:FlxColor = FlxColor.GRAY;
 
 	public var charData:CharacterData = null;
+	override function get_objType():ObjectType {
+		return CHARACTER;
+	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);

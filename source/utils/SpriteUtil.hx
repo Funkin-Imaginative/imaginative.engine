@@ -14,9 +14,19 @@ typedef SpriteData = ObjectData & {
 }
 
 typedef AnimMapping = {
-	var offset:PositionStruct;
-	var swappedAnim:String;
-	var flippedAnim:String;
+	@:default({x: 0, y: 0}) var offset:PositionStruct;
+	@:default('') var swappedAnim:String;
+	@:default('') var flippedAnim:String;
+}
+
+enum abstract ObjectType(String) from String to String {
+	var CHARACTER;
+	var BEAT;
+	var BASE;
+
+	public var canBop(get, never):Bool;
+	inline function get_canBop():Bool
+		return this == BEAT || this == CHARACTER;
 }
 
 class SpriteUtil {

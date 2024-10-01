@@ -1,6 +1,6 @@
 package backend.structures;
 
-class TypeXY<T> {
+@:structInit class TypeXY<T> {
 	public var x:T;
 	public var y:T;
 
@@ -22,7 +22,7 @@ class TypeXY<T> {
 		return '{x: $x, y: $y}';
 }
 
-class PositionStruct {
+@:structInit class PositionStruct {
 	public var x:Float = 0;
 	public var y:Float = 0;
 

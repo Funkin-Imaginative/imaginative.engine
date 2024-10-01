@@ -1,8 +1,8 @@
 package objects.sprites;
 
 typedef BeatData = {
-	var invertal:Int;
-	var skipnegative:Bool;
+	@:default(0) var invertal:Int;
+	@:default(false) var skipnegative:Bool;
 }
 
 class BeatSprite extends BaseSprite implements IBeat {
@@ -21,7 +21,10 @@ class BeatSprite extends BaseSprite implements IBeat {
 
 	public var beatData:BeatData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
-		return new BeatSprite(x, y, cast ParseUtil.object(path, pathType));
+		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
+	}
+	override function get_objType():ObjectType {
+		return BEAT;
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:BeatSpriteData = cast inputData;

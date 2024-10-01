@@ -5,13 +5,13 @@ import hscript.Interp;
 import hscript.Parser;
 
 enum abstract ScriptType(String) from String to String {
-	var DIFFICULTY = 'difficulty';
-	var LEVEL = 'level';
-	var OBJECT = 'object';
-	// var SONG = 'song';
-	var STAGE = 'stage';
-	var STATE = 'state';
-	var ANY = null;
+	var DIFFICULTY;
+	var LEVEL;
+	var OBJECT;
+	// var SONG;
+	var STAGE;
+	var STATE;
+	var ANY;
 }
 
 // This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.

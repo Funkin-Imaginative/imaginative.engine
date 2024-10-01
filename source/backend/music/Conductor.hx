@@ -16,16 +16,16 @@ typedef CheckpointTyping = {
 typedef AudioData = {
 	@:optional var artist:String;
 	var name:String;
-	var bpm:Float;
-	var signature:Array<Int>;
-	@:optional var offset:Float;
-	var checkpoints:Array<CheckpointTyping>;
+	@:default(100) var bpm:Float;
+	@:default([4, 4]) var signature:Array<Int>;
+	@:default(0) @:optional var offset:Float;
+	@:default([]) var checkpoints:Array<CheckpointTyping>;
 }
 
 enum abstract SongTimeType(String) from String to String {
-	var STEP = 'step';
-	var BEAT = 'beat';
-	var MEASURE = 'measure';
+	var STEP;
+	var BEAT;
+	var MEASURE;
 }
 
 class Conductor implements IBeat implements IFlxDestroyable {
@@ -208,7 +208,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 
 	inline public function getMetadata(path:String):AudioData {
 		try {
-			var content:Dynamic = cast ParseUtil.json(path);
+			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(Paths.json(path)), Paths.json(path));
+			// final content:AudioData = cast ParseUtil.json(path);
 			trace(content);
 			return content;
 		} catch(e) {

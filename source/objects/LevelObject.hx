@@ -5,7 +5,7 @@ typedef ObjectTyping = {
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
 	@:optional var size:Float;
-	var willHey:Bool;
+	@:default(false) var willHey:Bool;
 }
 
 typedef LevelParse = {

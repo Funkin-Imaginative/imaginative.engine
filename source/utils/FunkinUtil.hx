@@ -1,9 +1,9 @@
 package utils;
 
-enum abstract MenuSFX(String) to String from String {
-	var CONFIRM = 'confirm';
-	var CANCEL = 'cancel';
-	var SCROLL = 'scroll';
+enum abstract MenuSFX(String) from String to String {
+	var CONFIRM;
+	var CANCEL;
+	var SCROLL;
 }
 
 class FunkinUtil {

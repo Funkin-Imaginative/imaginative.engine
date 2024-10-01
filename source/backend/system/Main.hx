@@ -47,6 +47,7 @@ class Main extends Sprite {
 		Controls.p2 = new Controls();
 		addChild(new FlxGame(states.TitleScreen, 60, 60));
 		addChild(_inputContainer = new Sprite());
+		FlxSprite.defaultAntialiasing = true;
 		@:privateAccess {
 			FlxG.mouse.visible = false;
 			FlxG.mouse = new FlxMouse(_inputContainer);

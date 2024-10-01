@@ -7,43 +7,33 @@ enum abstract AnimType(String) from String to String {
 	/**
 	 * States that the sprite was/is dancing.
 	 */
-	var DANCE = 'dance';
+	var DANCE;
 
 	/**
 	 * States that the character was/is singing.
 	 */
-	var SING = 'sing';
+	var SING;
 	/**
 	 * States that the character is/had missed a note.
 	 */
-	var MISS = 'miss';
+	var MISS;
 
 	/**
 	 * Prevent's the idle animation.
 	 */
-	var LOCK = 'lock';
+	var LOCK;
 
 	/**
 	 * Play's the idle after the animation has finished.
 	 */
-	var NONE = null;
-
-	/* public function toString():String
-		return switch (this) {
-			case DANCE: 'DANCE';
-			case SING: 'SING';
-			case MISS: 'MISS';
-			case LOCK: 'LOCK';
-			case NONE: 'NONE';
-			default: '';
-		} */
+	var NONE;
 }
 
 enum abstract TextureType(String) from String to String {
-	var SPARROW = 'sparrow';
-	var PACKER = 'packer';
-	var GRAPHIC = 'graphic';
-	var UNKNOWN = null;
+	var SPARROW;
+	var PACKER;
+	var GRAPHIC;
+	var UNKNOWN;
 
 	inline public static function getTypeFromPath(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
 		return switch (HaxePath.extension(sheetPath)) {
@@ -85,18 +75,18 @@ typedef AnimationTyping = {
 	var name:String;
 	@:optional var tag:String;
 	@:optional var dimensions:TypeXY<Int>;
-	var indices:Array<Int>;
-	var offset:PositionStruct;
-	var flip:TypeXY<Bool>;
-	var loop:Bool;
-	var fps:Int;
+	@:default([]) var indices:Array<Int>;
+	@:default({x: 0, y: 0}) var offset:PositionStruct;
+	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
+	@:default(false) var loop:Bool;
+	@:default(24) var fps:Int;
 }
 
 typedef ObjectData = {
 	> OffsetsData,
 	var asset:AssetTyping;
 	var animations:Array<AnimationTyping>;
-	var antialiasing:Bool;
+	@:default(true) var antialiasing:Bool;
 }
 
 class BaseSprite extends FlxSkewedSprite {
@@ -171,7 +161,11 @@ class BaseSprite extends FlxSkewedSprite {
 	// Where the BaseSprite class really begins.
 	public var data:SpriteData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
-		return new BaseSprite(x, y, cast ParseUtil.object(path, pathType));
+		return new BaseSprite(x, y, cast ParseUtil.object(path, BASE, pathType));
+	}
+	public var objType(get, never):ObjectType;
+	function get_objType():ObjectType {
+		return BASE;
 	}
 	public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:SpriteData = cast inputData;
@@ -262,7 +256,7 @@ class BaseSprite extends FlxSkewedSprite {
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite));
+				renderData(ParseUtil.object(sprite, objType));
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);
