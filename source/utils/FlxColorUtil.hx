@@ -1,7 +1,5 @@
 package utils;
 
-import flixel.util.FlxColor;
-
 @:dox(hide) typedef RGB = {
 	@:optional var alpha:Int;
 	var red:Int;

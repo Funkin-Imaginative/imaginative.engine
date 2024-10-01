@@ -80,11 +80,11 @@ class Main extends Sprite {
 	}
 
 	public static function addChildBelowMouse<T:DisplayObject>(Child:T, IndexModifier:Int = 0):T {
-		var index:Int = FlxG.game.getChildIndex(_inputContainer);
-		var max:Int = FlxG.game.numChildren;
+		var index:Int = direct.getChildIndex(_inputContainer);
+		var max:Int = direct.numChildren;
 
 		index = FlxMath.maxAdd(index, IndexModifier, max);
-		FlxG.game.addChildAt(Child, index);
+		direct.addChildAt(Child, index);
 		return Child;
 	}
 }

@@ -1,6 +1,6 @@
 package states.menus;
 
-import backend.scripting.events.menus.story.*;
+import backend.scripting.events.menus.story.LevelSongListEvent;
 
 class StoryMenu extends BeatState {
 	// Menu related vars.
@@ -145,18 +145,19 @@ class StoryMenu extends BeatState {
 					if (Reflect.hasField(data, 'offsets')) sprite.setPosition(data.offsets.x, data.offsets.y);
 				}
 
-				// SpriteUtil.setGraphicSizeUnstretched(sprite, Math.floor(weekBg.width), Math.floor(weekBg.height));
-				// sprite.updateHitbox();
-
-				sprite.screenCenter();
-				sprite.x += (sprite.width + (weekBg.width / (loop.length - 1))) * i;
-				sprite.x -= (sprite.width + (weekBg.width / (loop.length - 1))) / (loop.length - 1);
+				// sprite.screenCenter();
+				// sprite.x += (sprite.width + (weekBg.width / (loop.length - 1))) * i;
+				// sprite.x -= (sprite.width + (weekBg.width / (loop.length - 1))) / (loop.length - 1);
 				sprite.y = (weekBg.height - sprite.height) / 2 + weekTopBg.height;
 
 				sprite.scrollFactor.set();
 				levels.members[i].weekObjects.push(weekObjects.add(sprite));
 			}
 		}
+
+		for (level in levels)
+			FlxSpriteUtil.space([for (o in level.weekObjects) cast o], FlxG.width / 2, weekBg.y + (weekBg.height / 2), FlxG.width - 100, 0, true);
+
 		add(weekObjects);
 
 		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0');

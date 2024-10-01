@@ -1,19 +1,16 @@
 package utils;
 
-import objects.sprites.BaseSprite.TextureType;
-
-typedef TypeSprite = OneOfThree<FlxSprite, BaseSprite, BeatSprite>;
 typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
 
 typedef CharacterSpriteData = BeatSpriteData & {
-	var character:Character.CharacterData;
+	var character:CharacterData;
 }
 typedef BeatSpriteData = SpriteData & {
-	var beat:BeatSprite.BeatData;
+	var beat:BeatData;
 }
-typedef SpriteData = BaseSprite.ObjectData & {
-	@:optional var offsets:BaseSprite.OffsetsData;
-	@:optional var extra:Array<utils.ParseUtil.ExtraData>;
+typedef SpriteData = ObjectData & {
+	@:optional var offsets:OffsetsData;
+	@:optional var extra:Array<ExtraData>;
 }
 
 typedef AnimMapping = {
@@ -23,7 +20,7 @@ typedef AnimMapping = {
 }
 
 class SpriteUtil {
-	inline public static function loadTexture(sprite:TypeSprite, newTexture:String):TypeSprite {
+	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadTexture(newTexture);
 
@@ -41,7 +38,7 @@ class SpriteUtil {
 		return sprite;
 	}
 
-	inline public static function loadImage(sprite:TypeSprite, newTexture:String):TypeSprite {
+	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadImage(newTexture);
 
@@ -54,7 +51,7 @@ class SpriteUtil {
 		return sprite;
 	}
 
-	inline public static function loadSheet(sprite:TypeSprite, newTexture:String):TypeSprite {
+	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadSheet(newTexture);
 
@@ -101,32 +98,24 @@ class SpriteUtil {
 		return FlxColor.fromInt(maxKey);
 	}
 
-	inline public static function setGraphicSizeUnstretched(sprite:FlxSprite, width:Int, height:Int):Void {
-		sprite.setGraphicSize(width, height);
-		if (sprite.width > sprite.height)
-			sprite.scale.y = sprite.scale.x;
-		else
-			sprite.scale.x = sprite.scale.y;
-	}
-
 	/**
 	 * Is basically FlxTypedGroup.resolveGroup().
 	 * @param obj
 	 * @return FlxGroup
 	 */
-	inline public static function getGroup(obj:FlxBasic):FlxGroup {
+	inline public static function getGroup<T:FlxBasic>(obj:T):FlxGroup {
 		var resolvedGroup:FlxGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
 		if (resolvedGroup == null) resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
 		return resolvedGroup;
 	}
 
-	inline public static function addInfrontOf(obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup):Void {
-		final group:FlxGroup = into == null ? getGroup(obj) : into;
+	inline public static function addInfrontOf<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxGroup):Void {
+		final group:FlxGroup = into == null ? obj.getGroup() : into;
 		group.insert(group.members.indexOf(fromThis) + 1, obj);
 	}
 
-	inline public static function addBehind(obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup):Void {
-		final group:FlxGroup = into == null ? getGroup(obj) : into;
+	inline public static function addBehind<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxGroup):Void {
+		final group:FlxGroup = into == null ? obj.getGroup() : into;
 		group.insert(group.members.indexOf(fromThis), obj);
 	}
 

@@ -54,7 +54,7 @@ enum abstract TextureType(String) from String to String {
 	}
 }
 
-@:structInit class TextureData {
+class TextureData {
 	public var image(default, null):String;
 	public var type(default, null):TextureType;
 	public var path(get, never):FunkinPath;
@@ -72,7 +72,7 @@ enum abstract TextureType(String) from String to String {
 
 typedef OffsetsData = {
 	@:optional var position:PositionStruct;
-	@:optional var flip:PositionStruct.TypeXY<Bool>;
+	@:optional var flip:TypeXY<Bool>;
 	@:optional var scale:PositionStruct;
 }
 
@@ -84,10 +84,10 @@ typedef AnimationTyping = {
 	@:optional var asset:AssetTyping;
 	var name:String;
 	@:optional var tag:String;
-	@:optional var dimensions:PositionStruct.TypeXY<Int>;
+	@:optional var dimensions:TypeXY<Int>;
 	var indices:Array<Int>;
 	var offset:PositionStruct;
-	var flip:PositionStruct.TypeXY<Bool>;
+	var flip:TypeXY<Bool>;
 	var loop:Bool;
 	var fps:Int;
 }
@@ -121,7 +121,7 @@ class BaseSprite extends FlxSkewedSprite {
 		return newTexture;
 	}
 
-	inline public function loadTexture(newTexture:String):TypeSprite {
+	inline public function loadTexture<T:FlxSprite>(newTexture:String):T {
 		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
 		final hasSheet:Bool = sheetPath != '';
 		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath);
@@ -131,18 +131,18 @@ class BaseSprite extends FlxSkewedSprite {
 				if (hasSheet) loadSheet(newTexture);
 				else loadImage(newTexture);
 			} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
-		return this;
+		return cast this;
 	}
 
-	inline public function loadImage(newTexture:String):TypeSprite {
+	inline public function loadImage<T:FlxSprite>(newTexture:String):T {
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
 			} catch(e) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
-		return this;
+		return cast this;
 	}
 
-	inline public function loadSheet(newTexture:String):TypeSprite {
+	inline public function loadSheet<T:FlxSprite>(newTexture:String):T {
 		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
 		final hasSheet:Bool = sheetPath != '';
 		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
@@ -155,7 +155,7 @@ class BaseSprite extends FlxSkewedSprite {
 				} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 			else loadImage(newTexture);
 		}
-		return this;
+		return cast this;
 	}
 
 	/**
@@ -165,8 +165,8 @@ class BaseSprite extends FlxSkewedSprite {
 	 * ```
 	 * would work.
 	 */
-	inline public function loadSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):TypeSprite
-		return makeSolid(width, height, color, unique, key);
+	inline public function loadSolid<T:FlxSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
+		return cast makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
 	public var data:SpriteData = null;

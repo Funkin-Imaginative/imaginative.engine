@@ -8,7 +8,7 @@ typedef PressTypes = {
 	var released:Bool;
 }
 
-class Controls implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
+class Controls implements IFlxDestroyable {
 	public static var p1:Controls;
 	public static var p2:Controls;
 

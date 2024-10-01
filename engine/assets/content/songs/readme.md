@@ -21,7 +21,7 @@ audio-erect.json
 audio.json
 meta.json
 ```
-audio json explained in [`../music/`](https://github.com/Funkin-Imaginative/imaginative.engine.dev/tree/main/engine/assets/music)
+audio json explained in [`../music/`](/engine/assets/music/)
 
 vVv meta json example below vVv
 ```json
@@ -37,4 +37,4 @@ vVv meta json example below vVv
 	}
 }
 ```
-example from: [`../content/songs/Philly Nice/meta.json`](https://github.com/Funkin-Imaginative/imaginative.engine.dev/blob/main/engine/assets/content/songs/Philly%20Nice/meta.json)
+example from: [`../content/songs/Philly Nice/meta.json`](/engine/assets/content/songs/Philly%20Nice/meta.json)

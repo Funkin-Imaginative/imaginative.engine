@@ -1,7 +1,5 @@
 package backend.music;
 
-import flixel.util.FlxSignal.FlxTypedSignal;
-
 typedef BPMChange = {
 	var stepTime:Float;
 	var songTime:Float;
@@ -30,7 +28,7 @@ enum abstract SongTimeType(String) from String to String {
 	var MEASURE = 'measure';
 }
 
-class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestroyable {
+class Conductor implements IBeat implements IFlxDestroyable {
 	// FlxSignals.
 	public var onTimeChange:FlxTypedSignal<(Float, Int, Int)->Void> = new FlxTypedSignal<(Float, Int, Int)->Void>();
 	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
@@ -292,8 +290,8 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 	public static var beatStates:Array<BeatState> = [];
 	public static var beatSubStates:Array<BeatSubState> = [];
 	inline function callToState(timeType:SongTimeType, curTime:Int):Void {
-		for (state in beatStates) {
-			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null)) {
+		for (state in beatStates)
+			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {
 					case STEP:
 						state.stepHit(curTime);
@@ -302,10 +300,8 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 					case MEASURE:
 						state.measureHit(curTime);
 				}
-			}
-		}
-		for (state in beatSubStates) {
-			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null)) {
+		for (state in beatSubStates)
+			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {
 					case STEP:
 						state.stepHit(curTime);
@@ -314,8 +310,6 @@ class Conductor implements IBeat implements flixel.util.FlxDestroyUtil.IFlxDestr
 					case MEASURE:
 						state.measureHit(curTime);
 				}
-			}
-		}
 	}
 
 	inline public function stepHit(curStep:Int):Void {

@@ -30,7 +30,7 @@ class FunkinUtil {
 				FileSystem.createDirectory('$modFolderPath/$folder');
 	}
 
-	inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:()->Void):FlxSound {
+	@:using inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:()->Void):FlxSound {
 		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/' + switch (sound) {
 			case CONFIRM: 'confirm';
 			case CANCEL: 'cancel';
@@ -71,7 +71,7 @@ class FunkinUtil {
 	inline public static function getDifficultyVariant(diff:String):String
 		return ParseUtil.difficulty(diff).variant;
 
-	inline public static function trimSplit(text:String):Array<String> {
+	@:using inline public static function trimSplit(text:String):Array<String> {
 		var daList:Array<String> = text.split('\n');
 		for (i in 0...daList.length)
 			daList[i] = daList[i].trim();
@@ -84,8 +84,8 @@ class FunkinUtil {
 	 * @param defaultValue
 	 * @return T
 	 */
-	inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
-		return Reflect.hasField(data, field) ? getDefault(Reflect.getProperty(data, field), defaultValue) : defaultValue;
+	@:using inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
+		return Reflect.hasField(data, field) ? Reflect.getProperty(data, field).getDefault(defaultValue) : defaultValue;
 
 	// Using CNE's because mine was a bitch to use. May try making my own as this is also being a bitch to use.
 	/**
@@ -94,7 +94,7 @@ class FunkinUtil {
 	 * @param defaultValue The default value
 	 * @return T
 	 */
-	inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
+	@:using inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
 		return (v == null || isNaN(v)) ? defaultValue : v;
 	/**
 	 * Whenever a value is NaN or not.

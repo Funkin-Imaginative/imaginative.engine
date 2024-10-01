@@ -1,7 +1,5 @@
 package states;
 
-import objects.LevelObject.LevelData;
-
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor
 		return Conductor.song;

@@ -1,9 +1,6 @@
 package objects.sprites;
 
-import backend.scripting.events.objects.sprites.*;
-import utils.SpriteUtil.AnimMapping;
-import utils.SpriteUtil.BeatSpriteData;
-import utils.SpriteUtil.CharacterSpriteData;
-import utils.SpriteUtil.SpriteData;
-import utils.SpriteUtil.TypeSprite;
-import utils.SpriteUtil.TypeSpriteData;
+import backend.scripting.events.objects.sprites.BopEvent;
+import backend.scripting.events.objects.sprites.PlayAnimEvent;
+import backend.scripting.events.objects.sprites.PlaySingAnimEvent;
+import backend.scripting.events.objects.sprites.PlaySpecialAnimEvent;

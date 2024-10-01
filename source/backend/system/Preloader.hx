@@ -6,10 +6,10 @@ import flash.display.BitmapData;
 import flixel.system.FlxBasePreloader;
 import openfl.display.Sprite;
 
-@:bitmap('assets/images/debugger/flixel.png') class PreloadImage extends BitmapData {}
+@:bitmap('assets/images/logo/logo.png') class PreloadImage extends BitmapData {}
 
 class Preloader extends FlxBasePreloader {
-	public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
+	public function new(MinDisplayTime:Float = 5, ?AllowedURLs:Array<String>)
 		super(MinDisplayTime, AllowedURLs);
 
 	var logo:Sprite;
@@ -21,8 +21,8 @@ class Preloader extends FlxBasePreloader {
 		var ratio:Float = _width / 2560;
 
 		logo = new Sprite();
-		logo.addChild(new Bitmap(new PreloadImage(0, 0)));
-		logo.scaleX = logo.scaleY = ratio * 80;
+		logo.addChild(new Bitmap(new PreloadImage(0, 0), AUTO, true));
+		logo.scaleX = logo.scaleY = ratio * 5.5;
 		logo.x = (_width / 2) - (logo.width / 2);
 		logo.y = (_height / 2) - (logo.height / 2);
 		addChild(logo);

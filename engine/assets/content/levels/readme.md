@@ -18,4 +18,4 @@ vVv level json example below vVv
 	"color": "#F9CF51"
 }
 ```
-example from: [`../content/levels/Week 1.json`](https://github.com/Funkin-Imaginative/imaginative.engine.dev/blob/main/engine/assets/content/levels/Week%201.json)
+example from: [`../content/levels/Week 1.json`](/engine/assets/content/levels/Week%201.json)

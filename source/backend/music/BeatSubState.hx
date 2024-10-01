@@ -130,7 +130,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
-				for (script in Script.create(SpriteUtil.getClassName(this), STATE)) {
+				for (script in Script.create(this.getClassName(), STATE)) {
 					if (!script.isInvalid) scriptName = script.fileName;
 					stateScripts.add(script);
 					script.load();
@@ -145,12 +145,18 @@ class BeatSubState extends FlxSubState implements IBeat {
 		return def;
 	}
 
+	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+		if (stateScripts != null)
+			return stateScripts.event(func, event);
+		return event;
+	}
+
 	override public function close():Void {
-		// var event = event('onClose', new CancellableEvent());
-		// if (!event.cancelled) {
-		super.close();
-		call('onClosePost');
-		// }
+		var event:ScriptEvent = event('onClose', new ScriptEvent());
+		if (!event.stopped) {
+			super.close();
+			call('onClosePost');
+		}
 	}
 
 	override public function create():Void {

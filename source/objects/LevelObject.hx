@@ -1,7 +1,7 @@
 package objects;
 
 typedef ObjectTyping = {
-	var object:OneOfTwo<String, SpriteUtil.TypeSpriteData>;
+	var object:OneOfTwo<String, TypeSpriteData>;
 	@:optional var flip:Bool;
 	@:optional var offsets:PositionStruct;
 	@:optional var size:Float;
@@ -19,7 +19,7 @@ typedef LevelParse = {
 }
 typedef LevelData = {
 	var title:String;
-	var songs:Array<ParseUtil.SongData>;
+	var songs:Array<SongData>;
 	@:optional public var startingDiff:Int;
 	var difficulties:Array<String>;
 	var variants:Array<String>;
