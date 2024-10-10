@@ -33,10 +33,9 @@ class SpriteUtil {
 	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadTexture(newTexture);
-
-		if (sprite is FlxSprite) {
+		else if (sprite is FlxSprite) {
 			final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
-			final hasSheet:Bool = sheetPath != '';
+			final hasSheet:Bool = Paths.spriteSheetExists(newTexture);
 			final textureType:TextureType = TextureType.getTypeFromPath(sheetPath);
 
 			if (Paths.fileExists('images/$newTexture.png'))
@@ -51,8 +50,7 @@ class SpriteUtil {
 	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadImage(newTexture);
-
-		if (sprite is FlxSprite)
+		else if (sprite is FlxSprite)
 			if (Paths.fileExists('images/$newTexture.png'))
 				try {
 					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
@@ -64,20 +62,18 @@ class SpriteUtil {
 	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:String):T {
 		if (sprite is BaseSprite)
 			cast(sprite, BaseSprite).loadSheet(newTexture);
-
-		if (sprite is FlxSprite) {
-			final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
-			final hasSheet:Bool = sheetPath != '';
-			final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
-
+		else if (sprite is FlxSprite)
 			if (Paths.fileExists('images/$newTexture.png')) {
+				final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+				final hasSheet:Bool = Paths.spriteSheetExists(newTexture);
+				final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
+
 				if (hasSheet)
 					try {
 						cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
 					} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 				else loadImage(sprite, newTexture);
 			}
-		}
 		return sprite;
 	}
 

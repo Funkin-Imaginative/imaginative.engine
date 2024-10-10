@@ -13,10 +13,8 @@ package backend.structures;
 		return this;
 	}
 
-	public function copyFrom(from:TypeXY<T>):TypeXY<T> {
-		set(from.x, from.y);
-		return this;
-	}
+	public function copyFrom(from:TypeXY<T>):TypeXY<T>
+		return set(from.x, from.y);
 
 	inline public function toString():String
 		return '{x: $x, y: $y}';
@@ -35,12 +33,10 @@ package backend.structures;
 		return this;
 	}
 
-	public function copyFrom(from:PositionStruct):PositionStruct {
-		set(from.x, from.y);
-		return this;
-	}
+	public function copyFrom(from:PositionStruct):PositionStruct
+		return set(from.x, from.y);
 
-	inline public static function getObjMidpoint<Object:FlxObject>(obj:Object):PositionStruct {
+	inline public static function getObjMidpoint<T:FlxObject>(obj:T):PositionStruct {
 		return new PositionStruct(obj.x + obj.width * 0.5, obj.y + obj.height * 0.5);
 	}
 

@@ -8,10 +8,10 @@ class Compiler {
 		__build(args, ['build', getBuildTarget(), '-debug']);
 	}
 	public static function compileRelease(args:Array<String>) {
-		__build(args, ['build', getBuildTarget(), '-final']);
+		__build(args, ['build', getBuildTarget(), '-release']);
 	}
 	public static function runRelease(args:Array<String>) {
-		__build(args, ['test', getBuildTarget(), '-final']);
+		__build(args, ['test', getBuildTarget(), '-release']);
 	}
 
 	private static function __build(args:Array<String>, arg:Array<String>) {

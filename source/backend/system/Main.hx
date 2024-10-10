@@ -31,10 +31,6 @@ class Main extends Sprite {
 	#end
 
 	public function new():Void {
-		#if (debug && final)
-		throw 'Please don\'t use debug and final at the same time.';
-		#end
-
 		super();
 		direct = this;
 

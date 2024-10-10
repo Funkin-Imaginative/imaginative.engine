@@ -196,12 +196,16 @@ class Paths {
 		return applyRoot('images/$file.png', pathType);
 
 	public static final atlasFrameExts:Array<String> = ['xml', 'txt'];
-	inline public static function frames(file:String, ?type:String, pathType:FunkinPath = ANY):FlxAtlasFrames {
-		if (fileExists('images/$file.xml', pathType)) type = 'sparrow';
-		if (fileExists('images/$file.txt', pathType)) type = 'packer';
+	inline public static function frames(file:String, type:TextureType = UNKNOWN, pathType:FunkinPath = ANY):FlxAtlasFrames {
+		if (type == UNKNOWN) {
+			type = switch (true) {
+				case fileExists('images/$file.xml', pathType): SPARROW;
+				case fileExists('images/$file.txt', pathType): PACKER;
+			}
+		}
 		return switch (type) {
-			case 'sparrow': getSparrowAtlas(file, pathType);
-			case 'packer': getPackerAtlas(file, pathType);
+			case SPARROW: getSparrowAtlas(file, pathType);
+			case PACKER: getPackerAtlas(file, pathType);
 			default: getSparrowAtlas(file, pathType);
 		}
 	}
@@ -209,6 +213,9 @@ class Paths {
 		return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
 	inline public static function getPackerAtlas(file:String, pathType:FunkinPath = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
+
+	inline public static function spriteSheetExists(path:String, pathType:FunkinPath = ANY):Bool
+		return Paths.fileExists('images/$path.png') && Paths.multExst('images/$path', Paths.atlasFrameExts) != '';
 
 	inline public static function folderExists(path:String, applyRoot:Bool = true, pathType:FunkinPath = ANY):Bool
 		return FileSystem.isDirectory(applyRoot ? Paths.applyRoot(path, pathType) : path);

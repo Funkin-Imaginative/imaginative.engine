@@ -18,18 +18,19 @@
 	<!-- Window Settings -->
 
 	<!-- Define Setup -->
-	 	<define name='CONTAIN_VERSION_ID'/>
-		<define name='CHECK_FOR_UPDATES' if='final CONTAIN_VERSION_ID' unless='debug'/>
-		<define name='USING_OPTIONAL_LIBS'/>
+		<define name='CONTAIN_VERSION_ID'/>
+		<define name='CHECK_FOR_UPDATES' if='release CONTAIN_VERSION_ID' unless='debug'/>
 		<define name='MOD_SUPPORT'/>
-		<define name='SCRIPT_SUPPORT' if='MOD_SUPPORT'/>
+		<define name='SCRIPT_SUPPORT'/>
 
 		<!-- script related -->
-		<define name='COMPILE_ALL_CLASSES' if='SCRIPT_SUPPORT final'/> <!-- you can remove the final check here if you feel its needed -->
-		<define name='CUSTOM_CLASSES' if='SCRIPT_SUPPORT'/>
-		<define name='SOFTCODED_STATES' if='SCRIPT_SUPPORT'/>
-		<!-- <define name='THROW_LUA_MAKEFUN'/> -->
-		<section if='cpp USING_OPTIONAL_LIBS'>
+		<section if='SCRIPT_SUPPORT'>
+			<define name='COMPILE_ALL_CLASSES' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
+			<define name='CUSTOM_CLASSES'/>
+			<define name='SOFTCODED_STATES'/>
+			<!-- <define name='THROW_LUA_MAKEFUN'/> -->
+		</section>
+		<section if='cpp'>
 			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
 			<define name='ALLOW_VIDEOS' if='desktop || android'/>
 		</section>
@@ -37,56 +38,57 @@
 
 	<!-- Path Settings -->
 		<!-- Export Directories -->
-		<set name='BUILD_DIR' value='export/release' if='final' unless='debug'/>
+		<set name='BUILD_DIR' value='export/release' if='release' unless='debug'/>
 		<set name='BUILD_DIR' value='export/build' unless='debug'/>
 		<set name='BUILD_DIR' value='export/debug' if='debug'/>
 		<!-- 32bit -->
-		<set name='BUILD_DIR' value='export/release-32bit' if='final 32bit' unless='debug'/>
+		<set name='BUILD_DIR' value='export/release-32bit' if='release 32bit' unless='debug'/>
 		<set name='BUILD_DIR' value='export/build-32bit' if='32bit' unless='debug'/>
 		<set name='BUILD_DIR' value='export/debug-32bit' if='debug 32bit'/>
 
+		<set name='assetsPath' value='solo/funkin' if='MOD_SUPPORT'/>
+		<set name='assetsPath' value='assets'  unless='MOD_SUPPORT'/>
+
 		<!-- Pathing -->
 		<source name='source'/>
-		<assets path='engine/assets' rename='solo/funkin' embed='false' preload='true' exclude='*readme.md'/>
-		<assets path='embed/assets' rename='solo/funkin' embed='true' preload='true' exclude='*readme.md'/>
-		<assets path='engine/root' rename='' embed='false' preload='true' exclude='*readme.md'/>
-		<assets path='embed/root' rename='' embed='true' preload='true' exclude='*readme.md'/>
+		<assets path='engine/assets' rename='${assetsPath}' embed='false' preload='true' exclude='*readme.md'/>
+		<assets  path='embed/assets' rename='${assetsPath}' embed='true'  preload='true' exclude='*readme.md'/>
+		<assets path='engine/root'   rename=''              embed='false' preload='true' exclude='*readme.md'/>
+		<assets  path='embed/root'   rename=''              embed='true'  preload='true' exclude='*readme.md'/>
 
 		<!-- Modding -->
-		<assets path='engine/modding/upfront' rename='solo' embed='false' preload='false' exclude='*readme.md'/>
-		<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
-		<assets path='embed/modding/upfront' rename='solo' embed='true' preload='true' exclude='*readme.md'/>
-		<assets path='embed/modding/lowerend' rename='mods' embed='true' preload='true' exclude='*readme.md'/>
-	<!-- Path Settings -->
-
-	<!-- <assets path='art/readme.txt' rename='do NOT readme.txt'/> -->
-	<!-- <assets path='CHANGELOG.md' rename='changelog.txt'/> -->
+		<section if='MOD_SUPPORT'>
+			<assets path='engine/modding/upfront'  rename='solo' embed='false' preload='false' exclude='*readme.md'/>
+			<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
+			<assets  path='embed/modding/upfront'  rename='solo' embed='true'  preload='true'  exclude='*readme.md'/>
+			<assets  path='embed/modding/lowerend' rename='mods' embed='true'  preload='true'  exclude='*readme.md'/>
+		</section>
+		<!-- Path Settings -->
 
 	<!-- Libraries -->
 		<haxelib name='openfl' version='9.2.2'/>
-		<haxelib name='lime' version='8.1.2'/>
+		<haxelib name='lime'   version='8.1.2'/>
 
-		<haxelib name='flixel'/>
-		<haxelib name='flixel-addons'/>
+		<haxelib name='flixel'        version='git'/>
+		<haxelib name='flixel-addons' version='git'/>
 
 		<haxelib name='hscript-improved' if='SCRIPT_SUPPORT'/>
-		<haxelib name='hxdiscord_rpc' if='DISCORD_RICH_PRESENCE'/>
-		<haxelib name='hxvlc' if='ALLOW_VIDEOS'/>
-		<haxelib name='thx.semver' if='CONTAIN_VERSION_ID'/>
+		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>
+		<haxelib name='hxvlc'            if='ALLOW_VIDEOS'/>
+		<haxelib name='thx.semver'       if='CONTAIN_VERSION_ID'/>
 
 		<haxelib name='json2object'/>
 		<!-- <haxelib name='extension-androidtools' if='android'/> -->
 
-		<section if='USING_OPTIONAL_LIBS'>
-			<haxelib name='hxWindowColorMode'/>
-		</section>
+		<haxelib name='hxWindowColorMode' optional='true'/>
 	<!-- Libraries -->
 
 	<!-- Debug Things -->
 		<haxelib name='hxcpp-debug-server' if='desktop debug'/>
-		<haxedef name='FLX_NO_DEBUG' unless='debug'/>
+		<haxedef name='FLX_NO_DEBUG'           unless='debug'/>
 	<!-- Debug Things -->
 
+	<!-- might make one -->
 	<haxedef name='FLX_NO_FOCUS_LOST_SCREEN'/>
 
 	<haxeflag name='-dce' value='no' if='COMPILE_ALL_CLASSES'/>
@@ -97,7 +99,7 @@
 	<!-- Extra Stuff -->
 		<!-- May remove? -->
 		<haxedef name='no-deprecation-warnings'/>
-		<define name='disable-version-check'/>
+		<define  name='disable-version-check'/>
 		<haxedef name='disable-version-check'/>
 
 		<!-- related to flixel cne libs (I think) -->

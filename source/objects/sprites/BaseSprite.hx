@@ -111,9 +111,9 @@ class BaseSprite extends FlxSkewedSprite {
 		return newTexture;
 	}
 
-	inline public function loadTexture<T:FlxSprite>(newTexture:String):T {
+	inline public function loadTexture<T:BaseSprite>(newTexture:String):T {
 		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
-		final hasSheet:Bool = sheetPath != '';
+		final hasSheet:Bool = Paths.spriteSheetExists(newTexture);
 		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath);
 
 		if (Paths.fileExists('images/$newTexture.png'))
@@ -124,7 +124,7 @@ class BaseSprite extends FlxSkewedSprite {
 		return cast this;
 	}
 
-	inline public function loadImage<T:FlxSprite>(newTexture:String):T {
+	inline public function loadImage<T:BaseSprite>(newTexture:String):T {
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
@@ -132,9 +132,9 @@ class BaseSprite extends FlxSkewedSprite {
 		return cast this;
 	}
 
-	inline public function loadSheet<T:FlxSprite>(newTexture:String):T {
+	inline public function loadSheet<T:BaseSprite>(newTexture:String):T {
 		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
-		final hasSheet:Bool = sheetPath != '';
+		final hasSheet:Bool = Paths.spriteSheetExists(newTexture);
 		final textureType:TextureType = TextureType.getTypeFromPath(sheetPath, true);
 
 		if (Paths.fileExists('images/$newTexture.png')) {
@@ -155,7 +155,7 @@ class BaseSprite extends FlxSkewedSprite {
 	 * ```
 	 * would work.
 	 */
-	inline public function loadSolid<T:FlxSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
+	inline public function loadSolid<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.

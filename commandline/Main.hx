@@ -29,7 +29,7 @@ class Main {
 				'\n- The assets WON\'T be copied over - Assets will be read from the game\'s source.' +
 				'\n- This build WON\'T be ready for release - Running anywhere else than in the bin folder will result in a crash from missing assets' +
 				'\n- This build will also use the mods folder from the source directory.' +
-				'\n\nIf you want a full build which contains all assets, run \'imaginative run-final\' or \'imaginative compile-final\'' +
+				'\n\nIf you want a full build which contains all assets, run \'imaginative run-releasesese\' or \'imaginative compile-release\'' +
 				'\nAdditional arguments will be sent to the lime compiler.'
 			},
 			{
@@ -41,22 +41,22 @@ class Main {
 				'\n- The assets WON\'T be copied over - Assets will be read from the game\'s source.' +
 				'\n- This build WON\'T be ready for release - Running anywhere else than in the bin folder will result in a crash from missing assets' +
 				'\n- This build will also use the mods folder from the source directory.' +
-				'\n\nIf you want a full build which contains all assets, run \'imaginative run-final\' or \'imaginative compile-final\'' +
+				'\n\nIf you want a full build which contains all assets, run \'imaginative run-release\' or \'imaginative compile-release\'' +
 				'\nAdditional arguments will be sent to the lime compiler.'
 			},
 			{
-				names: ['run-final'],
+				names: ['run-release'],
 				doc: 'Creates a release build, containing all assets.',
 				func: Compiler.runRelease,
 				dDoc: 'Usage: release <optional arguments>\n' +
-				'\nThis will create a final ready-for-release build, which means this build will be able to be release on websites such as GameBanana without worrying about source-dependant stuff.'
+				'\nThis will create a release ready-for-release build, which means this build will be able to be release on websites such as GameBanana without worrying about source-dependant stuff.'
 			},
 			{
-				names: ['compile-final'],
+				names: ['compile-release'],
 				doc: 'Creates a release build, containing all assets, then runs it.',
 				func: Compiler.compileRelease,
 				dDoc: 'Usage: release <optional arguments>\n' +
-				'\nThis will create and run a final ready-for-release build, which means this build will be able to be release on websites such as GameBanana without worrying about source-dependant stuff.'
+				'\nThis will create and run a release ready-for-release build, which means this build will be able to be release on websites such as GameBanana without worrying about source-dependant stuff.'
 			}
 		];
 	}

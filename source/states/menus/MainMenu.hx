@@ -1,5 +1,6 @@
 package states.menus;
 
+import haxe.macro.Compiler;
 import backend.scripting.events.menus.main.*;
 import flixel.effects.FlxFlicker;
 
@@ -15,9 +16,10 @@ class MainMenu extends BeatState {
 
 	// Objects in the state.
 	var bg:BaseSprite;
-	var bg2:BaseSprite;
+	var flashBg:BaseSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
 	var versionTxt:FlxText;
+	var definedTagsText:FlxText;
 
 	// Camera management.
 	var camPoint:FlxObject;
@@ -26,14 +28,17 @@ class MainMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
+		// Might try to simplify this.
 		if (Conductor.menu == null) Conductor.menu = new Conductor();
 			if (conductor.audio == null || !conductor.audio.playing)
 				conductor.loadMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
 
+		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
 
+		// Menu elements.
 		bg = new BaseSprite('menus/menuBG');
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.set(1.2, 1.2);
@@ -42,24 +47,21 @@ class MainMenu extends BeatState {
 		bg.antialiasing = true;
 		add(bg);
 
-		bg2 = new BaseSprite('menus/menuDesat');
-		bg2.scrollFactor.copyFrom(bg.scrollFactor);
-		bg2.scale.copyFrom(bg.scale);
-		bg2.updateHitbox();
-		bg2.visible = false;
-		bg2.antialiasing = true;
-		bg2.color = 0xfffd719b;
-		add(bg2);
+		flashBg = new BaseSprite('menus/menuDesat'); // flashing bg
+		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
+		flashBg.scale.copyFrom(bg.scale);
+		flashBg.updateHitbox();
+		flashBg.visible = false;
+		flashBg.antialiasing = true;
+		flashBg.color = 0xfffd719b;
+		add(flashBg);
 
 		if (itemLineUp == null || itemLineUp.length < 1)
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
-		menuItems = new FlxTypedGroup<BaseSprite>();
+		menuItems = new FlxTypedGroup<BaseSprite>(); // menu items
 		for (i => name in itemLineUp) {
-			if ( // funny null check
-				Paths.fileExists('images/menus/main/$name.png') &&
-				Paths.multExst('images/menus/main/$name', Paths.atlasFrameExts) != ''
-			) {} else continue;
+			if (!Paths.spriteSheetExists('menus/main/$name')) continue; // funny null check
 
 			var item:BaseSprite = new BaseSprite(0, 60 + (i * 160), 'menus/main/$name');
 			item.animation.addByPrefix('idle', '$name idle', 24);
@@ -74,34 +76,50 @@ class MainMenu extends BeatState {
 		changeSelection();
 		add(menuItems);
 
+		// wierd camera posing vars
 		var highMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[0]);
 		var lowMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[menuItems.length - 1]);
 
-		highestY = highMid.y;
-		lowestY = lowMid.y;
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
-			FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
+			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
 		);
 		camera.snapToTarget();
 
+		// version text setup
 		var theText:String = 'Imaginative Engine';
 		#if CONTAIN_VERSION_ID
 		theText += ' v${Main.engineVersion}';
-		#if debug
-		theText += ' ~ Debug Build ~ ';
-		#elseif !final
-		theText += ' ~ Test Build ~ ';
-		#end
+
+		final buildTag:Null<String> = #if debug 'Debug' #elseif !release 'Test' #elseif (debug && release) 'Debugging Release' #else null #end;
+		if (buildTag != null) theText += '\n ~ $buildTag Build ~ ';
+
 		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion}, please stay up-to-date.';
 		#end
 		theText += '\nMade relatively from scratch!';
 
-		versionTxt = new FlxText(5, 0, 0, theText);
+		versionTxt = new FlxText(5, theText);
 		versionTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		versionTxt.y = FlxG.height - versionTxt.height - 5;
 		versionTxt.scrollFactor.set();
 		add(versionTxt);
+
+		// defined text setup
+		var theText:String = ' ~ Defined Compiler Tags ~ ';
+		theText += '\n${Sys.systemName()} :Platform';
+		theText += '\n${Compiler.getDefine('CONTAIN_VERSION_ID') != null} :Know\'s Verison';
+		theText += '\n${Compiler.getDefine('CHECK_FOR_UPDATES') != null} :Know\'s When To Update';
+		theText += '\n${Compiler.getDefine('MOD_SUPPORT') != null} :Has Mod Support';
+		theText += '\n${Compiler.getDefine('SCRIPT_SUPPORT') != null} :Has Script Support';
+		theText += '\n${Compiler.getDefine('DISCORD_RICH_PRESENCE') != null} :Has Discord Connectivity';
+		theText += '\n${Compiler.getDefine('ALLOW_VIDEOS') != null} :Can Play Videos';
+
+		definedTagsText = new FlxText(theText);
+		definedTagsText.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		definedTagsText.x = FlxG.width - definedTagsText.width - 5;
+		definedTagsText.y = FlxG.height - definedTagsText.height - 5;
+		definedTagsText.scrollFactor.set();
+		add(definedTagsText);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -171,7 +189,7 @@ class MainMenu extends BeatState {
 
 		FunkinUtil.playMenuSFX(CONFIRM);
 
-		FlxFlicker.flicker(bg2, 1.1, 0.6, false);
+		FlxFlicker.flicker(flashBg, 1.1, 0.6, false);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
 			switch (itemLineUp[curSelected]) {
 				case 'storymode':
