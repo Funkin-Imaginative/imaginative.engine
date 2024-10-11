@@ -41,7 +41,7 @@ class Main extends Sprite {
 
 		Controls.p1 = new Controls();
 		Controls.p2 = new Controls();
-		addChild(new FlxGame(states.TitleScreen, 60, 60));
+		addChild(new FlxGame(states.TitleScreen, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		FlxSprite.defaultAntialiasing = true;
 		@:privateAccess {

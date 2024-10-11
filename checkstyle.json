@@ -21,7 +21,7 @@
 		},
 		{
 			"props": {
-				"severity": "IGNORE"
+				"severity": "INFO"
 			},
 			"type": "AvoidStarImport"
 		},
@@ -76,8 +76,8 @@
 		},
 		{
 			"props": {
-				"lineStyle": "none",
-				"startStyle": "none",
+				"lineStyle": "ignore",
+				"startStyle": "ignore",
 				"severity": "IGNORE"
 			},
 			"type": "DocCommentStyle"
@@ -170,8 +170,9 @@
 				"character": "tab",
 				"wrapPolicy": "larger",
 				"ignoreComments": false,
-				"ignoreConditionals": true,
-				"conditionalPolicy": "fixed_zero"
+				"ignoreConditionals": false,
+				"conditionalPolicy": "aligned",
+				"severity": "IGNORE"
 			},
 			"type": "Indentation"
 		},
@@ -470,7 +471,8 @@
 					"ENUM_DEF",
 					"INTERFACE_DEF",
 					"TYPEDEF_DEF"
-				]
+				],
+				"severity": "IGNORE"
 			},
 			"type": "TypeDocComment"
 		},

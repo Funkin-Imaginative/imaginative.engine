@@ -87,14 +87,13 @@ class MainMenu extends BeatState {
 		camera.snapToTarget();
 
 		// version text setup
-		var theText:String = 'Imaginative Engine';
+		var theText:String = '';
+		final buildTag:Null<String> = #if debug 'Debug' #elseif !release 'Test' #elseif (debug && release) 'Debugging Release' #else null #end;
+		if (buildTag != null) theText += ' ~ $buildTag Build ~ \n';
+		theText += 'Imaginative Engine';
 		#if CONTAIN_VERSION_ID
 		theText += ' v${Main.engineVersion}';
-
-		final buildTag:Null<String> = #if debug 'Debug' #elseif !release 'Test' #elseif (debug && release) 'Debugging Release' #else null #end;
-		if (buildTag != null) theText += '\n ~ $buildTag Build ~ ';
-
-		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion}, please stay up-to-date.';
+		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
 		#end
 		theText += '\nMade relatively from scratch!';
 

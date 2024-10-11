@@ -197,12 +197,9 @@ class Paths {
 
 	public static final atlasFrameExts:Array<String> = ['xml', 'txt'];
 	inline public static function frames(file:String, type:TextureType = UNKNOWN, pathType:FunkinPath = ANY):FlxAtlasFrames {
-		if (type == UNKNOWN) {
-			type = switch (true) {
-				case fileExists('images/$file.xml', pathType): SPARROW;
-				case fileExists('images/$file.txt', pathType): PACKER;
-			}
-		}
+		if (type == UNKNOWN)
+			if (fileExists('images/$file.xml', pathType)) type = SPARROW;
+			else if (fileExists('images/$file.txt', pathType)) type = PACKER;
 		return switch (type) {
 			case SPARROW: getSparrowAtlas(file, pathType);
 			case PACKER: getPackerAtlas(file, pathType);

@@ -50,34 +50,40 @@ class ParseUtil {
 	}
 
 	public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
-		// final contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
-		final contents:LevelParse = json('content/levels/$name', pathType);
+		// var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
+		var contents:LevelParse = json('content/levels/$name', pathType);
+		for (i => data in contents.objects) {
+			data.flip = FunkinUtil.reflectDefault(data, 'flip', (i + 1) > Math.floor(contents.objects.length / 2));
+			data.offsets = FunkinUtil.reflectDefault(data, 'offsets', new PositionStruct());
+			data.size = FunkinUtil.reflectDefault(data, 'size', 1);
+			data.willHey = FunkinUtil.getDefault(data.willHey, i == Math.floor(contents.objects.length / 2));
+		}
 		return {
 			title: contents.title,
 			songs: [for (s in contents.songs) song(s, pathType)],
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
 			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
-			objects: [for (i => data in contents.objects) {
-				flip: FunkinUtil.reflectDefault(data, 'flip', (i + 1) > Math.floor(contents.objects.length / 2)),
-				offsets: FunkinUtil.reflectDefault(data, 'offsets', new PositionStruct()),
-				size: FunkinUtil.reflectDefault(data, 'size', 1),
-				willHey: FunkinUtil.getDefault(data.willHey, i == Math.floor(contents.objects.length / 2))
-			}],
+			objects: contents.objects,
 			color: FlxColor.fromString(contents.color), // 0xfff9cf51
 		}
 	}
 
 	public static function object(path:String, objType:ObjectType, pathType:FunkinPath = ANY):TypeSpriteData {
-		final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-		final parseBeat:Void->BeatSpriteData = () -> return new JsonParser<BeatSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-		final parseChar:Void->CharacterSpriteData = () -> return new JsonParser<CharacterSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
+		// final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
+		// final parseBeat:Void->BeatSpriteData = () -> return new JsonParser<BeatSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
+		// final parseChar:Void->CharacterSpriteData = () -> return new JsonParser<CharacterSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
+		final parseSprite:Void->SpriteData = () -> return json('content/objects/$path', pathType);
+		final parseBeat:Void->BeatSpriteData = () -> return json('content/objects/$path', pathType);
+		final parseChar:Void->CharacterSpriteData = () -> return json('content/objects/$path', pathType);
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;
 		if (objType.canBop && Reflect.hasField(tempData, 'character')) {
 			var gottenData:CharacterParse = null;
+			trace('parseChar ~ 1');
 			var typeData:CharacterSpriteData = parseChar();
+			trace('parseChar ~ 2');
 			try {
 				gottenData = new JsonParser<CharacterParse>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
@@ -92,14 +98,18 @@ class ParseUtil {
 
 		var beatData:BeatData = null;
 		if (objType.canBop && Reflect.hasField(tempData, 'beat')) {
+			trace('parseBeat ~ 1');
 			var typeData:BeatData = parseBeat().beat;
+			trace('parseBeat ~ 2');
 			beatData = {
 				invertal: FunkinUtil.getDefault(typeData.invertal, 0),
 				skipnegative: FunkinUtil.getDefault(typeData.skipnegative, false)
 			}
 		}
 
+		trace('parseSprite ~ 1');
 		final typeData:SpriteData = parseSprite();
+		trace('parseSprite ~ 2');
 
 		var data:Dynamic = {}
 		if (Reflect.hasField(typeData, 'offsets'))

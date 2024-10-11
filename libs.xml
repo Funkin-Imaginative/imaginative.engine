@@ -2,7 +2,7 @@
 <libraries>
 	<!-- Required for Flixel -->
 		<lib name='openfl' version='9.2.2'/>
-		<lib name='lime' version='8.1.2'/>
+		<lib name='lime' version='8.1.3'/>
 	<!-- Required for Flixel -->
 
 	<!-- Flixel -->
