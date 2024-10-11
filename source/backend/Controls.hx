@@ -4,7 +4,7 @@ import flixel.input.keyboard.FlxKey;
 
 typedef PressTypes = {
 	var pressed:Bool;
-	var pressing:Bool;
+	var held:Bool;
 	var released:Bool;
 }
 
@@ -13,7 +13,7 @@ class Controls implements IFlxDestroyable {
 	public static var p2:Controls;
 
 	// UI //
-	// Just Pressed
+	// Pressed
 	public static var uiLeft(get, never):Bool;
 	inline static function get_uiLeft():Bool
 		return globalPressed('uiLeft');
@@ -30,22 +30,22 @@ class Controls implements IFlxDestroyable {
 	inline static function get_uiRight():Bool
 		return globalPressed('uiRight');
 
-	// Pressing
+	// Held
 	public static var uiLeftPress(get, never):Bool;
 	inline static function get_uiLeftPress():Bool
-		return globalPressing('uiLeft');
+		return globalHeld('uiLeft');
 
 	public static var uiDownPress(get, never):Bool;
 	inline static function get_uiDownPress():Bool
-		return globalPressing('uiDown');
+		return globalHeld('uiDown');
 
 	public static var uiUpPress(get, never):Bool;
 	inline static function get_uiUpPress():Bool
-		return globalPressing('uiUp');
+		return globalHeld('uiUp');
 
 	public static var uiRightPress(get, never):Bool;
 	inline static function get_uiRightPress():Bool
-		return globalPressing('uiRight');
+		return globalHeld('uiRight');
 
 	// Released
 	public static var uiLeftReleased(get, never):Bool;
@@ -65,7 +65,7 @@ class Controls implements IFlxDestroyable {
 		return globalReleased('uiRight');
 
 	// Controls //
-	// Just Pressed
+	// Pressed
 	public var noteLeft(get, never):Bool;
 	inline function get_noteLeft():Bool
 		return pressed('noteLeft');
@@ -82,22 +82,22 @@ class Controls implements IFlxDestroyable {
 	inline function get_noteRight():Bool
 		return pressed('noteRight');
 
-	// Pressing
-	public var noteLeftPress(get, never):Bool;
-	inline function get_noteLeftPress():Bool
-		return pressing('noteLeft');
+	// Held
+	public var noteLeftHeld(get, never):Bool;
+	inline function get_noteLeftHeld():Bool
+		return held('noteLeft');
 
-	public var noteDownPress(get, never):Bool;
-	inline function get_noteDownPress():Bool
-		return pressing('noteDown');
+	public var noteDownHeld(get, never):Bool;
+	inline function get_noteDownHeld():Bool
+		return held('noteDown');
 
-	public var noteUpPress(get, never):Bool;
-	inline function get_noteUpPress():Bool
-		return pressing('noteUp');
+	public var noteUpHeld(get, never):Bool;
+	inline function get_noteUpHeld():Bool
+		return held('noteUp');
 
-	public var noteRightPress(get, never):Bool;
-	inline function get_noteRightPress():Bool
-		return pressing('noteRight');
+	public var noteRightHeld(get, never):Bool;
+	inline function get_noteRightHeld():Bool
+		return held('noteRight');
 
 	// Released
 	public var noteLeftReleased(get, never):Bool;
@@ -161,18 +161,18 @@ class Controls implements IFlxDestroyable {
 		'fullscreen' => [F11]
 	];
 	inline public static function globalPressed(key:String):Bool return FlxG.keys.anyJustPressed(globalBinds[key]);
-	inline public static function globalPressing(key:String):Bool return FlxG.keys.anyPressed(globalBinds[key]);
+	inline public static function globalHeld(key:String):Bool return FlxG.keys.anyPressed(globalBinds[key]);
 	inline public static function globalReleased(key:String):Bool return FlxG.keys.anyJustReleased(globalBinds[key]);
 
 	public var setBinds:Map<String, Array<FlxKey>>;
 	inline public function pressed(key:String):Bool return FlxG.keys.anyJustPressed(setBinds[key]);
-	inline public function pressing(key:String):Bool return FlxG.keys.anyPressed(setBinds[key]);
+	inline public function held(key:String):Bool return FlxG.keys.anyPressed(setBinds[key]);
 	inline public function released(key:String):Bool return FlxG.keys.anyJustReleased(setBinds[key]);
 
 	inline public function keyPress(key:String):PressTypes {
 		return {
 			pressed: pressed(key),
-			pressing: pressing(key),
+			held: held(key),
 			released: released(key)
 		}
 	}

@@ -70,12 +70,15 @@ class ParseUtil {
 	}
 
 	public static function object(path:String, objType:ObjectType, pathType:FunkinPath = ANY):TypeSpriteData {
+		// TODO: Get this shit to use json2object.
 		// final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 		// final parseBeat:Void->BeatSpriteData = () -> return new JsonParser<BeatSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 		// final parseChar:Void->CharacterSpriteData = () -> return new JsonParser<CharacterSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
+
 		final parseSprite:Void->SpriteData = () -> return json('content/objects/$path', pathType);
 		final parseBeat:Void->BeatSpriteData = () -> return json('content/objects/$path', pathType);
 		final parseChar:Void->CharacterSpriteData = () -> return json('content/objects/$path', pathType);
+
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;

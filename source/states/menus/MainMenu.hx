@@ -128,11 +128,11 @@ class MainMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp) {
+			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (Controls.uiDown) {
+			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}

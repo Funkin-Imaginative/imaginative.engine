@@ -194,9 +194,9 @@ class StoryMenu extends BeatState {
 		if (canSelect) {
 			final hoverIsCorrect:LevelObject->Bool = (item:LevelObject) -> return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
 
-			if (Controls.uiUp)
+			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);
-			if (Controls.uiDown)
+			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN)
 				changeSelection(1);
 
 			if (FlxG.mouse.wheel != 0)
