@@ -11,7 +11,7 @@ WIP
 
 [Nebula](https://github.com/NebulaStellaNova): Programmer and great friend.
 ### Stuff From Others
-[CNE Devs](https://github.com/FNF-CNE-Devs): [`flixel`](https://github.com/FNF-CNE-Devs/flixel), [`flixel-addons`](https://github.com/FNF-CNE-Devs/flixel-addons), [`hscript-improved`](https://github.com/FNF-CNE-Devs/hscript-improved), [`commandline`](https://github.com/FNF-CNE-Devs/CodenameEngine/tree/main/commandline) and inspiration.
+[CNE Devs](https://github.com/FNF-CNE-Devs): [`flixel`](https://github.com/FNF-CNE-Devs/flixel) (fork), [`flixel-addons`](https://github.com/FNF-CNE-Devs/flixel-addons) (fork), [`hscript-improved`](https://github.com/FNF-CNE-Devs/hscript-improved), [`commandline`](https://github.com/FNF-CNE-Devs/CodenameEngine/tree/main/commandline) and inspiration.
 
 [Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc).
 
