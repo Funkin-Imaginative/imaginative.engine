@@ -26,8 +26,6 @@ class WindowUtil {
 		//theWindow.setIcon(new Image());
 		x = theWindow.x;
 		y = theWindow.y;
-		//width = theWindow.height;
-		//height = theWindow.width;
 		theWindow.onClose.add(function() {
 			if (preventClosing) {
 				theWindow.onClose.cancel();
