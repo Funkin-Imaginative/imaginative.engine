@@ -316,16 +316,19 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	inline public function stepHit(curStep:Int):Void {
 		onStepHit.dispatch(curStep);
 		callToState(STEP, curStep);
+		GlobalScript.stepHit(curStep);
 	}
 
 	inline public function beatHit(curBeat:Int):Void {
 		onBeatHit.dispatch(curBeat);
 		callToState(BEAT, curBeat);
+		GlobalScript.beatHit(curBeat);
 	}
 
 	inline public function measureHit(curMeasure:Int):Void {
 		onMeasureHit.dispatch(curMeasure);
 		callToState(MEASURE, curMeasure);
+		GlobalScript.measureHit(curMeasure);
 	}
 
 	inline public function changeBPM(bpm:Float = 100, beatsPerMeasure:Int = 4, stepsPerBeat:Int = 4):Void {

@@ -1,18 +1,11 @@
 package backend.system;
 
 import flixel.FlxGame;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import lime.app.Application;
 import openfl.Lib;
 import openfl.display.DisplayObject;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
 import thx.semver.Version;
-import utils.WindowUtil;
-import backend.structures.PositionStruct;
-import backend.system.OverlayCameraFrontEnd;
 #if FLX_MOUSE
 import flixel.input.mouse.FlxMouse;
 #end
@@ -23,11 +16,6 @@ class Main extends Sprite {
 	public static var camera:FlxCamera;
 	public static var cameras(default, null):OverlayCameraFrontEnd = new OverlayCameraFrontEnd();
 	public static var overlay:FlxGroup = new FlxGroup();
-
-	public var game = {
-		fullscreen: false,
-		defaultPos: new PositionStruct()
-	}
 
 	@:allow(backend.system.OverlayCameraFrontEnd)
 	static var _inputContainer:Sprite;
@@ -47,8 +35,14 @@ class Main extends Sprite {
 		super();
 		direct = this;
 
+		GlobalScript.init();
+		FlxWindow.init();
+		FlxWindow.direct.width = 1280;
+		FlxWindow.direct.height = 720;
+		FlxWindow.direct.centerWindow();
+
 		#if CONTAIN_VERSION_ID
-		engineVersion = lime.app.Application.current.meta.get('version');
+		engineVersion = FlxWindow.direct.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
 
@@ -87,19 +81,6 @@ class Main extends Sprite {
 				cameras.unlock();
 			});
 		}
-		FlxG.signals.postUpdate.add(onUpdate);
-		WindowUtil.init();
-		WindowUtil.onPreClose = function() {
-			WindowUtil.borderless = true;
-			WindowUtil.doUpdate = true;
-			FlxTween.tween(WindowUtil, {alpha: 0}, 2, {
-				ease: FlxEase.backIn,
-                onComplete: function(tween:FlxTween) {
-                    WindowUtil.closeGame();
-                }
-			});
-		}
-		game.defaultPos = new PositionStruct(WindowUtil.x, WindowUtil.y);
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 	}
 
@@ -110,35 +91,5 @@ class Main extends Sprite {
 		index = FlxMath.maxAdd(index, IndexModifier, max);
 		direct.addChildAt(Child, index);
 		return Child;
-	}
-
-	function onUpdate() {
-		WindowUtil.onUpdate();
-		if (FlxG.keys.justPressed.F5) {
-			FlxG.resetState();
-		}
-		if (FlxG.keys.justPressed.F4) {
-			FlxG.switchState(new states.menus.MainMenu());
-		}
-		if (FlxG.keys.justPressed.F3) {
-			CrashHandler.onCrash(new openfl.events.UncaughtErrorEvent("uncaughtError", true, false, "Custom Error"));
-		}
-		if (FlxG.keys.justPressed.F1) {
-			game.fullscreen =!game.fullscreen;
-			WindowUtil.borderless = !WindowUtil.borderless;
-			if (game.fullscreen) {
-				WindowUtil.x = 0;
-				WindowUtil.y = 0;
-				WindowUtil.width = Math.ceil(openfl.system.Capabilities.screenResolutionX);
-				WindowUtil.height = Math.ceil(openfl.system.Capabilities.screenResolutionY+1);
-				WindowUtil.onUpdate(true);
-			} else {
-				WindowUtil.x = Math.round(game.defaultPos.x);
-				WindowUtil.y = Math.round(game.defaultPos.y);
-				WindowUtil.width = 1280;
-				WindowUtil.height = 720;
-				WindowUtil.onUpdate(true);
-			}
-		}
 	}
 }

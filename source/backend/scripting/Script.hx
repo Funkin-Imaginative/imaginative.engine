@@ -166,6 +166,7 @@ class Script extends FlxBasic {
 		scriptCreation(path);
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
+		GlobalScript.call('scriptCreated', [this, 'hscript']);
 	}
 
 	inline function getFilenameFromLibFile(path:String):String {

@@ -12,14 +12,10 @@
 		"*.hxs": "haxe"
 	},
 	"files.autoGuessEncoding": true,
-	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
-	"files.insertFinalNewline": false,
-	"files.simpleDialog.enable": true,
 	"files.trimFinalNewlines": true,
 	"files.trimTrailingWhitespace": true,
+	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
 
-	"haxe.enableBraceBodyWrapping": true,
-	"haxe.enableCodeLens": true,
 	"haxe.enableExtendedIndentation": true,
 	"haxe.importsSortOrder": "stdlib -> libs -> project",
 	"haxe.inlayHints": {
@@ -27,6 +23,7 @@
 		"parameterTypes": true
 	},
 
+	"prettier.htmlWhitespaceSensitivity": "strict",
 	"prettier.singleQuote": true,
 	"prettier.tabWidth": 4,
 	"prettier.trailingComma": "none",
