@@ -212,8 +212,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 			// final content:AudioData = cast ParseUtil.json(path);
 			trace(content);
 			return content;
-		} catch(e) {
-			trace(e);
+		} catch(error:haxe.Exception) {
+			trace(error.message);
 			trace('This error ^^^ occured when attempting to parse the json.');
 			return {
 				name: 'None',

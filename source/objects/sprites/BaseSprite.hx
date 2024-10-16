@@ -120,7 +120,7 @@ class BaseSprite extends FlxSkewedSprite {
 			try {
 				if (hasSheet) loadSheet(newTexture);
 				else loadImage(newTexture);
-			} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 		return cast this;
 	}
 
@@ -128,7 +128,7 @@ class BaseSprite extends FlxSkewedSprite {
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
-			} catch(e) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
+			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
 		return cast this;
 	}
 
@@ -142,7 +142,7 @@ class BaseSprite extends FlxSkewedSprite {
 				try {
 					frames = Paths.frames(newTexture);
 					resetTextures(Paths.applyRoot('images/$newTexture.png'), textureType);
-				} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 			else loadImage(newTexture);
 		}
 		return cast this;
@@ -172,7 +172,7 @@ class BaseSprite extends FlxSkewedSprite {
 		try {
 			try {
 				loadTexture(incomingData.asset.image);
-			} catch(e) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
+			} catch(error:haxe.Exception) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
 
 			try {
 				for (anim in incomingData.animations)
@@ -190,8 +190,8 @@ class BaseSprite extends FlxSkewedSprite {
 							swappedAnim: '',
 							flippedAnim: ''
 						});
-					} catch(e) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
-			} catch(e) trace('Couldn\'t add the animations.');
+					} catch(error:haxe.Exception) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
+			} catch(error:haxe.Exception) trace('Couldn\'t add the animations.');
 
 			if (Reflect.hasField(incomingData, 'position')) {
 				try {
@@ -212,22 +212,22 @@ class BaseSprite extends FlxSkewedSprite {
 
 			try {
 				antialiasing = FunkinUtil.reflectDefault(incomingData, 'antialiasing', true);
-			} catch(e) trace('The antialiasing null check failed.');
+			} catch(error:haxe.Exception) trace('The antialiasing null check failed.');
 
 			if (Reflect.hasField(incomingData, 'extra'))
 				try {
 					if (incomingData.extra != null || incomingData.extra.length > 1)
 						for (extraData in incomingData.extra)
 							extra.set(extraData.name, extraData.data);
-				} catch(e) trace('Invaild information in extra array or the null check failed.');
+				} catch(error:haxe.Exception) trace('Invaild information in extra array or the null check failed.');
 
 			try {
 				data = incomingData;
-			} catch(e) trace('Couldn\'t set the data variable.');
-		} catch(e)
+			} catch(error:haxe.Exception) trace('Couldn\'t set the data variable.');
+		} catch(error:haxe.Exception)
 			try {
 				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
-			} catch(e) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
+			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 	}
 
 	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();

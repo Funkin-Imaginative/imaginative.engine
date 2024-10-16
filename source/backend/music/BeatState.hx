@@ -240,7 +240,7 @@ class BeatState extends FlxState implements IBeat {
 		// try {
 		// 	if (PlayField.direct.state == this)
 		// 		PlayField.direct.state = null;
-		// } catch(e:haxe.Exception) {}
+		// } catch(error:haxe.Exception) {}
 		direct = null;
 		Conductor.beatStates.remove(this);
 		super.destroy();

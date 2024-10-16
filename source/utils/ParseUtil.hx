@@ -35,7 +35,7 @@ class ParseUtil {
 	public static function json(path:String, pathType:FunkinPath = ANY):Dynamic {
 		var content = {}
 		try { content = haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType))); }
-		catch(e) trace(e);
+		catch(error:haxe.Exception) trace(error.message);
 		return content;
 	}
 
@@ -90,7 +90,7 @@ class ParseUtil {
 			try {
 				gottenData = new JsonParser<CharacterParse>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
-			} catch(e) trace(e);
+			} catch(error:haxe.Exception) trace(error.message);
 			charData = {
 				camera: new PositionStruct(FunkinUtil.getDefault(typeData.character.camera.x, 0), FunkinUtil.getDefault(typeData.character.camera.y, 0)),
 				color: typeData.character.color,
@@ -122,7 +122,7 @@ class ParseUtil {
 					flip: new TypeXY<Bool>(FunkinUtil.getDefault(typeData.offsets.flip.x, false), FunkinUtil.getDefault(typeData.offsets.flip.y, false)),
 					scale: new PositionStruct(FunkinUtil.getDefault(typeData.offsets.scale.x, 0), FunkinUtil.getDefault(typeData.offsets.scale.y, 0))
 				}
-			} catch(e) {
+			} catch(error:haxe.Exception) {
 				trace('offsets were fucked');
 				data.offsets = {
 					position: new PositionStruct(),

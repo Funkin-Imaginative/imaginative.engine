@@ -42,7 +42,7 @@ class SpriteUtil {
 				try {
 					if (hasSheet) loadSheet(sprite, newTexture);
 					else loadImage(sprite, newTexture);
-				} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 		}
 		return sprite;
 	}
@@ -54,7 +54,7 @@ class SpriteUtil {
 			if (Paths.fileExists('images/$newTexture.png'))
 				try {
 					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
-				} catch(e) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
+				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
 
 		return sprite;
 	}
@@ -71,7 +71,7 @@ class SpriteUtil {
 				if (hasSheet)
 					try {
 						cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
-					} catch(e) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+					} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
 				else loadImage(sprite, newTexture);
 			}
 		return sprite;

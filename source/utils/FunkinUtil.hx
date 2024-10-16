@@ -47,7 +47,7 @@ class FunkinUtil {
 				for (name in Paths.readFolderOrderTxt('content/levels', 'json'))
 					for (song in ParseUtil.level(name).songs)
 						results.push(song.folder);
-		} catch(e)
+		} catch(error:haxe.Exception)
 			trace('Missing level json.');
 		for (folder in Paths.readFolder('content/songs', pathType))
 			if (HaxePath.extension(folder) == '')

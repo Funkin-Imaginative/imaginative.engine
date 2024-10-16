@@ -13,7 +13,7 @@ class PlatformUtil {
 			FlxG.openURL(url);
 			#end
 			trace('$url');
-		} catch(e) trace(e);
+		} catch(error:haxe.Exception) trace(error.message);
 	}
 
 	inline public static function mouseJustMoved(relativeToScreen:Bool = true):Bool {

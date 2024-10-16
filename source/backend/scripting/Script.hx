@@ -181,8 +181,8 @@ class Script extends FlxBasic {
 		else
 			try {
 				scriptCode = Paths.getFileContent(path);
-			} catch(e:haxe.Exception) {
-				trace('Error while trying to initialize script: ${e.message}');
+			} catch(error:haxe.Exception) {
+				trace('Error while trying to initialize script: ${error.message}');
 				scriptCode = '';
 			}
 	}
@@ -198,8 +198,8 @@ class Script extends FlxBasic {
 					if (!stopNewCall)
 						call('new');
 				}
-			} catch(e:haxe.Exception)
-				trace('Error while trying to execute script: ${e.message}');
+			} catch(error:haxe.Exception)
+				trace('Error while trying to execute script: ${error.message}');
 		}
 	}
 
@@ -224,8 +224,8 @@ class Script extends FlxBasic {
 		if (func != null && Reflect.isFunction(func))
 			try {
 				return Reflect.callMethod(null, func, args == null ? [] : args);
-			} catch(e:haxe.Exception)
-				trace('Error while trying to call function $funcName: ${e.message}');
+			} catch(error:haxe.Exception)
+				trace('Error while trying to call function $funcName: ${error.message}');
 
 		return null;
 	}
@@ -279,9 +279,9 @@ class Script extends FlxBasic {
 				expr = parser.parseString(code);
 				canExecute = true;
 			}
-		} catch(e:haxe.Exception) {
+		} catch(error:haxe.Exception) {
 			canExecute = false;
-			trace('Error while parsing script: ${e.message}');
+			trace('Error while parsing script: ${error.message}');
 		}
 	}
 }

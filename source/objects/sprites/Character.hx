@@ -38,24 +38,24 @@ class Character extends BeatSprite {
 		try {
 			try {
 				cameraOffset.copyFrom(FunkinUtil.getDefault(incomingData.character.camera, new PositionStruct()));
-			} catch(e) trace('Couldn\'t set camera offsets.');
+			} catch(error:haxe.Exception) trace('Couldn\'t set camera offsets.');
 			try {
 				healthColor = incomingData.character.color;
-			} catch(e) trace('Couldn\'t set the health bar color.');
+			} catch(error:haxe.Exception) trace('Couldn\'t set the health bar color.');
 			try {
 				theirIcon = incomingData.character.icon;
-			} catch(e) trace('Couldn\'t set the characters icon.');
+			} catch(error:haxe.Exception) trace('Couldn\'t set the characters icon.');
 			try {
 				singLength = FunkinUtil.getDefault(incomingData.character.singlength, 4);
-			} catch(e) trace('Couldn\'t set the sing length.');
+			} catch(error:haxe.Exception) trace('Couldn\'t set the sing length.');
 
 			try {
 				charData = incomingData.character;
-			} catch(e) trace('Couldn\'t set the character data variable.');
-		} catch(e)
+			} catch(error:haxe.Exception) trace('Couldn\'t set the character data variable.');
+		} catch(error:haxe.Exception)
 			try {
 				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
-			} catch(e) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
+			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 
 	}
 
