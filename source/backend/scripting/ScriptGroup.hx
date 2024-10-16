@@ -67,7 +67,7 @@ class ScriptGroup extends FlxBasic {
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		for (script in members) {
 			if (!script.active) continue;
-			call(func, [event]);
+			event.returnCall = call(func, [event]);
 			if (event.stopped && @:privateAccess !event.continueLoop) break;
 		}
 		return event;

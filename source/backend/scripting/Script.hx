@@ -63,22 +63,15 @@ class Script extends FlxBasic {
 		for (path in paths) {
 			switch (HaxePath.extension(path).toLowerCase()) {
 				case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
+					#if CAN_HX_SCRIPT
 					scripts.push(new Script(path));
-				case 'lua':
-					#if THROW_LUA_MAKEFUN
-					@:privateAccess if (!states.sub.LuaMakeFunLmao.alreadyOpened) {
-						var target:Dynamic;
-						if (!FlxG.state.persistentUpdate && FlxG.state.subState != null)
-							target = FlxG.state.subState;
-						else
-							target = FlxG.state;
-						target.persistentUpdate = false;
-						target.persistentDraw = false;
-						target.openSubState(new states.sub.LuaMakeFunLmao());
-					} else
-						states.sub.PauseSubState.bfStare = true;
 					#else
-					trace('LUA SCRIPTS AIN\'T SUPPORTED BITCH!!!');
+					trace('Hx scripting is not supported in this build.');
+					#end
+				case 'lua':
+					#if CAN_LUA_SCRIPT
+					#else
+					trace('Lua scripting is not supported.'); // in this build
 					#end
 					// doing a cne but more trollish lmao
 			}
@@ -146,7 +139,7 @@ class Script extends FlxBasic {
 			},
 
 			// self //
-			'_this' => script
+			'__this__' => script
 		];
 	}
 
@@ -238,7 +231,7 @@ class Script extends FlxBasic {
 	}
 
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		call(func, [event]);
+		event.returnCall = call(func, [event]);
 		return event;
 	}
 
@@ -286,7 +279,7 @@ class Script extends FlxBasic {
 				expr = parser.parseString(code);
 				canExecute = true;
 			}
-		} catch (e:haxe.Exception) {
+		} catch(e:haxe.Exception) {
 			canExecute = false;
 			trace('Error while parsing script: ${e.message}');
 		}

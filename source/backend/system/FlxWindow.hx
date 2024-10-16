@@ -10,23 +10,57 @@ typedef TitleParts = {
 	var suffix:String;
 }
 
+@:allow(backend.system.FlxWindow)
 class WindowBounds extends FlxSprite {
 	public var parent:FlxWindow;
 
-	override public function new(parent:FlxWindow) {
+	/**
+	 * Recommended for cool window movement shiz.
+	 */
+	public var forceBounds:Bool = false;
+
+	override function new(parent:FlxWindow) {
 		this.parent = parent;
 		super(parent.x, parent.y);
 		makeSolid(Math.ceil(parent.width), Math.ceil(parent.height));
+		FlxG.signals.postUpdate.add(() -> boundUpdate(FlxG.elapsed));
 	}
 
-	override function set_x(value:Float):Float return parent.x = x = value;
-	override function set_y(value:Float):Float return parent.y = y = value;
-	override function set_width(value:Float):Float return parent.width = width = value;
-	override function set_height(value:Float):Float return parent.height = height = value;
+	override function destroy():Void {
+		FlxG.signals.postUpdate.remove(() -> boundUpdate(FlxG.elapsed));
+		super.destroy();
+	}
+
+	function boundUpdate(elapsed:Float):Void {
+		if (exists) {
+			update(elapsed);
+			if (forceBounds) {
+				parent.width = Math.min(parent.__width * scale.x, 100);
+				parent.height = Math.min(parent.__height * scale.y, 100);
+			}
+		}
+	}
+
+	override public function set_x(value:Float):Float {
+		if (x != value || forceBounds) parent.x = value;
+		return super.set_x(value);
+	}
+	override public function set_y(value:Float):Float {
+		if (y != value || forceBounds) parent.y = value;
+		return super.set_y(value);
+	}
+	override public function set_width(value:Float):Float {
+		if (width != value || forceBounds) parent.width = value;
+		return super.set_width(value);
+	}
+	override public function set_height(value:Float):Float {
+		if (height != value || forceBounds) parent.height = value;
+		return super.set_height(value);
+	}
 }
 
 class FlxWindow implements IFlxDestroyable {
-	public var preventClosing:Bool = true;
+	public var allowClose:Bool = true;
 	public var onPreClose:FlxWindow->Void;
 	public var onClose:FlxWindow->Void;
 
@@ -40,11 +74,24 @@ class FlxWindow implements IFlxDestroyable {
 		return title = value;
 	}
 
+	/**
+	 * WIP
+	 */
+	public var relPos(default, null):FlxCallbackPoint;
+
+	public var __x(get, never):Float;
+	inline function get___x():Float
+		return Capabilities.screenResolutionX;
+
 	public var x(get, set):Float;
 	inline function get_x():Float
 		return self.x;
 	inline function set_x(value:Float):Float
 		return self.x = Math.ceil(value);
+
+	public var __y(get, never):Float;
+	inline function get___y():Float
+		return Capabilities.screenResolutionY;
 
 	public var y(get, set):Float;
 	inline function get_y():Float
@@ -52,23 +99,37 @@ class FlxWindow implements IFlxDestroyable {
 	inline function set_y(value:Float):Float
 		return self.y = Math.ceil(value);
 
+	public var __width(default, null):Float;
+
 	public var width(get, set):Float;
 	inline function get_width():Float
 		return self.width;
-	inline function set_width(value:Float):Float
+	inline function set_width(value:Float):Float {
+		// if (!bounds.forceBounds) __width = Math.ceil(value);
 		return self.width = Math.ceil(value);
+	}
+
+	public var __height(default, null):Float;
 
 	public var height(get, set):Float;
 	inline function get_height():Float
 		return self.height;
-	inline function set_height(value:Float):Float
+	inline function set_height(value:Float):Float {
+		// if (!bounds.forceBounds) __height = Math.ceil(value);
 		return self.height = Math.ceil(value);
+	}
 
 	public var alpha(get, set):Float;
 	inline function get_alpha():Float
 		return self.opacity;
 	inline function set_alpha(value:Float):Float
 		return self.opacity = value;
+
+	public var visible(get, set):Bool;
+	inline function get_visible():Bool
+		return self.hidden;
+	inline function set_visible(value:Bool):Bool
+		return @:privateAccess self.__hidden = value;
 
 	public static var borderlessFullscreen:Bool = false;
 
@@ -92,7 +153,8 @@ class FlxWindow implements IFlxDestroyable {
 
 	public var bounds:WindowBounds;
 
-	public static function init():Void {
+	@:allow(backend.system.Main)
+	static function init():Void {
 		FlxWindow.direct = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
 	}
 
@@ -104,34 +166,30 @@ class FlxWindow implements IFlxDestroyable {
 	public function new(window:Window, ?startTitle:String):Void {
 		self = window;
 		bounds = new WindowBounds(this);
+		relPos = new FlxCallbackPoint(
+			(point:FlxPoint) -> x = point.x,
+			(point:FlxPoint) -> y = point.y,
+			(point:FlxPoint) -> {}
+		);
+
 		title.main = startTitle == null ? self.title : startTitle;
-		onPreClose = (window:FlxWindow) -> {
-			window.borderless = true;
-			FlxTween.tween(window.bounds.scale, {x: 0, y: 0}, 2, {
-				ease: FlxEase.elasticIn,
-				onComplete: (tween:FlxTween) -> window.destroy()
-			});
-		}
+		__width = width;
+		__height = height;
+
 		self.onClose.add(() -> {
-			if (preventClosing) {
-				self.onClose.cancel();
-				if (onPreClose != null)
-					onPreClose(this);
-			} else {
-				if (onClose != null)
-					onClose(this);
-			}
+			if (allowClose) {
+				if (onPreClose != null) onPreClose(this);
+				if (onClose != null) onClose(this);
+				bounds.destroy();
+			} else self.onClose.cancel();
 		});
 	}
 
 	public function centerWindow():Void {
-		x = Math.round((Capabilities.screenResolutionX / 2) - (width / 2));
-		y = Math.round((Capabilities.screenResolutionY / 2) - (height / 2));
+		x = Math.round((__x / 2) - (width / 2));
+		y = Math.round((__y / 2) - (height / 2));
 	}
 
-	public function destroy():Void {
-		preventClosing = true;
+	public function destroy():Void
 		self.close();
-		bounds.destroy();
-	}
 }

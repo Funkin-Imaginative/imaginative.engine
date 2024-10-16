@@ -37,9 +37,6 @@ class Main extends Sprite {
 
 		GlobalScript.init();
 		FlxWindow.init();
-		FlxWindow.direct.width = 1280;
-		FlxWindow.direct.height = 720;
-		FlxWindow.direct.centerWindow();
 
 		#if CONTAIN_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');

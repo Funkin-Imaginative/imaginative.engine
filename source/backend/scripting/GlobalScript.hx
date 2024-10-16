@@ -3,7 +3,7 @@ package backend.scripting;
 class GlobalScript {
 	public static var scripts:ScriptGroup;
 
-	public static function loadScript(newMod:String):Void {
+	static function loadScript(newMod:String):Void {
 		if (scripts != null)
 			scripts.destroy();
 
@@ -13,7 +13,8 @@ class GlobalScript {
 		scripts.load();
 	}
 
-	public static function init():Void {
+	@:allow(backend.system.Main)
+	static function init():Void {
 		FlxG.signals.focusLost.add(() -> call('focusLost'));
 		FlxG.signals.focusGained.add(() -> call('focusGained'));
 
@@ -34,15 +35,6 @@ class GlobalScript {
 		});
 		FlxG.signals.postUpdate.add(() -> {
 			call('postUpdate', [FlxG.elapsed]);
-			if (FlxG.keys.justPressed.F5)
-				if (scripts.length > 0) {
-					trace('Reloading global script...');
-					scripts.reload();
-					trace('Global script successfully reloaded.');
-				} else {
-					trace('Loading global script...');
-					loadScript(ModConfig.curSolo);
-				}
 		});
 
 		FlxG.signals.preStateCreate.add((state:FlxState) -> call('preStateCreate', [state]));

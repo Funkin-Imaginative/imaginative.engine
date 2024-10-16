@@ -1,6 +1,8 @@
 package backend.scripting.events;
 
-class ScriptEvent implements IFlxDestroyable {
+class ScriptEvent {
+	public var returnCall:Dynamic = null;
+
 	public var stopped:Bool = false;
 	var continueLoop:Bool = true;
 
@@ -14,6 +16,4 @@ class ScriptEvent implements IFlxDestroyable {
 	public function new(?data:Dynamic) this.data = data;
 
 	inline public function toString():String return '[${this.getClassName()}${stopped ? ' (Stopped)' : ''}]';
-
-	public function destroy():Void {}
 }
