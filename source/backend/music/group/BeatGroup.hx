@@ -27,24 +27,25 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 				cast(member, IBeat).measureHit(curMeasure);
 	}
 
-	#if IGROUP_INTERFACE
+	// Was crashing without error.
+	/* #if IGROUP_INTERFACE
 	override public function add(object:T):T {
 		if (object is IGroup)
-			return super.add(cast(object, IGroup).group);
+			return super.add(cast(cast(object, IGroup).group));
 		else
 			return super.add(object);
 	}
 	override public function insert(position:Int, object:T):T {
 		if (object is IGroup)
-			return super.insert(position, cast(object, IGroup).group);
+			return super.insert(position, cast(cast(object, IGroup).group));
 		else
 			return super.insert(position, object);
 	}
 	override public function remove(object:T, splice:Bool = false):T {
 		if (object is IGroup)
-			return super.remove(cast(object, IGroup).group, splice);
+			return super.remove(cast(cast(object, IGroup).group), splice);
 		else
 			return super.remove(object, splice);
 	}
-	#end
+	#end */
 }
