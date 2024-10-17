@@ -160,7 +160,7 @@ class MainMenu extends BeatState {
 
 			if (Controls.back) {
 				FunkinUtil.playMenuSFX(CANCEL);
-				FlxG.switchState(new TitleScreen());
+				BeatState.switchState(new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
@@ -195,17 +195,17 @@ class MainMenu extends BeatState {
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
 			switch (itemLineUp[curSelected]) {
 				case 'storymode':
-					FlxG.switchState(new StoryMenu());
+					BeatState.switchState(new StoryMenu());
 				case 'freeplay':
-					FlxG.switchState(new FreeplayMenu());
+					BeatState.switchState(new FreeplayMenu());
 				case 'donate':
 					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
 				case 'merch':
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 				case 'options':
-					FlxG.switchState(new OptionsMenu());
+					BeatState.switchState(new OptionsMenu());
 				case 'credits':
-					FlxG.switchState(new CreditsMenu());
+					BeatState.switchState(new CreditsMenu());
 			}
 		});
 	}

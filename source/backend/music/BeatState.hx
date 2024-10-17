@@ -149,6 +149,18 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		return event;
 	}
 
+	public static function switchState(nextState:FlxState):Void {
+		if (FlxG.state is BeatState && nextState is BeatState) {
+			var oldCouductor:Conductor = cast(FlxG.state, BeatState).conductor;
+			var newCouductor:Conductor = cast(nextState, BeatState).conductor;
+			if (oldCouductor == Conductor.song)
+				oldCouductor.pause();
+			else if (oldCouductor != newCouductor)
+				oldCouductor.stop();
+		}
+		FlxG.switchState(nextState);
+	}
+
 	override public function create():Void {
 		Conductor.beatStates.push(direct = this);
 		persistentUpdate = true;

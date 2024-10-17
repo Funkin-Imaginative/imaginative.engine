@@ -127,8 +127,7 @@ class PlayState extends BeatState {
 	}
 
 	override function destroy():Void {
-		if (conductor.audio.playing)
-			conductor.reset();
+		scripts.destroy();
 		super.destroy();
 	}
 

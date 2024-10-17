@@ -1,4 +1,3 @@
-import backend.scripting.GlobalScript;
 import states.menus.MainMenu;
 
 function postUpdate(elapsed:Float) {
@@ -10,7 +9,7 @@ function postUpdate(elapsed:Float) {
 
 	if (FlxG.keys.justPressed.F6) {
 		trace('Heading to MainMenu...');
-		FlxG.switchState(new MainMenu());
+		BeatState.switchState(new MainMenu());
 		trace('Successfully entered MainMenu.');
 	}
 

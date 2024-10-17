@@ -226,7 +226,7 @@ class StoryMenu extends BeatState {
 
 			if (Controls.back) {
 				FunkinUtil.playMenuSFX(CANCEL);
-				FlxG.switchState(new MainMenu());
+				BeatState.switchState(new MainMenu());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected])))
 				selectCurrent();
@@ -314,8 +314,7 @@ class StoryMenu extends BeatState {
 		} else
 			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
-				FlxG.switchState(new PlayState());
-				Conductor.menu.audio.stop();
+				BeatState.switchState(new PlayState());
 			});
 	}
 }
