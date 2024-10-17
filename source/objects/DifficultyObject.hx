@@ -22,11 +22,9 @@ class DifficultyObject extends FlxBasic {
 		data = ParseUtil.difficulty(name = diff.toLowerCase());
 		scripts = new ScriptGroup(this);
 		if (allowScripts)
-			for (s in ['global', name])
-				for (script in Script.create(s, DIFFICULTY))
+			for (diff in ['global', name])
+				for (script in Script.create('content/difficulties/$diff'))
 					scripts.add(script);
-		else
-			scripts.add(new Script());
 		scripts.load();
 
 		if (loadSprites) {

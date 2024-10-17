@@ -18,6 +18,7 @@ typedef LevelParse = {
 	@:optional var color:String;
 }
 typedef LevelData = {
+	var name:String;
 	var title:String;
 	var songs:Array<SongData>;
 	@:optional public var startingDiff:Int;
@@ -48,11 +49,9 @@ class LevelObject extends FlxBasic {
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
 		if (allowScripts)
-			for (s in ['global', name])
-				for (script in Script.create(s, LEVEL))
+			for (level in ['global', name])
+				for (script in Script.create('content/levels/$level'))
 					scripts.add(script);
-		else
-			scripts.add(new Script());
 		scripts.load();
 
 		if (loadSprites) {

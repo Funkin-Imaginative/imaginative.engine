@@ -14,7 +14,7 @@ typedef CheckpointTyping = {
 	var signature:Array<Int>;
 }
 typedef AudioData = {
-	@:optional var artist:String;
+	@:default('Unassigned') @:optional var artist:String;
 	var name:String;
 	@:default(100) var bpm:Float;
 	@:default([4, 4]) var signature:Array<Int>;
@@ -30,28 +30,33 @@ enum abstract SongTimeType(String) from String to String {
 
 class Conductor implements IBeat implements IFlxDestroyable {
 	// FlxSignals.
-	public var onTimeChange:FlxTypedSignal<(Float, Int, Int)->Void> = new FlxTypedSignal<(Float, Int, Int)->Void>();
+	public var onBPMChange:FlxTypedSignal<(Float, Int, Int)->Void> = new FlxTypedSignal<(Float, Int, Int)->Void>();
 	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 
 	// Main Conductors.
-	public static var menu:Conductor;
-	public static var song:Conductor;
+	public static var menu(default, null):Conductor = new Conductor();
+	public static var song(default, null):Conductor = new Conductor();
 
 	/**
 	 * Contains data for the song to play.
 	 */
-	public var data:AudioData = {
+	public var data(default, null):AudioData = {
 		name: 'None',
 		bpm: 100,
 		signature: [4, 4],
 		checkpoints: []
 	}
+	public var conductorSoundGroup(default, null):FlxSoundGroup;
 	/**
 	 * The song tied to the conductor.
 	 */
-	public var audio:FlxSound;
+	public var audio(default, null):FlxSound;
+	/**
+	 * Used to sync up other audio instances to said conductor. Mainly used for vocals in songs.
+	 */
+	public var extra(default, null):Array<FlxSound> = [];
 
 	// BPM's.
 	/**
@@ -129,10 +134,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	/**
 	 * Current position of the song in milliseconds.
 	 */
-	public var songPosition(get, default):Float;
-	inline function get_songPosition():Float
-		return songPosition - posOffset;
-
+	public var songPosition(default, null):Float;
 	public var lastSongPos(default, null):Float;
 	public var posOffset(get, null):Float = 0;
 	inline function get_posOffset():Float {
@@ -146,16 +148,35 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	public var bpmChanges:Array<BPMChange> = [];
 
 	public function new() {
+		conductorSoundGroup = new FlxSoundGroup();
 		audio = new FlxSound();
-		audio.group = FlxG.sound.defaultMusicGroup;
-		audio.stop();
 		FlxG.signals.preUpdate.add(update);
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);
 	}
 
+	inline function destroySound(sound:FlxSound):Void {
+		if (sound.group != null && sound.group.sounds.contains(sound))
+			sound.group.remove(sound);
+		sound.destroy();
+	}
+
+	inline public function play():Void
+		for (sound in conductorSoundGroup.sounds)
+			sound.play();
+
+	inline public function pause():Void
+		conductorSoundGroup.pause();
+
+	inline public function resume():Void
+		conductorSoundGroup.resume();
+
 	inline public function reset():Void {
 		audio.stop();
+		for (sound in extra)
+			destroySound(sound);
+		extra = [];
+
 		songPosition = lastSongPos = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
 		changeBPM();
@@ -166,6 +187,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * Sets the audio it should play.
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
+	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
 	inline public function loadMusic(music:String, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
@@ -173,9 +195,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		else if (audio.active) audio.stop();
 
 		audio.loadEmbedded(Paths.music(music), true);
-		audio.pause();
-		audio.time = 0;
-		audio.volume = volume;
+		@:privateAccess FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
 		audio.persist = true;
 
 		data = getMetadata('music/$music');
@@ -188,16 +208,15 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	 * Sets the song it should play.
 	 * @param song The name of the song.
 	 * @param variant The variant of the song to play.
+	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	inline public function loadSong(song:String, variant:String, ?afterLoad:FlxSound->Void):Void {
+	inline public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
 
 		audio.loadEmbedded(Paths.inst(song, variant));
-		audio.pause();
-		audio.time = 0;
-		audio.volume = 1;
+		@:privateAccess FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
 		audio.persist = false;
 
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
@@ -206,12 +225,41 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		if (afterLoad != null) afterLoad(audio);
 	}
 
+	/**
+	 * Add's a vocal track to run, used for songs.
+	 * @param song The name of the song.
+	 * @param variant The variant of the vocals to play.
+	 * @param afterLoad Function that runs after the audio has loaded.
+	 * @return Added Vocal Track
+	 */
+	inline public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
+		var path:String = Paths.voices(song, suffix, variant);
+		if (!Paths.fileExists(path, false)) {
+			trace('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.');
+			return null;
+		}
+
+		var vocals:FlxSound = new FlxSound();
+
+		vocals.loadEmbedded(path);
+		@:privateAccess FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
+		vocals.persist = audio.persist;
+
+		extra.push(vocals);
+		if (afterLoad != null) afterLoad(vocals);
+		return vocals;
+	}
+
 	inline public function getMetadata(path:String):AudioData {
 		try {
 			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(Paths.json(path)), Paths.json(path));
-			// final content:AudioData = cast ParseUtil.json(path);
-			trace(content);
-			return content;
+			if (content == null) trace('Metadata parse failed.');
+			return FunkinUtil.getDefault(content, {
+				name: 'None',
+				bpm: 100,
+				signature: [4, 4],
+				checkpoints: []
+			});
 		} catch(error:haxe.Exception) {
 			trace(error.message);
 			trace('This error ^^^ occured when attempting to parse the json.');
@@ -224,6 +272,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		}
 	}
 
+	var __offsetViolation:Float = 0;
 	public function update():Void {
 		if (audio == null || !audio.playing) {
 			lastSongPos = audio != null ? audio.time - posOffset : -posOffset;
@@ -233,6 +282,20 @@ class Conductor implements IBeat implements IFlxDestroyable {
 			songPosition = lastSongPos; // update conductor
 		else songPosition += posOffset + FlxG.elapsed * 1000;
 		audio.update(FlxG.elapsed);
+
+		for (sound in extra) {
+			// idea from psych
+			if (audio.time < sound.length) {
+				// CNE's method.
+				if ((__offsetViolation = Math.max(0, __offsetViolation + (sound.time != audio.time ? FlxG.elapsed : -FlxG.elapsed / 2))) > 25) {
+					sound.pause();
+					sound.time = audio.time;
+					sound.play();
+					__offsetViolation = 0;
+				}
+			} else sound.pause();
+			sound.update(FlxG.elapsed);
+		}
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChange = {
@@ -252,8 +315,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 				(lastChange.stepsPB > 0 && stepsPerBeat != lastChange.stepsPB)
 			) changeBPM(lastChange.bpm);
 
-			curStepFloat = lastChange.stepTime + ((songPosition - lastChange.songTime) / stepCrochet);
 			// beat and measure versions update automatically
+			curStepFloat = lastChange.stepTime + ((songPosition - lastChange.songTime) / stepCrochet);
 
 			// update step
 			if (curStep != (curStep = Math.floor(curStepFloat))) {
@@ -280,26 +343,35 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		}
 	}
 
-	inline public function onFocus():Void
+	inline public function onFocus():Void {
 		if (audio != null)
 			@:privateAccess audio.onFocus();
+		for (sound in extra)
+			@:privateAccess sound.onFocus();
+	}
 
-	inline public function onFocusLost():Void
+	inline public function onFocusLost():Void {
 		if (audio != null)
 			@:privateAccess audio.onFocusLost();
+		for (sound in extra)
+			@:privateAccess sound.onFocusLost();
+	}
 
-	public static var beatStates:Array<BeatState> = [];
-	public static var beatSubStates:Array<BeatSubState> = [];
+	@:allow(backend.music.BeatState) static var beatStates:Array<BeatState> = [];
+	@:allow(backend.music.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
 	inline function callToState(timeType:SongTimeType, curTime:Int):Void {
 		for (state in beatStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {
 					case STEP:
 						state.stepHit(curTime);
+						GlobalScript.stepHit(curTime, state.conductor);
 					case BEAT:
 						state.beatHit(curTime);
+						GlobalScript.beatHit(curTime, state.conductor);
 					case MEASURE:
 						state.measureHit(curTime);
+						GlobalScript.measureHit(curTime, state.conductor);
 				}
 		for (state in beatSubStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
@@ -316,19 +388,16 @@ class Conductor implements IBeat implements IFlxDestroyable {
 	inline public function stepHit(curStep:Int):Void {
 		onStepHit.dispatch(curStep);
 		callToState(STEP, curStep);
-		GlobalScript.stepHit(curStep);
 	}
 
 	inline public function beatHit(curBeat:Int):Void {
 		onBeatHit.dispatch(curBeat);
 		callToState(BEAT, curBeat);
-		GlobalScript.beatHit(curBeat);
 	}
 
 	inline public function measureHit(curMeasure:Int):Void {
 		onMeasureHit.dispatch(curMeasure);
 		callToState(MEASURE, curMeasure);
-		GlobalScript.measureHit(curMeasure);
 	}
 
 	inline public function changeBPM(bpm:Float = 100, beatsPerMeasure:Int = 4, stepsPerBeat:Int = 4):Void {
@@ -339,7 +408,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		this.stepsPerBeat = stepsPerBeat;
 
 		if (prevBpm != bpm || this.beatsPerMeasure != beatsPerMeasure || this.stepsPerBeat != stepsPerBeat)
-			onTimeChange.dispatch(bpm, beatsPerMeasure, stepsPerBeat);
+			onBPMChange.dispatch(bpm, beatsPerMeasure, stepsPerBeat);
 	}
 
 	public function applyBPMChanges():Void {
@@ -348,8 +417,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 				stepTime: 0,
 				songTime: 0,
 				bpm: data.bpm,
-				beatsPM: 4,
-				stepsPB: 4
+				beatsPM: data.signature[0],
+				stepsPB: data.signature[1]
 			}
 		];
 
@@ -363,7 +432,7 @@ class Conductor implements IBeat implements IFlxDestroyable {
 				curSig[0] == checkpoint.signature[0] &&
 				curSig[1] == checkpoint.signature[1]
 			) continue;
-			stepTime += (checkpoint.time - songTime) / ((60 / curBPM) * 1000 / checkpoint.signature[1]);
+			stepTime += (checkpoint.time - songTime) / ((60 / curBPM) * 1000 / 4);
 			songTime = checkpoint.time;
 			curBPM = checkpoint.bpm;
 			curSig = checkpoint.signature;
@@ -376,7 +445,6 @@ class Conductor implements IBeat implements IFlxDestroyable {
 				stepsPB: curSig[1]
 			});
 		}
-		trace('Applied BPM Changes: ' + bpmChanges);
 	}
 
 	public function getTimeForStep(step:Float):Float {
@@ -423,10 +491,15 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		FlxG.signals.preUpdate.remove(update);
 		FlxG.signals.focusGained.remove(onFocus);
 		FlxG.signals.focusLost.remove(onFocusLost);
-		onTimeChange.destroy();
+
+		onBPMChange.destroy();
 		onStepHit.destroy();
 		onBeatHit.destroy();
 		onMeasureHit.destroy();
-		@:privateAccess FlxG.sound.destroySound(audio);
+
+		destroySound(audio);
+		for (sound in extra)
+			destroySound(sound);
+		extra = [];
 	}
 }

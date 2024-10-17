@@ -7,6 +7,10 @@ class StoryMenu extends BeatState {
 	var canSelect:Bool = true;
 	static var prevSelected:Int = 0;
 	static var curSelected:Int = 0;
+	inline function selectionCooldown(duration:Float = 0.1):FlxTimer {
+		canSelect = false;
+		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
+	}
 
 	var diffMap:Map<String, DifficultyObject> = new Map<String, DifficultyObject>();
 
@@ -45,9 +49,8 @@ class StoryMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		if (Conductor.menu == null) Conductor.menu = new Conductor();
-			if (conductor.audio == null || !conductor.audio.playing)
-				conductor.loadMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
+		if (conductor.audio == null || !conductor.audio.playing)
+			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
@@ -128,11 +131,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().loadSolid(FlxG.width, 56);
+		weekTopBg = new BaseSprite().makeBox(FlxG.width, 56);
 		weekTopBg.color = camera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).loadSolid(FlxG.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeBox(FlxG.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
@@ -208,7 +211,7 @@ class StoryMenu extends BeatState {
 					changeDifficulty(1);
 				for (i => item in levels.members)
 					if (hoverIsCorrect(item))
-						changeSelection(i, true);
+						return changeSelection(i, true);
 			}
 
 			if (Controls.uiLeft)
@@ -289,8 +292,8 @@ class StoryMenu extends BeatState {
 				if (levelLocked) {
 					final ogX:Float = level.sprite.x;
 					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
-						onUpdate: (tween:FlxTween) -> level.updateLock(),
-						onComplete: (tween:FlxTween) -> {
+						onUpdate: (_:FlxTween) -> level.updateLock(),
+						onComplete: (_:FlxTween) -> {
 							level.sprite.x = ogX;
 							levelShake = null;
 						}
@@ -299,19 +302,20 @@ class StoryMenu extends BeatState {
 				if (diffLocked) {
 					final ogY:Float = diffObject.sprite.y;
 					diffShake = FlxTween.shake(diffObject.sprite, 0.1, time, Y, {
-						onUpdate: (tween:FlxTween) -> diffObject.updateLock(),
-						onComplete: (tween:FlxTween) -> {
+						onUpdate: (_:FlxTween) -> diffObject.updateLock(),
+						onComplete: (_:FlxTween) -> {
 							diffObject.sprite.y = ogY;
 							diffShake = null;
 						}
 					});
 				}
-				new FlxTimer().start(time, (timer:FlxTimer) -> canSelect = true);
+				selectionCooldown(time);
 			}
 		} else
-			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (timer:FlxTimer) -> {
+			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
 				FlxG.switchState(new PlayState());
+				Conductor.menu.audio.stop();
 			});
 	}
 }

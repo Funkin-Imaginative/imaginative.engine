@@ -7,7 +7,7 @@ enum abstract MenuSFX(String) from String to String {
 }
 
 class FunkinUtil {
-	inline public static function addMissingFolders(modFolderPath:String):Void {
+	inline public static function addMissingFolders(folderPath:String):Void {
 		final folders:Array<String> = [
 			'content',
 			'content/difficulties',
@@ -27,7 +27,7 @@ class FunkinUtil {
 		];
 		for (folder in folders)
 			if (!Paths.folderExists(folder, false))
-				FileSystem.createDirectory('$modFolderPath/$folder');
+				FileSystem.createDirectory('$folderPath/$folder');
 	}
 
 	@:using inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:()->Void):FlxSound {
@@ -50,22 +50,31 @@ class FunkinUtil {
 		} catch(error:haxe.Exception)
 			trace('Missing level json.');
 		for (folder in Paths.readFolder('content/songs', pathType))
-			if (HaxePath.extension(folder) == '')
+			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);
 		return results;
 	}
 
 	/**
-	 * Returns the default variant of a difficulty
-	 * @param diff The difficulty name.
-	 * @return The difficulties default variant.
+	 * Returns the song display name.
+	 * @param name The song folder name.
+	 * @return The songs display name.
+	 */
+	public static function getSongDisplay(name:String):String
+		return ParseUtil.song(name).name;
+
+	/**
+	 * Returns the difficulty display name.
+	 * @param diff The difficulty json name.
+	 * @return The difficulties display name.
 	 */
 	inline public static function getDifficultyDisplay(diff:String):String
 		return ParseUtil.difficulty(diff).display;
+
 	/**
 	 * Returns the default variant of a difficulty
-	 * @param diff The difficulty name.
+	 * @param diff The difficulty json name.
 	 * @return The difficulties default variant.
 	 */
 	inline public static function getDifficultyVariant(diff:String):String

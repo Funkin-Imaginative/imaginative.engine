@@ -20,14 +20,14 @@ class ScriptGroup extends FlxBasic {
 	}
 
 	// as of rn this func is ripped from cne
-	public function importScript(path:String, type:backend.scripting.Script.ScriptType = ANY, pathType:FunkinPath = ANY, stopNewCall:Bool = false):Script {
-		final script:Script = Script.create(path, type, pathType, false)[0];
+	public function importScript(path:String, pathType:FunkinPath = ANY):Script {
+		final script:Script = Script.create(path, pathType, false)[0];
 		if (script.isInvalid) {
 			throw 'Script at $path does not exist.';
 			return cast null;
 		}
 		add(script);
-		script.load(stopNewCall);
+		script.load();
 		return script;
 	}
 
@@ -37,12 +37,12 @@ class ScriptGroup extends FlxBasic {
 		this.parent = parent;
 	}
 
-	public function load(stopNewCall:Bool = false, clearInvaild:Bool = true):Void {
+	public function load(clearInvaild:Bool = true):Void {
 		if (clearInvaild)
 			this.clearInvaild();
 		for (script in members)
 			if (script != null)
-				script.load(stopNewCall);
+				script.load();
 	}
 
 	public function set(variable:String, value:Dynamic):Void

@@ -77,7 +77,7 @@ class SpriteUtil {
 		return sprite;
 	}
 
-	inline public static function getDominantColor(sprite:FlxSprite):FlxColor {
+	inline public static function getDominantColor<T:FlxSprite>(sprite:T):FlxColor {
 		var countByColor:Map<Int, Int> = [];
 		for (col in 0...sprite.frameWidth) {
 			for (row in 0...sprite.frameHeight) {

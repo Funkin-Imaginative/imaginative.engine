@@ -6,7 +6,7 @@ final class LevelSongListEvent extends ScriptEvent {
 
 	override public function new(songs:Array<SongData>, beaten:Bool = false) {
 		super();
-		this.songs = [for (s in songs) s.name];
+		this.songs = [for (song in songs) song.name];
 		beatLevel = beaten;
 	}
 }

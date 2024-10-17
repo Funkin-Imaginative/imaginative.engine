@@ -59,8 +59,9 @@ class ParseUtil {
 			data.willHey = FunkinUtil.getDefault(data.willHey, i == Math.floor(contents.objects.length / 2));
 		}
 		return {
+			name: name,
 			title: contents.title,
-			songs: [for (s in contents.songs) song(s, pathType)],
+			songs: [for (sog in contents.songs) song(sog, pathType)],
 			startingDiff: FunkinUtil.getDefault(contents.startingDiff, Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
 			variants: [for (v in FunkinUtil.getDefault(contents.variants, [for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
@@ -82,7 +83,7 @@ class ParseUtil {
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;
-		if (objType.canBop && Reflect.hasField(tempData, 'character')) {
+		if (objType.canBop && (objType == CHARACTER && Reflect.hasField(tempData, 'character'))) {
 			var gottenData:CharacterParse = null;
 			trace('parseChar ~ 1');
 			var typeData:CharacterSpriteData = parseChar();
@@ -92,7 +93,7 @@ class ParseUtil {
 				typeData.character.color = FlxColor.fromString(FunkinUtil.getDefault(gottenData.color, '#8000ff'));
 			} catch(error:haxe.Exception) trace(error.message);
 			charData = {
-				camera: new PositionStruct(FunkinUtil.getDefault(typeData.character.camera.x, 0), FunkinUtil.getDefault(typeData.character.camera.y, 0)),
+				camera: FunkinUtil.getDefault(typeData.character.camera, new PositionStruct()),
 				color: typeData.character.color,
 				icon: FunkinUtil.getDefault(typeData.character.icon, 'face'),
 				singlength: FunkinUtil.getDefault(typeData.character.singlength, 4)
@@ -118,9 +119,9 @@ class ParseUtil {
 		if (Reflect.hasField(typeData, 'offsets'))
 			try {
 				data.offsets = {
-					position: new PositionStruct(FunkinUtil.getDefault(typeData.offsets.position.x, 0), FunkinUtil.getDefault(typeData.offsets.position.y, 0)),
-					flip: new TypeXY<Bool>(FunkinUtil.getDefault(typeData.offsets.flip.x, false), FunkinUtil.getDefault(typeData.offsets.flip.y, false)),
-					scale: new PositionStruct(FunkinUtil.getDefault(typeData.offsets.scale.x, 0), FunkinUtil.getDefault(typeData.offsets.scale.y, 0))
+					position: FunkinUtil.getDefault(typeData.offsets.position, new PositionStruct()),
+					flip: FunkinUtil.getDefault(typeData.offsets.flip, new TypeXY<Bool>(false, false)),
+					scale: FunkinUtil.getDefault(typeData.offsets.scale, new PositionStruct())
 				}
 			} catch(error:haxe.Exception) {
 				trace('offsets were fucked');
@@ -143,7 +144,7 @@ class ParseUtil {
 			slot.asset = FunkinUtil.reflectDefault(anim, 'asset', data.asset);
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = FunkinUtil.getDefault(anim.tag, slot.name);
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(FunkinUtil.getDefault(anim.dimensions.x, 0), FunkinUtil.getDefault(anim.dimensions.y, 0));
+			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = FunkinUtil.getDefault(anim.dimensions, new TypeXY<Int>(0, 0));
 			slot.indices = FunkinUtil.getDefault(anim.indices, []);
 			slot.offset = FunkinUtil.getDefault(anim.offset, new PositionStruct());
 			slot.flip = FunkinUtil.getDefault(anim.flip, new TypeXY<Bool>(false, false));

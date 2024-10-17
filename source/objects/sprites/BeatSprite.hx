@@ -9,8 +9,9 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var idleSuffix:String = '';
 	public var animSuffix:String = '';
 
-	public var bopRate(get, never):Int;
+	public var bopRate(get, set):Int;
 	inline function get_bopRate():Int return Math.round(beatInterval * bopSpeed);
+	inline function set_bopRate(value:Int):Int return beatInterval = value;
 	public var bopSpeed(default, set):Float = 1; inline function set_bopSpeed(value:Float):Float return bopSpeed = value < 1 ? 1 : value;
 	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
 
@@ -87,7 +88,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 		final event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', false, NONE, false, 0));
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
 				if (event.stopped) return;
 				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
@@ -100,14 +101,25 @@ class BeatSprite extends BaseSprite implements IBeat {
 		scripts.call('dancingPost', [event]);
 	}
 
-	public function stepHit(curStep:Int):Void {}
-
-	public function beatHit(curBeat:Int):Void {
-		if (curBeat % bopRate == 0) {
-			tryDance();
-			if (animType != DANCE && getAnimName().endsWith('-loop')) finishAnim(); // why tf
-		}
+	public var curStep(default, null):Int;
+	public function stepHit(curStep:Int):Void {
+		this.curStep = curStep;
+		scripts.call('stepHit', [curStep]);
 	}
 
-	public function measureHit(curMeasure:Int):Void {}
+	public var curBeat(default, null):Int;
+	public function beatHit(curBeat:Int):Void {
+		this.curBeat = curBeat;
+		if (!(skipNegativeBeats && curBeat < 0) && curBeat % bopRate == 0) {
+			tryDance();
+			if (animType != DANCE && getAnimName().endsWith('-loop')) finishAnim();
+		}
+		scripts.call('beatHit', [curBeat]);
+	}
+
+	public var curMeasure(default, null):Int;
+	public function measureHit(curMeasure:Int):Void {
+		this.curMeasure = curMeasure;
+		scripts.call('measureHit', [curMeasure]);
+	}
 }

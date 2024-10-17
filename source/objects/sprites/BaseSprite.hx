@@ -33,12 +33,14 @@ enum abstract TextureType(String) from String to String {
 	var SPARROW;
 	var PACKER;
 	var GRAPHIC;
+	var ASEPRITE;
 	var UNKNOWN;
 
 	inline public static function getTypeFromPath(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
-		return switch (HaxePath.extension(sheetPath)) {
+		return switch (FilePath.extension(sheetPath)) {
 			case 'xml': SPARROW;
 			case 'txt': PACKER;
+			case 'json': ASEPRITE;
 			default: defaultIsUnknown ? UNKNOWN : GRAPHIC;
 		}
 	}
@@ -107,7 +109,7 @@ class BaseSprite extends FlxSkewedSprite {
 	public var textures(default, null):Array<TextureData>;
 	@:unreflective inline function resetTextures(newTexture:String, spriteType:TextureType):String {
 		textures = [];
-		textures.push(new TextureData(HaxePath.withoutExtension(newTexture), spriteType));
+		textures.push(new TextureData(FilePath.withoutExtension(newTexture), spriteType));
 		return newTexture;
 	}
 
@@ -155,7 +157,7 @@ class BaseSprite extends FlxSkewedSprite {
 	 * ```
 	 * would work.
 	 */
-	inline public function loadSolid<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
+	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
@@ -234,17 +236,11 @@ class BaseSprite extends FlxSkewedSprite {
 	public var animType:AnimType;
 
 	public var scripts:ScriptGroup;
-	var _scripts:ScriptGroup;
-	// function get_scripts():ScriptGroup {
-	// 	if (_scripts == null)
-	// 		_scripts = new ScriptGroup(this);
-	// 	return _scripts;
-	// }
 	public function loadScript(path:String):Void {
 		scripts = new ScriptGroup(this);
 
-		for (s in ['global', path])
-			for (script in Script.create(s, OBJECT))
+		for (sprite in ['global', path])
+			for (script in Script.create('content/objects/$sprite'))
 				scripts.add(script);
 
 		scripts.load();

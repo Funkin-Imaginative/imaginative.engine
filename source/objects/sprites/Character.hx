@@ -1,5 +1,7 @@
 package objects.sprites;
 
+import backend.scripting.events.PointEvent;
+
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:PositionStruct;
 	var color:String;
@@ -15,8 +17,8 @@ typedef CharacterData = {
 
 class Character extends BeatSprite {
 	public var singSuffix:String = '';
-	public var theirName:String;
-	public var theirIcon(get, default):String;
+	public var theirName(default, null):String;
+	public var theirIcon(get, null):String;
 	inline function get_theirIcon():String {
 		return theirIcon;
 	}
@@ -24,11 +26,22 @@ class Character extends BeatSprite {
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var singLength:Float = 0;
 
-	public var cameraOffset:PositionStruct = new PositionStruct();
+	public var cameraOffset(default, null):PositionStruct = new PositionStruct();
+	public function getCamPos(?pos:PositionStruct):PositionStruct {
+		var point:FlxPoint = getMidpoint();
+		var event:PointEvent = new PointEvent(
+			point.x + /* offset.x + */ cameraOffset.x,
+			point.y + /* offset.y + */ cameraOffset.y
+		);
+		scripts.call('onGetCamPos', [event]);
 
-	public var healthColor:FlxColor = FlxColor.GRAY;
+		point.put();
+		return pos == null ? new PositionStruct(event.x, event.y) : pos.set(event.x, event.y);
+	}
 
-	public var charData:CharacterData = null;
+	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
+
+	public var charData(default, null):CharacterData = null;
 	override function get_objType():ObjectType {
 		return CHARACTER;
 	}
@@ -60,15 +73,17 @@ class Character extends BeatSprite {
 	}
 
 	override function loadScript(path:String):Void {
-		for (s in ['global', path])
-			for (script in Script.create('characters/$s', OBJECT))
+		scripts = new ScriptGroup(this);
+
+		for (char in ['global', 'characters/global', 'characters/$path'])
+			for (script in Script.create('content/objects/$char'))
 				scripts.add(script);
 
-		super.loadScript(path);
+		scripts.load();
 	}
 
 	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
-		super(x, y, 'characters/${theirName = name}');
+		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
 	}
 
 	override public function tryDance():Void {

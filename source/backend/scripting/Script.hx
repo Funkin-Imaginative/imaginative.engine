@@ -4,16 +4,6 @@ import hscript.Expr;
 import hscript.Interp;
 import hscript.Parser;
 
-enum abstract ScriptType(String) from String to String {
-	var DIFFICULTY;
-	var LEVEL;
-	var OBJECT;
-	// var SONG;
-	var STAGE;
-	var STATE;
-	var ANY;
-}
-
 // This class was mostly coded by @Zyflx and was used on smth else before he started helping lol.
 class Script extends FlxBasic {
 	// because parent being null returns the script itself I think it would be best to make this unreflective
@@ -35,7 +25,7 @@ class Script extends FlxBasic {
 
 	public static final exts:Array<String> = ['hx', 'hscript', 'hsc', 'hxs', 'hxc', 'lua'];
 
-	public static function create(file:String, type:ScriptType = ANY, pathType:FunkinPath = ANY, getAllInstances:Bool = true):Array<Script> {
+	public static function create(file:String, pathType:FunkinPath = ANY, getAllInstances:Bool = true):Array<Script> {
 		var scriptPath:String->Array<String> = (file:String) -> {
 			if (getAllInstances) {
 				var result:Array<String> = [];
@@ -45,15 +35,7 @@ class Script extends FlxBasic {
 				return result;
 			} else return [Paths.script(file, pathType)];
 		}
-		final paths:Array<String> = scriptPath(switch (type) {
-			case DIFFICULTY: 'content/difficulties/$file';
-			case LEVEL: 'content/levels/$file';
-			case OBJECT: 'objects/$file';
-			// case SONG: 'songs/${PlayState.SONG.song}/$file';
-			case STAGE: 'content/stages/$file';
-			case STATE: 'content/states/$file';
-			case ANY: file;
-		});
+		final paths:Array<String> = scriptPath(file);
 		#if debug
 		for (path in paths)
 			if (path.trim() != '')
@@ -61,7 +43,7 @@ class Script extends FlxBasic {
 		#end
 		var scripts:Array<Script> = [];
 		for (path in paths) {
-			switch (HaxePath.extension(path).toLowerCase()) {
+			switch (FilePath.extension(path).toLowerCase()) {
 				case 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
 					#if CAN_HX_SCRIPT
 					scripts.push(new Script(path));
@@ -76,8 +58,6 @@ class Script extends FlxBasic {
 					// doing a cne but more trollish lmao
 			}
 		}
-		if (scripts.length < 1)
-			scripts.push(new Script());
 		return scripts;
 	}
 
@@ -88,10 +68,10 @@ class Script extends FlxBasic {
 			'Math' => Math,
 			'Date' => Date,
 			'Type' => Type,
+			'Lambda' => Lambda,
 			'StringTools' => StringTools,
 			'Json' => haxe.Json,
 			'Reflect' => Reflect,
-			'Main' => Main,
 
 			// Lime + OpenFL //
 			'Assets' => openfl.utils.Assets,
@@ -99,30 +79,76 @@ class Script extends FlxBasic {
 			'window' => lime.app.Application.current.window,
 
 			// Flixel //
-			'FlxG' => FlxG,
 			'FlxBasic' => FlxBasic,
+			'FlxCamera' => FlxCamera,
+			'FlxG' => FlxG,
 			'FlxObject' => FlxObject,
 			'FlxSprite' => FlxSprite,
+			'FlxState' => FlxState,
+			'FlxSubState' => FlxSubState,
+			'FlxTypeText' => FlxTypeText,
+			'FlxGroup' => FlxGroup,
+			'FlxSpriteGroup' => flixel.group.FlxSpriteGroup,
+			'FlxTypedGroup' => FlxTypedGroup,
+			'FlxTypedSpriteGroup' => FlxTypedSpriteGroup,
+			'FlxAngle' => FlxAngle,
+			'FlxMath' => FlxMath,
+			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
+			'FlxRect' => FlxRect,
+			'FlxVelocity' => FlxVelocity,
+			'FlxSound' => FlxSound,
+			'FlxSoundGroup' => FlxSoundGroup,
+			'FlxText' => FlxText,
+			'FlxEase' => FlxEase,
+			'FlxTween' => FlxTween,
+			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
+			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
+			'FlxGradient' => FlxGradient,
+			'FlxSave' => FlxSave,
+			'FlxTypedSignal' => Type.resolveClass('flixel.util.FlxSignal.FlxTypedSignal_HSC'),
 			'FlxSkewedSprite' => flixel.addons.effects.FlxSkewedSprite,
 			'FlxBackdrop' => flixel.addons.display.FlxBackdrop,
-			'FlxText' => FlxText,
-			'FlxCamera' => FlxCamera,
-			'FlxMath' => FlxMath,
-			'FlxTween' => FlxTween,
-			'FlxEase' => FlxEase,
-			'FlxTypedGroup' => FlxTypedGroup,
-			'FlxGroup' => FlxGroup,
-			'FlxTypedSpriteGroup' => FlxTypedSpriteGroup,
-			'FlxSpriteGroup' => flixel.group.FlxSpriteGroup,
+			'FlxSort' => FlxSort,
 			'FlxTimer' => FlxTimer,
-			'FlxSound' => FlxSound,
-			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
-			'FlxColorUtil' => FlxColorUtil,
-			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
-			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
+			'OneOfFour' => Type.resolveClass('flixel.util.typeLimit.OneOfFour_HSC'),
+			'OneOfThree' => Type.resolveClass('flixel.util.typeLimit.OneOfThree_HSC'),
+			'OneOfTwo' => Type.resolveClass('flixel.util.typeLimit.OneOfTwo_HSC'),
+			'FlxArrayUtil' => FlxArrayUtil,
+			'FlxColorTransformUtil' => FlxColorTransformUtil,
+			'FlxDestroyUtil' => FlxDestroyUtil,
+			'FlxSpriteUtil' => FlxSpriteUtil,
+			'FlxStringUtil' => FlxStringUtil,
 
 			// Engine //
-			//
+			'Controls' => Controls,
+			'Paths' => Paths,
+			'ModConfig' => ModConfig,
+			'PlayConfig' => PlayConfig,
+			'BeatState' => BeatState,
+			'BeatSubState' => BeatSubState,
+			'Conductor' => Conductor,
+			'GlobalScript' => GlobalScript,
+			'ModState' => ModState,
+			'ModSubState' => ModSubState,
+			'Script' => Script,
+			'ScriptGroup' => ScriptGroup,
+			'TypeXY' => TypeXY,
+			'PositionStruct' => PositionStruct,
+			'FlxWindow' => FlxWindow,
+			'mainWindow' => FlxWindow.direct,
+			'Main' => Main,
+			'DifficultyObject' => DifficultyObject,
+			'LevelObject' => LevelObject,
+			'AnimType' => Type.resolveClass('objects.sprites.BaseSprite.AnimType_HSC'),
+			'BaseSprite' => BaseSprite,
+			'BeatSprite' => BeatSprite,
+			'Character' => Character,
+			'PlayState' => PlayState,
+			'FunkinUtil' => FunkinUtil,
+			'ParseUtil' => ParseUtil,
+			'PlatformUtil' => PlatformUtil,
+			'FlxColorUtil' => FlxColorUtil,
+			'SpriteUtil' => SpriteUtil,
 
 			// Custom Functions //
 			'addInfrontOf' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
@@ -152,29 +178,21 @@ class Script extends FlxBasic {
 	public function new(?path:String):Void {
 		super();
 		rawPath = path;
-		path = getFilenameFromLibFile(path);
-		fileName = HaxePath.withoutDirectory(path);
-		extension = HaxePath.extension(path);
+		fileName = FilePath.withoutDirectory(path);
+		extension = FilePath.extension(path);
 		this.path = path;
-		scriptCreation(path);
+		renderScript(path);
+		interp.allowStaticVariables = interp.allowPublicVariables = true;
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
 		GlobalScript.call('scriptCreated', [this, 'hscript']);
 	}
 
-	inline function getFilenameFromLibFile(path:String):String {
-		var file = new HaxePath(path);
-		if (file.file.startsWith('LIB_'))
-			return file.dir + '.' + file.ext;
-		return path;
-	}
-
-	function scriptCreation(path:String):Void {
+	function renderScript(path:String):Void {
 		interp = new Interp();
 		parser = new Parser();
 
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
 
 		if (path == null)
 			invalid = true;
@@ -187,7 +205,7 @@ class Script extends FlxBasic {
 			}
 	}
 
-	public function onLoad(stopNewCall:Bool = false):Void {
+	public function onLoad():Void {
 		loadCodeFromString(scriptCode);
 		if (canExecute && !loaded) {
 			try {
@@ -195,17 +213,16 @@ class Script extends FlxBasic {
 				if (expr != null) {
 					interp.execute(expr);
 					loaded = true;
-					if (!stopNewCall)
-						call('new');
+					call('new');
 				}
 			} catch(error:haxe.Exception)
 				trace('Error while trying to execute script: ${error.message}');
 		}
 	}
 
-	inline public function load(stopNewCall:Bool = false):Void {
+	inline public function load():Void {
 		if (loaded) return;
-		onLoad(stopNewCall);
+		onLoad();
 	}
 
 	inline public function set(variable:String, value:Dynamic):Void
@@ -242,8 +259,8 @@ class Script extends FlxBasic {
 		for (name => thing in interp.variables)
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;
-		final oldParent = parent;
-		scriptCreation(path);
+		final oldParent:Dynamic = interp.scriptObject;
+		renderScript(path);
 
 		for (name => thing in getScriptImports(this))
 			set(name, thing);

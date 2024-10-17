@@ -1,6 +1,6 @@
 package backend.music;
 
-class BeatSubState extends FlxSubState implements IBeat {
+class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))
 	/**
 	 * The states conductor.
 	 */
@@ -114,8 +114,6 @@ class BeatSubState extends FlxSubState implements IBeat {
 
 	public var controls:Controls = Controls.p1;
 
-	// public var playField(default, null):PlayField;
-	public var scripts:ScriptGroup;
 	public var stateScripts:ScriptGroup;
 	public var scriptsAllowed:Bool = true;
 	public var scriptName:String = null;
@@ -130,7 +128,7 @@ class BeatSubState extends FlxSubState implements IBeat {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
-				for (script in Script.create(this.getClassName(), STATE)) {
+				for (script in Script.create('content/states/${this.getClassName()}')) {
 					if (!script.isInvalid) scriptName = script.fileName;
 					stateScripts.add(script);
 					script.load();
@@ -247,10 +245,9 @@ class BeatSubState extends FlxSubState implements IBeat {
 	}
 
 	override public function destroy():Void {
-		if (scripts != null) scripts.destroy();
 		stateScripts.destroy();
-		direct = null;
 		Conductor.beatSubStates.remove(this);
+		direct = null;
 		super.destroy();
 	}
 }

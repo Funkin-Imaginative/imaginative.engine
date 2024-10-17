@@ -7,6 +7,9 @@ typedef ModTyping = {
 	var name:String;
 }
 
+/**
+ * TODO Rewrite this.
+ */
 enum abstract FunkinPath(String) from String to String {
 	// Base Paths
 	/**
@@ -24,6 +27,10 @@ enum abstract FunkinPath(String) from String to String {
 
 	// Potential Paths
 	/**
+	 * `ROOT`, `SOLO` or `MODS`.
+	 */
+	 var ANY;
+	/**
 	 * `ROOT` or `SOLO`.
 	 */
 	var LEAD;
@@ -31,10 +38,6 @@ enum abstract FunkinPath(String) from String to String {
 	 * `SOLO` or `MODS`.
 	 */
 	var MODDED;
-	/**
-	 * `ROOT`, `SOLO` or `MODS`.
-	 */
-	var ANY;
 
 	/**
 	 * Causes Error: String should be backend.FunkinPath For function argument 'incomingPath'
@@ -86,19 +89,10 @@ class Paths {
 	public static final invaildChars:Array<String> = ['\\', ':', '*', '?', '"', '<', '>', '|'];
 	public static function removeInvaildChars(string:String):String {
 		var splitUp:Array<String> = string.split('/');
-		for (i in 0...splitUp.length) {
+		for (i in 0...splitUp.length)
 			for (char in invaildChars)
 				splitUp[i] = splitUp[i].replace(char, '');
-			/* var again:Array<String> = splitUp[i].split('');
-			for (a in -again.length + 1...1) {
-				var j:Int = a * -1;
-				again.remove(again[j]);
-				if (again[j + 1] != '.')
-					break;
-			}
-			splitUp[i] = again.join(''); */
-		}
-		return HaxePath.normalize(splitUp.join('/'));
+		return FilePath.normalize(splitUp.join('/'));
 	}
 
 	/**
@@ -151,16 +145,17 @@ class Paths {
 
 	public static function readFolder(folderPath:String, ?setExt:String, pathType:FunkinPath = ANY):Array<String> {
 		var files:Array<String> = [];
-		for (file in FileSystem.readDirectory(Paths.applyRoot(folderPath.endsWith('/') ? folderPath : '$folderPath/', pathType)))
-			if (setExt == null)
-				files.push(file);
-			else if (HaxePath.extension(file) == setExt)
-				files.push(file.replace('.$setExt', ''));
+		if (folderExists(folderPath, pathType))
+			for (file in FileSystem.readDirectory(applyRoot(FilePath.addTrailingSlash(folderPath), pathType)))
+				if (setExt == null)
+					files.push(file);
+				else if (FilePath.extension(file) == setExt)
+					files.push(FilePath.withoutExtension(file));
 		return files;
 	}
 
 	public static function readFolderOrderTxt(folderPath:String, setExt:String, pathType:FunkinPath = ANY):Array<String> {
-		var orderText:Array<String> = FunkinUtil.trimSplit(Paths.getFileContent(Paths.txt('$folderPath/order')));
+		var orderText:Array<String> = FunkinUtil.trimSplit(getFileContent(txt('$folderPath/order')));
 		var files:Array<String> = [];
 		var result:Array<String> = [];
 		for (file in readFolder(folderPath, setExt, pathType))
@@ -184,9 +179,19 @@ class Paths {
 	inline public static function music(file:String, pathType:FunkinPath = ANY):String
 		return audio('music/$file', pathType);
 
-	inline public static function inst(song:String, variant:String = ''):String
+	public static final videoExts:Array<String> = ['mp4', 'mov', 'webm'];
+	inline public static function video(file:String, pathType:FunkinPath = ANY)
+		return multExst(file, videoExts, pathType);
+	inline public static function cutscene(file:String, pathType:FunkinPath = ANY) {
+		var path:String = video('content/songs/${PlayState.curSong}/$file', pathType);
+		if (!fileExists(path, false))
+			path = video('videos/$file', pathType);
+		return path;
+	}
+
+	inline public static function inst(song:String, variant:String = 'normal'):String
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Inst');
-	inline public static function voices(song:String, suffix:String = '', variant:String = ''):String
+	inline public static function voices(song:String, suffix:String, variant:String = 'normal'):String
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 
 	inline public static function font(file:String, pathType:FunkinPath = ANY):String
@@ -200,9 +205,11 @@ class Paths {
 		if (type == UNKNOWN)
 			if (fileExists('images/$file.xml', pathType)) type = SPARROW;
 			else if (fileExists('images/$file.txt', pathType)) type = PACKER;
+			else if (fileExists('images/$file.json', pathType)) type = ASEPRITE;
 		return switch (type) {
 			case SPARROW: getSparrowAtlas(file, pathType);
 			case PACKER: getPackerAtlas(file, pathType);
+			case ASEPRITE: getAsepriteAtlas(file, pathType);
 			default: getSparrowAtlas(file, pathType);
 		}
 	}
@@ -210,9 +217,11 @@ class Paths {
 		return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
 	inline public static function getPackerAtlas(file:String, pathType:FunkinPath = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
+	inline static public function getAsepriteAtlas(file:String, pathType:FunkinPath = ANY):FlxAtlasFrames
+		return FlxAtlasFrames.fromAseprite(image(file, pathType), json('images/$file', pathType));
 
 	inline public static function spriteSheetExists(path:String, pathType:FunkinPath = ANY):Bool
-		return Paths.fileExists('images/$path.png') && Paths.multExst('images/$path', Paths.atlasFrameExts) != '';
+		return fileExists('images/$path.png') && multExst('images/$path', atlasFrameExts) != '';
 
 	inline public static function folderExists(path:String, applyRoot:Bool = true, pathType:FunkinPath = ANY):Bool
 		return FileSystem.isDirectory(applyRoot ? Paths.applyRoot(path, pathType) : path);

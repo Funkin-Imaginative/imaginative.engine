@@ -10,6 +10,10 @@ class MainMenu extends BeatState {
 	static var prevSelected:Int = 0;
 	static var curSelected:Int = 0;
 	var visualSelected:Int = curSelected;
+	inline function selectionCooldown(duration:Float = 0.1):FlxTimer {
+		canSelect = false;
+		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
+	}
 
 	// Things to select.
 	var itemLineUp:Array<String> = FunkinUtil.trimSplit(Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')));
@@ -29,9 +33,8 @@ class MainMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		// Might try to simplify this.
-		if (Conductor.menu == null) Conductor.menu = new Conductor();
-			if (conductor.audio == null || !conductor.audio.playing)
-				conductor.loadMusic('freakyMenu', 0.8, (audio:FlxSound) -> audio.play());
+		if (conductor.audio == null || !conductor.audio.playing)
+			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -184,7 +187,7 @@ class MainMenu extends BeatState {
 	}
 
 	public function selectCurrent():Void {
-		canSelect = false;
+		selectionCooldown();
 
 		FunkinUtil.playMenuSFX(CONFIRM);
 
@@ -197,10 +200,8 @@ class MainMenu extends BeatState {
 					FlxG.switchState(new FreeplayMenu());
 				case 'donate':
 					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
-					canSelect = true;
 				case 'merch':
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
-					canSelect = true;
 				case 'options':
 					FlxG.switchState(new OptionsMenu());
 				case 'credits':

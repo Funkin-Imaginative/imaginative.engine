@@ -11,12 +11,11 @@ class TitleScreen extends BeatState {
 	var titleText:BaseSprite;
 	var ngLogo:BaseSprite;
 
-	override public function create():Void {
+	override function create():Void {
 		super.create();
-		new FlxTimer().start(played ? 0.0001 : 1, (timer:FlxTimer) -> {
-			if (Conductor.menu == null) Conductor.menu = new Conductor();
-				if (conductor.audio == null || !conductor.audio.playing)
-					conductor.loadMusic('freakyMenu', 0, (audio:FlxSound) -> audio.fadeIn(4, 0, 0.7));
+		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
+			if (conductor.audio == null || !conductor.audio.playing)
+				conductor.loadMusic('freakyMenu', 0, (sound:FlxSound) -> sound.fadeIn(4, 0, 0.7));
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
 			add(logo);
@@ -35,6 +34,36 @@ class TitleScreen extends BeatState {
 
 			startIntro();
 		});
+	}
+
+	override function update(elapsed:Float):Void {
+		if (Controls.accept || FlxG.mouse.justPressed) {
+			if (!leaving && skipped) {
+				titleText.playAnim('press', true);
+				titleText.centerOffsets();
+				titleText.centerOrigin();
+				camera.flash(FlxColor.WHITE, 1);
+				FunkinUtil.playMenuSFX(CONFIRM, 0.7);
+				leaving = true;
+				FlxG.switchState(new states.menus.MainMenu());
+			}
+			if (!skipped && played)
+				skipIntro();
+		}
+
+		super.update(elapsed);
+	}
+
+	override function beatHit(curBeat:Int):Void {
+		super.beatHit(curBeat);
+
+		if (!started)
+			return;
+
+		if (!skipped) {
+			if (curBeat >= 16)
+				skipIntro();
+		}
 	}
 
 	function startIntro():Void {
@@ -67,35 +96,6 @@ class TitleScreen extends BeatState {
 					l.visible = true;
 			camera.flash(FlxColor.WHITE, 4);
 			skipped = true;
-		}
-	}
-
-	override public function update(elapsed:Float):Void {
-		if (Controls.accept && !leaving && skipped) {
-			titleText.playAnim('press', true);
-			titleText.centerOffsets();
-			titleText.centerOrigin();
-			camera.flash(FlxColor.WHITE, 1);
-			FunkinUtil.playMenuSFX(CONFIRM, 0.7);
-			leaving = true;
-			FlxG.switchState(new states.menus.MainMenu());
-		}
-
-		if (Controls.accept && !skipped && played)
-			skipIntro();
-
-		super.update(elapsed);
-	}
-
-	override public function beatHit(curBeat:Int):Void {
-		super.beatHit(curBeat);
-
-		if (!started)
-			return;
-
-		if (!skipped) {
-			if (curBeat >= 16)
-				skipIntro();
 		}
 	}
 }

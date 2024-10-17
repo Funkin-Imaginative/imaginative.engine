@@ -3,12 +3,12 @@ package backend.scripting;
 class GlobalScript {
 	public static var scripts:ScriptGroup;
 
-	static function loadScript(newMod:String):Void {
+	static function loadScript():Void {
 		if (scripts != null)
 			scripts.destroy();
 
 		scripts = new ScriptGroup(Main.direct);
-		for (script in Script.create('content/global'))
+		for (script in Script.create('content/global', LEAD))
 			scripts.add(script);
 		scripts.load();
 	}
@@ -41,7 +41,7 @@ class GlobalScript {
 		FlxG.signals.preStateSwitch.add(() -> call('preStateSwitch'));
 		FlxG.signals.postStateSwitch.add(() -> call('postStateSwitch'));
 
-		loadScript(ModConfig.curSolo);
+		loadScript();
 	}
 
 	public static function call(name:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
@@ -56,12 +56,22 @@ class GlobalScript {
 		return event;
 	}
 
-	public static function stepHit(curStep:Int):Void
-		call('stepHit', [curStep]);
-
-	public static function beatHit(curBeat:Int):Void
-		call('beatHit', [curBeat]);
-
-	public static function measureHit(curMeasure:Int):Void
-		call('measureHit', [curMeasure]);
+	@:allow(backend.music.Conductor.callToState)
+	static function stepHit(curStep:Int, conductor:Conductor):Void {
+		if (scripts != null)
+			scripts.set('curStep', curStep);
+		call('stepHit', [curStep, conductor]);
+	}
+	@:allow(backend.music.Conductor.callToState)
+	static function beatHit(curBeat:Int, conductor:Conductor):Void {
+		if (scripts != null)
+			scripts.set('curBeat', curBeat);
+		call('beatHit', [curBeat, conductor]);
+	}
+	@:allow(backend.music.Conductor.callToState)
+	static function measureHit(curMeasure:Int, conductor:Conductor):Void {
+		if (scripts != null)
+			scripts.set('curMeasure', curMeasure);
+		call('measureHit', [curMeasure, conductor]);
+	}
 }
