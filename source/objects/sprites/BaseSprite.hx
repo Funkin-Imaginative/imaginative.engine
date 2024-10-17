@@ -91,7 +91,7 @@ typedef ObjectData = {
 	@:default(true) var antialiasing:Bool;
 }
 
-class BaseSprite extends FlxSkewedSprite {
+class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup #end {
 	// Cool variables.
 	public var _update:Float->Void;
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -159,6 +159,32 @@ class BaseSprite extends FlxSkewedSprite {
 	 */
 	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
+
+	#if IGROUP_INTERFACE
+	// IGroup shenanigans!
+	public var group(default, null):BeatSpriteGroup = new BeatSpriteGroup();
+	public function iterator(?filter:FlxSprite->Bool):FlxTypedGroupIterator<FlxSprite> return group.iterator(filter);
+
+	public function add(sprite:FlxSprite):FlxSprite return group.add(sprite);
+	public function insert(position:Int, sprite:FlxSprite):FlxSprite return group.insert(position, sprite);
+	public function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite return group.remove(sprite, splice);
+
+	override function set_x(value:Float):Float {
+		try {
+			return super.set_x(value + FunkinUtil.getDefault(data.offsets.position.x, 0));
+		} catch(error:haxe.Exception)
+			return super.set_x(value);
+	}
+	override function set_y(value:Float):Float {
+		try {
+			return super.set_y(value + FunkinUtil.getDefault(data.offsets.position.y, 0));
+		} catch(error:haxe.Exception)
+			return super.set_y(value);
+	}
+	/* override function set_angle(value:Float):Float {
+		return super.set_angle(value);
+	} */
+	#end
 
 	// Where the BaseSprite class really begins.
 	public var data:SpriteData = null;
@@ -248,6 +274,9 @@ class BaseSprite extends FlxSkewedSprite {
 
 	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {
 		super(x, y);
+		#if IGROUP_INTERFACE
+		add(this);
+		#end
 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {

@@ -47,10 +47,6 @@ class BeatSprite extends BaseSprite implements IBeat {
 			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
 	}
 
-	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {
-		super(x, y, sprite, script);
-	}
-
 	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);

@@ -136,13 +136,11 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 			} else stateScripts.reload();
 		}
 	}
-
 	public function call(name:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
 			return stateScripts.call(name, args, def);
 		return def;
 	}
-
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
 			return stateScripts.event(func, event);
@@ -168,7 +166,6 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		super.create();
 		call('create');
 	}
-
 	override public function createPost():Void {
 		super.createPost();
 		call('createPost');
@@ -187,27 +184,52 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		if (subState != null)
 			subState.tryUpdate(elapsed);
 	}
-
 	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
 		super.update(elapsed);
 	}
 
+	#if IGROUP_INTERFACE
+	override public function add(object:FlxBasic):FlxBasic {
+		if (object is IGroup)
+			return super.add(cast(object, IGroup).group);
+		else
+			return super.add(object);
+	}
+	override public function insert(position:Int, object:FlxBasic):FlxBasic {
+		if (object is IGroup)
+			return super.insert(position, cast(object, IGroup).group);
+		else
+			return super.insert(position, object);
+	}
+	override public function remove(object:FlxBasic, splice:Bool = false):FlxBasic {
+		if (object is IGroup)
+			return super.remove(cast(object, IGroup).group, splice);
+		else
+			return super.remove(object, splice);
+	}
+	#end
+
 	override public function openSubState(SubState:FlxSubState):Void {
 		call('openingSubState', [SubState]);
 		super.openSubState(SubState);
 	}
-
 	override public function closeSubState():Void {
 		call('closingSubState', [subState]);
 		super.closeSubState();
+	}
+	override public function resetSubState():Void {
+		super.resetSubState();
+		if (subState != null && subState is BeatSubState) {
+			cast(subState, BeatSubState).parent = this;
+			cast(subState, BeatSubState).onSubstateOpen();
+		}
 	}
 
 	override public function onFocus():Void {
 		super.onFocus();
 		call('onFocus');
 	}
-
 	override public function onFocusLost():Void {
 		super.onFocusLost();
 		call('onFocusLost');
@@ -219,27 +241,17 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 				cast(member, IBeat).stepHit(curStep);
 		call('stepHit', [curStep]);
 	}
-
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
 			if (member is IBeat)
 				cast(member, IBeat).beatHit(curBeat);
 		call('beatHit', [curBeat]);
 	}
-
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
 			if (member is IBeat)
 				cast(member, IBeat).measureHit(curMeasure);
 		call('measureHit', [curMeasure]);
-	}
-
-	override public function resetSubState():Void {
-		super.resetSubState();
-		if (subState != null && subState is BeatSubState) {
-			cast(subState, BeatSubState).parent = this;
-			cast(subState, BeatSubState).onSubstateOpen();
-		}
 	}
 
 	override public function destroy():Void {

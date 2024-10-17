@@ -23,15 +23,16 @@
 		<define name='MOD_SUPPORT'/>
 		<define name='SCRIPT_SUPPORT'/>
 
+		<define name='IGROUP_INTERFACE'/>
+
 		<!-- script related -->
 		<section if='SCRIPT_SUPPORT'>
 			<define name='CAN_HAXE_SCRIPT'/>
-			<!-- <define name='CAN_LUA_SCRIPT'/> -->
+			<define name='CAN_LUA_SCRIPT'/>
 
 			<define name='COMPILE_ALL_CLASSES' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
 			<define name='CUSTOM_CLASSES'/>
 			<define name='SOFTCODED_STATES'/>
-			<!-- <define name='THROW_LUA_MAKEFUN'/> -->
 		</section>
 		<section if='cpp'>
 			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
