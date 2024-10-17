@@ -3,6 +3,12 @@ package backend.music.group;
 typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
 
 class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {
+	override public function new(x:Float = 0, y:Float = 0, maxSize:Int = 0) {
+		super(x, y);
+		group.destroy();
+		group = new BeatTypedGroup<T>(maxSize);
+	}
+
 	public var curStep(default, null):Int;
 	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
