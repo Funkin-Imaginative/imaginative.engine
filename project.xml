@@ -25,7 +25,7 @@
 
 		<!-- script related -->
 		<section if='SCRIPT_SUPPORT'>
-			<define name='CAN_HX_SCRIPT'/>
+			<define name='CAN_HAXE_SCRIPT'/>
 			<!-- <define name='CAN_LUA_SCRIPT'/> -->
 
 			<define name='COMPILE_ALL_CLASSES' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
@@ -75,7 +75,7 @@
 		<haxelib name='flixel'        version='git'/>
 		<haxelib name='flixel-addons' version='git'/>
 
-		<haxelib name='hscript-improved' if='CAN_HX_SCRIPT'/>
+		<haxelib name='hscript-improved' if='CAN_HAXE_SCRIPT'/>
 		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>
 		<haxelib name='hxvlc'            if='ALLOW_VIDEOS'/>
 		<haxelib name='thx.semver'       if='CONTAIN_VERSION_ID'/>
@@ -108,7 +108,7 @@
 		<haxedef name='HXC_LIBVLC_LOGGING' if='ALLOW_VIDEOS debug'/>
 		<haxedef name='HXVLC_NO_SHARE_DIRECTORY' if='ALLOW_VIDEOS'/>
 		<haxedef name='message.reporting' value='pretty'/>
-		<haxedef name='hscriptPos' if='CAN_HX_SCRIPT'/>
+		<haxedef name='hscriptPos' if='CAN_HAXE_SCRIPT'/>
 
 		<!-- related to flixel cne libs (I think) -->
 		<haxedef name='EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX'/>

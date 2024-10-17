@@ -127,10 +127,10 @@ class SpriteUtil {
 
 	inline public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
 		if (provideFullPath)
-			return cast Type.getClassName(Type.getClass(direct));
+			return Type.getClassName(Type.getClass(direct));
 		else {
 			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
-			return cast path[path.length - 1];
+			return path[path.length - 1];
 		}
 	}
 }

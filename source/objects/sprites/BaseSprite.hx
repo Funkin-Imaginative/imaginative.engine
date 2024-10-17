@@ -152,7 +152,7 @@ class BaseSprite extends FlxSkewedSprite {
 
 	/**
 	 * Literally just so
-	 * ```hx
+	 * ```haxe
 	 * var sprite:BaseSprite = new BaseSprite().makeSolid();
 	 * ```
 	 * would work.

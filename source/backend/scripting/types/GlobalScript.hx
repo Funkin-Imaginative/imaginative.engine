@@ -1,4 +1,4 @@
-package backend.scripting;
+package backend.scripting.types;
 
 class GlobalScript {
 	public static var scripts:ScriptGroup;

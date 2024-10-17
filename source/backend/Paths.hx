@@ -86,15 +86,6 @@ enum abstract FunkinPath(String) from String to String {
 }
 
 class Paths {
-	public static final invaildChars:Array<String> = ['\\', ':', '*', '?', '"', '<', '>', '|'];
-	public static function removeInvaildChars(string:String):String {
-		var splitUp:Array<String> = string.split('/');
-		for (i in 0...splitUp.length)
-			for (char in invaildChars)
-				splitUp[i] = splitUp[i].replace(char, '');
-		return FilePath.normalize(splitUp.join('/'));
-	}
-
 	/**
 	 * Prepend's root folder name.
 	 */
@@ -112,7 +103,7 @@ class Paths {
 			if (fileExists(check = 'solo/funkin/$assetPath', false)) // will be "solo/funkin" soon
 				result = check;
 
-		return removeInvaildChars(result);
+		return FilePath.normalize(result);
 	}
 	/**
 	 * It's like `applyRoot` but it just gets the path without asking for a file, it's just the start path. Excludes grouped types.
@@ -200,7 +191,7 @@ class Paths {
 	inline public static function image(file:String, pathType:FunkinPath = ANY):String
 		return applyRoot('images/$file.png', pathType);
 
-	public static final atlasFrameExts:Array<String> = ['xml', 'txt'];
+	public static final atlasFrameExts:Array<String> = ['xml', 'txt', 'json'];
 	inline public static function frames(file:String, type:TextureType = UNKNOWN, pathType:FunkinPath = ANY):FlxAtlasFrames {
 		if (type == UNKNOWN)
 			if (fileExists('images/$file.xml', pathType)) type = SPARROW;

@@ -1,4 +1,4 @@
-package backend.scripting;
+package backend.scripting.states;
 
 class ModSubState extends BeatSubState {
 	override public function get_conductor():Conductor

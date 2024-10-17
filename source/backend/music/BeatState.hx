@@ -129,7 +129,7 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
 				for (script in Script.create('content/states/${this.getClassName()}')) {
-					if (!script.isInvalid) scriptName = script.fileName;
+					if (!script.type.dummy) scriptName = script.name;
 					stateScripts.add(script);
 					script.load();
 				}

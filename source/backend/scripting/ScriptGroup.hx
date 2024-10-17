@@ -22,8 +22,8 @@ class ScriptGroup extends FlxBasic {
 	// as of rn this func is ripped from cne
 	public function importScript(path:String, pathType:FunkinPath = ANY):Script {
 		final script:Script = Script.create(path, pathType, false)[0];
-		if (script.isInvalid) {
-			throw 'Script at $path does not exist.';
+		if (script.type.dummy) {
+			trace('Script at "$path", doesn\'t exist.');
 			return cast null;
 		}
 		add(script);
@@ -116,7 +116,7 @@ class ScriptGroup extends FlxBasic {
 
 	public function clearInvaild():Void {
 		for (script in members) {
-			if (script != null && script.isInvalid) {
+			if (script != null && script.type.dummy) {
 				remove(script);
 				script.destroy();
 			}
@@ -137,7 +137,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByName(name:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.fileName == name) {
+			if (script != null && script.name == name) {
 				result = script;
 				break;
 			}
