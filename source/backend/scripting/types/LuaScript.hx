@@ -7,7 +7,7 @@ final class LuaScript extends Script {
 	public static final exts:Array<String> = ['lua'];
 
 	#if CAN_LUA_SCRIPT
-	public static function getScriptImports(script:Script):Map<String, Dynamic>
+	public static function getScriptImports(script:LuaScript):Map<String, Dynamic>
 		return [
 			'disableScript' => () -> {
 				script.active = false;
