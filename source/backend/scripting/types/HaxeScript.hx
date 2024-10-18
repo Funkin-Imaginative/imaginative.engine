@@ -17,7 +17,7 @@ final class HaxeScript extends Script {
 	var parser:Parser;
 	var expr:Expr;
 
-	public static function getScriptImports(script:Script):Map<String, Dynamic>
+	public static function getScriptImports(script:HaxeScript):Map<String, Dynamic>
 		return [
 			// Haxe //
 			'Std' => Std,
