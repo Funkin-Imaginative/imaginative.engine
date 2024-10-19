@@ -22,10 +22,10 @@ class BeatSprite extends BaseSprite implements IBeat {
 
 	public var beatData:BeatData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
-		return new BeatSprite(x, y, cast ParseUtil.object(path, BEAT, pathType));
+		return new BeatSprite(x, y, cast ParseUtil.object(path, isBeatSprite, pathType));
 	}
-	override function get_objType():ObjectType {
-		return BEAT;
+	override function get_sprType():SpriteType {
+		return isBeatSprite;
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:BeatSpriteData = cast inputData;
@@ -52,25 +52,25 @@ class BeatSprite extends BaseSprite implements IBeat {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {
 			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, NONE, false, 0));
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, Unclear, false, 0));
 				if (!event.stopped) {
-					final prevAnimType:AnimType = animType;
-					playAnim('${getAnimName()}-loop', event.force, event.animType, event.reverse, event.frame);
-					if (prevAnimType == SING || prevAnimType == MISS) animType = prevAnimType; // for `tryDance()` checks
+					final prevAnimContext:AnimContext = animContext;
+					playAnim('${getAnimName()}-loop', event.force, event.animContext, event.reverse, event.frame);
+					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed) animContext = prevAnimContext; // for `tryDance()` checks
 					scripts.call('playingSpecialAnimPost', [event]);
 				}
 			}
 
-			if (animType != DANCE) tryDance();
+			if (animContext != IsDancing) tryDance();
 		}
 		super.update(elapsed);
 	}
 
 	public function tryDance():Void {
-		switch (animType) {
-			case DANCE:
+		switch (animContext) {
+			case IsDancing:
 				dance();
-			case LOCK:
+			case NoDancing:
 				if (getAnimName() == null)
 					dance();
 			default:
@@ -84,14 +84,14 @@ class BeatSprite extends BaseSprite implements IBeat {
 		final event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
 			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, NONE, false, 0));
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, Unclear, false, 0));
 				if (event.stopped) return;
-				playAnim('$animB4Loop-end', event.force, event.animType, event.reverse, event.frame);
+				playAnim('$animB4Loop-end', event.force, event.animContext, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				playAnim('$anim${doesAnimExist('$anim$idleSuffix') ? idleSuffix : ''}', true, DANCE);
+				playAnim('$anim${doesAnimExist('$anim$idleSuffix') ? idleSuffix : ''}', true, IsDancing);
 			}
 		}
 		scripts.call('dancingPost', [event]);
@@ -108,7 +108,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 		this.curBeat = curBeat;
 		if (!(skipNegativeBeats && curBeat < 0) && curBeat % bopRate == 0) {
 			tryDance();
-			if (animType != DANCE && getAnimName().endsWith('-loop')) finishAnim();
+			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
 		scripts.call('beatHit', [curBeat]);
 	}

@@ -225,7 +225,7 @@ class StoryMenu extends BeatState {
 				changeSelection(levels.length - 1, true);
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CANCEL);
+				FunkinUtil.playMenuSFX(CancelSFX);
 				BeatState.switchState(new MainMenu());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected])))
@@ -241,7 +241,7 @@ class StoryMenu extends BeatState {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1);
 		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		final level:LevelObject = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
@@ -270,7 +270,7 @@ class StoryMenu extends BeatState {
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
 		if (prevDiff != curDiff)
-			FunkinUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		for (diff in diffMap) diff.sprite.alpha = 0.0001;
 		diffObject.sprite.alpha = 1;
@@ -288,7 +288,7 @@ class StoryMenu extends BeatState {
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				final time:Float = FunkinUtil.playMenuSFX(CANCEL).time / 1000;
+				final time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
 				if (levelLocked) {
 					final ogX:Float = level.sprite.x;
 					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
@@ -312,7 +312,7 @@ class StoryMenu extends BeatState {
 				selectionCooldown(time);
 			}
 		} else
-			new FlxTimer().start(FunkinUtil.playMenuSFX(CONFIRM).time / 1000, (_:FlxTimer) -> {
+			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
 				BeatState.switchState(new PlayState());
 			});

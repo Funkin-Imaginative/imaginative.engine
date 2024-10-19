@@ -1,20 +1,20 @@
 package utils;
 
-@:dox(hide) typedef RGB = {
+typedef RGB = {
 	@:optional var alpha:Int;
 	var red:Int;
 	var green:Int;
 	var blue:Int;
 }
 
-@:dox(hide) typedef FloatRGB = {
+typedef FloatRGB = {
 	@:optional var alpha:Float;
 	var red:Float;
 	var green:Float;
 	var blue:Float;
 }
 
-@:dox(hide) typedef CMYK = {
+typedef CMYK = {
 	@:optional var alpha:Float;
 	var cyan:Float;
 	var magenta:Float;
@@ -22,14 +22,14 @@ package utils;
 	var black:Float;
 }
 
-@:dox(hide) typedef HSB = {
+typedef HSB = {
 	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;
 	var brightness:Float;
 }
 
-@:dox(hide) typedef HSL = {
+typedef HSL = {
 	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;

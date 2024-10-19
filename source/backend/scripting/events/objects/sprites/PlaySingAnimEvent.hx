@@ -3,7 +3,7 @@ package backend.scripting.events.objects.sprites;
 final class PlaySingAnimEvent extends ScriptEvent {
 	public var direction:Int;
 	public var suffix:String = '';
-	public var animType:AnimType = NONE;
+	public var animContext:AnimContext = Unclear;
 	public var force:Bool = true;
 	public var reverse:Bool = false;
 	public var frame:Int = 0;
@@ -15,11 +15,11 @@ final class PlaySingAnimEvent extends ScriptEvent {
 		return animName.trim() == '' ? singAnims[data] : animName;
 	}
 
-	public function new(direction:Int, suffix:String = '', animType:AnimType = SING, force:Bool = true, reverse:Bool = false, frame:Int = 0) {
+	public function new(direction:Int, suffix:String = '', animContext:AnimContext = IsSinging, force:Bool = true, reverse:Bool = false, frame:Int = 0) {
 		super();
 		this.direction = direction;
 		this.suffix = suffix;
-		this.animType = animType; missed = animType == MISS;
+		this.animContext = animContext; missed = animContext == HasMissed;
 		this.force = force;
 		this.reverse = reverse;
 		this.frame = frame;

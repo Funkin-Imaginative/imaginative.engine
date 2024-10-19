@@ -159,13 +159,13 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CANCEL);
+				FunkinUtil.playMenuSFX(CancelSFX);
 				BeatState.switchState(new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
-					FunkinUtil.playMenuSFX(SCROLL, 0.7);
+					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else selectCurrent();
 			}
 		}
@@ -177,7 +177,7 @@ class MainMenu extends BeatState {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
 		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(SCROLL, 0.7);
+			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		for (i => item in menuItems.members) {
 			item.animation.play(i == curSelected ? 'selected' : 'idle');
@@ -189,7 +189,7 @@ class MainMenu extends BeatState {
 	public function selectCurrent():Void {
 		selectionCooldown();
 
-		FunkinUtil.playMenuSFX(CONFIRM);
+		FunkinUtil.playMenuSFX(ConfirmSFX);
 
 		FlxFlicker.flicker(flashBg, 1.1, 0.6, false);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {

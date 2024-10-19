@@ -20,14 +20,14 @@ class OverlayCameraFrontEnd extends CameraFrontEnd {
 		return NewCamera;
 	}
 
-	override function remove(Camera:FlxCamera, Destroy:Bool = true) {
+	override function remove(Camera:FlxCamera, Destroy:Bool = true):Void {
 		var index:Int = list.indexOf(Camera);
 		if (Camera != null && index != -1) {
 			Main.direct.removeChild(Camera.flashSprite);
 			list.splice(index, 1);
 			defaults.remove(Camera);
 		} else {
-			FlxG.log.warn("Main.cameras.remove(): The camera you attempted to remove is not a part of the game.");
+			FlxG.log.warn('Main.cameras.remove(): The camera you attempted to remove is not a part of the game.');
 			return;
 		}
 
@@ -41,9 +41,9 @@ class OverlayCameraFrontEnd extends CameraFrontEnd {
 		cameraRemoved.dispatch(Camera);
 	}
 
-	override function setDefaultDrawTarget(camera:FlxCamera, value:Bool) {
+	override function setDefaultDrawTarget(camera:FlxCamera, value:Bool):Void {
 		if (!list.contains(camera)) {
-			FlxG.log.warn("Main.cameras.setDefaultDrawTarget(): The specified camera is not a part of the game.");
+			FlxG.log.warn('Main.cameras.setDefaultDrawTarget(): The specified camera is not a part of the game.');
 			return;
 		}
 

@@ -19,14 +19,14 @@ typedef AnimMapping = {
 	@:default('') var flippedAnim:String;
 }
 
-enum abstract ObjectType(String) from String to String {
-	var CHARACTER;
-	var BEAT;
-	var BASE;
+enum abstract SpriteType(String) from String to String {
+	var isCharacterSprite;
+	var isBeatSprite;
+	var isBaseSprite;
 
 	public var canBop(get, never):Bool;
 	inline function get_canBop():Bool
-		return this == BEAT || this == CHARACTER;
+		return this == isBeatSprite || this == isCharacterSprite;
 }
 
 class SpriteUtil {
@@ -54,7 +54,7 @@ class SpriteUtil {
 			if (Paths.fileExists('images/$newTexture.png'))
 				try {
 					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
-				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
+				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.isGraphic}"');
 
 		return sprite;
 	}

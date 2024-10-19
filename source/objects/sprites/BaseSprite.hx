@@ -3,45 +3,53 @@ package objects.sprites;
 import flixel.addons.effects.FlxSkewedSprite;
 import flixel.math.FlxRect;
 
-enum abstract AnimType(String) from String to String {
+/**
+ * Original idea from Codename Engine.
+ * @author @FNF-CNE-Devs
+ */
+enum abstract AnimContext(String) from String to String {
 	/**
-	 * States that the sprite was/is dancing.
+	 * States that the object animation is related to dancing.
 	 */
-	var DANCE;
+	var IsDancing;
 
 	/**
-	 * States that the character was/is singing.
+	 * States that the object animation is related to singing.
 	 */
-	var SING;
+	var IsSinging;
 	/**
-	 * States that the character is/had missed a note.
+	 * States that the object animation is related to missing a note.
 	 */
-	var MISS;
+	var HasMissed;
 
 	/**
-	 * Prevent's the idle animation.
+	 * States that the object animation can't go back to dancing.
 	 */
-	var LOCK;
+	var NoDancing;
+	/**
+	 * States that the object animation can't go back to singing.
+	 */
+	var NoSinging;
 
 	/**
-	 * Play's the idle after the animation has finished.
+	 * States that the object animation is unclear.
 	 */
-	var NONE;
+	var Unclear;
 }
 
 enum abstract TextureType(String) from String to String {
-	var SPARROW;
-	var PACKER;
-	var GRAPHIC;
-	var ASEPRITE;
-	var UNKNOWN;
+	var isSparrow;
+	var isPacker;
+	var isGraphic;
+	var isAseprite;
+	var isUnknown;
 
 	inline public static function getTypeFromPath(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
 		return switch (FilePath.extension(sheetPath)) {
-			case 'xml': SPARROW;
-			case 'txt': PACKER;
-			case 'json': ASEPRITE;
-			default: defaultIsUnknown ? UNKNOWN : GRAPHIC;
+			case 'xml': isSparrow;
+			case 'txt': isPacker;
+			case 'json': isAseprite;
+			default: defaultIsUnknown ? isUnknown : isGraphic;
 		}
 	}
 }
@@ -130,7 +138,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
-			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.GRAPHIC}"');
+			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.isGraphic}"');
 		return cast this;
 	}
 
@@ -150,6 +158,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 		return cast this;
 	}
 
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	/**
 	 * Literally just so
 	 * ```haxe
@@ -189,11 +198,11 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	// Where the BaseSprite class really begins.
 	public var data:SpriteData = null;
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
-		return new BaseSprite(x, y, cast ParseUtil.object(path, BASE, pathType));
+		return new BaseSprite(x, y, cast ParseUtil.object(path, isBaseSprite, pathType));
 	}
-	public var objType(get, never):ObjectType;
-	function get_objType():ObjectType {
-		return BASE;
+	public var sprType(get, never):SpriteType;
+	function get_sprType():SpriteType {
+		return isBaseSprite;
 	}
 	public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:SpriteData = cast inputData;
@@ -206,8 +215,8 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 				for (anim in incomingData.animations)
 					try {
 						switch (anim.asset.type) {
-							case UNKNOWN:
-							case GRAPHIC:
+							case isUnknown:
+							case isGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
 							default:
 								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
@@ -259,7 +268,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	}
 
 	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();
-	public var animType:AnimType;
+	public var animContext:AnimContext;
 
 	public var scripts:ScriptGroup;
 	public function loadScript(path:String):Void {
@@ -281,7 +290,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite, objType));
+				renderData(ParseUtil.object(sprite, sprType));
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);
@@ -296,7 +305,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	}
 
 	inline public function getAnimInfo(name:String):AnimMapping return doesAnimExist(name) ? anims.get(name) : {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''}
-	public function playAnim(name:String, force:Bool = false, type:AnimType = NONE, reverse:Bool = false, frame:Int = 0):Void {
+	public function playAnim(name:String, force:Bool = false, type:AnimContext = Unclear, reverse:Bool = false, frame:Int = 0):Void {
 		if (doesAnimExist(name, true)) {
 			final animInfo:AnimMapping = getAnimInfo(name);
 			animation.play(name, force, reverse, frame);

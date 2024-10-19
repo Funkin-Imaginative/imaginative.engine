@@ -42,8 +42,8 @@ class Character extends BeatSprite {
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
 	public var charData(default, null):CharacterData = null;
-	override function get_objType():ObjectType {
-		return CHARACTER;
+	override function get_sprType():SpriteType {
+		return isCharacterSprite;
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:CharacterSpriteData = cast inputData;
@@ -87,8 +87,8 @@ class Character extends BeatSprite {
 	}
 
 	override public function tryDance():Void {
-		switch (animType) {
-			case SING | MISS:
+		switch (animContext) {
+			case IsSinging | HasMissed:
 				if (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition)
 					dance();
 			default:

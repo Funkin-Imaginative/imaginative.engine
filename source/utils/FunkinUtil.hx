@@ -1,9 +1,9 @@
 package utils;
 
 enum abstract MenuSFX(String) from String to String {
-	var CONFIRM;
-	var CANCEL;
-	var SCROLL;
+	var ConfirmSFX = 'confirm';
+	var CancelSFX = 'cancel';
+	var ScrollSFX = 'scroll';
 }
 
 class FunkinUtil {
@@ -30,12 +30,8 @@ class FunkinUtil {
 				FileSystem.createDirectory('$folderPath/$folder');
 	}
 
-	@:using inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:()->Void):FlxSound {
-		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/' + switch (sound) {
-			case CONFIRM: 'confirm';
-			case CANCEL: 'cancel';
-			case SCROLL: 'scroll';
-		}), volume, onComplete == null ? () -> {} : onComplete);
+	@:using inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:Void->Void):FlxSound {
+		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/$sound'), volume, onComplete == null ? () -> {} : onComplete);
 		menuSound.persist = true;
 		return menuSound;
 	}

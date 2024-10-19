@@ -39,7 +39,7 @@
 		},
 		{
 			"props": {
-				"severity": "IGNORE"
+				"severity": "INFO"
 			},
 			"type": "CommentedOutCode"
 		},
@@ -131,10 +131,9 @@
 		{
 			"props": {
 				"requireParams": true,
-				"fieldType": "FUNCTIONS",
+				"fieldType": "BOTH",
 				"requireReturn": true,
 				"ignoreOverride": true,
-				"severity": "IGNORE",
 				"tokens": [
 					"ABSTRACT_DEF",
 					"CLASS_DEF",
@@ -146,10 +145,6 @@
 				"excludeNames": ["new", "toString"]
 			},
 			"type": "FieldDocComment"
-		},
-		{
-			"props": {},
-			"type": "FileNameCase"
 		},
 		{
 			"props": {

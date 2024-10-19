@@ -90,3 +90,11 @@ class Main extends Sprite {
 		return Child;
 	}
 }
+
+// TODO: Use these more later on.
+/**
+ * ```haxe
+ * @SuppressWarnings('checkstyle:FieldDocComment') @:dox(hide)
+ * inline public var lmao:FieldDocComment = hide;
+ * ```
+ */

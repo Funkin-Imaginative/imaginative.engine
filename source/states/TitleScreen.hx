@@ -43,7 +43,7 @@ class TitleScreen extends BeatState {
 				titleText.centerOffsets();
 				titleText.centerOrigin();
 				camera.flash(FlxColor.WHITE, 1);
-				FunkinUtil.playMenuSFX(CONFIRM, 0.7);
+				FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);
 				leaving = true;
 				BeatState.switchState(new states.menus.MainMenu());
 			}

@@ -29,7 +29,7 @@ enum abstract FunkinPath(String) from String to String {
 	/**
 	 * `ROOT`, `SOLO` or `MODS`.
 	 */
-	 var ANY;
+	var ANY;
 	/**
 	 * `ROOT` or `SOLO`.
 	 */
@@ -54,6 +54,8 @@ enum abstract FunkinPath(String) from String to String {
 
 	/**
 	 * Excludes grouped types, besides `ANY` for null check reasons.
+	 * @param path
+	 * @return FunkinPath
 	 */
 	public static function typeFromPath(path:String):FunkinPath {
 		return switch (path.split('/')[0]) {
@@ -88,6 +90,9 @@ enum abstract FunkinPath(String) from String to String {
 class Paths {
 	/**
 	 * Prepend's root folder name.
+	 * @param assetPath
+	 * @param pathType
+	 * @return String
 	 */
 	public static function applyRoot(assetPath:String, pathType:FunkinPath = ANY):String {
 		var result:String = '';
@@ -171,9 +176,9 @@ class Paths {
 		return audio('music/$file', pathType);
 
 	public static final videoExts:Array<String> = ['mp4', 'mov', 'webm'];
-	inline public static function video(file:String, pathType:FunkinPath = ANY)
+	inline public static function video(file:String, pathType:FunkinPath = ANY):String
 		return multExst(file, videoExts, pathType);
-	inline public static function cutscene(file:String, pathType:FunkinPath = ANY) {
+	inline public static function cutscene(file:String, pathType:FunkinPath = ANY):String {
 		var path:String = video('content/songs/${PlayState.curSong}/$file', pathType);
 		if (!fileExists(path, false))
 			path = video('videos/$file', pathType);
@@ -192,15 +197,15 @@ class Paths {
 		return applyRoot('images/$file.png', pathType);
 
 	public static final atlasFrameExts:Array<String> = ['xml', 'txt', 'json'];
-	inline public static function frames(file:String, type:TextureType = UNKNOWN, pathType:FunkinPath = ANY):FlxAtlasFrames {
-		if (type == UNKNOWN)
-			if (fileExists('images/$file.xml', pathType)) type = SPARROW;
-			else if (fileExists('images/$file.txt', pathType)) type = PACKER;
-			else if (fileExists('images/$file.json', pathType)) type = ASEPRITE;
+	inline public static function frames(file:String, type:TextureType = isUnknown, pathType:FunkinPath = ANY):FlxAtlasFrames {
+		if (type == isUnknown)
+			if (fileExists('images/$file.xml', pathType)) type = isSparrow;
+			else if (fileExists('images/$file.txt', pathType)) type = isPacker;
+			else if (fileExists('images/$file.json', pathType)) type = isAseprite;
 		return switch (type) {
-			case SPARROW: getSparrowAtlas(file, pathType);
-			case PACKER: getPackerAtlas(file, pathType);
-			case ASEPRITE: getAsepriteAtlas(file, pathType);
+			case isSparrow: getSparrowAtlas(file, pathType);
+			case isPacker: getPackerAtlas(file, pathType);
+			case isAseprite: getAsepriteAtlas(file, pathType);
 			default: getSparrowAtlas(file, pathType);
 		}
 	}

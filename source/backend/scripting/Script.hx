@@ -4,14 +4,14 @@ import backend.scripting.types.HaxeScript;
 import backend.scripting.types.LuaScript;
 
 enum abstract ScriptType(String) from String to String {
-	var UNREGISTERED;
-	var HAXE;
-	var LUA;
-	var INVAILD;
+	var TypeUnregistered = 'Unregistered';
+	var TypeHaxe = 'Haxe';
+	var TypeLua = 'Lua';
+	var TypeInvaild = 'Invaild';
 
 	public var dummy(get, never):Bool;
 	inline function get_dummy():Bool
-		return this == UNREGISTERED || this == INVAILD;
+		return this == TypeUnregistered || this == TypeInvaild;
 }
 
 /**
@@ -68,11 +68,11 @@ class Script extends FlxBasic implements IScript {
 	public var type(get, never):ScriptType;
 	inline function get_type():ScriptType {
 		return switch (this.getClassName()) {
-			case 'Script':        	UNREGISTERED;
-			case 'HaxeScript':    	HAXE;
-			case 'LuaScript':     	LUA;
-			case 'InvaildScript': 	INVAILD;
-			default:              	INVAILD;
+			case 'Script':        	TypeUnregistered;
+			case 'HaxeScript':    	TypeHaxe;
+			case 'LuaScript':     	TypeLua;
+			case 'InvaildScript': 	TypeInvaild;
+			default:              	TypeInvaild;
 		}
 	}
 

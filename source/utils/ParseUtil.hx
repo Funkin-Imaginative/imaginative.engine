@@ -70,7 +70,7 @@ class ParseUtil {
 		}
 	}
 
-	public static function object(path:String, objType:ObjectType, pathType:FunkinPath = ANY):TypeSpriteData {
+	public static function object(path:String, sprType:SpriteType, pathType:FunkinPath = ANY):TypeSpriteData {
 		// TODO: Get this shit to use json2object.
 		// final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 		// final parseBeat:Void->BeatSpriteData = () -> return new JsonParser<BeatSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
@@ -83,7 +83,7 @@ class ParseUtil {
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;
-		if (objType.canBop && (objType == CHARACTER && Reflect.hasField(tempData, 'character'))) {
+		if (sprType.canBop && (sprType == isCharacterSprite && Reflect.hasField(tempData, 'character'))) {
 			var gottenData:CharacterParse = null;
 			trace('parseChar ~ 1');
 			var typeData:CharacterSpriteData = parseChar();
@@ -101,7 +101,7 @@ class ParseUtil {
 		}
 
 		var beatData:BeatData = null;
-		if (objType.canBop && Reflect.hasField(tempData, 'beat')) {
+		if (sprType.canBop && Reflect.hasField(tempData, 'beat')) {
 			trace('parseBeat ~ 1');
 			var typeData:BeatData = parseBeat().beat;
 			trace('parseBeat ~ 2');

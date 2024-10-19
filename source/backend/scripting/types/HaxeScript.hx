@@ -97,7 +97,7 @@ final class HaxeScript extends Script {
 			'Main' => Main,
 			'DifficultyObject' => DifficultyObject,
 			'LevelObject' => LevelObject,
-			'AnimType' => Type.resolveClass('objects.sprites.BaseSprite.AnimType_HSC'),
+			'AnimContext' => Type.resolveClass('objects.sprites.BaseSprite.AnimContext_HSC'),
 			'BaseSprite' => BaseSprite,
 			'BeatSprite' => BeatSprite,
 			'Character' => Character,
