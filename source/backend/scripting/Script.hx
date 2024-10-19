@@ -57,7 +57,6 @@ class Script extends FlxBasic implements IScript {
 				case 'lua':
 					scripts.push(new LuaScript(path));
 				default:
-					trace('Extension "${FilePath.extension(path).toLowerCase()}" is invaild!');
 					scripts.push(new InvaildScript(path));
 			}
 		}
@@ -72,7 +71,7 @@ class Script extends FlxBasic implements IScript {
 			case 'HaxeScript':    	TypeHaxe;
 			case 'LuaScript':     	TypeLua;
 			case 'InvaildScript': 	TypeInvaild;
-			default:              	TypeInvaild;
+			default:              	TypeUnregistered;
 		}
 	}
 
