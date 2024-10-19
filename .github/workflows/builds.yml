@@ -21,6 +21,18 @@ jobs:
         with:
           haxe-version: 4.2.5
 
+      - name: Run Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: windows-build-cache
+          path: |
+            .haxelib/
+            export/build/windows/haxe/
+            export/build/windows/obj/
+          restore-keys: |
+            windows-build-cache
+
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
@@ -33,6 +45,37 @@ jobs:
           name: Windows
           path: export/build/windows/bin
 
+      - name: Clearing Cache
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            for (const cache of caches.data.actions_caches) {
+              if (cache.key == 'windows-build-cache') {
+                console.log('Clearing ' + cache.key + '...')
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                })
+                console.log('Cache cleared.')
+              }
+            }
+      - name: Run New Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: windows-build-cache
+          path: |
+            .haxelib/
+            export/build/windows/haxe/
+            export/build/windows/obj/
+          restore-keys: |
+            windows-build-cache
+
   mac:
     permissions: write-all
     runs-on: macos-13
@@ -43,6 +86,18 @@ jobs:
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
+
+      - name: Run Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: mac-build-cache
+          path: |
+            .haxelib/
+            export/build/mac/haxe/
+            export/build/mac/obj/
+          restore-keys: |
+            mac-build-cache
 
       - name: Installing Libs
         run: |
@@ -58,6 +113,37 @@ jobs:
           name: Mac
           path: Imaginative.tar.gz
 
+      - name: Clearing Cache
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            for (const cache of caches.data.actions_caches) {
+              if (cache.key == 'mac-build-cache') {
+                console.log('Clearing ' + cache.key + '...')
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                })
+                console.log('Cache cleared.')
+              }
+            }
+      - name: Run New Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: mac-build-cache
+          path: |
+            .haxelib/
+            export/build/mac/haxe/
+            export/build/mac/obj/
+          restore-keys: |
+            mac-build-cache
+
   linux:
     permissions: write-all
     runs-on: ubuntu-latest
@@ -68,6 +154,18 @@ jobs:
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
+
+      - name: Run Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: linux-build-cache
+          path: |
+            .haxelib/
+            export/build/linux/haxe/
+            export/build/linux/obj/
+          restore-keys: |
+            linux-build-cache
 
       - name: Installing LibVLC
         run: |
@@ -85,3 +183,34 @@ jobs:
         with:
           name: Linux
           path: Imaginative.tar.gz
+
+      - name: Clearing Cache
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const caches = await github.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            for (const cache of caches.data.actions_caches) {
+              if (cache.key == 'linux-build-cache') {
+                console.log('Clearing ' + cache.key + '...')
+                await github.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                })
+                console.log('Cache cleared.')
+              }
+            }
+      - name: Run New Cache
+        uses: actions/cache@v3
+        with:
+          # not caching the bin folder to prevent asset duplication and stuff like that
+          key: linux-build-cache
+          path: |
+            .haxelib/
+            export/build/linux/haxe/
+            export/build/linux/obj/
+          restore-keys: |
+            linux-build-cache
