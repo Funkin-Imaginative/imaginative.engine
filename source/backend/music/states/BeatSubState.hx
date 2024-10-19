@@ -1,6 +1,6 @@
-package backend.music;
+package backend.music.states;
 
-class BeatState extends FlxState /* implements IBeat */ { // Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))
+class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))
 	/**
 	 * The states conductor.
 	 */
@@ -109,8 +109,8 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 	inline function get_songPosition():Float
 		return conductor.songPosition;
 
-	/* vVv Actual state stuff below. vVv */
-	public static var direct:BeatState;
+	/* vVv Actual substate stuff below. vVv */
+	public static var direct:BeatSubState;
 
 	public var controls:Controls = Controls.p1;
 
@@ -124,6 +124,7 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		this.scriptName = scriptName;
 	}
 
+	@SuppressWarnings('checkstyle:CodeSimilarity')
 	function loadScript():Void {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
@@ -131,8 +132,8 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 				for (script in Script.create('content/states/${this.getClassName()}')) {
 					if (!script.type.dummy) scriptName = script.name;
 					stateScripts.add(script);
-					script.load();
 				}
+				stateScripts.load();
 			} else stateScripts.reload();
 		}
 	}
@@ -147,20 +148,8 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		return event;
 	}
 
-	public static function switchState(nextState:FlxState):Void {
-		if (FlxG.state is BeatState && nextState is BeatState) {
-			var oldCouductor:Conductor = cast(FlxG.state, BeatState).conductor;
-			var newCouductor:Conductor = cast(nextState, BeatState).conductor;
-			if (oldCouductor == Conductor.song)
-				oldCouductor.pause();
-			else if (oldCouductor != newCouductor)
-				oldCouductor.stop();
-		}
-		FlxG.switchState(nextState);
-	}
-
 	override public function create():Void {
-		Conductor.beatStates.push(direct = this);
+		Conductor.beatSubStates.push(direct = this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
@@ -210,6 +199,16 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 	}
 	#end
 
+	public var parent:FlxState;
+	public function onSubstateOpen():Void {}
+	override public function close():Void {
+		var event:ScriptEvent = event('onClose', new ScriptEvent());
+		if (!event.stopped) {
+			super.close();
+			call('onClosePost');
+		}
+	}
+
 	override public function openSubState(SubState:FlxSubState):Void {
 		call('openingSubState', [SubState]);
 		super.openSubState(SubState);
@@ -219,11 +218,13 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
-		super.resetSubState();
 		if (subState != null && subState is BeatSubState) {
 			cast(subState, BeatSubState).parent = this;
+			super.resetSubState();
 			cast(subState, BeatSubState).onSubstateOpen();
+			return;
 		}
+		super.resetSubState();
 	}
 
 	override public function onFocus():Void {
@@ -256,7 +257,7 @@ class BeatState extends FlxState /* implements IBeat */ { // Field curStep has d
 
 	override public function destroy():Void {
 		stateScripts.destroy();
-		Conductor.beatStates.remove(this);
+		Conductor.beatSubStates.remove(this);
 		direct = null;
 		super.destroy();
 	}

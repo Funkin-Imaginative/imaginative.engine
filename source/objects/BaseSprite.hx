@@ -1,11 +1,11 @@
-package objects.sprites;
+package objects;
 
 import flixel.addons.effects.FlxSkewedSprite;
 import flixel.math.FlxRect;
 
 /**
  * Original idea from Codename Engine.
- * @author @FNF-CNE-Devs
+ * @author Original by @FNF-CNE-Devs, done differenly by @rodney528.
  */
 enum abstract AnimContext(String) from String to String {
 	/**
@@ -84,7 +84,7 @@ typedef AnimationTyping = {
 	@:optional var asset:AssetTyping;
 	var name:String;
 	@:optional var tag:String;
-	@:optional var dimensions:TypeXY<Int>;
+	@:optional @:default({x: 1, y: 1}) var dimensions:TypeXY<Int>;
 	@:default([]) var indices:Array<Int>;
 	@:default({x: 0, y: 0}) var offset:PositionStruct;
 	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
@@ -180,13 +180,13 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 
 	override function set_x(value:Float):Float {
 		try {
-			return super.set_x(value + FunkinUtil.getDefault(data.offsets.position.x, 0));
+			return super.set_x(value + data.offsets.position.x.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_x(value);
 	}
 	override function set_y(value:Float):Float {
 		try {
-			return super.set_y(value + FunkinUtil.getDefault(data.offsets.position.y, 0));
+			return super.set_y(value + data.offsets.position.y.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_y(value);
 	}
@@ -200,9 +200,15 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
 		return new BaseSprite(x, y, cast ParseUtil.object(path, isBaseSprite, pathType));
 	}
-	public var sprType(get, never):SpriteType;
-	function get_sprType():SpriteType {
-		return isBaseSprite;
+	public var type(get, never):SpriteType;
+	function get_type():SpriteType {
+		return switch(this.getClassName()) {
+			case 'Character':  	isCharacterSprite;
+			case 'HealthIcon': 	isHealthIcon;
+			case 'BeatSprite': 	isBeatSprite;
+			case 'BaseSprite': 	isBaseSprite;
+			default:          	isUnidentified;
+		}
 	}
 	public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:SpriteData = cast inputData;
@@ -248,7 +254,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 			}
 
 			try {
-				antialiasing = FunkinUtil.reflectDefault(incomingData, 'antialiasing', true);
+				antialiasing = incomingData.reflectDefault('antialiasing', true);
 			} catch(error:haxe.Exception) trace('The antialiasing null check failed.');
 
 			if (Reflect.hasField(incomingData, 'extra'))
@@ -290,7 +296,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite, sprType));
+				renderData(ParseUtil.object(sprite, type));
 			}
 			else loadTexture(sprite);
 		} else renderData(sprite);

@@ -16,8 +16,10 @@ package backend.interfaces;
 	private function renderNecessities():Void;
 
 	private var code:String;
-	private function renderScript(path:String):Void;
+	private function renderScript(path:String, ?code:String):Void;
 	private function loadCodeString(code:String):Void;
+
+	function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void;
 
 	var loaded:Bool;
 	function load():Void;

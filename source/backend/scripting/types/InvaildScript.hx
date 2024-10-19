@@ -6,8 +6,9 @@ final class InvaildScript extends Script {
 	 */
 	public static final exts:Array<String> = ['this array is useless lmao'];
 
-	override public function new(path:String) {
+	@:allow(backend.scripting.Script.create)
+	override function new(path:String, ?_:String) {
 		trace('Extension "${FilePath.extension(path).toLowerCase()}" is invaild!');
-		super(path);
+		super(path, null);
 	}
 }

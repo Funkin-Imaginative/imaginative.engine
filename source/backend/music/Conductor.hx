@@ -260,15 +260,14 @@ class Conductor implements IBeat implements IFlxDestroyable {
 		try {
 			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(Paths.json(path)), Paths.json(path));
 			if (content == null) trace('Metadata parse failed.');
-			return FunkinUtil.getDefault(content, {
+			return content.getDefault({
 				name: 'None',
 				bpm: 100,
 				signature: [4, 4],
 				checkpoints: []
 			});
 		} catch(error:haxe.Exception) {
-			trace(error.message);
-			trace('This error ^^^ occured when attempting to parse the json.');
+			trace('Error occured when attempting to parse the json: ${error.message}');
 			return {
 				name: 'None',
 				bpm: 100,
@@ -363,8 +362,8 @@ class Conductor implements IBeat implements IFlxDestroyable {
 			@:privateAccess sound.onFocusLost();
 	}
 
-	@:allow(backend.music.BeatState) static var beatStates:Array<BeatState> = [];
-	@:allow(backend.music.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
+	@:allow(backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
+	@:allow(backend.music.states.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
 	inline function callToState(timeType:SongTimeType, curTime:Int):Void {
 		for (state in beatStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))

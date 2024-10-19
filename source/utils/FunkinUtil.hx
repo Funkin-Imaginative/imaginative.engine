@@ -4,10 +4,13 @@ enum abstract MenuSFX(String) from String to String {
 	var ConfirmSFX = 'confirm';
 	var CancelSFX = 'cancel';
 	var ScrollSFX = 'scroll';
+
+	public function playSFX(volume:Float = 1, ?onComplete:Void->Void):FlxSound
+		return FunkinUtil.playMenuSFX(this, volume, onComplete);
 }
 
 class FunkinUtil {
-	inline public static function addMissingFolders(folderPath:String):Void {
+	@:noUsing inline public static function addMissingFolders(folderPath:String):Void {
 		final folders:Array<String> = [
 			'content',
 			'content/difficulties',
@@ -30,13 +33,13 @@ class FunkinUtil {
 				FileSystem.createDirectory('$folderPath/$folder');
 	}
 
-	@:using inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:Void->Void):FlxSound {
-		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/$sound'), volume, onComplete == null ? () -> {} : onComplete);
+	@:noUsing inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?onComplete:Void->Void):FlxSound {
+		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu/$sound'), volume, onComplete.getDefault(() -> {}));
 		menuSound.persist = true;
 		return menuSound;
 	}
 
-	public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:FunkinPath = ANY):Array<String> {
+	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:FunkinPath = ANY):Array<String> {
 		var results:Array<String> = [];
 		try {
 			if (sortOrderByLevel)
@@ -57,7 +60,7 @@ class FunkinUtil {
 	 * @param name The song folder name.
 	 * @return The songs display name.
 	 */
-	public static function getSongDisplay(name:String):String
+	@:noUsing public static function getSongDisplay(name:String):String
 		return ParseUtil.song(name).name;
 
 	/**
@@ -65,7 +68,7 @@ class FunkinUtil {
 	 * @param diff The difficulty json name.
 	 * @return The difficulties display name.
 	 */
-	inline public static function getDifficultyDisplay(diff:String):String
+	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
 		return ParseUtil.difficulty(diff).display;
 
 	/**
@@ -73,11 +76,11 @@ class FunkinUtil {
 	 * @param diff The difficulty json name.
 	 * @return The difficulties default variant.
 	 */
-	inline public static function getDifficultyVariant(diff:String):String
+	@:noUsing inline public static function getDifficultyVariant(diff:String):String
 		return ParseUtil.difficulty(diff).variant;
 
-	@:using inline public static function trimSplit(text:String):Array<String> {
-		var daList:Array<String> = text.split('\n');
+	inline public static function trimSplit(text:String, delimiter:String):Array<String> {
+		var daList:Array<String> = text.split(delimiter);
 		for (i in 0...daList.length)
 			daList[i] = daList[i].trim();
 		return daList;
@@ -89,24 +92,26 @@ class FunkinUtil {
 	 * @param defaultValue
 	 * @return T
 	 */
-	@:using inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
+	inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
 		return Reflect.hasField(data, field) ? Reflect.getProperty(data, field).getDefault(defaultValue) : defaultValue;
 
-	// Using CNE's because mine was a bitch to use. May try making my own as this is also being a bitch to use.
+	// Using CNE's because mine was a bitch to use.
 	/**
 	 * Returns `v` if not null, `defaultValue` otherwise.
 	 * @param v The value
 	 * @param defaultValue The default value
 	 * @return T
+	 * @author @FNF-CNE-Devs
 	 */
-	@:using inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
+	inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
 		return (v == null || isNaN(v)) ? defaultValue : v;
 	/**
 	 * Whenever a value is NaN or not.
 	 * @param v Value
 	 * @return Bool
+	 * @author @FNF-CNE-Devs
 	 */
-	inline public static function isNaN(v:Dynamic):Bool
+	@:noUsing inline public static function isNaN(v:Dynamic):Bool
 		if (v is Float || v is Int)
 			return Math.isNaN(cast(v, Float));
 		else return false;

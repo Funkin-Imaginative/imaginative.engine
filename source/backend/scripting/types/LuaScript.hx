@@ -17,14 +17,16 @@ final class LuaScript extends Script {
 			}
 		];
 
-	override public function new(path:String) {
+	@:allow(backend.scripting.Script.create)
+	override function new(path:String, ?code:String) {
 		trace('Lua scripting isn\'t supported... yet.');
-		super(path);
+		super(path, code);
 	}
 	#else
-	override public function new(path:String) {
+	@:allow(backend.scripting.Script.create)
+	override function new(path:String, ?_:String) {
 		trace('Lua scripting isn\'t supported in this build.');
-		super(path);
+		super(path, null);
 	}
 	#end
 }

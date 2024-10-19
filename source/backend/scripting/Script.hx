@@ -1,6 +1,7 @@
 package backend.scripting;
 
 import backend.scripting.types.HaxeScript;
+import backend.scripting.types.InvaildScript;
 import backend.scripting.types.LuaScript;
 
 enum abstract ScriptType(String) from String to String {
@@ -19,6 +20,8 @@ enum abstract ScriptType(String) from String to String {
  * @author Class started by @Zyflx. Expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
+	public static var scripts:Array<Script> = [];
+
 	/**
 	 * All possible extension types.
 	 */
@@ -80,20 +83,29 @@ class Script extends FlxBasic implements IScript {
 
 	function renderNecessities():Void {}
 
-	public function new(path:String):Void {
+	public function new(path:String, ?code:String):Void {
+		if (code != null) {
+			rootPath = path;
+			name = FilePath.withoutDirectory(path);
+			extension = FilePath.extension(path);
+			this.path = path;
+		}
 		super();
-		rootPath = path;
-		name = FilePath.withoutDirectory(path);
-		extension = FilePath.extension(path);
-		this.path = path;
 		renderScript(path);
 		renderNecessities();
-		GlobalScript.call('scriptCreated', [this, type]);
+		if (code != null) {
+			if (!scripts.contains(this)) {
+				scripts.push(this);
+				GlobalScript.call('scriptCreated', [this, type]);
+			} else destroy();
+		}
 	}
 
 	var code:String = '';
-	function renderScript(path:String):Void {}
+	function renderScript(path:String, ?code:String):Void {}
 	function loadCodeString(code:String):Void {}
+
+	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void {}
 
 	public var loaded:Bool = false;
 	public function load():Void
@@ -114,6 +126,9 @@ class Script extends FlxBasic implements IScript {
 
 	override public function destroy():Void {
 		call('destroy');
+		GlobalScript.call('scriptDestroyed', [this, type]);
+		if (scripts.contains(this))
+			scripts.remove(this);
 		super.destroy();
 	}
 }

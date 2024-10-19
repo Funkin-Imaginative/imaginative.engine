@@ -1,4 +1,4 @@
-package objects;
+package objects.holders;
 
 typedef DifficultyData = {
 	var display:String;
@@ -6,7 +6,7 @@ typedef DifficultyData = {
 	@:default(1) var scoreMult:Float;
 }
 
-class DifficultyObject extends FlxBasic {
+class DifficultyHolder extends FlxBasic {
 	public var data:DifficultyData;
 	public var sprite:BaseSprite;
 	public var lock:BaseSprite;
@@ -35,7 +35,7 @@ class DifficultyObject extends FlxBasic {
 			refreshAnim();
 
 			if (isLocked)
-				sprite.color = FlxColor.subtract(sprite.color, FlxColor.fromRGB(100, 100, 100));
+				sprite.color -= 0xFF646464;
 
 			lock = new BaseSprite('ui/lock');
 			lock.antialiasing = true;

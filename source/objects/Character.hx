@@ -1,12 +1,12 @@
-package objects.sprites;
+package objects;
 
 import backend.scripting.events.PointEvent;
 
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:PositionStruct;
-	var color:String;
-	var icon:String;
-	var singlength:Float;
+	@:default('#8000ff') var color:String;
+	@:default('face') var icon:String;
+	@:default(4) var singlength:Float;
 }
 typedef CharacterData = {
 	var camera:PositionStruct;
@@ -18,10 +18,7 @@ typedef CharacterData = {
 class Character extends BeatSprite {
 	public var singSuffix:String = '';
 	public var theirName(default, null):String;
-	public var theirIcon(get, null):String;
-	inline function get_theirIcon():String {
-		return theirIcon;
-	}
+	public var theirIcon(default, null):String;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	public var singLength:Float = 0;
@@ -42,15 +39,12 @@ class Character extends BeatSprite {
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
 	public var charData(default, null):CharacterData = null;
-	override function get_sprType():SpriteType {
-		return isCharacterSprite;
-	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:CharacterSpriteData = cast inputData;
 		super.renderData(inputData);
 		try {
 			try {
-				cameraOffset.copyFrom(FunkinUtil.getDefault(incomingData.character.camera, new PositionStruct()));
+				cameraOffset.copyFrom(incomingData.character.camera.getDefault(new PositionStruct()));
 			} catch(error:haxe.Exception) trace('Couldn\'t set camera offsets.');
 			try {
 				healthColor = incomingData.character.color;
@@ -59,7 +53,7 @@ class Character extends BeatSprite {
 				theirIcon = incomingData.character.icon;
 			} catch(error:haxe.Exception) trace('Couldn\'t set the characters icon.');
 			try {
-				singLength = FunkinUtil.getDefault(incomingData.character.singlength, 4);
+				singLength = incomingData.character.singlength.getDefault(4);
 			} catch(error:haxe.Exception) trace('Couldn\'t set the sing length.');
 
 			try {

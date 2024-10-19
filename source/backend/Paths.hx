@@ -151,7 +151,7 @@ class Paths {
 	}
 
 	public static function readFolderOrderTxt(folderPath:String, setExt:String, pathType:FunkinPath = ANY):Array<String> {
-		var orderText:Array<String> = FunkinUtil.trimSplit(getFileContent(txt('$folderPath/order')));
+		var orderText:Array<String> = getFileContent(txt('$folderPath/order')).trimSplit('\n');
 		var files:Array<String> = [];
 		var result:Array<String> = [];
 		for (file in readFolder(folderPath, setExt, pathType))
@@ -224,6 +224,6 @@ class Paths {
 	inline public static function fileExists(path:String, applyRoot:Bool = true, pathType:FunkinPath = ANY):Bool
 		return FileSystem.exists(applyRoot ? Paths.applyRoot(path, pathType) : path);
 
-	inline public static function getFileContent(fullPath:String):String
-		return fileExists(fullPath, false) ? sys.io.File.getContent(fullPath) : '';
+	inline public static function getFileContent(fullPath:String, applyRoot:Bool = false):String
+		return fileExists(fullPath, applyRoot) ? sys.io.File.getContent(fullPath) : '';
 }

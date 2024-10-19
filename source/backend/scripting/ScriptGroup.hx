@@ -24,7 +24,7 @@ class ScriptGroup extends FlxBasic {
 		final script:Script = Script.create(path, pathType, false)[0];
 		if (script.type.dummy) {
 			trace('Script at "$path", doesn\'t exist.');
-			return cast null;
+			return null;
 		}
 		add(script);
 		script.load();

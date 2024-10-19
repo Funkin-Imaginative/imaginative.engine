@@ -1,39 +1,32 @@
 package utils;
 
-typedef RGB = {
-	@:optional var alpha:Int;
-	var red:Int;
-	var green:Int;
-	var blue:Int;
-}
-
-typedef FloatRGB = {
-	@:optional var alpha:Float;
-	var red:Float;
-	var green:Float;
-	var blue:Float;
+typedef RGB<T> = {
+	var red:T;
+	var green:T;
+	var blue:T;
+	@:optional var alpha:T;
 }
 
 typedef CMYK = {
-	@:optional var alpha:Float;
 	var cyan:Float;
 	var magenta:Float;
 	var yellow:Float;
 	var black:Float;
+	@:optional var alpha:Float;
 }
 
 typedef HSB = {
-	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;
 	var brightness:Float;
+	@:optional var alpha:Float;
 }
 
 typedef HSL = {
-	@:optional var alpha:Float;
 	var hue:Float;
 	var saturation:Float;
 	var lightness:Float;
+	@:optional var alpha:Float;
 }
 
 /**
@@ -42,7 +35,7 @@ typedef HSL = {
  * `inline` is still called because it just felt right to me.
  * You could also actually do `using` for this class if you wanted to I guess?
  */
-class FlxColorUtil {
+@:noUsing class FlxColorUtil {
 	// RGB
 	inline public static function getRed(color:FlxColor):Int
 		return color.red;
@@ -213,14 +206,14 @@ class FlxColorUtil {
 		return color.setHSL(hue, saturation, lightness, alpha);
 
 	// Custom Extras
-	inline public static function getRGB(color:FlxColor):RGB
+	inline public static function getRGB(color:FlxColor):RGB<Int>
 		return {
 			red: color.red,
 			green: color.green,
 			blue: color.blue,
 			alpha: color.alpha
 		}
-	inline public static function getRGBFloat(color:FlxColor):FloatRGB
+	inline public static function getRGBFloat(color:FlxColor):RGB<Float>
 		return {
 			red: color.redFloat,
 			green: color.greenFloat,

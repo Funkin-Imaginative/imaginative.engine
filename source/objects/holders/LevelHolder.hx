@@ -1,10 +1,10 @@
-package objects;
+package objects.holders;
 
 typedef ObjectTyping = {
 	var object:OneOfTwo<String, TypeSpriteData>;
-	@:optional var flip:Bool;
-	@:optional var offsets:PositionStruct;
-	@:optional var size:Float;
+	@:optional @:default(false) var flip:Bool;
+	@:optional @:default({x: 0, y: 0}) var offsets:PositionStruct;
+	@:optional @:default(1) var size:Float;
 	@:default(false) var willHey:Bool;
 }
 
@@ -28,7 +28,7 @@ typedef LevelData = {
 	var color:FlxColor;
 }
 
-class LevelObject extends FlxBasic {
+class LevelHolder extends FlxBasic {
 	public var data:LevelData;
 	public var sprite:BaseSprite;
 	public var lock:BaseSprite;
@@ -60,7 +60,7 @@ class LevelObject extends FlxBasic {
 			sprite.antialiasing = true;
 
 			if (isLocked)
-				sprite.color = FlxColor.subtract(data.color, FlxColor.fromRGB(100, 100, 100));
+				sprite.color -= 0xFF646464;
 
 			lock = new BaseSprite('ui/lock');
 			lock.antialiasing = true;

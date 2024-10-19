@@ -1,4 +1,7 @@
-package objects.sprites;
+package objects;
+
+import backend.scripting.events.objects.sprites.BopEvent;
+import backend.scripting.events.objects.sprites.PlaySpecialAnimEvent;
 
 typedef BeatData = {
 	@:default(0) var invertal:Int;
@@ -24,18 +27,15 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
 		return new BeatSprite(x, y, cast ParseUtil.object(path, isBeatSprite, pathType));
 	}
-	override function get_sprType():SpriteType {
-		return isBeatSprite;
-	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:BeatSpriteData = cast inputData;
 		super.renderData(inputData);
 		try {
 			try {
-				beatInterval = FunkinUtil.getDefault(incomingData.beat.invertal, 0);
+				beatInterval = incomingData.beat.invertal.getDefault(0);
 			} catch(error:haxe.Exception) trace('Couldn\'t set object bop rate.');
 			try {
-				skipNegativeBeats = FunkinUtil.getDefault(incomingData.beat.skipnegative, false);
+				skipNegativeBeats = incomingData.beat.skipnegative.getDefault(false);
 			} catch(error:haxe.Exception) trace('Couldn\'t set skipping negative beats.');
 
 			try {
@@ -70,7 +70,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 		switch (animContext) {
 			case IsDancing:
 				dance();
-			case NoDancing:
+			case NoDancing | NoSinging:
 				if (getAnimName() == null)
 					dance();
 			default:

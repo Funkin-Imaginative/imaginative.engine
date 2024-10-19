@@ -12,10 +12,10 @@ class StoryMenu extends BeatState {
 		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
 	}
 
-	var diffMap:Map<String, DifficultyObject> = new Map<String, DifficultyObject>();
+	var diffMap:Map<String, DifficultyHolder> = new Map<String, DifficultyHolder>();
 
-	var diffObject(get, never):DifficultyObject;
-	function get_diffObject():DifficultyObject
+	var diffHolder(get, never):DifficultyHolder;
+	function get_diffHolder():DifficultyHolder
 		return diffMap[curDiffString];
 
 	var prevDiffList:Array<String> = [];
@@ -39,8 +39,8 @@ class StoryMenu extends BeatState {
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
 
-	var levels:FlxTypedGroup<LevelObject>;
-	var diffs:FlxTypedGroup<DifficultyObject>;
+	var levels:FlxTypedGroup<LevelHolder>;
+	var diffs:FlxTypedGroup<DifficultyHolder>;
 	var leftArrow:BaseSprite;
 	var rightArrow:BaseSprite;
 
@@ -57,20 +57,20 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		var loadedDiffs:Array<String> = [];
-		var loadedObjects:Array<Array<objects.LevelObject.ObjectTyping>> = [];
-		levels = new FlxTypedGroup<LevelObject>();
+		var loadedObjects:Array<Array<ObjectTyping>> = [];
+		levels = new FlxTypedGroup<LevelHolder>();
 		for (list in [
 			// Paths.readFolderOrderTxt('content/levels', 'json', FunkinPath.getSolo()),
 			Paths.readFolderOrderTxt('content/levels', 'json')
 		]) {
 			for (i => name in list) {
-				final level:LevelObject = new LevelObject(0, 150 * (i + 1), name, true);
+				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
-				var temp:Array<objects.LevelObject.ObjectTyping> = [];
+				var temp:Array<ObjectTyping> = [];
 				for (data in level.data.objects)
 					temp.push(data);
 				loadedObjects.push(temp);
@@ -78,10 +78,10 @@ class StoryMenu extends BeatState {
 		}
 		add(levels);
 
-		diffs = new FlxTypedGroup<DifficultyObject>();
+		diffs = new FlxTypedGroup<DifficultyHolder>();
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
-			final diff:DifficultyObject = new DifficultyObject(name, true);
+			final diff:DifficultyHolder = new DifficultyHolder(name, true);
 			diff.sprite.scale.set(0.85, 0.85);
 			diff.sprite.updateHitbox();
 			diff.refreshAnim();
@@ -195,7 +195,7 @@ class StoryMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			final hoverIsCorrect:LevelObject->Bool = (item:LevelObject) -> return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
+			final hoverIsCorrect:LevelHolder->Bool = (item:LevelHolder) -> return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
 
 			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);
@@ -243,7 +243,7 @@ class StoryMenu extends BeatState {
 		if (prevSelected != curSelected)
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
-		final level:LevelObject = levels.members[curSelected];
+		final level:LevelHolder = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
@@ -273,7 +273,7 @@ class StoryMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		for (diff in diffMap) diff.sprite.alpha = 0.0001;
-		diffObject.sprite.alpha = 1;
+		diffHolder.sprite.alpha = 1;
 		for (diff in diffMap) diff.updateLock();
 	}
 
@@ -282,9 +282,9 @@ class StoryMenu extends BeatState {
 	public function selectCurrent():Void {
 		canSelect = false;
 
-		final level:LevelObject = levels.members[curSelected];
+		final level:LevelHolder = levels.members[curSelected];
 		final levelLocked:Bool = level.isLocked;
-		final diffLocked:Bool = diffObject.isLocked;
+		final diffLocked:Bool = diffHolder.isLocked;
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
@@ -300,11 +300,11 @@ class StoryMenu extends BeatState {
 					});
 				}
 				if (diffLocked) {
-					final ogY:Float = diffObject.sprite.y;
-					diffShake = FlxTween.shake(diffObject.sprite, 0.1, time, Y, {
-						onUpdate: (_:FlxTween) -> diffObject.updateLock(),
+					final ogY:Float = diffHolder.sprite.y;
+					diffShake = FlxTween.shake(diffHolder.sprite, 0.1, time, Y, {
+						onUpdate: (_:FlxTween) -> diffHolder.updateLock(),
 						onComplete: (_:FlxTween) -> {
-							diffObject.sprite.y = ogY;
+							diffHolder.sprite.y = ogY;
 							diffShake = null;
 						}
 					});

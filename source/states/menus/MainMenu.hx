@@ -16,7 +16,7 @@ class MainMenu extends BeatState {
 	}
 
 	// Things to select.
-	var itemLineUp:Array<String> = FunkinUtil.trimSplit(Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')));
+	var itemLineUp:Array<String> = Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')).trimSplit('\n');
 
 	// Objects in the state.
 	var bg:BaseSprite;

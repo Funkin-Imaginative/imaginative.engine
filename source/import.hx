@@ -54,30 +54,30 @@ import backend.interfaces.IBeat;
 import backend.interfaces.IGroup;
 #end
 import backend.interfaces.IScript;
-import backend.music.BeatState;
-import backend.music.BeatSubState;
 import backend.music.Conductor;
 import backend.music.group.BeatGroup;
 import backend.music.group.BeatSpriteGroup;
+import backend.music.states.BeatState;
+import backend.music.states.BeatSubState;
 import backend.scripting.Script;
 import backend.scripting.ScriptGroup;
 import backend.scripting.events.ScriptEvent;
 import backend.scripting.types.GlobalScript;
-import backend.scripting.types.InvaildScript;
 import backend.structures.PositionStruct;
 import backend.system.FlxWindow;
 import backend.system.Main;
-import objects.DifficultyObject;
-import objects.LevelObject;
-import objects.sprites.BaseSprite;
-import objects.sprites.BeatSprite;
-import objects.sprites.Character;
+import objects.BaseSprite;
+import objects.BeatSprite;
+import objects.Character;
+import objects.holders.LevelHolder;
+import objects.holders.DifficultyHolder;
+import objects.ui.HealthIcon;
 import states.PlayState;
-import utils.FunkinUtil;
 import utils.ParseUtil;
 import utils.PlatformUtil;
 
 using utils.FlxColorUtil;
+using utils.FunkinUtil;
 using utils.SpriteUtil;
 
 /* Libs */

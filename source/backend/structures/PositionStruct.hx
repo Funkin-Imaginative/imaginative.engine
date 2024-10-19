@@ -8,8 +8,8 @@ package backend.structures;
 		set(x, y);
 
 	inline public function set(x:T, y:T):TypeXY<T> {
-		this.x = FunkinUtil.getDefault(x, this.x);
-		this.y = FunkinUtil.getDefault(y, this.y);
+		this.x = x.getDefault(this.x);
+		this.y = y.getDefault(this.y);
 		return this;
 	}
 

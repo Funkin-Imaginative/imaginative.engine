@@ -95,12 +95,13 @@ final class HaxeScript extends Script {
 			'FlxWindow' => FlxWindow,
 			'mainWindow' => FlxWindow.direct,
 			'Main' => Main,
-			'DifficultyObject' => DifficultyObject,
-			'LevelObject' => LevelObject,
-			'AnimContext' => Type.resolveClass('objects.sprites.BaseSprite.AnimContext_HSC'),
+			'AnimContext' => Type.resolveClass('objects.BaseSprite.AnimContext_HSC'),
 			'BaseSprite' => BaseSprite,
 			'BeatSprite' => BeatSprite,
 			'Character' => Character,
+			'DifficultyHolder' => DifficultyHolder,
+			'LevelHolder' => LevelHolder,
+			'HealthIcon' => HealthIcon,
 			'PlayState' => PlayState,
 			'FunkinUtil' => FunkinUtil,
 			'ParseUtil' => ParseUtil,
@@ -126,23 +127,27 @@ final class HaxeScript extends Script {
 			'__this__' => script
 		];
 
+	@:allow(backend.scripting.Script.create)
+	override function new(path:String, ?code:String)
+		super(path, code);
+
 	override function renderNecessities():Void {
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
 	}
 
-	override function renderScript(path:String):Void {
+	override function renderScript(path:String, ?code:String):Void {
 		interp = new Interp();
 		parser = new Parser();
 
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 
 		try {
-			code = Paths.getFileContent(path);
+			this.code = Paths.getFileContent(path).getDefault(code);
 		} catch(error:haxe.Exception) {
-			trace('Error while trying to initialize script: ${error.message}');
-			code = '';
+			trace('Error while trying to get script contents: ${error.message}');
+			this.code = '';
 		}
 	}
 	override function loadCodeString(code:String):Void {
@@ -152,9 +157,16 @@ final class HaxeScript extends Script {
 				canRun = true;
 			}
 		} catch(error:haxe.Exception) {
-			canRun = false;
 			trace('Error while parsing script: ${error.message}');
+			canRun = false;
 		}
+	}
+
+	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void {
+		var script:HaxeScript = new HaxeScript('', code);
+		for (name => thing in vars)
+			script.set(name, thing);
+		script.call(funcToRun, fungArgs.getDefault([]));
 	}
 
 	override public function load() {
@@ -194,7 +206,7 @@ final class HaxeScript extends Script {
 	}
 
 	override function get_parent():Dynamic
-		return interp.scriptObject == null ? this : interp.scriptObject;
+		return interp.scriptObject.getDefault(this);
 	override function set_parent(value:Dynamic):Dynamic
 		return interp.scriptObject = value;
 
@@ -214,7 +226,7 @@ final class HaxeScript extends Script {
 		final func = get(funcName);
 		if (func != null && Reflect.isFunction(func))
 			try {
-				return Reflect.callMethod(null, func, args == null ? [] : args);
+				return Reflect.callMethod(null, func, args.getDefault([]));
 			} catch(error:haxe.Exception)
 				trace('Error while trying to call function $funcName: ${error.message}');
 
@@ -231,9 +243,10 @@ final class HaxeScript extends Script {
 		parser = null;
 	}
 	#else
-	override public function new(path:String) {
+	@:allow(backend.scripting.Script.create)
+	override function new(path:String, ?_:String) {
 		trace('Haxe scripting isn\'t supported in this build.');
-		super(path);
+		super(path, null);
 	}
 	#end
 }

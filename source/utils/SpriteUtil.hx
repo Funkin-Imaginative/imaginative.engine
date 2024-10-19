@@ -20,13 +20,37 @@ typedef AnimMapping = {
 }
 
 enum abstract SpriteType(String) from String to String {
-	var isCharacterSprite;
-	var isBeatSprite;
-	var isBaseSprite;
+	// Special Types
+	/**
+	 * States that this is a character.
+	 */
+	var isCharacterSprite = 'Character';
+	/**
+	 * States that this is a health icon.
+	 */
+	var isHealthIcon = 'Icon';
 
-	public var canBop(get, never):Bool;
-	inline function get_canBop():Bool
-		return this == isBeatSprite || this == isCharacterSprite;
+	// Base Types
+	/**
+	 * States that this is the a sprite that can bop to the beat. A bit limiting without the help of the `isBeatType` property.
+	 */
+	var isBeatSprite = 'Beat';
+	/**
+	 * States that this is the engine's base sprite.
+	 */
+	var isBaseSprite = 'Base';
+
+	/**
+	 * States that this sprite is unidentified and can't be figured out.
+	 */
+	var isUnidentified = 'Unidentified';
+
+	/**
+	 * States that this is the a sprite that can bop to the beat. Even when not set as the `isBeatSprite` type.
+	 */
+	public var isBeatType(get, never):Bool;
+	inline function get_isBeatType():Bool
+		return this == isBeatSprite || this == isCharacterSprite || this == isHealthIcon;
 }
 
 class SpriteUtil {
@@ -105,23 +129,20 @@ class SpriteUtil {
 	}
 
 	/**
-	 * Is basically FlxTypedGroup.resolveGroup().
+	 * Is kinda just basically-ish FlxTypedGroup.resolveGroup().
 	 * @param obj
 	 * @return FlxGroup
 	 */
-	inline public static function getGroup<T:FlxBasic>(obj:T):FlxGroup {
-		var resolvedGroup:FlxGroup = @:privateAccess FlxTypedGroup.resolveGroup(obj);
-		if (resolvedGroup == null) resolvedGroup = FlxG.state.persistentUpdate ? FlxG.state : (FlxG.state.subState == null ? FlxG.state : FlxG.state.subState);
-		return resolvedGroup;
-	}
+	inline public static function getGroup<T:FlxBasic>(obj:T):FlxGroup
+		return @:privateAccess FlxTypedGroup.resolveGroup(obj).getDefault(FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState.getDefault(cast FlxG.state));
 
 	inline public static function addInfrontOf<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxGroup):Void {
-		final group:FlxGroup = into == null ? obj.getGroup() : into;
+		final group:FlxGroup = into.getDefault(obj.getGroup());
 		group.insert(group.members.indexOf(fromThis) + 1, obj);
 	}
 
 	inline public static function addBehind<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxGroup):Void {
-		final group:FlxGroup = into == null ? obj.getGroup() : into;
+		final group:FlxGroup = into.getDefault(obj.getGroup());
 		group.insert(group.members.indexOf(fromThis), obj);
 	}
 
