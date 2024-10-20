@@ -1,6 +1,10 @@
 package backend.music.states;
 
-class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))
+/**
+ * It's just `FlxSubState` but with IBeat implementation. Or it would if it wasn't for this.
+ * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
+ */
+class BeatSubState extends FlxSubState /* implements IBeat */ {
 	/**
 	 * The states conductor.
 	 */
@@ -109,15 +113,29 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 	inline function get_songPosition():Float
 		return conductor.songPosition;
 
-	/* vVv Actual substate stuff below. vVv */
+	// Actual state stuff below.
+	/**
+	 * Direct access to the state instance.
+	 */
 	public static var direct:BeatSubState;
 
-	public var controls:Controls = Controls.p1;
-
+	/**
+	 * The scripts that have access to the state itself.
+	 */
 	public var stateScripts:ScriptGroup;
+	/**
+	 * States if scripts have access to the state.
+	 */
 	public var scriptsAllowed:Bool = true;
+	/**
+	 * The name of the script to have access to the state.
+	 */
 	public var scriptName:String = null;
 
+	/**
+	 * @param scriptsAllowed If true, scripts are allowed.
+	 * @param scriptName The name of the script to access the state.
+	 */
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
 		this.scriptsAllowed = #if SOFTCODED_STATES scriptsAllowed #else false #end;
@@ -129,7 +147,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
 			if (stateScripts.length < 1) {
-				for (script in Script.create('content/states/${this.getClassName()}')) {
+				for (script in Script.create('content/states/${scriptName.getDefault(this.getClassName())}')) {
 					if (!script.type.dummy) scriptName = script.name;
 					stateScripts.add(script);
 				}
@@ -137,11 +155,24 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 			} else stateScripts.reload();
 		}
 	}
-	public function call(name:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	/**
+	 * Call's a function in the script instance.
+	 * @param func Name of the function to call.
+	 * @param args Arguments of said function.
+	 * @param def If it's null then return this.
+	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 */
+	public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
-			return stateScripts.call(name, args, def);
+			return stateScripts.call(func, args, def);
 		return def;
 	}
+	/**
+	 * Call's a function in the script instance and triggers an event.
+	 * @param func Name of the function to call.
+	 * @param event The event class.
+	 * @return `ScriptEvent`
+	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
 			return stateScripts.event(func, event);
@@ -175,9 +206,11 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 	}
 	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
+		@SuppressWarnings('checkstyle:CodeSimilarity') // Why do I have to put this here??
 		super.update(elapsed);
 	}
 
+	// And not here?????
 	#if IGROUP_INTERFACE
 	override public function add(object:FlxBasic):FlxBasic {
 		if (object is IGroup)
@@ -199,7 +232,13 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 	}
 	#end
 
+	/**
+	 * The state that the subState is attached to.
+	 */
 	public var parent:FlxState;
+	/**
+	 * When the subState is opened.
+	 */
 	public function onSubstateOpen():Void {}
 	override public function close():Void {
 		var event:ScriptEvent = event('onClose', new ScriptEvent());
@@ -236,18 +275,30 @@ class BeatSubState extends FlxSubState /* implements IBeat */ { // Field curStep
 		call('onFocusLost');
 	}
 
+	/**
+	 * Runs when the next step happens.
+	 * @param curStep The current step.
+	 */
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
 			if (member is IBeat)
 				cast(member, IBeat).stepHit(curStep);
 		call('stepHit', [curStep]);
 	}
+	/**
+	 * Runs when the next beat happens.
+	 * @param curBeat The current beat.
+	 */
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
 			if (member is IBeat)
 				cast(member, IBeat).beatHit(curBeat);
 		call('beatHit', [curBeat]);
 	}
+	/**
+	 * Runs when the next measure happens.
+	 * @param curMeasure The current measure.
+	 */
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
 			if (member is IBeat)

@@ -154,14 +154,6 @@
 		},
 		{
 			"props": {
-				"ignoreSetter": true,
-				"ignoreFormat": "^(main|run)$",
-				"ignoreConstructorParameter": true
-			},
-			"type": "HiddenField"
-		},
-		{
-			"props": {
 				"character": "tab",
 				"wrapPolicy": "larger",
 				"ignoreComments": false,
@@ -438,7 +430,7 @@
 		},
 		{
 			"props": {
-				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG)"
+				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG|MAYBE)"
 			},
 			"type": "TODOComment"
 		},

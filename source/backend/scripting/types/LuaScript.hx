@@ -1,13 +1,16 @@
 package backend.scripting.types;
 
+/**
+ * This class handles script instances under the lua language.
+ */
 final class LuaScript extends Script {
 	/**
-	 * All possible lua script extension types.
+	 * All possible lua extension types.
 	 */
 	public static final exts:Array<String> = ['lua'];
 
 	#if CAN_LUA_SCRIPT
-	public static function getScriptImports(script:LuaScript):Map<String, Dynamic>
+	static function getScriptImports(script:LuaScript):Map<String, Dynamic>
 		return [
 			'disableScript' => () -> {
 				script.active = false;

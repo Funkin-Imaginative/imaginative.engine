@@ -4,28 +4,70 @@ import backend.scripting.events.objects.sprites.BopEvent;
 import backend.scripting.events.objects.sprites.PlaySpecialAnimEvent;
 
 typedef BeatData = {
+	/**
+	 * The amount of beats it takes to trigger the dance.
+	 */
 	@:default(0) var invertal:Int;
+	/**
+	 * If true, the dance will still happen, even if the beat numbers are in the negatives.
+	 */
 	@:default(false) var skipnegative:Bool;
 }
 
+/**
+ * This class BaseSprite but with IBeat implementation.
+ */
 class BeatSprite extends BaseSprite implements IBeat {
-	public var idleSuffix:String = '';
-	public var animSuffix:String = '';
-
+	/**
+	 *	The amount of beats it takes to trigger the dance.
+	 */
 	public var bopRate(get, set):Int;
-	inline function get_bopRate():Int return Math.round(beatInterval * bopSpeed);
-	inline function set_bopRate(value:Int):Int return beatInterval = value;
-	public var bopSpeed(default, set):Float = 1; inline function set_bopSpeed(value:Float):Float return bopSpeed = value < 1 ? 1 : value;
-	public var beatInterval(get, default):Int = 0; inline function get_beatInterval():Int return beatInterval < 1 ? (hasSway ? 1 : 2) : beatInterval;
+	inline function get_bopRate():Int
+		return Math.round(beatInterval * bopSpeed);
+	inline function set_bopRate(value:Int):Int
+		return beatInterval = value;
+	/**
+	 * The multiplier for the `beatInterval`.
+	 */
+	public var bopSpeed(default, set):Float = 1;
+	inline function set_bopSpeed(value:Float):Float
+		return bopSpeed = value < 1 ? 1 : value;
+	/**
+	 *	The internal amount of beats it takes to trigger the dance.
+	 */
+	public var beatInterval(default, set):Int = 0;
+	inline function set_beatInterval(value:Int):Int
+		return beatInterval = value < 1 ? (hasSway ? 1 : 2) : value;
 
+	/**
+	 * If true, the dance will still happen, even if the beat numbers are in the negatives.
+	 */
 	public var skipNegativeBeats:Bool = false;
+	/**
+	 * If true, the character will play the sway animation on the off beat.
+	 */
 	public var hasSway(get, never):Bool; // Replaced 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
-	inline function get_hasSway():Bool return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
+	inline function get_hasSway():Bool
+		return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
+	/**
+	 * If true, it prevents the idle animation from playing altogether.
+	 */
 	public var preventIdle:Bool = false;
 
+	/**
+	 * The beat sprite data.
+	 */
 	public var beatData:BeatData = null;
+	/**
+	 * Another way to create a BeatSprite. But you can set the root this time.
+	 * @param x Starting x position.
+	 * @param y Starting y position.
+	 * @param path The mod path.
+	 * @param pathType The path type.
+	 * @return `BeatSprite`
+	 */
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
-		return new BeatSprite(x, y, cast ParseUtil.object(path, isBeatSprite, pathType));
+		return new BeatSprite(x, y, ParseUtil.object(path, isBeatSprite, pathType), Paths.script(path, pathType));
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:BeatSpriteData = cast inputData;
@@ -66,6 +108,16 @@ class BeatSprite extends BaseSprite implements IBeat {
 		super.update(elapsed);
 	}
 
+	/**
+	 * The animation suffix for the idle.
+	 */
+	public var idleSuffix(default, set):String = '';
+	inline function set_idleSuffix(value:String):String
+		return idleSuffix = value.trim();
+
+	/**
+	 * When run, it attempts to trigger the dance.
+	 */
 	public function tryDance():Void {
 		switch (animContext) {
 			case IsDancing:
@@ -79,7 +131,13 @@ class BeatSprite extends BaseSprite implements IBeat {
 		}
 	}
 
+	/**
+	 * States when the sway would play instead.
+	 */
 	public var onSway:Bool = false;
+	/**
+	 * When run, it triggers the dance.
+	 */
 	public function dance():Void {
 		final event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
 		if (!debugMode || !event.stopped) {
@@ -91,19 +149,42 @@ class BeatSprite extends BaseSprite implements IBeat {
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				playAnim('$anim${doesAnimExist('$anim$idleSuffix') ? idleSuffix : ''}', true, IsDancing);
+				playAnim('$anim', true, IsDancing, doesAnimExist('$anim$idleSuffix') ? idleSuffix : '');
 			}
 		}
 		scripts.call('dancingPost', [event]);
 	}
 
+	override function generalSuffixCheck(context:AnimContext):String {
+		return switch (context) {
+			case IsDancing:
+				idleSuffix;
+			default:
+				super.generalSuffixCheck(context);
+		}
+	}
+
+	/**
+	 * The current step.
+	 */
 	public var curStep(default, null):Int;
+	/**
+	 * Runs when the next step happens.
+	 * @param curStep The current step.
+	 */
 	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
 		scripts.call('stepHit', [curStep]);
 	}
 
+	/**
+	 * The current beat.
+	 */
 	public var curBeat(default, null):Int;
+	/**
+	 * Runs when the next beat happens.
+	 * @param curBeat The current beat.
+	 */
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		if (!(skipNegativeBeats && curBeat < 0) && curBeat % bopRate == 0) {
@@ -113,7 +194,14 @@ class BeatSprite extends BaseSprite implements IBeat {
 		scripts.call('beatHit', [curBeat]);
 	}
 
+	/**
+	 * The current measure.
+	 */
 	public var curMeasure(default, null):Int;
+	/**
+	 * Runs when the next measure happens.
+	 * @param curMeasure The current measure.
+	 */
 	public function measureHit(curMeasure:Int):Void {
 		this.curMeasure = curMeasure;
 		scripts.call('measureHit', [curMeasure]);

@@ -2,6 +2,7 @@ package objects;
 
 import backend.scripting.events.PointEvent;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:PositionStruct;
 	@:default('#8000ff') var color:String;
@@ -9,35 +10,78 @@ typedef CharacterParse = {
 	@:default(4) var singlength:Float;
 }
 typedef CharacterData = {
+	/**
+	 * The camera offset position.
+	 */
 	var camera:PositionStruct;
+	/**
+	 * The character's health bar color.
+	 */
 	var color:FlxColor;
+	/**
+	 * The character's icon.
+	 */
 	var icon:String;
+	/**
+	 * The sing time the character has.
+	 */
 	var singlength:Float;
 }
 
+/**
+ * This is the character class, used for the funny beep boop guys!
+ */
 class Character extends BeatSprite {
-	public var singSuffix:String = '';
+	/**
+	 * The character key name.
+	 */
 	public var theirName(default, null):String;
+	/**
+	 * The character icon.
+	 */
 	public var theirIcon(default, null):String;
 
+	/**
+	 * Used to help `singLength`.
+	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
+	/**
+	 * The sing time the character has.
+	 */
 	public var singLength:Float = 0;
 
+	/**
+	 * The camera offset position.
+	 */
 	public var cameraOffset(default, null):PositionStruct = new PositionStruct();
+	/**
+	 * Get's the characters camera position.
+	 * @param pos An optional PositionStruct to apply it to.
+	 * 			  If you put a PositionStruct it won't create a new one.
+	 * @return PositionStruct
+	 */
 	public function getCamPos(?pos:PositionStruct):PositionStruct {
 		var point:FlxPoint = getMidpoint();
 		var event:PointEvent = new PointEvent(
-			point.x + /* offset.x + */ cameraOffset.x,
-			point.y + /* offset.y + */ cameraOffset.y
+			point.x + cameraOffset.x,
+			point.y + cameraOffset.y
 		);
 		scripts.call('onGetCamPos', [event]);
 
 		point.put();
+		event.x *= scrollFactor.x;
+		event.y *= scrollFactor.y;
 		return pos == null ? new PositionStruct(event.x, event.y) : pos.set(event.x, event.y);
 	}
 
+	/**
+	 * The character's health bar color.
+	 */
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
+	/**
+	 * The character sprite data.
+	 */
 	public var charData(default, null):CharacterData = null;
 	override public function renderData(inputData:TypeSpriteData):Void {
 		final incomingData:CharacterSpriteData = cast inputData;
@@ -80,6 +124,13 @@ class Character extends BeatSprite {
 		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
 	}
 
+	/**
+	 * The animation suffix for singing.
+	 */
+	public var singSuffix(default, set):String = '';
+	inline function set_singSuffix(value:String):String
+		return singSuffix = value.trim();
+
 	override public function tryDance():Void {
 		switch (animContext) {
 			case IsSinging | HasMissed:
@@ -87,6 +138,15 @@ class Character extends BeatSprite {
 					dance();
 			default:
 				super.tryDance();
+		}
+	}
+
+	override function generalSuffixCheck(context:AnimContext):String {
+		return switch (context) {
+			case IsSinging | HasMissed:
+				singSuffix;
+			default:
+				super.generalSuffixCheck(context);
 		}
 	}
 }

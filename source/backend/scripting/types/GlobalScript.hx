@@ -1,15 +1,31 @@
 package backend.scripting.types;
 
+/**
+ * This is used for global scripts. Global scripts are scripts that always run in the background.
+ */
 class GlobalScript {
+	/**
+	 * Contains global scripts.
+	 */
 	public static var scripts:ScriptGroup;
+
+	static function getScriptImports():Map<String, Dynamic>
+		return [
+			'scripts' => scripts,
+			'loadScript' => loadScript,
+			'call' => call,
+			'event' => event,
+		];
 
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.destroy();
 
-		scripts = new ScriptGroup(Main.direct);
+		scripts = new ScriptGroup();
 		for (script in Script.create('content/global', LEAD))
 			scripts.add(script);
+		for (name => thing in getScriptImports())
+			scripts.extraVars.set(name, thing);
 		scripts.load();
 	}
 
@@ -44,12 +60,24 @@ class GlobalScript {
 		loadScript();
 	}
 
-	public static function call(name:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	/**
+	 * Call's a function in the script instance.
+	 * @param func Name of the function to call.
+	 * @param args Arguments of said function.
+	 * @param def If it's null then return this.
+	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 */
+	public static function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (scripts != null)
-			return scripts.call(name, args, def);
+			return scripts.call(func, args, def);
 		return def;
 	}
-
+	/**
+	 * Call's a function in the script instance and triggers an event.
+	 * @param func Name of the function to call.
+	 * @param event The event class.
+	 * @return `ScriptEvent`
+	 */
 	public static function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (scripts != null)
 			return scripts.event(func, event);

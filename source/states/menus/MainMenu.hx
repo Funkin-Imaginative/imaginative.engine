@@ -4,6 +4,9 @@ import haxe.macro.Compiler;
 import backend.scripting.events.menus.main.*;
 import flixel.effects.FlxFlicker;
 
+/**
+ * This is the main menu... what else were you expecting this to say?
+ */
 class MainMenu extends BeatState {
 	// Menu related vars.
 	var canSelect:Bool = true;
@@ -173,7 +176,7 @@ class MainMenu extends BeatState {
 		camPoint.y = FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
 	}
 
-	public function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
+	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
 		if (prevSelected != curSelected)
@@ -186,7 +189,7 @@ class MainMenu extends BeatState {
 		}
 	}
 
-	public function selectCurrent():Void {
+	function selectCurrent():Void {
 		selectionCooldown();
 
 		FunkinUtil.playMenuSFX(ConfirmSFX);

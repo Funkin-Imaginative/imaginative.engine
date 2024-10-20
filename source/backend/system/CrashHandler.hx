@@ -6,7 +6,8 @@ import sys.io.File;
 import openfl.events.UncaughtErrorEvent;
 
 class CrashHandler {
-	public static function onCrash(e:UncaughtErrorEvent):Void {
+	@:allow(backend.system.Main)
+	static function onCrash(e:UncaughtErrorEvent):Void {
 		var errMsg:String = '';
 		var path:String;
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);

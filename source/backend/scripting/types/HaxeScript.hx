@@ -6,9 +6,12 @@ import hscript.Interp;
 import hscript.Parser;
 #end
 
+/**
+ * This class handles script instances under the haxe language.
+ */
 final class HaxeScript extends Script {
 	/**
-	 * All possible haxe script extension types.
+	 * All possible haxe extension types.
 	 */
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc', 'hxp'];
 
@@ -17,7 +20,7 @@ final class HaxeScript extends Script {
 	var parser:Parser;
 	var expr:Expr;
 
-	public static function getScriptImports(script:HaxeScript):Map<String, Dynamic>
+	static function getScriptImports(script:HaxeScript):Map<String, Dynamic>
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -111,10 +114,10 @@ final class HaxeScript extends Script {
 
 			// Custom Functions //
 			'addInfrontOf' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				SpriteUtil.addInfrontOf(obj, fromThis, into);
+				return SpriteUtil.addInfrontOf(obj, fromThis, into);
 			},
 			'addBehind' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				SpriteUtil.addBehind(obj, fromThis, into);
+				return SpriteUtil.addBehind(obj, fromThis, into);
 			},
 			'disableScript' => () -> {
 				script.active = false;
@@ -162,11 +165,12 @@ final class HaxeScript extends Script {
 		}
 	}
 
-	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void {
+	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):HaxeScript {
 		var script:HaxeScript = new HaxeScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
 		script.call(funcToRun, fungArgs.getDefault([]));
+		return script;
 	}
 
 	override public function load() {
@@ -206,11 +210,11 @@ final class HaxeScript extends Script {
 	}
 
 	override function get_parent():Dynamic
-		return interp.scriptObject.getDefault(this);
+		return interp.scriptObject;
 	override function set_parent(value:Dynamic):Dynamic
 		return interp.scriptObject = value;
 
-	override public function setPublicVars(map:Map<String, Dynamic>):Void
+	override public function setPublicMap(map:Map<String, Dynamic>):Void
 		interp.publicVariables = map;
 
 	override public function set(variable:String, value:Dynamic):Void
@@ -219,16 +223,16 @@ final class HaxeScript extends Script {
 		var whatsGotten:Dynamic = interp.variables.get(variable);
 		return whatsGotten == null ? def : whatsGotten;
 	}
-	override public function call(funcName:String, ?args:Array<Dynamic>):Dynamic {
-		if (interp == null || !interp.variables.exists(funcName))
+	override public function call(func:String, ?args:Array<Dynamic>):Dynamic {
+		if (interp == null || !interp.variables.exists(func))
 			return null;
 
-		final func = get(funcName);
+		final func = get(func);
 		if (func != null && Reflect.isFunction(func))
 			try {
 				return Reflect.callMethod(null, func, args.getDefault([]));
 			} catch(error:haxe.Exception)
-				trace('Error while trying to call function $funcName: ${error.message}');
+				trace('Error while trying to call function $func: ${error.message}');
 
 		return null;
 	}

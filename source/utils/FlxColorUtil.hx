@@ -1,5 +1,6 @@
 package utils;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef RGB<T> = {
 	var red:T;
 	var green:T;
@@ -7,6 +8,7 @@ typedef RGB<T> = {
 	@:optional var alpha:T;
 }
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef CMYK = {
 	var cyan:Float;
 	var magenta:Float;
@@ -15,6 +17,7 @@ typedef CMYK = {
 	@:optional var alpha:Float;
 }
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef HSB = {
 	var hue:Float;
 	var saturation:Float;
@@ -22,6 +25,7 @@ typedef HSB = {
 	@:optional var alpha:Float;
 }
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef HSL = {
 	var hue:Float;
 	var saturation:Float;
@@ -34,7 +38,9 @@ typedef HSL = {
  * For all your scripting needs!
  * `inline` is still called because it just felt right to me.
  * You could also actually do `using` for this class if you wanted to I guess?
+ * And before you ask "where's the documenttaion??????", everything here is self-explanatory.
  */
+@SuppressWarnings('checkstyle:FieldDocComment')
 @:noUsing class FlxColorUtil {
 	// RGB
 	inline public static function getRed(color:FlxColor):Int
