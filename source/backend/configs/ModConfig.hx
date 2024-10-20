@@ -1,39 +1,66 @@
 package backend.configs;
 
+/**
+ * This class contains information about the engine's loaded mods.
+ */
 class ModConfig {
-	// for scripting's sake
-	@:unreflective public static var soloOnlyMode:Bool = false;
-	@:unreflective public static var personalSolo:Bool = false;
+	// should probably make these options in the options menu
+	@SuppressWarnings('checkstyle:FieldDocComment') @:unreflective public static var soloOnlyMode:Bool = false;
+	@SuppressWarnings('checkstyle:FieldDocComment') @:unreflective public static var personalSolo:Bool = false;
 
+	/**
+	 * If enabled, only up front mods can run.
+	 */
 	public static var isSoloOnly(get, never):Bool;
 	inline static function get_isSoloOnly():Bool
 		return soloOnlyMode || personalSolo;
 
+	/**
+	 * Current up front mod.
+	 */
 	public static var curSolo(default, null):String = 'example';
+	/**
+	 * Current lower end mod.
+	 */
 	public static var curMod(default, null):String = 'example';
+	/**
+	 * List of active global, lower end mods.
+	 */
 	public static var globalMods(default, null):Array<String> = [];
 
+	/**
+	 * States if the current up front mod is just base funkin.
+	 */
 	public static var soloIsRoot(get, never):Bool;
 	inline static function get_soloIsRoot():Bool
 		return curSolo == 'funkin';
 
 	/**
-	 * Prepend's root mod folder name.
+	 * `Potentially getting reworked.`
+	 * Prepend's lower end mod folder name.
+	 * @param modPath The mod path to the item your looking for.
+	 * @return `String` ~ The root path of the item your looking for.
 	 */
-	public static function getModsRoot(path:String):String {
+	public static function getModsRoot(modPath:String):String {
 		if (curMod != null && curMod.trim() != '') {
-			var asset:String = 'mods/$curMod/$path';
+			var asset:String = 'mods/$curMod/$modPath';
 			if (Paths.fileExists(asset, false))
 				return asset;
 		}
 		for (mod in globalMods) {
-			var asset:String = 'mods/$mod/$path';
+			var asset:String = 'mods/$mod/$modPath';
 			if (Paths.fileExists(asset, false))
 				return asset;
 		}
 		return '';
 	}
 
+	/**
+	 * Gets all potential file instances from a path you specify.
+	 * @param file Path of file to get potential instances from.
+	 * @param pathType Specify path instances.
+	 * @return `Array<String>` ~ Found file instances.
+	 */
 	public static function getAllInstancesOfFile(file:String, pathType:FunkinPath = ANY):Array<String> {
 		var potentialPaths:Array<String> = [];
 

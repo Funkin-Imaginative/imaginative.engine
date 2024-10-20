@@ -41,7 +41,7 @@ enum abstract FunkinPath(String) from String to String {
 
 	/**
 	 * Causes Error: String should be backend.FunkinPath For function argument 'incomingPath'
-	 * @return String
+	 * @return `String`
 	 */
 	public function returnRoot():String {
 		return switch (this) {
@@ -55,7 +55,7 @@ enum abstract FunkinPath(String) from String to String {
 	/**
 	 * Excludes grouped types, besides `ANY` for null check reasons.
 	 * @param path
-	 * @return FunkinPath
+	 * @return `FunkinPath`
 	 */
 	public static function typeFromPath(path:String):FunkinPath {
 		return switch (path.split('/')[0]) {
@@ -81,7 +81,7 @@ enum abstract FunkinPath(String) from String to String {
 	/**
 	 * This nifty function is for when solo is root, so you can grab the right path!
 	 * Since whenever `ROOT` is techincally the current `SOLO` I've made it so it doesn't work so this function well alr?
-	 * @return FunkinPath
+	 * @return `FunkinPath`
 	 */
 	public static function getSolo():FunkinPath
 		return ModConfig.soloIsRoot ? ROOT : SOLO;
@@ -90,9 +90,9 @@ enum abstract FunkinPath(String) from String to String {
 class Paths {
 	/**
 	 * Prepend's root folder name.
-	 * @param assetPath
-	 * @param pathType
-	 * @return String
+	 * @param assetPath The asset path to the item your looking for.
+	 * @param pathType Where would the asset be located?
+	 * @return `String`
 	 */
 	public static function applyRoot(assetPath:String, pathType:FunkinPath = ANY):String {
 		var result:String = '';

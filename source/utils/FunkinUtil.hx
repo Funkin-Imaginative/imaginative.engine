@@ -58,7 +58,7 @@ class FunkinUtil {
 	/**
 	 * Returns the song display name.
 	 * @param name The song folder name.
-	 * @return The songs display name.
+	 * @return `String` ~ The songs display name.
 	 */
 	@:noUsing public static function getSongDisplay(name:String):String
 		return ParseUtil.song(name).name;
@@ -66,7 +66,7 @@ class FunkinUtil {
 	/**
 	 * Returns the difficulty display name.
 	 * @param diff The difficulty json name.
-	 * @return The difficulties display name.
+	 * @return `String` ~ The difficulties display name.
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
 		return ParseUtil.difficulty(diff).display;
@@ -74,7 +74,7 @@ class FunkinUtil {
 	/**
 	 * Returns the default variant of a difficulty
 	 * @param diff The difficulty json name.
-	 * @return The difficulties default variant.
+	 * @return `String` ~ The difficulties default variant.
 	 */
 	@:noUsing inline public static function getDifficultyVariant(diff:String):String
 		return ParseUtil.difficulty(diff).variant;
@@ -90,7 +90,7 @@ class FunkinUtil {
 	 * It's like `getDefault` but it uses `Reflect` but it only supports structures.
 	 * @param v
 	 * @param defaultValue
-	 * @return T
+	 * @return `T`
 	 */
 	inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
 		return Reflect.hasField(data, field) ? Reflect.getProperty(data, field).getDefault(defaultValue) : defaultValue;
@@ -100,7 +100,7 @@ class FunkinUtil {
 	 * Returns `v` if not null, `defaultValue` otherwise.
 	 * @param v The value
 	 * @param defaultValue The default value
-	 * @return T
+	 * @return `T`
 	 * @author @FNF-CNE-Devs
 	 */
 	inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
@@ -108,7 +108,7 @@ class FunkinUtil {
 	/**
 	 * Whenever a value is NaN or not.
 	 * @param v Value
-	 * @return Bool
+	 * @return `Bool`
 	 * @author @FNF-CNE-Devs
 	 */
 	@:noUsing inline public static function isNaN(v:Dynamic):Bool

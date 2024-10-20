@@ -162,11 +162,12 @@ final class HaxeScript extends Script {
 		}
 	}
 
-	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void {
+	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):HaxeScript {
 		var script:HaxeScript = new HaxeScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
 		script.call(funcToRun, fungArgs.getDefault([]));
+		return script;
 	}
 
 	override public function load() {

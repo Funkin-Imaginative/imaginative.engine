@@ -154,14 +154,6 @@
 		},
 		{
 			"props": {
-				"ignoreSetter": true,
-				"ignoreFormat": "^(main|run)$",
-				"ignoreConstructorParameter": true
-			},
-			"type": "HiddenField"
-		},
-		{
-			"props": {
 				"character": "tab",
 				"wrapPolicy": "larger",
 				"ignoreComments": false,

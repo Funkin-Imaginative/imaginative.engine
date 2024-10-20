@@ -131,7 +131,7 @@ class SpriteUtil {
 	/**
 	 * Is kinda just basically-ish FlxTypedGroup.resolveGroup().
 	 * @param obj
-	 * @return FlxGroup
+	 * @return `FlxGroup`
 	 */
 	inline public static function getGroup<T:FlxBasic>(obj:T):FlxGroup
 		return @:privateAccess FlxTypedGroup.resolveGroup(obj).getDefault(FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState.getDefault(cast FlxG.state));

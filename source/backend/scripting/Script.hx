@@ -105,7 +105,7 @@ class Script extends FlxBasic implements IScript {
 	function renderScript(path:String, ?code:String):Void {}
 	function loadCodeString(code:String):Void {}
 
-	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Void {}
+	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Script return this;
 
 	public var loaded:Bool = false;
 	public function load():Void
