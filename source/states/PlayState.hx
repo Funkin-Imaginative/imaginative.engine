@@ -1,51 +1,115 @@
 package states;
 
+/**
+ * Where all the funny beep boops happen!
+ */
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor
 		return Conductor.song;
 	override public function set_conductor(value:Conductor):Conductor
 		return Conductor.song;
 
+	/**
+	 * It true, your score will save.
+	 */
 	public var saveScore:Bool = true;
 
+	/**
+	 * The chart information.
+	 */
 	public static var chartData:Dynamic;
+	/**
+	 * Contains all events obtained from the `chartData`.
+	 */
 	public var chartEvents:Array<Dynamic> = [];
 	// public var stepEvents:Map<Float, Void->Void> = new Map<Float, Void->Void>();
 
+	/**
+	 * Contains the week information.
+	 */
 	public static var levelData(default, null):LevelData;
+	/**
+	 * The current song your doing in story mode.
+	 */
 	public static var storyIndex(default, set):Int = 0;
 	inline static function set_storyIndex(value:Int):Int {
 		var val:Int = storyIndex = FlxMath.wrap(value, 0, songList.length - 1);
 		songDisplay = FunkinUtil.getSongDisplay(curSong = songList[val]);
 		return val;
 	}
+	/**
+	 * If true, your in story mode.
+	 * If false, your playing the song by choice.
+	 */
 	public static var storyMode(default, null):Bool = false;
+	/**
+	 * List of songs that will play in story mode.
+	 */
 	public static var songList(default, null):Array<String> = ['Test'];
 
+	/**
+	 * The display name of the current song.
+	 */
 	public static var songDisplay(default, null):String;
+	/**
+	 * The folder name of the current song.
+	 */
 	public static var curSong(default, null):String;
 
+	/**
+	 * The difficulty key of the current song.
+	 */
 	public static var difficulty(default, null):String = 'normal';
+	/**
+	 * The variant key of the current song.
+	 */
 	public static var variant(default, null):String = 'normal';
 
+	/**
+	 * If true, the player character can die upon losing all their health.
+	 */
 	public var canPlayerDie:Bool = !PlayConfig.enemyPlay && !PlayConfig.enableP2;
+	/**
+	 * If true, the enemy character can die upon losing all their health.
+	 */
 	public var canEnemyDie:Bool = PlayConfig.enemyPlay && !PlayConfig.enableP2;
 
+	/**
+	 * Scripts for the funny softcoding bullshit.
+	 */
 	public var scripts:ScriptGroup;
 
+	/**
+	 * The main camera, all characters and stage elements will be shown here.
+	 */
 	public var camGame:FlxCamera;
+	/**
+	 * The HUD camera, all ui elements will be shown here.
+	 */
 	public var camHUD:FlxCamera;
 
+	/**
+	 * The current camera position.
+	 */
 	public var camPoint:FlxObject;
 
+	/**
+	 * What would be known as the Girlfriend.
+	 */
 	public var spectator:Character;
+	/**
+	 * What would be known as Daddy Dearest.
+	 */
 	public var enemy:BeatSprite;
+	/**
+	 * What would be known as the Boyfriend.
+	 */
 	public var player:Character;
 
 	override function create():Void {
 		scripts = new ScriptGroup(this);
 
-		camGame = camera;
+		camGame = camera; // may make a separate camera class for shiz
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
@@ -70,6 +134,7 @@ class PlayState extends BeatState {
 				if ([for (ext in Script.exts) FilePath.extension(file) == ext].contains(true))
 					for (script in Script.create('$folder/${FilePath.withoutExtension(file)}'))
 						scripts.add(script);
+
 		scripts.set('chartData', chartData);
 		scripts.load();
 		scripts.call('create');
@@ -89,9 +154,7 @@ class PlayState extends BeatState {
 
 	override function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
-
 		super.update(elapsed);
-
 		scripts.call('updatePost', [elapsed]);
 	}
 
@@ -99,12 +162,10 @@ class PlayState extends BeatState {
 		super.stepHit(curStep);
 		scripts.call('stepHit', [curStep]);
 	}
-
 	override function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 		scripts.call('beatHit', [curBeat]);
 	}
-
 	override function measureHit(curMeasure:Int):Void {
 		super.measureHit(curMeasure);
 		scripts.call('measureHit', [curMeasure]);
@@ -120,7 +181,6 @@ class PlayState extends BeatState {
 		scripts.call('onFocus');
 		super.onFocus();
 	}
-
 	override function onFocusLost():Void {
 		scripts.call('onFocusLost');
 		super.onFocusLost();

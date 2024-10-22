@@ -1,19 +1,50 @@
 package objects.holders;
 
 typedef DifficultyData = {
+	/**
+	 * The difficulty display name.
+	 */
 	var display:String;
+	/**
+	 * The variant key.
+	 */
 	@:default('normal') var variant:String;
+	/**
+	 *  The score multiplier.
+	 */
 	@:default(1) var scoreMult:Float;
 }
 
+/**
+ * The difficulty sprite.
+ * This is mostly used for the story menu.
+ */
 class DifficultyHolder extends FlxBasic {
+	/**
+	 * The difficulty data.
+	 */
 	public var data:DifficultyData;
+	/**
+	 * The actaully sprite.
+	 */
 	public var sprite:BaseSprite;
+	/**
+	 * The lock sprite.
+	 */
 	public var lock:BaseSprite;
 
+	/**
+	 * The scripts attached to this holder.
+	 */
 	public var scripts:ScriptGroup;
 
+	/**
+	 * The difficulty key.
+	 */
 	public var name:String;
+	/**
+	 * Is the difficulty locked?
+	 */
 	public var isLocked:Bool = false;
 
 	public function new(x:Float = 0, y:Float = 0, diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
@@ -43,12 +74,18 @@ class DifficultyHolder extends FlxBasic {
 		}
 	}
 
+	/**
+	 * Refreshes the animation.
+	 */
 	inline public function refreshAnim():Void {
 		sprite.animation.play('idle', true);
 		sprite.centerOffsets();
 		sprite.centerOrigin();
 	}
 
+	/**
+	 * Updates the lock position.
+	 */
 	public function updateLock():Void {
 		if (sprite == null || lock == null) return;
 		lock.scale.copyFrom(sprite.scale);

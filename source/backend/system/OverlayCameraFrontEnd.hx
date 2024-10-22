@@ -66,8 +66,6 @@ class OverlayCameraFrontEnd extends CameraFrontEnd {
 
 		Main.camera = add(NewCamera);
 		NewCamera.ID = 0;
-
-		// FlxCamera._defaultCameras = defaults;
 	}
 
 	override function get_bgColor():FlxColor {

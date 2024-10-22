@@ -18,17 +18,17 @@ interface IBeat {
 	var curMeasure(default, null):Int;
 
 	/**
-	 * Ran when the next step happens.
+	 * Runs when the next step happens.
 	 * @param curStep The current step.
 	 */
 	function stepHit(curStep:Int):Void;
 	/**
-	 * Ran when the next beat happens.
+	 * Runs when the next beat happens.
 	 * @param curBeat The current beat.
 	 */
 	function beatHit(curBeat:Int):Void;
 	/**
-	 * Ran when the next measure happens.
+	 * Runs when the next measure happens.
 	 * @param curMeasure The current measure.
 	 */
 	function measureHit(curMeasure:Int):Void;

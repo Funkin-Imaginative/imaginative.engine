@@ -3,9 +3,16 @@ package utils;
 import json2object.JsonParser;
 
 typedef AllowedModesTyping = {
+	/**
+	 * If true, this song allows you to play as the enemy.
+	 */
 	@:default(false) var playAsEnemy:Bool;
+	/**
+	 * If true, this song allows you to go against another player.
+	 */
 	@:default(false) var p2AsEnemy:Bool;
 }
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef SongParse = {
 	var folder:String;
 	var icon:String;
@@ -16,22 +23,61 @@ typedef SongParse = {
 	var allowedModes:AllowedModesTyping;
 }
 typedef SongData = {
+	/**
+	 * The song display name.
+	 */
 	var name:String;
+	/**
+	 * The song folder name.
+	 */
 	var folder:String;
+	/**
+	 * The song icon.
+	 */
 	var icon:String;
+	/**
+	 * The starting difficulty.
+	 */
 	var startingDiff:Int;
+	/**
+	 * The difficulties listing.
+	 */
 	var difficulties:Array<String>;
+	/**
+	 * The variations listing.
+	 */
 	var variants:Array<String>;
+	/**
+	 * The song color.
+	 */
 	var color:FlxColor;
+	/**
+	 * Allowed modes for the song.
+	 */
 	var allowedModes:AllowedModesTyping;
 }
 
 typedef ExtraData = {
+	/**
+	 * Name of the data.
+	 */
 	var name:String;
+	/**
+	 * The data contents.
+	 */
 	var data:Dynamic;
 }
 
+/**
+ * This util is for all your parsing needs.
+ */
 class ParseUtil {
+	/**
+	 * Parse's a json file.
+	 * @param path The mod path.
+	 * @param pathType The path type.
+	 * @return `Dynamic` ~ The parsed json content.
+	 */
 	public static function json(path:String, pathType:FunkinPath = ANY):Dynamic {
 		var content = {}
 		try { content = haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType))); }
@@ -39,6 +85,12 @@ class ParseUtil {
 		return content;
 	}
 
+	/**
+	 * Parse's difficulty json data.
+	 * @param name The difficulty key.
+	 * @param pathType The path type.
+	 * @return `DifficultyData` ~ The parsed difficulty json content.
+	 */
 	public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
 		// final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
 		final contents:DifficultyData = json('content/difficulties/$name', pathType);
@@ -49,6 +101,12 @@ class ParseUtil {
 		}
 	}
 
+	/**
+	 * Parse's level json data.
+	 * @param name The level key.
+	 * @param pathType The path type.
+	 * @return `LevelData` ~ The parsed level json content.
+	 */
 	public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
 		// var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
 		var contents:LevelParse = json('content/levels/$name', pathType);
@@ -70,6 +128,13 @@ class ParseUtil {
 		}
 	}
 
+	/**
+	 * Parse's object json data.
+	 * @param path The object json name.
+	 * @param type The sprite type.
+	 * @param pathType The path type.
+	 * @return `TypeSpriteData` ~ The parsed object json content.
+	 */
 	public static function object(path:String, type:SpriteType, pathType:FunkinPath = ANY):TypeSpriteData {
 		// TODO: Get this shit to use json2object.
 		// final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
@@ -172,6 +237,12 @@ class ParseUtil {
 		return data;
 	}
 
+	/**
+	 * Parse's a songs meta json.
+	 * @param name The song folder name.
+	 * @param pathType The path type.
+	 * @return `SongData` ~ The parsed meta json content.
+	 */
 	public static function song(name:String, pathType:FunkinPath = ANY):SongData {
 		// final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
 		final contents:SongParse = json('content/songs/$name/meta', pathType);

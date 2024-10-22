@@ -2,6 +2,9 @@ package states.menus;
 
 import backend.scripting.events.menus.story.LevelSongListEvent;
 
+/**
+ * It's the story menu... still don't know what your expecting to see here.
+ */
 class StoryMenu extends BeatState {
 	// Menu related vars.
 	var canSelect:Bool = true;
@@ -237,7 +240,7 @@ class StoryMenu extends BeatState {
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
-	public function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
+	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1);
 		if (prevSelected != curSelected)
@@ -259,7 +262,7 @@ class StoryMenu extends BeatState {
 		changeDifficulty(newIndex, true);
 	}
 
-	public function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
+	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (!pureSelect) {
 			final arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
 			arrow.animation.play('confirm', true);
@@ -279,7 +282,7 @@ class StoryMenu extends BeatState {
 
 	var levelShake:FlxTween;
 	var diffShake:FlxTween;
-	public function selectCurrent():Void {
+	function selectCurrent():Void {
 		canSelect = false;
 
 		final level:LevelHolder = levels.members[curSelected];
