@@ -9,6 +9,12 @@ class ScriptGroup extends FlxBasic {
 	 */
 	public var members:Array<Script> = [];
 	/**
+	 * Iterates through every member.
+	 * @return `FlxTypedGroupIterator<Script>`
+	 */
+	inline public function iterator(?filter:Script->Bool):FlxTypedGroupIterator<Script>
+		return new FlxTypedGroupIterator<Script>(members, filter);
+	/**
 	 * The number of entries in the members array. For performance and safety you should check this
 	 * variable instead of `members.length` unless you really know what you're doing!
 	 */

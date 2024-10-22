@@ -14,8 +14,8 @@ class ModState extends BeatState {
 	 */
 	public static var lastName:String = null;
 
-	public function new(stateName:String) {
-		conductor = Conductor.menu;
+	public function new(stateName:String, ?conductor:Conductor) {
+		this.conductor = conductor.getDefault(Conductor.menu);
 		if (stateName != null)
 			lastName = stateName;
 		super(true, lastName);

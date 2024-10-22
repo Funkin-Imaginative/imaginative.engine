@@ -23,8 +23,6 @@
 		<define name='MOD_SUPPORT'/>
 		<define name='SCRIPT_SUPPORT'/>
 
-		<define name='IGROUP_INTERFACE'/>
-
 		<!-- script related -->
 		<section if='SCRIPT_SUPPORT'>
 			<define name='CAN_HAXE_SCRIPT'/>

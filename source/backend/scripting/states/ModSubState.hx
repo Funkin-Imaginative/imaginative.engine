@@ -3,7 +3,6 @@ package backend.scripting.states;
 /**
  * Used for custom subStates.
  */
-@SuppressWarnings('checkstyle:CodeSimilarity')
 class ModSubState extends BeatSubState {
 	override public function get_conductor():Conductor
 		return conductor;
@@ -15,10 +14,10 @@ class ModSubState extends BeatSubState {
 	 */
 	public static var lastName:String = null;
 
-	public function new(stateName:String) {
-		conductor = Conductor.menu;
-		if (stateName != null)
-			lastName = stateName;
+	public function new(subStateName:String, ?conductor:Conductor) {
+		this.conductor = conductor.getDefault(Conductor.menu);
+		if (subStateName != null)
+			lastName = subStateName;
 		super(true, lastName);
 	}
 }

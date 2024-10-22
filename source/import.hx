@@ -50,9 +50,7 @@ import backend.Paths;
 import backend.configs.ModConfig;
 import backend.configs.PlayConfig;
 import backend.interfaces.IBeat;
-#if IGROUP_INTERFACE
 import backend.interfaces.IGroup;
-#end
 import backend.interfaces.IScript;
 import backend.music.Conductor;
 import backend.music.group.BeatGroup;

@@ -45,23 +45,23 @@ enum abstract TextureType(String) from String to String {
 	/**
 	 * States that this sprite uses a sparrow sheet method.
 	 */
-	var isSparrow = 'Sparrow';
+	var IsSparrow = 'Sparrow';
 	/**
 	 * States that this sprite uses a packer sheet method.
 	 */
-	var isPacker = 'Packer';
+	var IsPacker = 'Packer';
 	/**
 	 * States that this sprite uses a single image, grid system method.
 	 */
-	var isGraphic = 'Graphic';
+	var IsGraphic = 'Graphic';
 	/**
 	 * States that this sprite uses an sheet made in the aseprite pixel art software.
 	 */
-	var isAseprite = 'Aseprite';
+	var IsAseprite = 'Aseprite';
 	/**
 	 * States that this sprite method is unknown.
 	 */
-	var isUnknown = 'Unknown';
+	var IsUnknown = 'Unknown';
 
 	/**
 	 * Get's the file extension from texture type.
@@ -70,11 +70,11 @@ enum abstract TextureType(String) from String to String {
 	 */
 	inline public static function getExtFromType(type:TextureType):String {
 		return switch (type) {
-			case isSparrow: 'xml';
-			case isPacker: 'txt';
-			case isAseprite: 'json';
-			case isGraphic: 'png';
-			default: isUnknown;
+			case IsSparrow: 'xml';
+			case IsPacker: 'txt';
+			case IsAseprite: 'json';
+			case IsGraphic: 'png';
+			default: IsUnknown;
 		}
 	}
 	/**
@@ -85,11 +85,11 @@ enum abstract TextureType(String) from String to String {
 	 */
 	inline public static function getTypeFromExt(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
 		return switch (FilePath.extension(sheetPath)) {
-			case 'xml': isSparrow;
-			case 'txt': isPacker;
-			case 'json': isAseprite;
-			case 'png': isGraphic;
-			default: defaultIsUnknown ? isUnknown : isGraphic;
+			case 'xml': IsSparrow;
+			case 'txt': IsPacker;
+			case 'json': IsAseprite;
+			case 'png': IsGraphic;
+			default: defaultIsUnknown ? IsUnknown : IsGraphic;
 		}
 	}
 }
@@ -218,7 +218,7 @@ typedef ObjectData = {
 /**
  * This class is a verison of FlxSkewedSprite but with animation support among other things.
  */
-class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup #end {
+class BaseSprite extends FlxSkewedSprite implements IGroup {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -229,7 +229,8 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 */
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 	/**
-	 * Used for editors to prevent the sprites natural functions
+	 * Used for editors to prevent the sprites natural functions.
+	 * Mostly used for editors.
 	 */
 	public var debugMode:Bool = false;
 
@@ -243,9 +244,9 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData>;
-	@:unreflective inline function resetTextures(newTexture:String, spriteType:TextureType):String {
+	@:unreflective inline function resetTextures(newTexture:String, textureType:TextureType):String {
 		textures = [];
-		textures.push(new TextureData(FilePath.withoutExtension(newTexture), spriteType));
+		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
 		return newTexture;
 	}
 
@@ -272,8 +273,8 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	inline public function loadImage<T:BaseSprite>(newTexture:String):T {
 		if (Paths.fileExists('images/$newTexture.png'))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), 'graphic'));
-			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.isGraphic}"');
+				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic));
+			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.IsGraphic}"');
 		return cast this;
 	}
 	/**
@@ -306,7 +307,6 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
 
-	#if IGROUP_INTERFACE
 	// IGroup shenanigans!
 	/**
 	 * The group inside the sprite.
@@ -348,26 +348,21 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 
 	override function set_x(value:Float):Float {
 		try {
-			return super.set_x(value + objectOffsets.position.x.getDefault(0));
+			return super.set_x(value + spriteOffsets.position.x.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_x(value);
 	}
 	override function set_y(value:Float):Float {
 		try {
-			return super.set_y(value + objectOffsets.position.y.getDefault(0));
+			return super.set_y(value + spriteOffsets.position.y.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_y(value);
 	}
 	/* override function set_angle(value:Float):Float {
 		return super.set_angle(value);
 	} */
-	#end
 
 	// Where the BaseSprite class really begins.
-	/**
-	 * The sprite data.
-	 */
-	public var data:SpriteData = cast {};
 	/**
 	 * Another way to create a BaseSprite. But you can set the root this time.
 	 * @param x Starting x position.
@@ -377,7 +372,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 * @return `BaseSprite`
 	 */
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
-		return new BaseSprite(x, y, ParseUtil.object(path, isBaseSprite, pathType), Paths.script(path, pathType));
+		return new BaseSprite(x, y, ParseUtil.object(path, IsBaseSprite, pathType), Paths.script(path, pathType));
 	}
 	/**
 	 * States the type of sprite this is.
@@ -385,11 +380,11 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	public var type(get, never):SpriteType;
 	function get_type():SpriteType {
 		return switch (this.getClassName()) {
-			case 'Character':  	isCharacterSprite;
-			case 'HealthIcon': 	isHealthIcon;
-			case 'BeatSprite': 	isBeatSprite;
-			case 'BaseSprite': 	isBaseSprite;
-			default:          	isUnidentified;
+			case 'Character':  	IsCharacterSprite;
+			case 'HealthIcon': 	IsHealthIcon;
+			case 'BeatSprite': 	IsBeatSprite;
+			case 'BaseSprite': 	IsBaseSprite;
+			default:          	IsUnidentified;
 		}
 	}
 	/**
@@ -397,95 +392,85 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 * @param inputData The data input.
 	 */
 	public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:SpriteData = cast inputData;
+		final incomingData:SpriteData = inputData;
 		try {
 			try {
 				loadTexture(incomingData.asset.image);
 			} catch(error:haxe.Exception) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
 
 			try {
-				if (Reflect.hasField(incomingData, 'offsets') && incomingData.offsets != null) {
-					if (Reflect.hasField(incomingData.offsets, 'position') && incomingData.offsets.position != null) {
+				if (Reflect.hasField(incomingData, 'offsets')) {
+					if (incomingData.offsets.position != null)
 						try {
-							objectOffsets.position.x = incomingData.offsets.position.x;
-							objectOffsets.position.y = incomingData.offsets.position.y;
+							spriteOffsets.position.x = incomingData.offsets.position.x;
+							spriteOffsets.position.y = incomingData.offsets.position.y;
 						} catch(error:haxe.Exception) trace('Couldn\'t get the position offset.');
-					}
-					if (Reflect.hasField(incomingData.offsets, 'offsets') && incomingData.offsets.flip != null) {
+					if (incomingData.offsets.flip != null)
 						try {
-							objectOffsets.flip.x = incomingData.offsets.flip.x;
-							objectOffsets.flip.y = incomingData.offsets.flip.y;
+							spriteOffsets.flip.x = incomingData.offsets.flip.x;
+							spriteOffsets.flip.y = incomingData.offsets.flip.y;
 						} catch(error:haxe.Exception) trace('Couldn\'t get the flip offset.');
-					}
-					if (Reflect.hasField(incomingData.offsets, 'offsets') && incomingData.offsets.scale != null) {
+					if (incomingData.offsets.scale != null)
 						try {
-							objectOffsets.scale.x = incomingData.offsets.scale.x;
-							objectOffsets.scale.y = incomingData.offsets.scale.y;
+							spriteOffsets.scale.x = incomingData.offsets.scale.x;
+							spriteOffsets.scale.y = incomingData.offsets.scale.y;
 						} catch(error:haxe.Exception) trace('Couldn\'t get the scale offset.');
-					}
 				}
 			} catch(error:haxe.Exception) trace('Couldn\'t get the global offsets.');
 
 			try {
 				for (anim in incomingData.animations)
 					try {
-						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
-						if (objectOffsets.flip != null) {
-							if (objectOffsets.flip.x) flipping.x = !flipping.x;
-							if (objectOffsets.flip.y) flipping.y = !flipping.y;
-						}
+						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x.getDefault(false), anim.flip.y.getDefault(false));
+						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
+						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
 						switch (anim.asset.type) {
-							case isUnknown:
+							case IsUnknown:
 								trace('The asset type was unknown! Tip: "${incomingData.asset.image}"');
-							case isGraphic:
+							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
-								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
+								if (anim.indices.getDefault([]).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 						}
+						trace(anim.offset);
 						anims.set(anim.name, {
-							offset: new PositionStruct(anim.offset.x, anim.offset.y),
-							swappedAnim: anim.swapTag,
-							flippedAnim: anim.flipTag
+							offset: new PositionStruct(anim.offset.x.getDefault(0), anim.offset.y.getDefault(0)),
+							swappedAnim: anim.swapTag.getDefault(''),
+							flippedAnim: anim.flipTag.getDefault('')
 						});
 					} catch(error:haxe.Exception) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}".');
 			} catch(error:haxe.Exception) trace('Couldn\'t add the animations.');
 
-			if (Reflect.hasField(incomingData, 'position')) {
+			if (incomingData.position != null)
 				try {
 					setPosition(incomingData.position.x, incomingData.position.y);
 				} catch(error:haxe.Exception) trace('Couldn\'t set the start position.');
-			}
-			if (Reflect.hasField(incomingData, 'flip')) {
+			if (incomingData.flip != null)
 				try {
 					flipX = incomingData.flip.x;
 					flipY = incomingData.flip.y;
 				} catch(error:haxe.Exception) trace('Couldn\'t set the start flip.');
-			}
-			if (Reflect.hasField(incomingData, 'scale')) {
+			if (incomingData.scale != null)
 				try {
 					scale.set(incomingData.scale.x, incomingData.scale.y);
+					updateHitbox();
 				} catch(error:haxe.Exception) trace('Couldn\'t set the start scale.');
-			}
 
 			try {
-				antialiasing = incomingData.reflectDefault('antialiasing', true);
+				antialiasing = incomingData.antialiasing.getDefault(true);
 			} catch(error:haxe.Exception) trace('The antialiasing null check failed.');
 
-			if (Reflect.hasField(incomingData, 'extra'))
+			if (incomingData.extra != null)
 				try {
-					if (incomingData.extra != null || incomingData.extra.length > 1)
+					if (incomingData.extra.length > 1)
 						for (extraData in incomingData.extra)
 							extra.set(extraData.name, extraData.data);
 				} catch(error:haxe.Exception) trace('Invaild information in extra array or the null check failed.');
-
-			try {
-				data = incomingData;
-			} catch(error:haxe.Exception) trace('Couldn\'t set the data variable.');
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
-			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
 	}
 
 	/**
@@ -499,7 +484,11 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	/**
 	 * Global offsets
 	 */
-	public var objectOffsets:OffsetsData = cast {};
+	public var spriteOffsets:OffsetsData = {
+		position: new PositionStruct(),
+		flip: new TypeXY<Bool>(false, false),
+		scale: new PositionStruct()
+	};
 
 	/**
 	 * The sprites internal scripts.
@@ -521,9 +510,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 
 	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {
 		super(x, y);
-		#if IGROUP_INTERFACE
 		add(this);
-		#end
 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
@@ -571,8 +558,9 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 * 				Although if reversed it will use the last frame instead.
 	 */
 	inline public function playAnim(name:String, force:Bool = false, context:AnimContext = Unclear, suffix:String = '', reverse:Bool = false, frame:Int = 0):Void {
-		final suffixResult:String = invaildSuffixCheck(name, suffix) ? '-$suffix' : (invaildSuffixCheck(name, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : '');
-		final theName:String = '$name${suffixResult.trim()}';
+		var theName:String = (spriteOffsets.flip.x && doesAnimExist(getAnimInfo(name).swappedAnim, true)) ? getAnimInfo(name).swappedAnim : name;
+		final suffixResult:String = invaildSuffixCheck(theName, suffix) ? '-$suffix' : (invaildSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : '');
+		theName = '$name${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			final animInfo:AnimMapping = getAnimInfo(theName);
 			animation.play(theName, force, reverse, frame);
@@ -582,6 +570,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	}
 	/**
 	 * Get's the name of the currently playing animation.
+	 * The arguments are to reverse the name.
 	 * @param ignoreSwap If true, it won't use the swap name.
 	 * @param ignoreFlip If true, it won't use the flip name.
 	 * @return `String` The animation name.
@@ -589,18 +578,28 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):String {
 		if (animation.name != null) {
 			var targetAnim:String = animation.name;
-			targetAnim = (!ignoreSwap && doesAnimExist(targetAnim)) ? anims.get(targetAnim).swappedAnim : targetAnim;
-			targetAnim = (!ignoreFlip && doesAnimExist(targetAnim)) ? anims.get(targetAnim).flippedAnim : targetAnim;
+			targetAnim = (!ignoreSwap && doesAnimExist(targetAnim, true)) ? getAnimInfo(targetAnim).swappedAnim : targetAnim;
+			targetAnim = (!ignoreFlip && doesAnimExist(targetAnim, true)) ? getAnimInfo(targetAnim).flippedAnim : targetAnim;
 			return targetAnim;
 		}
 		return animation.name;
 	}
 	/**
 	 * Get's information on a set animation of your choosing.
+	 * This way you won't have to worry about certain things.
 	 * @param name The animation name.
 	 * @return `AnimMapping` ~ The animation information.
 	 */
-	inline public function getAnimInfo(name:String):AnimMapping return doesAnimExist(name) ? anims.get(name) : {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''}
+	inline public function getAnimInfo(name:String):AnimMapping {
+		var data:AnimMapping;
+		if (doesAnimExist(name))
+			data = anims.get(name);
+		else if (doesAnimExist(name, true))
+			data = {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''};
+		else
+			data = {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''};
+		return data;
+	}
 	/**
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
@@ -609,14 +608,18 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	/**
 	 * When run, it forces the animation to finish.
 	 */
-	inline public function finishAnim():Void if (animation.curAnim != null) animation.curAnim.finish();
+	inline public function finishAnim():Void
+		if (animation.curAnim != null)
+			animation.curAnim.finish();
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.
 	 * @param inGeneral If false, it only checks if the animation is listed in the map.
 	 * @return `Bool`
 	 */
-	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool return inGeneral ? animation.exists(name) : (animation.exists(name) && anims.exists(name));
+	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool {
+		return inGeneral ? animation.exists(name) : (animation.exists(name) && anims.exists(name));
+	}
 
 	// make offset flipping look not broken, and yes cne also does this
 	var __offsetFlip:Bool = false;
@@ -631,8 +634,8 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 		return super.getScreenBounds(newRect, camera);
 	}
 
-	/* override public function draw():Void {
-		if (objectOffsets.flip.x) {
+	override public function draw():Void {
+		if (spriteOffsets.flip.x) {
 			__offsetFlip = true;
 
 			flipX = !flipX;
@@ -643,5 +646,5 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 
 			__offsetFlip = false;
 		} else super.draw();
-	} */
+	}
 }

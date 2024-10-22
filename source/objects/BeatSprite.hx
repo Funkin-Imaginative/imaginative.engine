@@ -55,10 +55,6 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var preventIdle:Bool = false;
 
 	/**
-	 * The beat sprite data.
-	 */
-	public var beatData:BeatData = null;
-	/**
 	 * Another way to create a BeatSprite. But you can set the root this time.
 	 * @param x Starting x position.
 	 * @param y Starting y position.
@@ -67,26 +63,24 @@ class BeatSprite extends BaseSprite implements IBeat {
 	 * @return `BeatSprite`
 	 */
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
-		return new BeatSprite(x, y, ParseUtil.object(path, isBeatSprite, pathType), Paths.script(path, pathType));
+		return new BeatSprite(x, y, ParseUtil.object(path, IsBeatSprite, pathType), Paths.script(path, pathType));
 	}
 	override public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:BeatSpriteData = cast inputData;
-		super.renderData(inputData);
+		final incomingData:BeatSpriteData = inputData;
 		try {
-			try {
-				beatInterval = incomingData.beat.invertal.getDefault(0);
-			} catch(error:haxe.Exception) trace('Couldn\'t set object bop rate.');
-			try {
-				skipNegativeBeats = incomingData.beat.skipnegative.getDefault(false);
-			} catch(error:haxe.Exception) trace('Couldn\'t set skipping negative beats.');
-
-			try {
-				beatData = incomingData.beat;
-			} catch(error:haxe.Exception) trace('Couldn\'t set the beat data variable.');
+			if (incomingData.beat != null) {
+				try {
+					beatInterval = incomingData.beat.invertal.getDefault(0);
+				} catch(error:haxe.Exception) trace('Couldn\'t set object bop interval.');
+				try {
+					skipNegativeBeats = incomingData.beat.skipnegative.getDefault(false);
+				} catch(error:haxe.Exception) trace('Couldn\'t set skipping negative beats.');
+			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
-			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+		super.renderData(inputData);
 	}
 
 	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON

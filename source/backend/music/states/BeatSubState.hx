@@ -207,11 +207,11 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
 		@SuppressWarnings('checkstyle:CodeSimilarity') // Why do I have to put this here??
+		@SuppressWarnings('checkstyle:CodeSimilarity') // WHY FUCKING TWO??????????????
 		super.update(elapsed);
 	}
 
 	// And not here?????
-	#if IGROUP_INTERFACE
 	override public function add(object:FlxBasic):FlxBasic {
 		if (object is IGroup)
 			return super.add(cast(object, IGroup).group);
@@ -230,7 +230,6 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		else
 			return super.remove(object, splice);
 	}
-	#end
 
 	/**
 	 * The state that the subState is attached to.

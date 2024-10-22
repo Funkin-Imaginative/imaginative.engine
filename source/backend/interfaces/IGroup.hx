@@ -1,4 +1,3 @@
-#if IGROUP_INTERFACE
 package backend.interfaces;
 
 /**
@@ -44,4 +43,3 @@ interface IGroup {
 	 */
 	function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite;
 }
-#end

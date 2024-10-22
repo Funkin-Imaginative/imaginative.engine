@@ -53,9 +53,9 @@ typedef AudioData = {
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract SongTimeType(String) from String to String {
 	// MAYBE: Add documentation.
-	var isStep = 'Step';
-	var isBeat = 'Beat';
-	var isMeasure = 'Measure';
+	var IsStep = 'Step';
+	var IsBeat = 'Beat';
+	var IsMeasure = 'Measure';
 }
 
 /**
@@ -482,24 +482,24 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		for (state in beatStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {
-					case isStep:
+					case IsStep:
 						state.stepHit(curTime);
 						GlobalScript.stepHit(curTime, state.conductor);
-					case isBeat:
+					case IsBeat:
 						state.beatHit(curTime);
 						GlobalScript.beatHit(curTime, state.conductor);
-					case isMeasure:
+					case IsMeasure:
 						state.measureHit(curTime);
 						GlobalScript.measureHit(curTime, state.conductor);
 				}
 		for (state in beatSubStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {
-					case isStep:
+					case IsStep:
 						state.stepHit(curTime);
-					case isBeat:
+					case IsBeat:
 						state.beatHit(curTime);
-					case isMeasure:
+					case IsMeasure:
 						state.measureHit(curTime);
 				}
 	}
@@ -510,7 +510,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	inline public function stepHit(curStep:Int):Void {
 		onStepHit.dispatch(curStep);
-		callToState(isStep, curStep);
+		callToState(IsStep, curStep);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -518,7 +518,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	inline public function beatHit(curBeat:Int):Void {
 		onBeatHit.dispatch(curBeat);
-		callToState(isBeat, curBeat);
+		callToState(IsBeat, curBeat);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -526,7 +526,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	inline public function measureHit(curMeasure:Int):Void {
 		onMeasureHit.dispatch(curMeasure);
-		callToState(isMeasure, curMeasure);
+		callToState(IsMeasure, curMeasure);
 	}
 
 	/**

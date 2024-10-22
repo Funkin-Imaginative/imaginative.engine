@@ -62,8 +62,7 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 
 	// Was crashing without error.
 	@SuppressWarnings('checkstyle:CommentedOutCode')
-	/* #if IGROUP_INTERFACE
-	override public function add(object:T):T {
+	/* override public function add(object:T):T {
 		if (object is IGroup)
 			return super.add(cast(cast(object, IGroup).group));
 		else
@@ -80,6 +79,5 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 			return super.remove(cast(cast(object, IGroup).group), splice);
 		else
 			return super.remove(object, splice);
-	}
-	#end */
+	} */
 }

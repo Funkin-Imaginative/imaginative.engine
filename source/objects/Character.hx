@@ -39,7 +39,7 @@ class Character extends BeatSprite {
 	/**
 	 * The character icon.
 	 */
-	public var theirIcon(default, null):String;
+	public var theirIcon(default, null):String = 'face';
 
 	/**
 	 * Used to help `singLength`.
@@ -48,7 +48,7 @@ class Character extends BeatSprite {
 	/**
 	 * The sing time the character has.
 	 */
-	public var singLength:Float = 0;
+	public var singLength:Float = 2;
 
 	/**
 	 * The camera offset position.
@@ -79,35 +79,28 @@ class Character extends BeatSprite {
 	 */
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
-	/**
-	 * The character sprite data.
-	 */
-	public var charData(default, null):CharacterData = null;
 	override public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:CharacterSpriteData = cast inputData;
-		super.renderData(inputData);
+		final incomingData:CharacterSpriteData = inputData;
 		try {
-			try {
-				cameraOffset.copyFrom(incomingData.character.camera.getDefault(new PositionStruct()));
-			} catch(error:haxe.Exception) trace('Couldn\'t set camera offsets.');
-			try {
-				healthColor = incomingData.character.color;
-			} catch(error:haxe.Exception) trace('Couldn\'t set the health bar color.');
-			try {
-				theirIcon = incomingData.character.icon;
-			} catch(error:haxe.Exception) trace('Couldn\'t set the characters icon.');
-			try {
-				singLength = incomingData.character.singlength.getDefault(4);
-			} catch(error:haxe.Exception) trace('Couldn\'t set the sing length.');
-
-			try {
-				charData = incomingData.character;
-			} catch(error:haxe.Exception) trace('Couldn\'t set the character data variable.');
+			if (incomingData.character != null) {
+				try {
+					cameraOffset.copyFrom(incomingData.character.camera.getDefault(new PositionStruct()));
+				} catch(error:haxe.Exception) trace('Couldn\'t set camera offsets.');
+				try {
+					healthColor = incomingData.character.color.getDefault(FlxColor.GRAY);
+				} catch(error:haxe.Exception) trace('Couldn\'t set the health bar color.');
+				try {
+					theirIcon = incomingData.character.icon.getDefault('face');
+				} catch(error:haxe.Exception) trace('Couldn\'t set the characters icon.');
+				try {
+					singLength = incomingData.character.singlength.getDefault(2);
+				} catch(error:haxe.Exception) trace('Couldn\'t set the sing length.');
+			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went very wrong! What could bypass all the try\'s??? Tip: "${incomingData.asset.image}"');
-			} catch(error:haxe.Exception) trace('Something went very wrong! What could bypass all the try\'s??? Tip: "null"');
-
+				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+		super.renderData(inputData);
 	}
 
 	override function loadScript(path:String):Void {

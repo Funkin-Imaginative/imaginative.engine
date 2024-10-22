@@ -224,7 +224,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 		super.update(elapsed);
 	}
 
-	#if IGROUP_INTERFACE
 	override public function add(object:FlxBasic):FlxBasic {
 		if (object is IGroup)
 			return super.add(cast(object, IGroup).group);
@@ -243,7 +242,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 		else
 			return super.remove(object, splice);
 	}
-	#end
 
 	override public function openSubState(SubState:FlxSubState):Void {
 		call('openingSubState', [SubState]);

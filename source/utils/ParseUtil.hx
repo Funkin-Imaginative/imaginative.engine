@@ -148,7 +148,7 @@ class ParseUtil {
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;
-		if (type.isBeatType && (type == isCharacterSprite && Reflect.hasField(tempData, 'character'))) {
+		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
 			var gottenData:CharacterParse = null;
 			trace('parseChar ~ 1');
 			var typeData:CharacterSpriteData = parseChar();

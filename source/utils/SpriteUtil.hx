@@ -51,34 +51,34 @@ enum abstract SpriteType(String) from String to String {
 	/**
 	 * States that this is a character.
 	 */
-	var isCharacterSprite = 'Character';
+	var IsCharacterSprite = 'Character';
 	/**
 	 * States that this is a health icon.
 	 */
-	var isHealthIcon = 'Icon';
+	var IsHealthIcon = 'Icon';
 
 	// Base Types
 	/**
 	 * States that this is the a sprite that can bop to the beat. A bit limiting without the help of the `isBeatType` property.
 	 */
-	var isBeatSprite = 'Beat';
+	var IsBeatSprite = 'Beat';
 	/**
 	 * States that this is the engine's base sprite.
 	 */
-	var isBaseSprite = 'Base';
+	var IsBaseSprite = 'Base';
 
 	/**
 	 * States that this sprite is unidentified and can't be figured out.
 	 */
-	var isUnidentified = 'Unidentified';
+	var IsUnidentified = 'Unidentified';
 
 	/**
-	 * States that this is the a sprite that can bop to the beat. Even when not set as the `isBeatSprite` type.
+	 * States that this is the a sprite that can bop to the beat. Even when not set as the `IsBeatSprite` type.
 	 */
 	public var isBeatType(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isBeatType():Bool
-		return this == isBeatSprite || this == isCharacterSprite || this == isHealthIcon;
+		return this == IsBeatSprite || this == IsCharacterSprite || this == IsHealthIcon;
 }
 
 class SpriteUtil {
@@ -115,7 +115,7 @@ class SpriteUtil {
 			if (Paths.fileExists('images/$newTexture.png'))
 				try {
 					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
-				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.isGraphic}"');
+				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.IsGraphic}"');
 
 		return sprite;
 	}

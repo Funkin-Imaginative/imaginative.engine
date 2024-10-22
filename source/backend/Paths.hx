@@ -343,15 +343,15 @@ class Paths {
 	 * @param pathType The path type.
 	 * @return `FlxAtlasFrames`
 	 */
-	inline public static function frames(file:String, type:TextureType = isUnknown, pathType:FunkinPath = ANY):FlxAtlasFrames {
-		if (type == isUnknown)
-			if (fileExists('images/$file.xml', pathType)) type = isSparrow;
-			else if (fileExists('images/$file.txt', pathType)) type = isPacker;
-			else if (fileExists('images/$file.json', pathType)) type = isAseprite;
+	inline public static function frames(file:String, type:TextureType = IsUnknown, pathType:FunkinPath = ANY):FlxAtlasFrames {
+		if (type == IsUnknown)
+			if (fileExists('images/$file.xml', pathType)) type = IsSparrow;
+			else if (fileExists('images/$file.txt', pathType)) type = IsPacker;
+			else if (fileExists('images/$file.json', pathType)) type = IsAseprite;
 		return switch (type) {
-			case isSparrow: getSparrowAtlas(file, pathType);
-			case isPacker: getPackerAtlas(file, pathType);
-			case isAseprite: getAsepriteAtlas(file, pathType);
+			case IsSparrow: getSparrowAtlas(file, pathType);
+			case IsPacker: getPackerAtlas(file, pathType);
+			case IsAseprite: getAsepriteAtlas(file, pathType);
 			default: getSparrowAtlas(file, pathType);
 		}
 	}
