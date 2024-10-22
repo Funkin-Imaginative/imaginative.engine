@@ -92,8 +92,8 @@ class ParseUtil {
 	 * @return `DifficultyData` ~ The parsed difficulty json content.
 	 */
 	public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
-		// final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
-		final contents:DifficultyData = json('content/difficulties/$name', pathType);
+		final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
+		// final contents:DifficultyData = json('content/difficulties/$name', pathType);
 		return {
 			display: contents.display,
 			variant: contents.variant.getDefault('normal'),
@@ -244,8 +244,8 @@ class ParseUtil {
 	 * @return `SongData` ~ The parsed meta json content.
 	 */
 	public static function song(name:String, pathType:FunkinPath = ANY):SongData {
-		// final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
-		final contents:SongParse = json('content/songs/$name/meta', pathType);
+		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
+		// final contents:SongParse = json('content/songs/$name/meta', pathType);
 		return {
 			name: json('content/songs/$name/audio', pathType).name,
 			folder: contents.folder,

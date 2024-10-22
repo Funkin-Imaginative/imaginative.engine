@@ -126,15 +126,15 @@ typedef OffsetsData = {
 	/**
 	 * Offset position.
 	 */
-	@:optional var position:PositionStruct;
+	@:default({x: 0, y: 0}) var position:PositionStruct;
 	/**
 	 * Offset flip, is applied through the animations flip values.
 	 */
-	@:optional var flip:TypeXY<Bool>;
+	@:default({x: false, y: false})var flip:TypeXY<Bool>;
 	/**
 	 * Size multiplier.
 	 */
-	@:optional var scale:PositionStruct;
+	@:default({x: 1, y: 1}) var scale:PositionStruct;
 }
 
 typedef AssetTyping = {
@@ -164,7 +164,7 @@ typedef AnimationTyping = {
 	 * Height and width dimensions.
 	 * Only if texture type is a graphic.
 	 */
-	@:optional @:default({x: 1, y: 1}) var dimensions:TypeXY<Int>;
+	@:optional @:default({x: 150, y: 150}) var dimensions:TypeXY<Int>;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
@@ -174,6 +174,17 @@ typedef AnimationTyping = {
 	 * The offset for the set animation.
 	 */
 	@:default({x: 0, y: 0}) var offset:PositionStruct;
+	/**
+	 * Swapped name for that set animation.
+	 * Ex: singLEFT to singRIGHT
+	 */
+	@:default('') var swapTag:String;
+	/**
+	 * Flipped name for that set animation.
+	 * Useful for characters that may off design when flipped!
+	 * Basically it's good for asymmetrical characters.
+	 */
+	@:default('') var flipTag:String;
 	/**
 	 * The flip offset for the set animation.
 	 */
@@ -337,13 +348,13 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 
 	override function set_x(value:Float):Float {
 		try {
-			return super.set_x(value + data.offsets.position.x.getDefault(0));
+			return super.set_x(value + objectOffsets.position.x.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_x(value);
 	}
 	override function set_y(value:Float):Float {
 		try {
-			return super.set_y(value + data.offsets.position.y.getDefault(0));
+			return super.set_y(value + objectOffsets.position.y.getDefault(0));
 		} catch(error:haxe.Exception)
 			return super.set_y(value);
 	}
@@ -356,7 +367,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	/**
 	 * The sprite data.
 	 */
-	public var data:SpriteData = null;
+	public var data:SpriteData = cast {};
 	/**
 	 * Another way to create a BaseSprite. But you can set the root this time.
 	 * @param x Starting x position.
@@ -393,40 +404,68 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 			} catch(error:haxe.Exception) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
 
 			try {
+				if (Reflect.hasField(incomingData, 'offsets') && incomingData.offsets != null) {
+					if (Reflect.hasField(incomingData.offsets, 'position') && incomingData.offsets.position != null) {
+						try {
+							objectOffsets.position.x = incomingData.offsets.position.x;
+							objectOffsets.position.y = incomingData.offsets.position.y;
+						} catch(error:haxe.Exception) trace('Couldn\'t get the position offset.');
+					}
+					if (Reflect.hasField(incomingData.offsets, 'offsets') && incomingData.offsets.flip != null) {
+						try {
+							objectOffsets.flip.x = incomingData.offsets.flip.x;
+							objectOffsets.flip.y = incomingData.offsets.flip.y;
+						} catch(error:haxe.Exception) trace('Couldn\'t get the flip offset.');
+					}
+					if (Reflect.hasField(incomingData.offsets, 'offsets') && incomingData.offsets.scale != null) {
+						try {
+							objectOffsets.scale.x = incomingData.offsets.scale.x;
+							objectOffsets.scale.y = incomingData.offsets.scale.y;
+						} catch(error:haxe.Exception) trace('Couldn\'t get the scale offset.');
+					}
+				}
+			} catch(error:haxe.Exception) trace('Couldn\'t get the global offsets.');
+
+			try {
 				for (anim in incomingData.animations)
 					try {
+						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
+						if (objectOffsets.flip != null) {
+							if (objectOffsets.flip.x) flipping.x = !flipping.x;
+							if (objectOffsets.flip.y) flipping.y = !flipping.y;
+						}
 						switch (anim.asset.type) {
 							case isUnknown:
 								trace('The asset type was unknown! Tip: "${incomingData.asset.image}"');
 							case isGraphic:
-								animation.add(anim.name, anim.indices, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
-								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, anim.flip.x, anim.flip.y);
-								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, anim.flip.x, anim.flip.y);
+								if (anim.indices != null && anim.indices.length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
+								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 						}
 						anims.set(anim.name, {
 							offset: new PositionStruct(anim.offset.x, anim.offset.y),
-							swappedAnim: '',
-							flippedAnim: ''
+							swappedAnim: anim.swapTag,
+							flippedAnim: anim.flipTag
 						});
-					} catch(error:haxe.Exception) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}" btw.');
+					} catch(error:haxe.Exception) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}".');
 			} catch(error:haxe.Exception) trace('Couldn\'t add the animations.');
 
 			if (Reflect.hasField(incomingData, 'position')) {
 				try {
 					setPosition(incomingData.position.x, incomingData.position.y);
-				}
+				} catch(error:haxe.Exception) trace('Couldn\'t set the start position.');
 			}
 			if (Reflect.hasField(incomingData, 'flip')) {
 				try {
 					flipX = incomingData.flip.x;
 					flipY = incomingData.flip.y;
-				}
+				} catch(error:haxe.Exception) trace('Couldn\'t set the start flip.');
 			}
 			if (Reflect.hasField(incomingData, 'scale')) {
 				try {
 					scale.set(incomingData.scale.x, incomingData.scale.y);
-				}
+				} catch(error:haxe.Exception) trace('Couldn\'t set the start scale.');
 			}
 
 			try {
@@ -457,6 +496,10 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	 * The current animation context.
 	 */
 	public var animContext:AnimContext;
+	/**
+	 * Global offsets
+	 */
+	public var objectOffsets:OffsetsData = cast {};
 
 	/**
 	 * The sprites internal scripts.
@@ -589,7 +632,7 @@ class BaseSprite extends FlxSkewedSprite #if IGROUP_INTERFACE implements IGroup 
 	}
 
 	/* override public function draw():Void {
-		if (isFacing == rightFace) {
+		if (objectOffsets.flip.x) {
 			__offsetFlip = true;
 
 			flipX = !flipX;

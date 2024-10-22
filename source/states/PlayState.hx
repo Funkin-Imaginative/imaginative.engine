@@ -100,7 +100,7 @@ class PlayState extends BeatState {
 	/**
 	 * What would be known as Daddy Dearest.
 	 */
-	public var enemy:BeatSprite;
+	public var enemy:Character;
 	/**
 	 * What would be known as the Boyfriend.
 	 */
@@ -140,7 +140,7 @@ class PlayState extends BeatState {
 		scripts.call('create');
 
 		add(spectator = new Character(0, 0, 'gf', true));
-		add(enemy = new BeatSprite(-500, 0, 'characters/boyfriend'));
+		add(enemy = new Character(-500, 0));
 		add(player = new Character(500, 0, true));
 		camPoint.setPosition(spectator.getCamPos().x, spectator.getCamPos().y);
 		camGame.snapToTarget();

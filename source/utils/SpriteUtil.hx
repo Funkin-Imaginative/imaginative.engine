@@ -2,19 +2,22 @@ package utils;
 
 typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
 
-typedef CharacterSpriteData = BeatSpriteData & {
+typedef CharacterSpriteData = {
+	> BeatSpriteData,
 	/**
 	 * The character sprite data.
 	 */
 	var character:CharacterData;
 }
-typedef BeatSpriteData = SpriteData & {
+typedef BeatSpriteData = {
+	> SpriteData,
 	/**
 	 * The beat sprite data.
 	 */
 	var beat:BeatData;
 }
-typedef SpriteData = ObjectData & {
+typedef SpriteData = {
+	> ObjectData,
 	/**
 	 * The sprite offset data.
 	 */

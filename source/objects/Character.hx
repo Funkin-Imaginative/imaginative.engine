@@ -122,6 +122,7 @@ class Character extends BeatSprite {
 
 	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
 		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
+		if (faceLeft) flipX = !flipX;
 	}
 
 	/**

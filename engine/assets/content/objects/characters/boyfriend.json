@@ -31,6 +31,7 @@
 		{
 			"name": "singLEFT",
 			"tag": "BF NOTE RIGHT0",
+			"swapTag": "singRIGHT",
 			"indices": [],
 			"offset": {"x": 41, "y": -6},
 			"flip": {"x": false, "y": false},
@@ -58,6 +59,7 @@
 		{
 			"name": "singRIGHT",
 			"tag": "BF NOTE LEFT0",
+			"swapTag": "singLEFT",
 			"indices": [],
 			"offset": {"x": -35, "y": -6},
 			"flip": {"x": false, "y": false},
