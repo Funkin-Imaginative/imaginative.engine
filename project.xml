@@ -39,6 +39,13 @@
 	<!-- Define Setup -->
 
 	<!-- Path Settings -->
+		<!-- Renames -->
+			<section if='desktop'>
+				<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.ini' type='text' if='windows'/>
+				<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.conf' type='text' unless='windows'/>
+			</section>
+		<!-- Renames -->
+
 		<!-- Export Directories -->
 		<set name='BUILD_DIR' value='export/release' if='release' unless='debug'/>
 		<set name='BUILD_DIR' value='export/build' unless='debug'/>

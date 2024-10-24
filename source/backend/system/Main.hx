@@ -5,11 +5,14 @@ import openfl.Lib;
 import openfl.display.DisplayObject;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
+#if FLX_MOUSE
+import flixel.input.mouse.FlxMouse;
+#end
 #if CONTAIN_VERSION_ID
 import thx.semver.Version;
 #end
-#if FLX_MOUSE
-import flixel.input.mouse.FlxMouse;
+#if desktop
+import backend.ALSoftConfig; // Just to make sure DCE doesn't remove this, since it's not directly referenced anywhere else.
 #end
 
 class Main extends Sprite {
