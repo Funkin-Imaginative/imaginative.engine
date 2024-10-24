@@ -122,97 +122,22 @@ class TextureData {
 		return '{image => $image, type => $type, path => $path}';
 }
 
-typedef OffsetsData = {
+typedef AnimMapping = {
 	/**
-	 * Offset position.
-	 */
-	@:default({x: 0, y: 0}) var position:PositionStruct;
-	/**
-	 * Offset flip, is applied through the animations flip values.
-	 */
-	@:default({x: false, y: false})var flip:TypeXY<Bool>;
-	/**
-	 * Size multiplier.
-	 */
-	@:default({x: 1, y: 1}) var scale:PositionStruct;
-}
-
-typedef AssetTyping = {
-	/**
-	 * Root image path.
-	 */
-	var image:String;
-	/**
-	 * Texture type.
-	 */
-	var type:TextureType;
-}
-typedef AnimationTyping = {
-	/**
-	 * The asset typing.
-	 */
-	@:optional var asset:AssetTyping;
-	/**
-	 * Name of the animation.
-	 */
-	var name:String;
-	/**
-	 * Animation key on data method.
-	 */
-	@:optional var tag:String;
-	/**
-	 * Height and width dimensions.
-	 * Only if texture type is a graphic.
-	 */
-	@:optional @:default({x: 150, y: 150}) var dimensions:TypeXY<Int>;
-	/**
-	 * The specified frames to use in the animation.
-	 * For graphic's this is the specified as the frames array in the add function.
-	 */
-	@:default([]) var indices:Array<Int>;
-	/**
-	 * The offset for the set animation.
+	 * Offsets for that set animation.
 	 */
 	@:default({x: 0, y: 0}) var offset:PositionStruct;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	@:default('') var swapTag:String;
+	@:default('') var swapName:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	@:default('') var flipTag:String;
-	/**
-	 * The flip offset for the set animation.
-	 */
-	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
-	/**
-	 * If true, the animation loops.
-	 */
-	@:default(false) var loop:Bool;
-	/**
-	 * The framerate of the animation.
-	 */
-	@:default(24) var fps:Int;
-}
-
-typedef ObjectData = {
-	> OffsetsData,
-	/**
-	 * The asset typing.
-	 */
-	var asset:AssetTyping;
-	/**
-	 * The animations for a given sprite.
-	 */
-	var animations:Array<AnimationTyping>;
-	/**
-	 * Should antialiasing be enabled?
-	 */
-	@:default(true) var antialiasing:Bool;
+	@:default('') var flipName:String;
 }
 
 /**
@@ -347,20 +272,14 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	public function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite return group.remove(sprite, splice);
 
 	override function set_x(value:Float):Float {
-		try {
-			return super.set_x(value + spriteOffsets.position.x.getDefault(0));
-		} catch(error:haxe.Exception)
-			return super.set_x(value);
+		return super.set_x(value);
 	}
 	override function set_y(value:Float):Float {
-		try {
-			return super.set_y(value + spriteOffsets.position.y.getDefault(0));
-		} catch(error:haxe.Exception)
-			return super.set_y(value);
+		return super.set_y(value);
 	}
-	/* override function set_angle(value:Float):Float {
+	override function set_angle(value:Float):Float {
 		return super.set_angle(value);
-	} */
+	}
 
 	// Where the BaseSprite class really begins.
 	/**
@@ -390,87 +309,79 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	/**
 	 * Renders the sprites data variables.
 	 * @param inputData The data input.
+	 * @param applyStartValues Whether or not to apply the start values.
 	 */
-	public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:SpriteData = inputData;
+	public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
 		try {
 			try {
-				loadTexture(incomingData.asset.image);
-			} catch(error:haxe.Exception) trace('Couldn\'t load image "${incomingData.asset.image}", type "${incomingData.asset.type}".');
+				loadTexture(inputData.asset.image);
+			} catch(error:haxe.Exception)
+				trace('Couldn\'t load image "${inputData.asset.image}", type "${inputData.asset.type}".');
+
+			if (Reflect.hasField(inputData, 'offsets')) {
+				spriteOffsets.position.copyFrom(inputData.offsets.position);
+				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
+				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
+
+				setPosition(spriteOffsets.position.x, spriteOffsets.position.y);
+				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
+			}
 
 			try {
-				if (Reflect.hasField(incomingData, 'offsets')) {
-					if (incomingData.offsets.position != null)
-						try {
-							spriteOffsets.position.x = incomingData.offsets.position.x;
-							spriteOffsets.position.y = incomingData.offsets.position.y;
-						} catch(error:haxe.Exception) trace('Couldn\'t get the position offset.');
-					if (incomingData.offsets.flip != null)
-						try {
-							spriteOffsets.flip.x = incomingData.offsets.flip.x;
-							spriteOffsets.flip.y = incomingData.offsets.flip.y;
-						} catch(error:haxe.Exception) trace('Couldn\'t get the flip offset.');
-					if (incomingData.offsets.scale != null)
-						try {
-							spriteOffsets.scale.x = incomingData.offsets.scale.x;
-							spriteOffsets.scale.y = incomingData.offsets.scale.y;
-						} catch(error:haxe.Exception) trace('Couldn\'t get the scale offset.');
-				}
-			} catch(error:haxe.Exception) trace('Couldn\'t get the global offsets.');
-
-			try {
-				for (anim in incomingData.animations)
+				for (i => anim in inputData.animations)
 					try {
-						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x.getDefault(false), anim.flip.y.getDefault(false));
+						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
 						switch (anim.asset.type) {
 							case IsUnknown:
-								trace('The asset type was unknown! Tip: "${incomingData.asset.image}"');
+								trace('The asset type was unknown! Tip: "${inputData.asset.image}"');
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
 								if (anim.indices.getDefault([]).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 						}
-						trace(anim.offset);
 						anims.set(anim.name, {
-							offset: new PositionStruct(anim.offset.x.getDefault(0), anim.offset.y.getDefault(0)),
-							swappedAnim: anim.swapTag.getDefault(''),
-							flippedAnim: anim.flipTag.getDefault('')
+							offset: new PositionStruct(anim.offset.x, anim.offset.y),
+							swapName: anim.swapKey.getDefault(''),
+							flipName: anim.flipKey.getDefault('')
 						});
-					} catch(error:haxe.Exception) trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}".');
-			} catch(error:haxe.Exception) trace('Couldn\'t add the animations.');
+						if (i == 0) {
+							playAnim(anim.name, true);
+							finishAnim();
+						}
+					} catch(error:haxe.Exception)
+						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}".');
+			} catch(error:haxe.Exception)
+				trace('Couldn\'t add the animations.');
 
-			if (incomingData.position != null)
-				try {
-					setPosition(incomingData.position.x, incomingData.position.y);
-				} catch(error:haxe.Exception) trace('Couldn\'t set the start position.');
-			if (incomingData.flip != null)
-				try {
-					flipX = incomingData.flip.x;
-					flipY = incomingData.flip.y;
-				} catch(error:haxe.Exception) trace('Couldn\'t set the start flip.');
-			if (incomingData.scale != null)
-				try {
-					scale.set(incomingData.scale.x, incomingData.scale.y);
-					updateHitbox();
-				} catch(error:haxe.Exception) trace('Couldn\'t set the start scale.');
+			if (applyStartValues) {
+				if (Reflect.hasField(inputData, 'starting')) {
+					group.setPosition(inputData.starting.position.x, inputData.starting.position.y);
+					group.flipX = inputData.starting.flip.x;
+					group.flipY = inputData.starting.flip.y;
+					group.scale.set(inputData.starting.scale.x, inputData.starting.scale.y);
+					group.updateHitbox();
+				}
+			}
 
-			try {
-				antialiasing = incomingData.antialiasing.getDefault(true);
-			} catch(error:haxe.Exception) trace('The antialiasing null check failed.');
+			swapAnimTriggers = inputData.swapAnimTriggers;
+			flipAnimTrigger = inputData.flipAnimTrigger;
+			antialiasing = inputData.antialiasing;
 
-			if (incomingData.extra != null)
+			if (Reflect.hasField(inputData, 'extra') && inputData.extra != null) {
 				try {
-					if (incomingData.extra.length > 1)
-						for (extraData in incomingData.extra)
+					if (inputData.extra.length > 1)
+						for (extraData in inputData.extra)
 							extra.set(extraData.name, extraData.data);
 				} catch(error:haxe.Exception) trace('Invaild information in extra array or the null check failed.');
-		} catch(error:haxe.Exception)
+			}
+		} catch(error:haxe.Exception) {
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+		}
 	}
 
 	/**
@@ -484,11 +395,22 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	/**
 	 * Global offsets
 	 */
-	public var spriteOffsets:OffsetsData = {
+	public var spriteOffsets:ObjectData = {
 		position: new PositionStruct(),
 		flip: new TypeXY<Bool>(false, false),
 		scale: new PositionStruct()
-	};
+	}
+	/**
+	 * If true, the swap anim var can go off.
+	 * For characters and icons it always on.
+	 */
+	public var swapAnimTriggers(get, null):Bool = false;
+	function get_swapAnimTriggers():Bool
+		return swapAnimTriggers;
+	/**
+	 * States which flipX state the sprite must be in to trigger the flip anim var.
+	 */
+	public var flipAnimTrigger(default, null):Bool = true;
 
 	/**
 	 * The sprites internal scripts.
@@ -508,18 +430,44 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 		scripts.load();
 	}
 
-	public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<TypeSpriteData, String>, script:String = '') {
-		super(x, y);
-		add(this);
+	/* override function initVars():Void {
+		super.initVars();
+
+		flixelType = SPRITEGROUP;
+
+		@:privateAccess {
+			offset = new FlxCallbackPoint(group.offsetCallback);
+			origin = new FlxCallbackPoint(group.originCallback);
+			scale = new FlxCallbackPoint(group.scaleCallback);
+			scrollFactor = new FlxCallbackPoint(group.scrollFactorCallback);
+		}
+
+		scale.set(1, 1);
+		scrollFactor.set(1, 1);
+
+		initMotionVars();
+	} */
+
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<SpriteData, String>, script:String = '', applyStartValues:Bool = false) {
+		super();
 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
 				loadScript(sprite);
-				renderData(ParseUtil.object(sprite, type));
-			}
-			else loadTexture(sprite);
-		} else renderData(sprite);
-		if (scripts == null) loadScript(script);
+				renderData(ParseUtil.object(sprite, type), applyStartValues);
+			} else loadTexture(sprite);
+		} else renderData(sprite, applyStartValues);
+
+		if (scripts == null)
+			loadScript(script);
+		scripts.call('create');
+
+		add(this);
+		group.setPosition(x, y);
+		setPosition(x + spriteOffsets.position.x, y + spriteOffsets.position.y);
+		group.setPosition(x, y);
+
+		scripts.call('createPost');
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -558,9 +506,12 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	 * 				Although if reversed it will use the last frame instead.
 	 */
 	inline public function playAnim(name:String, force:Bool = false, context:AnimContext = Unclear, suffix:String = '', reverse:Bool = false, frame:Int = 0):Void {
-		var theName:String = (spriteOffsets.flip.x && doesAnimExist(getAnimInfo(name).swappedAnim, true)) ? getAnimInfo(name).swappedAnim : name;
+		var theName:String = name;
+		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
+		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;
+
 		final suffixResult:String = invaildSuffixCheck(theName, suffix) ? '-$suffix' : (invaildSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : '');
-		theName = '$name${suffixResult.trim()}';
+		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			final animInfo:AnimMapping = getAnimInfo(theName);
 			animation.play(theName, force, reverse, frame);
@@ -578,8 +529,8 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):String {
 		if (animation.name != null) {
 			var targetAnim:String = animation.name;
-			targetAnim = (!ignoreSwap && doesAnimExist(targetAnim, true)) ? getAnimInfo(targetAnim).swappedAnim : targetAnim;
-			targetAnim = (!ignoreFlip && doesAnimExist(targetAnim, true)) ? getAnimInfo(targetAnim).flippedAnim : targetAnim;
+			targetAnim = (!ignoreSwap && (swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName == '' ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
+			targetAnim = (!ignoreFlip && flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName == '' ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
 			return targetAnim;
 		}
 		return animation.name;
@@ -592,12 +543,13 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	 */
 	inline public function getAnimInfo(name:String):AnimMapping {
 		var data:AnimMapping;
-		if (doesAnimExist(name))
-			data = anims.get(name);
-		else if (doesAnimExist(name, true))
-			data = {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''};
+		if (doesAnimExist(name, true))
+			if (anims.exists(name))
+				data = anims.get(name);
+			else
+				data = {offset: new PositionStruct(), swapName: '', flipName: ''};
 		else
-			data = {offset: new PositionStruct(), swappedAnim: '', flippedAnim: ''};
+			data = {offset: new PositionStruct(), swapName: '', flipName: ''};
 		return data;
 	}
 	/**
@@ -635,16 +587,20 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	}
 
 	override public function draw():Void {
-		if (spriteOffsets.flip.x) {
-			__offsetFlip = true;
+		if (swapAnimTriggers) {
+			var xFlip:Bool = flipX;
+			if (xFlip) {
+				__offsetFlip = true;
 
-			flipX = !flipX;
-			scale.x *= -1;
-			super.draw();
-			flipX = !flipX;
-			scale.x *= -1;
+				flipX = !flipX;
+				scale.x *= -1;
+				super.draw();
+				flipX = !flipX;
+				scale.x *= -1;
 
-			__offsetFlip = false;
+				__offsetFlip = false;
+			} else super.draw();
+			flipX = xFlip;
 		} else super.draw();
 	}
 }

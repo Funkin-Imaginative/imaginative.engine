@@ -38,6 +38,6 @@ class CrashHandler {
 		Sys.println('Crash dump saved in ' + Path.normalize(path));
 
 		FlxWindow.direct.self.alert(errMsg, 'Error!');
-		FlxG.resetState();
+		BeatState.resetState();
 	}
 }

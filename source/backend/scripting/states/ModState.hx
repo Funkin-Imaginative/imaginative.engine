@@ -12,12 +12,17 @@ class ModState extends BeatState {
 	/**
 	 * Previous state name.
 	 */
-	public static var lastName:String = null;
+	public static var prevName:String = null;
+	/**
+	 * Previous conductor instance.
+	 */
+	public static var lastConductor:Conductor = null;
 
-	public function new(stateName:String, ?conductor:Conductor) {
-		this.conductor = conductor.getDefault(Conductor.menu);
+	public function new(stateName:String, ?conductorInst:Conductor) {
 		if (stateName != null)
-			lastName = stateName;
-		super(true, lastName);
+			prevName = stateName;
+		if (conductorInst != null)
+			conductor = conductorInst;
+		super(true, prevName);
 	}
 }

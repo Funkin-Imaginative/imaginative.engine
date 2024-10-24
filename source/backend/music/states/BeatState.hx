@@ -193,6 +193,14 @@ class BeatState extends FlxState /* implements IBeat */ {
 		}
 		FlxG.switchState(nextState);
 	}
+	/**
+	 * It's just FlxG.resetState.
+	 */
+	public static function resetState():Void {
+		if (FlxG.state is BeatState)
+			cast(FlxG.state, BeatState).conductor.reset();
+		FlxG.resetState();
+	}
 
 	override public function create():Void {
 		Conductor.beatStates.push(direct = this);

@@ -4,7 +4,7 @@ typedef ObjectTyping = {
 	/**
 	 * Is either the object json path or actually sprite data.
 	 */
-	var object:OneOfTwo<String, TypeSpriteData>;
+	var object:OneOfTwo<String, SpriteData>;
 	/**
 	 * Should the object be flipped?
 	 */
@@ -31,7 +31,7 @@ typedef LevelParse = {
 	var difficulties:Array<String>;
 	@:optional var variants:Array<String>;
 	var objects:Array<ObjectTyping>;
-	@:optional var color:String;
+	var color:String;
 }
 typedef LevelData = {
 	/**
@@ -49,7 +49,7 @@ typedef LevelData = {
 	/**
 	 * Starting difficulty index.
 	 */
-	@:optional public var startingDiff:Int;
+	public var startingDiff:Int;
 	/**
 	 * Difficulty listing.
 	 */

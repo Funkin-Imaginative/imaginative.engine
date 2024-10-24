@@ -7,7 +7,7 @@ typedef BeatData = {
 	/**
 	 * The amount of beats it takes to trigger the dance.
 	 */
-	@:default(0) var invertal:Int;
+	@:default(0) var interval:Int;
 	/**
 	 * If true, the dance will still happen, even if the beat numbers are in the negatives.
 	 */
@@ -65,22 +65,17 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
 		return new BeatSprite(x, y, ParseUtil.object(path, IsBeatSprite, pathType), Paths.script(path, pathType));
 	}
-	override public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:BeatSpriteData = inputData;
+	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
 		try {
-			if (incomingData.beat != null) {
-				try {
-					beatInterval = incomingData.beat.invertal.getDefault(0);
-				} catch(error:haxe.Exception) trace('Couldn\'t set object bop interval.');
-				try {
-					skipNegativeBeats = incomingData.beat.skipnegative.getDefault(false);
-				} catch(error:haxe.Exception) trace('Couldn\'t set skipping negative beats.');
+			if (inputData.beat != null) {
+				beatInterval = inputData.beat.interval;
+				skipNegativeBeats = inputData.beat.skipnegative;
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
-		super.renderData(inputData);
+		super.renderData(inputData, applyStartValues);
 	}
 
 	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON

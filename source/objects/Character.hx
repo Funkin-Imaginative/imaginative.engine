@@ -7,7 +7,7 @@ typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:PositionStruct;
 	@:default('#8000ff') var color:String;
 	@:default('face') var icon:String;
-	@:default(4) var singlength:Float;
+	@:default(2) var singlength:Float;
 }
 typedef CharacterData = {
 	/**
@@ -79,29 +79,23 @@ class Character extends BeatSprite {
 	 */
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
-	override public function renderData(inputData:TypeSpriteData):Void {
-		final incomingData:CharacterSpriteData = inputData;
+	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
 		try {
-			if (incomingData.character != null) {
-				try {
-					cameraOffset.copyFrom(incomingData.character.camera.getDefault(new PositionStruct()));
-				} catch(error:haxe.Exception) trace('Couldn\'t set camera offsets.');
-				try {
-					healthColor = incomingData.character.color.getDefault(FlxColor.GRAY);
-				} catch(error:haxe.Exception) trace('Couldn\'t set the health bar color.');
-				try {
-					theirIcon = incomingData.character.icon.getDefault('face');
-				} catch(error:haxe.Exception) trace('Couldn\'t set the characters icon.');
-				try {
-					singLength = incomingData.character.singlength.getDefault(2);
-				} catch(error:haxe.Exception) trace('Couldn\'t set the sing length.');
+			if (inputData.character != null) {
+				cameraOffset.copyFrom(inputData.character.camera);
+				healthColor = inputData.character.color;
+				theirIcon = inputData.character.icon;
+				singLength = inputData.character.singlength;
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${incomingData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
-		super.renderData(inputData);
+		super.renderData(inputData, false);
 	}
+
+	override function get_swapAnimTriggers():Bool
+		return true;
 
 	override function loadScript(path:String):Void {
 		scripts = new ScriptGroup(this);
@@ -113,9 +107,9 @@ class Character extends BeatSprite {
 		scripts.load();
 	}
 
-	public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
+	override public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
 		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
-		if (faceLeft) flipX = !flipX;
+		if (faceLeft) group.flipX = !group.flipX;
 	}
 
 	/**

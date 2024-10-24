@@ -27,7 +27,7 @@ typedef AudioData = {
 	/**
 	 * The composer of the song.
 	 */
-	@:default('Unassigned') @:optional var artist:String;
+	@:default('Unassigned') var artist:String;
 	/**
 	 * The display name of the song.
 	 */
@@ -43,7 +43,7 @@ typedef AudioData = {
 	/**
 	 * The audio offset.
 	 */
-	@:default(0) @:optional var offset:Float;
+	@:optional @:default(0) var offset:Float;
 	/**
 	 * Contains all known bpm changes.
 	 */
@@ -94,6 +94,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Contains data for the song to play.
 	 */
 	public var data(default, null):AudioData = {
+		artist: 'Unassigned',
 		name: 'None',
 		bpm: 100,
 		signature: [4, 4],
@@ -366,16 +367,21 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	inline public function getMetadata(path:String):AudioData {
 		try {
 			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(Paths.json(path)), Paths.json(path));
-			if (content == null) trace('Metadata parse failed.');
-			return content.getDefault({
-				name: 'None',
-				bpm: 100,
-				signature: [4, 4],
-				checkpoints: []
-			});
+			if (content == null) {
+				trace('Metadata parse failed.');
+				return {
+					artist: 'Unassigned',
+					name: 'None',
+					bpm: 100,
+					signature: [4, 4],
+					checkpoints: []
+				};
+			}
+			return content;
 		} catch(error:haxe.Exception) {
 			trace('Error occured when attempting to parse the json: ${error.message}');
 			return {
+				artist: 'Unassigned',
 				name: 'None',
 				bpm: 100,
 				signature: [4, 4],

@@ -10,7 +10,7 @@
 		"skipnegative": false
 	},
 	"offsets": {
-		"position": {"x": 0, "y": 350},
+		"position": {"x": 30, "y": 350},
 		"flip": {"x": true, "y": false},
 		"scale": {"x": 1, "y": 1}
 	},
@@ -30,8 +30,8 @@
 		},
 		{
 			"name": "singLEFT",
+			"swapKey": "singRIGHT",
 			"tag": "BF NOTE RIGHT0",
-			"swapTag": "singRIGHT",
 			"indices": [],
 			"offset": {"x": 41, "y": -6},
 			"flip": {"x": false, "y": false},
@@ -58,8 +58,8 @@
 		},
 		{
 			"name": "singRIGHT",
+			"swapKey": "singLEFT",
 			"tag": "BF NOTE LEFT0",
-			"swapTag": "singLEFT",
 			"indices": [],
 			"offset": {"x": -35, "y": -6},
 			"flip": {"x": false, "y": false},

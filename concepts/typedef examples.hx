@@ -38,7 +38,7 @@ typedef CharacterSection = {
 	var singlength:Float;
 }
 typedef BeatSection = {
-	var invertal:Int;
+	var interval:Int;
 	var skipnegative:Bool;
 }
 typedef OffsetsSection = {

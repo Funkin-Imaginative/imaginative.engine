@@ -93,7 +93,6 @@ class ParseUtil {
 	 */
 	public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
 		final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
-		// final contents:DifficultyData = json('content/difficulties/$name', pathType);
 		return {
 			display: contents.display,
 			variant: contents.variant.getDefault('normal'),
@@ -111,9 +110,9 @@ class ParseUtil {
 		// var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
 		var contents:LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
-			data.flip = data.reflectDefault('flip', (i + 1) > Math.floor(contents.objects.length / 2));
-			data.offsets = data.reflectDefault('offsets', new PositionStruct());
-			data.size = data.reflectDefault('size', 1);
+			data.flip = data.flip.getDefault((i + 1) > Math.floor(contents.objects.length / 2));
+			if (data.offsets == null) data.offsets = new PositionStruct();
+			data.size = data.size.getDefault(1);
 			data.willHey = data.willHey.getDefault(i == Math.floor(contents.objects.length / 2));
 		}
 		return {
@@ -133,103 +132,91 @@ class ParseUtil {
 	 * @param path The object json name.
 	 * @param type The sprite type.
 	 * @param pathType The path type.
-	 * @return `TypeSpriteData` ~ The parsed object json content.
+	 * @return `SpriteData` ~ The parsed object json content.
 	 */
-	public static function object(path:String, type:SpriteType, pathType:FunkinPath = ANY):TypeSpriteData {
-		// TODO: Get this shit to use json2object.
-		// final parseSprite:Void->SpriteData = () -> return new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-		// final parseBeat:Void->BeatSpriteData = () -> return new JsonParser<BeatSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-		// final parseChar:Void->CharacterSpriteData = () -> return new JsonParser<CharacterSpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-
-		final parseSprite:Void->SpriteData = () -> return json('content/objects/$path', pathType);
-		final parseBeat:Void->BeatSpriteData = () -> return json('content/objects/$path', pathType);
-		final parseChar:Void->CharacterSpriteData = () -> return json('content/objects/$path', pathType);
-
+	public static function object(path:String, type:SpriteType, pathType:FunkinPath = ANY):SpriteData {
+		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
 		var charData:CharacterData = null;
 		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
 			var gottenData:CharacterParse = null;
-			trace('parseChar ~ 1');
-			var typeData:CharacterSpriteData = parseChar();
-			trace('parseChar ~ 2');
+			var typeData:SpriteData = typeData;
 			try {
-				gottenData = new JsonParser<CharacterParse>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-				typeData.character.color = FlxColor.fromString(gottenData.color.getDefault('#8000ff'));
-			} catch(error:haxe.Exception) trace(error.message);
+				gottenData = json('content/objects/$path', pathType).character;
+				typeData.character.color = FlxColor.fromString(gottenData.color);
+			} catch(error:haxe.Exception)
+				trace(error.message);
 			charData = {
-				camera: typeData.character.camera.getDefault(new PositionStruct()),
+				camera: new PositionStruct(Reflect.field(typeData.character.camera, 'x'), Reflect.field(typeData.character.camera, 'y')),
 				color: typeData.character.color,
 				icon: typeData.character.icon.getDefault('face'),
-				singlength: typeData.character.singlength.getDefault(4)
+				singlength: typeData.character.singlength.getDefault(2)
 			}
 		}
 
 		var beatData:BeatData = null;
 		if (type.isBeatType && Reflect.hasField(tempData, 'beat')) {
-			trace('parseBeat ~ 1');
-			var typeData:BeatData = parseBeat().beat;
-			trace('parseBeat ~ 2');
+			var typeData:BeatData = typeData.beat;
 			beatData = {
-				invertal: typeData.invertal.getDefault(0),
+				interval: typeData.interval.getDefault(0),
 				skipnegative: typeData.skipnegative.getDefault(false)
 			}
 		}
-
-		trace('parseSprite ~ 1');
-		final typeData:SpriteData = parseSprite();
-		trace('parseSprite ~ 2');
 
 		var data:Dynamic = {}
 		if (Reflect.hasField(typeData, 'offsets'))
 			try {
 				data.offsets = {
-					position: typeData.offsets.position.getDefault(new PositionStruct()),
-					flip: typeData.offsets.flip.getDefault(new TypeXY<Bool>(false, false)),
-					scale: typeData.offsets.scale.getDefault(new PositionStruct())
+					position: new PositionStruct(Reflect.field(typeData.offsets.position, 'x'), Reflect.field(typeData.offsets.position, 'y')),
+					flip: new TypeXY<Bool>(Reflect.field(typeData.offsets.flip, 'x'), Reflect.field(typeData.offsets.flip, 'y')),
+					scale: new PositionStruct(Reflect.field(typeData.offsets.scale, 'x'), Reflect.field(typeData.offsets.scale, 'y'))
 				}
 			} catch(error:haxe.Exception) {
-				trace('offsets were fucked');
 				data.offsets = {
 					position: new PositionStruct(),
 					flip: new TypeXY<Bool>(false, false),
-					scale: new PositionStruct()
+					scale: new PositionStruct(1, 1)
 				}
 			}
 		else
 			data.offsets = {
 				position: new PositionStruct(),
 				flip: new TypeXY<Bool>(false, false),
-				scale: new PositionStruct()
+				scale: new PositionStruct(1, 1)
 			}
+
 		data.asset = typeData.asset;
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
-			slot.asset = anim.reflectDefault('asset', data.asset);
+			slot.asset = anim.asset.getDefault(data.asset);
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag.getDefault(slot.name);
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = anim.dimensions.getDefault(new TypeXY<Int>(1, 1));
+			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey.getDefault('');
+			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey.getDefault('');
+			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.field(anim.dimensions, 'x'), Reflect.field(anim.dimensions, 'y'));
 			slot.indices = anim.indices.getDefault([]);
-			slot.offset = anim.offset.getDefault(new PositionStruct());
-			slot.flip = anim.flip.getDefault(new TypeXY<Bool>(false, false));
+			slot.offset = new PositionStruct(Reflect.field(anim.offset, 'x'), Reflect.field(anim.offset, 'y'));
+			slot.flip = new TypeXY<Bool>(Reflect.field(anim.flip, 'x'), Reflect.field(anim.flip, 'y'));
 			slot.loop = anim.loop.getDefault(false);
 			slot.fps = anim.fps.getDefault(24);
 			data.animations.push(slot);
 		}
-		if (Reflect.hasField(typeData, 'position'))
+
+		if (Reflect.hasField(typeData, 'starting')) {
 			try {
-				data.position = new PositionStruct(typeData.position.x, typeData.position.y);
-			}
-		if (Reflect.hasField(typeData, 'flip'))
-			try {
-				data.flip = new TypeXY<Bool>(typeData.flip.x, typeData.flip.y);
-			}
-		if (Reflect.hasField(typeData, 'scale'))
-			try {
-				data.scale = new PositionStruct(typeData.scale.x, typeData.scale.y);
-			}
-		data.antialiasing = typeData.antialiasing.getDefault(true);
+				data.starting = {
+					position: new PositionStruct(Reflect.field(typeData.starting.position, 'x'), Reflect.field(typeData.starting.position, 'y')),
+					flip: new TypeXY<Bool>(Reflect.field(typeData.starting.flip, 'x'), Reflect.field(typeData.starting.flip, 'y')),
+					scale: new PositionStruct(Reflect.field(typeData.starting.scale, 'x'), Reflect.field(typeData.starting.scale, 'y'))
+				}
+			} catch(error:haxe.Exception) {}
+		}
+
+		data.swapAnimTriggers = typeData.swapAnimTriggers;
+		data.flipAnimTrigger = typeData.flipAnimTrigger;
+		data.antialiasing = typeData.antialiasing;
 
 		if (charData != null) data.character = charData;
 		if (beatData != null) data.beat = beatData;
@@ -245,7 +232,6 @@ class ParseUtil {
 	 */
 	public static function song(name:String, pathType:FunkinPath = ANY):SongData {
 		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
-		// final contents:SongParse = json('content/songs/$name/meta', pathType);
 		return {
 			name: json('content/songs/$name/audio', pathType).name,
 			folder: contents.folder,

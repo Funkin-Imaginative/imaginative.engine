@@ -1,49 +1,125 @@
 package utils;
 
-typedef TypeSpriteData = OneOfThree<SpriteData, BeatSpriteData, CharacterSpriteData>;
-
-typedef CharacterSpriteData = {
-	> BeatSpriteData,
+typedef ObjectData = {
 	/**
-	 * The character sprite data.
+	 * Position value.
 	 */
-	var character:CharacterData;
-}
-typedef BeatSpriteData = {
-	> SpriteData,
+	@:default({x: 0, y: 0}) var position:PositionStruct;
 	/**
-	 * The beat sprite data.
+	 * Flip value.
 	 */
-	var beat:BeatData;
-}
-typedef SpriteData = {
-	> ObjectData,
+	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
 	/**
-	 * The sprite offset data.
+	 * Scale value.
 	 */
-	@:optional var offsets:OffsetsData;
-	/**
-	 * Extra data for the sprite.
-	 */
-	@:optional var extra:Array<ExtraData>;
+	@:default({x: 1, y: 1}) var scale:PositionStruct;
 }
 
-typedef AnimMapping = {
+typedef AssetTyping = {
 	/**
-	 * Offsets for that set animation.
+	 * Root image path.
+	 */
+	var image:String;
+	/**
+	 * Texture type.
+	 */
+	@:enum @:default(IsUnknown) var type:TextureType;
+}
+
+typedef AnimationTyping = {
+	/**
+	 * The asset typing.
+	 */
+	@:optional var asset:AssetTyping;
+	/**
+	 * Name of the animation.
+	 */
+	var name:String;
+	/**
+	 * Animation key on data method.
+	 */
+	@:optional var tag:String;
+	/**
+	 * Height and width dimensions.
+	 * Only if texture type is a graphic.
+	 */
+	@:optional @:default({x: 150, y: 150}) var dimensions:TypeXY<Int>;
+	/**
+	 * The specified frames to use in the animation.
+	 * For graphic's this is the specified as the frames array in the add function.
+	 */
+	@:default([]) var indices:Array<Int>;
+	/**
+	 * The offset for the set animation.
 	 */
 	@:default({x: 0, y: 0}) var offset:PositionStruct;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	@:default('') var swappedAnim:String;
+	@:default('') var swapKey:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	@:default('') var flippedAnim:String;
+	@:default('') var flipKey:String;
+	/**
+	 * The flip offset for the set animation.
+	 */
+	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
+	/**
+	 * If true, the animation loops.
+	 */
+	@:default(false) var loop:Bool;
+	/**
+	 * The framerate of the animation.
+	 */
+	@:default(24) var fps:Int;
+}
+
+typedef SpriteData = {
+	/**
+	 * The character data.
+	 */
+	@:optional var character:CharacterData;
+	/**
+	 * The beat data.
+	 */
+	@:optional var beat:BeatData;
+	/**
+	 * The offset data.
+	 */
+	@:optional var offsets:ObjectData;
+	/**
+	 * The asset typing.
+	 */
+	var asset:AssetTyping;
+	/**
+	 * The animations for a given sprite.
+	 */
+	var animations:Array<AnimationTyping>;
+	/**
+	 * Start values.
+	 */
+	@:optional var starting:ObjectData;
+	/**
+	 * If true, the swap anim var can go off.
+	 * For characters and icons it always on.
+	 */
+	@:default(false) var swapAnimTriggers:Bool;
+	/**
+	 * States which flipX state the sprite must be in to trigger the flip anim var.
+	 */
+	@:default(true) var flipAnimTrigger:Bool;
+	/**
+	 * Should antialiasing be enabled?
+	 */
+	@:default(true) var antialiasing:Bool;
+	/**
+	 * Extra data for the sprite.
+	 */
+	@:jignored @:optional var extra:Array<ExtraData>;
 }
 
 enum abstract SpriteType(String) from String to String {

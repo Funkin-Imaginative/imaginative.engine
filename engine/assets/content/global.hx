@@ -3,7 +3,7 @@ import states.menus.MainMenu;
 function postUpdate(elapsed:Float) {
 	if (FlxG.keys.justPressed.F5) {
 		trace('Reseting state...');
-		FlxG.resetState();
+		BeatState.resetState();
 		trace('Reset state successfully!');
 	}
 
