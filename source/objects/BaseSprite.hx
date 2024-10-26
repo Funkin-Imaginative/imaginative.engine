@@ -1,8 +1,6 @@
 package objects;
 
 import flixel.addons.effects.FlxSkewedSprite;
-import flixel.math.FlxRect;
-
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
@@ -143,7 +141,7 @@ typedef AnimMapping = {
 /**
  * This class is a verison of FlxSkewedSprite but with animation support among other things.
  */
-class BaseSprite extends FlxSkewedSprite implements IGroup {
+class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -232,11 +230,11 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
 
-	// IGroup shenanigans!
+	// ISelfGroup shenanigans!
 	/**
 	 * The group inside the sprite.
 	 */
-	public var group(default, null):BeatSpriteGroup = new BeatSpriteGroup();
+	public var group(default, null):SelfSpriteGroup;
 	/**
 	 * Iterates through every member.
 	 * @param filter For filtering.
@@ -448,26 +446,28 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 		initMotionVars();
 	} */
 
-	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<SpriteData, String>, script:String = '', applyStartValues:Bool = false) {
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<SpriteData, String>, ?script:String, applyStartValues:Bool = false) {
 		super();
+
+		group = new SelfSpriteGroup(this);
 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
-				loadScript(sprite);
+				loadScript(script.getDefault(sprite));
 				renderData(ParseUtil.object(sprite, type), applyStartValues);
 			} else loadTexture(sprite);
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script);
+			loadScript(script.getDefault(''));
 		scripts.call('create');
 
 		add(this);
-		group.setPosition(x, y);
 		setPosition(x + spriteOffsets.position.x, y + spriteOffsets.position.y);
 		group.setPosition(x, y);
 
-		scripts.call('createPost');
+		if (this is BaseSprite || this is BeatSprite)
+			scripts.call('createPost');
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -524,16 +524,16 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 	 * The arguments are to reverse the name.
 	 * @param ignoreSwap If true, it won't use the swap name.
 	 * @param ignoreFlip If true, it won't use the flip name.
-	 * @return `String` The animation name.
+	 * @return `Null<String>` The animation name.
 	 */
-	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):String {
+	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
 			var targetAnim:String = animation.name;
-			targetAnim = (!ignoreSwap && (swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName == '' ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
-			targetAnim = (!ignoreFlip && flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName == '' ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
+			if (!ignoreSwap) targetAnim = ((swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName == '' ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
+			if (!ignoreFlip) targetAnim = (flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName == '' ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
 			return targetAnim;
 		}
-		return animation.name;
+		return null;
 	}
 	/**
 	 * Get's information on a set animation of your choosing.
@@ -547,9 +547,9 @@ class BaseSprite extends FlxSkewedSprite implements IGroup {
 			if (anims.exists(name))
 				data = anims.get(name);
 			else
-				data = {offset: new PositionStruct(), swapName: '', flipName: ''};
+				data = {offset: new PositionStruct(), swapName: '', flipName: ''}
 		else
-			data = {offset: new PositionStruct(), swapName: '', flipName: ''};
+			data = {offset: new PositionStruct(), swapName: '', flipName: ''}
 		return data;
 	}
 	/**

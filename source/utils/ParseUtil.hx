@@ -148,7 +148,7 @@ class ParseUtil {
 			} catch(error:haxe.Exception)
 				trace(error.message);
 			charData = {
-				camera: new PositionStruct(Reflect.field(typeData.character.camera, 'x'), Reflect.field(typeData.character.camera, 'y')),
+				camera: new PositionStruct(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
 				color: typeData.character.color,
 				icon: typeData.character.icon.getDefault('face'),
 				singlength: typeData.character.singlength.getDefault(2)
@@ -168,9 +168,9 @@ class ParseUtil {
 		if (Reflect.hasField(typeData, 'offsets'))
 			try {
 				data.offsets = {
-					position: new PositionStruct(Reflect.field(typeData.offsets.position, 'x'), Reflect.field(typeData.offsets.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.field(typeData.offsets.flip, 'x'), Reflect.field(typeData.offsets.flip, 'y')),
-					scale: new PositionStruct(Reflect.field(typeData.offsets.scale, 'x'), Reflect.field(typeData.offsets.scale, 'y'))
+					position: new PositionStruct(Reflect.getProperty(typeData.offsets.position, 'x'), Reflect.getProperty(typeData.offsets.position, 'y')),
+					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.offsets.flip, 'x'), Reflect.getProperty(typeData.offsets.flip, 'y')),
+					scale: new PositionStruct(Reflect.getProperty(typeData.offsets.scale, 'x'), Reflect.getProperty(typeData.offsets.scale, 'y'))
 				}
 			} catch(error:haxe.Exception) {
 				data.offsets = {
@@ -195,10 +195,10 @@ class ParseUtil {
 			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag.getDefault(slot.name);
 			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey.getDefault('');
 			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey.getDefault('');
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.field(anim.dimensions, 'x'), Reflect.field(anim.dimensions, 'y'));
+			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.getProperty(anim.dimensions, 'x'), Reflect.getProperty(anim.dimensions, 'y'));
 			slot.indices = anim.indices.getDefault([]);
-			slot.offset = new PositionStruct(Reflect.field(anim.offset, 'x'), Reflect.field(anim.offset, 'y'));
-			slot.flip = new TypeXY<Bool>(Reflect.field(anim.flip, 'x'), Reflect.field(anim.flip, 'y'));
+			slot.offset = new PositionStruct(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
+			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));
 			slot.loop = anim.loop.getDefault(false);
 			slot.fps = anim.fps.getDefault(24);
 			data.animations.push(slot);
@@ -207,9 +207,9 @@ class ParseUtil {
 		if (Reflect.hasField(typeData, 'starting')) {
 			try {
 				data.starting = {
-					position: new PositionStruct(Reflect.field(typeData.starting.position, 'x'), Reflect.field(typeData.starting.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.field(typeData.starting.flip, 'x'), Reflect.field(typeData.starting.flip, 'y')),
-					scale: new PositionStruct(Reflect.field(typeData.starting.scale, 'x'), Reflect.field(typeData.starting.scale, 'y'))
+					position: new PositionStruct(Reflect.getProperty(typeData.starting.position, 'x'), Reflect.getProperty(typeData.starting.position, 'y')),
+					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.starting.flip, 'x'), Reflect.getProperty(typeData.starting.flip, 'y')),
+					scale: new PositionStruct(Reflect.getProperty(typeData.starting.scale, 'x'), Reflect.getProperty(typeData.starting.scale, 'y'))
 				}
 			} catch(error:haxe.Exception) {}
 		}

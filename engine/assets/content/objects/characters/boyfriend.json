@@ -65,6 +65,15 @@
 			"flip": {"x": false, "y": false},
 			"loop": false,
 			"fps": 24
+		},
+		{
+			"name": "hey",
+			"tag": "BF HEY",
+			"indices": [],
+			"offset": {"x": 2, "y": 6},
+			"flip": {"x": false, "y": false},
+			"loop": false,
+			"fps": 24
 		}
 	],
 	"antialiasing": true,

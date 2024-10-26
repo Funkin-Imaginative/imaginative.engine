@@ -134,18 +134,6 @@ class FunkinUtil {
 	}
 
 	/**
-	 * It's like `getDefault` but it uses `Reflect`.
-	 * Though it only supports structures.
-	 * @param data The value.
-	 * @param field A field in data.
-	 * @param defaultValue The default value.
-	 * @return `T`
-	 */
-	inline public static function reflectDefault<T>(data:Dynamic, field:String, defaultValue:T):T
-		return Reflect.hasField(data, field) ? Reflect.getProperty(data, field).getDefault(defaultValue) : defaultValue;
-
-	// Using CNE's because mine was a bitch to use.
-	/**
 	 * Returns `v` if not null, `defaultValue` otherwise.
 	 * @param v The value
 	 * @param defaultValue The default value

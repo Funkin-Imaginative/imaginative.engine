@@ -4,11 +4,11 @@ package backend.interfaces;
  * Implementing this interface will allow a object to contain it's own `FlxSpriteGroup`.
  * As well as contain itself within the group.
  */
-interface IGroup {
+interface ISelfGroup {
 	/**
 	 * The group inside the sprite.
 	 */
-	var group(default, null):BeatSpriteGroup;
+	var group(default, null):SelfSpriteGroup;
 	/**
 	 * Iterates through every member.
 	 * @param filter For filtering.
@@ -42,4 +42,20 @@ interface IGroup {
 	 * @return `FlxSprite` ~ The removed sprite.
 	 */
 	function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite;
+}
+
+/**
+ * Used for the group in ISelfGroup sprites.
+ */
+class SelfSpriteGroup extends BeatSpriteGroup {
+	/**
+	 * Parent object to the group.
+	 */
+	public var parent:ISelfGroup;
+
+	@:allow(objects.BaseSprite)
+	override function new(parent:ISelfGroup) {
+		super();
+		this.parent = parent;
+	}
 }

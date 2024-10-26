@@ -31,7 +31,7 @@ typedef CharacterData = {
 /**
  * This is the character class, used for the funny beep boop guys!
  */
-class Character extends BeatSprite {
+final class Character extends BeatSprite {
 	/**
 	 * The character key name.
 	 */
@@ -109,7 +109,8 @@ class Character extends BeatSprite {
 
 	override public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
 		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
-		if (faceLeft) group.flipX = !group.flipX;
+		if (faceLeft) flipX = !flipX;
+		scripts.call('createPost');
 	}
 
 	/**

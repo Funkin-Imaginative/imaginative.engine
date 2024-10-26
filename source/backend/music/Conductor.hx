@@ -375,7 +375,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					bpm: 100,
 					signature: [4, 4],
 					checkpoints: []
-				};
+				}
 			}
 			return content;
 		} catch(error:haxe.Exception) {

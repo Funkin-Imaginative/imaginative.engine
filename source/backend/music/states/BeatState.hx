@@ -233,20 +233,20 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	override public function add(object:FlxBasic):FlxBasic {
-		if (object is IGroup)
-			return super.add(cast(object, IGroup).group);
+		if (object is ISelfGroup)
+			return super.add(cast(object, ISelfGroup).group);
 		else
 			return super.add(object);
 	}
 	override public function insert(position:Int, object:FlxBasic):FlxBasic {
-		if (object is IGroup)
-			return super.insert(position, cast(object, IGroup).group);
+		if (object is ISelfGroup)
+			return super.insert(position, cast(object, ISelfGroup).group);
 		else
 			return super.insert(position, object);
 	}
 	override public function remove(object:FlxBasic, splice:Bool = false):FlxBasic {
-		if (object is IGroup)
-			return super.remove(cast(object, IGroup).group, splice);
+		if (object is ISelfGroup)
+			return super.remove(cast(object, ISelfGroup).group, splice);
 		else
 			return super.remove(object, splice);
 	}

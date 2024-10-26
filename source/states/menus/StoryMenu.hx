@@ -37,7 +37,7 @@ class StoryMenu extends BeatState {
 
 	var weekTopBg:BaseSprite;
 	var weekBg:BaseSprite;
-	var weekObjects:FlxTypedGroup<BeatSprite>;
+	var weekObjects:BeatSpriteGroup;
 
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
@@ -142,27 +142,25 @@ class StoryMenu extends BeatState {
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
-		weekObjects = new FlxTypedGroup<BeatSprite>();
+		weekObjects = new BeatSpriteGroup();
 		for (i => loop in loadedObjects) {
 			for (data in loop) {
-				var sprite:BeatSprite = new BeatSprite(data.object);
+				var sprite:BeatSprite = new BeatSprite('characters/boyfriend');
 				if (data.object is String) {
-					if (Reflect.hasField(data, 'flip')) sprite.flipX = data.flip;
-					if (Reflect.hasField(data, 'offsets')) sprite.setPosition(data.offsets.x, data.offsets.y);
+					if (Reflect.hasField(data, 'flip')) for (sprite in sprite.group) if (data.flip) sprite.flipX = !sprite.flipX;
+					if (Reflect.hasField(data, 'offsets')) sprite.group.setPosition(data.offsets.x, data.offsets.y);
 				}
 
-				// sprite.screenCenter();
-				// sprite.x += (sprite.width + (weekBg.width / (loop.length - 1))) * i;
-				// sprite.x -= (sprite.width + (weekBg.width / (loop.length - 1))) / (loop.length - 1);
-				sprite.y = (weekBg.height - sprite.height) / 2 + weekTopBg.height;
+				sprite.group.y = (weekBg.height - sprite.group.height) / 2 + weekTopBg.height;
 
 				sprite.scrollFactor.set();
-				levels.members[i].weekObjects.push(weekObjects.add(sprite));
+				levels.members[i].weekObjects.push(sprite.group);
+				weekObjects.add(sprite.group);
 			}
 		}
 
 		for (level in levels)
-			FlxSpriteUtil.space([for (o in level.weekObjects) cast o], FlxG.width / 2, weekBg.y + (weekBg.height / 2), FlxG.width - 100, 0, true);
+			FlxSpriteUtil.space([for (o in level.weekObjects) cast o], FlxG.width / 2, weekBg.y + (weekBg.height / 2), FlxG.width - 100, 0);
 
 		add(weekObjects);
 
@@ -314,10 +312,14 @@ class StoryMenu extends BeatState {
 				}
 				selectionCooldown(time);
 			}
-		} else
+		} else {
+			for (group in levels.members[curSelected].weekObjects)
+				cast(cast(group, SelfSpriteGroup).parent, BaseSprite).playAnim('hey', true, NoDancing);
+
 			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
 				BeatState.switchState(new PlayState());
 			});
+		}
 	}
 }

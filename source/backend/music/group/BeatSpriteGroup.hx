@@ -63,20 +63,20 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 	// Was crashing without error.
 	@SuppressWarnings('checkstyle:CommentedOutCode')
 	/* override public function add(object:T):T {
-		if (object is IGroup)
-			return super.add(cast(cast(object, IGroup).group));
+		if (object is ISelfGroup)
+			return super.add(cast(cast(object, ISelfGroup).group));
 		else
 			return super.add(object);
 	}
 	override public function insert(position:Int, object:T):T {
-		if (object is IGroup)
-			return super.insert(position, cast(cast(object, IGroup).group));
+		if (object is ISelfGroup)
+			return super.insert(position, cast(cast(object, ISelfGroup).group));
 		else
 			return super.insert(position, object);
 	}
 	override public function remove(object:T, splice:Bool = false):T {
-		if (object is IGroup)
-			return super.remove(cast(cast(object, IGroup).group), splice);
+		if (object is ISelfGroup)
+			return super.remove(cast(cast(object, ISelfGroup).group), splice);
 		else
 			return super.remove(object, splice);
 	} */
