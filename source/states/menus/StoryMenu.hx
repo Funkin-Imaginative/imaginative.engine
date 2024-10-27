@@ -52,7 +52,7 @@ class StoryMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		if (conductor.audio == null || !conductor.audio.playing)
+		if (!conductor.audio.playing)
 			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -142,25 +142,34 @@ class StoryMenu extends BeatState {
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
+		var cantFindList:Array<String> = [];
 		weekObjects = new BeatSpriteGroup();
 		for (i => loop in loadedObjects) {
 			for (data in loop) {
-				var sprite:BeatSprite = new BeatSprite('characters/boyfriend');
-				if (data.object is String) {
-					if (Reflect.hasField(data, 'flip')) for (sprite in sprite.group) if (data.flip) sprite.flipX = !sprite.flipX;
-					if (Reflect.hasField(data, 'offsets')) sprite.group.setPosition(data.offsets.x, data.offsets.y);
+				if (data.object is String && !Paths.fileExists('content/objects/${data.object}.json') && !cantFindList.contains(data.object)) {
+					trace('${data.object} doesn\'t exist.');
+					cantFindList.push(data.object);
 				}
 
-				sprite.group.y = (weekBg.height - sprite.group.height) / 2 + weekTopBg.height;
+				var sprite:BeatSprite = new BeatSprite(data.object);
+				if (Reflect.hasField(data, 'flip')) for (sprite in sprite.group) if (data.flip) sprite.flipX = !sprite.flipX;
+				if (Reflect.hasField(data, 'offsets')) sprite.group.setPosition(data.offsets.x, data.offsets.y);
 
+				sprite.group.alpha = 0.0001;
 				sprite.scrollFactor.set();
-				levels.members[i].weekObjects.push(sprite.group);
+				levels.members[i].weekObjects.push(sprite);
 				weekObjects.add(sprite.group);
 			}
 		}
 
-		for (level in levels)
-			FlxSpriteUtil.space([for (o in level.weekObjects) cast o], FlxG.width / 2, weekBg.y + (weekBg.height / 2), FlxG.width - 100, 0);
+		for (level in levels) {
+			FlxSpriteUtil.space([for (sprite in level.weekObjects) sprite.group], FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
+				object.x = x - object.width / 2;
+				object.y = y - object.height / 2;
+			});
+			for (sprite in level.weekObjects)
+				sprite.group.setPosition(sprite.group.x, sprite.group.y);
+		}
 
 		add(weekObjects);
 
@@ -248,6 +257,9 @@ class StoryMenu extends BeatState {
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
+		[for (level in levels) [for (sprite in level.weekObjects) sprite.alpha = 0.0001]];
+		[for (sprite in level.weekObjects) sprite.alpha = 1];
+
 		prevDiffList = curDiffList;
 		curDiffList = level.data.difficulties;
 		var newIndex:Int = level.data.startingDiff;
@@ -313,8 +325,8 @@ class StoryMenu extends BeatState {
 				selectionCooldown(time);
 			}
 		} else {
-			for (group in levels.members[curSelected].weekObjects)
-				cast(cast(group, SelfSpriteGroup).parent, BaseSprite).playAnim('hey', true, NoDancing);
+			for (sprite in levels.members[curSelected].weekObjects)
+				sprite.playAnim('hey', NoDancing);
 
 			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);

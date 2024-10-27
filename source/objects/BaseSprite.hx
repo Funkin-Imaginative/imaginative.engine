@@ -234,7 +234,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	/**
 	 * The group inside the sprite.
 	 */
-	public var group(default, null):SelfSpriteGroup;
+	public var group(default, null):BeatSpriteGroup = new BeatSpriteGroup();
 	/**
 	 * Iterates through every member.
 	 * @param filter For filtering.
@@ -346,7 +346,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 							flipName: anim.flipKey.getDefault('')
 						});
 						if (i == 0) {
-							playAnim(anim.name, true);
+							playAnim(anim.name);
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
@@ -446,10 +446,8 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 		initMotionVars();
 	} */
 
-	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<SpriteData, String>, ?script:String, applyStartValues:Bool = false) {
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:String, applyStartValues:Bool = false) {
 		super();
-
-		group = new SelfSpriteGroup(this);
 
 		if (sprite is String) {
 			if (Paths.fileExists(Paths.object(sprite), false)) {
@@ -505,12 +503,12 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * @param frame The starting frame. By default it's 0.
 	 * 				Although if reversed it will use the last frame instead.
 	 */
-	inline public function playAnim(name:String, force:Bool = false, context:AnimContext = Unclear, suffix:String = '', reverse:Bool = false, frame:Int = 0):Void {
+	inline public function playAnim(name:String, force:Bool = true, context:AnimContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;
 		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
 		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;
 
-		final suffixResult:String = invaildSuffixCheck(theName, suffix) ? '-$suffix' : (invaildSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : '');
+		final suffixResult:String = suffix == null ? '' : (invaildSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invaildSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			final animInfo:AnimMapping = getAnimInfo(theName);

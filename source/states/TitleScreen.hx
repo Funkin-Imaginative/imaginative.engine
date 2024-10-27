@@ -14,7 +14,7 @@ class TitleScreen extends BeatState {
 	override function create():Void {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
-			if (conductor.audio == null || !conductor.audio.playing)
+			if (!conductor.audio.playing)
 				conductor.loadMusic('freakyMenu', 0, (sound:FlxSound) -> sound.fadeIn(4, 0, 0.7));
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
@@ -26,7 +26,7 @@ class TitleScreen extends BeatState {
 			titleText = new BaseSprite(100, FlxG.height * 0.8, 'menus/title/titleEnter');
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
-			titleText.playAnim('idle', true);
+			titleText.playAnim('idle');
 			titleText.centerOffsets();
 			titleText.centerOrigin();
 			titleText.antialiasing = true;
@@ -39,7 +39,7 @@ class TitleScreen extends BeatState {
 	override function update(elapsed:Float):Void {
 		if (Controls.accept || FlxG.mouse.justPressed) {
 			if (!leaving && skipped) {
-				titleText.playAnim('press', true);
+				titleText.playAnim('press');
 				titleText.centerOffsets();
 				titleText.centerOrigin();
 				camera.flash(FlxColor.WHITE, 1);

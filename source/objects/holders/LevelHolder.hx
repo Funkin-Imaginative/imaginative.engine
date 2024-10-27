@@ -105,7 +105,7 @@ class LevelHolder extends FlxBasic {
 	 * The week character for that week.
 	 * This is mostly used for the story menu.
 	 */
-	public var weekObjects:Array<BeatSpriteGroup> = [];
+	public var weekObjects:Array<BeatSprite> = [];
 
 	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();

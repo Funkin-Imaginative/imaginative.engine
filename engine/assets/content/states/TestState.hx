@@ -43,6 +43,8 @@ function update(elasped:Float):Void {
 					char.playAnim('sing' + name.toUpperCase(), true, 'IsSinging');
 				}
 			}
+			if (FlxG.keys.justPressed.SPACE)
+				char.playAnim('hey', true);
 		}
 	}
 }

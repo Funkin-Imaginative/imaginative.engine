@@ -8,7 +8,7 @@ interface ISelfGroup {
 	/**
 	 * The group inside the sprite.
 	 */
-	var group(default, null):SelfSpriteGroup;
+	var group(default, null):BeatSpriteGroup;
 	/**
 	 * Iterates through every member.
 	 * @param filter For filtering.
@@ -42,20 +42,4 @@ interface ISelfGroup {
 	 * @return `FlxSprite` ~ The removed sprite.
 	 */
 	function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite;
-}
-
-/**
- * Used for the group in ISelfGroup sprites.
- */
-class SelfSpriteGroup extends BeatSpriteGroup {
-	/**
-	 * Parent object to the group.
-	 */
-	public var parent:ISelfGroup;
-
-	@:allow(objects.BaseSprite)
-	override function new(parent:ISelfGroup) {
-		super();
-		this.parent = parent;
-	}
 }

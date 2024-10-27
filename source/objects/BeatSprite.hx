@@ -138,7 +138,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 			} else if (!preventIdle) {
 				onSway = event.sway;
 				final anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				playAnim('$anim', true, IsDancing, doesAnimExist('$anim$idleSuffix') ? idleSuffix : '');
+				playAnim('$anim', IsDancing, doesAnimExist('$anim$idleSuffix') ? idleSuffix : '');
 			}
 		}
 		scripts.call('dancingPost', [event]);
@@ -176,7 +176,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 	 */
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
-		if (!(skipNegativeBeats && curBeat < 0) && curBeat % bopRate == 0) {
+		if (!(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0) {
 			tryDance();
 			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
