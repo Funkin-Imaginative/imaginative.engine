@@ -3,7 +3,7 @@ var p2:Character;
 
 function create():Void {
 	conductor = Conductor.song;
-	var song:String = 'South';
+	var song:String = 'Senpai';
 	var variant:String = 'erect';
 	conductor.loadSong(song, variant, (_:FlxSound) -> {
 		conductor.addVocalTrack(song, '', variant);
@@ -44,7 +44,7 @@ function update(elasped:Float):Void {
 				}
 			}
 			if (FlxG.keys.justPressed.SPACE)
-				char.playAnim('hey', true);
+				char.playAnim('hey');
 		}
 	}
 }

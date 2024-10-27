@@ -123,7 +123,8 @@ final class HaxeScript extends Script {
 				script.active = false;
 			},
 			'trace' => (value:Dynamic) -> {
-				trace('${script.rootPath}: $value');
+				var info:haxe.PosInfos = script.interp.posInfos();
+				haxe.Log.trace(value, info);
 			},
 
 			// self //
@@ -156,7 +157,7 @@ final class HaxeScript extends Script {
 	override function loadCodeString(code:String):Void {
 		try {
 			if (code != null && code.trim() != '') {
-				expr = parser.parseString(code);
+				expr = parser.parseString(code, rootPath.getDefault('from string'));
 				canRun = true;
 			}
 		} catch(error:haxe.Exception) {

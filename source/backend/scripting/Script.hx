@@ -87,11 +87,6 @@ class Script extends FlxBasic implements IScript {
 			} else return [Paths.script(file, pathType)];
 		}
 		final paths:Array<String> = scriptPath(file);
-		#if debug
-		for (path in paths)
-			if (path.trim() != '')
-				trace(path);
-		#end
 		var scripts:Array<Script> = [];
 		for (path in paths) {
 			switch (FilePath.extension(path).toLowerCase()) {
@@ -124,7 +119,7 @@ class Script extends FlxBasic implements IScript {
 	function renderNecessities():Void {}
 
 	function new(path:String, ?code:String):Void {
-		if (code != null) {
+		if (code == null) {
 			rootPath = path;
 			name = FilePath.withoutDirectory(path);
 			extension = FilePath.extension(path);
@@ -133,7 +128,7 @@ class Script extends FlxBasic implements IScript {
 		super();
 		renderScript(path);
 		renderNecessities();
-		if (code != null) {
+		if (code == null) {
 			scripts.push(this);
 			GlobalScript.call('scriptCreated', [this, type]);
 		}
