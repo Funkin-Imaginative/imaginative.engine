@@ -4,10 +4,36 @@ package states;
  * Where all the funny beep boops happen!
  */
 class PlayState extends BeatState {
-	override public function get_conductor():Conductor
-		return Conductor.song;
-	override public function set_conductor(value:Conductor):Conductor
-		return Conductor.song;
+	override public function get_conductor():Conductor {
+		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+	}
+	override public function set_conductor(value:Conductor):Conductor {
+		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+	}
+
+	/**
+	 * The amount of beats the countdown lasts for.
+	 */
+	public var countdownLength(default, set):Int = 4;
+	inline function set_countdownLength(value:Int):Int
+		return countdownLength = value < 1 ? 1 : value;
+	/**
+	 * The variable that says how far in the countdown is.
+	 */
+	public var countdownTimer:FlxTimer = new FlxTimer();
+
+	/**
+	 * States if the countdown has started.
+	 */
+	public var countdownStarted:Bool = false;
+	/**
+	 * States if the song has started.
+	 */
+	public var songStarted:Bool = false;
+	/**
+	 * States if the song has ended.
+	 */
+	public var songEnded:Bool = false;
 
 	/**
 	 * It true, your score will save.
@@ -120,7 +146,18 @@ class PlayState extends BeatState {
 			conductor.addVocalTrack(curSong, '', variant);
 			conductor.addVocalTrack(curSong, 'Enemy', variant);
 			conductor.addVocalTrack(curSong, 'Player', variant);
-			conductor.play();
+
+			countdownStarted = true;
+			FlxTween.num((-crochet * (countdownLength + 1)) + conductor.posOffset, conductor.posOffset, ((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000, (output:Float) -> songPosition = output);
+			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
+				// conductor.stepHit(Math.floor(-timer.loopsLeft * stepsPerBeat));
+				conductor.beatHit(-timer.loopsLeft);
+				// conductor.measureHit(Math.floor(-timer.loopsLeft / beatsPerMeasure));
+				if (timer.loopsLeft == 0) {
+					conductor.play();
+					songStarted = true;
+				}
+			}, countdownLength + 1);
 		});
 
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -139,12 +176,12 @@ class PlayState extends BeatState {
 		scripts.load();
 		scripts.call('create');
 
-		add(spectator = new Character(0, 0, 'gf', true));
-		add(enemy = new Character(-500, 0));
-		add(player = new Character(500, 0, true));
+		add(spectator = new Character(400, 130, 'gf', true));
+		add(enemy = new Character(100, 100));
+		add(player = new Character(770, 100, true));
 		camPoint.setPosition(spectator.getCamPos().x, spectator.getCamPos().y);
 		camGame.snapToTarget();
-		camGame.zoom = 0.7;
+		camGame.zoom = 0.9;
 	}
 
 	override function createPost():Void {

@@ -66,9 +66,9 @@ final class Character extends BeatSprite {
 			point.x + cameraOffset.x,
 			point.y + cameraOffset.y
 		);
+		point.put();
 		scripts.call('onGetCamPos', [event]);
 
-		point.put();
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
 		return pos == null ? new PositionStruct(event.x, event.y) : pos.set(event.x, event.y);

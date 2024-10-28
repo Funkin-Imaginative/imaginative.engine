@@ -89,6 +89,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * The conductor for song music.
 	 */
 	public static var song(default, null):Conductor = new Conductor();
+	/**
+	 * The conductor for the chart editor.
+	 */
+	public static var charter(default, null):Conductor = new Conductor();
 
 	/**
 	 * Contains data for the song to play.
@@ -408,7 +412,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			// idea from psych
 			if (audio.time < sound.length) {
 				// CNE's method.
-				if ((__offsetViolation = Math.max(0, __offsetViolation + (sound.time != audio.time ? FlxG.elapsed : -FlxG.elapsed / 2))) > 25) {
+				if ((__offsetViolation = Math.max(0, __offsetViolation + (sound.time != audio.time ? FlxG.elapsed : -FlxG.elapsed / 2))) > 10) {
 					sound.pause();
 					sound.time = audio.time;
 					sound.play();
