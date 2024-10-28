@@ -88,13 +88,13 @@ final class HaxeScript extends Script {
 			'Conductor' => Conductor,
 			'BeatGroup' => BeatGroup,
 			'BeatSpriteGroup' => BeatSpriteGroup,
-			'ModState' => backend.scripting.states.ModState,
-			'ModSubState' => backend.scripting.states.ModSubState,
+			'ScriptedState' => backend.scripting.states.ScriptedState,
+			'ScriptedSubState' => backend.scripting.states.ScriptedSubState,
 			'GlobalScript' => GlobalScript,
 			'Script' => Script,
 			'ScriptGroup' => ScriptGroup,
 			'TypeXY' => TypeXY,
-			'PositionStruct' => PositionStruct,
+			'Position' => Position,
 			'FlxWindow' => FlxWindow,
 			'mainWindow' => FlxWindow.direct,
 			'Main' => Main,
@@ -191,7 +191,7 @@ final class HaxeScript extends Script {
 	override public function reload():Void {
 		// save variables
 		interp.allowStaticVariables = interp.allowPublicVariables = false;
-		var savedVariables:Map<String, Dynamic> = [];
+		var savedVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 		for (name => thing in interp.variables)
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;

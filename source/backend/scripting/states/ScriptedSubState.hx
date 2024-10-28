@@ -1,9 +1,9 @@
 package backend.scripting.states;
 
 /**
- * Used for custom subStates.
+ * Used for custom sub states.
  */
-class ModSubState extends BeatSubState {
+class ScriptedSubState extends BeatSubState {
 	override public function get_conductor():Conductor
 		return conductor;
 	override public function set_conductor(value:Conductor):Conductor
@@ -18,7 +18,7 @@ class ModSubState extends BeatSubState {
 	 */
 	public static var lastConductor:Conductor = null;
 
-	public function new(subStateName:String, ?conductorInst:Conductor) {
+	override public function new(subStateName:String, ?conductorInst:Conductor) {
 		if (subStateName != null)
 			prevName = subStateName;
 		if (conductorInst != null)

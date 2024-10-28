@@ -4,7 +4,7 @@ import backend.scripting.events.PointEvent;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef CharacterParse = {
-	@:default({x: 0, y: 0}) var camera:PositionStruct;
+	@:default({x: 0, y: 0}) var camera:Position;
 	@:default('#8000ff') var color:String;
 	@:default('face') var icon:String;
 	@:default(2) var singlength:Float;
@@ -13,7 +13,7 @@ typedef CharacterData = {
 	/**
 	 * The camera offset position.
 	 */
-	var camera:PositionStruct;
+	var camera:Position;
 	/**
 	 * The character's health bar color.
 	 */
@@ -53,14 +53,14 @@ final class Character extends BeatSprite {
 	/**
 	 * The camera offset position.
 	 */
-	public var cameraOffset(default, null):PositionStruct = new PositionStruct();
+	public var cameraOffset(default, null):Position = new Position();
 	/**
 	 * Get's the characters camera position.
-	 * @param pos An optional PositionStruct to apply it to.
-	 * 			  If you put a PositionStruct it won't create a new one.
-	 * @return PositionStruct
+	 * @param pos An optional Position to apply it to.
+	 * 			  If you put a Position it won't create a new one.
+	 * @return `Position` ~ The camera position.
 	 */
-	public function getCamPos(?pos:PositionStruct):PositionStruct {
+	public function getCamPos(?pos:Position):Position {
 		var point:FlxPoint = getMidpoint();
 		var event:PointEvent = new PointEvent(
 			point.x + cameraOffset.x,
@@ -71,7 +71,7 @@ final class Character extends BeatSprite {
 
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
-		return pos == null ? new PositionStruct(event.x, event.y) : pos.set(event.x, event.y);
+		return pos == null ? new Position(event.x, event.y) : pos.set(event.x, event.y);
 	}
 
 	/**
@@ -137,5 +137,9 @@ final class Character extends BeatSprite {
 			default:
 				super.generalSuffixCheck(context);
 		}
+	}
+
+	override public function destroy():Void {
+		super.destroy();
 	}
 }

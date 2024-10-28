@@ -1,5 +1,16 @@
 package states;
 
+typedef CountdownAssets = {
+	/**
+	 * Countdown images.
+	 */
+	var images:Array<String>;
+	/**
+	 * Countdown sounds.
+	 */
+	var sounds:Array<String>;
+}
+
 /**
  * Where all the funny beep boops happen!
  */
@@ -21,6 +32,19 @@ class PlayState extends BeatState {
 	 * The variable that says how far in the countdown is.
 	 */
 	public var countdownTimer:FlxTimer = new FlxTimer();
+	/**
+	 * The assets what will be used in the countdown.
+	 */
+	public var countdownAssets:CountdownAssets;
+	/**
+	 * Set's up the listings for the countdownAssets variable.
+	 * @param root The path to the assets.
+	 * @param parts List of assets to get from root var path.
+	 * @param suffix Adds a suffix to each item of the parts array.
+	 * @return `Array<String>`
+	 */
+	public function getCountdownAssetList(root:String = 'gameplay/countdown/', parts:Array<String>, suffix:String = ''):Array<String>
+		return [for (part in parts) part == null ? null : '${FilePath.addTrailingSlash(root)}/$part${suffix.trim() == '' ? '' : '-$suffix'}'];
 
 	/**
 	 * States if the countdown has started.
@@ -132,6 +156,15 @@ class PlayState extends BeatState {
 	 */
 	public var player:Character;
 
+	/**
+	 * The enemy field.
+	 */
+	public var enemyField:ArrowField;
+	/**
+	 * The player field.
+	 */
+	public var playerField:ArrowField;
+
 	override function create():Void {
 		scripts = new ScriptGroup(this);
 
@@ -142,26 +175,19 @@ class PlayState extends BeatState {
 		// if (chartData == null)
 		// 	chartData = blah;
 
-		conductor.loadSong(curSong, variant, (_:FlxSound) -> {
-			conductor.addVocalTrack(curSong, '', variant);
-			conductor.addVocalTrack(curSong, 'Enemy', variant);
-			conductor.addVocalTrack(curSong, 'Player', variant);
+		countdownAssets = {
+			images: getCountdownAssetList([null, 'ready', 'set', 'go']),
+			sounds: getCountdownAssetList(['three', 'two', 'one', 'go'], 'gf')
+		}
 
-			countdownStarted = true;
-			FlxTween.num((-crochet * (countdownLength + 1)) + conductor.posOffset, conductor.posOffset, ((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000, (output:Float) -> songPosition = output);
-			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
-				// conductor.stepHit(Math.floor(-timer.loopsLeft * stepsPerBeat));
-				conductor.beatHit(-timer.loopsLeft);
-				// conductor.measureHit(Math.floor(-timer.loopsLeft / beatsPerMeasure));
-				if (timer.loopsLeft == 0) {
-					conductor.play();
-					songStarted = true;
-				}
-			}, countdownLength + 1);
-		});
+		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 4));
+		playerField = new ArrowField((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 4));
+		enemyField.cameras = playerField.cameras = [camHUD];
+		add(enemyField);
+		add(playerField);
 
 		camPoint = new FlxObject(0, 0, 1, 1);
-		camGame.follow(camPoint, LOCKON, 0.2);
+		camGame.follow(camPoint, LOCKON, 0.05);
 		add(camPoint);
 
 		super.create();
@@ -176,12 +202,64 @@ class PlayState extends BeatState {
 		scripts.load();
 		scripts.call('create');
 
+		conductor.loadSong(curSong, variant, (_:FlxSound) -> {
+			conductor.addVocalTrack(curSong, '', variant);
+			conductor.addVocalTrack(curSong, 'Enemy', variant);
+			conductor.addVocalTrack(curSong, 'Player', variant);
+
+			var assets:CountdownAssets = {
+				images: countdownAssets.images,
+				sounds: countdownAssets.sounds
+			}
+			assets.images.reverse();
+			assets.sounds.reverse();
+
+			countdownStarted = true;
+			FlxTween.num((-crochet * (countdownLength + 1)) + conductor.posOffset, conductor.posOffset, ((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000, (output:Float) -> songPosition = output);
+			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
+				/* new FlxTimer().start(stepCrochet / 1000, (_:FlxTimer) -> {
+					conductor.stepHit(Math.floor(-(timer.loopsLeft * stepsPerBeat)));
+					if (curStep % stepsPerBeat == 0)
+						conductor.beatHit(-timer.loopsLeft);
+					if (curBeat % beatsPerMeasure == 0)
+						conductor.measureHit(Math.floor(-(timer.loopsLeft / beatsPerMeasure)));
+				}, stepsPerBeat); */
+
+				conductor.beatHit(-timer.loopsLeft);
+
+				var assetIndex:Int = timer.loopsLeft - 1;
+				if (Paths.fileExists(Paths.sound(assets.sounds[assetIndex]), false))
+					FlxG.sound.play(Paths.sound(assets.sounds[assetIndex]));
+				if (Paths.fileExists(Paths.image(assets.images[assetIndex]), false)) {
+					var sprite:FlxSprite = new FlxSprite().loadTexture(assets.images[assetIndex]);
+					sprite.cameras = [camHUD];
+					sprite.screenCenter();
+					add(sprite);
+
+					FlxTween.tween(sprite, {alpha: 0}, crochet / 1.2 / 1000, {
+						ease: FlxEase.cubeInOut,
+						onComplete: (_:FlxTween) -> sprite.destroy()
+					});
+				}
+
+				if (timer.loopsLeft == 0) {
+					conductor.play();
+					songStarted = true;
+					conductor.audio.onComplete = () -> {
+						scripts.call('onEndSong');
+					}
+				}
+			}, countdownLength + 1);
+		});
+
 		add(spectator = new Character(400, 130, 'gf', true));
 		add(enemy = new Character(100, 100));
 		add(player = new Character(770, 100, true));
+
 		camPoint.setPosition(spectator.getCamPos().x, spectator.getCamPos().y);
 		camGame.snapToTarget();
 		camGame.zoom = 0.9;
+		camPoint.setPosition(player.getCamPos().x, player.getCamPos().y);
 	}
 
 	override function createPost():Void {
@@ -210,7 +288,7 @@ class PlayState extends BeatState {
 
 	override function draw():Void {
 		var event:ScriptEvent = scripts.event('draw', new ScriptEvent());
-		if (!event.stopped) super.draw();
+		if (!event.prevented) super.draw();
 		scripts.event('drawPost', event);
 	}
 
@@ -224,7 +302,7 @@ class PlayState extends BeatState {
 	}
 
 	override function destroy():Void {
-		scripts.destroy();
+		scripts.end();
 		super.destroy();
 	}
 
@@ -241,7 +319,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		PlayConfig.enemyPlay = PlayConfig.enableP2 = false;
 		_renderSong(songList[0], difficulty, variant);
-		trace('Rendering level "${level.name}", rendering songs "${[for (song in levelData.songs) song.name].join('", "')}" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
+		trace('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && levelData.songs.length > 1) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
 	}
 
 	/**

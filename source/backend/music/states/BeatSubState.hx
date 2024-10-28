@@ -206,29 +206,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
-		@SuppressWarnings('checkstyle:CodeSimilarity') // Why do I have to put this here??
-		@SuppressWarnings('checkstyle:CodeSimilarity') // WHY FUCKING TWO??????????????
 		super.update(elapsed);
-	}
-
-	// And not here?????
-	override public function add(object:FlxBasic):FlxBasic {
-		if (object is ISelfGroup)
-			return super.add(cast(object, ISelfGroup).group);
-		else
-			return super.add(object);
-	}
-	override public function insert(position:Int, object:FlxBasic):FlxBasic {
-		if (object is ISelfGroup)
-			return super.insert(position, cast(object, ISelfGroup).group);
-		else
-			return super.insert(position, object);
-	}
-	override public function remove(object:FlxBasic, splice:Bool = false):FlxBasic {
-		if (object is ISelfGroup)
-			return super.remove(cast(object, ISelfGroup).group, splice);
-		else
-			return super.remove(object, splice);
 	}
 
 	/**
@@ -241,7 +219,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	public function onSubstateOpen():Void {}
 	override public function close():Void {
 		var event:ScriptEvent = event('onClose', new ScriptEvent());
-		if (!event.stopped) {
+		if (!event.prevented) {
 			super.close();
 			call('onClosePost');
 		}
@@ -306,7 +284,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	override public function destroy():Void {
-		stateScripts.destroy();
+		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
 		direct = null;
 		super.destroy();

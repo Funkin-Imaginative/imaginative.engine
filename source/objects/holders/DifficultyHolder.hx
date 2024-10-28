@@ -90,7 +90,7 @@ class DifficultyHolder extends FlxBasic {
 		if (sprite == null || lock == null) return;
 		lock.scale.copyFrom(sprite.scale);
 		lock.updateHitbox();
-		var mid:PositionStruct = PositionStruct.getObjMidpoint(sprite);
+		var mid:Position = Position.getObjMidpoint(sprite);
 		lock.setPosition(mid.x, mid.y);
 		lock.x -= lock.width / 2;
 		lock.y -= lock.height / 2;
@@ -107,5 +107,10 @@ class DifficultyHolder extends FlxBasic {
 		super.draw();
 		if (sprite != null) sprite.draw();
 		if (isLocked && lock != null) lock.draw();
+	}
+
+	override public function destroy():Void {
+		scripts.end();
+		super.destroy();
 	}
 }

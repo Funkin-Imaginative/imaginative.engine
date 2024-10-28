@@ -1,4 +1,4 @@
-package backend.scripting;
+package backend.scripting.group;
 
 /**
  * This class is to utilize several scripts in a single place.
@@ -25,11 +25,11 @@ class ScriptGroup extends FlxBasic {
 	/**
 	 * Public variables throughout the group.
 	 */
-	public var publicVars:Map<String, Dynamic> = [];
+	public var publicVars:Map<String, Dynamic> = new Map<String, Dynamic>();
 	/**
 	 * Shared variables throughout the group.
 	 */
-	public var extraVars:Map<String, Dynamic> = [];
+	public var extraVars:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * The parent object that the script group is tied to.
@@ -125,7 +125,7 @@ class ScriptGroup extends FlxBasic {
 		for (script in members) {
 			if (!script.active) continue;
 			event.returnCall = call(func, [event]);
-			if (event.stopped && @:privateAccess !event.continueLoop) break;
+			if (event.prevented && !event.continueLoop) break;
 		}
 		return event;
 	}
@@ -161,7 +161,7 @@ class ScriptGroup extends FlxBasic {
 	function isDuplicate(script:Script):Bool {
 		var check:Script = getByPath(script.path);
 		var isDup:Bool = check != null;
-		if (isDup) script.destroy();
+		if (isDup) script.end('onDuplicate');
 		return isDup;
 	}
 
@@ -179,9 +179,18 @@ class ScriptGroup extends FlxBasic {
 		for (script in members) {
 			if (script != null && script.type.dummy) {
 				remove(script);
-				script.destroy();
+				script.end('onInvaild');
 			}
 		}
+	}
+
+	/**
+	 * End's the script group.
+	 * @param funcName Custom function call name.
+	 */
+	inline public function end(funcName:String = 'end'):Void {
+		call(funcName);
+		destroy();
 	}
 
 	override public function destroy():Void {

@@ -1,4 +1,4 @@
-package backend.interfaces;
+package backend.scripting.interfaces;
 
 /**
  * Implementing this interface means this class will be used to handle scripting capabilities.
@@ -98,4 +98,10 @@ interface IScript {
 	 * @return `ScriptEvent`
 	 */
 	function event<SC:ScriptEvent>(func:String, event:SC):SC;
+
+	/**
+	 * End's the script.
+	 * @param funcName Custom function call name.
+	 */
+	function end(funcName:String = 'end'):Void;
 }

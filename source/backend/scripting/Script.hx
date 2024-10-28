@@ -205,8 +205,16 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC return event;
 
+	/**
+	 * End's the script.
+	 * @param funcName Custom function call name.
+	 */
+	inline public function end(funcName:String = 'end'):Void {
+		call(funcName);
+		destroy();
+	}
+
 	override public function destroy():Void {
-		call('destroy');
 		GlobalScript.call('scriptDestroyed', [this, type]);
 		if (scripts.contains(this))
 			scripts.remove(this);

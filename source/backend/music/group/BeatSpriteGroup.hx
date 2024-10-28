@@ -8,7 +8,7 @@ typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
 /**
  * This class is just `FlxTypedSpriteGroup` but with `IBeat` implementation.
  */
-class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {
+class BeatTypedSpriteGroup<T:FlxSprite> extends SelfTypedSpriteGroup<T> implements IBeat {
 	override public function new(x:Float = 0, y:Float = 0, maxSize:Int = 0) {
 		super(x, y);
 		group.destroy();
@@ -59,25 +59,4 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 			if (member is IBeat)
 				cast(member, IBeat).measureHit(curMeasure);
 	}
-
-	// Was crashing without error.
-	@SuppressWarnings('checkstyle:CommentedOutCode')
-	/* override public function add(object:T):T {
-		if (object is ISelfGroup)
-			return super.add(cast(cast(object, ISelfGroup).group));
-		else
-			return super.add(object);
-	}
-	override public function insert(position:Int, object:T):T {
-		if (object is ISelfGroup)
-			return super.insert(position, cast(cast(object, ISelfGroup).group));
-		else
-			return super.insert(position, object);
-	}
-	override public function remove(object:T, splice:Bool = false):T {
-		if (object is ISelfGroup)
-			return super.remove(cast(cast(object, ISelfGroup).group), splice);
-		else
-			return super.remove(object, splice);
-	} */
 }

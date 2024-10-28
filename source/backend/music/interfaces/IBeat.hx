@@ -1,4 +1,4 @@
-package backend.interfaces;
+package backend.music.interfaces;
 
 /**
  * Implementing this interface will allow the object to detect when a song is playing.

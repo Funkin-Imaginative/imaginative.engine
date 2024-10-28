@@ -1,4 +1,4 @@
 function update(elapsed:Float) {
 	if (FlxG.keys.justPressed.TAB)
-		BeatState.switchState(new ModState('TestState', Conductor.song));
+		BeatState.switchState(new ScriptedState('TestState', Conductor.song));
 }

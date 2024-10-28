@@ -19,7 +19,7 @@ class GlobalScript {
 
 	static function loadScript():Void {
 		if (scripts != null)
-			scripts.destroy();
+			scripts.end();
 
 		scripts = new ScriptGroup();
 		for (script in Script.create('content/global', LEAD))

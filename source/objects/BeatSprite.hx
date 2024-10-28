@@ -1,7 +1,7 @@
 package objects;
 
-import backend.scripting.events.objects.sprites.BopEvent;
-import backend.scripting.events.objects.sprites.PlaySpecialAnimEvent;
+import backend.scripting.events.objects.BopEvent;
+import backend.scripting.events.objects.PlaySpecialAnimEvent;
 
 typedef BeatData = {
 	/**
@@ -83,10 +83,10 @@ class BeatSprite extends BaseSprite implements IBeat {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {
 			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop', true, Unclear, false, 0));
-				if (!event.stopped) {
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop'));
+				if (!event.prevented) {
 					final prevAnimContext:AnimContext = animContext;
-					playAnim('${getAnimName()}-loop', event.force, event.animContext, event.reverse, event.frame);
+					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
 					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed) animContext = prevAnimContext; // for `tryDance()` checks
 					scripts.call('playingSpecialAnimPost', [event]);
 				}
@@ -129,11 +129,11 @@ class BeatSprite extends BaseSprite implements IBeat {
 	 */
 	public function dance():Void {
 		final event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
-		if (!debugMode || !event.stopped) {
+		if (!debugMode || !event.prevented) {
 			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end', true, Unclear, false, 0));
-				if (event.stopped) return;
-				playAnim('$animB4Loop-end', event.force, event.animContext, event.reverse, event.frame);
+				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end'));
+				if (event.prevented) return;
+				playAnim('$animB4Loop-end', event.force, event.context, event.reverse, event.frame);
 				scripts.call('playingSpecialAnimPost', [event]);
 			} else if (!preventIdle) {
 				onSway = event.sway;

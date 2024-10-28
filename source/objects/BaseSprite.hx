@@ -124,7 +124,7 @@ typedef AnimMapping = {
 	/**
 	 * Offsets for that set animation.
 	 */
-	@:default({x: 0, y: 0}) var offset:PositionStruct;
+	@:default({x: 0, y: 0}) var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
@@ -269,7 +269,12 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 */
 	public function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite return group.remove(sprite, splice);
 
-	override function set_x(value:Float):Float {
+	override public function update(elapsed:Float):Void
+		group.update(elapsed);
+	override public function draw():Void
+		group.draw();
+
+	/* override function set_x(value:Float):Float {
 		return super.set_x(value);
 	}
 	override function set_y(value:Float):Float {
@@ -277,7 +282,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	}
 	override function set_angle(value:Float):Float {
 		return super.set_angle(value);
-	}
+	} */
 
 	// Where the BaseSprite class really begins.
 	/**
@@ -341,7 +346,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 						}
 						anims.set(anim.name, {
-							offset: new PositionStruct(anim.offset.x, anim.offset.y),
+							offset: new Position(anim.offset.x, anim.offset.y),
 							swapName: anim.swapKey.getDefault(''),
 							flipName: anim.flipKey.getDefault('')
 						});
@@ -394,9 +399,9 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * Global offsets
 	 */
 	public var spriteOffsets:ObjectData = {
-		position: new PositionStruct(),
+		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
-		scale: new PositionStruct()
+		scale: new Position()
 	}
 	/**
 	 * If true, the swap anim var can go off.
@@ -468,7 +473,13 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 			scripts.call('createPost');
 	}
 
-	override public function update(elapsed:Float):Void {
+	/**
+	 * Used to help with `ISelfGroup` updating conflicts.
+	 * This will be used to update the sprite itself.
+	 * While update now updates the group instead.
+	 * @param elapsed Time inbetween frames.
+	 */
+	public function selfUpdate(elapsed:Float):Void {
 		if (!(this is IBeat)) scripts.call('update', [elapsed]);
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -494,10 +505,10 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	}
 
 	/**
-	 * Plays an animation.
+	 * Play's an animation.
 	 * @param name The animation name.
 	 * @param force If true, the game won't care if another one is already playing.
-	 * @param context The wanted animation context.
+	 * @param context The context for the upcoming animation.
 	 * @param suffix The animation suffix.
 	 * @param reverse If true, the animation will play backwards.
 	 * @param frame The starting frame. By default it's 0.
@@ -545,9 +556,9 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 			if (anims.exists(name))
 				data = anims.get(name);
 			else
-				data = {offset: new PositionStruct(), swapName: '', flipName: ''}
+				data = {offset: new Position(), swapName: '', flipName: ''}
 		else
-			data = {offset: new PositionStruct(), swapName: '', flipName: ''}
+			data = {offset: new Position(), swapName: '', flipName: ''}
 		return data;
 	}
 	/**
@@ -584,7 +595,12 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 		return super.getScreenBounds(newRect, camera);
 	}
 
-	override public function draw():Void {
+	/**
+	 * Used to help with `ISelfGroup` drawing conflicts.
+	 * This will be used to draw the sprite itself.
+	 * While draw now draws the group instead.
+	 */
+	public function selfDraw():Void {
 		if (swapAnimTriggers) {
 			var xFlip:Bool = flipX;
 			if (xFlip) {
@@ -600,5 +616,10 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 			} else super.draw();
 			flipX = xFlip;
 		} else super.draw();
+	}
+
+	override public function destroy():Void {
+		scripts.end();
+		super.destroy();
 	}
 }

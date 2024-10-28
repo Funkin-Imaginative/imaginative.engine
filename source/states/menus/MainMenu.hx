@@ -83,8 +83,8 @@ class MainMenu extends BeatState {
 		add(menuItems);
 
 		// wierd camera posing vars
-		var highMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[0]);
-		var lowMid:PositionStruct = PositionStruct.getObjMidpoint(menuItems.members[menuItems.length - 1]);
+		var highMid:Position = Position.getObjMidpoint(menuItems.members[0]);
+		var lowMid:Position = Position.getObjMidpoint(menuItems.members[menuItems.length - 1]);
 
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),

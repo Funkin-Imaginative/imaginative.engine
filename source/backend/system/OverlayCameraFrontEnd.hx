@@ -3,7 +3,7 @@ package backend.system;
 import flixel.system.frontEnds.CameraFrontEnd;
 
 class OverlayCameraFrontEnd extends CameraFrontEnd {
-	public function new() {
+	override public function new() {
 		super();
 		FlxCamera._defaultCameras = FlxG.cameras.defaults;
 	}

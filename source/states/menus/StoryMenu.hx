@@ -1,6 +1,6 @@
 package states.menus;
 
-import backend.scripting.events.menus.story.LevelSongListEvent;
+import backend.scripting.events.menus.story.SongListEvent;
 
 /**
  * It's the story menu... still don't know what your expecting to see here.
@@ -21,15 +21,15 @@ class StoryMenu extends BeatState {
 	function get_diffHolder():DifficultyHolder
 		return diffMap[curDiffString];
 
-	var prevDiffList:Array<String> = [];
-	var curDiffList:Array<String> = [];
+	static var prevDiffList:Array<String> = [];
+	static var curDiffList:Array<String> = [];
 
 	var curDiffString(get, never):String;
 	inline function get_curDiffString():String
 		return curDiffList[curDiff];
 
-	var prevDiff:Int = 0;
-	var curDiff:Int = 0;
+	static var prevDiff:Int = 0;
+	static var curDiff:Int = 0;
 
 	// Objects in the state.
 	var scoreText:FlxText;
@@ -37,7 +37,7 @@ class StoryMenu extends BeatState {
 
 	var weekTopBg:BaseSprite;
 	var weekBg:BaseSprite;
-	var weekObjects:BeatSpriteGroup;
+	var weekObjects:BeatGroup;
 
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
@@ -98,7 +98,7 @@ class StoryMenu extends BeatState {
 		add(diffs);
 
 		final arrowDistance:Float = 200 * 0.85;
-		final arrowPos:PositionStruct = PositionStruct.getObjMidpoint(diffs.members[0].sprite);
+		final arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
@@ -143,7 +143,7 @@ class StoryMenu extends BeatState {
 		add(weekBg);
 
 		var cantFindList:Array<String> = [];
-		weekObjects = new BeatSpriteGroup();
+		weekObjects = new BeatGroup();
 		for (i => loop in loadedObjects) {
 			for (data in loop) {
 				if (data.object is String && !Paths.fileExists('content/objects/${data.object}.json') && !cantFindList.contains(data.object)) {
@@ -163,12 +163,17 @@ class StoryMenu extends BeatState {
 		}
 
 		for (level in levels) {
-			FlxSpriteUtil.space([for (sprite in level.weekObjects) sprite.group], FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
+			/* FlxSpriteUtil.space([for (sprite in level.weekObjects) sprite.group], FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
 				object.x = x - object.width / 2;
 				object.y = y - object.height / 2;
 			});
 			for (sprite in level.weekObjects)
-				sprite.group.setPosition(sprite.group.x, sprite.group.y);
+				sprite.group.setPosition(sprite.group.x, sprite.group.y); */
+			for (i => sprite in level.weekObjects) {
+				sprite.group.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.group.x += 400 * i;
+				sprite.group.x -= (400 * ((level.weekObjects.length - 1) / 2));
+			}
 		}
 
 		add(weekObjects);
@@ -194,9 +199,9 @@ class StoryMenu extends BeatState {
 			l.scrollFactor.set();
 
 		changeSelection();
-		changeDifficulty(levels.members[curSelected].data.startingDiff, true);
+		changeDifficulty();
 
-		final mid:PositionStruct = PositionStruct.getObjMidpoint(levels.members[curSelected].sprite);
+		final mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
 		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
 		camera.snapToTarget();
 	}
@@ -243,7 +248,7 @@ class StoryMenu extends BeatState {
 		}
 
 		final item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = PositionStruct.getObjMidpoint(item).y - (FlxG.height / 3.4);
+		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
@@ -254,7 +259,7 @@ class StoryMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		final level:LevelHolder = levels.members[curSelected];
-		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new LevelSongListEvent(level.data.songs)).songs.join('\n')}';
+		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
 		[for (level in levels) [for (sprite in level.weekObjects) sprite.alpha = 0.0001]];
@@ -273,7 +278,7 @@ class StoryMenu extends BeatState {
 	}
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
-		if (!pureSelect) {
+		if (move != 0 || !pureSelect) {
 			final arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
 			arrow.animation.play('confirm', true);
 			arrow.centerOffsets();

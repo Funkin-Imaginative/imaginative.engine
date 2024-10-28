@@ -3,7 +3,7 @@ package backend.scripting.states;
 /**
  * Used for custom states.
  */
-class ModState extends BeatState {
+class ScriptedState extends BeatState {
 	override public function get_conductor():Conductor
 		return conductor;
 	override public function set_conductor(value:Conductor):Conductor
@@ -18,7 +18,7 @@ class ModState extends BeatState {
 	 */
 	public static var lastConductor:Conductor = null;
 
-	public function new(stateName:String, ?conductorInst:Conductor) {
+	override public function new(stateName:String, ?conductorInst:Conductor) {
 		if (stateName != null)
 			prevName = stateName;
 		if (conductorInst != null)

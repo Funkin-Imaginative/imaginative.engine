@@ -9,7 +9,7 @@ import openfl.display.Sprite;
 @:bitmap('assets/images/logo/logo.png') class PreloadImage extends BitmapData {}
 
 class Preloader extends FlxBasePreloader {
-	public function new(MinDisplayTime:Float = 5, ?AllowedURLs:Array<String>)
+	override public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
 		super(MinDisplayTime, AllowedURLs);
 
 	var logo:Sprite;

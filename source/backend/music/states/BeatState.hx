@@ -203,6 +203,27 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	override public function create():Void {
+		#if FLX_DEBUG
+		FlxG.game.debugger.watch.add('Conductor', FUNCTION(() -> {
+			if (conductor == Conductor.menu)
+				return 'Menu';
+			if (conductor == Conductor.song)
+				return 'Song';
+			if (conductor == Conductor.charter)
+				return 'Charter';
+			return 'Unknown';
+		}));
+		FlxG.game.debugger.watch.add('Artist', FUNCTION(() -> return conductor.data.artist));
+		FlxG.game.debugger.watch.add('', FUNCTION(() -> return ''));
+		FlxG.game.debugger.watch.add('Time', FUNCTION(() -> return songPosition));
+		FlxG.game.debugger.watch.add('Bpm', FUNCTION(() -> return bpm));
+		FlxG.game.debugger.watch.add('Signature', FUNCTION(() -> return '$beatsPerMeasure/$stepsPerBeat'));
+		FlxG.game.debugger.watch.add('', FUNCTION(() -> return ''));
+		FlxG.game.debugger.watch.add('Step', FUNCTION(() -> return curStepFloat));
+		FlxG.game.debugger.watch.add('Beat', FUNCTION(() -> return curBeatFloat));
+		FlxG.game.debugger.watch.add('Measure', FUNCTION(() -> return curMeasureFloat));
+		#end
+
 		Conductor.beatStates.push(direct = this);
 		persistentUpdate = true;
 		loadScript();
@@ -230,25 +251,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 	override public function update(elapsed:Float):Void {
 		call('update', [elapsed]);
 		super.update(elapsed);
-	}
-
-	override public function add(object:FlxBasic):FlxBasic {
-		if (object is ISelfGroup)
-			return super.add(cast(object, ISelfGroup).group);
-		else
-			return super.add(object);
-	}
-	override public function insert(position:Int, object:FlxBasic):FlxBasic {
-		if (object is ISelfGroup)
-			return super.insert(position, cast(object, ISelfGroup).group);
-		else
-			return super.insert(position, object);
-	}
-	override public function remove(object:FlxBasic, splice:Bool = false):FlxBasic {
-		if (object is ISelfGroup)
-			return super.remove(cast(object, ISelfGroup).group, splice);
-		else
-			return super.remove(object, splice);
 	}
 
 	override public function openSubState(SubState:FlxSubState):Void {
@@ -308,7 +310,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	override public function destroy():Void {
-		stateScripts.destroy();
+		stateScripts.end();
 		Conductor.beatStates.remove(this);
 		direct = null;
 		super.destroy();

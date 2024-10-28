@@ -1,4 +1,4 @@
-package backend.interfaces;
+package backend.selfgroup.interfaces;
 
 /**
  * Implementing this interface will allow a object to contain it's own `FlxSpriteGroup`.
@@ -42,4 +42,18 @@ interface ISelfGroup {
 	 * @return `FlxSprite` ~ The removed sprite.
 	 */
 	function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite;
+
+	/**
+	 * Used to help with `ISelfGroup` updating conflicts.
+	 * This will be used to update the sprite itself.
+	 * While update now updates the group instead.
+	 * @param elapsed Time inbetween frames.
+	 */
+	function selfUpdate(elapsed:Float):Void;
+	/**
+	 * Used to help with `ISelfGroup` drawing conflicts.
+	 * This will be used to draw the sprite itself.
+	 * While draw now draws the group instead.
+	 */
+	function selfDraw():Void;
 }

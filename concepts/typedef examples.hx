@@ -16,7 +16,7 @@ typedef AnimationTyping = {
 	var tag:String;
 	var dimensions:Dimensions;
 	var indices:Array<Int>;
-	var offset:PositionStruct;
+	var offset:Position;
 	var flip:TypeXY<Bool>;
 	var loop:Bool;
 	var fps:Int;
@@ -32,7 +32,7 @@ typedef CheckpointTyping = {
 }
 
 typedef CharacterSection = {
-	var camera:PositionStruct;
+	var camera:Position;
 	var color:String;
 	var icon:String;
 	var singlength:Float;
@@ -42,9 +42,9 @@ typedef BeatSection = {
 	var skipnegative:Bool;
 }
 typedef OffsetsSection = {
-	var position:PositionStruct;
+	var position:Position;
 	var flip:TypeXY<Bool>;
-	var scale:PositionStruct;
+	var scale:Position;
 }
 typedef SpriteSection = {
 	> CharacterSection,
@@ -53,7 +53,7 @@ typedef SpriteSection = {
 	var animations:Array<AnimationTyping>;
 	var antialiasing:Bool;
 	var flip:TypeXY<Bool>;
-	var scale:PositionStruct;
+	var scale:Position;
 }
 
 typedef LevelSection = {

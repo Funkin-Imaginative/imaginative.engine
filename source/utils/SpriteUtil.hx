@@ -4,7 +4,7 @@ typedef ObjectData = {
 	/**
 	 * Position value.
 	 */
-	@:default({x: 0, y: 0}) var position:PositionStruct;
+	@:default({x: 0, y: 0}) var position:Position;
 	/**
 	 * Flip value.
 	 */
@@ -12,7 +12,7 @@ typedef ObjectData = {
 	/**
 	 * Scale value.
 	 */
-	@:default({x: 1, y: 1}) var scale:PositionStruct;
+	@:default({x: 1, y: 1}) var scale:Position;
 }
 
 typedef AssetTyping = {
@@ -52,7 +52,7 @@ typedef AnimationTyping = {
 	/**
 	 * The offset for the set animation.
 	 */
-	@:default({x: 0, y: 0}) var offset:PositionStruct;
+	@:default({x: 0, y: 0}) var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
@@ -223,7 +223,7 @@ class SpriteUtil {
 	 * @return `FlxColor` ~ The dominant color.
 	 */
 	inline public static function getDominantColor<T:FlxSprite>(sprite:T):FlxColor {
-		var countByColor:Map<Int, Int> = [];
+		var countByColor:Map<Int, Int> = new Map<Int, Int>();
 		for (col in 0...sprite.frameWidth) {
 			for (row in 0...sprite.frameHeight) {
 				var colorOfThisPixel:Int = sprite.pixels.getPixel32(col, row);
@@ -245,7 +245,7 @@ class SpriteUtil {
 				maxKey = key;
 			}
 		}
-		countByColor = [];
+		countByColor.clear();
 		return FlxColor.fromInt(maxKey);
 	}
 
