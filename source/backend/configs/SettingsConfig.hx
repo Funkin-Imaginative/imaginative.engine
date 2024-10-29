@@ -18,10 +18,10 @@ enum abstract FpsType(String) from String to String {
 	var Vsync;
 }
 
-/**
- * This class at first was jokingly named "PullingAPsychEngine".
- * While coding this file I realized how much I was pulling a psych engine.
- */
+/*
+   This class at first was jokingly named "PullingAPsychEngine".
+   While coding this file I realized how much I was pulling a psych engine.
+*/
 /**
  * The main settings for the engine.
  */
@@ -136,7 +136,7 @@ class SettingsConfig {
 	inline static function set_setup(value:MainSettings):MainSettings
 		return setup = value;
 	/**
-	 * The default settings.
+	 * Default settings.
 	 */
 	public static var defaults(default, null):MainSettings = {}
 
@@ -147,7 +147,7 @@ class SettingsConfig {
 	inline static function set_setupP1(value:PlayerSettings):PlayerSettings
 		return setupP1 = value;
 	/**
-	 * The default P1 settings.
+	 * Default player 1 settings.
 	 */
 	public static var defaultsP1(default, null):PlayerSettings = {}
 
@@ -158,7 +158,7 @@ class SettingsConfig {
 	inline static function set_setupP2(value:PlayerSettings):PlayerSettings
 		return setupP2 = value;
 	/**
-	 * The default P2 settings.
+	 * Default player settings.
 	 */
 	public static var defaultsP2(default, null):PlayerSettings = {}
 }
