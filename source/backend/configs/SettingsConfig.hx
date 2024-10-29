@@ -133,7 +133,7 @@ class SettingsConfig {
 	 * The current settings.
 	 */
 	public static var setup(default, set):MainSettings = {}
-	inline function set_setup(value:MainSettings):MainSettings
+	inline static function set_setup(value:MainSettings):MainSettings
 		return setup = value;
 	/**
 	 * The default settings.
@@ -144,7 +144,7 @@ class SettingsConfig {
 	 * Player 1's settings!
 	 */
 	public static var setupP1(default, set):PlayerSettings = {}
-	inline function set_setupP1(value:PlayerSettings):PlayerSettings
+	inline static function set_setupP1(value:PlayerSettings):PlayerSettings
 		return setupP1 = value;
 	/**
 	 * The default P1 settings.
@@ -155,7 +155,7 @@ class SettingsConfig {
 	 * Player 2's settings!
 	 */
 	public static var setupP2(default, set):PlayerSettings = {}
-	inline function set_setupP2(value:PlayerSettings):PlayerSettings
+	inline static function set_setupP2(value:PlayerSettings):PlayerSettings
 		return setupP2 = value;
 	/**
 	 * The default P2 settings.
