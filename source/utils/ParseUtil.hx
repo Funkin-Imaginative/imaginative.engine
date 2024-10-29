@@ -78,7 +78,7 @@ class ParseUtil {
 	 * @param pathType The path type.
 	 * @return `Dynamic` ~ The parsed json content.
 	 */
-	public static function json(path:String, pathType:FunkinPath = ANY):Dynamic {
+	public static function json(path:String, pathType:ModType = ANY):Dynamic {
 		var content = {}
 		try { content = haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType))); }
 		catch(error:haxe.Exception) trace(error.message);
@@ -91,7 +91,7 @@ class ParseUtil {
 	 * @param pathType The path type.
 	 * @return `DifficultyData` ~ The parsed difficulty json content.
 	 */
-	public static function difficulty(name:String, pathType:FunkinPath = ANY):DifficultyData {
+	public static function difficulty(name:String, pathType:ModType = ANY):DifficultyData {
 		final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
 		return {
 			display: contents.display,
@@ -106,7 +106,7 @@ class ParseUtil {
 	 * @param pathType The path type.
 	 * @return `LevelData` ~ The parsed level json content.
 	 */
-	public static function level(name:String, pathType:FunkinPath = ANY):LevelData {
+	public static function level(name:String, pathType:ModType = ANY):LevelData {
 		// var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
 		var contents:LevelParse = json('content/levels/$name', pathType);
 		for (i => data in contents.objects) {
@@ -134,7 +134,7 @@ class ParseUtil {
 	 * @param pathType The path type.
 	 * @return `SpriteData` ~ The parsed object json content.
 	 */
-	public static function object(path:String, type:SpriteType, pathType:FunkinPath = ANY):SpriteData {
+	public static function object(path:String, type:SpriteType, pathType:ModType = ANY):SpriteData {
 		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
 		final tempData:Dynamic = json('content/objects/$path', pathType);
 
@@ -230,7 +230,7 @@ class ParseUtil {
 	 * @param pathType The path type.
 	 * @return `SongData` ~ The parsed meta json content.
 	 */
-	public static function song(name:String, pathType:FunkinPath = ANY):SongData {
+	public static function song(name:String, pathType:ModType = ANY):SongData {
 		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
 		return {
 			name: json('content/songs/$name/audio', pathType).name,

@@ -62,16 +62,16 @@ class ModConfig {
 	 * @param pathType Specify path instances.
 	 * @return `Array<String>` ~ Found file instances.
 	 */
-	public static function getAllInstancesOfFile(file:String, pathType:FunkinPath = ANY):Array<String> {
+	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY):Array<String> {
 		var potentialPaths:Array<String> = [];
 
-		if (FunkinPath.isPath(ROOT, pathType)) {
+		if (ModType.pathCheck(BASE, pathType)) {
 			var asset:String = 'solo/funkin/$file';
 			if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 				potentialPaths.push(asset);
 		}
 
-		if (FunkinPath.isPath(SOLO, pathType)) {
+		if (ModType.pathCheck(SOLO, pathType)) {
 			if (curSolo != null && curSolo.trim() != '') {
 				var asset:String = 'solo/$curSolo/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
@@ -79,7 +79,7 @@ class ModConfig {
 			}
 		}
 
-		if (FunkinPath.isPath(MODS, pathType)) {
+		if (ModType.pathCheck(MOD, pathType)) {
 			for (mod in globalMods) {
 				var asset:String = 'mods/$mod/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))

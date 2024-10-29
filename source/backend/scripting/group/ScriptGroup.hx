@@ -45,7 +45,7 @@ class ScriptGroup extends FlxBasic {
 	}
 
 	// as of rn this func is ripped from cne
-	public function importScript(path:String, pathType:FunkinPath = ANY):Script {
+	public function importScript(path:String, pathType:ModType = ANY):Script {
 		final script:Script = Script.create(path, pathType, false)[0];
 		if (script.type.dummy) {
 			trace('Script at "$path", doesn\'t exist.');

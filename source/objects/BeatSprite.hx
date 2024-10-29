@@ -62,7 +62,7 @@ class BeatSprite extends BaseSprite implements IBeat {
 	 * @param pathType The path type.
 	 * @return `BeatSprite`
 	 */
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BeatSprite {
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:ModType = ANY):BeatSprite {
 		return new BeatSprite(x, y, ParseUtil.object(path, IsBeatSprite, pathType), Paths.script(path, pathType));
 	}
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {

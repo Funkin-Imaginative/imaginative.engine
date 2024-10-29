@@ -107,9 +107,9 @@ class TextureData {
 	/**
 	 * The mod path type.
 	 */
-	public var path(get, never):FunkinPath;
-	inline function get_path():FunkinPath
-		return FunkinPath.typeFromPath(image);
+	public var path(get, never):ModType;
+	inline function get_path():ModType
+		return ModType.typeFromPath(image);
 
 	public function new(image:String, type:TextureType) {
 		this.image = image;
@@ -293,7 +293,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * @param pathType The path type.
 	 * @return `BaseSprite`
 	 */
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:FunkinPath = ANY):BaseSprite {
+	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:ModType = ANY):BaseSprite {
 		return new BaseSprite(x, y, ParseUtil.object(path, IsBaseSprite, pathType), Paths.script(path, pathType));
 	}
 	/**

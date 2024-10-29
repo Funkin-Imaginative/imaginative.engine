@@ -80,7 +80,7 @@ class FunkinUtil {
 	 * @param pathType The path type.
 	 * @return `Array<String>`
 	 */
-	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:FunkinPath = ANY):Array<String> {
+	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<String> {
 		var results:Array<String> = [];
 		try {
 			if (sortOrderByLevel)

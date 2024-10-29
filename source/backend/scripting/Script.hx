@@ -76,7 +76,7 @@ class Script extends FlxBasic implements IScript {
 	 * @param getAllInstances If it should get all possible scripts in loaded mods with `file` name.
 	 * @return `Array<Script>`
 	 */
-	public static function create(file:String, pathType:FunkinPath = ANY, getAllInstances:Bool = true):Array<Script> {
+	public static function create(file:String, pathType:ModType = ANY, getAllInstances:Bool = true):Array<Script> {
 		var scriptPath:String->Array<String> = (file:String) -> {
 			if (getAllInstances) {
 				var result:Array<String> = [];

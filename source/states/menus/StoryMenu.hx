@@ -63,7 +63,7 @@ class StoryMenu extends BeatState {
 		var loadedObjects:Array<Array<ObjectTyping>> = [];
 		levels = new FlxTypedGroup<LevelHolder>();
 		for (list in [
-			// Paths.readFolderOrderTxt('content/levels', 'json', FunkinPath.getSolo()),
+			// Paths.readFolderOrderTxt('content/levels', 'json', ModType.getSolo()),
 			Paths.readFolderOrderTxt('content/levels', 'json')
 		]) {
 			for (i => name in list) {

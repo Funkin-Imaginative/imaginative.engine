@@ -93,6 +93,7 @@ class Main extends Sprite {
 				cameras.unlock();
 			});
 		}
+
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 	}
 
