@@ -46,7 +46,6 @@ using flixel.util.FlxStringUtil;
 
 /* Engine */
 import backend.Controls;
-import backend.Paths;
 import backend.configs.ModConfig;
 import backend.configs.PlayConfig;
 import backend.music.Conductor;
@@ -67,6 +66,7 @@ import backend.selfgroup.group.SelfSpriteGroup;
 import backend.selfgroup.interfaces.ISelfGroup;
 import backend.system.FlxWindow;
 import backend.system.Main;
+import backend.system.Paths;
 import objects.BaseSprite;
 import objects.BeatSprite;
 import objects.Character;

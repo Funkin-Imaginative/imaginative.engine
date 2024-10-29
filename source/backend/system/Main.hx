@@ -5,14 +5,12 @@ import openfl.Lib;
 import openfl.display.DisplayObject;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
+import backend.system.frontEnds.OverlayCameraFrontEnd;
 #if FLX_MOUSE
 import flixel.input.mouse.FlxMouse;
 #end
 #if CONTAIN_VERSION_ID
 import thx.semver.Version;
-#end
-#if desktop
-import backend.ALSoftConfig; // Just to make sure DCE doesn't remove this, since it's not directly referenced anywhere else.
 #end
 
 class Main extends Sprite {
@@ -34,7 +32,7 @@ class Main extends Sprite {
 	 */
 	public static var overlay:FlxGroup = new FlxGroup();
 
-	@:allow(backend.system.OverlayCameraFrontEnd)
+	@:allow(backend.system.frontEnds.OverlayCameraFrontEnd)
 	static var _inputContainer:Sprite;
 
 	#if CONTAIN_VERSION_ID
@@ -51,6 +49,9 @@ class Main extends Sprite {
 	public function new():Void {
 		super();
 		direct = this;
+		#if desktop
+		ALSoftConfig.fuckDCE();
+		#end
 
 		GlobalScript.init();
 		FlxWindow.init();
@@ -115,7 +116,8 @@ class Main extends Sprite {
 // TODO: Use these more later on.
 /**
  * ```haxe
- * @SuppressWarnings('checkstyle:FieldDocComment') @:dox(hide)
+ * @:dox(hide)
+ * @SuppressWarnings('checkstyle:FieldDocComment')
  * inline public var lmao:FieldDocComment = hide;
  * ```
  */

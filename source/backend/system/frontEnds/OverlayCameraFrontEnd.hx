@@ -1,4 +1,4 @@
-package backend.system;
+package backend.system.frontEnds;
 
 import flixel.system.frontEnds.CameraFrontEnd;
 

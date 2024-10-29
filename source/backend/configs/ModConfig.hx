@@ -4,16 +4,17 @@ package backend.configs;
  * This class contains information about the engine's loaded mods.
  */
 class ModConfig {
-	// should probably make these options in the options menu
-	@SuppressWarnings('checkstyle:FieldDocComment') @:unreflective public static var soloOnlyMode:Bool = false;
-	@SuppressWarnings('checkstyle:FieldDocComment') @:unreflective public static var personalSolo:Bool = false;
+	/**
+	 * It true, the current up front mod loaded doesn't allow lower end mods to run.
+	 */
+	public static var soloOnlyMode:Bool = false;
 
 	/**
 	 * If enabled, only up front mods can run.
 	 */
 	public static var isSoloOnly(get, never):Bool;
 	inline static function get_isSoloOnly():Bool
-		return soloOnlyMode || personalSolo;
+		return soloOnlyMode || SettingsConfig.setup.soloOnly;
 
 	/**
 	 * Current up front mod.

@@ -208,8 +208,8 @@ class PlayState extends BeatState {
 			conductor.addVocalTrack(curSong, 'Player', variant);
 
 			var assets:CountdownAssets = {
-				images: countdownAssets.images,
-				sounds: countdownAssets.sounds
+				images: countdownAssets.images.copy(),
+				sounds: countdownAssets.sounds.copy()
 			}
 			assets.images.reverse();
 			assets.sounds.reverse();

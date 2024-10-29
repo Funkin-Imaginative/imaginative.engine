@@ -1,3 +1,4 @@
+#if desktop
 package backend;
 
 /**
@@ -6,7 +7,9 @@ package backend;
  * @author From Psych Engine.
  */
 @:keep class ALSoftConfig {
-	#if desktop
+	@:allow(backend.system.Main.new)
+	static function fuckDCE():Void {}
+
 	static function __init__():Void {
 		var origin:String = #if hl Sys.getCwd() #else Sys.programPath() #end;
 
@@ -21,5 +24,5 @@ package backend;
 
 		Sys.putEnv('ALSOFT_CONF', configPath);
 	}
-	#end
 }
+#end
