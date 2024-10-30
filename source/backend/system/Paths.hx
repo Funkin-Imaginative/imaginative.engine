@@ -3,36 +3,40 @@ package backend.system;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 /**
- * Used to help ModPath enum abstract.
+ * Used to help ModPath abstract.
  */
 enum abstract ModType(String) from String to String {
 	// Base Paths
 	/**
-	 * Base assets.
+	 * Base Game.
 	 */
-	var BASE = 'base';
+	var BASE;
 	/**
-	 * UpFront mods.
+	 * UpFront Mods.
 	 */
-	var SOLO = 'solo';
+	var SOLO;
 	/**
-	 * LowerEnd mods.
+	 * LowerEnd Mods.
 	 */
-	var MOD = 'mod';
+	var MOD;
 
 	// Potential Paths
 	/**
 	 * `BASE`, `SOLO` or `MOD`.
 	 */
-	var ANY = 'any';
+	var ANY;
 	/**
 	 * `BASE` or `SOLO`.
 	 */
-	var LEAD = 'lead';
+	var LEAD;
 	/**
 	 * `SOLO` or `MOD`.
 	 */
-	var MODS = 'mods';
+	var MODDED;
+	/**
+	 * `BASE` or `MOD`... I didn't know what to call this one lmao.
+	 */
+	var NORM;
 
 	/**
 	 * Returns the current mod folder root path of said type.
@@ -68,27 +72,27 @@ enum abstract ModType(String) from String to String {
 		return path.split('/')[1]; // lol
 
 	/**
-	 * Check's if `incomingPath` is a `wantedPath`.
-	 * @param wantedPath The wanted pathing.
-	 * @param incomingPath The incoming pathing.
+	 * Check's if incoming path type is a wanted path type.
+	 * @param wantedPath The wanted path type.
+	 * @param incomingPath The incoming path type.
 	 * @return `Bool`
 	 */
 	public static function pathCheck(wantedPath:ModType, incomingPath:ModType):Bool {
 		return switch (wantedPath) {
-			case BASE: incomingPath == null || incomingPath == BASE || incomingPath == LEAD || incomingPath == ANY;
-			case SOLO: !ModConfig.soloIsRoot && (incomingPath == SOLO || incomingPath == LEAD || incomingPath == MODS || incomingPath == ANY);
-			case MOD: !ModConfig.isSoloOnly && (incomingPath == MOD || incomingPath == MODS || incomingPath == ANY);
+			case BASE: incomingPath == null || incomingPath == BASE || incomingPath == LEAD || incomingPath == NORM || incomingPath == ANY;
+			case SOLO: incomingPath == SOLO || incomingPath == LEAD || incomingPath == MODDED || incomingPath == ANY;
+			case MOD: !ModConfig.isSoloOnly && (incomingPath == MOD || incomingPath == MODDED || incomingPath == NORM || incomingPath == ANY);
 			default: false;
 		}
 	}
 
 	/**
-	 * This nifty function is for when solo is root, so you can grab the right path!
-	 * Since whenever `BASE` is techincally the current `SOLO` I've made it so it doesn't work so this function well alr?
+	 * This nifty function is for when solo is base, so you can grab the right path!
+	 * Since whenever `BASE` is techincally the current `SOLO`, idk if things will get wierd, so yeah.
 	 * @return `ModType`
 	 */
 	public static function getSolo():ModType
-		return ModConfig.soloIsRoot ? BASE : SOLO;
+		return ModConfig.soloIsBase ? BASE : SOLO;
 
 	/**
 	 * Converts a string to a ModType.
@@ -191,7 +195,7 @@ abstract ModPath(String) {
 
 // TODO: Better documentation for Paths comment.
 /**
- * The pathing system.
+ * Pathing helper functions.
  */
 class Paths {
 	/**
@@ -217,15 +221,16 @@ class Paths {
 		return FilePath.normalize(result);
 	}
 	/**
-	 * It's like `applyRoot` but it just gets the path without asking for a file, it's just the start path. Excludes grouped types.
+	 * It's like `applyRoot` but it just gets the path without asking for a file.
+	 * It's just the start path. `Excludes grouped types.`
 	 * @param pathType The path type.
-	 * @return `String` ~ Mod folder name.
+	 * @return `String` ~ The mod root folder name.
 	 */
 	inline public static function getRoot(pathType:ModType):String
 		return pathType.returnRoot();
 
 	/**
-	 * Get's the root path of a txt file.
+	 * Get's the path of a txt file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -234,7 +239,7 @@ class Paths {
 		return applyRoot('$file.txt', pathType);
 
 	/**
-	 * Get's the root path of a xml file.
+	 * Get's the path of a xml file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -243,7 +248,7 @@ class Paths {
 		return applyRoot('$file.xml', pathType);
 
 	/**
-	 * Get's the root path of a json file.
+	 * Get's the path of a json file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -252,7 +257,7 @@ class Paths {
 		return applyRoot('$file.json', pathType);
 
 	/**
-	 * Get's the root path of a object json.
+	 * Get's the path of an object json.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -276,7 +281,7 @@ class Paths {
 	}
 
 	/**
-	 * Get's the root path of a script file.
+	 * Get's the path of a script file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -329,7 +334,7 @@ class Paths {
 	 */
 	public static final soundExts:Array<String> = ['wav', 'ogg'];
 	/**
-	 * Get's the root path of an audio file.
+	 * Get's the path of an audio file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -337,7 +342,7 @@ class Paths {
 	inline public static function audio(file:String, pathType:ModType = ANY):String
 		return multExst(file, soundExts, pathType);
 	/**
-	 * Get's the root path of a sound in the sounds folder.
+	 * Get's the path of a sound in the sounds folder.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -345,7 +350,7 @@ class Paths {
 	inline public static function sound(file:String, pathType:ModType = ANY):String
 		return audio('sounds/$file', pathType);
 	/**
-	 * Same as sound but gets a variantion of it based on numbering.
+	 * Same as the sound function but gets a variantion of it based on a number suffix.
 	 * @param file The mod path.
 	 * @param min The minimum number.
 	 * @param max The maximum number.
@@ -355,7 +360,7 @@ class Paths {
 	inline public static function soundRandom(file:String, min:Int, max:Int, pathType:ModType = ANY):String
 		return sound(file + FlxG.random.int(min, max), pathType);
 	/**
-	 * Get's the root path of a song in the music folder.
+	 * Get's the path of a song in the music folder.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -368,7 +373,7 @@ class Paths {
 	 */
 	public static final videoExts:Array<String> = ['mp4', 'mov', 'webm'];
 	/**
-	 * Get's the root path of a video file.
+	 * Get's the path of a video file.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -376,7 +381,7 @@ class Paths {
 	inline public static function video(file:String, pathType:ModType = ANY):String
 		return multExst(file, videoExts, pathType);
 	/**
-	 * Get's the root path of a cutscene in either the current song's folder or the videos folder.
+	 * Get's the path of a cutscene in either the current song or videos folder.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -389,7 +394,7 @@ class Paths {
 	}
 
 	/**
-	 * Get's the root path of a songs instrumental file.
+	 * Get's the path of a songs instrumental file.
 	 * @param song The song folder name.
 	 * @param variant The variant key.
 	 * @return `String` The instrumental root path.
@@ -397,7 +402,7 @@ class Paths {
 	inline public static function inst(song:String, variant:String = 'normal'):String
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Inst');
 	/**
-	 * Get's the root path of a songs vocal track.
+	 * Get's the path of a songs vocal track.
 	 * @param song The song folder name.
 	 * @param suffix The vocals suffix.
 	 * @param variant The variant key.
@@ -407,7 +412,11 @@ class Paths {
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 
 	/**
-	 * Get's the root path of a font file from the fonts folder.
+	 * All possible font extension types.
+	 */
+	public static final fontExts:Array<String> = ['ttf', 'otf'];
+	/**
+	 * Get's the path of a font file from the fonts folder.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -416,7 +425,7 @@ class Paths {
 		return applyRoot('fonts/$file', pathType);
 
 	/**
-	 * Get's the root path of a image file from the images folder.
+	 * Get's the path of an image file from the images folder.
 	 * @param file The mod path.
 	 * @param pathType The path type.
 	 * @return `String` ~ The root path.
@@ -429,7 +438,7 @@ class Paths {
 	 */
 	public static final atlasFrameExts:Array<String> = ['xml', 'txt', 'json'];
 	/**
-	 * Get's the data of a spritesheet's data file.
+	 * Get's a spritesheet's data file.
 	 * @param file The mod path in the images folder.
 	 * @param type The texture type.
 	 * @param pathType The path type.
@@ -448,7 +457,7 @@ class Paths {
 		}
 	}
 	/**
-	 * Get's sparrow spritesheet data.
+	 * Get's sparrow sheet data.
 	 * @param file The mod path in the images folder.
 	 * @param pathType The path type.
 	 * @return `FlxAtlasFrames`
@@ -456,7 +465,7 @@ class Paths {
 	inline public static function getSparrowAtlas(file:String, pathType:ModType = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSparrow(image(file, pathType), xml('images/$file', pathType));
 	/**
-	 * Get's packer spritesheet data.
+	 * Get's packer sheet data.
 	 * @param file The mod path in the images folder.
 	 * @param pathType The path type.
 	 * @return `FlxAtlasFrames`
@@ -464,7 +473,7 @@ class Paths {
 	inline public static function getPackerAtlas(file:String, pathType:ModType = ANY):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file, pathType), txt('images/$file', pathType));
 	/**
-	 * Get's aseprite spritesheet data.
+	 * Get's aseprite sheet data.
 	 * @param file The mod path in the images folder.
 	 * @param pathType The path type.
 	 * @return `FlxAtlasFrames`

@@ -257,7 +257,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Reset's conductor.
 	 */
 	inline public function reset():Void {
-		audio.stop();
+		stop();
 		for (sound in extra)
 			destroySound(sound);
 		extra = [];

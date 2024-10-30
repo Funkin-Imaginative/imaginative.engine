@@ -50,7 +50,7 @@ typedef SongData = {
 	/**
 	 * The song color.
 	 */
-	var color:FlxColor;
+	var color:Null<FlxColor>;
 	/**
 	 * Allowed modes for the song.
 	 */
@@ -115,15 +115,27 @@ class ParseUtil {
 			data.size = data.size.getDefault(1);
 			data.willHey = data.willHey.getDefault(i == Math.floor(contents.objects.length / 2));
 		}
+		var songs:Array<SongData> = [for (song in contents.songs) ParseUtil.song(song)];
+		for (song in songs)
+			song.color = song.color == null ? FlxColor.fromString(contents.color) : song.color;
 		return {
 			name: name,
 			title: contents.title,
-			songs: [for (sog in contents.songs) song(sog, pathType)],
+			songs: songs,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
-			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
-			variants: [for (v in contents.variants.getDefault([for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
+			difficulties: [
+				for (d in contents.difficulties)
+					d.toLowerCase()
+			],
+			variants: [
+				for (v in contents.variants.getDefault([
+					for (d in contents.difficulties)
+						FunkinUtil.getDifficultyVariant(d)
+				]))
+					v.toLowerCase()
+			],
 			objects: contents.objects,
-			color: FlxColor.fromString(contents.color), // 0xfff9cf51
+			color: FlxColor.fromString(contents.color)
 		}
 	}
 
@@ -131,8 +143,7 @@ class ParseUtil {
 	 * Parse's object json data.
 	 * @param path The object json name.
 	 * @param type The sprite type.
-	 * @param pathType The path type.
-	 * @return `SpriteData` ~ The parsed object json content.
+	 * @return `SpriteData` ~ The parsed object json.
 	 */
 	public static function object(path:String, type:SpriteType, pathType:ModType = ANY):SpriteData {
 		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
@@ -150,8 +161,8 @@ class ParseUtil {
 			charData = {
 				camera: new Position(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
 				color: typeData.character.color,
-				icon: typeData.character.icon.getDefault('face'),
-				singlength: typeData.character.singlength.getDefault(2)
+				icon: typeData.character.icon,
+				singlength: typeData.character.singlength
 			}
 		}
 
@@ -159,8 +170,8 @@ class ParseUtil {
 		if (type.isBeatType && Reflect.hasField(tempData, 'beat')) {
 			var typeData:BeatData = typeData.beat;
 			beatData = {
-				interval: typeData.interval.getDefault(0),
-				skipnegative: typeData.skipnegative.getDefault(false)
+				interval: typeData.interval,
+				skipnegative: typeData.skipnegative
 			}
 		}
 
@@ -227,8 +238,7 @@ class ParseUtil {
 	/**
 	 * Parse's a songs meta json.
 	 * @param name The song folder name.
-	 * @param pathType The path type.
-	 * @return `SongData` ~ The parsed meta json content.
+	 * @return `SongData` ~ The parsed meta json.
 	 */
 	public static function song(name:String, pathType:ModType = ANY):SongData {
 		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
@@ -237,9 +247,18 @@ class ParseUtil {
 			folder: contents.folder,
 			icon: contents.icon,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
-			difficulties: [for (d in contents.difficulties) d.toLowerCase()], // jic
-			variants: [for (v in contents.variants.getDefault([for (d in contents.difficulties) FunkinUtil.getDifficultyVariant(d)])) v.toLowerCase()],
-			color: FlxColor.fromString(contents.color),
+			difficulties: [
+				for (d in contents.difficulties)
+					d.toLowerCase()
+			],
+			variants: [
+				for (v in contents.variants.getDefault([
+					for (d in contents.difficulties)
+						FunkinUtil.getDifficultyVariant(d)
+				]))
+					v.toLowerCase()
+			],
+			color: contents.color != null ? FlxColor.fromString(contents.color) : null,
 			allowedModes: contents.allowedModes
 		}
 	}

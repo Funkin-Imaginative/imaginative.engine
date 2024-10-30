@@ -54,17 +54,6 @@ class BeatSprite extends BaseSprite implements IBeat {
 	 */
 	public var preventIdle:Bool = false;
 
-	/**
-	 * Another way to create a BeatSprite. But you can set the root this time.
-	 * @param x Starting x position.
-	 * @param y Starting y position.
-	 * @param path The mod path.
-	 * @param pathType The path type.
-	 * @return `BeatSprite`
-	 */
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:ModType = ANY):BeatSprite {
-		return new BeatSprite(x, y, ParseUtil.object(path, IsBeatSprite, pathType), Paths.script(path, pathType));
-	}
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
 		try {
 			if (inputData.beat != null) {

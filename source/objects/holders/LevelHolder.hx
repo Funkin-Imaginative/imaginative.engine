@@ -31,7 +31,7 @@ typedef LevelParse = {
 	var difficulties:Array<String>;
 	@:optional var variants:Array<String>;
 	var objects:Array<ObjectTyping>;
-	var color:String;
+	@:default('#F9CF51') var color:String;
 }
 typedef LevelData = {
 	/**

@@ -175,7 +175,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 
 	/**
 	 * Load's a sheet for the sprite to use.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	inline public function loadTexture<T:BaseSprite>(newTexture:String):T {
@@ -190,7 +190,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	}
 	/**
 	 * Load's a graphic texture for the sprite to use.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	inline public function loadImage<T:BaseSprite>(newTexture:String):T {
@@ -202,7 +202,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	}
 	/**
 	 * Load's a sheet or graphic texture for the sprite to use based on checks.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	inline public function loadSheet<T:BaseSprite>(newTexture:String):T {
@@ -285,17 +285,6 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	} */
 
 	// Where the BaseSprite class really begins.
-	/**
-	 * Another way to create a BaseSprite. But you can set the root this time.
-	 * @param x Starting x position.
-	 * @param y Starting y position.
-	 * @param path The mod path.
-	 * @param pathType The path type.
-	 * @return `BaseSprite`
-	 */
-	public static function makeSprite(x:Float = 0, y:Float = 0, path:String, pathType:ModType = ANY):BaseSprite {
-		return new BaseSprite(x, y, ParseUtil.object(path, IsBaseSprite, pathType), Paths.script(path, pathType));
-	}
 	/**
 	 * States the type of sprite this is.
 	 */

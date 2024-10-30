@@ -46,7 +46,10 @@ class Main extends Sprite {
 	public static var latestVersion(default, null):Version;
 	#end
 
+	@SuppressWarnings('checkstyle:CommentedOutCode')
 	public function new():Void {
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+
 		super();
 		direct = this;
 		#if desktop
@@ -94,7 +97,23 @@ class Main extends Sprite {
 			});
 		}
 
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+		// Was testing Path functions.
+		/* trace(Paths.txt('images/menus/main/itemLineUp'));
+		trace(Paths.xml('images/ui/arrows'));
+		trace(Paths.json('content/difficulties/erect'));
+		trace(Paths.object('characters/boyfriend'));
+		trace(Paths.script('content/global'));
+		trace(Paths.readFolder('content/states'));
+		trace(Paths.readFolderOrderTxt('content/levels', 'json'));
+		trace(Paths.sound('soundTest'));
+		trace(Paths.soundRandom('GF_', 1, 4));
+		trace(Paths.music('breakfast'));
+		trace(Paths.video('videos/just here I guess lmao/toyCommercial'));
+		trace(Paths.cutscene('2hotCutscene'));
+		trace(Paths.inst('Pico', 'erect'));
+		trace(Paths.voices('High', 'Player'));
+		trace(Paths.font('vcr.ttf'));
+		trace(Paths.image('ui/arrows')); */
 	}
 
 	/**

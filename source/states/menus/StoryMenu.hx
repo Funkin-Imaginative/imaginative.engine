@@ -262,8 +262,11 @@ class StoryMenu extends BeatState {
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
-		[for (level in levels) [for (sprite in level.weekObjects) sprite.alpha = 0.0001]];
-		[for (sprite in level.weekObjects) sprite.alpha = 1];
+		for (level in levels)
+			for (sprite in level.weekObjects)
+				sprite.alpha = 0.0001;
+		for (sprite in level.weekObjects)
+			sprite.alpha = 1;
 
 		prevDiffList = curDiffList;
 		curDiffList = level.data.difficulties;
@@ -290,9 +293,11 @@ class StoryMenu extends BeatState {
 		if (prevDiff != curDiff)
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
-		for (diff in diffMap) diff.sprite.alpha = 0.0001;
+		for (diff in diffMap)
+			diff.sprite.alpha = 0.0001;
 		diffHolder.sprite.alpha = 1;
-		for (diff in diffMap) diff.updateLock();
+		for (diff in diffMap)
+			diff.updateLock();
 	}
 
 	var levelShake:FlxTween;

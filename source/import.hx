@@ -15,6 +15,8 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxSubState;
+import flixel.addons.display.FlxBackdrop;
+import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.text.FlxTypeText;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;

@@ -5,7 +5,7 @@ import backend.scripting.events.PointEvent;
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:Position;
-	@:default('#8000ff') var color:String;
+	@:optional var color:String;
 	@:default('face') var icon:String;
 	@:default(2) var singlength:Float;
 }
@@ -17,7 +17,7 @@ typedef CharacterData = {
 	/**
 	 * The character's health bar color.
 	 */
-	var color:FlxColor;
+	var color:Null<FlxColor>;
 	/**
 	 * The character's icon.
 	 */

@@ -161,7 +161,7 @@ class SpriteUtil {
 	/**
 	 * Load's a sheet for the sprite to use.
 	 * @param sprite The sprite to affect.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:String):T {
@@ -181,7 +181,7 @@ class SpriteUtil {
 	/**
 	 * Load's a graphic texture for the sprite to use.
 	 * @param sprite The sprite to affect.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:String):T {
@@ -198,7 +198,7 @@ class SpriteUtil {
 	/**
 	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param sprite The sprite to affect.
-	 * @param newTexture The texture mod path.
+	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:String):T {

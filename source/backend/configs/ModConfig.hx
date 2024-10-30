@@ -32,8 +32,8 @@ class ModConfig {
 	/**
 	 * States if the current up front mod is just base funkin.
 	 */
-	public static var soloIsRoot(get, never):Bool;
-	inline static function get_soloIsRoot():Bool
+	public static var soloIsBase(get, never):Bool;
+	inline static function get_soloIsBase():Bool
 		return curSolo == 'funkin';
 
 	/**

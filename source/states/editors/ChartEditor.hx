@@ -7,6 +7,7 @@ class ChartEditor extends BeatState {
 		return Conductor.charter;
 
 	override public function new() {
+		super();
 		/* conductor.loadSong(song, variant, (_:FlxSound) -> {
 			conductor.addVocalTrack(song, '', variant);
 			conductor.addVocalTrack(song, 'Enemy', variant);
