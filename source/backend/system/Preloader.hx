@@ -2,11 +2,8 @@ package backend.system;
 
 import flash.Lib;
 import flash.display.Bitmap;
-import flash.display.BitmapData;
 import flixel.system.FlxBasePreloader;
 import openfl.display.Sprite;
-
-@:bitmap('assets/images/logo/logo.png') class PreloadImage extends BitmapData {}
 
 class Preloader extends FlxBasePreloader {
 	override public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
@@ -21,7 +18,7 @@ class Preloader extends FlxBasePreloader {
 		var ratio:Float = _width / 2560;
 
 		logo = new Sprite();
-		logo.addChild(new Bitmap(new PreloadImage(0, 0), AUTO, true));
+		logo.addChild(new Bitmap(new flixel.system.FlxAssets.GraphicLogo(0, 0), AUTO, true));
 		logo.scaleX = logo.scaleY = ratio * 5.5;
 		logo.x = (_width / 2) - (logo.width / 2);
 		logo.y = (_height / 2) - (logo.height / 2);

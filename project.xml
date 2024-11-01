@@ -1,9 +1,33 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project>
+	<!-- Define Setup -->
+	<define name='CONTAINS_VERSION_ID'/>
+	<define name='CHECK_FOR_UPDATES' if='release CONTAINS_VERSION_ID' unless='debug'/>
+	<define name='MOD_SUPPORT'/>
+	<define name='SCRIPT_SUPPORT'/>
+	<define name='ALLOW_SHADERS'/>
+
+	<!-- script related -->
+	<section if='SCRIPT_SUPPORT'>
+		<define name='CAN_HAXE_SCRIPT'/> <!-- Haxe Language -->
+		<define name='CAN_LUA_SCRIPT'/> <!-- Lua Language -->
+
+		<haxedef name='DISABLE_DCE'   if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
+		<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
+		<haxedef name='SCRIPTED_STATES'/>
+
+		<!-- <echo value='Scripting enabled.'/> -->
+	</section>
+	<section if='cpp'>
+		<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
+		<define name='ALLOW_VIDEOS' if='desktop || android'/>
+	</section>
+	<!-- Define Setup -->
+
 	<app
 		title="Friday Night Funkin': Imaginative Engine" main='backend.system.Main'
 		packageName='funkin.imaginative.com' package='funkin.imaginative.com'
-		file='Imaginative' version='0.0.0' company='rodney528'
+		file='Imaginative' version='0.0.0' company='Funkin-Imaginative'
 		preloader='backend.system.Preloader'
 	/>
 
@@ -11,52 +35,31 @@
 	<set name='SWF_VERSION' value='11.8'/>
 
 	<!-- Window Settings -->
-		<window orientation='landscape' width='1280' height='720' background='#000000' hardware='true' vsync='false' fullscreen='false' resizable='true'/>
-		<!-- <window if='desktop'/> -->
-		<window if='mac' allow-high-dpi='true'/>
+		<window allowShaders='false' unless='ALLOW_SHADERS'/>
+		<window width='1280' height='720' background='#000000' fps='' orientation='landscape'/>
 		<window if='mobile' fullscreen='true' resizable='false'/>
 	<!-- Window Settings -->
 
-	<!-- Define Setup -->
-		<define name='CONTAIN_VERSION_ID'/>
-		<define name='CHECK_FOR_UPDATES' if='release CONTAIN_VERSION_ID' unless='debug'/>
-		<define name='MOD_SUPPORT'/>
-		<define name='SCRIPT_SUPPORT'/>
-
-		<!-- script related -->
-		<section if='SCRIPT_SUPPORT'>
-			<define name='CAN_HAXE_SCRIPT'/>
-			<define name='CAN_LUA_SCRIPT'/>
-
-			<define name='COMPILE_ALL_CLASSES' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
-			<define name='CUSTOM_CLASSES'/>
-			<define name='SOFTCODED_STATES'/>
-		</section>
-		<section if='cpp'>
-			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
-			<define name='ALLOW_VIDEOS' if='desktop || android'/>
-		</section>
-	<!-- Define Setup -->
-
 	<!-- Path Settings -->
 		<!-- Renames -->
-			<section if='desktop'>
-				<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.ini' type='text' if='windows'/>
-				<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.conf' type='text' unless='windows'/>
-			</section>
-		<!-- Renames -->
+		<section if='desktop'>
+			<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.ini'  type='text'     if='windows'/>
+			<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.conf' type='text' unless='windows'/>
+		</section>
 
-		<!-- Export Directories -->
-		<set name='BUILD_DIR' value='export/release' if='release' unless='debug'/>
-		<set name='BUILD_DIR' value='export/build' unless='debug'/>
-		<set name='BUILD_DIR' value='export/debug' if='debug'/>
 		<!-- 32bit -->
-		<set name='BUILD_DIR' value='export/release-32bit' if='release 32bit' unless='debug'/>
-		<set name='BUILD_DIR' value='export/build-32bit' if='32bit' unless='debug'/>
-		<set name='BUILD_DIR' value='export/debug-32bit' if='debug 32bit'/>
+		<set name='32TAG' value='-32bit' if='32bit'/>
+		<set name='32TAG' value='' unless='32bit'/>
+		<!-- Export Directories -->
+		<set name='BUILD_DIR' value='export/release${32TAG}' unless='debug' if='release'/>
+		<set name='BUILD_DIR' value='export/build${32TAG}'   unless='debug'/>
+		<set name='BUILD_DIR' value='export/debug${32TAG}'       if='debug'/>
+		<!-- lol -->
+		<unset name='32TAG'/>
 
 		<set name='assetsPath' value='solo/funkin' if='MOD_SUPPORT'/>
 		<set name='assetsPath' value='assets'  unless='MOD_SUPPORT'/>
+		<!-- <echo value='The "assetsPath" value is "${assetsPath}".'/> -->
 
 		<!-- Pathing -->
 		<source name='source'/>
@@ -71,20 +74,24 @@
 			<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
 			<assets  path='embed/modding/upfront'  rename='solo' embed='true'  preload='true'  exclude='*readme.md'/>
 			<assets  path='embed/modding/lowerend' rename='mods' embed='true'  preload='true'  exclude='*readme.md'/>
+
+			<!-- <echo value='Mods enabled.'/> -->
 		</section>
-		<!-- Path Settings -->
+	<!-- Path Settings -->
 
 	<!-- Libraries -->
-		<!-- <haxelib name='openfl' version='9.2.2'/>
-		<haxelib name='lime'   version='8.1.3'/> -->
+		<haxedef name='disable-version-check'/> <!-- Prevent lime version being fored to 8.1.3 -->
+		<haxelib name='openfl' version='9.2.2'/>
+		<haxelib name='lime'   version='8.1.2'/>
 
 		<haxelib name='flixel'        version='git'/>
 		<haxelib name='flixel-addons' version='git'/>
 
-		<haxelib name='hscript-improved' if='CAN_HAXE_SCRIPT'/>
+		<haxelib name='hscript-improved' if='CAN_HAXE_SCRIPT' version='git'/>
+		<haxelib name='linc_luajit'      if='CAN_LUA_SCRIPT'  version='git'/>
 		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>
 		<haxelib name='hxvlc'            if='ALLOW_VIDEOS'/>
-		<haxelib name='thx.semver'       if='CONTAIN_VERSION_ID'/>
+		<haxelib name='thx.semver'       if='CONTAINS_VERSION_ID'/>
 
 		<haxelib name='json2object'/>
 		<!-- <haxelib name='extension-androidtools' if='android'/> -->
@@ -100,21 +107,17 @@
 	<!-- might make one -->
 	<haxedef name='FLX_NO_FOCUS_LOST_SCREEN'/>
 
-	<haxeflag name='-dce' value='no' if='COMPILE_ALL_CLASSES'/>
-
-	<!-- This is even actually being used?? @rodney528 -->
-	<haxedef name='NAPE_RELEASE_BUILD' unless='debug'/>
+	<haxeflag name='-dce' value='no' if='DISABLE_DCE'/>
 
 	<!-- Extra Stuff -->
 		<!-- May remove? -->
 		<haxedef name='no-deprecation-warnings'/>
-		<define  name='disable-version-check'/>
-		<haxedef name='disable-version-check'/>
 
-		<haxedef name='HXC_LIBVLC_LOGGING' if='ALLOW_VIDEOS debug'/>
-		<haxedef name='HXVLC_NO_SHARE_DIRECTORY' if='ALLOW_VIDEOS'/>
-		<haxedef name='message.reporting' value='pretty'/>
-		<haxedef name='hscriptPos' if='CAN_HAXE_SCRIPT'/>
+		<define name='HXVLC_NO_SHARE_DIRECTORY' if='ALLOW_VIDEOS'/>
+		<define name='message.reporting'        value='pretty'/>
+		<define name='message.log-format'       value='pretty'/>
+		<define name='hscriptPos'               if='CAN_HAXE_SCRIPT'/>
+		<haxedef name='analyzer-optimize'       if='release' unless='debug'/>
 
 		<!-- related to flixel cne libs (I think) -->
 		<haxedef name='EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX'/>

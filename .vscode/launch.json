@@ -1,0 +1,11 @@
+{
+	"configurations": [
+		{
+			"name": "Main",
+			"preLaunchTask": "Check Libraries (Detect Globality)",
+			"request": "launch",
+			"type": "lime"
+		}
+	],
+	"version": "0.2.0"
+}

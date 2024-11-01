@@ -6,14 +6,19 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
 
-/** Moved some stuff around into functions for setup-optional. */
 class Update {
 	public static function main(args:Array<String>):Void {
 		prettyPrint('Preparing installation...');
 
 		// to prevent messing with currently installed libs
-		if (!args.contains('--global') && !FileSystem.exists('.haxelib'))
-			FileSystem.createDirectory('.haxelib');
+		if (!FileSystem.exists('.haxelib'))
+			if (!args.contains('--detect'))
+				if (!args.contains('--global'))
+					FileSystem.createDirectory('.haxelib');
+
+		// It's here so "--detect" can work as intended.
+		if (args.contains('--detect') && FileSystem.exists('.haxelib'))
+			args.push('--global');
 
 		var libs:Array<Library> = [];
 		var libsXML:Access = new Access(Xml.parse(File.getContent('./libs.xml')).firstElement());
@@ -87,7 +92,7 @@ class Update {
 			if (Sys.stdin().readLine().toLowerCase() == 'y') Sys.command('shutdown /r /t 0 /f');
 		}
 	}
-	public static function prettyPrint(text:String) {
+	static function prettyPrint(text:String) {
 		var lines:Array<String> = text.split('\n');
 		var length:Int = -1;
 		for (line in lines)
@@ -104,14 +109,14 @@ class Update {
 		Sys.println('╚$header╝');
 	}
 
-	public static function centerText(text:String, width:Int):String {
+	static function centerText(text:String, width:Int):String {
 		var centerOffset:Float = (width - text.length) / 2;
 		var left:String = repeat(' ', Math.floor(centerOffset));
 		var right:String = repeat(' ', Math.ceil(centerOffset));
 		return left + text + right;
 	}
 
-	public static inline function repeat(ch:String, amt:Int):String {
+	static inline function repeat(ch:String, amt:Int):String {
 		var str:String = '';
 		for (i in 0...amt)
 			str += ch;

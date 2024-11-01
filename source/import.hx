@@ -6,6 +6,7 @@ import sys.FileSystem;
 
 using Lambda;
 using StringTools;
+using haxe.ds.ArraySort;
 
 /* Flixel */
 import flixel.FlxBasic;
@@ -30,6 +31,7 @@ import flixel.sound.FlxSoundGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
 import flixel.util.FlxSave;
@@ -41,6 +43,7 @@ import flixel.util.typeLimit.OneOfThree;
 import flixel.util.typeLimit.OneOfTwo;
 
 using flixel.util.FlxArrayUtil;
+using flixel.util.FlxBitmapDataUtil;
 using flixel.util.FlxColorTransformUtil;
 using flixel.util.FlxDestroyUtil;
 using flixel.util.FlxSpriteUtil;

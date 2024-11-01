@@ -6,15 +6,12 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.hsc": "haxe",
-		"*.hscript": "haxe",
-		"*.hx": "haxe",
-		"*.hxs": "haxe"
+		"*.{haxe,hscript,hsc,hxs,hxc,hxp}": "haxe"
 	},
 	"files.autoGuessEncoding": true,
+	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
 	"files.trimFinalNewlines": true,
 	"files.trimTrailingWhitespace": true,
-	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
 
 	"haxe.enableExtendedIndentation": true,
 	"haxe.importsSortOrder": "stdlib -> libs -> project",

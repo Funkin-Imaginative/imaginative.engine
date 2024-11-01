@@ -2,7 +2,7 @@
 <libraries>
 	<!-- Required for Flixel -->
 		<lib name='openfl' version='9.2.2'/>
-		<lib name='lime'   version='8.1.3'/>
+		<lib name='lime'   version='8.1.2'/>
 	<!-- Required for Flixel -->
 
 	<!-- Flixel -->
@@ -12,6 +12,7 @@
 
 	<!-- Other Libraries -->
 		<git name='hscript-improved' url='https://github.com/FNF-CNE-Devs/hscript-improved' ref='custom-classes'/>
+		<git name='linc_luajit' url='https://github.com/superpowers04/linc_luajit'/>
 		<lib name='json2object'/>
 	<!-- Other Libraries -->
 

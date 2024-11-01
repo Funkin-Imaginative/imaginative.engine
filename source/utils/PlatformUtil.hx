@@ -11,11 +11,7 @@ class PlatformUtil {
 	 */
 	public static function openURL(url:String):Bool {
 		try {
-			#if linux
-			Sys.command('/usr/bin/xdg-open', [url]);
-			#else
-			FlxG.openURL(url);
-			#end
+			lime.system.System.openURL(url);
 			trace('$url');
 			return true;
 		} catch(error:haxe.Exception)

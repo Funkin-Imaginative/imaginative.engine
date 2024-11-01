@@ -2,21 +2,25 @@ package objects.holders;
 
 typedef ObjectTyping = {
 	/**
-	 * Is either the object json path or actually sprite data.
+	 * Is the object json mod path.
 	 */
-	var object:OneOfTwo<String, SpriteData>;
+	@:default('') var path:String;
+	/**
+	 * Is the sprite data.
+	 */
+	@:optional var object:SpriteData;
 	/**
 	 * Should the object be flipped?
 	 */
-	@:optional @:default(false) var flip:Bool;
+	@:default(false) var flip:Bool;
 	/**
 	 * Posiiton offsets.
 	 */
-	@:optional @:default({x: 0, y: 0}) var offsets:Position;
+	@:default({x: 0, y: 0}) var offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
-	@:optional @:default(1) var size:Float;
+	@:default(1) var size:Float;
 	/**
 	 * Will is play a cheer animation when entering the week?
 	 */

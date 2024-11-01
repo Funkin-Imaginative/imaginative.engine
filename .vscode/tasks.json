@@ -1,81 +1,108 @@
 {
-	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "lime",
-			"command": "test",
-			"targetConfiguration": "Windows / Debug",
+			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup",
+			"label": "Check Libraries",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Run Windows Debug",
+			"type": "shell"
+		},
+		{
+			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --global",
+			"label": "Check Libraries (Global)",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"type": "shell"
+		},
+		{
+			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --detect",
+			"label": "Check Libraries (Detect Globality)",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"type": "shell"
+		},
+		{
+			"command": "lime test cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
 			"group": {
-				"kind": "build",
-				"isDefault": true
-			}
-		},
-		{
-			"type": "lime",
-			"command": "test",
-			"targetConfiguration": "Windows",
+				"isDefault": true,
+				"kind": "build"
+			},
+			"label": "Run Debug",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Run Windows Test"
+			"type": "shell"
 		},
 		{
-			"type": "lime",
-			"command": "test",
-			"targetConfiguration": "Windows / Final",
+			"command": "lime test cpp",
+			"label": "Run Test",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Run Windows Release"
+			"type": "shell"
 		},
 		{
-			"type": "lime",
-			"command": "build",
-			"targetConfiguration": "Windows / Debug",
+			"command": "lime test cpp -release",
+			"label": "Run Release",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Compile Windows Debug"
+			"type": "shell"
 		},
 		{
-			"type": "lime",
-			"command": "build",
-			"targetConfiguration": "Windows",
+			"command": "lime build cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
+			"label": "Compile Debug",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Compile Windows Test"
+			"type": "shell"
 		},
 		{
-			"type": "lime",
-			"command": "build",
-			"targetConfiguration": "Windows / Final",
+			"command": "lime build cpp",
+			"label": "Compile Test",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"label": "Compile Windows Release"
+			"type": "shell"
+		},
+		{
+			"command": "lime build cpp -release",
+			"label": "Compile Release",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"type": "shell"
 		}
-	]
+	],
+	"version": "2.0.0"
 }
