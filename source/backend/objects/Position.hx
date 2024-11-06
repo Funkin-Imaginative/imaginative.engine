@@ -48,7 +48,7 @@ package backend.objects;
 	/**
 	 * Creates a FlxPoint instance from the x, y of this Position instance.
 	 * @param point An optional FlxPoint to apply it to.
-	 * 				If you put a FlxPoint it won't create a new one.
+	 *              If you put a FlxPoint it won't create a new one.
 	 * @return `FlxPoint` ~ The created FlxPoint instance.
 	 */
 	inline public function toFlxPoint(?point:FlxPoint):FlxPoint

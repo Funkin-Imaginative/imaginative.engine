@@ -1,7 +1,6 @@
 package backend.system;
 
 import haxe.CallStack;
-import haxe.io.Path;
 import sys.io.File;
 import openfl.events.UncaughtErrorEvent;
 
@@ -16,18 +15,18 @@ class CrashHandler {
 		dateNow = dateNow.replace(' ', '_');
 		dateNow = dateNow.replace(':', '\'');
 
-		path = './crash/' + 'ImaginativeEngine_' + dateNow + '.txt';
+		path = './crash/Imaginative_$dateNow.txt';
 
 		for (stackItem in callStack) {
 			switch (stackItem) {
-				case FilePos(s, file, line, column):
-					errMsg += file + ' (line ' + line + ')\n';
+				case FilePos(_, file, line, _):
+					errMsg += '$file (line $line)\n';
 				default:
 					Sys.println(stackItem);
 			}
 		}
 
-		errMsg += '\nUncaught Error: ' + e.error + '\n\n> Crash Handler written by: Nebula S. Nova';
+		errMsg += '\nUncaught Error: $e.error\n\n> Crash Handler written by: Nebula S. Nova';
 
 		if (!FileSystem.exists('./crash/'))
 			FileSystem.createDirectory('./crash/');
@@ -35,7 +34,7 @@ class CrashHandler {
 		File.saveContent(path, errMsg + '\n');
 
 		Sys.println(errMsg);
-		Sys.println('Crash dump saved in ' + Path.normalize(path));
+		Sys.println('Crash dump saved in ${FilePath.normalize(path)}');
 
 		FlxWindow.direct.self.alert(errMsg, 'Error!');
 		BeatState.resetState();

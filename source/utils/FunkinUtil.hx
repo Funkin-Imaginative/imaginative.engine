@@ -35,9 +35,9 @@ class FunkinUtil {
 	/**
 	 * Add's missing folders to your mod.
 	 * If you realize certain folders don't show up, please tell me.
-	 * @param folderPath The path to the mod folder.
+	 * @param path The path to the mod folder.
 	 */
-	@:noUsing inline public static function addMissingFolders(folderPath:String):Void {
+	@:noUsing inline public static function addMissingFolders(path:String):Void {
 		final folders:Array<String> = [
 			'content',
 			'content/difficulties',
@@ -57,7 +57,7 @@ class FunkinUtil {
 		];
 		for (folder in folders)
 			if (!Paths.folderExists(folder, false))
-				FileSystem.createDirectory('$folderPath/$folder');
+				FileSystem.createDirectory('$path/$folder');
 	}
 
 	/**
@@ -110,7 +110,7 @@ class FunkinUtil {
 	 * @return `String` ~ The difficulties display name.
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
-		return ParseUtil.difficulty(diff).display;
+		return ParseUtil.difficulty(diff).display.getDefault(diff);
 
 	/**
 	 * Returns the default variant of a difficulty
@@ -118,7 +118,10 @@ class FunkinUtil {
 	 * @return `String` ~ The difficulties default variant.
 	 */
 	@:noUsing inline public static function getDifficultyVariant(diff:String):String
-		return ParseUtil.difficulty(diff).variant;
+		try {
+			return ParseUtil.difficulty(diff).variant.getDefault('normal');
+		} catch(error:haxe.Exception)
+			return 'normal';
 
 	/**
 	 * Is basically an array's split function but each array slot is trimmed.

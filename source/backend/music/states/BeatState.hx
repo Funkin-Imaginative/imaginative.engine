@@ -214,6 +214,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 			return 'Unknown';
 		}));
 		FlxG.game.debugger.watch.add('Artist', FUNCTION(() -> return conductor.data.artist));
+		FlxG.game.debugger.watch.add('Song', FUNCTION(() -> return conductor.data.name));
 		FlxG.game.debugger.watch.add('Time', FUNCTION(() -> return songPosition));
 		FlxG.game.debugger.watch.add('Bpm', FUNCTION(() -> return bpm));
 		FlxG.game.debugger.watch.add('Signature', FUNCTION(() -> return '$beatsPerMeasure/$stepsPerBeat'));

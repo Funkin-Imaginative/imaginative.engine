@@ -1,5 +1,8 @@
 package backend.scripting.types;
 
+#if CAN_LUA_SCRIPT
+#end
+
 /**
  * This class handles script instances under the lua language.
  */

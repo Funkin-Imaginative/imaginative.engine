@@ -1,6 +1,7 @@
 package objects;
 
 import flixel.addons.effects.FlxSkewedSprite;
+
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
@@ -162,7 +163,8 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * The main texture the sprite is using.
 	 */
 	public var texture(get, never):TextureData;
-	inline function get_texture():TextureData return textures[0];
+	inline function get_texture():TextureData
+		return textures[0];
 	/**
 	 * All textures the sprite is using.
 	 */

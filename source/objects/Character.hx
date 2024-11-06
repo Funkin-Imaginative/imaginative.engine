@@ -57,7 +57,7 @@ final class Character extends BeatSprite {
 	/**
 	 * Get's the characters camera position.
 	 * @param pos An optional Position to apply it to.
-	 * 			  If you put a Position it won't create a new one.
+	 *            If you put a Position it won't create a new one.
 	 * @return `Position` ~ The camera position.
 	 */
 	public function getCamPos(?pos:Position):Position {

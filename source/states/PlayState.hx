@@ -168,6 +168,8 @@ class PlayState extends BeatState {
 	override function create():Void {
 		scripts = new ScriptGroup(this);
 
+		bgColor = 0xFFBDBDBD;
+
 		camGame = camera; // may make a separate camera class for shiz
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
@@ -303,6 +305,7 @@ class PlayState extends BeatState {
 
 	override function destroy():Void {
 		scripts.end();
+		bgColor = FlxColor.BLACK;
 		super.destroy();
 	}
 

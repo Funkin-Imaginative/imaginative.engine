@@ -9,7 +9,7 @@ typedef PressTypes = {
 	var released:Bool;
 }
 
-// TODO: Rewrite documentation for the variables of this class.
+// TODO: Rewrite variable documentation and names for this class.
 /**
  * This class handles user controls. Without it, how would you do anything?
  */

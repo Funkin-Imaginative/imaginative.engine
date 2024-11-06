@@ -1,7 +1,7 @@
 package backend.objects;
 
 /**
- * This class is adaptable since it utilizes <> to change it's type definition.
+ * This class is adaptable since it utilizes <T> to change it's type definition.
  */
 @:structInit class TypeXY<T> {
 	/**

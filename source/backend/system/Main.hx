@@ -9,7 +9,7 @@ import backend.system.frontEnds.OverlayCameraFrontEnd;
 #if FLX_MOUSE
 import flixel.input.mouse.FlxMouse;
 #end
-#if CONTAIN_VERSION_ID
+#if CONTAINS_VERSION_ID
 import thx.semver.Version;
 #end
 
@@ -35,7 +35,7 @@ class Main extends Sprite {
 	@:allow(backend.system.frontEnds.OverlayCameraFrontEnd)
 	static var _inputContainer:Sprite;
 
-	#if CONTAIN_VERSION_ID
+	#if CONTAINS_VERSION_ID
 	/**
 	 * Engine version.
 	 */
@@ -56,10 +56,11 @@ class Main extends Sprite {
 		ALSoftConfig.fuckDCE();
 		#end
 
-		GlobalScript.init();
 		FlxWindow.init();
+		Script.init();
+		GlobalScript.init();
 
-		#if CONTAIN_VERSION_ID
+		#if CONTAINS_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
@@ -73,10 +74,14 @@ class Main extends Sprite {
 			FlxG.mouse.visible = true;
 		}
 
+		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode(true);
+
 		#if FLX_DEBUG
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
 		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);
+		FlxG.game.debugger.console.registerFunction('switchState', (nextState:FlxState) -> return BeatState.switchState(nextState));
+		FlxG.game.debugger.console.registerFunction('resetState', () -> return BeatState.resetState());
 		#end
 
 		cameras.reset();

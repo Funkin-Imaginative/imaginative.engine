@@ -115,7 +115,10 @@ class ParseUtil {
 			data.size = data.size.getDefault(1);
 			data.willHey = data.willHey.getDefault(i == Math.floor(contents.objects.length / 2));
 		}
-		var songs:Array<SongData> = [for (song in contents.songs) ParseUtil.song(song)];
+		var songs:Array<SongData> = [
+			for (song in contents.songs)
+				ParseUtil.song(song)
+		];
 		for (song in songs)
 			song.color = song.color == null ? FlxColor.fromString(contents.color) : song.color;
 		return {
@@ -124,15 +127,15 @@ class ParseUtil {
 			songs: songs,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
-				for (d in contents.difficulties)
-					d.toLowerCase()
+				for (difficulty in contents.difficulties)
+					difficulty.toLowerCase()
 			],
 			variants: [
-				for (v in contents.variants.getDefault([
-					for (d in contents.difficulties)
-						FunkinUtil.getDifficultyVariant(d)
+				for (variant in contents.variants.getDefault([
+					for (difficulty in contents.difficulties)
+						FunkinUtil.getDifficultyVariant(difficulty)
 				]))
-					v.toLowerCase()
+					variant.toLowerCase()
 			],
 			objects: contents.objects,
 			color: FlxColor.fromString(contents.color)
@@ -248,15 +251,15 @@ class ParseUtil {
 			icon: contents.icon,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
-				for (d in contents.difficulties)
-					d.toLowerCase()
+				for (difficulty in contents.difficulties)
+					difficulty.toLowerCase()
 			],
 			variants: [
-				for (v in contents.variants.getDefault([
-					for (d in contents.difficulties)
-						FunkinUtil.getDifficultyVariant(d)
+				for (variant in contents.variants.getDefault([
+					for (difficulty in contents.difficulties)
+						FunkinUtil.getDifficultyVariant(difficulty)
 				]))
-					v.toLowerCase()
+					variant.toLowerCase()
 			],
 			color: contents.color != null ? FlxColor.fromString(contents.color) : null,
 			allowedModes: contents.allowedModes

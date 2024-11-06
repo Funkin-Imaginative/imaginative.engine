@@ -55,7 +55,7 @@ class Strum extends FlxSprite implements ISelfGroup {
 	 * @param force If true, the game won't care if another one is already playing.
 	 * @param reverse If true, the animation will play backwards.
 	 * @param frame The starting frame. By default it's 0.
-	 * 				Although if reversed it will use the last frame instead.
+	 *              Although if reversed it will use the last frame instead.
 	 */
 	public function playAnim(name:String, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {

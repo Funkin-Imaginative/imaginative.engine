@@ -6,7 +6,7 @@ package backend;
  * The config overrides a few global OpenALSoft settings with the aim of improving audio quality on desktop targets.
  * @author From Psych Engine.
  */
-@:keep class ALSoftConfig {
+#if !DISABLE_DCE @:keep #end class ALSoftConfig {
 	@:allow(backend.system.Main.new)
 	static function fuckDCE():Void {}
 

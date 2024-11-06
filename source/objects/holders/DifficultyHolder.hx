@@ -4,7 +4,7 @@ typedef DifficultyData = {
 	/**
 	 * The difficulty display name.
 	 */
-	var display:String;
+	@:default(null) var display:String;
 	/**
 	 * The variant key.
 	 */
@@ -56,6 +56,7 @@ class DifficultyHolder extends FlxBasic {
 			for (diff in ['global', name])
 				for (script in Script.create('content/difficulties/$diff'))
 					scripts.add(script);
+
 		scripts.load();
 
 		if (loadSprites) {

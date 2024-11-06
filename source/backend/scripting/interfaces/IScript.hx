@@ -26,7 +26,6 @@ interface IScript {
 	 * States the type of script this is.
 	 */
 	var type(get, never):ScriptType;
-	private function get_type():ScriptType;
 
 	private function renderNecessities():Void;
 
@@ -62,8 +61,6 @@ interface IScript {
 	 * The parent object that the script is tied to.
 	 */
 	var parent(get, set):Dynamic;
-	private function get_parent():Dynamic;
-	private function set_parent(value:Dynamic):Dynamic;
 
 	/**
 	 * Set's the public map for getting global variables.

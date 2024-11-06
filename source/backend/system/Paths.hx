@@ -123,6 +123,9 @@ enum abstract ModType(String) from String to String {
 	}
 }
 
+/**
+ * Used for getting the paths of many files within the engine!
+ */
 abstract ModPath(String) {
 	/**
 	 * States if the path is invaild.
@@ -193,9 +196,8 @@ abstract ModPath(String) {
 		return Paths.applyRoot(path, type);
 }
 
-// TODO: Better documentation for Paths comment.
 /**
- * Pathing helper functions.
+ * Path helper functions.
  */
 class Paths {
 	/**

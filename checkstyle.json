@@ -216,14 +216,6 @@
 		},
 		{
 			"props": {
-				"maxPrivate": 30,
-				"maxPublic": 55,
-				"maxTotal": 55
-			},
-			"type": "MethodCount"
-		},
-		{
-			"props": {
 				"max": 999999,
 				"ignoreEmptyLines": false
 			},
@@ -312,13 +304,6 @@
 				"option": "eol"
 			},
 			"type": "OperatorWrap"
-		},
-		{
-			"props": {
-				"max": 6,
-				"ignoreOverriddenMethods": false
-			},
-			"type": "ParameterNumber"
 		},
 		{
 			"props": {

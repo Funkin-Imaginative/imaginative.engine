@@ -38,6 +38,15 @@ enum abstract ScriptType(String) from String to String {
  * @author Class started by @Zyflx. Expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
+	@:allow(backend.system.Main)
+	static function init():Void {
+		exts = [
+			for (exts in [HaxeScript.exts, LuaScript.exts])
+				for (ext in exts)
+					ext
+		];
+	}
+
 	/**
 	 * Every script instance created.
 	 */
@@ -46,11 +55,7 @@ class Script extends FlxBasic implements IScript {
 	/**
 	 * All possible script extension types.
 	 */
-	public static final exts:Array<String> = [
-		for (exts in [HaxeScript.exts, LuaScript.exts])
-			for (ext in exts)
-				ext
-	];
+	public static var exts(default, null):Array<String> = ['hx', 'lua'];
 
 	/**
 	 * This variable holds the root path of where this the script is located.

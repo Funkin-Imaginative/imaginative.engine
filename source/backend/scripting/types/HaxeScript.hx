@@ -148,7 +148,8 @@ final class HaxeScript extends Script {
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 
 		try {
-			this.code = Paths.getFileContent(path).getDefault(code);
+			final content:String = Paths.getFileContent(file);
+			this.code = content.trim() == '' ? code : content;
 		} catch(error:haxe.Exception) {
 			trace('Error while trying to get script contents: ${error.message}');
 			this.code = '';
