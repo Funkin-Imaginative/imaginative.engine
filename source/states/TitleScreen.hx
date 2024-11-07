@@ -29,7 +29,6 @@ class TitleScreen extends BeatState {
 			titleText.playAnim('idle');
 			titleText.centerOffsets();
 			titleText.centerOrigin();
-			titleText.antialiasing = true;
 			add(titleText);
 
 			startIntro();
@@ -77,7 +76,6 @@ class TitleScreen extends BeatState {
 		ngLogo.scale.set(0.8, 0.8);
 		ngLogo.updateHitbox();
 		ngLogo.screenCenter(X);
-		ngLogo.antialiasing = true;
 		ngLogo.visible = false;
 		add(ngLogo);
 

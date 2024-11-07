@@ -5,21 +5,17 @@ package backend.scripting.interfaces;
  */
 interface IScript {
 	/**
-	 * This variable holds the root path of where this the script is located.
-	 */
-	var rootPath:String;
-	/**
-	 * This variable holds the mod path of where this the script is located.
-	 */
-	var path:String;
-	/**
 	 * This variable holds the name of the script.
 	 */
-	var name:String;
+	var name(get, never):String;
+	/**
+	 * Contains the mod path information.
+	 */
+	var pathing(default, null):ModPath;
 	/**
 	 * This variable holds the name of the file extension.
 	 */
-	var extension:String;
+	var extension(get, never):String;
 
 	private var canRun:Bool;
 	/**
@@ -30,7 +26,7 @@ interface IScript {
 	private function renderNecessities():Void;
 
 	private var code:String;
-	private function renderScript(path:String, ?code:String):Void;
+	private function renderScript(file:ModPath, ?code:String):Void;
 	private function loadCodeString(code:String):Void;
 
 	/**

@@ -22,7 +22,7 @@ class GlobalScript {
 			scripts.end();
 
 		scripts = new ScriptGroup();
-		for (script in Script.create('content/global', LEAD))
+		for (script in Script.create('lead:content/global'))
 			scripts.add(script);
 		for (name => thing in getScriptImports())
 			scripts.extraVars.set(name, thing);

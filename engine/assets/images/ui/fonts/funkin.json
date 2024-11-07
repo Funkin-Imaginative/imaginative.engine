@@ -1,0 +1,7 @@
+{
+	"name": "Funkin'",
+	"fps": 24,
+	"characters": [
+		{"name": "A", "tag": "A capital", "type": "bold"}
+	]
+}

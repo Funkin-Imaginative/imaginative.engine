@@ -44,11 +44,15 @@ class ScriptGroup extends FlxBasic {
 		return parent = value;
 	}
 
-	// as of rn this func is ripped from cne
-	public function importScript(path:String, pathType:ModType = ANY):Script {
-		final script:Script = Script.create(path, pathType, false)[0];
+	/**
+	 * Import's a script into the group.
+	 * @param file The mod path,
+	 * @return `Script`
+	 */
+	public function importScript(file:ModPath):Script {
+		final script:Script = Script.create(file, false)[0];
 		if (script.type.dummy) {
-			trace('Script at "$path", doesn\'t exist.');
+			trace('Script at "${file.format()}", doesn\'t exist.');
 			return null;
 		}
 		add(script);
@@ -159,7 +163,7 @@ class ScriptGroup extends FlxBasic {
 		members.remove(script);
 
 	function isDuplicate(script:Script):Bool {
-		var check:Script = getByPath(script.path);
+		var check:Script = getByPath(script.pathing.path);
 		var isDup:Bool = check != null;
 		if (isDup) script.end('onDuplicate');
 		return isDup;
@@ -208,7 +212,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByPath(path:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.path == path) {
+			if (script != null && script.pathing.path == path) {
 				result = script;
 				break;
 			}

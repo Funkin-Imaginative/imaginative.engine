@@ -61,6 +61,7 @@ enum abstract SongTimeType(String) from String to String {
 /**
  * The main powerhouse of funkin, The Song Conductor!
  */
+@:access(flixel.system.frontEnds.SoundFrontEnd.loadHelper)
 class Conductor implements IFlxDestroyable implements IBeat {
 	// FlxSignals.
 	/**
@@ -274,16 +275,16 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	inline public function loadMusic(music:String, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
+	inline public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
 
-		audio.loadEmbedded(Paths.music(music), true);
-		@:privateAccess FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
+		audio.loadEmbedded(Paths.music(music).format(), true);
+		FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
 		audio.persist = true;
 
-		data = getMetadata('music/$music');
+		data = getMetadata('${music.type}:music/${music.path}');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 		if (afterLoad != null) afterLoad(audio);
@@ -300,8 +301,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
 
-		audio.loadEmbedded(Paths.inst(song, variant));
-		@:privateAccess FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
+		audio.loadEmbedded(Paths.inst(song, variant).format());
+		FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
 		audio.persist = false;
 
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
@@ -317,18 +318,18 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added audio track.
 	 */
-	inline public function addExtraAudio(music:String, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
-		var path:String = Paths.music(music);
-		if (!Paths.fileExists(path, false)) {
-			trace('Failed to find audio "$music".');
+	inline public function addExtraAudio(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
+		var file:ModPath = Paths.music(music);
+		if (!Paths.fileExists(file)) {
+			trace('Failed to find audio "${music.format()}".');
 			return null;
 		}
 
 		var vocals:FlxSound = new FlxSound();
 		vocals.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(path);
-		@:privateAccess FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
+		vocals.loadEmbedded(file.format());
+		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
@@ -345,8 +346,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @return `FlxSound` ~ Added vocal track.
 	 */
 	inline public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
-		var path:String = Paths.voices(song, suffix, variant);
-		if (!Paths.fileExists(path, false)) {
+		var file:ModPath = Paths.vocal(song, suffix, variant);
+		if (!Paths.fileExists(file)) {
 			trace('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.');
 			return null;
 		}
@@ -354,8 +355,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var vocals:FlxSound = new FlxSound();
 		vocals.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(path);
-		@:privateAccess FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
+		vocals.loadEmbedded(file.format());
+		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
@@ -365,14 +366,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	/**
 	 * Get's song metadata.
-	 * @param path Json path for the metadata.
+	 * @param file Json path for the metadata.
 	 * @return `AudioData`
 	 */
-	inline public function getMetadata(path:String):AudioData {
+	inline public function getMetadata(file:String):AudioData {
 		try {
-			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(Paths.json(path)), Paths.json(path));
+			final jsonPath:ModPath = Paths.json(file);
+			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 			if (content == null) {
-				trace('Metadata parse failed.');
+				trace('$file: Metadata parse failed.');
 				return {
 					artist: 'Unassigned',
 					name: 'None',
@@ -383,7 +385,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			}
 			return content;
 		} catch(error:haxe.Exception) {
-			trace('Error occured when attempting to parse the json: ${error.message}');
+			trace('$file: ${error.message}');
 			return {
 				artist: 'Unassigned',
 				name: 'None',
@@ -470,21 +472,17 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
-	inline public function onFocus():Void {
-		if (audio != null)
-			@:privateAccess audio.onFocus();
-		for (sound in extra)
-			@:privateAccess sound.onFocus();
-	}
+	@:access(flixel.sound.FlxSound.onFocus)
+	inline public function onFocus():Void
+		for (sound in conductorSoundGroup.sounds)
+			sound.onFocus();
 
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
-	inline public function onFocusLost():Void {
-		if (audio != null)
-			@:privateAccess audio.onFocusLost();
-		for (sound in extra)
-			@:privateAccess sound.onFocusLost();
-	}
+	@:access(flixel.sound.FlxSound.onFocusLost)
+	inline public function onFocusLost():Void
+		for (sound in conductorSoundGroup.sounds)
+			sound.onFocusLost();
 
 	@:allow(backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
 	@:allow(backend.music.states.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
@@ -650,8 +648,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		onBeatHit.destroy();
 		onMeasureHit.destroy();
 
-		destroySound(audio);
-		for (sound in extra)
+		for (sound in conductorSoundGroup.sounds)
 			destroySound(sound);
 		extra = [];
 	}

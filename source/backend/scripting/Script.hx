@@ -58,38 +58,37 @@ class Script extends FlxBasic implements IScript {
 	public static var exts(default, null):Array<String> = ['hx', 'lua'];
 
 	/**
-	 * This variable holds the root path of where this the script is located.
-	 */
-	public var rootPath:String;
-	/**
-	 * This variable holds the mod path of where this the script is located.
-	 */
-	public var path:String;
-	/**
 	 * This variable holds the name of the script.
 	 */
-	public var name:String;
+	public var name(get, never):String;
+	inline function get_name():String
+		return FilePath.withoutDirectory(pathing.path);
+	/**
+	 * Contains the mod path information.
+	 */
+	public var pathing(default, null):ModPath;
 	/**
 	 * This variable holds the name of the file extension.
 	 */
-	public var extension:String;
+	public var extension(get, never):String;
+	inline function get_extension():String
+		return pathing.extension;
 
 	/**
 	 * Creates a script instance(s).
 	 * @param file The mod path.
-	 * @param pathType Specify path instances.
 	 * @param getAllInstances If it should get all possible scripts in loaded mods with `file` name.
 	 * @return `Array<Script>`
 	 */
-	public static function create(file:String, pathType:ModType = ANY, getAllInstances:Bool = true):Array<Script> {
-		var scriptPath:String->Array<String> = (file:String) -> {
+	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
 			if (getAllInstances) {
 				var result:Array<String> = [];
 				for (ext in exts)
-					for (instance in ModConfig.getAllInstancesOfFile('$file.$ext', pathType))
+					for (instance in ModConfig.getAllInstancesOfFile('${file.path}.$ext', file.type, true))
 						result.push(instance);
 				return result;
-			} else return [Paths.script(file, pathType)];
+			} else return [Paths.script(file).format()];
 		}
 		final paths:Array<String> = scriptPath(file);
 		var scripts:Array<Script> = [];
@@ -123,15 +122,11 @@ class Script extends FlxBasic implements IScript {
 
 	function renderNecessities():Void {}
 
-	function new(path:String, ?code:String):Void {
-		if (code == null) {
-			rootPath = path;
-			name = FilePath.withoutDirectory(path);
-			extension = FilePath.extension(path);
-			this.path = path;
-		}
+	function new(file:ModPath, ?code:String):Void {
+		if (code == null)
+			pathing = file;
 		super();
-		renderScript(path);
+		renderScript(pathing);
 		renderNecessities();
 		if (code == null) {
 			scripts.push(this);
@@ -140,7 +135,7 @@ class Script extends FlxBasic implements IScript {
 	}
 
 	var code:String = '';
-	function renderScript(path:String, ?code:String):Void {}
+	function renderScript(file:ModPath, ?code:String):Void {}
 	function loadCodeString(code:String):Void {}
 
 	/**

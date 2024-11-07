@@ -74,41 +74,39 @@ typedef ExtraData = {
 class ParseUtil {
 	/**
 	 * Parse's a json file.
-	 * @param path The mod path.
-	 * @param pathType The path type.
-	 * @return `Dynamic` ~ The parsed json content.
+	 * @param file The mod path.
+	 * @return `Dynamic` ~ The parsed json.
 	 */
-	public static function json(path:String, pathType:ModType = ANY):Dynamic {
-		var content = {}
-		try { content = haxe.Json.parse(Paths.getFileContent(Paths.json(path, pathType))); }
-		catch(error:haxe.Exception) trace(error.message);
+	inline public static function json(file:ModPath):Dynamic {
+		var content:Dynamic = {}
+		try {
+			var jsonPath:ModPath = Paths.json(file);
+			content = haxe.Json.parse(Paths.getFileContent(jsonPath));
+		} catch(error:haxe.Exception)
+			trace('${file.format()}: ${error.message}');
 		return content;
 	}
 
 	/**
-	 * Parse's difficulty json data.
-	 * @param name The difficulty key.
-	 * @param pathType The path type.
-	 * @return `DifficultyData` ~ The parsed difficulty json content.
+	 * Parse's a difficulty json.
+	 * @param key The difficulty key.
+	 * @return `DifficultyData` ~ The parsed difficulty json.
 	 */
-	public static function difficulty(name:String, pathType:ModType = ANY):DifficultyData {
-		final contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(Paths.json('content/difficulties/$name', pathType)), Paths.json('content/difficulties/$name', pathType));
-		return {
-			display: contents.display,
-			variant: contents.variant.getDefault('normal'),
-			scoreMult: contents.scoreMult.getDefault(1),
-		}
+	inline public static function difficulty(key:String):DifficultyData {
+		final jsonPath:ModPath = Paths.difficulty(key);
+		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+		contents.display = contents.display.getDefault(key);
+		return contents;
 	}
 
 	/**
-	 * Parse's level json data.
-	 * @param name The level key.
-	 * @param pathType The path type.
-	 * @return `LevelData` ~ The parsed level json content.
+	 * Parse's a level json.
+	 * @param name The level json name.
+	 * @return `LevelData` ~ The parsed level json.
 	 */
-	public static function level(name:String, pathType:ModType = ANY):LevelData {
-		// var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(Paths.json('content/levels/$name', pathType)), Paths.json('content/levels/$name', pathType));
-		var contents:LevelParse = json('content/levels/$name', pathType);
+	public static function level(name:ModPath):LevelData {
+		final jsonPath:ModPath = Paths.level(name);
+		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
 			data.flip = data.flip.getDefault((i + 1) > Math.floor(contents.objects.length / 2));
 			if (data.offsets == null) data.offsets = new Position();
@@ -122,7 +120,7 @@ class ParseUtil {
 		for (song in songs)
 			song.color = song.color == null ? FlxColor.fromString(contents.color) : song.color;
 		return {
-			name: name,
+			name: name.path,
 			title: contents.title,
 			songs: songs,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
@@ -143,21 +141,22 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's object json data.
-	 * @param path The object json name.
+	 * Parse's an object json.
+	 * @param file The object json name.
 	 * @param type The sprite type.
 	 * @return `SpriteData` ~ The parsed object json.
 	 */
-	public static function object(path:String, type:SpriteType, pathType:ModType = ANY):SpriteData {
-		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(Paths.json('content/objects/$path', pathType)), Paths.json('content/objects/$path', pathType));
-		final tempData:Dynamic = json('content/objects/$path', pathType);
+	public static function object(file:ModPath, type:SpriteType):SpriteData {
+		final jsonPath:ModPath = Paths.object(file);
+		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+		final tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
 		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
 			var gottenData:CharacterParse = null;
 			var typeData:SpriteData = typeData;
 			try {
-				gottenData = json('content/objects/$path', pathType).character;
+				gottenData = json(jsonPath).character;
 				typeData.character.color = FlxColor.fromString(gottenData.color);
 			} catch(error:haxe.Exception)
 				trace(error.message);
@@ -239,14 +238,25 @@ class ParseUtil {
 	}
 
 	/**
+	 * Parse's a SpriteText json.
+	 * @param font The font json file name.
+	 * @return `SpriteTextSetup` ~ The parsed font json.
+	 */
+	public static function spriteFont(font:ModPath):SpriteTextSetup {
+		final jsonPath:ModPath = Paths.spriteFont(font);
+		return new JsonParser<SpriteTextSetup>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+	}
+
+	/**
 	 * Parse's a songs meta json.
 	 * @param name The song folder name.
 	 * @return `SongData` ~ The parsed meta json.
 	 */
-	public static function song(name:String, pathType:ModType = ANY):SongData {
-		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(Paths.json('content/songs/$name/meta', pathType)), Paths.json('content/songs/$name/meta', pathType));
+	public static function song(name:ModPath):SongData {
+		final jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
+		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		return {
-			name: json('content/songs/$name/audio', pathType).name,
+			name: json('content/songs/${name.path}/audio').name,
 			folder: contents.folder,
 			icon: contents.icon,
 			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),

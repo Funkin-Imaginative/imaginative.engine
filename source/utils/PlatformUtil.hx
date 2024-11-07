@@ -24,9 +24,10 @@ class PlatformUtil {
 	 * @param relativeToScreen If true, this function does it's specialty!
 	 * @return `Bool`
 	 */
+	@:access(flixel.input.mouse.FlxMouse)
 	inline public static function mouseJustMoved(relativeToScreen:Bool = true):Bool {
 		if (relativeToScreen)
-			@:privateAccess return FlxG.mouse._prevScreenX != FlxG.mouse.screenX || FlxG.mouse._prevScreenY != FlxG.mouse.screenY;
+			return FlxG.mouse._prevScreenX != FlxG.mouse.screenX || FlxG.mouse._prevScreenY != FlxG.mouse.screenY;
 		else
 			return FlxG.mouse.justMoved;
 	}

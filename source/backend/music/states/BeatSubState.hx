@@ -120,6 +120,14 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	public static var direct:BeatSubState;
 
 	/**
+	 * If false, this sub state is the current state.
+	 * Since `FlxSubState` extends `FlxState`, this variable is possible.
+	 */
+	public var isSubbed(get, never):Bool;
+	inline function get_isSubbed():Bool
+		return FlxG.state != this;
+
+	/**
 	 * The scripts that have access to the state itself.
 	 */
 	public var stateScripts:ScriptGroup;

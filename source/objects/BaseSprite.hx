@@ -37,90 +37,6 @@ enum abstract AnimContext(String) from String to String {
 	var Unclear;
 }
 
-/**
- * The texture typing of a spritesheet.
- */
-enum abstract TextureType(String) from String to String {
-	/**
-	 * States that this sprite uses a sparrow sheet method.
-	 */
-	var IsSparrow = 'Sparrow';
-	/**
-	 * States that this sprite uses a packer sheet method.
-	 */
-	var IsPacker = 'Packer';
-	/**
-	 * States that this sprite uses a single image, grid system method.
-	 */
-	var IsGraphic = 'Graphic';
-	/**
-	 * States that this sprite uses an sheet made in the aseprite pixel art software.
-	 */
-	var IsAseprite = 'Aseprite';
-	/**
-	 * States that this sprite method is unknown.
-	 */
-	var IsUnknown = 'Unknown';
-
-	/**
-	 * Get's the file extension from texture type.
-	 * @param type The texture type.
-	 * @return `String` ~ File extension.
-	 */
-	inline public static function getExtFromType(type:TextureType):String {
-		return switch (type) {
-			case IsSparrow: 'xml';
-			case IsPacker: 'txt';
-			case IsAseprite: 'json';
-			case IsGraphic: 'png';
-			default: IsUnknown;
-		}
-	}
-	/**
-	 * Get's the method based on file extension.
-	 * @param sheetPath The path of the sheet data type.
-	 * @param defaultIsUnknown If default should be recognized as unknown instead of a graphic.
-	 * @return `TextureType`
-	 */
-	inline public static function getTypeFromExt(sheetPath:String, defaultIsUnknown:Bool = false):TextureType {
-		return switch (FilePath.extension(sheetPath)) {
-			case 'xml': IsSparrow;
-			case 'txt': IsPacker;
-			case 'json': IsAseprite;
-			case 'png': IsGraphic;
-			default: defaultIsUnknown ? IsUnknown : IsGraphic;
-		}
-	}
-}
-
-/**
- * Gives details about a texture a sprite uses.
- */
-class TextureData {
-	/**
-	 * The root path of the image.
-	 */
-	public var image(default, null):String;
-	/**
-	 * The sheet method used.
-	 */
-	public var type(default, null):TextureType;
-	/**
-	 * The mod path type.
-	 */
-	public var path(get, never):ModType;
-	inline function get_path():ModType
-		return ModType.typeFromPath(image);
-
-	public function new(image:String, type:TextureType) {
-		this.image = image;
-		this.type = type;
-	}
-
-	public function toString():String
-		return '{image => $image, type => $type, path => $path}';
-}
-
 typedef AnimMapping = {
 	/**
 	 * Offsets for that set animation.
@@ -142,7 +58,7 @@ typedef AnimMapping = {
 /**
  * This class is a verison of FlxSkewedSprite but with animation support among other things.
  */
-class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
+class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> implements ISelfGroup {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -168,8 +84,8 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	/**
 	 * All textures the sprite is using.
 	 */
-	public var textures(default, null):Array<TextureData>;
-	@:unreflective inline function resetTextures(newTexture:String, textureType:TextureType):String {
+	public var textures(default, null):Array<TextureData> = [];
+	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):ModPath {
 		textures = [];
 		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
 		return newTexture;
@@ -180,45 +96,50 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
-	inline public function loadTexture<T:BaseSprite>(newTexture:String):T {
-		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+	public function loadTexture(newTexture:ModPath):BaseSprite {
+		final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		final textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-		if (Paths.fileExists('images/$newTexture.png'))
+		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				if (Paths.spriteSheetExists(newTexture)) loadSheet(newTexture);
-				else loadImage(newTexture);
-			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
-		return cast this;
+				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
+				else return loadImage(newTexture);
+			} catch(error:haxe.Exception)
+				trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+		return this;
 	}
 	/**
 	 * Load's a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
-	inline public function loadImage<T:BaseSprite>(newTexture:String):T {
-		if (Paths.fileExists('images/$newTexture.png'))
+	public function loadImage(newTexture:ModPath):BaseSprite {
+		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic));
-			} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.IsGraphic}"');
-		return cast this;
+				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic).format());
+			} catch(error:haxe.Exception)
+				trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
+		return this;
 	}
 	/**
 	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
-	inline public function loadSheet<T:BaseSprite>(newTexture:String):T {
-		final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+	public function loadSheet(newTexture:ModPath):BaseSprite {
+		final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		final textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-		if (Paths.fileExists('images/$newTexture.png')) {
+		if (Paths.fileExists(Paths.image(newTexture)))
 			if (Paths.spriteSheetExists(newTexture))
 				try {
-					frames = Paths.frames(newTexture);
-					resetTextures(Paths.applyRoot('images/$newTexture.png'), textureType);
-				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
-			else loadImage(newTexture);
-		}
-		return cast this;
+					frames = Paths.frames(newTexture, textureType);
+					resetTextures(Paths.image(newTexture), textureType);
+				} catch(error:haxe.Exception)
+				try {
+					loadImage(newTexture);
+				} catch(error:haxe.Exception)
+					trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+			else return loadImage(newTexture);
+		return this;
 	}
 
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -306,11 +227,13 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * @param applyStartValues Whether or not to apply the start values.
 	 */
 	public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
+		var modPath:ModPath = null;
 		try {
+			modPath = inputData.asset.image;
 			try {
-				loadTexture(inputData.asset.image);
+				loadTexture(modPath);
 			} catch(error:haxe.Exception)
-				trace('Couldn\'t load image "${inputData.asset.image}", type "${inputData.asset.type}".');
+				trace('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".');
 
 			if (Reflect.hasField(inputData, 'offsets')) {
 				spriteOffsets.position.copyFrom(inputData.offsets.position);
@@ -322,14 +245,16 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 			}
 
 			try {
-				for (i => anim in inputData.animations)
+				for (i => anim in inputData.animations) {
+					var subModPath:ModPath = null;
 					try {
 						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
+						subModPath = anim.asset.image;
 						switch (anim.asset.type) {
 							case IsUnknown:
-								trace('The asset type was unknown! Tip: "${inputData.asset.image}"');
+								trace('The asset type was unknown! Tip: "${subModPath.format()}"');
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
@@ -346,7 +271,8 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${anim.asset.image}", type "${anim.asset.type}".');
+						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${subModPath.format()}", type "${anim.asset.type}".');
+				}
 			} catch(error:haxe.Exception)
 				trace('Couldn\'t add the animations.');
 
@@ -373,7 +299,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 			}
 		} catch(error:haxe.Exception) {
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
 		}
 	}
@@ -412,13 +338,14 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	public var scripts:ScriptGroup;
 	/**
 	 * Loads the internal sprite scripts.
-	 * @param path The mod path.
+	 * @param file The mod path.
 	 */
-	public function loadScript(path:String):Void {
+	public function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
 
-		for (sprite in ['global', path])
-			for (script in Script.create('content/objects/$sprite'))
+		var bruh:Array<ModPath> = ['global', file];
+		for (sprite in bruh)
+			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();
@@ -442,18 +369,19 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 		initMotionVars();
 	} */
 
-	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:String, applyStartValues:Bool = false) {
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
 		super();
 
 		if (sprite is String) {
-			if (Paths.fileExists(Paths.object(sprite), false)) {
-				loadScript(script.getDefault(sprite));
-				renderData(ParseUtil.object(sprite, type), applyStartValues);
-			} else loadTexture(sprite);
+			var file:ModPath = ModPath.fromString(sprite);
+			if (Paths.fileExists(Paths.object(file))) {
+				loadScript(script != null ? file.format() : '${file.type}:${script.path}');
+				renderData(ParseUtil.object(file, type), applyStartValues);
+			} else loadTexture(file);
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script.getDefault(''));
+			loadScript(script != null ? script : '');
 		scripts.call('create');
 
 		add(this);
@@ -503,7 +431,7 @@ class BaseSprite extends FlxSkewedSprite implements ISelfGroup {
 	 * @param suffix The animation suffix.
 	 * @param reverse If true, the animation will play backwards.
 	 * @param frame The starting frame. By default it's 0.
-	 * 				Although if reversed it will use the last frame instead.
+	 *              Although if reversed it will use the last frame instead.
 	 */
 	inline public function playAnim(name:String, force:Bool = true, context:AnimContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;

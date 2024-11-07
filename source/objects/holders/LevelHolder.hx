@@ -111,27 +111,27 @@ class LevelHolder extends FlxBasic {
 	 */
 	public var weekObjects:Array<BeatSprite> = [];
 
-	public function new(x:Float = 0, y:Float = 0, name:String, loadSprites:Bool = false, allowScripts:Bool = true) {
+	public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
 
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
-		if (allowScripts)
-			for (level in ['global', name])
-				for (script in Script.create('content/levels/$level'))
+		if (allowScripts) {
+			var bruh:Array<ModPath> = ['global', name];
+			for (level in bruh)
+				for (script in Script.create('${level.type}:content/levels/${level.path}'))
 					scripts.add(script);
+		}
 		scripts.load();
 
 		if (loadSprites) {
-			sprite = new BaseSprite(x, y, 'menus/story/levels/$name');
+			sprite = new BaseSprite(x, y, '${name.type}:menus/story/levels/${name.path}');
 			sprite.screenCenter(X);
-			sprite.antialiasing = true;
 
 			if (isLocked)
 				sprite.color -= 0xFF646464;
 
 			lock = new BaseSprite('ui/lock');
-			lock.antialiasing = true;
 			updateLock();
 		}
 	}

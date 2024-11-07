@@ -164,17 +164,18 @@ class SpriteUtil {
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:String):T {
-		if (sprite is BaseSprite)
-			cast(sprite, BaseSprite).loadTexture(newTexture);
+	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+		if (sprite is ITexture)
+			cast(sprite, ITexture<Dynamic>).loadTexture(newTexture);
 		else if (sprite is FlxSprite) {
-			final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
+			final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			final textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-			if (Paths.fileExists('images/$newTexture.png'))
+			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
 					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
 					else loadImage(sprite, newTexture);
-				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+				} catch(error:haxe.Exception)
+					trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
 		}
 		return sprite;
 	}
@@ -184,15 +185,15 @@ class SpriteUtil {
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:String):T {
-		if (sprite is BaseSprite)
-			cast(sprite, BaseSprite).loadImage(newTexture);
+	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+		if (sprite is ITexture)
+			cast(sprite, ITexture<Dynamic>).loadImage(newTexture);
 		else if (sprite is FlxSprite)
-			if (Paths.fileExists('images/$newTexture.png'))
+			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
-					cast(sprite, FlxSprite).loadGraphic(Paths.image(newTexture));
-				} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "${TextureType.IsGraphic}"');
-
+					sprite.loadGraphic(Paths.image(newTexture).format());
+				} catch(error:haxe.Exception)
+					trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
 		return sprite;
 	}
 	/**
@@ -201,19 +202,43 @@ class SpriteUtil {
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:String):T {
-		if (sprite is BaseSprite)
-			cast(sprite, BaseSprite).loadSheet(newTexture);
-		else if (sprite is FlxSprite)
-			if (Paths.fileExists('images/$newTexture.png')) {
-				final sheetPath:String = Paths.multExst('images/$newTexture', Paths.atlasFrameExts);
-				final textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
+	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+		if (sprite is ITexture)
+			cast(sprite, ITexture<Dynamic>).loadSheet(newTexture);
+		else if (sprite is FlxSprite) {
+			final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
+			final textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
+			if (Paths.fileExists(Paths.image(newTexture)))
 				if (Paths.spriteSheetExists(newTexture))
 					try {
-						cast(sprite, FlxSprite).frames = Paths.frames(newTexture);
-					} catch(error:haxe.Exception) trace('Couldn\'t find asset "$newTexture", type "$textureType"');
+						sprite.frames = Paths.frames(newTexture, textureType);
+					} catch(error:haxe.Exception)
+						try {
+							loadImage(sprite, newTexture);
+						} catch(error:haxe.Exception)
+							trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
 				else loadImage(sprite, newTexture);
-			}
+		}
+		return sprite;
+	}
+
+	/**
+	 * Returns a fnf bg sprite.
+	 * @param sprite The sprite to affect.
+	 * @param color FlxColor input.
+	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY, it will use the menuBG color instead.
+	 * @param mod The mod type.
+	 * @return `FlxSprite` ~ Current instance for chaining.
+	 */
+	inline public static function getBGSprite<T:FlxSprite>(sprite:T, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY):T {
+		sprite.loadImage('$mod:menus/menuBackground');
+		sprite.color = funkinColor ? switch (color) {
+			case FlxColor.YELLOW: 0xFFFAE868;
+			case FlxColor.BLUE: 0xFF9272FF;
+			case FlxColor.MAGENTA: 0xFFF4709B;
+			case FlxColor.GRAY: 0xFFE1E1E1;
+			default: color;
+		} : color;
 		return sprite;
 	}
 
@@ -254,13 +279,14 @@ class SpriteUtil {
 	 * @param obj The object to check.
 	 * @return `FlxTypedGroup<Dynamic>`
 	 */
+	@:access(flixel.group.FlxTypedGroup.resolveGroup)
 	inline public static function getGroup<T:FlxBasic>(obj:T):FlxTypedGroup<Dynamic>
-		return @:privateAccess FlxTypedGroup.resolveGroup(obj).getDefault(FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState.getDefault(cast FlxG.state));
+		return FlxTypedGroup.resolveGroup(obj).getDefault(FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState.getDefault(cast FlxG.state));
 
 	/**
 	 * Add's an object in front of another.
 	 * @param obj The object to insert.
-	 * @param fromThis The object to be mooned. /j
+	 * @param fromThis The object to be placed in front of.
 	 * @param into Specified group.
 	 * @return `T` ~ Current instance for chaining.
 	 */
@@ -271,7 +297,7 @@ class SpriteUtil {
 	/**
 	 * Add's an object behind of another.
 	 * @param obj The object to insert.
-	 * @param fromThis The object to be mooning. /j
+	 * @param fromThis The object to be placed behind of.
 	 * @param into Specified group.
 	 * @return `T` ~ Current instance for chaining.
 	 */

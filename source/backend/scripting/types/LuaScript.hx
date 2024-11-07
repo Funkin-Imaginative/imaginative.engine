@@ -19,20 +19,20 @@ final class LuaScript extends Script {
 				script.active = false;
 			},
 			'print' => (value:Dynamic) -> {
-				trace('${script.rootPath}: $value');
+				trace('${script.pathing.format()}: $value');
 			}
 		];
 
 	@:allow(backend.scripting.Script.create)
-	override function new(path:String, ?code:String) {
+	override function new(file:ModPath, ?code:String) {
 		trace('Lua scripting isn\'t supported... yet.');
-		super(path, code);
+		super(file, code);
 	}
 	#else
 	@:allow(backend.scripting.Script.create)
-	override function new(path:String, ?_:String) {
+	override function new(file:ModPath, ?_:String) {
 		trace('Lua scripting isn\'t supported in this build.');
-		super(path, null);
+		super(file, null);
 	}
 	#end
 }

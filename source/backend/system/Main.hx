@@ -47,6 +47,8 @@ class Main extends Sprite {
 	#end
 
 	@SuppressWarnings('checkstyle:CommentedOutCode')
+	@:access(flixel.input.mouse.FlxMouse.new)
+	@:access(backend.system.frontEnds.OverlayCameraFrontEnd)
 	public function new():Void {
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 
@@ -65,14 +67,14 @@ class Main extends Sprite {
 		latestVersion = engineVersion;
 		#end
 
-		addChild(new FlxGame(states.TitleScreen, 60, 60, true));
+		// If debug we cut to the chase.
+		addChild(new FlxGame(#if (!debug || (debug && release)) states.StartScreen #else states.TitleScreen #end, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		FlxSprite.defaultAntialiasing = true;
-		@:privateAccess {
-			FlxG.mouse.visible = false;
-			FlxG.mouse = new FlxMouse(_inputContainer);
-			FlxG.mouse.visible = true;
-		}
+
+		FlxG.mouse.visible = false;
+		FlxG.mouse = new FlxMouse(_inputContainer);
+		FlxG.mouse.visible = true;
 
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode(true);
 
@@ -87,38 +89,36 @@ class Main extends Sprite {
 		cameras.reset();
 		overlay.cameras = [camera];
 
-		@:privateAccess {
-			FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
-			FlxG.signals.postUpdate.add(() -> {
-				overlay.update(FlxG.elapsed);
-				cameras.update(FlxG.elapsed);
-			});
-			FlxG.signals.preDraw.add(() -> cameras.lock());
-			FlxG.signals.postDraw.add(() -> {
-				overlay.draw();
-				if (FlxG.renderTile)
-					cameras.render();
-				cameras.unlock();
-			});
-		}
+		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
+		FlxG.signals.postUpdate.add(() -> {
+			overlay.update(FlxG.elapsed);
+			cameras.update(FlxG.elapsed);
+		});
+		FlxG.signals.preDraw.add(() -> cameras.lock());
+		FlxG.signals.postDraw.add(() -> {
+			overlay.draw();
+			if (FlxG.renderTile)
+				cameras.render();
+			cameras.unlock();
+		});
 
 		// Was testing Path functions.
-		/* trace(Paths.txt('images/menus/main/itemLineUp'));
-		trace(Paths.xml('images/ui/arrows'));
-		trace(Paths.json('content/difficulties/erect'));
-		trace(Paths.object('characters/boyfriend'));
-		trace(Paths.script('content/global'));
-		trace(Paths.readFolder('content/states'));
-		trace(Paths.readFolderOrderTxt('content/levels', 'json'));
-		trace(Paths.sound('soundTest'));
-		trace(Paths.soundRandom('GF_', 1, 4));
-		trace(Paths.music('breakfast'));
-		trace(Paths.video('videos/just here I guess lmao/toyCommercial'));
-		trace(Paths.cutscene('2hotCutscene'));
-		trace(Paths.inst('Pico', 'erect'));
-		trace(Paths.voices('High', 'Player'));
-		trace(Paths.font('vcr.ttf'));
-		trace(Paths.image('ui/arrows')); */
+		/* trace(Paths.txt('images/menus/main/itemLineUp').format());
+		trace(Paths.xml('images/ui/arrows').format());
+		trace(Paths.json('content/difficulties/erect').format());
+		trace(Paths.object('characters/boyfriend').format());
+		trace(Paths.script('content/global').format());
+		trace([for (file in Paths.readFolder('content/states')) file.format()]);
+		trace([for (file in Paths.readFolderOrderTxt('content/levels', 'json')) file.format()]);
+		trace(Paths.sound('soundTest').format());
+		trace(Paths.soundRandom('GF_', 1, 4).format());
+		trace(Paths.music('breakfast').format());
+		trace(Paths.video('videos/just here I guess lmao/toyCommercial').format());
+		trace(Paths.cutscene('2hotCutscene').format());
+		trace(Paths.inst('Pico', 'erect').format());
+		trace(Paths.vocal('High', 'Player').format());
+		trace(Paths.font('vcr').format());
+		trace(Paths.image('ui/arrows').format()); */
 	}
 
 	/**

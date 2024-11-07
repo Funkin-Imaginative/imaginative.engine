@@ -22,8 +22,8 @@ class MainMenu extends BeatState {
 	var itemLineUp:Array<String> = Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')).trimSplit('\n');
 
 	// Objects in the state.
-	var bg:BaseSprite;
-	var flashBg:BaseSprite;
+	var bg:FlxSprite;
+	var flashBg:FlxSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
 	var versionTxt:FlxText;
 	var definedTagsText:FlxText;
@@ -45,21 +45,20 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new BaseSprite('menus/menuBG');
+		bg = new FlxSprite();
+		bg.getBGSprite(FlxColor.YELLOW);
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.set(1.2, 1.2);
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = true;
 		add(bg);
 
-		flashBg = new BaseSprite('menus/menuDesat'); // flashing bg
+		flashBg = new FlxSprite();
+		flashBg.getBGSprite(FlxColor.MAGENTA); // flashing bg
 		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
 		flashBg.scale.copyFrom(bg.scale);
 		flashBg.updateHitbox();
 		flashBg.visible = false;
-		flashBg.antialiasing = true;
-		flashBg.color = 0xfffd719b;
 		add(flashBg);
 
 		if (itemLineUp == null || itemLineUp.length < 1)
@@ -76,7 +75,6 @@ class MainMenu extends BeatState {
 			item.centerOffsets();
 			item.centerOrigin();
 			item.screenCenter(X);
-			item.antialiasing = true;
 			menuItems.add(item);
 		}
 		changeSelection();
@@ -104,7 +102,7 @@ class MainMenu extends BeatState {
 		theText += '\nMade relatively from scratch!';
 
 		versionTxt = new FlxText(5, theText);
-		versionTxt.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		versionTxt.setFormat(Paths.font('vcr'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		versionTxt.y = FlxG.height - versionTxt.height - 5;
 		versionTxt.scrollFactor.set();
 		add(versionTxt);
@@ -120,7 +118,7 @@ class MainMenu extends BeatState {
 		theText += '\n${Compiler.getDefine('ALLOW_VIDEOS') != null} :Can Play Videos';
 
 		definedTagsText = new FlxText(theText);
-		definedTagsText.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		definedTagsText.setFormat(Paths.font('vcr'), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
 		definedTagsText.x = FlxG.width - definedTagsText.width - 5;
 		definedTagsText.y = FlxG.height - definedTagsText.height - 5;
 		definedTagsText.scrollFactor.set();

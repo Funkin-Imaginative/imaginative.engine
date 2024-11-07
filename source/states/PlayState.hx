@@ -4,11 +4,11 @@ typedef CountdownAssets = {
 	/**
 	 * Countdown images.
 	 */
-	var images:Array<String>;
+	var images:Array<ModPath>;
 	/**
 	 * Countdown sounds.
 	 */
-	var sounds:Array<String>;
+	var sounds:Array<ModPath>;
 }
 
 /**
@@ -41,10 +41,16 @@ class PlayState extends BeatState {
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
-	 * @return `Array<String>`
+	 * @return `Array<ModPath>`
 	 */
-	public function getCountdownAssetList(root:String = 'gameplay/countdown/', parts:Array<String>, suffix:String = ''):Array<String>
-		return [for (part in parts) part == null ? null : '${FilePath.addTrailingSlash(root)}/$part${suffix.trim() == '' ? '' : '-$suffix'}'];
+	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, suffix:String = ''):Array<ModPath> {
+		if (root == null)
+			root = 'gameplay/countdown/';
+		return [
+			for (part in parts)
+				part == null ? null : '${root.type}:${FilePath.addTrailingSlash(root.path)}$part${suffix.trim() == '' ? '' : '-$suffix'}'
+		];
+	}
 
 	/**
 	 * States if the countdown has started.
@@ -178,8 +184,8 @@ class PlayState extends BeatState {
 		// 	chartData = blah;
 
 		countdownAssets = {
-			images: getCountdownAssetList([null, 'ready', 'set', 'go']),
-			sounds: getCountdownAssetList(['three', 'two', 'one', 'go'], 'gf')
+			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),
+			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
 
 		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 4));
@@ -229,11 +235,13 @@ class PlayState extends BeatState {
 
 				conductor.beatHit(-timer.loopsLeft);
 
-				var assetIndex:Int = timer.loopsLeft - 1;
-				if (Paths.fileExists(Paths.sound(assets.sounds[assetIndex]), false))
-					FlxG.sound.play(Paths.sound(assets.sounds[assetIndex]));
-				if (Paths.fileExists(Paths.image(assets.images[assetIndex]), false)) {
-					var sprite:FlxSprite = new FlxSprite().loadTexture(assets.images[assetIndex]);
+				final assetIndex:Int = timer.loopsLeft - 1;
+				final soundAsset:ModPath = assets.sounds[assetIndex];
+				final imageAsset:ModPath = assets.images[assetIndex];
+				if (Paths.fileExists(Paths.sound(soundAsset)))
+					FlxG.sound.play(Paths.sound(soundAsset).format());
+				if (Paths.fileExists(Paths.image(imageAsset))) {
+					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();
 					add(sprite);

@@ -17,7 +17,15 @@ typedef BeatData = {
 /**
  * This class BaseSprite but with IBeat implementation.
  */
-class BeatSprite extends BaseSprite implements IBeat {
+class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements IBeat {
+	// Texture related stuff.
+	override public function loadTexture(newTexture:ModPath):BeatSprite
+		return cast super.loadTexture(newTexture);
+	override public function loadImage(newTexture:ModPath):BeatSprite
+		return cast super.loadImage(newTexture);
+	override public function loadSheet(newTexture:ModPath):BeatSprite
+		return cast super.loadSheet(newTexture);
+
 	/**
 	 *	The amount of beats it takes to trigger the dance.
 	 */
@@ -55,14 +63,16 @@ class BeatSprite extends BaseSprite implements IBeat {
 	public var preventIdle:Bool = false;
 
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
+		var modPath:ModPath = null;
 		try {
+			modPath = inputData.asset.image;
 			if (inputData.beat != null) {
 				beatInterval = inputData.beat.interval;
 				skipNegativeBeats = inputData.beat.skipnegative;
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
 		super.renderData(inputData, applyStartValues);
 	}

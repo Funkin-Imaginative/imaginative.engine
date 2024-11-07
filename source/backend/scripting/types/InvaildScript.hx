@@ -5,8 +5,8 @@ package backend.scripting.types;
  */
 final class InvaildScript extends Script {
 	@:allow(backend.scripting.Script.create)
-	override function new(path:String, ?_:String) {
-		trace('Extension "${FilePath.extension(path).toLowerCase()}" is invaild!');
-		super(path, null);
+	override function new(file:ModPath, ?_:String) {
+		trace('Extension "${file.extension.toLowerCase()}" is invaild!');
+		super(file, null);
 	}
 }

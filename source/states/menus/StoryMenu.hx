@@ -63,11 +63,12 @@ class StoryMenu extends BeatState {
 		var loadedObjects:Array<Array<ObjectTyping>> = [];
 		levels = new FlxTypedGroup<LevelHolder>();
 		for (list in [
-			// Paths.readFolderOrderTxt('content/levels', 'json', ModType.getSolo()),
+			// Paths.readFolderOrderTxt('lead:content/levels', 'json'),
+			// Paths.readFolderOrderTxt('mod:content/levels', 'json')
 			Paths.readFolderOrderTxt('content/levels', 'json')
 		]) {
 			for (i => name in list) {
-				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
+				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), '${name.type}:${name.path}', true);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
@@ -116,7 +117,6 @@ class StoryMenu extends BeatState {
 				}
 			}
 
-			arrow.antialiasing = true;
 			arrow.scale.set(0.85, 0.85);
 			arrow.updateHitbox();
 
@@ -146,14 +146,27 @@ class StoryMenu extends BeatState {
 		weekObjects = new BeatGroup();
 		for (i => loop in loadedObjects) {
 			for (data in loop) {
-				if (data.object is String && !Paths.fileExists('content/objects/${data.object}.json') && !cantFindList.contains(data.object)) {
-					trace('${data.object} doesn\'t exist.');
-					cantFindList.push(data.object);
+				var modPath:ModPath = data.path;
+				var objectData:SpriteData = data.object;
+
+				if (data.path.trim() != '' || data.path != null) {
+					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
+						trace('"${Paths.object(modPath).format()}" doesn\'t exist.');
+						cantFindList.push(modPath.path);
+					}
 				}
 
-				var sprite:BeatSprite = new BeatSprite(data.object);
-				if (Reflect.hasField(data, 'flip')) for (sprite in sprite.group) if (data.flip) sprite.flipX = !sprite.flipX;
-				if (Reflect.hasField(data, 'offsets')) sprite.group.setPosition(data.offsets.x, data.offsets.y);
+				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
+				for (sprite in sprite.group)
+					if (data.flip)
+						sprite.flipX = !sprite.flipX;
+				sprite.extra.set('offsets', data.offsets);
+				if (data.size != 1) {
+					sprite.group.scale.set(data.size, data.size);
+					sprite.group.updateHitbox();
+				}
+
+				sprite.extra.set('willHey', data.willHey);
 
 				sprite.group.alpha = 0.0001;
 				sprite.scrollFactor.set();
@@ -167,28 +180,33 @@ class StoryMenu extends BeatState {
 				object.x = x - object.width / 2;
 				object.y = y - object.height / 2;
 			});
-			for (sprite in level.weekObjects)
-				sprite.group.setPosition(sprite.group.x, sprite.group.y); */
+			for (sprite in level.weekObjects) {
+				var offsets:Position = sprite.extra.get('offsets');
+				sprite.group.setPosition(sprite.group.x + offsets.x, sprite.group.y + offsets.y);
+			} */
 			for (i => sprite in level.weekObjects) {
 				sprite.group.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.group.x += 400 * i;
 				sprite.group.x -= (400 * ((level.weekObjects.length - 1) / 2));
+
+				var offsets:Position = sprite.extra.get('offsets');
+				sprite.group.setPosition(sprite.group.x + offsets.x, sprite.group.y + offsets.y);
 			}
 		}
 
 		add(weekObjects);
 
 		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0');
-		scoreText.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, LEFT);
+		scoreText.setFormat(Paths.font('vcr'), 32, FlxColor.WHITE, LEFT);
 		add(scoreText);
 
 		titleText = new FlxText(10, 10, FlxG.width - 20, 'awaiting title...');
-		titleText.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, RIGHT);
+		titleText.setFormat(Paths.font('vcr'), 32, FlxColor.WHITE, RIGHT);
 		titleText.alpha = 0.7;
 		add(titleText);
 
 		trackList = new FlxText(20, weekBg.y + weekBg.height + 20, Std.int(((FlxG.width - 400) / 2) - 80), '$trackText\n\nWoah!\ncrAzy\nWhy am I a banana??');
-		trackList.setFormat(Paths.font('vcr.ttf'), 32, 0xFFE55778, CENTER);
+		trackList.setFormat(Paths.font('vcr'), 32, 0xFFE55778, CENTER);
 		add(trackList);
 
 		for (l in diffs) {
@@ -336,7 +354,8 @@ class StoryMenu extends BeatState {
 			}
 		} else {
 			for (sprite in levels.members[curSelected].weekObjects)
-				sprite.playAnim('hey', NoDancing);
+				if (sprite.extra.get('willHey'))
+					sprite.playAnim('hey', NoDancing);
 
 			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);

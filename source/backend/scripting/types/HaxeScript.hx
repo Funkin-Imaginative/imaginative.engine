@@ -132,8 +132,8 @@ final class HaxeScript extends Script {
 		];
 
 	@:allow(backend.scripting.Script.create)
-	override function new(path:String, ?code:String)
-		super(path, code);
+	override function new(file:ModPath, ?code:String)
+		super(file, code);
 
 	override function renderNecessities():Void {
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
@@ -141,7 +141,7 @@ final class HaxeScript extends Script {
 			set(name, thing);
 	}
 
-	override function renderScript(path:String, ?code:String):Void {
+	override function renderScript(file:ModPath, ?code:String):Void {
 		interp = new Interp();
 		parser = new Parser();
 
@@ -158,7 +158,7 @@ final class HaxeScript extends Script {
 	override function loadCodeString(code:String):Void {
 		try {
 			if (code != null && code.trim() != '') {
-				expr = parser.parseString(code, rootPath.getDefault('from string'));
+				expr = parser.parseString(code, pathing.format().getDefault('from string'));
 				canRun = true;
 			}
 		} catch(error:haxe.Exception) {
@@ -175,11 +175,12 @@ final class HaxeScript extends Script {
 		return script;
 	}
 
+	@:access(hscript.Parser.mk)
 	override public function load() {
 		super.load();
 		if (!loaded && canRun) {
 			try {
-				@:privateAccess interp.execute(parser.mk(EBlock([]), 0, 0));
+				interp.execute(parser.mk(EBlock([]), 0, 0));
 				if (expr != null) {
 					interp.execute(expr);
 					loaded = true;
@@ -197,7 +198,7 @@ final class HaxeScript extends Script {
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;
 		final oldParent:Dynamic = interp.scriptObject;
-		renderScript(path);
+		renderScript(pathing);
 
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
@@ -250,9 +251,9 @@ final class HaxeScript extends Script {
 	}
 	#else
 	@:allow(backend.scripting.Script.create)
-	override function new(path:String, ?_:String) {
+	override function new(file:ModPath, ?_:String) {
 		trace('Haxe scripting isn\'t supported in this build.');
-		super(path, null);
+		super(file, null);
 	}
 	#end
 }

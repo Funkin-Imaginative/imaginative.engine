@@ -56,13 +56,19 @@ class ModConfig {
 		return '';
 	}
 
+	// TODO: Actually code in `preventModDups` functionality.
 	/**
 	 * Gets all potential file instances from a path you specify.
 	 * @param file Path of file to get potential instances from.
 	 * @param pathType Specify path instances.
+	 * @param preventModDups Prevent's duplicates between mods.
+	 *                       Example:
+	 *                       	"`../MOD A/content/songs/why.hx`" and "`../MOD B/content/songs/why.hx`" would be a mod duplicate.
+	 *                       	"`../MOD A/content/songs/hello.hx`" and "`../MOD B/content/songs/bye.hx`" wouldn't be a mod duplicate.
 	 * @return `Array<String>` ~ Found file instances.
 	 */
-	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY):Array<String> {
+	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY, preventModDups:Bool = false):Array<String> {
+		var duplicateCheck:Array<String> = [];
 		var potentialPaths:Array<String> = [];
 
 		if (ModType.pathCheck(BASE, pathType)) {
@@ -94,5 +100,22 @@ class ModConfig {
 		}
 
 		return potentialPaths;
+	}
+
+	/**
+	 * Get's mod folder names and if from `../mods/`, it organizes the order.
+	 * @param type The mod type to get a list from.
+	 * @return `Array<String>` ~ Mod folder names.
+	 */
+	inline public static function getModList(type:ModType):Array<String> {
+		var folders:Array<ModPath> = Paths.readFolderOrderTxt(switch (type) {
+			case SOLO: 'solo';
+			case MOD: 'mods';
+			default: '';
+		}, false);
+		return [
+			for (folder in folders)
+				ModType.modNameFromPath(folder.path)
+		];
 	}
 }

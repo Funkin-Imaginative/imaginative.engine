@@ -31,7 +31,15 @@ typedef CharacterData = {
 /**
  * This is the character class, used for the funny beep boop guys!
  */
-final class Character extends BeatSprite {
+final class Character extends BeatSprite implements ITexture<Character> {
+	// Texture related stuff.
+	override public function loadTexture(newTexture:ModPath):Character
+		return cast super.loadTexture(newTexture);
+	override public function loadImage(newTexture:ModPath):Character
+		return cast super.loadImage(newTexture);
+	override public function loadSheet(newTexture:ModPath):Character
+		return cast super.loadSheet(newTexture);
+
 	/**
 	 * The character key name.
 	 */
@@ -80,7 +88,9 @@ final class Character extends BeatSprite {
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
+		var modPath:ModPath = null;
 		try {
+			modPath = inputData.asset.image;
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
@@ -89,7 +99,7 @@ final class Character extends BeatSprite {
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${inputData.asset.image}"');
+				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
 		super.renderData(inputData, false);
 	}
@@ -97,18 +107,19 @@ final class Character extends BeatSprite {
 	override function get_swapAnimTriggers():Bool
 		return true;
 
-	override function loadScript(path:String):Void {
+	override function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
 
-		for (char in ['global', 'characters/global', 'characters/$path'])
-			for (script in Script.create('content/objects/$char'))
+		var bruh:Array<ModPath> = ['global', 'characters/global', '${file.type}:characters/${file.path}'];
+		for (char in bruh)
+			for (script in Script.create('${char.type}content/objects/${char.path}'))
 				scripts.add(script);
 
 		scripts.load();
 	}
 
 	override public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
-		super(x, y, 'characters/${theirName = (Paths.fileExists('content/objects/characters/$name.json') ? name : 'boyfriend')}');
+		super(x, y, 'characters/${theirName = (Paths.fileExists(Paths.character(name)) ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
 	}

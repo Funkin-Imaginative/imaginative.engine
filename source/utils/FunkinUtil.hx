@@ -69,7 +69,7 @@ class FunkinUtil {
 	 * @return `FlxSound` ~ The menu sound.
 	 */
 	@:noUsing inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?subFolder:String, ?onComplete:Void->Void):FlxSound {
-		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound'), volume, onComplete.getDefault(() -> {}));
+		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound').format(), volume, onComplete.getDefault(() -> {}));
 		menuSound.persist = true;
 		return menuSound;
 	}
@@ -77,10 +77,9 @@ class FunkinUtil {
 	/**
 	 * Get's the song folder names.
 	 * @param sortOrderByLevel If true, it sort the songs via the order txt.
-	 * @param pathType The path type.
 	 * @return `Array<String>`
 	 */
-	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<String> {
+	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true):Array<String> {
 		var results:Array<String> = [];
 		try {
 			if (sortOrderByLevel)
@@ -89,7 +88,7 @@ class FunkinUtil {
 						results.push(song.folder);
 		} catch(error:haxe.Exception)
 			trace('Missing level json.');
-		for (folder in Paths.readFolder('content/songs', pathType))
+		for (folder in Paths.readFolder('content/songs'))
 			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);

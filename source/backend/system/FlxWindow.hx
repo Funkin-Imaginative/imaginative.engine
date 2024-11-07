@@ -179,8 +179,9 @@ class FlxWindow implements IFlxDestroyable {
 	public var visible(get, set):Bool;
 	inline function get_visible():Bool
 		return self.hidden;
+	@:access(lime.ui.Window.__hidden)
 	inline function set_visible(value:Bool):Bool
-		return @:privateAccess self.__hidden = value;
+		return self.__hidden = value;
 
 	/**
 	 * If true, the window will fullscreen using borderless instead.

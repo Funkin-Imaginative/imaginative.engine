@@ -61,7 +61,7 @@ class DifficultyHolder extends FlxBasic {
 
 		if (loadSprites) {
 			sprite = new BaseSprite(x, y, 'ui/difficulties/$name');
-			if (Paths.fileExists('images/ui/difficulties/$name.xml'))
+			if (Paths.spriteSheetExists('ui/difficulties/$name'))
 				sprite.animation.addByPrefix('idle', 'idle', 24);
 			else sprite.animation.add('idle', [0], 24, false);
 			refreshAnim();
@@ -70,7 +70,6 @@ class DifficultyHolder extends FlxBasic {
 				sprite.color -= 0xFF646464;
 
 			lock = new BaseSprite('ui/lock');
-			lock.antialiasing = true;
 			updateLock();
 		}
 	}

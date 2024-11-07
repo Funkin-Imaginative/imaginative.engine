@@ -72,10 +72,6 @@ class ArrowField extends BeatGroup {
 		strumCount = mania;
 		super();
 
-		var tf:FlxSprite = new FlxSprite().loadTexture('gameplay/combo/sick');
-		tf.screenCenter();
-		add(tf);
-
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
 		setStrumPositions(x, y);
@@ -91,9 +87,9 @@ class ArrowField extends BeatGroup {
 	 */
 	public function setStrumPositions(x:Float = 0, y:Float = 0):Void {
 		for (i => strum in strums.members) {
-			strum.group.setPosition(x - (Note.baseWidth / 2), y);
-			strum.group.x += Note.baseWidth * i;
-			strum.group.x -= (Note.baseWidth * ((strumCount - 1) / 2));
+			strum.setPosition(x - (Note.baseWidth / 2), y);
+			strum.x += Note.baseWidth * i;
+			strum.x -= (Note.baseWidth * ((strumCount - 1) / 2));
 			// if (SaveManager.getOption('strumShift')) strum.x -= Note.baseWidth / 2.4;
 		}
 	}
