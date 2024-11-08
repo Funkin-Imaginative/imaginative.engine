@@ -53,6 +53,7 @@ using flixel.util.FlxStringUtil;
 import backend.Controls;
 import backend.configs.ModConfig;
 import backend.configs.PlayConfig;
+import backend.configs.SettingsConfig;
 import backend.interfaces.ITexture;
 import backend.music.Conductor;
 import backend.music.group.BeatGroup;

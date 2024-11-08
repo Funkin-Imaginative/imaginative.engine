@@ -30,6 +30,7 @@ enum abstract FpsType(String) from String to String {
 	 * If true, this is like enabling soloOnlyMode in ModConfig.
 	 */
 	public var soloOnly:Bool = false;
+
 	/**
 	 * If you have epilepsy please have this setting on.
 	 */
@@ -38,6 +39,7 @@ enum abstract FpsType(String) from String to String {
 	 * If true, the game will pause when you click off.
 	 */
 	public var autoPause:Bool = true;
+
 	/**
 	 * If true, pressing the reset bind doesn't kill you in songs.
 	 */
@@ -46,12 +48,14 @@ enum abstract FpsType(String) from String to String {
 	 * If true, the gameover screen will hard cut to the confirm animation.
 	 */
 	public var instantRespawn:Bool = false;
+
 	/**
 	 * If true, antialiasing can be applied to things.
 	 */
 	public var antialiasing(get, default):Bool = true;
 	inline function get_antialiasing():Bool
 		return qualityLevel > 0.35 ? antialiasing : false;
+
 	/**
 	 * This states the level of quality you want the game to display.
 	 * `Note: Depending on the quality level it will auto set some options but the engine will still remember your choices.`
@@ -70,6 +74,7 @@ enum abstract FpsType(String) from String to String {
 	 * If true, your devices gpu will do all the caching.
 	 */
 	public var gpuCaching:Bool = false;
+
 	/**
 	 * The fps cap you wish to go for.
 	 */
@@ -81,6 +86,11 @@ enum abstract FpsType(String) from String to String {
 	 * Your choices are Custom, Unlimited and Vsync.
 	 */
 	public var fpsType:FpsType = Custom;
+
+	/**
+	 * If true, your given access to all the tools to make a mod!
+	 */
+	public var debugMode:Bool = false;
 }
 
 /**
@@ -95,6 +105,7 @@ enum abstract FpsType(String) from String to String {
 	 * If true, the main player arrow field will be put in the center of the screen.
 	 */
 	public var middlescroll:Bool = false;
+
 	/**
 	 * Basically, do you wish for the characters to repeat their sing anim every time they hit a sustain note?
 	 */
@@ -103,6 +114,7 @@ enum abstract FpsType(String) from String to String {
 	 * If true, press shit all you fucking want asshole.
 	 */
 	public var ghostTapping:Bool = false;
+
 	/**
 	 * The timing for the killer rating window.
 	 */

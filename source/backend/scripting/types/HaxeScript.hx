@@ -83,6 +83,7 @@ final class HaxeScript extends Script {
 			'Paths' => Paths,
 			'ModConfig' => ModConfig,
 			'PlayConfig' => PlayConfig,
+			'SettingsConfig' => SettingsConfig,
 			'BeatState' => BeatState,
 			'BeatSubState' => BeatSubState,
 			'Conductor' => Conductor,

@@ -1,7 +1,6 @@
 package states.menus;
 
 import haxe.macro.Compiler;
-import backend.scripting.events.menus.main.*;
 import flixel.effects.FlxFlicker;
 
 /**
@@ -45,16 +44,15 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new FlxSprite();
-		bg.getBGSprite(FlxColor.YELLOW);
+		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
+		bgColor = bg.color;
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.set(1.2, 1.2);
 		bg.updateHitbox();
 		bg.screenCenter();
 		add(bg);
 
-		flashBg = new FlxSprite();
-		flashBg.getBGSprite(FlxColor.MAGENTA); // flashing bg
+		flashBg = new FlxSprite().getBGSprite(FlxColor.MAGENTA); // flashing bg
 		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
 		flashBg.scale.copyFrom(bg.scale);
 		flashBg.updateHitbox();
@@ -201,6 +199,8 @@ class MainMenu extends BeatState {
 					BeatState.switchState(new FreeplayMenu());
 				case 'donate':
 					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
+				case 'kickstarter':
+					PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
 				case 'merch':
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 				case 'options':

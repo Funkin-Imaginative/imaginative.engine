@@ -34,7 +34,6 @@ class Strum extends FlxSprite /* implements ISelfGroup */ {
 		this.id = id;
 
 		super();
-		// add(this);
 
 		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
 
@@ -45,8 +44,9 @@ class Strum extends FlxSprite /* implements ISelfGroup */ {
 		animation.addByPrefix('confirm', 'confirm$dir', 24, false);
 
 		playAnim('static');
-		scale.set(0.7);
+		scale.set(0.7, 0.7);
 		updateHitbox();
+		playAnim('static');
 	}
 
 	/**
@@ -64,66 +64,4 @@ class Strum extends FlxSprite /* implements ISelfGroup */ {
 			centerOrigin();
 		}
 	}
-
-	// /**
-	//  * Used to help with `ISelfGroup` updating conflicts.
-	//  * This will be used to update the sprite itself.
-	//  * While update now updates the group instead.
-	//  * @param elapsed Time inbetween frames.
-	//  */
-	// public function selfUpdate(elapsed:Float):Void {
-	// 	super.update(elapsed);
-	// }
-
-	// /**
-	//  * Used to help with `ISelfGroup` drawing conflicts.
-	//  * This will be used to draw the sprite itself.
-	//  * While draw now draws the group instead.
-	//  */
-	// public function selfDraw():Void
-	// 	super.draw();
-
-	// // ISelfGroup shenanigans!
-	// /**
-	//  * The group inside the sprite.
-	//  */
-	// public var group(default, null):BeatSpriteGroup = new BeatSpriteGroup();
-	// /**
-	//  * Iterates through every member.
-	//  * @param filter For filtering.
-	//  * @return `FlxTypedGroupIterator<FlxSprite>` ~ An iterator.
-	//  */
-	// public function iterator(?filter:FlxSprite->Bool):FlxTypedGroupIterator<FlxSprite> return group.iterator(filter);
-
-	// /**
-	//  * Adds a new `FlxSprite` to the group.
-	//  * @param sprite The sprite or sprite group you want to add to the group.
-	//  * @return `FlxSprite`
-	//  */
-	// public function add(sprite:FlxSprite):FlxSprite return group.add(sprite);
-	// /**
-	//  * Adds a new `FlxSprite` behind the main member.
-	//  * @param sprite The sprite or sprite group you want to add to the group.
-	//  * @return `FlxSprite`
-	//  */
-	// public function addBehind(sprite:FlxSprite):FlxSprite return SpriteUtil.addBehind(sprite, this, cast group);
-	// /**
-	//  * Inserts a new `FlxSprite` subclass to the group at the specified position.
-	//  * @param position The position that the new sprite or sprite group should be inserted at.
-	//  * @param sprite The sprite or sprite group you want to insert into the group.
-	//  * @return `FlxSprite` ~ The same object that was passed in.
-	//  */
-	// public function insert(position:Int, sprite:FlxSprite):FlxSprite return group.insert(position, sprite);
-	// /**
-	//  * Removes the specified sprite from the group.
-	//  * @param sprite The `FlxSprite` you want to remove.
-	//  * @param splice Whether the object should be cut from the array entirely or not.
-	//  * @return `FlxSprite` ~ The removed sprite.
-	//  */
-	// public function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite return group.remove(sprite, splice);
-
-	// override public function update(elapsed:Float):Void
-	// 	group.update(elapsed);
-	// override public function draw():Void
-	// 	group.draw();
 }

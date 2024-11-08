@@ -35,8 +35,8 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	// Texture related stuff.
 	override public function loadTexture(newTexture:ModPath):Character
 		return cast super.loadTexture(newTexture);
-	override public function loadImage(newTexture:ModPath):Character
-		return cast super.loadImage(newTexture);
+	override public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):Character
+		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):Character
 		return cast super.loadSheet(newTexture);
 

@@ -572,17 +572,19 @@ class Paths {
 	 * Read's a folder and returns the paths.
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
+	 * @param prependDir Prepend's the file directory.
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
-	public static function readFolder(folder:ModPath, ?setExt:String, doTypeCheck:Bool = true):Array<ModPath> {
+	public static function readFolder(folder:ModPath, ?setExt:String, prependDir:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
 		var files:Array<ModPath> = [];
 		if (folderExists(folder, doTypeCheck))
 			for (file in FileSystem.readDirectory(doTypeCheck ? folder.format() : folder.path))
 				if (setExt == null)
-					files.push('${folder.type}:$file');
+					files.push(file);
 				else if (FilePath.extension(file) == setExt)
-					files.push(FilePath.withoutExtension('${folder.type}:$file'));
+					files.push(FilePath.withoutExtension(file));
+		trace([for (file in files) file.format()]);
 		return files;
 	}
 	/**
@@ -591,14 +593,15 @@ class Paths {
 	 * This txt would be in the folder you specified.
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
+	 * @param prependDir Prepend's the file directory.
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
-	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, doTypeCheck:Bool = true):Array<ModPath> {
+	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
 		var orderText:Array<String> = getFileContent(txt('$folder/order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
-		for (file in readFolder(folder, setExt, doTypeCheck))
+		for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
 			files.push(file);
 		for (file in orderText)
 			if (fileExists('$folder/$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
