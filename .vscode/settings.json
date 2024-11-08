@@ -6,7 +6,7 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.{haxe,hscript,hsc,hxs,hxc,hxp}": "haxe"
+		"*.{haxe,hscript,hsc,hxs,hxc}": "haxe"
 	},
 	"files.autoGuessEncoding": true,
 	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!

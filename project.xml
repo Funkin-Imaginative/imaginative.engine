@@ -51,10 +51,10 @@
 		<set name='32TAG' value='-32bit' if='32bit'/>
 		<set name='32TAG' value='' unless='32bit'/>
 		<!-- Export Directories -->
-		<set name='BUILD_DIR' value='export/release${32TAG}' unless='debug' if='release'/>
 		<set name='BUILD_DIR' value='export/build${32TAG}'   unless='debug'/>
 		<set name='BUILD_DIR' value='export/debug${32TAG}'       if='debug'/>
-		<set name='BUILD_DIR' value='export/debug-release${32TAG}' if='release debug'/>
+		<set name='BUILD_DIR' value='export/release${32TAG}' unless='debug' if='release'/>
+		<set name='BUILD_DIR' value='export/debugging${32TAG}'   if='debug release'/>
 
 		<!-- Pathing -->
 		<define name='MainPath' value='funkin'     if='MOD_SUPPORT'/>
@@ -69,7 +69,7 @@
 		<assets  path='embed/root'   rename=''             embed='true'  preload='true' exclude='*readme.md'/>
 
 		<echo value='The main mod is "${FinalPath}".'          if='MOD_SUPPORT'/>
-		<echo value='The assets folder is "${FinalPath}".' unless='MOD_SUPPORT'/>
+		<echo value='The asset folder is "${FinalPath}".'  unless='MOD_SUPPORT'/>
 
 		<!-- Modding -->
 		<section if='MOD_SUPPORT'>

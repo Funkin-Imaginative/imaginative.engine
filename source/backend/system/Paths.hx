@@ -55,6 +55,7 @@ enum abstract ModType(String) {
 		#end
 	}
 
+	#if MOD_SUPPORT
 	/**
 	 * `Excludes grouped types.`
 	 * @param path The root path.
@@ -96,6 +97,7 @@ enum abstract ModType(String) {
 	 */
 	inline public static function getMain():ModType
 		return ModdingSystem.soloIsMain ? MAIN : SOLO;
+	#end
 
 	/**
 	 * Helper for ModPath `@:from` stuff.
@@ -121,9 +123,9 @@ enum abstract ModType(String) {
 			case 'mod' | 'lowerend': MOD;
 			// Potential Paths
 			case 'any': ANY;
-			case 'lead' | 'ahead': LEAD;
+			case 'lead': LEAD;
 			case 'modded': MODDED;
-			case 'norm' | 'poly': NORM;
+			case 'norm': NORM;
 			default: ANY; // Would yell at me if I didn't have a default.
 		}
 	}

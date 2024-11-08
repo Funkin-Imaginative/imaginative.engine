@@ -98,7 +98,7 @@ class Script extends FlxBasic implements IScript {
 		var scripts:Array<Script> = [];
 		for (path in paths) {
 			switch (FilePath.extension(path).toLowerCase()) {
-				case 'haxe' | 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc' | 'hxp':
+				case 'haxe' | 'hx' | 'hscript' | 'hsc' | 'hxs' | 'hxc':
 					scripts.push(new HaxeScript(path));
 				case 'lua':
 					scripts.push(new LuaScript(path));

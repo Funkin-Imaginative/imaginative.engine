@@ -13,7 +13,7 @@ final class HaxeScript extends Script {
 	/**
 	 * All possible haxe extension types.
 	 */
-	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc', 'hxp'];
+	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
 	var interp:Interp;
