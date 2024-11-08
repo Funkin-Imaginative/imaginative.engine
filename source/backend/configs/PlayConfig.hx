@@ -1,7 +1,7 @@
 package backend.configs;
 
 /**
- * This class is for handling player interactionin songs.
+ * This class is for handling player interactions in songs.
  */
 class PlayConfig {
 	/**

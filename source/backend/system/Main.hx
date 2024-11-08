@@ -9,7 +9,7 @@ import backend.system.frontEnds.OverlayCameraFrontEnd;
 #if FLX_MOUSE
 import flixel.input.mouse.FlxMouse;
 #end
-#if CONTAINS_VERSION_ID
+#if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
 
@@ -35,7 +35,14 @@ class Main extends Sprite {
 	@:allow(backend.system.frontEnds.OverlayCameraFrontEnd)
 	static var _inputContainer:Sprite;
 
-	#if CONTAINS_VERSION_ID
+	/**
+	 * The main mod that the engine will rely on. Think of it as a fallback.
+	 * This is usually stated as "solo/funkin", aka base game.
+	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
+	 */
+	inline public static final mainMod:String = haxe.macro.Compiler.getDefine('MainPath');
+
+	#if KNOWS_VERSION_ID
 	/**
 	 * Engine version.
 	 */
@@ -62,7 +69,7 @@ class Main extends Sprite {
 		Script.init();
 		GlobalScript.init();
 
-		#if CONTAINS_VERSION_ID
+		#if KNOWS_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
@@ -91,7 +98,7 @@ class Main extends Sprite {
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
 		FlxG.signals.preUpdate.add(() -> {
-			if (SettingsConfig.setup.debugMode) {
+			if (Settings.setup.debugMode) {
 				if (Controls.resetState) {
 					trace('Reseting state...');
 					BeatState.resetState();

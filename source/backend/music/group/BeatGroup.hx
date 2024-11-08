@@ -8,7 +8,7 @@ typedef BeatGroup = BeatTypedGroup<FlxBasic>;
 /**
  * This class is just `FlxTypedGroup` but with `IBeat` implementation.
  */
-class BeatTypedGroup<T:FlxBasic> extends SelfTypedGroup<T> implements IBeat {
+class BeatTypedGroup<T:FlxBasic> extends backend.selfgroup.group.SelfGroup.SelfTypedGroup<T> implements IBeat {
 	/**
 	 * The current step.
 	 */

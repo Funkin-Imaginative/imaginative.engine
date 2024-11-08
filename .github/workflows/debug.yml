@@ -35,7 +35,7 @@ jobs:
 
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxe -cp commandline -D analyzer-optimize --run Main setup
           haxelib install hxcpp-debug-server
       - name: Building the game
         run: |
@@ -104,7 +104,7 @@ jobs:
 
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxe -cp commandline -D analyzer-optimize --run Main setup
           haxelib install hxcpp-debug-server
       - name: Building the game
         run: |
@@ -178,7 +178,7 @@ jobs:
           sudo apt-get install libvlc-dev libvlccore-dev
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxe -cp commandline -D analyzer-optimize --run Main setup
           haxelib install hxcpp-debug-server
       - name: Building the game
         run: |

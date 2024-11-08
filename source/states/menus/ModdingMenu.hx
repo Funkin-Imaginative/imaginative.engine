@@ -1,3 +1,4 @@
+#if MOD_SUPPORT
 package states.menus;
 
 class ModdingMenu extends BeatState {
@@ -15,3 +16,4 @@ class ModdingMenu extends BeatState {
 		add(bg);
 	}
 }
+#end

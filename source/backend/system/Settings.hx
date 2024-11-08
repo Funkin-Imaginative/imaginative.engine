@@ -1,4 +1,4 @@
-package backend.configs;
+package backend.system;
 
 /**
  * Framerate cap types.
@@ -26,10 +26,12 @@ enum abstract FpsType(String) from String to String {
  * The main settings for the engine.
  */
 @:structInit class MainSettings {
+	#if MOD_SUPPORT
 	/**
-	 * If true, this is like enabling soloOnlyMode in ModConfig.
+	 * If true, this is like enabling soloOnlyMode in ModdingSystem.
 	 */
 	public var soloOnly:Bool = false;
+	#end
 
 	/**
 	 * If you have epilepsy please have this setting on.
@@ -140,7 +142,7 @@ enum abstract FpsType(String) from String to String {
 /**
  * The class that handles all your settings.
  */
-class SettingsConfig {
+class Settings {
 	/**
 	 * The current settings.
 	 */

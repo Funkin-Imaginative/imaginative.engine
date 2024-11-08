@@ -4,9 +4,9 @@
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard"],
 	"objects": [
-		{"path": "base:characters/darnell"},
-		{"path": "base:characters/pico"},
-		{"path": "base:characters/nene"}
+		{"path": "main:characters/darnell"},
+		{"path": "main:characters/pico"},
+		{"path": "main:characters/nene"}
 	],
 	"color": "#413CAE"
 }

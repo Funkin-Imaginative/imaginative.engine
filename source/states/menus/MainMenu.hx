@@ -93,7 +93,7 @@ class MainMenu extends BeatState {
 		final buildTag:Null<String> = #if debug 'Debug' #elseif !release 'Test' #elseif (debug && release) 'Debugging Release' #else null #end;
 		if (buildTag != null) theText += ' ~ $buildTag Build ~ \n';
 		theText += 'Imaginative Engine';
-		#if CONTAINS_VERSION_ID
+		#if KNOWS_VERSION_ID
 		theText += ' v${Main.engineVersion}';
 		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
 		#end
@@ -108,7 +108,7 @@ class MainMenu extends BeatState {
 		// defined text setup
 		var theText:String = ' ~ Defined Compiler Tags ~ ';
 		theText += '\n${Sys.systemName()} :Platform';
-		theText += '\n${Compiler.getDefine('CONTAINS_VERSION_ID') != null} :Know\'s Verison';
+		theText += '\n${Compiler.getDefine('KNOWS_VERSION_ID') != null} :Know\'s Verison';
 		theText += '\n${Compiler.getDefine('CHECK_FOR_UPDATES') != null} :Know\'s When To Update';
 		theText += '\n${Compiler.getDefine('MOD_SUPPORT') != null} :Has Mod Support';
 		theText += '\n${Compiler.getDefine('SCRIPT_SUPPORT') != null} :Has Script Support';

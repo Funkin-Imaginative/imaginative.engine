@@ -1,9 +1,10 @@
-package backend.configs;
+#if MOD_SUPPORT
+package backend.system;
 
 /**
  * This class contains information about the engine's loaded mods.
  */
-class ModConfig {
+class ModdingSystem {
 	/**
 	 * It true, the current up front mod loaded doesn't allow lower end mods to run.
 	 */
@@ -14,7 +15,7 @@ class ModConfig {
 	 */
 	public static var isSoloOnly(get, never):Bool;
 	inline static function get_isSoloOnly():Bool
-		return soloOnlyMode || SettingsConfig.setup.soloOnly;
+		return soloOnlyMode || Settings.setup.soloOnly;
 
 	/**
 	 * Current up front mod.
@@ -30,11 +31,11 @@ class ModConfig {
 	public static var globalMods(default, null):Array<String> = [];
 
 	/**
-	 * States if the current up front mod is just base funkin.
+	 * States if the current up front mod is just the main mod.
 	 */
-	public static var soloIsBase(get, never):Bool;
-	inline static function get_soloIsBase():Bool
-		return curSolo == 'funkin';
+	public static var soloIsMain(get, never):Bool;
+	inline static function get_soloIsMain():Bool
+		return curSolo == Main.mainMod;
 
 	/**
 	 * `Potentially getting reworked.`
@@ -71,8 +72,8 @@ class ModConfig {
 		var duplicateCheck:Array<String> = [];
 		var potentialPaths:Array<String> = [];
 
-		if (ModType.pathCheck(BASE, pathType)) {
-			var asset:String = 'solo/funkin/$file';
+		if (ModType.pathCheck(MAIN, pathType)) {
+			var asset:String = 'solo/${Main.mainMod}/$file';
 			if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 				potentialPaths.push(asset);
 		}
@@ -119,3 +120,4 @@ class ModConfig {
 		];
 	}
 }
+#end

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project>
 	<!-- Define Setup -->
-	<define name='CONTAINS_VERSION_ID'/>
-	<define name='CHECK_FOR_UPDATES' if='release CONTAINS_VERSION_ID' unless='debug'/>
+	<define name='KNOWS_VERSION_ID'/>
+	<define name='CHECK_FOR_UPDATES' if='release KNOWS_VERSION_ID' unless='debug'/>
 	<define name='MOD_SUPPORT'/>
 	<define name='SCRIPT_SUPPORT'/>
 	<define name='ALLOW_SHADERS'/>
@@ -12,11 +12,11 @@
 		<define name='CAN_HAXE_SCRIPT'/> <!-- Haxe Language -->
 		<define name='CAN_LUA_SCRIPT'/> <!-- Lua Language -->
 
-		<haxedef name='DISABLE_DCE'   if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
-		<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
+		<haxedef name='DISABLE_DCE' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
 		<haxedef name='SCRIPTED_STATES'/>
+		<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
 
-		<!-- <echo value='Scripting enabled.'/> -->
+		<echo value='Scripting was enabled.'/>
 	</section>
 	<section if='cpp'>
 		<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
@@ -43,8 +43,8 @@
 	<!-- Path Settings -->
 		<!-- Renames -->
 		<section if='desktop'>
-			<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.ini'  type='text'     if='windows'/>
-			<assets path='embed/root/alsoft.txt' rename='plugins/alsoft.conf' type='text' unless='windows'/>
+			<assets path='alsoft.txt' rename='plugins/alsoft.ini'  type='text'     if='windows'/>
+			<assets path='alsoft.txt' rename='plugins/alsoft.conf' type='text' unless='windows'/>
 		</section>
 
 		<!-- 32bit -->
@@ -54,19 +54,22 @@
 		<set name='BUILD_DIR' value='export/release${32TAG}' unless='debug' if='release'/>
 		<set name='BUILD_DIR' value='export/build${32TAG}'   unless='debug'/>
 		<set name='BUILD_DIR' value='export/debug${32TAG}'       if='debug'/>
-		<!-- lol -->
-		<unset name='32TAG'/>
-
-		<set name='assetsPath' value='solo/funkin' if='MOD_SUPPORT'/>
-		<set name='assetsPath' value='assets'  unless='MOD_SUPPORT'/>
-		<!-- <echo value='The "assetsPath" value is "${assetsPath}".'/> -->
+		<set name='BUILD_DIR' value='export/debug-release${32TAG}' if='release debug'/>
 
 		<!-- Pathing -->
+		<define name='MainPath' value='funkin'     if='MOD_SUPPORT'/>
+		<define name='MainPath' value='assets' unless='MOD_SUPPORT'/>
+		<set name='FinalPath' value='solo/${MainPath}'     if='MOD_SUPPORT'/>
+		<set name='FinalPath'      value='${MainPath}' unless='MOD_SUPPORT'/>
+
 		<source name='source'/>
-		<assets path='engine/assets' rename='${assetsPath}' embed='false' preload='true' exclude='*readme.md'/>
-		<assets  path='embed/assets' rename='${assetsPath}' embed='true'  preload='true' exclude='*readme.md'/>
-		<assets path='engine/root'   rename=''              embed='false' preload='true' exclude='*readme.md'/>
-		<assets  path='embed/root'   rename=''              embed='true'  preload='true' exclude='*readme.md'/>
+		<assets path='engine/assets' rename='${FinalPath}' embed='false' preload='true' exclude='*readme.md'/>
+		<assets path='engine/root'   rename=''             embed='false' preload='true' exclude='*readme.md'/>
+		<assets  path='embed/assets' rename='${FinalPath}' embed='true'  preload='true' exclude='*readme.md'/>
+		<assets  path='embed/root'   rename=''             embed='true'  preload='true' exclude='*readme.md'/>
+
+		<echo value='The main mod is "${FinalPath}".'          if='MOD_SUPPORT'/>
+		<echo value='The assets folder is "${FinalPath}".' unless='MOD_SUPPORT'/>
 
 		<!-- Modding -->
 		<section if='MOD_SUPPORT'>
@@ -74,8 +77,6 @@
 			<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
 			<assets  path='embed/modding/upfront'  rename='solo' embed='true'  preload='true'  exclude='*readme.md'/>
 			<assets  path='embed/modding/lowerend' rename='mods' embed='true'  preload='true'  exclude='*readme.md'/>
-
-			<!-- <echo value='Mods enabled.'/> -->
 		</section>
 	<!-- Path Settings -->
 
@@ -91,7 +92,7 @@
 		<haxelib name='linc_luajit'      if='CAN_LUA_SCRIPT'  version='git'/>
 		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>
 		<haxelib name='hxvlc'            if='ALLOW_VIDEOS'/>
-		<haxelib name='thx.semver'       if='CONTAINS_VERSION_ID'/>
+		<haxelib name='thx.semver'       if='KNOWS_VERSION_ID'/>
 
 		<haxelib name='json2object'/>
 		<!-- <haxelib name='extension-androidtools' if='android'/> -->
@@ -113,9 +114,9 @@
 		<!-- May remove? -->
 		<haxedef name='no-deprecation-warnings'/>
 
-		<define name='HXVLC_NO_SHARE_DIRECTORY' if='ALLOW_VIDEOS'/>
 		<define name='message.reporting'        value='pretty'/>
 		<define name='message.log-format'       value='pretty'/>
+		<define name='HXVLC_NO_SHARE_DIRECTORY' if='ALLOW_VIDEOS'/>
 		<define name='hscriptPos'               if='CAN_HAXE_SCRIPT'/>
 		<haxedef name='analyzer-optimize'       if='release' unless='debug'/>
 

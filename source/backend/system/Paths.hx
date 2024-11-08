@@ -8,9 +8,9 @@ import flixel.graphics.frames.FlxAtlasFrames;
 enum abstract ModType(String) {
 	// Base Paths
 	/**
-	 * Base Game.
+	 * Main Mod.
 	 */
-	var BASE;
+	var MAIN;
 	/**
 	 * UpFront Mods.
 	 */
@@ -22,11 +22,11 @@ enum abstract ModType(String) {
 
 	// Potential Paths
 	/**
-	 * `BASE`, `SOLO` or `MOD`.
+	 * `MAIN`, `SOLO` or `MOD`.
 	 */
 	var ANY;
 	/**
-	 * `BASE` or `SOLO`.
+	 * `MAIN` or `SOLO`.
 	 */
 	var LEAD;
 	/**
@@ -34,7 +34,7 @@ enum abstract ModType(String) {
 	 */
 	var MODDED;
 	/**
-	 * `BASE` or `MOD`... I didn't know what to call this one lmao.
+	 * `MAIN` or `MOD`... I didn't know what to call this one lmao.
 	 */
 	var NORM;
 
@@ -43,12 +43,16 @@ enum abstract ModType(String) {
 	 * @return `String`
 	 */
 	inline public function returnRootPath():String {
+		#if MOD_SUPPORT
 		return switch (fromString(this)) {
-			case BASE: 'solo/funkin';
-			case SOLO: 'solo/${ModConfig.curSolo}';
-			case MOD: 'mods/${ModConfig.curMod}';
+			case MAIN: 'solo/${Main.mainMod}';
+			case SOLO: 'solo/${ModdingSystem.curSolo}';
+			case MOD: 'mods/${ModdingSystem.curMod}';
 			default: '';
 		}
+		#else
+		return Main.mainMod;
+		#end
 	}
 
 	/**
@@ -58,7 +62,7 @@ enum abstract ModType(String) {
 	 */
 	inline public static function typeFromPath(path:String):Null<ModType> {
 		return switch (path.split('/')[0]) {
-			case 'solo': path.split('/')[1] == 'funkin' ? BASE : SOLO;
+			case 'solo': path.split('/')[1] == Main.mainMod ? MAIN : SOLO;
 			case 'mods': MOD;
 			default: null;
 		}
@@ -79,19 +83,19 @@ enum abstract ModType(String) {
 	 */
 	inline public static function pathCheck(wanted:ModType, incoming:ModType):Bool {
 		return switch (wanted) {
-			case BASE: incoming == null || incoming == BASE || incoming == LEAD || incoming == NORM || incoming == ANY;
-			case SOLO: !ModConfig.soloIsBase && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
-			case MOD: !ModConfig.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
+			case MAIN: incoming == null || incoming == MAIN || incoming == LEAD || incoming == NORM || incoming == ANY;
+			case SOLO: !ModdingSystem.soloIsMain && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
+			case MOD: !ModdingSystem.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
 			default: false;
 		}
 	}
 
 	/**
-	 * This function tells if base is solo and judges appropriately.
+	 * This function tells if main is solo and judges appropriately.
 	 * @return `ModType`
 	 */
-	inline public static function getSolo():ModType
-		return ModConfig.soloIsBase ? BASE : SOLO;
+	inline public static function getMain():ModType
+		return ModdingSystem.soloIsMain ? MAIN : SOLO;
 
 	/**
 	 * Helper for ModPath `@:from` stuff.
@@ -112,7 +116,7 @@ enum abstract ModType(String) {
 	@:from inline public static function fromString(from:String):ModType {
 		return switch (from.toLowerCase()) {
 			// Base Paths
-			case 'base': BASE;
+			case 'main': MAIN;
 			case 'solo' | 'upfront': SOLO;
 			case 'mod' | 'lowerend': MOD;
 			// Potential Paths
@@ -137,10 +141,10 @@ enum abstract ModType(String) {
 	 */
 	@:from inline public static function fromArray(from:Array<String>):ModType {
 		return switch ([for (t in from) fromString(t)]) {
-			case [BASE, SOLO, MOD]: ANY;
-			case [BASE, SOLO]: LEAD;
+			case [MAIN, SOLO, MOD]: ANY;
+			case [MAIN, SOLO]: LEAD;
 			case [SOLO, MOD]: MODDED;
-			case [BASE, MOD]: NORM;
+			case [MAIN, MOD]: NORM;
 			default: from[0];
 		}
 	}
@@ -150,10 +154,10 @@ enum abstract ModType(String) {
 	 */
 	@:to inline public function toArray():Array<String> {
 		return switch (fromString(this)) {
-			case ANY: [BASE, SOLO, MOD];
-			case LEAD: [BASE, SOLO];
+			case ANY: [MAIN, SOLO, MOD];
+			case LEAD: [MAIN, SOLO];
 			case MODDED: [SOLO, MOD];
-			case NORM: [BASE, MOD];
+			case NORM: [MAIN, MOD];
 			default: [this];
 		}
 	}
@@ -295,15 +299,20 @@ class Paths {
 		var result:String = '';
 		var check:String = '';
 
+		#if MOD_SUPPORT
 		if (result == '' && ModType.pathCheck(MOD, type))
-			if (itemExists(check = ModConfig.getModsRoot(file), false))
+			if (itemExists(check = ModdingSystem.getModsRoot(file), false))
 				result = check;
 		if (result == '' && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = 'solo/${ModConfig.curSolo}/$file', false))
+			if (itemExists(check = 'solo/${ModdingSystem.curSolo}/$file', false))
 				result = check;
-		if (result == '' && ModType.pathCheck(BASE, type))
-			if (itemExists(check = 'solo/funkin/$file', false))
+		if (result == '' && ModType.pathCheck(MAIN, type))
+			if (itemExists(check = 'solo/${Main.mainMod}/$file', false))
 				result = check;
+		#else
+		if (itemExists(check = '${Main.mainMod}/$file', false))
+			result = check;
+		#end
 
 		return FilePath.normalize(result);
 	}

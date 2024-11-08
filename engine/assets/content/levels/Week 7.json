@@ -4,9 +4,9 @@
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard"],
 	"objects": [
-		{"path": "base:characters/tankman"},
-		{"path": "base:characters/boyfriend"},
-		{"path": "base:characters/gf"}
+		{"path": "main:characters/tankman"},
+		{"path": "main:characters/boyfriend"},
+		{"path": "main:characters/gf"}
 	],
 	"color": "#F9CF51"
 }
