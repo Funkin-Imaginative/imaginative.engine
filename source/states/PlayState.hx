@@ -188,11 +188,11 @@ class PlayState extends BeatState {
 			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
 
-		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 4));
-		playerField = new ArrowField((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 4));
+		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
+		playerField = new ArrowField((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
 		enemyField.cameras = playerField.cameras = [camHUD];
-		add(enemyField);
-		add(playerField);
+		add(ArrowField.enemy = enemyField);
+		add(ArrowField.player = playerField);
 
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camGame.follow(camPoint, LOCKON, 0.05);
@@ -200,11 +200,15 @@ class PlayState extends BeatState {
 
 		super.create();
 
-		for (folder in ['content/songs', 'content/songs/$curSong/scripts'])
-			for (file in Paths.readFolder(folder))
-				if ([for (ext in Script.exts) FilePath.extension(file) == ext].contains(true))
-					for (script in Script.create('$folder/${FilePath.withoutExtension(file)}'))
+		for (folder in ['content/songs', 'content/songs/$curSong/scripts']) {
+			for (ext in Script.exts) {
+				for (file in Paths.readFolder(folder, ext)) {
+					for (script in Script.create('$folder/$file')) {
 						scripts.add(script);
+					}
+				}
+			}
+		}
 
 		scripts.set('chartData', chartData);
 		scripts.load();
@@ -313,7 +317,6 @@ class PlayState extends BeatState {
 
 	override function destroy():Void {
 		scripts.end();
-		bgColor = FlxColor.BLACK;
 		super.destroy();
 	}
 

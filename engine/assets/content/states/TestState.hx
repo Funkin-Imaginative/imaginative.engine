@@ -1,9 +1,11 @@
+import states.TitleScreen;
+
 var p1:Character;
 var p2:Character;
 
 function create():Void {
 	conductor = Conductor.song;
-	var song:String = 'Senpai';
+	var song:String = 'Eggnog';
 	var variant:String = 'erect';
 	conductor.loadSong(song, variant, (_:FlxSound) -> {
 		conductor.addVocalTrack(song, '', variant);
@@ -12,11 +14,11 @@ function create():Void {
 		conductor.play();
 	});
 	add(p1 = new Character(0, 0, 'boyfriend', true));
-	// p1.screenCenter();
-	// p1.x += 300;
+	p1.screenCenter();
+	p1.x += 300;
 	add(p2 = new Character(0, 0, 'boyfriend'));
-	// p2.screenCenter();
-	// p2.x -= 300;
+	p2.screenCenter();
+	p2.x -= 300;
 }
 
 var anims:Array<String> = ['left', 'down', 'up', 'right'];
@@ -44,7 +46,10 @@ function update(elasped:Float):Void {
 				}
 			}
 			if (FlxG.keys.justPressed.SPACE)
-				char.playAnim('hey');
+				char.playAnim('hey', true, 'NoSinging');
 		}
 	}
+
+	if (Controls.back)
+		BeatState.switchState(new TitleScreen());
 }

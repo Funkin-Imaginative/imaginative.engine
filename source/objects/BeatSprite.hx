@@ -21,8 +21,8 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	// Texture related stuff.
 	override public function loadTexture(newTexture:ModPath):BeatSprite
 		return cast super.loadTexture(newTexture);
-	override public function loadImage(newTexture:ModPath):BeatSprite
-		return cast super.loadImage(newTexture);
+	override public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BeatSprite
+		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):BeatSprite
 		return cast super.loadSheet(newTexture);
 

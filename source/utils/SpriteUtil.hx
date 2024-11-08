@@ -183,15 +183,18 @@ class SpriteUtil {
 	 * Load's a graphic texture for the sprite to use.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
+	 * @param animated Whether the graphic should be the sprite cut into a grid.
+	 * @param width Grid width.
+	 * @param height Grid height.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T {
 		if (sprite is ITexture)
-			cast(sprite, ITexture<Dynamic>).loadImage(newTexture);
+			cast(sprite, ITexture<Dynamic>).loadImage(newTexture, animated, width, height);
 		else if (sprite is FlxSprite)
 			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
-					sprite.loadGraphic(Paths.image(newTexture).format());
+					sprite.loadGraphic(Paths.image(newTexture).format(), animated, width, height);
 				} catch(error:haxe.Exception)
 					trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
 		return sprite;
@@ -232,6 +235,7 @@ class SpriteUtil {
 	 */
 	inline public static function getBGSprite<T:FlxSprite>(sprite:T, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY):T {
 		sprite.loadImage('$mod:menus/menuBackground');
+		// sprite.makeGraphic(Math.floor(sprite.width), Math.floor(sprite.height));
 		sprite.color = funkinColor ? switch (color) {
 			case FlxColor.YELLOW: 0xFFFAE868;
 			case FlxColor.BLUE: 0xFF9272FF;

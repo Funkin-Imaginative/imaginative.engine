@@ -20,9 +20,12 @@ interface ITexture<T:FlxSprite> {
 	/**
 	 * Load's a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
+	 * @param animated Whether the graphic should be the sprite cut into a grid.
+	 * @param width Grid width.
+	 * @param height Grid height.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	function loadImage(newTexture:ModPath):T;
+	function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T;
 	/**
 	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.

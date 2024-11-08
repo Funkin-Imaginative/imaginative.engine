@@ -80,6 +80,22 @@ class ArrowField extends BeatGroup {
 		add(notes);
 	}
 
+	override function update(elapsed:Float):Void {
+		super.update(elapsed);
+
+		if (!PlayConfig.botplay && status != null && PlayConfig.enableP2) {
+			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
+			for (i => strum in strums.members) {
+				final hasHit:Bool = [controls.noteLeft, controls.noteDown, controls.noteUp, controls.noteRight][i];
+				final beingHeld:Bool = [controls.noteLeftHeld, controls.noteDownHeld, controls.noteUpHeld, controls.noteRightHeld][i];
+				final wasReleased:Bool = [controls.noteLeftReleased, controls.noteDownReleased, controls.noteUpReleased, controls.noteRightReleased][i];
+
+				if (beingHeld)
+					strum.playAnim('press');
+			}
+		}
+	}
+
 	/**
 	 * Set's the strum positions.
 	 * @param x The x position.

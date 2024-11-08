@@ -83,12 +83,12 @@ class FunkinUtil {
 		var results:Array<String> = [];
 		try {
 			if (sortOrderByLevel)
-				for (name in Paths.readFolderOrderTxt('content/levels', 'json'))
+				for (name in Paths.readFolderOrderTxt('content/levels', 'json', false))
 					for (song in ParseUtil.level(name).songs)
 						results.push(song.folder);
 		} catch(error:haxe.Exception)
 			trace('Missing level json.');
-		for (folder in Paths.readFolder('content/songs'))
+		for (folder in Paths.readFolder('content/songs', false))
 			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);

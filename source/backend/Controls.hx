@@ -209,6 +209,26 @@ class Controls implements IFlxDestroyable {
 	inline static function get_fullscreen():Bool
 		return globalPressed('fullscreen');
 
+	// Debug //
+	/**
+	 * When resetState is pressed.
+	 */
+	public static var resetState(get, never):Bool;
+	inline static function get_resetState():Bool
+		return globalPressed('resetState');
+	/**
+	 * When shortcutState is pressed.
+	 */
+	public static var shortcutState(get, never):Bool;
+	inline static function get_shortcutState():Bool
+		return globalPressed('shortcutState');
+	/**
+	 * When reloadGlobalScripts is pressed.
+	 */
+	public static var reloadGlobalScripts(get, never):Bool;
+	inline static function get_reloadGlobalScripts():Bool
+		return globalPressed('reloadGlobalScripts');
+
 	// The Main Powerhouses //
 	/**
 	 * The global binds, mostly for stuff like menus so more like shared binds.
@@ -232,7 +252,12 @@ class Controls implements IFlxDestroyable {
 		'volumeMute' => [ZERO, NUMPADZERO],
 
 		// Extras //
-		'fullscreen' => [F11]
+		'fullscreen' => [F11],
+
+		// Debug //
+		'resetState' => [F5],
+		'shortcutState' => [F6],
+		'reloadGlobalScripts' => [F7]
 	];
 	/**
 	 * Global pressed input.
@@ -313,7 +338,6 @@ class Controls implements IFlxDestroyable {
 	/**
 	 * When called it destroys the controls instance.
 	 */
-	public function destroy():Void {
+	public function destroy():Void
 		setBinds.clear();
-	}
 }

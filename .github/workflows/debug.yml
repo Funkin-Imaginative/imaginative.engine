@@ -1,4 +1,4 @@
-name: Test Builds
+name: Debug Builds
 
 on:
   push:
@@ -25,25 +25,25 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: windows-build-cache
+          key: windows-debug-cache
           path: |
             .haxelib/
-            export/build/windows/haxe/
-            export/build/windows/obj/
+            export/debug/windows/haxe/
+            export/debug/windows/obj/
           restore-keys: |
-            windows-build-cache
+            windows-debug-cache
 
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
       - name: Building the game
         run: |
-          haxelib run lime build windows
+          haxelib run lime build windows -debug
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Windows
-          path: export/build/windows/bin
+          path: export/debug/windows/bin
           overwrite: true
           include-hidden-files: true
 
@@ -56,7 +56,7 @@ jobs:
               repo: context.repo.repo,
             })
             for (const cache of caches.data.actions_caches) {
-              if (cache.key == 'windows-build-cache') {
+              if (cache.key == 'windows-debug-cache') {
                 console.log('Clearing ' + cache.key + '...')
                 await github.rest.actions.deleteActionsCacheById({
                   owner: context.repo.owner,
@@ -70,13 +70,13 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: windows-build-cache
+          key: windows-debug-cache
           path: |
             .haxelib/
-            export/build/windows/haxe/
-            export/build/windows/obj/
+            export/debug/windows/haxe/
+            export/debug/windows/obj/
           restore-keys: |
-            windows-build-cache
+            windows-debug-cache
 
   mac:
     permissions: write-all
@@ -93,22 +93,22 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: mac-build-cache
+          key: mac-debug-cache
           path: |
             .haxelib/
-            export/build/mac/haxe/
-            export/build/mac/obj/
+            export/debug/mac/haxe/
+            export/debug/mac/obj/
           restore-keys: |
-            mac-build-cache
+            mac-debug-cache
 
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
       - name: Building the game
         run: |
-          haxelib run lime build mac
+          haxelib run lime build mac -debug
       - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/build/macos/bin .
+        run: tar -zcvf Imaginative.tar.gz -C export/debug/macos/bin .
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -126,7 +126,7 @@ jobs:
               repo: context.repo.repo,
             })
             for (const cache of caches.data.actions_caches) {
-              if (cache.key == 'mac-build-cache') {
+              if (cache.key == 'mac-debug-cache') {
                 console.log('Clearing ' + cache.key + '...')
                 await github.rest.actions.deleteActionsCacheById({
                   owner: context.repo.owner,
@@ -140,13 +140,13 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: mac-build-cache
+          key: mac-debug-cache
           path: |
             .haxelib/
-            export/build/mac/haxe/
-            export/build/mac/obj/
+            export/debug/mac/haxe/
+            export/debug/mac/obj/
           restore-keys: |
-            mac-build-cache
+            mac-debug-cache
 
   linux:
     permissions: write-all
@@ -163,13 +163,13 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: linux-build-cache
+          key: linux-debug-cache
           path: |
             .haxelib/
-            export/build/linux/haxe/
-            export/build/linux/obj/
+            export/debug/linux/haxe/
+            export/debug/linux/obj/
           restore-keys: |
-            linux-build-cache
+            linux-debug-cache
 
       - name: Installing LibVLC
         run: |
@@ -179,9 +179,9 @@ jobs:
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
       - name: Building the game
         run: |
-          haxelib run lime build linux
+          haxelib run lime build linux -debug
       - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/build/linux/bin .
+        run: tar -zcvf Imaginative.tar.gz -C export/debug/linux/bin .
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -199,7 +199,7 @@ jobs:
               repo: context.repo.repo,
             })
             for (const cache of caches.data.actions_caches) {
-              if (cache.key == 'linux-build-cache') {
+              if (cache.key == 'linux-debug-cache') {
                 console.log('Clearing ' + cache.key + '...')
                 await github.rest.actions.deleteActionsCacheById({
                   owner: context.repo.owner,
@@ -213,10 +213,10 @@ jobs:
         uses: actions/cache@v3
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
-          key: linux-build-cache
+          key: linux-debug-cache
           path: |
             .haxelib/
-            export/build/linux/haxe/
-            export/build/linux/obj/
+            export/debug/linux/haxe/
+            export/debug/linux/obj/
           restore-keys: |
-            linux-build-cache
+            linux-debug-cache

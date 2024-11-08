@@ -110,12 +110,15 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 	/**
 	 * Load's a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
+	 * @param animated Whether the graphic should be the sprite cut into a grid.
+	 * @param width Grid width.
+	 * @param height Grid height.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
-	public function loadImage(newTexture:ModPath):BaseSprite {
+	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic).format());
+				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic).format(), animated, width, height);
 			} catch(error:haxe.Exception)
 				trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
 		return this;

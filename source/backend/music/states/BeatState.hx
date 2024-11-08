@@ -204,15 +204,12 @@ class BeatState extends FlxState /* implements IBeat */ {
 
 	override public function create():Void {
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Conductor', FUNCTION(() -> {
-			if (conductor == Conductor.menu)
-				return 'Menu';
-			if (conductor == Conductor.song)
-				return 'Song';
-			if (conductor == Conductor.charter)
-				return 'Charter';
-			return 'Unknown';
-		}));
+		FlxG.game.debugger.watch.add('Conductor', FUNCTION(() ->
+			if (conductor == Conductor.menu) return 'Menu';
+			else if (conductor == Conductor.song) return 'Song';
+			else if (conductor == Conductor.charter) return 'Charter';
+			else return 'Unknown'
+		));
 		FlxG.game.debugger.watch.add('Artist', FUNCTION(() -> return conductor.data.artist));
 		FlxG.game.debugger.watch.add('Song', FUNCTION(() -> return conductor.data.name));
 		FlxG.game.debugger.watch.add('Time', FUNCTION(() -> return songPosition));
@@ -311,6 +308,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	override public function destroy():Void {
 		stateScripts.end();
 		Conductor.beatStates.remove(this);
+		bgColor = FlxColor.BLACK;
 		direct = null;
 		super.destroy();
 	}

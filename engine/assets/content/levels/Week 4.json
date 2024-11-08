@@ -4,9 +4,9 @@
 	"startingDiff": 1,
 	"difficulties": ["easy", "normal", "hard"],
 	"objects": [
-		{"object": "characters/mom"},
-		{"object": "characters/boyfriend"},
-		{"object": "characters/gf"}
+		{"path": "base:characters/mom"},
+		{"path": "base:characters/boyfriend"},
+		{"path": "base:characters/gf"}
 	],
 	"color": "#F9CF51"
 }

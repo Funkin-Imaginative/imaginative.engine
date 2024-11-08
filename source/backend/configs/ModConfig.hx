@@ -112,7 +112,7 @@ class ModConfig {
 			case SOLO: 'solo';
 			case MOD: 'mods';
 			default: '';
-		}, false);
+		}, false, false);
 		return [
 			for (folder in folders)
 				ModType.modNameFromPath(folder.path)

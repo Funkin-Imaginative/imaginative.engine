@@ -90,6 +90,31 @@ class Main extends Sprite {
 		overlay.cameras = [camera];
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
+		FlxG.signals.preUpdate.add(() -> {
+			if (SettingsConfig.setup.debugMode) {
+				if (Controls.resetState) {
+					trace('Reseting state...');
+					BeatState.resetState();
+					trace('Reset state successfully!');
+				}
+
+				if (Controls.shortcutState) {
+					trace('Heading to the MainMenu...');
+					BeatState.switchState(new states.menus.MainMenu());
+					trace('Successfully entered the MainMenu!');
+				}
+
+				if (Controls.reloadGlobalScripts)
+					if (GlobalScript.scripts.length > 0) {
+						trace('Reloading global scripts...');
+						GlobalScript.loadScript();
+						trace('Global scripts successfully reloaded.');
+					} else {
+						trace('Loading global scripts...');
+						GlobalScript.loadScript();
+					}
+			}
+		});
 		FlxG.signals.postUpdate.add(() -> {
 			overlay.update(FlxG.elapsed);
 			cameras.update(FlxG.elapsed);

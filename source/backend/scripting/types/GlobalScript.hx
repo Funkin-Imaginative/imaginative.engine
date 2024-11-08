@@ -17,6 +17,7 @@ class GlobalScript {
 			'event' => event,
 		];
 
+	@:allow(backend.system.Main.new)
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.end();
@@ -29,7 +30,7 @@ class GlobalScript {
 		scripts.load();
 	}
 
-	@:allow(backend.system.Main)
+	@:allow(backend.system.Main.new)
 	static function init():Void {
 		FlxG.signals.focusLost.add(() -> call('focusLost'));
 		FlxG.signals.focusGained.add(() -> call('focusGained'));
