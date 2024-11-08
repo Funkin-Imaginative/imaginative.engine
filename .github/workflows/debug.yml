@@ -28,14 +28,15 @@ jobs:
           key: windows-debug-cache
           path: |
             .haxelib/
-            export/build/windows/haxe/
-            export/build/windows/obj/
+            export/debug/windows/haxe/
+            export/debug/windows/obj/
           restore-keys: |
             windows-debug-cache
 
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxelib install hxcpp-debug-server
       - name: Building the game
         run: |
           haxelib run lime build windows -debug --haxelib=hxcpp-debug-server --connect 6000
@@ -43,7 +44,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Windows
-          path: export/build/windows/bin
+          path: export/debug/windows/bin
+          overwrite: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -71,8 +74,8 @@ jobs:
           key: windows-debug-cache
           path: |
             .haxelib/
-            export/build/windows/haxe/
-            export/build/windows/obj/
+            export/debug/windows/haxe/
+            export/debug/windows/obj/
           restore-keys: |
             windows-debug-cache
 
@@ -94,24 +97,27 @@ jobs:
           key: mac-debug-cache
           path: |
             .haxelib/
-            export/build/mac/haxe/
-            export/build/mac/obj/
+            export/debug/mac/haxe/
+            export/debug/mac/obj/
           restore-keys: |
             mac-debug-cache
 
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxelib install hxcpp-debug-server
       - name: Building the game
         run: |
           haxelib run lime build mac -debug --haxelib=hxcpp-debug-server --connect 6000
       - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/build/macos/bin .
+        run: tar -zcvf Imaginative.tar.gz -C export/debug/macos/bin .
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Mac
           path: Imaginative.tar.gz
+          overwrite: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -139,8 +145,8 @@ jobs:
           key: mac-debug-cache
           path: |
             .haxelib/
-            export/build/mac/haxe/
-            export/build/mac/obj/
+            export/debug/mac/haxe/
+            export/debug/mac/obj/
           restore-keys: |
             mac-debug-cache
 
@@ -162,8 +168,8 @@ jobs:
           key: linux-debug-cache
           path: |
             .haxelib/
-            export/build/linux/haxe/
-            export/build/linux/obj/
+            export/debug/linux/haxe/
+            export/debug/linux/obj/
           restore-keys: |
             linux-debug-cache
 
@@ -173,16 +179,19 @@ jobs:
       - name: Installing Libs
         run: |
           haxe -cp commandline -D analyzer-optimize --run Main setup -s
+          haxelib install hxcpp-debug-server
       - name: Building the game
         run: |
           haxelib run lime build linux -debug --haxelib=hxcpp-debug-server --connect 6000
       - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/build/linux/bin .
+        run: tar -zcvf Imaginative.tar.gz -C export/debug/linux/bin .
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Linux
           path: Imaginative.tar.gz
+          overwrite: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -210,7 +219,7 @@ jobs:
           key: linux-debug-cache
           path: |
             .haxelib/
-            export/build/linux/haxe/
-            export/build/linux/obj/
+            export/debug/linux/haxe/
+            export/debug/linux/obj/
           restore-keys: |
             linux-debug-cache
