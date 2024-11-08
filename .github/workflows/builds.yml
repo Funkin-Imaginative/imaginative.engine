@@ -44,6 +44,8 @@ jobs:
         with:
           name: Windows
           path: export/build/windows/bin
+          override: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -112,6 +114,8 @@ jobs:
         with:
           name: Mac
           path: Imaginative.tar.gz
+          override: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -183,6 +187,8 @@ jobs:
         with:
           name: Linux
           path: Imaginative.tar.gz
+          override: true
+          include-hidden-files: true
 
       - name: Clearing Cache
         uses: actions/github-script@v6
