@@ -9,11 +9,11 @@ vVv level json example below vVv
 	"title": "Daddy Dearest",
 	"songs": ["Bopeebo", "Fresh", "DadBattle"],
 	"startingDiff": 1,
-	"difficulties": ["easy", "normal", "hard", "erect", "nightmare"],
+	"difficulties": ["easy", "normal", "hard"],
 	"objects": [
-		{"object": "characters/dad"},
-		{"object": "characters/boyfriend"},
-		{"object": "characters/gf"}
+		{"path": "main:characters/dad"},
+		{"path": "main:characters/boyfriend"},
+		{"path": "main:characters/gf"}
 	],
 	"color": "#F9CF51"
 }
