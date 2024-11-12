@@ -1,7 +1,7 @@
 # ../content/states/
 This is where you store your script files for custom states or for editing pre-existing ones!
 
-vVv simple script example vVv
+example below
 ```haxe
 var huh:BaseSprite;
 

@@ -3,7 +3,7 @@ Levels are what the weeks are, they contain all the songs and difficulties that'
 When typing out the song listing make sure you type out the **folder** name.
 When typing out the difficulty listing make sure you type out the name in **all** lowercase.
 
-vVv level json example below vVv
+example below
 ```json
 {
 	"title": "Daddy Dearest",
@@ -18,4 +18,4 @@ vVv level json example below vVv
 	"color": "#F9CF51"
 }
 ```
-example from: [`../content/levels/Week 1.json`](/engine/assets/content/levels/Week%201.json)
+From [`../content/levels/Week 1.json`](/engine/assets/content/levels/Week%201.json)!

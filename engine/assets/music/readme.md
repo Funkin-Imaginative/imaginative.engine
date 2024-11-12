@@ -1,7 +1,7 @@
 # ../music/
 This is where you store your music (ogg or wav) and there meta json's.
 
-vVv audio json example below vVv
+example below
 ```json
 {
 	"artist": "Kawai Sprite",
@@ -12,4 +12,4 @@ vVv audio json example below vVv
 	"checkpoints": []
 }
 ```
-example from: [`../music/gameover/gameOver.json`](/engine/assets/music/gameover/gameOver.json)
+From [`../music/gameover/gameOver.json`](/engine/assets/music/gameover/gameOver.json)!

@@ -1,7 +1,7 @@
 # ../content/songs/
 This is where you can store all your songs from its chart to audio.
 
-Folder Layout
+folder layout
 ```
 audio/
 	erect/
@@ -21,9 +21,9 @@ audio-erect.json
 audio.json
 meta.json
 ```
-audio json explained in [`../music/`](/engine/assets/music/)
+`audio.json` explained in [`../music/`](/engine/assets/music/).
 
-vVv meta json example below vVv
+example below
 ```json
 {
 	"folder": "Philly Nice",
@@ -37,4 +37,4 @@ vVv meta json example below vVv
 	}
 }
 ```
-example from: [`../content/songs/Philly Nice/meta.json`](/engine/assets/content/songs/Philly%20Nice/meta.json)
+From [`../content/songs/Philly Nice/meta.json`](/engine/assets/content/songs/Philly%20Nice/meta.json)!
