@@ -62,7 +62,7 @@
 		<set name='FinalPath' value='solo/${MainPath}'     if='MOD_SUPPORT'/>
 		<set name='FinalPath'      value='${MainPath}' unless='MOD_SUPPORT'/>
 
-		<source name='source'/>
+		<source name='engine/source'/>
 		<assets path='engine/assets' rename='${FinalPath}' embed='false' preload='true' exclude='*readme.md'/>
 		<assets path='engine/root'   rename=''             embed='false' preload='true' exclude='*readme.md'/>
 		<assets  path='embed/assets' rename='${FinalPath}' embed='true'  preload='true' exclude='*readme.md'/>
