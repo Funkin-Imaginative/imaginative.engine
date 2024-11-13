@@ -81,7 +81,7 @@
 	<!-- Path Settings -->
 
 	<!-- Libraries -->
-		<haxedef name='disable-version-check'/> <!-- Prevent lime version being fored to 8.1.3 -->
+		<haxedef name='disable-version-check'/> <!-- Prevent lime version being fored -->
 		<haxelib name='openfl' version='9.2.2'/>
 		<haxelib name='lime'   version='8.1.2'/>
 

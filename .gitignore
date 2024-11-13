@@ -1,6 +1,9 @@
+# unnecessary files
 .DS_STORE
-.haxelib/
-*desktop.ini
-export/
+desktop.ini
 RECOVER_*.fla
 vscode-project.hxml
+
+# unnecessary folders
+.haxelib/
+export/
