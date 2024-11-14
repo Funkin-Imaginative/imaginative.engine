@@ -1,0 +1,3 @@
+[submodule "assets"]
+	path = engine/assets
+	url = https://github.com/Funkin-Imaginative/imaginative.assets.dev
