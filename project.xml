@@ -65,8 +65,6 @@
 		<source name='engine/source'/>
 		<assets path='engine/assets' rename='${FinalPath}' embed='false' preload='true' exclude='*readme.md'/>
 		<assets path='engine/root'   rename=''             embed='false' preload='true' exclude='*readme.md'/>
-		<assets  path='embed/assets' rename='${FinalPath}' embed='true'  preload='true' exclude='*readme.md'/>
-		<assets  path='embed/root'   rename=''             embed='true'  preload='true' exclude='*readme.md'/>
 
 		<echo value='The main mod is "${FinalPath}".'         if='MOD_SUPPORT'/>
 		<echo value='The asset folder is "${FinalPath}".' unless='MOD_SUPPORT'/>
@@ -75,8 +73,6 @@
 		<section if='MOD_SUPPORT'>
 			<assets path='engine/modding/upfront'  rename='solo' embed='false' preload='false' exclude='*readme.md'/>
 			<assets path='engine/modding/lowerend' rename='mods' embed='false' preload='false' exclude='*readme.md'/>
-			<assets  path='embed/modding/upfront'  rename='solo' embed='true'  preload='true'  exclude='*readme.md'/>
-			<assets  path='embed/modding/lowerend' rename='mods' embed='true'  preload='true'  exclude='*readme.md'/>
 		</section>
 	<!-- Path Settings -->
 
