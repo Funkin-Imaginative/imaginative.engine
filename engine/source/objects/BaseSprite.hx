@@ -58,7 +58,7 @@ typedef AnimMapping = {
 /**
  * This class is a verison of FlxSkewedSprite but with animation support among other things.
  */
-class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> implements ISelfGroup {
+class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -156,60 +156,6 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
 		return cast makeSolid(width, height, color, unique, key);
 
-	// ISelfGroup shenanigans!
-	/**
-	 * The group inside the sprite.
-	 */
-	public var group(default, null):BeatSpriteGroup = new BeatSpriteGroup();
-	/**
-	 * Iterates through every member.
-	 * @param filter For filtering.
-	 * @return `FlxTypedGroupIterator<FlxSprite>` ~ An iterator.
-	 */
-	public function iterator(?filter:FlxSprite->Bool):FlxTypedGroupIterator<FlxSprite> return group.iterator(filter);
-
-	/**
-	 * Adds a new `FlxSprite` to the group.
-	 * @param sprite The sprite or sprite group you want to add to the group.
-	 * @return `FlxSprite`
-	 */
-	public function add(sprite:FlxSprite):FlxSprite return group.add(sprite);
-	/**
-	 * Adds a new `FlxSprite` behind the main member.
-	 * @param sprite The sprite or sprite group you want to add to the group.
-	 * @return `FlxSprite`
-	 */
-	public function addBehind(sprite:FlxSprite):FlxSprite return SpriteUtil.addBehind(sprite, this, cast group);
-	/**
-	 * Inserts a new `FlxSprite` subclass to the group at the specified position.
-	 * @param position The position that the new sprite or sprite group should be inserted at.
-	 * @param sprite The sprite or sprite group you want to insert into the group.
-	 * @return `FlxSprite` ~ The same object that was passed in.
-	 */
-	public function insert(position:Int, sprite:FlxSprite):FlxSprite return group.insert(position, sprite);
-	/**
-	 * Removes the specified sprite from the group.
-	 * @param sprite The `FlxSprite` you want to remove.
-	 * @param splice Whether the object should be cut from the array entirely or not.
-	 * @return `FlxSprite` ~ The removed sprite.
-	 */
-	public function remove(sprite:FlxSprite, splice:Bool = false):FlxSprite return group.remove(sprite, splice);
-
-	override public function update(elapsed:Float):Void
-		group.update(elapsed);
-	override public function draw():Void
-		group.draw();
-
-	/* override function set_x(value:Float):Float {
-		return super.set_x(value);
-	}
-	override function set_y(value:Float):Float {
-		return super.set_y(value);
-	}
-	override function set_angle(value:Float):Float {
-		return super.set_angle(value);
-	} */
-
 	// Where the BaseSprite class really begins.
 	/**
 	 * States the type of sprite this is.
@@ -243,7 +189,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
 				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
 
-				setPosition(spriteOffsets.position.x, spriteOffsets.position.y);
+				offset.set(spriteOffsets.position.x, spriteOffsets.position.y);
 				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
 			}
 
@@ -281,11 +227,11 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 
 			if (applyStartValues) {
 				if (Reflect.hasField(inputData, 'starting')) {
-					group.setPosition(inputData.starting.position.x, inputData.starting.position.y);
-					group.flipX = inputData.starting.flip.x;
-					group.flipY = inputData.starting.flip.y;
-					group.scale.set(inputData.starting.scale.x, inputData.starting.scale.y);
-					group.updateHitbox();
+					setPosition(inputData.starting.position.x, inputData.starting.position.y);
+					flipX = inputData.starting.flip.x;
+					flipY = inputData.starting.flip.y;
+					scale.scale(inputData.starting.scale.x, inputData.starting.scale.y);
+					updateHitbox();
 				}
 			}
 
@@ -306,6 +252,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
 		}
 	}
+
+	/* override function set_x(value:Float):Float {
+		return super.set_x(value);
+	}
+	override function set_y(value:Float):Float {
+		return super.set_y(value);
+	} */
 
 	/**
 	 * A map holding data for each animation.
@@ -354,27 +307,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 		scripts.load();
 	}
 
-	/* override function initVars():Void {
-		super.initVars();
-
-		flixelType = SPRITEGROUP;
-
-		@:privateAccess {
-			offset = new FlxCallbackPoint(group.offsetCallback);
-			origin = new FlxCallbackPoint(group.originCallback);
-			scale = new FlxCallbackPoint(group.scaleCallback);
-			scrollFactor = new FlxCallbackPoint(group.scrollFactorCallback);
-		}
-
-		scale.set(1, 1);
-		scrollFactor.set(1, 1);
-
-		initMotionVars();
-	} */
-
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
-		super();
-
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
 			if (Paths.fileExists(Paths.object(file))) {
@@ -387,21 +320,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 			loadScript(script != null ? script : '');
 		scripts.call('create');
 
-		add(this);
-		setPosition(x + spriteOffsets.position.x, y + spriteOffsets.position.y);
-		group.setPosition(x, y);
+		super(x, y);
 
 		if (this is BaseSprite || this is BeatSprite)
 			scripts.call('createPost');
 	}
 
-	/**
-	 * Used to help with `ISelfGroup` updating conflicts.
-	 * This will be used to update the sprite itself.
-	 * While update now updates the group instead.
-	 * @param elapsed Time inbetween frames.
-	 */
-	public function selfUpdate(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		if (!(this is IBeat)) scripts.call('update', [elapsed]);
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -517,12 +442,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> impleme
 		return super.getScreenBounds(newRect, camera);
 	}
 
-	/**
-	 * Used to help with `ISelfGroup` drawing conflicts.
-	 * This will be used to draw the sprite itself.
-	 * While draw now draws the group instead.
-	 */
-	public function selfDraw():Void {
+	override public function draw():Void {
 		if (swapAnimTriggers) {
 			var xFlip:Bool = flipX;
 			if (xFlip) {

@@ -157,40 +157,39 @@ class StoryMenu extends BeatState {
 				}
 
 				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
-				for (sprite in sprite.group)
-					if (data.flip)
-						sprite.flipX = !sprite.flipX;
+				if (data.flip)
+					sprite.flipX = !sprite.flipX;
 				sprite.extra.set('offsets', data.offsets);
 				if (data.size != 1) {
-					sprite.group.scale.set(data.size, data.size);
-					sprite.group.updateHitbox();
+					sprite.scale.set(data.size, data.size);
+					sprite.updateHitbox();
 				}
 
 				sprite.extra.set('willHey', data.willHey);
 
-				sprite.group.alpha = 0.0001;
+				sprite.alpha = 0.0001;
 				sprite.scrollFactor.set();
 				levels.members[i].weekObjects.push(sprite);
-				weekObjects.add(sprite.group);
+				weekObjects.add(sprite);
 			}
 		}
 
 		for (level in levels) {
-			/* FlxSpriteUtil.space([for (sprite in level.weekObjects) sprite.group], FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
+			/* FlxSpriteUtil.space(level.weekObjects, FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
 				object.x = x - object.width / 2;
 				object.y = y - object.height / 2;
 			});
 			for (sprite in level.weekObjects) {
 				var offsets:Position = sprite.extra.get('offsets');
-				sprite.group.setPosition(sprite.group.x + offsets.x, sprite.group.y + offsets.y);
+				sprite.setPosition(sprite.x + offsets.x, sprite.y + offsets.y);
 			} */
 			for (i => sprite in level.weekObjects) {
-				sprite.group.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
-				sprite.group.x += 400 * i;
-				sprite.group.x -= (400 * ((level.weekObjects.length - 1) / 2));
+				sprite.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.x += 400 * i;
+				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
 
 				var offsets:Position = sprite.extra.get('offsets');
-				sprite.group.setPosition(sprite.group.x + offsets.x, sprite.group.y + offsets.y);
+				sprite.setPosition(sprite.x + offsets.x, sprite.y + offsets.y);
 			}
 		}
 

@@ -98,11 +98,6 @@ final class HaxeScript extends Script {
 			'HaxeScript' => HaxeScript,
 			'InvaildScript' => InvaildScript,
 			'LuaScript' => LuaScript,
-			'SelfGroup' => backend.selfgroup.group.SelfGroup,
-			'SelfSpriteGroup' => backend.selfgroup.group.SelfSpriteGroup,
-			'SelfTypedGroup' => backend.selfgroup.group.SelfGroup.SelfTypedGroup,
-			'SelfTypedSpriteGroup' => backend.selfgroup.group.SelfSpriteGroup.SelfTypedSpriteGroup,
-			'ISelfGroup' => ISelfGroup,
 			'Main' => Main,
 			#if MOD_SUPPORT
 			'Modding' => Modding,

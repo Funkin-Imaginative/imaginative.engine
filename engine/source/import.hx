@@ -66,7 +66,6 @@ import backend.scripting.events.ScriptEvent;
 import backend.scripting.group.ScriptGroup;
 import backend.scripting.interfaces.IScript;
 import backend.scripting.types.GlobalScript;
-import backend.selfgroup.interfaces.ISelfGroup;
 import backend.system.Main;
 #if MOD_SUPPORT
 import backend.system.Modding;

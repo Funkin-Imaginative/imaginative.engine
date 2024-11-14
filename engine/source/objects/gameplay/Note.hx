@@ -18,7 +18,7 @@ enum abstract NotePart(String) from String to String {
 	var NoteEnd = 'End';
 }
 
-class Note extends FlxSprite /* implements ISelfGroup */ {
+class Note extends FlxSprite {
 	// Cool variables.
 	/**
 	 * Custom update function.

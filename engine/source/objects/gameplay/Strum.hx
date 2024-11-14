@@ -1,6 +1,6 @@
 package objects.gameplay;
 
-class Strum extends FlxSprite /* implements ISelfGroup */ {
+class Strum extends FlxSprite {
 	// Cool variables.
 	/**
 	 * Custom update function.
