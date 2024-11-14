@@ -196,17 +196,17 @@ class StoryMenu extends BeatState {
 
 		add(weekObjects);
 
-		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0');
-		scoreText.setFormat(Paths.font('vcr'), 32, FlxColor.WHITE, LEFT);
+		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0')
+		.setFormat(Paths.font('vcr').format(), 32, FlxColor.WHITE, LEFT);
 		add(scoreText);
 
-		titleText = new FlxText(10, 10, FlxG.width - 20, 'awaiting title...');
-		titleText.setFormat(Paths.font('vcr'), 32, FlxColor.WHITE, RIGHT);
+		titleText = new FlxText(10, 10, FlxG.width - 20, 'awaiting title...')
+		.setFormat(Paths.font('vcr').format(), 32, FlxColor.WHITE, RIGHT);
 		titleText.alpha = 0.7;
 		add(titleText);
 
-		trackList = new FlxText(20, weekBg.y + weekBg.height + 20, Std.int(((FlxG.width - 400) / 2) - 80), '$trackText\n\nWoah!\ncrAzy\nWhy am I a banana??');
-		trackList.setFormat(Paths.font('vcr'), 32, 0xFFE55778, CENTER);
+		trackList = new FlxText(20, weekBg.y + weekBg.height + 20, Std.int(((FlxG.width - 400) / 2) - 80), '$trackText\n\nWoah!\ncrAzy\nWhy am I a banana??')
+		.setFormat(Paths.font('vcr').format(), 32, 0xFFE55778, CENTER);
 		add(trackList);
 
 		for (l in diffs) {

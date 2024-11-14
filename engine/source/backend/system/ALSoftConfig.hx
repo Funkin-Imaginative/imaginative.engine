@@ -1,5 +1,5 @@
 #if desktop
-package backend;
+package backend.system;
 
 /**
  * A class that simply points OpenALSoft to a custom configuration file when the game starts up.

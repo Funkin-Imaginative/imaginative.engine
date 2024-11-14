@@ -86,7 +86,7 @@ class Script extends FlxBasic implements IScript {
 			if (getAllInstances) {
 				var result:Array<String> = [];
 				for (ext in exts)
-					for (instance in ModdingSystem.getAllInstancesOfFile('${file.path}.$ext', file.type, true))
+					for (instance in Modding.getAllInstancesOfFile('${file.path}.$ext', file.type, true))
 						result.push(instance);
 				return result;
 			} else return [Paths.script(file).format()];

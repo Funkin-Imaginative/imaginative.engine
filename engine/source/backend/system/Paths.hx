@@ -46,8 +46,8 @@ enum abstract ModType(String) {
 		#if MOD_SUPPORT
 		return switch (fromString(this)) {
 			case MAIN: 'solo/${Main.mainMod}';
-			case SOLO: 'solo/${ModdingSystem.curSolo}';
-			case MOD: 'mods/${ModdingSystem.curMod}';
+			case SOLO: 'solo/${Modding.curSolo}';
+			case MOD: 'mods/${Modding.curMod}';
 			default: '';
 		}
 		#else
@@ -85,8 +85,8 @@ enum abstract ModType(String) {
 	inline public static function pathCheck(wanted:ModType, incoming:ModType):Bool {
 		return switch (wanted) {
 			case MAIN: incoming == null || incoming == MAIN || incoming == LEAD || incoming == NORM || incoming == ANY;
-			case SOLO: !ModdingSystem.soloIsMain && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
-			case MOD: !ModdingSystem.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
+			case SOLO: !Modding.soloIsMain && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
+			case MOD: !Modding.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
 			default: false;
 		}
 	}
@@ -96,7 +96,7 @@ enum abstract ModType(String) {
 	 * @return `ModType`
 	 */
 	inline public static function getMain():ModType
-		return ModdingSystem.soloIsMain ? MAIN : SOLO;
+		return Modding.soloIsMain ? MAIN : SOLO;
 	#end
 
 	/**
@@ -303,10 +303,10 @@ class Paths {
 
 		#if MOD_SUPPORT
 		if (result == '' && ModType.pathCheck(MOD, type))
-			if (itemExists(check = ModdingSystem.getModsRoot(file), false))
+			if (itemExists(check = Modding.getModsRoot(file), false))
 				result = check;
 		if (result == '' && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = 'solo/${ModdingSystem.curSolo}/$file', false))
+			if (itemExists(check = 'solo/${Modding.curSolo}/$file', false))
 				result = check;
 		if (result == '' && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = 'solo/${Main.mainMod}/$file', false))

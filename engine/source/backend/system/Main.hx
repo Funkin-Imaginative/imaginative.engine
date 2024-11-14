@@ -44,13 +44,19 @@ class Main extends Sprite {
 
 	#if KNOWS_VERSION_ID
 	/**
-	 * Engine version.
+	 * The current version of the engine.
 	 */
 	public static var engineVersion(default, null):Version;
 	/**
-	 * Latest version.
+	 * The latest version of the engine.
 	 */
 	public static var latestVersion(default, null):Version;
+	#end
+	#if CHECK_FOR_UPDATES
+	/**
+	 * If true, a new update was released for the engine!
+	 */
+	public static var updateAvailable(default, null):Bool = false;
 	#end
 
 	@SuppressWarnings('checkstyle:CommentedOutCode')
@@ -78,6 +84,24 @@ class Main extends Sprite {
 		addChild(new FlxGame(#if (!debug || (debug && release)) states.StartScreen #else states.TitleScreen #end, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		FlxSprite.defaultAntialiasing = true;
+
+		#if CHECK_FOR_UPDATES
+		if (Settings.setup.checkForUpdates) {
+			var http:haxe.Http = new haxe.Http("https://raw.githubusercontent.com/Funkin-Imaginative/imaginative.engine.dev/refs/heads/main/project.xml?token=GHSAT0AAAAAACW7FJHPLYQBPTHCRFLHZ2R2ZZU3VRA");
+
+			http.onData = (data:String) -> {
+				latestVersion = new haxe.xml.Access(Xml.parse(data).firstElement()).node.app.att.version;
+				if (engineVersion < latestVersion) {
+					trace('New version available!');
+					updateAvailable = true;
+				}
+			}
+
+			http.onError = (error:String) -> trace('error: $error');
+
+			http.request();
+		}
+		#end
 
 		FlxG.mouse.visible = false;
 		FlxG.mouse = new FlxMouse(_inputContainer);

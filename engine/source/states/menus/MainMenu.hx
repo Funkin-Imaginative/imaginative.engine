@@ -24,8 +24,15 @@ class MainMenu extends BeatState {
 	var bg:FlxSprite;
 	var flashBg:FlxSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
+
+	var mainTextsGroup:FlxTypedSpriteGroup<FlxText>;
+	var buildTxt:FlxText;
 	var versionTxt:FlxText;
-	var definedTagsText:FlxText;
+
+	var definedTextsGroup:FlxTypedSpriteGroup<FlxText>;
+	var compilerTxt:FlxText;
+	var definedTagsTxt:FlxText;
+	var tagResultsTxt:FlxText;
 
 	// Camera management.
 	var camPoint:FlxObject;
@@ -89,38 +96,58 @@ class MainMenu extends BeatState {
 		camera.snapToTarget();
 
 		// version text setup
-		var theText:String = '';
-		final buildTag:Null<String> = #if debug 'Debug' #elseif !release 'Test' #elseif (debug && release) 'Debugging Release' #else null #end;
-		if (buildTag != null) theText += ' ~ $buildTag Build ~ \n';
-		theText += 'Imaginative Engine';
+		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
+		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ')
+		.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		mainTextsGroup.add(buildTxt);
+
+		var theText:String = 'Imaginative Engine';
 		#if KNOWS_VERSION_ID
 		theText += ' v${Main.engineVersion}';
-		if (Main.engineVersion < Main.latestVersion) theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
+		#if CHECK_FOR_UPDATES
+		if (Main.updateAvailable) theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
+		#end
 		#end
 		theText += '\nMade relatively from scratch!';
 
-		versionTxt = new FlxText(5, theText);
-		versionTxt.setFormat(Paths.font('vcr'), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
-		versionTxt.y = FlxG.height - versionTxt.height - 5;
-		versionTxt.scrollFactor.set();
-		add(versionTxt);
+		versionTxt = new FlxText(0, buildTxt.height + 5, theText).setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		mainTextsGroup.add(versionTxt);
+
+		buildTxt.fieldWidth = versionTxt.width;
+
+		mainTextsGroup.scrollFactor.set();
+		mainTextsGroup.y = FlxG.height - mainTextsGroup.height - 5;
+		add(mainTextsGroup);
 
 		// defined text setup
-		var theText:String = ' ~ Defined Compiler Tags ~ ';
-		theText += '\n${Sys.systemName()} :Platform';
-		theText += '\n${Compiler.getDefine('KNOWS_VERSION_ID') != null} :Know\'s Verison';
-		theText += '\n${Compiler.getDefine('CHECK_FOR_UPDATES') != null} :Know\'s When To Update';
-		theText += '\n${Compiler.getDefine('MOD_SUPPORT') != null} :Has Mod Support';
-		theText += '\n${Compiler.getDefine('SCRIPT_SUPPORT') != null} :Has Script Support';
-		theText += '\n${Compiler.getDefine('DISCORD_RICH_PRESENCE') != null} :Has Discord Connectivity';
-		theText += '\n${Compiler.getDefine('ALLOW_VIDEOS') != null} :Can Play Videos';
+		definedTextsGroup = new FlxTypedSpriteGroup<FlxText>();
 
-		definedTagsText = new FlxText(theText);
-		definedTagsText.setFormat(Paths.font('vcr'), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
-		definedTagsText.x = FlxG.width - definedTagsText.width - 5;
-		definedTagsText.y = FlxG.height - definedTagsText.height - 5;
-		definedTagsText.scrollFactor.set();
-		add(definedTagsText);
+		compilerTxt = new FlxText(' ~ Defined Compiler Tags ~ ').setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		definedTextsGroup.add(compilerTxt);
+
+		var theText:Array<Array<String>> = [];
+		theText.push(['Platform', Sys.systemName()]); // I hate when code is a bitch.
+		theText.push(['Know\'s Verison', Compiler.getDefine('KNOWS_VERSION_ID') != null ? 'true' : 'false']);
+		theText.push(['Know\'s When To Update', Compiler.getDefine('CHECK_FOR_UPDATES') != null ? 'true' : 'false']);
+		theText.push(['Has Mod Support', Compiler.getDefine('MOD_SUPPORT') != null ? 'true' : 'false']);
+		theText.push(['Has Script Support', Compiler.getDefine('SCRIPT_SUPPORT') != null ? 'true' : 'false']);
+		theText.push(['Has Discord Connectivity', Compiler.getDefine('DISCORD_RICH_PRESENCE') != null ? 'true' : 'false']);
+		theText.push(['Can Play Videos', Compiler.getDefine('ALLOW_VIDEOS') != null ? 'true' : 'false']);
+
+		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'))
+		.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		definedTextsGroup.add(definedTagsTxt);
+
+		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'))
+		.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		definedTextsGroup.add(definedTagsTxt);
+
+		compilerTxt.fieldWidth = (definedTagsTxt.fieldWidth = definedTagsTxt.width) + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
+
+		definedTextsGroup.scrollFactor.set();
+		definedTextsGroup.x = FlxG.width - definedTextsGroup.width - 5;
+		definedTextsGroup.y = FlxG.height - definedTextsGroup.height - 5;
+		add(definedTextsGroup);
 	}
 
 	override public function update(elapsed:Float):Void {

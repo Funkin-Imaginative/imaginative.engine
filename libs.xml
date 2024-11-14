@@ -23,5 +23,6 @@
 		<!-- Kinda Optional??? -->
 		<lib name='thx.semver'/>
 		<!-- <lib name='extension-androidtools'/> -->
+		<lib name='hxcpp-debug-server'/>
 	<!-- Optional Stuff -->
 </libraries>

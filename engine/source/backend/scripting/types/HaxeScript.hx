@@ -105,7 +105,7 @@ final class HaxeScript extends Script {
 			'ISelfGroup' => ISelfGroup,
 			'Main' => Main,
 			#if MOD_SUPPORT
-			'ModdingSystem' => ModdingSystem,
+			'Modding' => Modding,
 			#end
 			'ModType' => Type.resolveClass('backend.system.Paths.ModType_HSC'),
 			'ModPath' => Type.resolveClass('backend.system.Paths.ModPath_HSC'),

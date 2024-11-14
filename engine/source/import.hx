@@ -69,7 +69,7 @@ import backend.scripting.types.GlobalScript;
 import backend.selfgroup.interfaces.ISelfGroup;
 import backend.system.Main;
 #if MOD_SUPPORT
-import backend.system.ModdingSystem;
+import backend.system.Modding;
 #end
 import backend.system.Paths;
 import backend.system.Settings;

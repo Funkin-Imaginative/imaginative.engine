@@ -28,7 +28,7 @@ enum abstract FpsType(String) from String to String {
 @:structInit class MainSettings {
 	#if MOD_SUPPORT
 	/**
-	 * If true, this is like enabling soloOnlyMode in ModdingSystem.
+	 * If true, this is like enabling soloOnlyMode in Modding.
 	 */
 	public var soloOnly:Bool = false;
 	#end
@@ -89,6 +89,12 @@ enum abstract FpsType(String) from String to String {
 	 */
 	public var fpsType:FpsType = Custom;
 
+	#if CHECK_FOR_UPDATES
+	/**
+	 * If true, the engine will check for updates.
+	 */
+	public var checkForUpdates:Bool = true;
+	#end
 	/**
 	 * If true, your given access to all the tools to make a mod!
 	 */

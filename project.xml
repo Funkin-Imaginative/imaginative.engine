@@ -12,7 +12,7 @@
 		<define name='CAN_HAXE_SCRIPT'/> <!-- Haxe Language -->
 		<define name='CAN_LUA_SCRIPT'/> <!-- Lua Language -->
 
-		<haxedef name='DISABLE_DCE' if='release'/> <!-- you can remove the "release" check here if you feel its needed -->
+		<define name='DISABLE_DCE'/>
 		<haxedef name='SCRIPTED_STATES'/>
 		<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
 
@@ -68,8 +68,8 @@
 		<assets  path='embed/assets' rename='${FinalPath}' embed='true'  preload='true' exclude='*readme.md'/>
 		<assets  path='embed/root'   rename=''             embed='true'  preload='true' exclude='*readme.md'/>
 
-		<echo value='The main mod is "${FinalPath}".'          if='MOD_SUPPORT'/>
-		<echo value='The asset folder is "${FinalPath}".'  unless='MOD_SUPPORT'/>
+		<echo value='The main mod is "${FinalPath}".'         if='MOD_SUPPORT'/>
+		<echo value='The asset folder is "${FinalPath}".' unless='MOD_SUPPORT'/>
 
 		<!-- Modding -->
 		<section if='MOD_SUPPORT'>
@@ -120,7 +120,7 @@
 		<define name='hscriptPos'               if='CAN_HAXE_SCRIPT'/>
 		<haxedef name='analyzer-optimize'       if='release' unless='debug'/>
 
-		<!-- related to flixel cne libs (I think) -->
+		<!-- related to flixel cne fork -->
 		<haxedef name='EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX'/>
 	<!-- Extra Stuff -->
 

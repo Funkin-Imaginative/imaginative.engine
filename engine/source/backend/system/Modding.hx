@@ -4,7 +4,7 @@ package backend.system;
 /**
  * This class contains information about the engine's loaded mods.
  */
-class ModdingSystem {
+class Modding {
 	/**
 	 * It true, the current up front mod loaded doesn't allow lower end mods to run.
 	 */
