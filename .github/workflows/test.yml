@@ -38,7 +38,7 @@ jobs:
           haxe -cp commandline -D analyzer-optimize --run Main setup
       - name: Building the game
         run: |
-          haxelib run lime build windows
+          haxelib run lime build windows -final
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -106,7 +106,7 @@ jobs:
           haxe -cp commandline -D analyzer-optimize --run Main setup
       - name: Building the game
         run: |
-          haxelib run lime build mac
+          haxelib run lime build mac -final
       - name: Tar files
         run: tar -zcvf Imaginative.tar.gz -C export/build/macos/bin .
       - name: Publish Artifact
@@ -179,7 +179,7 @@ jobs:
           haxe -cp commandline -D analyzer-optimize --run Main setup
       - name: Building the game
         run: |
-          haxelib run lime build linux
+          haxelib run lime build linux -final
       - name: Tar files
         run: tar -zcvf Imaginative.tar.gz -C export/build/linux/bin .
       - name: Publish Artifact
