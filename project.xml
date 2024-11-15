@@ -84,6 +84,7 @@
 		<haxelib name='flixel'        version='git'/>
 		<haxelib name='flixel-addons' version='git'/>
 
+		<haxelib name='moonchart'                             version='git'/> <!-- chart format converter -->
 		<haxelib name='hscript-improved' if='CAN_HAXE_SCRIPT' version='git'/>
 		<haxelib name='linc_luajit'      if='CAN_LUA_SCRIPT'  version='git'/>
 		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>

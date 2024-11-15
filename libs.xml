@@ -14,6 +14,7 @@
 		<git name='hscript-improved' url='https://github.com/FNF-CNE-Devs/hscript-improved' ref='custom-classes'/>
 		<git name='linc_luajit' url='https://github.com/superpowers04/linc_luajit'/>
 		<lib name='json2object'/>
+		<git name='moonchart' url='https://github.com/MaybeMaru/moonchart'/>
 	<!-- Other Libraries -->
 
 	<!-- Optional Stuff -->
