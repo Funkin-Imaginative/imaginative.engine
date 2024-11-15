@@ -90,7 +90,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Dispatches when the music ends.
 	 */
 	public var onComplete:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
-	var _onComplete:Void->Void;
+	public var _onComplete:Void->Void;
 
 	// Main Conductors.
 	/**
