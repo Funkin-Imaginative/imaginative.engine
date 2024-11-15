@@ -90,6 +90,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Dispatches when the music ends.
 	 */
 	public var onComplete:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
+	var _onComplete:Void->Void;
 
 	// Main Conductors.
 	/**
@@ -227,7 +228,11 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		conductorSoundGroup = new FlxSoundGroup();
 		audio = new FlxSound();
 		audio.autoDestroy = false; // jic
-		audio.onComplete = () -> onComplete.dispatch();
+		audio.onComplete = () -> {
+			onComplete.dispatch();
+			if (_onComplete != null)
+				_onComplete();
+		}
 		FlxG.signals.preUpdate.add(update);
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);

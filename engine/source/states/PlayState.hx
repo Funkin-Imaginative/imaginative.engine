@@ -259,7 +259,7 @@ class PlayState extends BeatState {
 				if (timer.loopsLeft == 0) {
 					conductor.play();
 					songStarted = true;
-					conductor.onComplete.add(() -> scripts.call('onEndSong'));
+					conductor._onComplete = () -> scripts.call('onEndSong');
 				}
 			}, countdownLength + 1);
 		});
