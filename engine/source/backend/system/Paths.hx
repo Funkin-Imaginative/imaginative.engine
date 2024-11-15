@@ -592,10 +592,9 @@ class Paths {
 		if (folderExists(folder, doTypeCheck))
 			for (file in FileSystem.readDirectory(doTypeCheck ? folder.format() : folder.path))
 				if (setExt == null)
-					files.push(file);
+					files.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
 				else if (FilePath.extension(file) == setExt)
-					files.push(FilePath.withoutExtension(file));
-		trace([for (file in files) file.format()]);
+					files.push(FilePath.withoutExtension(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file'));
 		return files;
 	}
 	/**
@@ -609,14 +608,14 @@ class Paths {
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
 	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
-		var orderText:Array<String> = getFileContent(txt('$folder/order')).trimSplit('\n');
+		var orderText:Array<String> = getFileContent(txt('${FilePath.addTrailingSlash(folder)}order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
 		for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
 			files.push(file);
 		for (file in orderText)
-			if (fileExists('$folder/$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
-				results.push('${folder.type}:$file');
+			if (fileExists('${FilePath.addTrailingSlash(folder)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
+				results.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
 		for (file in files)
 			if (!results.contains(file))
 				results.push(file);
@@ -638,7 +637,7 @@ class Paths {
 	 * @return `Bool` ~ If true, it exists.
 	 */
 	inline public static function folderExists(file:ModPath, doTypeCheck:Bool = true):Bool
-		return FileSystem.isDirectory(doTypeCheck ? file.format() : file.path);
+		return FileSystem.isDirectory(FilePath.removeTrailingSlashes(doTypeCheck ? file.format() : file.path));
 	/**
 	 * Check's if an item exists, file or folder!
 	 * @param file The mod path.

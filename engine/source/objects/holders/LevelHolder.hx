@@ -117,7 +117,7 @@ class LevelHolder extends FlxBasic {
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
-			var bruh:Array<ModPath> = ['global', name];
+			var bruh:Array<ModPath> = ['lead:global', name];
 			for (level in bruh)
 				for (script in Script.create('${level.type}:content/levels/${level.path}'))
 					scripts.add(script);

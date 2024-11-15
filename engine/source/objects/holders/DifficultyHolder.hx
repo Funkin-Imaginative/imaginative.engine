@@ -53,7 +53,7 @@ class DifficultyHolder extends FlxBasic {
 		data = ParseUtil.difficulty(name = diff.toLowerCase());
 		scripts = new ScriptGroup(this);
 		if (allowScripts)
-			for (diff in ['global', name])
+			for (diff in ['lead:global', name])
 				for (script in Script.create('content/difficulties/$diff'))
 					scripts.add(script);
 

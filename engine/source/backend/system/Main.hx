@@ -164,8 +164,8 @@ class Main extends Sprite {
 		trace(Paths.json('content/difficulties/erect').format());
 		trace(Paths.object('characters/boyfriend').format());
 		trace(Paths.script('content/global').format());
-		trace([for (file in Paths.readFolder('content/states')) file.format()]);
-		trace([for (file in Paths.readFolderOrderTxt('content/levels', 'json')) file.format()]);
+		trace([for (file in Paths.readFolder('content/states', false)) file.format()]);
+		trace([for (file in Paths.readFolderOrderTxt('content/levels', 'json', false)) file.format()]);
 		trace(Paths.sound('soundTest').format());
 		trace(Paths.soundRandom('GF_', 1, 4).format());
 		trace(Paths.music('breakfast').format());

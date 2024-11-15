@@ -68,7 +68,7 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('content/levels', 'json', false)
 		]) {
 			for (i => name in list) {
-				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), '${name.type}:${name.path}', true);
+				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
@@ -144,7 +144,7 @@ class StoryMenu extends BeatState {
 
 		var cantFindList:Array<String> = [];
 		weekObjects = new BeatGroup();
-		for (i => loop in loadedObjects) {
+		for (i => loop in loadedObjects)
 			for (data in loop) {
 				var modPath:ModPath = data.path;
 				var objectData:SpriteData = data.object;
@@ -157,32 +157,22 @@ class StoryMenu extends BeatState {
 				}
 
 				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
-				if (data.flip)
-					sprite.flipX = !sprite.flipX;
+				if (data.flip) sprite.flipX = !sprite.flipX;
 				sprite.extra.set('offsets', data.offsets);
-				if (data.size != 1) {
-					sprite.scale.set(data.size, data.size);
-					sprite.updateHitbox();
-				}
+				sprite.scale.scale(data.size);
+				sprite.updateHitbox();
+
 
 				sprite.extra.set('willHey', data.willHey);
+				sprite.extra.set('offsets', data.offsets);
 
 				sprite.alpha = 0.0001;
 				sprite.scrollFactor.set();
 				levels.members[i].weekObjects.push(sprite);
 				weekObjects.add(sprite);
 			}
-		}
 
-		for (level in levels) {
-			/* FlxSpriteUtil.space(level.weekObjects, FlxG.width * 0.25, FlxG.height / 2, FlxG.width * 0.25, 0, (object:FlxObject, x:Float, y:Float) -> {
-				object.x = x - object.width / 2;
-				object.y = y - object.height / 2;
-			});
-			for (sprite in level.weekObjects) {
-				var offsets:Position = sprite.extra.get('offsets');
-				sprite.setPosition(sprite.x + offsets.x, sprite.y + offsets.y);
-			} */
+		for (level in levels)
 			for (i => sprite in level.weekObjects) {
 				sprite.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
@@ -190,8 +180,9 @@ class StoryMenu extends BeatState {
 
 				var offsets:Position = sprite.extra.get('offsets');
 				sprite.setPosition(sprite.x + offsets.x, sprite.y + offsets.y);
+				sprite.x -= sprite.width / 2;
+				sprite.y -= sprite.height / 2;
 			}
-		}
 
 		add(weekObjects);
 
@@ -223,11 +214,11 @@ class StoryMenu extends BeatState {
 		camera.snapToTarget();
 	}
 
+	function hoverIsCorrect(item:LevelHolder):Bool return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
 		if (canSelect) {
-			final hoverIsCorrect:LevelHolder->Bool = (item:LevelHolder) -> return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
 
 			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);

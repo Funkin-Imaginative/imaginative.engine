@@ -50,9 +50,9 @@ typedef AudioData = {
 	@:default([]) var checkpoints:Array<CheckpointTyping>;
 }
 
+// MAYBE: Add documentation.
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract SongTimeType(String) from String to String {
-	// MAYBE: Add documentation.
 	var IsStep = 'Step';
 	var IsBeat = 'Beat';
 	var IsMeasure = 'Measure';
@@ -66,20 +66,30 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	// FlxSignals.
 	/**
 	 * Dispatches when the bpm changes.
+	 * @param bpm The bpm.
+	 * @param beatsPM The number of beats per measure.
+	 * @param stepsPB The number of steps per beat.
 	 */
 	public var onBPMChange:FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
 	/**
 	 * Dispatches when the next step happens.
+	 * @param curStep The current step.
 	 */
 	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next beat happens.
+	 * @param curBeat The current beat.
 	 */
 	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next measure happens.
+	 * @param curMeasure The current measure.
 	 */
 	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	/**
+	 * Dispatches when the music ends.
+	 */
+	public var onComplete:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
 
 	// Main Conductors.
 	/**
@@ -124,11 +134,11 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var startBpm(default, null):Float = 100;
 	/**
-	 * Previous BPM. (is the start bpm on start)
+	 * Previous bpm. (is the `startBpm` on start)
 	 */
 	public var prevBpm(default, null):Float = 100;
 	/**
-	 * Current BPM.
+	 * The beats per second, bpm for short.
 	 */
 	public var bpm(default, null):Float = 100;
 
@@ -217,6 +227,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		conductorSoundGroup = new FlxSoundGroup();
 		audio = new FlxSound();
 		audio.autoDestroy = false; // jic
+		audio.onComplete = () -> onComplete.dispatch();
 		FlxG.signals.preUpdate.add(update);
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);
@@ -328,7 +339,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var vocals:FlxSound = new FlxSound();
 		vocals.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(file.format());
+		vocals.loadEmbedded(file.format(), true);
 		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
 		vocals.persist = audio.persist;
 

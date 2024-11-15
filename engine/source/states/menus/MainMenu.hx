@@ -139,7 +139,7 @@ class MainMenu extends BeatState {
 		definedTextsGroup.add(definedTagsTxt);
 
 		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'))
-		.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTextsGroup.add(definedTagsTxt);
 
 		compilerTxt.fieldWidth = (definedTagsTxt.fieldWidth = definedTagsTxt.width) + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);

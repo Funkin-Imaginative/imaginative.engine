@@ -118,7 +118,7 @@ final class HaxeScript extends Script {
 			'FlxWindow' => FlxWindow,
 			'mainWindow' => FlxWindow.direct,
 			'WindowBounds' => WindowBounds,
-			'AnimContext' => Type.resolveClass('objects.BaseSprite.AnimContext_HSC'),
+			'AnimationContext' => Type.resolveClass('objects.BaseSprite.AnimationContext_HSC'),
 			'BaseSprite' => BaseSprite,
 			'BeatSprite' => BeatSprite,
 			'Character' => Character,

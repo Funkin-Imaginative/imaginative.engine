@@ -203,7 +203,7 @@ class PlayState extends BeatState {
 		for (folder in ['content/songs', 'content/songs/$curSong/scripts']) {
 			for (ext in Script.exts) {
 				for (file in Paths.readFolder(folder, ext)) {
-					for (script in Script.create('$folder/$file')) {
+					for (script in Script.create(file)) {
 						scripts.add(script);
 					}
 				}
@@ -259,9 +259,7 @@ class PlayState extends BeatState {
 				if (timer.loopsLeft == 0) {
 					conductor.play();
 					songStarted = true;
-					conductor.audio.onComplete = () -> {
-						scripts.call('onEndSong');
-					}
+					conductor.onComplete.add(() -> scripts.call('onEndSong'));
 				}
 			}, countdownLength + 1);
 		});

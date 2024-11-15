@@ -64,22 +64,22 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var cameraOffset(default, null):Position = new Position();
 	/**
 	 * Get's the characters camera position.
-	 * @param pos An optional Position to apply it to.
-	 *            If you put a Position it won't create a new one.
+	 * @param point An optional Position to apply it to.
+	 *              If you put a Position it won't create a new one.
 	 * @return `Position` ~ The camera position.
 	 */
-	public function getCamPos(?pos:Position):Position {
-		var point:FlxPoint = getMidpoint();
+	public function getCamPos(?point:Position):Position {
+		var midpoint:FlxPoint = getMidpoint();
 		var event:PointEvent = new PointEvent(
-			point.x + cameraOffset.x,
-			point.y + cameraOffset.y
+			midpoint.x + spriteOffsets.position.x + cameraOffset.x,
+			midpoint.y + spriteOffsets.position.y + cameraOffset.y
 		);
-		point.put();
+		midpoint.put();
 		scripts.call('onGetCamPos', [event]);
 
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
-		return pos == null ? new Position(event.x, event.y) : pos.set(event.x, event.y);
+		return point == null ? new Position(event.x, event.y) : point.set(event.x, event.y);
 	}
 
 	/**
@@ -109,8 +109,10 @@ final class Character extends BeatSprite implements ITexture<Character> {
 
 	override function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
-
-		var bruh:Array<ModPath> = ['global', 'characters/global', '${file.type}:characters/${file.path}'];
+		trace(file.format());
+		var bruh:Array<ModPath> = ['lead:global', 'lead:characters/global'];
+		if (file != null file.format().trim() != '')
+			bruh.push('${file.type}:characters/${file.path}');
 		for (char in bruh)
 			for (script in Script.create('${char.type}content/objects/${char.path}'))
 				scripts.add(script);
@@ -141,7 +143,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		}
 	}
 
-	override function generalSuffixCheck(context:AnimContext):String {
+	override function generalSuffixCheck(context:AnimationContext):String {
 		return switch (context) {
 			case IsSinging | HasMissed:
 				singSuffix;

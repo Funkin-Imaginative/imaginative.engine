@@ -13,7 +13,7 @@ final class PlaySpecialAnimEvent extends ScriptEvent {
 	/**
 	 * The context for the upcoming animation.
 	 */
-	public var context:AnimContext = Unclear;
+	public var context:AnimationContext = Unclear;
 	/**
 	 * If true, the animation will play backwards.
 	 */
@@ -24,7 +24,7 @@ final class PlaySpecialAnimEvent extends ScriptEvent {
 	 */
 	public var frame:Int = 0;
 
-	public function new(type:String, force:Bool = true, context:AnimContext = Unclear, reverse:Bool = false, frame:Int = 0) {
+	public function new(type:String, force:Bool = true, context:AnimationContext = Unclear, reverse:Bool = false, frame:Int = 0) {
 		super();
 		this.type = type;
 		this.force = force;

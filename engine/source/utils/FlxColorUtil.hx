@@ -41,7 +41,7 @@ typedef HSL = {
  * And before you ask "where's the documenttaion??????", everything here is self-explanatory.
  */
 @SuppressWarnings('checkstyle:FieldDocComment')
-@:noUsing class FlxColorUtil {
+class FlxColorUtil {
 	// RGB
 	inline public static function getRed(color:FlxColor):Int
 		return color.red;

@@ -44,7 +44,7 @@ class Strum extends FlxSprite {
 		animation.addByPrefix('confirm', 'confirm$dir', 24, false);
 
 		playAnim('static');
-		scale.set(0.7, 0.7);
+		scale.scale(0.7);
 		updateHitbox();
 		playAnim('static');
 	}

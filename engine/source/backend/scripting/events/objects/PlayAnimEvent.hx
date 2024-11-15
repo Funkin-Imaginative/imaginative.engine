@@ -12,7 +12,7 @@ final class PlayAnimEvent extends ScriptEvent {
 	/**
 	 * The context for the upcoming animation.
 	 */
-	public var context:AnimContext = Unclear;
+	public var context:AnimationContext = Unclear;
 	/**
 	 * The animation suffix.
 	 */
@@ -27,7 +27,7 @@ final class PlayAnimEvent extends ScriptEvent {
 	 */
 	public var frame:Int = 0;
 
-	override public function new(name:String, force:Bool = true, context:AnimContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0) {
+	override public function new(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0) {
 		super();
 		this.name = name;
 		this.force = force;

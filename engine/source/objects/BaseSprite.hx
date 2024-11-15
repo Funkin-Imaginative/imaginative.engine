@@ -7,7 +7,7 @@ import flixel.addons.effects.FlxSkewedSprite;
  * Idea from Codename Engine.
  * @author Original by @FNF-CNE-Devs, done kinda differenly by @rodney528.
  */
-enum abstract AnimContext(String) from String to String {
+enum abstract AnimationContext(String) from String to String {
 	/**
 	 * States that the object animation is related to dancing.
 	 */
@@ -137,10 +137,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					frames = Paths.frames(newTexture, textureType);
 					resetTextures(Paths.image(newTexture), textureType);
 				} catch(error:haxe.Exception)
-				try {
-					loadImage(newTexture);
-				} catch(error:haxe.Exception)
-					trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+					try {
+						loadImage(newTexture);
+					} catch(error:haxe.Exception)
+						trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
 			else return loadImage(newTexture);
 		return this;
 	}
@@ -191,6 +191,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 				offset.set(spriteOffsets.position.x, spriteOffsets.position.y);
 				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
+				updateHitbox();
 			}
 
 			try {
@@ -230,6 +231,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					setPosition(inputData.starting.position.x, inputData.starting.position.y);
 					flipX = inputData.starting.flip.x;
 					flipY = inputData.starting.flip.y;
+					scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
 					scale.scale(inputData.starting.scale.x, inputData.starting.scale.y);
 					updateHitbox();
 				}
@@ -267,7 +269,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	/**
 	 * The current animation context.
 	 */
-	public var animContext:AnimContext;
+	public var animContext:AnimationContext;
 	/**
 	 * Global offsets
 	 */
@@ -298,8 +300,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 */
 	public function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
-
-		var bruh:Array<ModPath> = ['global', file];
+		trace(file.format());
+		var bruh:Array<ModPath> = ['lead:global'];
+		if (file != null file.format().trim() != '')
+			bruh.push(file);
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
@@ -308,20 +312,20 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+		super(x, y);
+
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
 			if (Paths.fileExists(Paths.object(file))) {
-				loadScript(script != null ? file.format() : '${file.type}:${script.path}');
+				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
 			loadScript(script != null ? script : '');
+
 		scripts.call('create');
-
-		super(x, y);
-
 		if (this is BaseSprite || this is BeatSprite)
 			scripts.call('createPost');
 	}
@@ -344,7 +348,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	inline function invaildSuffixCheck(name:String, suffix:String):Bool
 		return doesAnimExist('$name-${suffix.trim()}', true);
 
-	function generalSuffixCheck(context:AnimContext):String {
+	function generalSuffixCheck(context:AnimationContext):String {
 		return switch (context) {
 			default:
 				animSuffix;
@@ -361,7 +365,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * @param frame The starting frame. By default it's 0.
 	 *              Although if reversed it will use the last frame instead.
 	 */
-	inline public function playAnim(name:String, force:Bool = true, context:AnimContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
+	inline public function playAnim(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;
 		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
 		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;

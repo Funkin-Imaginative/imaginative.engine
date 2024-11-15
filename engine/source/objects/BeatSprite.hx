@@ -84,7 +84,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
 				final event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop'));
 				if (!event.prevented) {
-					final prevAnimContext:AnimContext = animContext;
+					final prevAnimContext:AnimationContext = animContext;
 					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
 					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed) animContext = prevAnimContext; // for `tryDance()` checks
 					scripts.call('playingSpecialAnimPost', [event]);
@@ -143,7 +143,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		scripts.call('dancingPost', [event]);
 	}
 
-	override function generalSuffixCheck(context:AnimContext):String {
+	override function generalSuffixCheck(context:AnimationContext):String {
 		return switch (context) {
 			case IsDancing:
 				idleSuffix;

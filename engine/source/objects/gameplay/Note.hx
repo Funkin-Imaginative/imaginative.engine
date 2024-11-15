@@ -73,7 +73,7 @@ class Note extends FlxSprite {
 		}
 
 		animation.play('note', true);
-		scale.set(0.7, 0.7);
+		scale.scale(0.7);
 		updateHitbox();
 	}
 }
