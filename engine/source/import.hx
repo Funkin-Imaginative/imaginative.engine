@@ -88,7 +88,6 @@ import states.PlayState;
 import utils.ParseUtil;
 import utils.PlatformUtil;
 
-using utils.FlxColorUtil;
 using utils.FunkinUtil;
 using utils.SpriteUtil;
 

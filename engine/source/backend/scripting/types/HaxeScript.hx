@@ -126,7 +126,6 @@ final class HaxeScript extends Script {
 			'FunkinUtil' => FunkinUtil,
 			'ParseUtil' => ParseUtil,
 			'PlatformUtil' => PlatformUtil,
-			'FlxColorUtil' => FlxColorUtil,
 			'SpriteUtil' => SpriteUtil,
 
 			// Extra //
