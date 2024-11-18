@@ -12,12 +12,12 @@ class Update {
 
 		// to prevent messing with currently installed libs
 		if (!FileSystem.exists('.haxelib'))
-			if (!args.contains('--detect'))
+			if (!args.contains('--detect-global'))
 				if (!args.contains('--global'))
 					FileSystem.createDirectory('.haxelib');
 
-		// It's here so "--detect" can work as intended.
-		if (args.contains('--detect') && FileSystem.exists('.haxelib'))
+		// It's here so "--detect-global" can work as intended.
+		if (args.contains('--detect-global') && FileSystem.exists('.haxelib'))
 			args.push('--global');
 
 		var libs:Array<Library> = [];

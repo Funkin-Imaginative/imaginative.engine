@@ -23,7 +23,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --detect",
+			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --detect-global",
 			"label": "Check Libraries (Detect Globality)",
 			"problemMatcher": [
 				"$haxe-absolute",
