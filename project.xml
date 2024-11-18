@@ -1,27 +1,27 @@
 <?xml version='1.0' encoding='utf-8'?>
 <project>
 	<!-- Define Setup -->
-	<define name='KNOWS_VERSION_ID'/>
-	<define name='CHECK_FOR_UPDATES' if='release KNOWS_VERSION_ID' unless='debug'/>
-	<define name='MOD_SUPPORT'/>
-	<define name='SCRIPT_SUPPORT'/>
-	<define name='ALLOW_SHADERS'/>
+		<define name='KNOWS_VERSION_ID'/>
+		<define name='CHECK_FOR_UPDATES' if='release KNOWS_VERSION_ID' unless='debug'/>
+		<define name='MOD_SUPPORT'/>
+		<define name='SCRIPT_SUPPORT'/>
+		<define name='ALLOW_SHADERS'/>
 
-	<!-- script related -->
-	<section if='SCRIPT_SUPPORT'>
-		<define name='CAN_HAXE_SCRIPT'/> <!-- Haxe Language -->
-		<define name='CAN_LUA_SCRIPT'/> <!-- Lua Language -->
+		<!-- script related -->
+		<section if='SCRIPT_SUPPORT'>
+			<define name='CAN_HAXE_SCRIPT'/> <!-- Haxe Language -->
+			<define name='CAN_LUA_SCRIPT'/> <!-- Lua Language -->
 
-		<define name='DISABLE_DCE'/>
-		<haxedef name='SCRIPTED_STATES'/>
-		<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
+			<define name='DISABLE_DCE'/>
+			<haxedef name='SCRIPTED_STATES'/>
+			<define name='CUSTOM_CLASSES' if='CAN_HAXE_SCRIPT'/>
 
-		<echo value='Scripting was enabled.'/>
-	</section>
-	<section if='cpp'>
-		<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
-		<define name='ALLOW_VIDEOS' if='desktop || android'/>
-	</section>
+			<echo value='Scripting was enabled.'/>
+		</section>
+		<section if='cpp'>
+			<define name='DISCORD_RICH_PRESENCE' if='desktop'/>
+			<define name='ALLOW_VIDEOS' if='desktop || android'/>
+		</section>
 	<!-- Define Setup -->
 
 	<app
@@ -77,14 +77,14 @@
 	<!-- Path Settings -->
 
 	<!-- Libraries -->
-		<haxedef name='disable-version-check'/> <!-- Prevent lime version being fored -->
+		<haxedef name='disable-version-check'/> <!-- prevent lime version being forced -->
 		<haxelib name='openfl' version='9.2.2'/>
 		<haxelib name='lime'   version='8.1.2'/>
 
 		<haxelib name='flixel'        version='git'/>
 		<haxelib name='flixel-addons' version='git'/>
 
-		<haxelib name='moonchart'                             version='git'/> <!-- chart format converter -->
+		<haxelib name='moonchart'                             version='git'/> <!-- cool chart format converter -->
 		<haxelib name='hscript-improved' if='CAN_HAXE_SCRIPT' version='git'/>
 		<haxelib name='linc_luajit'      if='CAN_LUA_SCRIPT'  version='git'/>
 		<haxelib name='hxdiscord_rpc'    if='DISCORD_RICH_PRESENCE'/>

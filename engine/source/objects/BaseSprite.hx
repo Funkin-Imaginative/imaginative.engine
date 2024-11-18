@@ -302,7 +302,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global'];
-		if (file != null && file.format().trim() != '')
+		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push(file);
 
 		#if debug

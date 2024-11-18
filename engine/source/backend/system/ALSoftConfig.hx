@@ -7,8 +7,10 @@ package backend.system;
  * @author From Psych Engine.
  */
 #if !DISABLE_DCE @:keep #end class ALSoftConfig {
+	#if !DISABLE_DCE
 	@:allow(backend.system.Main.new)
 	static function fuckDCE():Void {}
+	#end
 
 	static function __init__():Void {
 		var origin:String = #if hl Sys.getCwd() #else Sys.programPath() #end;

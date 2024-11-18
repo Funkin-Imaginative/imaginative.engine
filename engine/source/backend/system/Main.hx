@@ -67,7 +67,7 @@ class Main extends Sprite {
 
 		super();
 		direct = this;
-		#if desktop
+		#if (!DISABLE_DCE && desktop)
 		ALSoftConfig.fuckDCE();
 		#end
 

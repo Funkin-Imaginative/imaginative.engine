@@ -111,7 +111,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global', 'lead:characters/global'];
-		if (file != null && file.format().trim() != '')
+		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push('${file.type}:characters/${file.path}');
 
 		#if debug
