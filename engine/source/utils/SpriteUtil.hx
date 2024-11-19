@@ -175,7 +175,7 @@ class SpriteUtil {
 					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
 					else loadImage(sprite, newTexture);
 				} catch(error:haxe.Exception)
-					trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 		}
 		return sprite;
 	}
@@ -196,7 +196,7 @@ class SpriteUtil {
 				try {
 					sprite.loadGraphic(Paths.image(newTexture).format(), animated, width, height);
 				} catch(error:haxe.Exception)
-					trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
+					log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return sprite;
 	}
 	/**
@@ -219,7 +219,7 @@ class SpriteUtil {
 						try {
 							loadImage(sprite, newTexture);
 						} catch(error:haxe.Exception)
-							trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+							log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 				else loadImage(sprite, newTexture);
 		}
 		return sprite;

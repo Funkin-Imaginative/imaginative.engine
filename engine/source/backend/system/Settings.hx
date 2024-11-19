@@ -101,6 +101,10 @@ enum abstract FpsType(String) from String to String {
 	public var debugMode(get, default):Bool = false;
 	inline function get_debugMode():Bool
 		return #if debug true #else debugMode #end;
+	/**
+	 * If true, logs with the `Warning` level won't show up.
+	 */
+	public var ignoreLogWarnings:Bool = true;
 }
 
 /**

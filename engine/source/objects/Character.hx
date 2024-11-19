@@ -99,8 +99,9 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
-			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+			} catch(error:haxe.Exception)
+				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		super.renderData(inputData, false);
 	}
 
@@ -114,9 +115,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push('${file.type}:characters/${file.path}');
 
-		#if debug
-		trace([for (file in bruh) file.format()]);
-		#end
+		log([for (file in bruh) file.format()], DebugMessage);
 
 		for (char in bruh)
 			for (script in Script.create('${char.type}content/objects/${char.path}'))

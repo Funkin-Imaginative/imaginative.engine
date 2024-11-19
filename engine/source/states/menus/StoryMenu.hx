@@ -151,7 +151,7 @@ class StoryMenu extends BeatState {
 
 				if (data.path.trim() != '' || data.path != null) {
 					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
-						trace('"${Paths.object(modPath).format()}" doesn\'t exist.');
+						log('"${Paths.object(modPath).format()}" doesn\'t exist.', WarningMessage);
 						cantFindList.push(modPath.path);
 					}
 				}

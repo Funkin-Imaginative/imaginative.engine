@@ -20,7 +20,7 @@ final class HaxeScript extends Script {
 	var parser:Parser;
 	var expr:Expr;
 
-	static function getScriptImports(script:HaxeScript):Map<String, Dynamic>
+	static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -144,13 +144,16 @@ final class HaxeScript extends Script {
 				script.active = false;
 			},
 			'trace' => (value:Dynamic) -> {
-				var info:haxe.PosInfos = script.interp.posInfos();
-				haxe.Log.trace(value, info);
+				log(value, script.interp.posInfos());
+			},
+			'log' => (value:Dynamic, level:LogLevel = LogMessage) -> {
+				log(value, level, script.interp.posInfos());
 			},
 
 			// self //
 			'__this__' => script
 		];
+	}
 
 	@:allow(backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String)
@@ -172,7 +175,7 @@ final class HaxeScript extends Script {
 			final content:String = Paths.getFileContent(file);
 			this.code = content.trim() == '' ? code : content;
 		} catch(error:haxe.Exception) {
-			trace('Error while trying to get script contents: ${error.message}');
+			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
 			this.code = '';
 		}
 	}
@@ -183,7 +186,7 @@ final class HaxeScript extends Script {
 				canRun = true;
 			}
 		} catch(error:haxe.Exception) {
-			trace('Error while parsing script: ${error.message}');
+			log('Error while parsing script: ${error.message}', ErrorMessage);
 			canRun = false;
 		}
 	}
@@ -208,7 +211,7 @@ final class HaxeScript extends Script {
 					call('new');
 				}
 			} catch(error:haxe.Exception)
-				trace('Error while trying to execute script: ${error.message}');
+				log('Error while trying to execute script: ${error.message}', ErrorMessage);
 		}
 	}
 	override public function reload():Void {
@@ -256,7 +259,7 @@ final class HaxeScript extends Script {
 			try {
 				return Reflect.callMethod(null, func, args.getDefault([]));
 			} catch(error:haxe.Exception)
-				trace('Error while trying to call function $func: ${error.message}');
+				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
 
 		return null;
 	}
@@ -273,7 +276,7 @@ final class HaxeScript extends Script {
 	#else
 	@:allow(backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		trace('Haxe scripting isn\'t supported in this build.');
+		log('Haxe scripting isn\'t supported in this build.', SystemMessage);
 		super(file, null);
 	}
 	#end

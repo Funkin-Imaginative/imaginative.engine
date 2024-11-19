@@ -87,7 +87,7 @@ class FunkinUtil {
 					for (song in ParseUtil.level(name).songs)
 						results.push(song.folder);
 		} catch(error:haxe.Exception)
-			trace('Missing level json.');
+			log('Missing level json.', WarningMessage);
 		for (folder in Paths.readFolder('content/songs', false))
 			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
@@ -116,11 +116,12 @@ class FunkinUtil {
 	 * @param diff The difficulty json name.
 	 * @return `String` ~ The difficulties default variant.
 	 */
-	@:noUsing inline public static function getDifficultyVariant(diff:String):String
+	@:noUsing inline public static function getDifficultyVariant(diff:String):String {
 		try {
 			return ParseUtil.difficulty(diff).variant.getDefault('normal');
 		} catch(error:haxe.Exception)
 			return 'normal';
+	}
 
 	/**
 	 * Is basically an array's split function but each array slot is trimmed.

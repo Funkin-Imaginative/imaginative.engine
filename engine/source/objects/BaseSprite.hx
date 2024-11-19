@@ -104,7 +104,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
 				else return loadImage(newTexture);
 			} catch(error:haxe.Exception)
-				trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+				log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 		return this;
 	}
 	/**
@@ -120,7 +120,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			try {
 				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic).format(), animated, width, height);
 			} catch(error:haxe.Exception)
-				trace('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"');
+				log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return this;
 	}
 	/**
@@ -140,7 +140,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					try {
 						loadImage(newTexture);
 					} catch(error:haxe.Exception)
-						trace('Couldn\'t find asset "${newTexture.format()}", type "$textureType"');
+						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 			else return loadImage(newTexture);
 		return this;
 	}
@@ -182,7 +182,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			try {
 				loadTexture(modPath);
 			} catch(error:haxe.Exception)
-				trace('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".');
+				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
 			if (Reflect.hasField(inputData, 'offsets')) {
 				spriteOffsets.position.copyFrom(inputData.offsets.position);
@@ -204,7 +204,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 						subModPath = anim.asset.image;
 						switch (anim.asset.type) {
 							case IsUnknown:
-								trace('The asset type was unknown! Tip: "${subModPath.format()}"');
+								log('The asset type was unknown! Tip: "${subModPath.format()}"', WarningMessage);
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
@@ -221,10 +221,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${subModPath.format()}", type "${anim.asset.type}".');
+						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${subModPath.format()}", type "${anim.asset.type}".', ErrorMessage);
 				}
 			} catch(error:haxe.Exception)
-				trace('Couldn\'t add the animations.');
+				log('Couldn\'t add the animations.', WarningMessage);
 
 			if (applyStartValues) {
 				if (Reflect.hasField(inputData, 'starting')) {
@@ -246,12 +246,14 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					if (inputData.extra.length > 1)
 						for (extraData in inputData.extra)
 							extra.set(extraData.name, extraData.data);
-				} catch(error:haxe.Exception) trace('Invalid information in extra array or the null check failed.');
+				} catch(error:haxe.Exception)
+					log('Invalid information in extra array or the null check failed.', ErrorMessage);
 			}
 		} catch(error:haxe.Exception) {
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
-			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+			} catch(error:haxe.Exception)
+				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		}
 	}
 
@@ -305,9 +307,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push(file);
 
-		#if debug
-		trace([for (file in bruh) file.format()]);
-		#end
+		log([for (file in bruh) file.format()], DebugMessage);
 
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))

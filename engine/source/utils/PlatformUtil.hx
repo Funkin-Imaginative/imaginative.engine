@@ -12,10 +12,10 @@ class PlatformUtil {
 	public static function openURL(url:String):Bool {
 		try {
 			lime.system.System.openURL(url);
-			trace('$url');
+			log('$url', SystemMessage);
 			return true;
 		} catch(error:haxe.Exception)
-			trace(error.message);
+			log(error.message, ErrorMessage);
 		return false;
 	}
 

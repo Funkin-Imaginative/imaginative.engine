@@ -83,7 +83,7 @@ class ParseUtil {
 			var jsonPath:ModPath = Paths.json(file);
 			content = haxe.Json.parse(Paths.getFileContent(jsonPath));
 		} catch(error:haxe.Exception)
-			trace('${file.format()}: ${error.message}');
+			log('${file.format()}: ${error.message}', ErrorMessage);
 		return content;
 	}
 
@@ -159,7 +159,7 @@ class ParseUtil {
 				gottenData = json(jsonPath).character;
 				typeData.character.color = FlxColor.fromString(gottenData.color);
 			} catch(error:haxe.Exception)
-				trace(error.message);
+				log(error.message, ErrorMessage);
 			charData = {
 				camera: new Position(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
 				color: typeData.character.color,

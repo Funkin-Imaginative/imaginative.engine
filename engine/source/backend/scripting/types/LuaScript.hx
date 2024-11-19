@@ -13,25 +13,36 @@ final class LuaScript extends Script {
 	public static final exts:Array<String> = ['lua'];
 
 	#if CAN_LUA_SCRIPT
-	static function getScriptImports(script:LuaScript):Map<String, Dynamic>
+	static function getScriptImports(script:LuaScript):Map<String, Dynamic> {
 		return [
 			'disableScript' => () -> {
 				script.active = false;
 			},
 			'print' => (value:Dynamic) -> {
-				trace('${script.pathing.format()}: $value');
+				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', LogMessage, null);
+			},
+			'log' => (value:Dynamic, level:String = 'log') -> {
+				var luaLevel:LogLevel = switch (level) {
+					case 'error': ErrorMessage;
+					case 'warning': WarningMessage;
+					case 'system': SystemMessage;
+					case 'debug': DebugMessage;
+					case 'log': LogMessage;
+				}
+				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', luaLevel, null);
 			}
 		];
+	}
 
 	@:allow(backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String) {
-		trace('Lua scripting isn\'t supported... yet.');
+		log('Lua scripting isn\'t supported... yet.', SystemMessage);
 		super(file, code);
 	}
 	#else
 	@:allow(backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		trace('Lua scripting isn\'t supported in this build.');
+		log('Lua scripting isn\'t supported in this build.', SystemMessage);
 		super(file, null);
 	}
 	#end

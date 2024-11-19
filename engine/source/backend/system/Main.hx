@@ -63,13 +63,14 @@ class Main extends Sprite {
 	@:access(flixel.input.mouse.FlxMouse.new)
 	@:access(backend.system.frontEnds.OverlayCameraFrontEnd)
 	public function new():Void {
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
-
-		super();
-		direct = this;
+		Console.init();
 		#if (!DISABLE_DCE && desktop)
 		ALSoftConfig.fuckDCE();
 		#end
+
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+		super();
+		direct = this;
 
 		FlxWindow.init();
 		Script.init();
@@ -92,12 +93,12 @@ class Main extends Sprite {
 			http.onData = (data:String) -> {
 				latestVersion = new haxe.xml.Access(Xml.parse(data).firstElement()).node.app.att.version;
 				if (engineVersion < latestVersion) {
-					trace('New version available!');
+					log('New version available!', WarningMessage);
 					updateAvailable = true;
 				}
 			}
 
-			http.onError = (error:String) -> trace('error: $error');
+			http.onError = (error:String) -> log('error: $error', ErrorMessage);
 
 			http.request();
 		}
@@ -124,24 +125,24 @@ class Main extends Sprite {
 		FlxG.signals.preUpdate.add(() -> {
 			if (Settings.setup.debugMode) {
 				if (Controls.resetState) {
-					trace('Reseting state...');
+					log('Reseting state...', SystemMessage);
 					BeatState.resetState();
-					trace('Reset state successfully!');
+					log('Reset state successfully!', SystemMessage);
 				}
 
 				if (Controls.shortcutState) {
-					trace('Heading to the MainMenu...');
+					log('Heading to the MainMenu...', SystemMessage);
 					BeatState.switchState(new states.menus.MainMenu());
-					trace('Successfully entered the MainMenu!');
+					log('Successfully entered the MainMenu!', SystemMessage);
 				}
 
 				if (Controls.reloadGlobalScripts)
 					if (GlobalScript.scripts.length > 0) {
-						trace('Reloading global scripts...');
+						log('Reloading global scripts...', SystemMessage);
 						GlobalScript.loadScript();
-						trace('Global scripts successfully reloaded.');
+						log('Global scripts successfully reloaded.', SystemMessage);
 					} else {
-						trace('Loading global scripts...');
+						log('Loading global scripts...', SystemMessage);
 						GlobalScript.loadScript();
 					}
 			}

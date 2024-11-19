@@ -72,8 +72,9 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			}
 		} catch(error:haxe.Exception)
 			try {
-				trace('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"');
-			} catch(error:haxe.Exception) trace('Something went wrong. All try statements were bypassed! Tip: "null"');
+				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+			} catch(error:haxe.Exception)
+				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		super.renderData(inputData, applyStartValues);
 	}
 

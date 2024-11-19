@@ -52,7 +52,7 @@ class ScriptGroup extends FlxBasic {
 	public function importScript(file:ModPath):Script {
 		final script:Script = Script.create(file, false)[0];
 		if (script.type.dummy) {
-			trace('Script at "${file.format()}", doesn\'t exist.');
+			log('Script at "${file.format()}", doesn\'t exist.', WarningMessage);
 			return null;
 		}
 		add(script);

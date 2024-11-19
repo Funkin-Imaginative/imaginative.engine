@@ -331,7 +331,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		PlayConfig.enemyPlay = PlayConfig.enableP2 = false;
 		_renderSong(songList[0], difficulty, variant);
-		trace('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && levelData.songs.length > 1) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
+		log('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && levelData.songs.length > 1) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -347,7 +347,7 @@ class PlayState extends BeatState {
 		PlayConfig.enemyPlay = playAsEnemy;
 		PlayConfig.enableP2 = p2AsEnemy;
 		_renderSong(song, difficulty, variant);
-		trace('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
+		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**

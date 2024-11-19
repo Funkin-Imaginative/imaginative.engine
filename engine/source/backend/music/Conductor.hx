@@ -337,7 +337,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	inline public function addExtraAudio(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.music(music);
 		if (!Paths.fileExists(file)) {
-			trace('Failed to find audio "${music.format()}".');
+			log('Failed to find audio "${music.format()}".', WarningMessage);
 			return null;
 		}
 
@@ -364,7 +364,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	inline public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.vocal(song, suffix, variant);
 		if (!Paths.fileExists(file)) {
-			trace('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.');
+			log('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
 			return null;
 		}
 
@@ -390,7 +390,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			final jsonPath:ModPath = Paths.json(file);
 			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 			if (content == null) {
-				trace('$file: Metadata parse failed.');
+				log('$file: Metadata parse failed.', ErrorMessage);
 				return {
 					artist: 'Unassigned',
 					name: 'None',
@@ -401,7 +401,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			}
 			return content;
 		} catch(error:haxe.Exception) {
-			trace('$file: ${error.message}');
+			log('$file: ${error.message}', ErrorMessage);
 			return {
 				artist: 'Unassigned',
 				name: 'None',
