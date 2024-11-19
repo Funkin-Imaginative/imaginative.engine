@@ -57,22 +57,17 @@ class Update {
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
 		var haxeVer:String = proc.stdout.readLine();
-		if (haxeVer != '4.2.5') {
+		if (haxeVer != '4.3.6') {
 			// check for outdated haxe
 			var curHaxeVer:Array<Int> = [for (v in haxeVer.split('.')) Std.parseInt(v)];
-			var requiredHaxeVer:Array<Int> = [4, 2, 5];
+			var requiredHaxeVer:Array<Int> = [4, 3, 6];
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
 					prettyPrint('!! WARNING !!');
 					Sys.println('Your current Haxe version is outdated.');
-					Sys.println('You\'re using ${haxeVer}, while the required version is 4.2.5.');
+					Sys.println('You\'re using ${haxeVer}, while the required version is 4.3.6.');
 					Sys.println('The engine may not compile with your current version of Haxe.');
-					Sys.println('We recommend upgrading to 4.2.5');
-					break;
-				} else if (curHaxeVer[i] > requiredHaxeVer[i]) {
-					prettyPrint('!! WARNING !!' + '\nUsing Haxe 4.3.0 and above is currently not recommended due to lack of testing.');
-					Sys.println('');
-					Sys.println('We recommend downgrading back to 4.2.5.');
+					Sys.println('We recommend upgrading to 4.3.6');
 					break;
 				}
 			}
