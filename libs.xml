@@ -18,6 +18,7 @@
 	<!-- Other Libraries -->
 
 	<!-- Optional Stuff -->
+	 	<lib name='checkstyle'/>
 		<lib name='hxdiscord_rpc'/>
 		<lib name='hxvlc'/>
 		<lib name='hxWindowColorMode'/>

@@ -94,6 +94,7 @@
 		<haxelib name='json2object'/>
 		<!-- <haxelib name='extension-androidtools' if='android'/> -->
 
+		<haxelib name='checkstyle'        optional='true'/>
 		<haxelib name='hxWindowColorMode' optional='true'/>
 	<!-- Libraries -->
 

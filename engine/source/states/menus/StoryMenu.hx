@@ -187,11 +187,11 @@ class StoryMenu extends BeatState {
 		add(weekObjects);
 
 		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0')
-		.setFormat(Paths.font('vcr').format(), 32, FlxColor.WHITE, LEFT);
+		.setFormat(Paths.font('vcr').format(), 32, LEFT);
 		add(scoreText);
 
 		titleText = new FlxText(10, 10, FlxG.width - 20, 'awaiting title...')
-		.setFormat(Paths.font('vcr').format(), 32, FlxColor.WHITE, RIGHT);
+		.setFormat(Paths.font('vcr').format(), 32, RIGHT);
 		titleText.alpha = 0.7;
 		add(titleText);
 

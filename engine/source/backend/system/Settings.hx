@@ -98,7 +98,9 @@ enum abstract FpsType(String) from String to String {
 	/**
 	 * If true, your given access to all the tools to make a mod!
 	 */
-	public var debugMode:Bool = false;
+	public var debugMode(get, default):Bool = false;
+	inline function get_debugMode():Bool
+		return #if debug true #else debugMode #end;
 }
 
 /**
