@@ -96,7 +96,7 @@ final class HaxeScript extends Script {
 			'ScriptedSubState' => backend.scripting.states.ScriptedSubState,
 			'GlobalScript' => GlobalScript,
 			'HaxeScript' => HaxeScript,
-			'InvaildScript' => InvaildScript,
+			'InvalidScript' => InvalidScript,
 			'LuaScript' => LuaScript,
 			'Main' => Main,
 			#if MOD_SUPPORT
