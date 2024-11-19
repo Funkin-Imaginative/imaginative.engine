@@ -1,7 +1,7 @@
 package backend.scripting;
 
 import backend.scripting.types.HaxeScript;
-import backend.scripting.types.InvaildScript;
+import backend.scripting.types.InvalidScript;
 import backend.scripting.types.LuaScript;
 
 /**
@@ -21,16 +21,16 @@ enum abstract ScriptType(String) from String to String {
 	 */
 	var TypeLua = 'Lua';
 	/**
-	 * States that this script instance is an invaild language script.
+	 * States that this script instance is an invalid language script.
 	 */
-	var TypeInvaild = 'Invaild';
+	var TypeInvalid = 'Invalid';
 
 	/**
-	 * If true, this script can't actaully be used for anything.
+	 * If true, this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment') inline function get_dummy():Bool
-		return this == TypeUnregistered || this == TypeInvaild;
+		return this == TypeUnregistered || this == TypeInvalid;
 }
 
 /**
@@ -110,7 +110,7 @@ class Script extends FlxBasic implements IScript {
 				case 'lua':
 					scripts.push(new LuaScript(path));
 				default:
-					scripts.push(new InvaildScript(path));
+					scripts.push(new InvalidScript(path));
 			}
 		}
 		return scripts;
@@ -126,7 +126,7 @@ class Script extends FlxBasic implements IScript {
 			case 'Script':        	TypeUnregistered;
 			case 'HaxeScript':    	TypeHaxe;
 			case 'LuaScript':     	TypeLua;
-			case 'InvaildScript': 	TypeInvaild;
+			case 'InvalidScript': 	TypeInvalid;
 			default:              	TypeUnregistered;
 		}
 	}
@@ -154,10 +154,10 @@ class Script extends FlxBasic implements IScript {
 	 * @param code The script code.
 	 * @param vars Variables to input into the script instance.
 	 * @param funcToRun Function to run inside the script instance.
-	 * @param fungArgs Arguments to run for said function.
+	 * @param funcArgs Arguments to run for said function.
 	 * @return `Script` ~ The script instance from string.
 	 */
-	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?fungArgs:Array<Dynamic>):Script return this;
+	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script return this;
 
 	/**
 	 * States if the script has loaded.

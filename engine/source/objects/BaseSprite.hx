@@ -5,7 +5,7 @@ import flixel.addons.effects.FlxSkewedSprite;
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
- * @author Original by @FNF-CNE-Devs, done kinda differenly by @rodney528.
+ * @author Original by @FNF-CNE-Devs, done kinda differently by @rodney528.
  */
 enum abstract AnimationContext(String) from String to String {
 	/**
@@ -56,7 +56,7 @@ typedef AnimMapping = {
 }
 
 /**
- * This class is a verison of FlxSkewedSprite but with animation support among other things.
+ * This class is a version of FlxSkewedSprite but with animation support among other things.
  */
 class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	// Cool variables.
@@ -221,7 +221,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invaild? The asset is "${subModPath.format()}", type "${anim.asset.type}".');
+						trace('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${subModPath.format()}", type "${anim.asset.type}".');
 				}
 			} catch(error:haxe.Exception)
 				trace('Couldn\'t add the animations.');
@@ -246,7 +246,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					if (inputData.extra.length > 1)
 						for (extraData in inputData.extra)
 							extra.set(extraData.name, extraData.data);
-				} catch(error:haxe.Exception) trace('Invaild information in extra array or the null check failed.');
+				} catch(error:haxe.Exception) trace('Invalid information in extra array or the null check failed.');
 			}
 		} catch(error:haxe.Exception) {
 			try {
@@ -350,7 +350,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	inline function set_animSuffix(value:String):String
 		return animSuffix = value.trim();
 
-	inline function invaildSuffixCheck(name:String, suffix:String):Bool
+	inline function invalidSuffixCheck(name:String, suffix:String):Bool
 		return doesAnimExist('$name-${suffix.trim()}', true);
 
 	function generalSuffixCheck(context:AnimationContext):String {
@@ -375,7 +375,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
 		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;
 
-		final suffixResult:String = suffix == null ? '' : (invaildSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invaildSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
+		final suffixResult:String = suffix == null ? '' : (invalidSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invalidSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			final animInfo:AnimMapping = getAnimInfo(theName);
