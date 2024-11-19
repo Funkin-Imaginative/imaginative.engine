@@ -25,7 +25,7 @@ class DifficultyHolder extends FlxBasic {
 	 */
 	public var data:DifficultyData;
 	/**
-	 * The actaully sprite.
+	 * The actually sprite.
 	 */
 	public var sprite:BaseSprite;
 	/**

@@ -14,7 +14,7 @@ typedef ObjectTyping = {
 	 */
 	@:default(false) var flip:Bool;
 	/**
-	 * Posiiton offsets.
+	 * Position offsets.
 	 */
 	@:default({x: 0, y: 0}) var offsets:Position;
 	/**
@@ -83,7 +83,7 @@ class LevelHolder extends FlxBasic {
 	 */
 	public var data:LevelData;
 	/**
-	 * The actaully sprite.
+	 * The actually sprite.
 	 */
 	public var sprite:BaseSprite;
 	/**

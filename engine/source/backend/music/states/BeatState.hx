@@ -184,12 +184,12 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public static function switchState(nextState:FlxState):Void {
 		if (FlxG.state is BeatState && nextState is BeatState) {
-			var oldCouductor:Conductor = cast(FlxG.state, BeatState).conductor;
-			var newCouductor:Conductor = cast(nextState, BeatState).conductor;
-			if (oldCouductor == Conductor.song)
-				oldCouductor.pause();
-			else if (oldCouductor != newCouductor)
-				oldCouductor.stop();
+			var oldConductor:Conductor = cast(FlxG.state, BeatState).conductor;
+			var newConductor:Conductor = cast(nextState, BeatState).conductor;
+			if (oldConductor == Conductor.song)
+				oldConductor.pause();
+			else if (oldConductor != newConductor)
+				oldConductor.stop();
 		}
 		FlxG.switchState(nextState);
 	}

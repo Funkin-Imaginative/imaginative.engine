@@ -29,7 +29,7 @@ enum abstract MenuSFX(String) from String to String {
 }
 
 /**
- * Utilites for this funkin engine.
+ * Utilities for this funkin engine.
  */
 class FunkinUtil {
 	/**

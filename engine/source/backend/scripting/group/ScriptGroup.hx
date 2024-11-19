@@ -68,11 +68,11 @@ class ScriptGroup extends FlxBasic {
 
 	/**
 	 * Load's the scripts in the group, pretty self-explanatory.
-	 * @param clearInvaild If true, improper scripts will be removed from the group.
+	 * @param clearInvalid If true, improper scripts will be removed from the group.
 	 */
-	public function load(clearInvaild:Bool = true):Void {
-		if (clearInvaild)
-			this.clearInvaild();
+	public function load(clearInvalid:Bool = true):Void {
+		if (clearInvalid)
+			this.clearInvalid();
 		for (script in members)
 			if (script != null)
 				script.load();
@@ -179,11 +179,11 @@ class ScriptGroup extends FlxBasic {
 	/**
 	 * Improper scripts get removed from the group.
 	 */
-	public function clearInvaild():Void {
+	public function clearInvalid():Void {
 		for (script in members) {
 			if (script != null && script.type.dummy) {
 				remove(script);
-				script.end('onInvaild');
+				script.end('onInvalid');
 			}
 		}
 	}

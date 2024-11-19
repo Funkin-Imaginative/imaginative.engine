@@ -127,7 +127,7 @@ class MainMenu extends BeatState {
 
 		var theText:Array<Array<String>> = [];
 		theText.push(['Platform', Sys.systemName()]); // I hate when code is a bitch.
-		theText.push(['Know\'s Verison', Compiler.getDefine('KNOWS_VERSION_ID') != null ? 'true' : 'false']);
+		theText.push(['Know\'s Version', Compiler.getDefine('KNOWS_VERSION_ID') != null ? 'true' : 'false']);
 		theText.push(['Know\'s When To Update', Compiler.getDefine('CHECK_FOR_UPDATES') != null ? 'true' : 'false']);
 		theText.push(['Has Mod Support', Compiler.getDefine('MOD_SUPPORT') != null ? 'true' : 'false']);
 		theText.push(['Has Script Support', Compiler.getDefine('SCRIPT_SUPPORT') != null ? 'true' : 'false']);

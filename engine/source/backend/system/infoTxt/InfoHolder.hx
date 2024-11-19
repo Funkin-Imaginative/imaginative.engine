@@ -1,4 +1,4 @@
-package source.backend.system.infotxt;
+package source.backend.system.infoTxt;
 
 class InfoHolder extends FlxSpriteGroup {
 	public function new() {

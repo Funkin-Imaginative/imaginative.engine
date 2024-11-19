@@ -22,7 +22,7 @@ class CrashHandler {
 				case FilePos(_, file, line, _):
 					errMsg += '$file (line $line)\n';
 				default:
-					Sys.println(stackItem);
+					log(stackItem, ErrorMessage, null);
 			}
 		}
 
@@ -33,8 +33,8 @@ class CrashHandler {
 
 		File.saveContent(path, errMsg + '\n');
 
-		Sys.println(errMsg);
-		Sys.println('Crash dump saved in ${FilePath.normalize(path)}');
+		log(errMsg, ErrorMessage, null);
+		log('Crash dump saved in ${FilePath.normalize(path)}', ErrorMessage, null);
 
 		FlxWindow.direct.self.alert(errMsg, 'Error!');
 		BeatState.resetState();

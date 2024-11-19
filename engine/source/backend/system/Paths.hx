@@ -170,11 +170,11 @@ enum abstract ModType(String) {
  */
 abstract ModPath(String) {
 	/**
-	 * States if the path is invaild.
+	 * States if the path is invalid.
 	 */
-	public var vaild(get, never):Bool;
+	public var valid(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
-	inline function get_vaild():Bool
+	inline function get_valid():Bool
 		return isDirectory ? true : Paths.fileExists(format(), false);
 
 	/**
