@@ -48,11 +48,11 @@ class Main {
 		}
 
 		for (lib in libs)
-			if (ifNull(lib.optional, false)) {
+			if (lib.optional ?? false) {
 				optionalCheck.set(lib.name, false);
 				questDesc.set(
 					lib.name,
-					ifNull(lib.description, 'install ${lib.name}')
+					lib.description ?? 'install ${lib.name}'
 				);
 			}
 
@@ -81,17 +81,17 @@ class Main {
 		Sys.println('-------------------------------------------------------');
 
 		for (lib in libs) {
-			if (ifNull(lib.optional, false))
+			if (lib.optional ?? false)
 				continue;
 
 			var isGlobal:Bool = args.contains('--global') || optionalCheck.get('global') || lib.global;
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
-				Sys.command('haxelib git ${lib.name} ${ifNull(lib.url, '')} ${ifNull(lib.branch, '')} ${isGlobal ? '--global ' : ''} --always');
+				Sys.command('haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${isGlobal ? '--global ' : ''} --always');
 			} else {
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
-				Sys.command('haxelib install ${lib.name} ${ifNull(lib.version, '')} ${isGlobal ? '--global ' : ''} --always');
+				Sys.command('haxelib install ${lib.name} ${lib.version ?? ''} ${isGlobal ? '--global ' : ''} --always');
 			}
 			Sys.println('-------------------------------------------------------');
 		}
@@ -145,7 +145,4 @@ class Main {
 				def.toLowerCase();
 		}
 	}
-
-	static function ifNull<T>(input:Null<T>, def:T):Dynamic
-		return input == null ? def : input;
 }
