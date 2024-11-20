@@ -1,0 +1,1 @@
+haxe -cp setup -D analyzer-optimize --run Main $@

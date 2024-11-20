@@ -1,7 +1,6 @@
 package;
 
 import haxe.Json;
-import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
