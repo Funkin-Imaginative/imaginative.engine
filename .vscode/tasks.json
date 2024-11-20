@@ -12,8 +12,8 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp setup -D analyzer-optimize --run Main --global",
-			"label": "Install Libraries (Global)",
+			"command": "haxe -cp setup -D analyzer-optimize --run Main --always",
+			"label": "Install Libraries (Quick Version, Local Only)",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",

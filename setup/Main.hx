@@ -25,7 +25,7 @@ class Main {
 	public static function main():Void {
 		// arguments
 		var args:Array<String> = Sys.args();
-		optionalCheck.set('global', false);
+		optionalCheck.set('global', args.contains('--global'));
 		questDesc.set('global', 'install the libraries globally');
 
 		// json parse
@@ -48,7 +48,7 @@ class Main {
 		}
 
 		for (lib in libs)
-			if (lib.optional ?? false) {
+			if (lib.optional ??= false) {
 				optionalCheck.set(lib.name, false);
 				questDesc.set(
 					lib.name,
@@ -74,17 +74,17 @@ class Main {
 		}
 
 		if (!FileSystem.exists('.haxelib'))
-			if (!args.contains('--global'))
-				if (!optionalCheck.get('global'))
-					FileSystem.createDirectory('.haxelib');
+			if (!optionalCheck.get('global'))
+				FileSystem.createDirectory('.haxelib');
 
 		Sys.println('-------------------------------------------------------');
 
 		for (lib in libs) {
-			if (lib.optional ?? false)
+			if (optionalCheck.exists(lib.name) && !optionalCheck.get(lib.name))
 				continue;
+			else if (!optionalCheck.exists(lib.name)) {}
 
-			var isGlobal:Bool = args.contains('--global') || optionalCheck.get('global') || lib.global;
+			var isGlobal:Bool = optionalCheck.get('global') || lib.global;
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
@@ -95,6 +95,11 @@ class Main {
 			}
 			Sys.println('-------------------------------------------------------');
 		}
+
+		for (lib in libs)
+			if (lib.version != null)
+				if (lib.version.trim() != '')
+					Sys.command('haxelib set ${lib.name} ${lib.version} ${(optionalCheck.get('global') || lib.global) ? '--global ' : ''} --always');
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
