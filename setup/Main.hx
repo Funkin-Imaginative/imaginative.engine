@@ -32,15 +32,17 @@ class Main {
 		if (FileSystem.exists('setup/libs.json'))
 			libs = Json.parse(File.getContent('setup/libs.json'));
 		else {
-			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify({
-				global: false,
-				name: 'hscript-improved',
-				version: 'git',
-				url: 'https://github.com/FNF-CNE-Devs/hscript-improved',
-				branch: 'custom-classes',
-				optional: true,
-				description: 'include haxe scripting support'
-			}, '\t')}');
+			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify([
+				{
+					global: false,
+					name: 'hscript-improved',
+					version: 'git',
+					url: 'https://github.com/FNF-CNE-Devs/hscript-improved',
+					branch: 'custom-classes',
+					optional: true,
+					description: 'include haxe scripting support'
+				}
+			], '\t')}');
 			return;
 		}
 
@@ -70,8 +72,9 @@ class Main {
 		}
 
 		if (!FileSystem.exists('.haxelib'))
-			if (!args.contains('--global') || !optionalCheck.get('global'))
-				FileSystem.createDirectory('.haxelib');
+			if (!args.contains('--global'))
+				if (!optionalCheck.get('global'))
+					FileSystem.createDirectory('.haxelib');
 
 		Sys.println('-------------------------------------------------------');
 
@@ -80,10 +83,10 @@ class Main {
 				var isGlobal:Bool = args.contains('--global') || optionalCheck.get('global') || lib.global;
 				if (lib.version == 'git') {
 					var repo:Array<String> = lib.url.split('/');
-					Sys.println((isGlobal ? 'Globally installing' : 'Locally installing') + ' "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
+					Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
 					Sys.command('haxelib git ${lib.name} ${ifNull(lib.url, '')} ${ifNull(lib.branch, '')} ${isGlobal ? '--global ' : ''} --always');
 				} else {
-					Sys.println((isGlobal ? 'Globally installing' : 'Locally installing') + ' "${lib.name}".');
+					Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
 					Sys.command('haxelib install ${lib.name} ${ifNull(lib.version, '')} ${isGlobal ? '--global ' : ''} --always');
 				}
 				Sys.println('-------------------------------------------------------');
