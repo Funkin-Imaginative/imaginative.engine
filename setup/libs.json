@@ -1,0 +1,69 @@
+[
+	{
+		"name": "flixel",
+		"version": "git",
+		"url": "https://github.com/FNF-CNE-Devs/flixel"
+	},
+	{
+		"name": "flixel-addons",
+		"version": "git",
+		"url": "https://github.com/FNF-CNE-Devs/flixel-addons"
+	},
+	{
+		"name": "lime",
+		"version": "8.1.2"
+	},
+	{
+		"name": "openfl",
+		"version": "9.2.2"
+	},
+	{
+		"name": "hscript-improved",
+		"version": "git",
+		"url": "https://github.com/FNF-CNE-Devs/hscript-improved",
+		"branch": "custom-classes",
+		"optional": true,
+		"description": "include haxe scripting support"
+	},
+	{
+		"name": "linc_luajit",
+		"version": "git",
+		"url": "https://github.com/superpowers04/linc_luajit",
+		"optional": true,
+		"description": "include lua scripting support"
+	},
+	{
+		"name": "json2object"
+	},
+	{
+		"name": "moonchart",
+		"version": "git",
+		"url": "https://github.com/MaybeMaru/moonchart"
+	},
+	{
+		"name": "checkstyle"
+	},
+	{
+		"name": "hxdiscord_rpc",
+		"optional": true,
+		"description": "include functionality with discord RPC"
+	},
+	{
+		"name": "hxvlc",
+		"optional": true,
+		"description": "allow videos to be played"
+	},
+	{
+		"name": "hxWindowColorMode",
+		"optional": true,
+		"description": "allow the window border color to be changed"
+	},
+	{
+		"name": "thx.semver",
+		"optional": true,
+		"description": "the engine to have version checking capabilities"
+	},
+	{
+		"name": "hxcpp-debug-server"
+	}
+]

@@ -1,8 +1,8 @@
 {
 	"tasks": [
 		{
-			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup",
-			"label": "Check Libraries",
+			"command": "haxe -cp setup -D analyzer-optimize --run Main",
+			"label": "Install Libraries",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
@@ -12,19 +12,8 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --global",
-			"label": "Check Libraries (Global)",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
-			"type": "shell"
-		},
-		{
-			"command": "haxe -cp commandline -D analyzer-optimize --run Main setup --detect-global",
-			"label": "Check Libraries (Detect Globality)",
+			"command": "haxe -cp setup -D analyzer-optimize --run Main --global",
+			"label": "Install Libraries (Global)",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",

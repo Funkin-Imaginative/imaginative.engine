@@ -35,7 +35,7 @@ jobs:
 
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup
+          haxe -cp setup -D analyzer-optimize --run Main --always
       - name: Building the game
         run: |
           haxelib run lime build windows -final
@@ -103,7 +103,7 @@ jobs:
 
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup
+          haxe -cp setup -D analyzer-optimize --run Main --always
       - name: Building the game
         run: |
           haxelib run lime build mac -final
@@ -176,7 +176,7 @@ jobs:
           sudo apt-get install libvlc-dev libvlccore-dev
       - name: Installing Libs
         run: |
-          haxe -cp commandline -D analyzer-optimize --run Main setup
+          haxe -cp setup -D analyzer-optimize --run Main --always
       - name: Building the game
         run: |
           haxelib run lime build linux -final
