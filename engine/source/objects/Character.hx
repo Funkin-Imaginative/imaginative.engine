@@ -5,7 +5,7 @@ import backend.scripting.events.PointEvent;
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:Position;
-	@:optional var color:String;
+	var ?color:String;
 	@:default('face') var icon:String;
 	@:default(2) var singlength:Float;
 }

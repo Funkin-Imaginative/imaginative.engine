@@ -16,10 +16,10 @@ typedef AllowedModesTyping = {
 typedef SongParse = {
 	var folder:String;
 	var icon:String;
-	@:optional var startingDiff:Int;
+	var ?startingDiff:Int;
 	var difficulties:Array<String>;
-	@:optional var variants:Array<String>;
-	@:optional var color:String;
+	var ?variants:Array<String>;
+	var ?color:String;
 	var allowedModes:AllowedModesTyping;
 }
 typedef SongData = {

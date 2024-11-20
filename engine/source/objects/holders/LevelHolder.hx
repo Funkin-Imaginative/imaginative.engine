@@ -8,7 +8,7 @@ typedef ObjectTyping = {
 	/**
 	 * Is the sprite data.
 	 */
-	@:optional var object:SpriteData;
+	var ?object:SpriteData;
 	/**
 	 * Should the object be flipped?
 	 */
@@ -31,9 +31,9 @@ typedef ObjectTyping = {
 typedef LevelParse = {
 	var title:String;
 	var songs:Array<String>;
-	@:optional var startingDiff:Int;
+	var ?startingDiff:Int;
 	var difficulties:Array<String>;
-	@:optional var variants:Array<String>;
+	var ?variants:Array<String>;
 	var objects:Array<ObjectTyping>;
 	@:default('#F9CF51') var color:String;
 }

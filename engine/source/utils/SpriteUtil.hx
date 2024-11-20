@@ -30,7 +30,7 @@ typedef AnimationTyping = {
 	/**
 	 * The asset typing.
 	 */
-	@:optional var asset:AssetTyping;
+	var ?asset:AssetTyping;
 	/**
 	 * Name of the animation.
 	 */
@@ -38,12 +38,12 @@ typedef AnimationTyping = {
 	/**
 	 * Animation key on data method.
 	 */
-	@:optional var tag:String;
+	var ?tag:String;
 	/**
 	 * Height and width dimensions.
 	 * Only if texture type is a graphic.
 	 */
-	@:optional @:default({x: 150, y: 150}) var dimensions:TypeXY<Int>;
+	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
@@ -82,15 +82,15 @@ typedef SpriteData = {
 	/**
 	 * The character data.
 	 */
-	@:optional var character:CharacterData;
+	var ?character:CharacterData;
 	/**
 	 * The beat data.
 	 */
-	@:optional var beat:BeatData;
+	var ?beat:BeatData;
 	/**
 	 * The offset data.
 	 */
-	@:optional var offsets:ObjectData;
+	var ?offsets:ObjectData;
 	/**
 	 * The asset typing.
 	 */
@@ -102,7 +102,7 @@ typedef SpriteData = {
 	/**
 	 * Start values.
 	 */
-	@:optional var starting:ObjectData;
+	var ?starting:ObjectData;
 	/**
 	 * If true, the swap anim var can go off.
 	 * For characters and icons it always on.
@@ -119,7 +119,7 @@ typedef SpriteData = {
 	/**
 	 * Extra data for the sprite.
 	 */
-	@:jignored @:optional var extra:Array<ExtraData>;
+	@:jignored var ?extra:Array<ExtraData>;
 }
 
 enum abstract SpriteType(String) from String to String {

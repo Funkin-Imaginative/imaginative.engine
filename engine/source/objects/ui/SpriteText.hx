@@ -48,7 +48,7 @@ typedef SpriteTextSetup = {
 	 * The display name.
 	 * Mostly for the editor.
 	 */
-	@:optional var name:String;
+	var ?name:String;
 	/**
 	 * The framerate of the animation.
 	 */

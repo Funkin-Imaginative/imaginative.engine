@@ -43,7 +43,7 @@ typedef AudioData = {
 	/**
 	 * The audio offset.
 	 */
-	@:optional @:default(0) var offset:Float;
+	@:default(0) var ?offset:Float;
 	/**
 	 * Contains all known bpm changes.
 	 */
