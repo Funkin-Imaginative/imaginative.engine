@@ -64,6 +64,9 @@
 		"description": "the engine to have version checking capabilities"
 	},
 	{
+		"name": "hxp"
+	},
+	{
 		"name": "hxcpp-debug-server"
 	}
 ]

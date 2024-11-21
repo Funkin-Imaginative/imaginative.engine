@@ -37,7 +37,7 @@ class Main extends Sprite {
 
 	/**
 	 * The main mod that the engine will rely on. Think of it as a fallback.
-	 * This is usually stated as "solo/funkin", aka base game.
+	 * This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
 	inline public static final mainMod:String = haxe.macro.Compiler.getDefine('MainPath');

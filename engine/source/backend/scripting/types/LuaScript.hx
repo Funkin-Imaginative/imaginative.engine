@@ -22,14 +22,7 @@ final class LuaScript extends Script {
 				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', LogMessage, null);
 			},
 			'log' => (value:Dynamic, level:String = 'log') -> {
-				var luaLevel:LogLevel = switch (level) {
-					case 'error': ErrorMessage;
-					case 'warning': WarningMessage;
-					case 'system': SystemMessage;
-					case 'debug': DebugMessage;
-					case 'log': LogMessage;
-				}
-				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', luaLevel, null);
+				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', level, null);
 			}
 		];
 	}
