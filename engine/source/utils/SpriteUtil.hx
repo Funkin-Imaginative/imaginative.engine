@@ -234,7 +234,7 @@ class SpriteUtil {
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	inline public static function getBGSprite<T:FlxSprite>(sprite:T, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY):T {
-		sprite.loadImage('$mod:menus/menuBackground');
+		sprite.loadImage('$mod:menus/bgs/menuArt'); // wip lol
 		// sprite.makeGraphic(Math.floor(sprite.width), Math.floor(sprite.height));
 		sprite.color = funkinColor ? switch (color) {
 			case FlxColor.YELLOW: 0xFFFAE868;
