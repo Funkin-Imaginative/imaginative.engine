@@ -13,7 +13,7 @@ using StringTools;
  *
  * Note: Some stuff here were taken from base games hxp file.
  */
-@:nullSafety class Project extends ProjectXMLParser {
+@:nullSafety class Project extends HXProject {
 	// Basic variables.
 	/**
 	 * The current engine version.
@@ -105,8 +105,8 @@ using StringTools;
 	 */
 	static final allowVideos:FeatureFlag = 'ALLOW_VIDEOS';
 
-	override function initialize() {
-		super.initialize();
+	override public function new() {
+		super();
 
 		if (hasDefine('web') || hasDefine('html5')) {
 			error('None of that thank you! I don\'t want people using the engine for web ports. If you don\'t remember, there used to be so many that base game wasn\'t first in search results!');
@@ -238,12 +238,11 @@ using StringTools;
 		/* Path Settings */
 
 		/* Libraries */
-		setHaxedef('disable-version-check'); // prevent lime version being forced
-		addHaxelib('openfl', '9.2.2');
-		addHaxelib('lime', '8.1.2');
-
 		addHaxelib('flixel', 'git');
 		addHaxelib('flixel-addons', 'git');
+
+		addHaxelib('openfl');
+		addHaxelib('lime');
 
 		addHaxelib('moonchart', 'git');
 		if (canHaxeScript.isEnabled(this))

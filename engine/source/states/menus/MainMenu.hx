@@ -105,7 +105,8 @@ class MainMenu extends BeatState {
 		#if KNOWS_VERSION_ID
 		theText += ' v${Main.engineVersion}';
 		#if CHECK_FOR_UPDATES
-		if (Main.updateAvailable) theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
+		if (Main.updateAvailable)
+			theText += '\nAn update is available! ${Main.latestVersion} is out, please stay up-to-date.';
 		#end
 		#end
 		theText += '\nMade relatively from scratch!';

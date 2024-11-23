@@ -10,12 +10,10 @@
 		"url": "https://github.com/FNF-CNE-Devs/flixel-addons"
 	},
 	{
-		"name": "lime",
-		"version": "8.1.2"
+		"name": "lime"
 	},
 	{
-		"name": "openfl",
-		"version": "9.2.2"
+		"name": "openfl"
 	},
 	{
 		"name": "hscript-improved",

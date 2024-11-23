@@ -48,7 +48,7 @@ class Main {
 		}
 
 		for (lib in libs)
-			if (lib.optional ??= false) {
+			if (lib.optional ?? false) {
 				optionalCheck.set(lib.name, false);
 				questDesc.set(
 					lib.name,
