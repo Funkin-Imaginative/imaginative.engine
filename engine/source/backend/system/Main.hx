@@ -59,7 +59,10 @@ class Main extends Sprite {
 	public static var updateAvailable(default, null):Bool = false;
 	#end
 
-	public static function main():Void {
+	@SuppressWarnings('checkstyle:CommentedOutCode')
+	@:access(flixel.input.mouse.FlxMouse.new)
+	@:access(backend.system.frontEnds.OverlayCameraFrontEnd)
+	public function new():Void {
 		Console.init();
 		#if (!DISABLE_DCE && desktop)
 		ALSoftConfig.fuckDCE();
@@ -67,13 +70,6 @@ class Main extends Sprite {
 
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 
-		Lib.current.addChild(new Main());
-	}
-
-	@SuppressWarnings('checkstyle:CommentedOutCode')
-	@:access(flixel.input.mouse.FlxMouse.new)
-	@:access(backend.system.frontEnds.OverlayCameraFrontEnd)
-	public function new():Void {
 		super();
 		direct = this;
 
