@@ -1,4 +1,12 @@
 {
+	"cSpell.words": [
+		"FLXGRAPHIC",
+		"hxdiscord",
+		"Infront",
+		"jignored",
+		"luajit"
+	],
+
 	"editor.codeActionsOnSave": {
 		"source.organizeImports": "always",
 		"source.sortImports": "always"

@@ -1,0 +1,11 @@
+{
+	"recommendations": [
+		"nadako.vshaxe",
+		"EditorConfig.EditorConfig",
+		"wiggin77.codedox",
+		"vshaxe.haxe-checkstyle",
+		"vshaxe.hxcpp-debugger",
+		"openfl.lime-vscode-extension",
+		"esbenp.prettier-vscode"
+	]
+}

@@ -150,7 +150,6 @@ using StringTools;
 		this.app.main = mainClassPath;
 		this.app.file = exeFileName;
 		this.app.preloader = preloaderClassPath;
-		this.app.swfVersion = 11.8;
 		/* App Setup */
 
 		/* Window Settings */
@@ -238,11 +237,11 @@ using StringTools;
 		/* Path Settings */
 
 		/* Libraries */
-		addHaxelib('flixel', 'git');
-		addHaxelib('flixel-addons', 'git');
-
 		addHaxelib('openfl');
 		addHaxelib('lime');
+
+		addHaxelib('flixel', 'git');
+		addHaxelib('flixel-addons', 'git');
 
 		addHaxelib('moonchart', 'git');
 		if (canHaxeScript.isEnabled(this))
@@ -321,7 +320,7 @@ using StringTools;
 		return hasDefine('debug');
 
 	public function setHaxedef(name:String, ?value:String):Void {
-		info('Set haxedef "$name"${value == null ? '' : ' value of "$value".'}');
+		info('Set haxedef "$name"${value == null ? '' : ' value of "$value"'}.');
 		if (value == null)
 			value = '';
 		this.haxedefs.set(name, value);
@@ -337,7 +336,7 @@ using StringTools;
 		return this.haxedefs.exists(name);
 
 	public function setDefine(name:String, ?value:String):Void {
-		info('Set define "$name"${value == null ? '' : ' value of "$value".'}');
+		info('Set define "$name"${value == null ? '' : ' value of "$value"'}.');
 		if (value == null)
 			value = '';
 		this.defines.set(name, value);
@@ -544,7 +543,7 @@ using StringTools;
 		// https://github.com/haxelime/lime-vscode-extension/issues/88
 
 		// The bug they talk about is a thing, but unlike them it doesn't effect compiling for me lmfao.
-		Log.info('[INFO] $message');
+		// Log.info('[INFO] $message');
 	}
 }
 
