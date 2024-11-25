@@ -45,10 +45,10 @@ class ArrowField extends BeatGroup {
 	 * When it technically doesn't.
 	 */
 	inline public static function swapTargetFields():Void {
-		var prevOppo:ArrowField = enemy;
+		var prevEnemy:ArrowField = enemy;
 		var prevPlay:ArrowField = player;
 		enemy = prevPlay;
-		player = prevOppo;
+		player = prevEnemy;
 	}
 
 	/**
