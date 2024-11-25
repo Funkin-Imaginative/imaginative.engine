@@ -1,20 +1,47 @@
 [
 	{"name": "hxp"}, {"name": "openfl"}, {"name": "lime"},
 
-	{"name": "flixel", "version": "git", "url": "https://github.com/FNF-CNE-Devs/flixel"},
-	{"name": "flixel-addons", "version": "git", "url": "https://github.com/FNF-CNE-Devs/flixel-addons"},
+	{
+		"name": "flixel", "version": "git",
+		"url": "https://github.com/FNF-CNE-Devs/flixel"
+	},
+	{
+		"name": "flixel-addons", "version": "git",
+		"url": "https://github.com/FNF-CNE-Devs/flixel-addons"
+	},
 
 	{"name": "json2object"}, {"name": "checkstyle"},
 
 	{"name": "hxcpp-debug-server"},
 
-	{"name": "moonchart", "version": "git", "url": "https://github.com/MaybeMaru/moonchart"},
+	{
+		"name": "moonchart", "version": "git",
+		"url": "https://github.com/MaybeMaru/moonchart"
+	},
 
-	{"name": "hscript-improved", "version": "git", "url": "https://github.com/FNF-CNE-Devs/hscript-improved", "branch": "custom-classes", "optional": true, "description": "include haxe scripting support"},
-	{"name": "linc_luajit", "version": "git", "url": "https://github.com/superpowers04/linc_luajit", "optional": true, "description": "include lua scripting support"},
-	{"name": "hxdiscord_rpc", "optional": true, "description": "include functionality with discord RPC"},
-	{"name": "hxvlc", "version": "git", "url": "https://github.com/MAJigsaw77/hxvlc", "optional": true, "description": "allow videos to be played"},
-	{"name": "thx.semver", "optional": true, "description": "the engine to have version checking capabilities"},
+	{
+		"name": "hscript-improved", "version": "git", "url": "https://github.com/FNF-CNE-Devs/hscript-improved",
+		"branch": "custom-classes", "optional": true, "description": "include haxe scripting support"
+	},
+	{
+		"name": "linc_luajit", "version": "git", "url": "https://github.com/superpowers04/linc_luajit",
+		"optional": true, "description": "include lua scripting support"
+	},
+	{
+		"name": "hxdiscord_rpc", "optional": true,
+		"description": "include functionality with discord RPC"
+	},
+	{
+		"name": "hxvlc", "version": "git", "url": "https://github.com/MAJigsaw77/hxvlc",
+		"optional": true, "description": "allow videos to be played"
+	},
+	{
+		"name": "thx.semver", "optional": true,
+		"description": "the engine to have version checking capabilities"
+	},
 
-	{"name": "hxWindowColorMode", "optional": true, "description": "allow the window border color to be changed"}
+	{
+		"name": "hxWindowColorMode", "optional": true,
+		"description": "allow the window border color to be changed"
+	}
 ]
