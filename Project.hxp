@@ -204,32 +204,37 @@ using StringTools;
 		/* Path Settings */
 
 		/* Libraries */
+		addHaxelib('hxp');
+		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
 		addHaxelib('lime');
 
+		// the game engine
 		addHaxelib('flixel', 'git');
 		addHaxelib('flixel-addons', 'git');
 
-		addHaxelib('moonchart', 'git');
-		if (canHaxeScript.isEnabled(this))
-			addHaxelib('hscript-improved', 'git');
-		if (canLuaScript.isEnabled(this))
-			addHaxelib('linc_luajit', 'git');
-		if (discordRPC.isEnabled(this))
-			addHaxelib('hxdiscord_rpc');
-		if (allowVideos.isEnabled(this))
-			addHaxelib('hxvlc');
-		if (knowsVersionID.isEnabled(this))
-			addHaxelib('thx.semver');
-
+		// json parsing
 		addHaxelib('json2object');
+		addHaxelib('checkstyle'); // pretty export
 
-		addHaxelib('checkstyle');
-		addHaxelib('hxWindowColorMode');
-		/* Libraries */
-
+		// debugging
 		if (isDesktop() && isDebug())
 			addHaxelib('hxcpp-debug-server');
+
+		// chart converter
+		addHaxelib('moonchart', 'git');
+
+		if ( canHaxeScript.isEnabled(this)) addHaxelib('hscript-improved', 'git');
+		if ( canLuaScript .isEnabled(this)) addHaxelib('linc_luajit',      'git');
+		if (  discordRPC  .isEnabled(this)) addHaxelib('hxdiscord_rpc');
+		if (allowVideos   .isEnabled(this)) addHaxelib('hxvlc');
+		if (knowsVersionID.isEnabled(this)) addHaxelib('thx.semver');
+
+		// very optional
+		if (isWindows() || isLinux())
+			addHaxelib('hxWindowColorMode');
+		/* Libraries */
+
 		if (!isDebug())
 			setHaxedef('FLX_NO_DEBUG');
 
