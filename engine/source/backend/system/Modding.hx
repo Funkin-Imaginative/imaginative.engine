@@ -113,7 +113,7 @@ class Modding {
 			case SOLO: 'solo';
 			case MOD: 'mods';
 			default: '';
-		}, false, false);
+		}, false, true, false);
 		return [
 			for (folder in folders)
 				ModType.modNameFromPath(folder.path)

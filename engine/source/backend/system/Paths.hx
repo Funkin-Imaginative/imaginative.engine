@@ -604,15 +604,17 @@ class Paths {
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
 	 * @param prependDir Prepend's the file directory.
+	 * @param addNonListed If true, anything that wasn't listed in the txt file will still be added.
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
-	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
+	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
 		var orderText:Array<String> = getFileContent(txt('${FilePath.addTrailingSlash(folder)}order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
-		for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
-			files.push(file);
+		if (addNonListed)
+			for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
+				files.push(file);
 		for (file in orderText)
 			if (fileExists('${FilePath.addTrailingSlash(folder)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
 				results.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');

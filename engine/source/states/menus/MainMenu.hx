@@ -20,7 +20,7 @@ class MainMenu extends BeatState {
 
 	// Things to select.
 	var itemLineUp:Array<String> = [
-		for (item in Paths.readFolderOrderTxt('images/menus/main', 'xml', false))
+		for (item in Paths.readFolderOrderTxt('images/menus/main', 'xml', false, false))
 			item.path
 	];
 
