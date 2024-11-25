@@ -16,6 +16,7 @@ class MainMenu extends BeatState {
 		canSelect = false;
 		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
 	}
+	var emptyList(default, null):Bool = false;
 
 	// Things to select.
 	var itemLineUp:Array<String> = [
@@ -84,6 +85,10 @@ class MainMenu extends BeatState {
 			item.centerOrigin();
 			item.screenCenter(X);
 			menuItems.add(item);
+		}
+		if (menuItems.length < 1) {
+			emptyList = true;
+			log('There are no items in the listing.', WarningMessage);
 		}
 		changeSelection();
 		add(menuItems);
@@ -205,6 +210,7 @@ class MainMenu extends BeatState {
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
+		if (emptyList) return;
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
 		if (prevSelected != curSelected)

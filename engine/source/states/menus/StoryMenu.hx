@@ -14,6 +14,7 @@ class StoryMenu extends BeatState {
 		canSelect = false;
 		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
 	}
+	var emptyList(default, null):Bool = false;
 
 	var diffMap:Map<String, DifficultyHolder> = new Map<String, DifficultyHolder>();
 
@@ -30,6 +31,7 @@ class StoryMenu extends BeatState {
 
 	static var prevDiff:Int = 0;
 	static var curDiff:Int = 0;
+	var emptyDiffList(default, null):Bool = false;
 
 	// Objects in the state.
 	var scoreText:FlxText;
@@ -80,6 +82,10 @@ class StoryMenu extends BeatState {
 				loadedObjects.push(temp);
 			}
 		}
+		if (levels.length < 1) {
+			emptyList = true;
+			log('There are no items in the listing.', WarningMessage);
+		}
 		add(levels);
 
 		diffs = new FlxTypedGroup<DifficultyHolder>();
@@ -95,6 +101,10 @@ class StoryMenu extends BeatState {
 			diff.sprite.alpha = 0.0001;
 			diff.updateLock();
 			diffMap.set(name, diffs.add(diff));
+		}
+		if (diffs.length < 1) {
+			emptyDiffList = true;
+			log('There are no difficulties in the listing.', WarningMessage);
 		}
 		add(diffs);
 
@@ -261,6 +271,7 @@ class StoryMenu extends BeatState {
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
+		if (emptyList) return;
 		prevSelected = curSelected;
 		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1);
 		if (prevSelected != curSelected)
@@ -296,6 +307,7 @@ class StoryMenu extends BeatState {
 			arrow.centerOrigin();
 		}
 
+		if (emptyDiffList) return;
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
 		if (prevDiff != curDiff)
