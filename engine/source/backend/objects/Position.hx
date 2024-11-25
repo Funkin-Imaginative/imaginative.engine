@@ -23,8 +23,8 @@ package backend.objects;
 	 * @return `Position` ~ Current instance for chaining.
 	 */
 	inline public function set(x:Float = 0, y:Float = 0):Position {
-		this.x = x.getDefault(0);
-		this.y = y.getDefault(0);
+		this.x = x ?? 0;
+		this.y = y ?? 0;
 		return this;
 	}
 

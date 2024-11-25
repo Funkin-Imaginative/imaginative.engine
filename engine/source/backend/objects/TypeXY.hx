@@ -23,8 +23,8 @@ package backend.objects;
 	 * @return `TypeXY<T>` ~ Current instance for chaining.
 	 */
 	inline public function set(x:T, y:T):TypeXY<T> {
-		this.x = x.getDefault(this.x);
-		this.y = y.getDefault(this.y);
+		this.x = x ?? this.x;
+		this.y = y ?? this.y;
 		return this;
 	}
 

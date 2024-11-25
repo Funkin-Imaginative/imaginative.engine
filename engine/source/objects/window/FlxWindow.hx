@@ -191,7 +191,7 @@ class FlxWindow implements IFlxDestroyable {
 			(point:FlxPoint) -> {}
 		);
 
-		title.main = startTitle.getDefault(self.title);
+		title.main = startTitle ?? self.title;
 		__width = width;
 		__height = height;
 

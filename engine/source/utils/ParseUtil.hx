@@ -95,7 +95,7 @@ class ParseUtil {
 	inline public static function difficulty(key:String):DifficultyData {
 		final jsonPath:ModPath = Paths.difficulty(key);
 		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
-		contents.display = contents.display.getDefault(key);
+		contents.display = contents.display ?? key;
 		return contents;
 	}
 
@@ -108,10 +108,10 @@ class ParseUtil {
 		final jsonPath:ModPath = Paths.level(name);
 		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
-			data.flip = data.flip.getDefault((i + 1) > Math.floor(contents.objects.length / 2));
+			data.flip = data.flip ?? ((i + 1) > Math.floor(contents.objects.length / 2));
 			if (data.offsets == null) data.offsets = new Position();
-			data.size = data.size.getDefault(1);
-			data.willHey = data.willHey.getDefault(i == Math.floor(contents.objects.length / 2));
+			data.size = data.size ?? 1;
+			data.willHey = data.willHey ?? (i == Math.floor(contents.objects.length / 2));
 		}
 		var songs:Array<SongData> = [
 			for (song in contents.songs)
@@ -123,16 +123,16 @@ class ParseUtil {
 			name: name.path,
 			title: contents.title,
 			songs: songs,
-			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
+			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
 				for (difficulty in contents.difficulties)
 					difficulty.toLowerCase()
 			],
 			variants: [
-				for (variant in contents.variants.getDefault([
+				for (variant in contents.variants ?? [
 					for (difficulty in contents.difficulties)
 						FunkinUtil.getDifficultyVariant(difficulty)
-				]))
+				])
 					variant.toLowerCase()
 			],
 			objects: contents.objects,
@@ -203,17 +203,17 @@ class ParseUtil {
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
-			slot.asset = anim.asset.getDefault(data.asset);
+			slot.asset = anim.asset ?? data.asset;
 			slot.name = anim.name;
-			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag.getDefault(slot.name);
-			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey.getDefault('');
-			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey.getDefault('');
+			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag ?? slot.name;
+			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey ?? '';
+			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey ?? '';
 			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.getProperty(anim.dimensions, 'x'), Reflect.getProperty(anim.dimensions, 'y'));
-			slot.indices = anim.indices.getDefault([]);
+			slot.indices = anim.indices ?? [];
 			slot.offset = new Position(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
 			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));
-			slot.loop = anim.loop.getDefault(false);
-			slot.fps = anim.fps.getDefault(24);
+			slot.loop = anim.loop ?? false;
+			slot.fps = anim.fps ?? 24;
 			data.animations.push(slot);
 		}
 
@@ -259,16 +259,16 @@ class ParseUtil {
 			name: json('content/songs/${name.path}/audio').name,
 			folder: contents.folder,
 			icon: contents.icon,
-			startingDiff: contents.startingDiff.getDefault(Math.floor(contents.difficulties.length / 2) - 1),
+			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
 				for (difficulty in contents.difficulties)
 					difficulty.toLowerCase()
 			],
 			variants: [
-				for (variant in contents.variants.getDefault([
+				for (variant in contents.variants ?? [
 					for (difficulty in contents.difficulties)
 						FunkinUtil.getDifficultyVariant(difficulty)
-				]))
+				])
 					variant.toLowerCase()
 			],
 			color: contents.color != null ? FlxColor.fromString(contents.color) : null,

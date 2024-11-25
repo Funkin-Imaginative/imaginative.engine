@@ -24,6 +24,6 @@ final class PointEvent extends ScriptEvent {
 
 	override public function new(x:Float, y:Float, ?point:Position) {
 		super();
-		this.point = point == null ? new Position(x, y) : point.set(x.getDefault(point.x), y.getDefault(point.y));
+		this.point = point == null ? new Position(x, y) : point.set(x ?? point.x, y ?? point.y);
 	}
 }

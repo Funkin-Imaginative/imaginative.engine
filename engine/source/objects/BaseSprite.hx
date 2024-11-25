@@ -208,13 +208,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							default:
-								if (anim.indices.getDefault([]).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
+								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 						}
 						anims.set(anim.name, {
 							offset: new Position(anim.offset.x, anim.offset.y),
-							swapName: anim.swapKey.getDefault(''),
-							flipName: anim.flipKey.getDefault('')
+							swapName: anim.swapKey ?? '',
+							flipName: anim.flipKey ?? ''
 						});
 						if (i == 0) {
 							playAnim(anim.name);
@@ -328,7 +328,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script.getDefault(''));
+			loadScript(script ?? new ModPath('', ANY));
 
 		scripts.call('create');
 		if (this is BaseSprite || this is BeatSprite)

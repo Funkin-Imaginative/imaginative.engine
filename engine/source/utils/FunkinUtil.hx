@@ -69,7 +69,7 @@ class FunkinUtil {
 	 * @return `FlxSound` ~ The menu sound.
 	 */
 	@:noUsing inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?subFolder:String, ?onComplete:Void->Void):FlxSound {
-		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound').format(), volume, onComplete.getDefault(() -> {}));
+		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound').format(), volume, onComplete ?? () -> {});
 		menuSound.persist = true;
 		return menuSound;
 	}
@@ -109,7 +109,7 @@ class FunkinUtil {
 	 * @return `String` ~ The difficulties display name.
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
-		return ParseUtil.difficulty(diff).display.getDefault(diff);
+		return ParseUtil.difficulty(diff).display ?? diff;
 
 	/**
 	 * Returns the default variant of a difficulty
@@ -118,7 +118,7 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function getDifficultyVariant(diff:String):String {
 		try {
-			return ParseUtil.difficulty(diff).variant.getDefault('normal');
+			return ParseUtil.difficulty(diff).variant ?? 'normal';
 		} catch(error:haxe.Exception)
 			return 'normal';
 	}
@@ -135,24 +135,4 @@ class FunkinUtil {
 			daList[i] = daList[i].trim();
 		return daList;
 	}
-
-	/**
-	 * Returns `v` if not null, `defaultValue` otherwise.
-	 * @param v The value
-	 * @param defaultValue The default value
-	 * @return `T`
-	 * @author @FNF-CNE-Devs
-	 */
-	inline public static function getDefault<T>(v:Null<T>, defaultValue:T):T
-		return (v == null || isNaN(v)) ? defaultValue : v;
-	/**
-	 * Whenever a value is NaN or not.
-	 * @param v Value
-	 * @return `Bool`
-	 * @author @FNF-CNE-Devs
-	 */
-	@:noUsing inline public static function isNaN(v:Dynamic):Bool
-		if (v is Float || v is Int)
-			return Math.isNaN(cast(v, Float));
-		else return false;
 }

@@ -182,7 +182,7 @@ final class HaxeScript extends Script {
 	override function loadCodeString(code:String):Void {
 		try {
 			if (code != null && code.trim() != '') {
-				expr = parser.parseString(code, pathing.format().getDefault('from string'));
+				expr = parser.parseString(code, pathing.format() ?? 'from string');
 				canRun = true;
 			}
 		} catch(error:haxe.Exception) {
@@ -195,7 +195,7 @@ final class HaxeScript extends Script {
 		var script:HaxeScript = new HaxeScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
-		script.call(funcToRun, funcArgs.getDefault([]));
+		script.call(funcToRun, funcArgs ?? []);
 		return script;
 	}
 
@@ -257,7 +257,7 @@ final class HaxeScript extends Script {
 		final func = get(func);
 		if (func != null && Reflect.isFunction(func))
 			try {
-				return Reflect.callMethod(null, func, args.getDefault([]));
+				return Reflect.callMethod(null, func, args ?? []);
 			} catch(error:haxe.Exception)
 				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
 
