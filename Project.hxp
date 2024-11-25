@@ -11,7 +11,7 @@ using StringTools;
  * This project instead used a hxp file instead of a xml!
  * This makes it easier to organize everything imo.
  *
- * Note: Some stuff here were taken from base games hxp file.
+ * Note: Based from base games hxp file.
  */
 @:nullSafety class Project extends HXProject {
 	// Basic variables.
@@ -54,59 +54,61 @@ using StringTools;
 	/**
 	 * States if the engine has a version ID.
 	 */
-	static final knowsVersionID:FeatureFlag = 'KNOWS_VERSION_ID';
+	static final knowsVersionID:CompilerFlag = 'KNOWS_VERSION_ID';
 	/**
 	 * States if the engine can tell when a new version is available.
 	 */
-	static final checkForUpdates:FeatureFlag = 'CHECK_FOR_UPDATES';
+	static final checkForUpdates:CompilerFlag = 'CHECK_FOR_UPDATES';
 
 	/**
 	 * States if the engine has modding support.
 	 */
-	static final modSupport:FeatureFlag = 'MOD_SUPPORT';
+	static final modSupport:CompilerFlag = 'MOD_SUPPORT';
 
 	/**
 	 * States if the engine has scripting support.
 	 */
-	static final scriptSupport:FeatureFlag = 'SCRIPT_SUPPORT';
+	static final scriptSupport:CompilerFlag = 'SCRIPT_SUPPORT';
 	/**
 	 * States if the engine has haxe scripting support.
 	 */
-	static final canHaxeScript:FeatureFlag = 'CAN_HAXE_SCRIPT';
+	static final canHaxeScript:CompilerFlag = 'CAN_HAXE_SCRIPT';
 	/**
 	 * States if the engine has lua scripting support.
 	 */
-	static final canLuaScript:FeatureFlag = 'CAN_LUA_SCRIPT';
+	static final canLuaScript:CompilerFlag = 'CAN_LUA_SCRIPT';
 	/**
 	 * States if the engine can do scripted states.
 	 */
-	static final scriptedStates:FeatureFlag = 'SCRIPTED_STATES';
+	static final scriptedStates:CompilerFlag = 'SCRIPTED_STATES';
 	/**
 	 * States if haxe scripting can do custom classes.
 	 */
-	static final customClasses:FeatureFlag = 'CUSTOM_CLASSES';
+	static final customClasses:CompilerFlag = 'CUSTOM_CLASSES';
 	/**
 	 * States if dead code elimination will be disabled.
 	 */
-	static final disableDCE:FeatureFlag = 'DISABLE_DCE';
+	static final disableDCE:CompilerFlag = 'DISABLE_DCE';
 
 	/**
 	 * States if the engine allows shaders at all.
 	 */
-	static final allowShaders:FeatureFlag = 'ALLOW_SHADERS';
+	static final allowShaders:CompilerFlag = 'ALLOW_SHADERS';
 
 	/**
 	 * States if the engine can connect with discord's rich presence system.
 	 */
-	static final discordRPC:FeatureFlag = 'DISCORD_RICH_PRESENCE';
+	static final discordRPC:CompilerFlag = 'DISCORD_RICH_PRESENCE';
 
 	/**
 	 * States if the engine allows videos at all.
 	 */
-	static final allowVideos:FeatureFlag = 'ALLOW_VIDEOS';
+	static final allowVideos:CompilerFlag = 'ALLOW_VIDEOS';
 
 	override public function new() {
 		super();
+
+		CompilerFlag.init(this);
 
 		if (hasDefine('web') || hasDefine('html5')) {
 			error('None of that thank you! I don\'t want people using the engine for web ports. If you don\'t remember, there used to be so many that base game wasn\'t first in search results!');
@@ -117,29 +119,30 @@ using StringTools;
 		}
 
 		/* Define Setup */
-		setDefine('KNOWS_VERSION_ID');
-		if ((isRelease() && knowsVersionID.isEnabled(this)) && !isDebug())
-			setDefine('CHECK_FOR_UPDATES');
-		setDefine('MOD_SUPPORT');
-		setDefine('SCRIPT_SUPPORT');
+		knowsVersionID.enable();
+		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
+			checkForUpdates.enable();
+		modSupport.enable();
+		scriptSupport.enable();
 
 		// script related
-		if (scriptSupport.isEnabled(this)) {
-			setDefine('CAN_HAXE_SCRIPT');
-			setDefine('CAN_LUA_SCRIPT');
+		if (scriptSupport.exists()) {
+			canHaxeScript.enable();
+			canLuaScript.enable();
 
-			setDefine('DISABLE_DCE');
-			setHaxedef('SCRIPTED_STATES');
-			if (canHaxeScript.isEnabled(this))
-				setDefine('CUSTOM_CLASSES');
+			disableDCE.enable();
+			scriptedStates.enable();
+			if (canHaxeScript.exists())
+				customClasses.enable();
 
 			info('Scripting was enabled.');
 		}
 		if (hasDefine('cpp')) {
-			if (isDesktop()) setDefine('DISCORD_RICH_PRESENCE');
+			if (isDesktop()) discordRPC.enable();
 			if (isDesktop() || isMobile())
-				setDefine('ALLOW_VIDEOS');
+				allowVideos.enable();
 		}
+		allowShaders.enable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -159,7 +162,7 @@ using StringTools;
 		this.window.background = 0xFF000000;
 		this.window.hardware = this.window.resizable = true;
 		this.window.vsync = this.window.fullscreen = false;
-		this.window.allowShaders = allowShaders.isEnabled(this);
+		this.window.allowShaders = allowShaders.exists();
 
 		this.window.orientation = Orientation.LANDSCAPE;
 
@@ -179,8 +182,8 @@ using StringTools;
 		else if (isRelease() && isDebug()) buildFolder = 'test';
 		this.app.path = 'export/$buildFolder${is32Bit() ? '-32bit' : ''}';
 
-		setDefine('GeneralAssetFolder', modSupport.isEnabled(this) ? 'funkin' : 'assets');
-		var finalPath:String = '${modSupport.isEnabled(this) ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
+		setDefine('GeneralAssetFolder', modSupport.exists() ? 'funkin' : 'assets');
+		var finalPath:String = '${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		this.sources.push(sourceCodeDirectory);
 
@@ -195,12 +198,12 @@ using StringTools;
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
 		addAssetPath('engine/', '', ['*'], mergeArrays(excludeList, ['assets', 'modding', 'source', 'readme.md']));
 		addAssetPath('engine/assets', finalPath, ['*'], mergeArrays(excludeList, repoItems));
-		if (modSupport.isEnabled(this)) {
+		if (modSupport.exists()) {
 			addAssetPath('engine/modding/upfront', 'solo', ['*'], mergeArrays(excludeList, repoItems));
 			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays(excludeList, repoItems));
 		}
 
-		info('The ${modSupport.isEnabled(this) ? 'main mod' : 'asset folder'} is "$finalPath".');
+		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 		/* Path Settings */
 
 		/* Libraries */
@@ -224,11 +227,11 @@ using StringTools;
 		// chart converter
 		addHaxelib('moonchart', 'git');
 
-		if ( canHaxeScript.isEnabled(this)) addHaxelib('hscript-improved', 'git');
-		if ( canLuaScript .isEnabled(this)) addHaxelib('linc_luajit',      'git');
-		if (  discordRPC  .isEnabled(this)) addHaxelib('hxdiscord_rpc');
-		if (allowVideos   .isEnabled(this)) addHaxelib('hxvlc',            'git');
-		if (knowsVersionID.isEnabled(this)) addHaxelib('thx.semver');
+		if ( canHaxeScript.exists()) addHaxelib('hscript-improved', 'git');
+		if ( canLuaScript .exists()) addHaxelib('linc_luajit',      'git');
+		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
+		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
+		if (knowsVersionID.exists()) addHaxelib('thx.semver');
 
 		// very optional
 		if (isWindows() || isLinux())
@@ -241,16 +244,16 @@ using StringTools;
 		// may add one
 		setHaxedef('FLX_NO_FOCUS_LOST_SCREEN');
 
-		if (disableDCE.isEnabled(this))
+		if (disableDCE.exists())
 			addHaxeFlag('-dce no');
 
 		setHaxedef('no-deprecation-warnings'); // May remove?
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
-		if (allowVideos.isEnabled(this))
+		if (allowVideos.exists())
 			setHaxedef('HXVLC_NO_SHARE_DIRECTORY');
-		if (canHaxeScript.isEnabled(this))
+		if (canHaxeScript.exists())
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
 			setHaxedef('analyzer-optimize');
@@ -447,82 +450,6 @@ using StringTools;
 	inline public function addAssetLibrary(name:String, embed:Bool = false, preload:Bool = false):Void
 		this.libraries.push(new Library('', name, null, embed, preload, false, ''));
 
-	//
-	// PROCESS FUNCTIONS
-	//
-
-	/**
-	 * A CLI command to run a command in the shell.
-	 */
-	inline public function buildCLICommand(cmd:String):CLICommand
-		return CommandHelper.fromSingleString(cmd);
-
-	/**
-	 * A CLI command to run a Haxe script via `--interp`.
-	 */
-	inline public function buildHaxeCLICommand(path:String):CLICommand
-		return CommandHelper.interpretHaxe(path);
-
-	inline public function getGitCommit():String {
-		// Cannibalized from GitCommit.hx
-		var process:Process = new Process('git', ['rev-parse', 'HEAD']);
-		if (process.exitCode() != 0) {
-			var message = process.stderr.readAll().toString();
-			error('[ERROR] Could not determine current git commit; is this a proper Git repository?');
-		}
-
-		var commitHash:String = process.stdout.readLine();
-		var commitHashSplice:String = commitHash.substr(0, 7);
-
-		process.close();
-
-		return commitHashSplice;
-	}
-	inline public function getGitBranch():String {
-		// Cannibalized from GitCommit.hx
-		var branchProcess:Process = new Process('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
-
-		if (branchProcess.exitCode() != 0) {
-			var message:String = branchProcess.stderr.readAll().toString();
-			error('Could not determine current git branch; is this a proper Git repository?');
-		}
-
-		var branchName:String = branchProcess.stdout.readLine();
-
-		branchProcess.close();
-
-		return branchName;
-	}
-	inline public function getGitModified():Bool {
-		var branchProcess:Process = new Process('git', ['status', '--porcelain']);
-
-		if (branchProcess.exitCode() != 0) {
-			var message = branchProcess.stderr.readAll().toString();
-			error('Could not determine current git status; is this a proper Git repository?');
-		}
-
-		var output:String = '';
-		try {
-			output = branchProcess.stdout.readLine();
-		} catch (e) {
-			if (e.message == 'Eof') {
-				// Do nothing.
-				// Eof = No output.
-			} else {
-				// Rethrow other exceptions.
-				throw e;
-			}
-		}
-
-		branchProcess.close();
-
-		return output.length > 0;
-	}
-
-	//
-	// LOGGING FUNCTIONS
-	//
-
 	/**
 	 * Display an error message. This should stop the build process.
 	 */
@@ -545,88 +472,40 @@ using StringTools;
  * An object representing a feature flag, which can be enabled or disabled.
  * Includes features such as automatic generation of compile defines and inversion.
  */
-abstract FeatureFlag(String) {
-	static final INVERSE_PREFIX:String = 'NO_';
+abstract CompilerFlag(String) {
+	static var parentProject(default, null):Project;
+
+	public static function init(project:Project):Void
+		parentProject = project;
 
 	inline public function new(input:String)
 		this = input;
 
-	@:from inline public static function fromString(input:String):FeatureFlag
-		return new FeatureFlag(input);
-
-	/**
-	 * Enable/disable a feature flag if it is unset, and handle the inverse flag.
-	 * Doesn't override a feature flag that was set explicitly.
-	 * @param enableByDefault Whether to enable this feature flag if it is unset.
-	 */
-	public function apply(project:Project, enableByDefault:Bool = false):Void {
-		// TODO: Name this function better?
-
-		if (isEnabled(project)) {
-			// If this flag was already enabled, disable the inverse.
-			project.info('Enabling feature flag $this');
-			getInverse().disable(project, false);
-		} else if (getInverse().isEnabled(project)) {
-			// If the inverse flag was already enabled, disable this flag.
-			project.info('Disabling feature flag $this');
-			disable(project, false);
-		} else
-			if (enableByDefault) {
-				// Enable this flag if it was unset, and disable the inverse.
-				project.info('Enabling feature flag $this');
-				enable(project, true);
-			} else {
-				// Disable this flag if it was unset, and enable the inverse.
-				project.info('Disabling feature flag $this');
-				disable(project, true);
-			}
-	}
+	@:from inline public static function fromString(input:String):CompilerFlag
+		return new CompilerFlag(input);
 
 	/**
 	 * Enable this feature flag by setting the appropriate compile define.
-	 *
-	 * @param project The project to modify.
-	 * @param andInverse Also disable the feature flag's inverse.
+	 * @param keep
 	 */
-	inline public function enable(project:Project, andInverse:Bool = true) {
-		project.setHaxedef(this, '');
-		if (andInverse)
-			getInverse().disable(project, false);
-	}
-
+	inline public function enable(keep:Bool = true):Void
+		if (!exists())
+			if (keep)
+				parentProject.setDefine(this);
+			else
+				parentProject.setHaxedef(this);
 	/**
 	 * Disable this feature flag by removing the appropriate compile define.
-	 *
-	 * @param project The project to modify.
-	 * @param andInverse Also enable the feature flag's inverse.
 	 */
-	inline public function disable(project:Project, andInverse:Bool = true) {
-		project.unsetHaxedef(this);
-		if (andInverse)
-			getInverse().enable(project, false);
-	}
+	inline public function disable():Void
+		if (exists())
+			parentProject.unsetDefine(this);
+		else if (parentProject.hasHaxedef(this))
+			parentProject.unsetHaxedef(this);
 
 	/**
 	 * Query if this feature flag is enabled.
-	 * @param project The project to query.
 	 */
-	inline public function isEnabled(project:Project):Bool
-		// Check both Haxedefs and Defines for this flag.
-		return project.haxedefs.exists(this) || project.defines.exists(this);
-
-	/**
-	 * Query if this feature flag's inverse is enabled.
-	 */
-	inline public function isDisabled(project:Project):Bool
-		return getInverse().isEnabled(project);
-
-	/**
-	 * Return the inverse of this feature flag.
-	 * @return A new feature flag that is the inverse of this one.
-	 */
-	public function getInverse():FeatureFlag {
-		if (this.startsWith(INVERSE_PREFIX))
-			return this.substring(INVERSE_PREFIX.length);
-		return INVERSE_PREFIX + this;
-	}
+	inline public function exists():Bool
+		return parentProject.hasHaxedef(this);
 }
