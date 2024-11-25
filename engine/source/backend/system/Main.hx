@@ -40,7 +40,7 @@ class Main extends Sprite {
 	 * This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
-	inline public static final mainMod:String = haxe.macro.Compiler.getDefine('MainPath');
+	inline public static final mainMod:String = haxe.macro.Compiler.getDefine('GeneralAssetFolder');
 
 	#if KNOWS_VERSION_ID
 	/**

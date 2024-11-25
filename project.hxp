@@ -40,7 +40,7 @@ using StringTools;
 	/**
 	 * The package name.
 	 */
-	static final packageName:String = 'funkin.imaginative.com';
+	static final packageName:String = 'imaginative.engine.dev';
 	/**
 	 * The class path to the main class.
 	 */
@@ -171,66 +171,32 @@ using StringTools;
 
 		/* Path Settings */
 		if (isDesktop())
-			addAsset('alsoft.txt', 'plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
+			addAsset('extras/alsoft.txt', 'plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
 
-		var buildPath:String = 'build';
-		if (!isRelease() && isDebug()) buildPath = 'debug';
-		else if (isRelease() && !isDebug()) buildPath = 'release';
-		else if (isRelease() && isDebug()) buildPath = 'test';
-		this.app.path = 'export/$buildPath${is32Bit() ? '-32bit' : ''}';
+		var buildFolder:String = 'build';
+		if (!isRelease() && isDebug()) buildFolder = 'debug';
+		else if (isRelease() && !isDebug()) buildFolder = 'release';
+		else if (isRelease() && isDebug()) buildFolder = 'test';
+		this.app.path = 'export/$buildFolder${is32Bit() ? '-32bit' : ''}';
 
-		setDefine('MainPath', modSupport.isEnabled(this) ? 'funkin' : 'assets');
-		var finalPath:String = '${modSupport.isEnabled(this) ? 'solo/' : ''}${getDefine('MainPath')}';
+		setDefine('GeneralAssetFolder', modSupport.isEnabled(this) ? 'funkin' : 'assets');
+		var finalPath:String = '${modSupport.isEnabled(this) ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		this.sources.push(sourceCodeDirectory);
 
-		function addThem(path:String, ?rename:String, ?exclude:Array<String>, embed:Bool = false):Void {
-			var targetPath:String = rename ?? path;
-			if (targetPath != '')
-				targetPath += '/';
-
-			if (exclude == null)
-				exclude = [];
-
-			if (FileSystem.isDirectory(path) || FileSystem.exists(path))
-				for (file in FileSystem.readDirectory(path))
-					if (FileSystem.isDirectory('$path/$file')) {
-						if (this.filter(file, ['*'], exclude)) {
-							var renamedFolder:String = file;
-							var willEmbed:Bool = file == 'embed';
-
-							if (willEmbed)
-								renamedFolder = '';
-							else if (file == '!embed')
-								renamedFolder = 'embed';
-							if (embed)
-								willEmbed = embed;
-
-							addThem('$path/$file', '$targetPath$renamedFolder', willEmbed);
-						}
-					} else if (FileSystem.exists('$path/$file'))
-						if (this.filter(file, ['*'], exclude)) {
-							var folderEmbedded:Bool = false;
-							var renamedFile:String = file;
-							var willEmbed:Bool = Path.extension(Path.withoutExtension(file)) == 'embed';
-
-							if (willEmbed) {
-								folderEmbedded = path.split('/').contains('embed');
-								renamedFile = '${Path.withoutExtension(Path.withoutExtension(file))}.${Path.extension(file)}';
-							} else if (Path.extension(Path.withoutExtension(file)) == '!embed')
-								renamedFile = '${Path.withoutExtension(Path.withoutExtension(file))}.embed.${Path.extension(file)}';
-							if (embed)
-								willEmbed = embed;
-
-							if (folderEmbedded) info('File "$path/$file" is already in an "embed" folder. Embedding denied.');
-							else addAsset('$path/$file', '$targetPath$renamedFile', isDebug() ? false : willEmbed);
-						}
+		function mergeArrays<T>(one:Array<T>, two:Array<T>):Array<T> {
+			var result:Array<T> = [];
+			for (a in [one, two])
+				for (v in a)
+					result.push(v);
+			return result;
 		}
-		addThem('engine/', '', ['*.md', 'assets', 'modding', 'source']);
-		addThem('engine/assets', finalPath, ['*.md', '.gitattributes']);
+		var excludeList:Array<String> = ['*.md', '.git*', '.prettier*']; // Should readme's be removed?
+		addAssetPath('engine/', '', ['*'], mergeArrays(excludeList, ['assets', 'modding', 'source']));
+		addAssetPath('engine/assets', finalPath, ['*'], excludeList);
 		if (modSupport.isEnabled(this)) {
-			addThem('engine/modding/upfront', 'solo', ['*.md']);
-			addThem('engine/modding/lowerend', 'mods', ['*.md']);
+			addAssetPath('engine/modding/upfront', 'solo', ['*'], excludeList);
+			addAssetPath('engine/modding/lowerend', 'mods', ['*'], excludeList);
 		}
 
 		info('The ${modSupport.isEnabled(this) ? 'main mod' : 'asset folder'} is "$finalPath".');
@@ -392,7 +358,7 @@ using StringTools;
 	 */
 	public function addAsset(path:String, ?rename:String, ?library:String, embed:Bool = false):Void {
 		// path, rename, type, embed, setDefaults
-		var asset = new Asset(path, rename, null, embed, true);
+		var asset = new Asset(path, rename, null, isDebug() ? false : embed, true);
 		@:nullSafety(Off) asset.library = library ?? 'default';
 		this.assets.push(asset);
 	}
@@ -406,7 +372,7 @@ using StringTools;
 	 * @param exclude An optional array to exclude specific asset names.
 	 * @param embed Whether to embed the assets in the executable.
 	 */
-	public function addAssetPath(path:String, ?rename:String, library:String, ?include:Array<String>, ?exclude:Array<String>, embed:Bool = false):Void {
+	public function addAssetPath(path:String, ?rename:String, ?library:String, ?include:Array<String>, ?exclude:Array<String>, embed:Bool = false):Void {
 		// Argument parsing.
 		if (path == '')
 			return;
@@ -422,23 +388,51 @@ using StringTools;
 			targetPath += '/';
 
 		// Validate path.
-		if (!FileSystem.exists(path))
+		if (!FileSystem.exists(path)) {
 			error('Could not find asset path "$path".');
-		else if (!FileSystem.isDirectory(path))
+			return;
+		} else if (!FileSystem.isDirectory(path)) {
 			error('Could not parse asset path "$path", expected a directory.');
-		// else
-		// 	info('Found asset path "$path".');
+			return;
+		} /* else
+			info('Found asset path "$path".'); */
 
 
-		for (file in FileSystem.readDirectory(path)) {
-			if (FileSystem.isDirectory('$path/$file'))
-				// Attempt to recursively add all assets in the directory.
-				if (this.filter(file, ['*'], exclude))
-					addAssetPath('$path/$file', '$targetPath$file', library, include, exclude, embed);
-			else
-				if (this.filter(file, include, exclude))
-					addAsset('$path/$file', '$targetPath$file', library, embed);
-		}
+		if (FileSystem.isDirectory(path) || FileSystem.exists(path))
+			for (file in FileSystem.readDirectory(path)) {
+				if (FileSystem.isDirectory('$path/$file')) {
+					// Attempt to recursively add all assets in the directory.
+					if (this.filter(file, ['*'], exclude)) {
+						var renamedFolder:String = file;
+						var willEmbed:Bool = file == 'embed';
+
+						if (willEmbed)
+							renamedFolder = '';
+						else if (file == '!embed')
+							renamedFolder = 'embed';
+						if (embed)
+							willEmbed = embed;
+
+						addAssetPath('$path/$file', '$targetPath$file', library, include, exclude, willEmbed);
+					}
+				} else if (FileSystem.exists('$path/$file'))
+					if (this.filter(file, include, exclude)) {
+						var folderEmbedded:Bool = false;
+						var renamedFile:String = file;
+						var willEmbed:Bool = Path.extension(Path.withoutExtension(file)) == 'embed';
+
+						if (willEmbed) {
+							folderEmbedded = path.split('/').contains('embed');
+							renamedFile = '${Path.withoutExtension(Path.withoutExtension(file))}.${Path.extension(file)}';
+						} else if (Path.extension(Path.withoutExtension(file)) == '!embed')
+							renamedFile = '${Path.withoutExtension(Path.withoutExtension(file))}.embed.${Path.extension(file)}';
+						if (embed)
+							willEmbed = embed;
+
+						if (folderEmbedded) info('File "$path/$file" is already in an "embed" folder. Embedding denied.');
+						else addAsset('$path/$file', '$targetPath$renamedFile', willEmbed);
+					}
+			}
 	}
 
 	/**
