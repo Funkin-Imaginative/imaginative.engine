@@ -84,7 +84,7 @@ class Main {
 				continue;
 			else if (!optionalCheck.exists(lib.name)) {}
 
-			var isGlobal:Bool = optionalCheck.get('global') || lib.global;
+			var isGlobal:Bool = optionalCheck.get('global') || (lib.global ?? false);
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
@@ -99,7 +99,7 @@ class Main {
 		for (lib in libs)
 			if (lib.version != null)
 				if (lib.version.trim() != '')
-					Sys.command('haxelib set ${lib.name} ${lib.version} ${(optionalCheck.get('global') || lib.global) ? '--global ' : ''} --always');
+					Sys.command('haxelib set ${lib.name} ${lib.version} ${(optionalCheck.get('global') || (lib.global ?? false)) ? '--global ' : ''} --always');
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
