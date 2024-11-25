@@ -114,7 +114,7 @@ class Main {
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
 					Sys.println('Your current Haxe version is outdated.');
-					Sys.println('You\'re using ${haxeVer}, while the required version is 4.3.6.');
+					Sys.println('You\'re using $haxeVer, while the required version is 4.3.6.');
 					Sys.println('The engine may or may not compile with your current version of Haxe.');
 					Sys.println('We recommend upgrading to 4.3.6!');
 					break;
