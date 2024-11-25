@@ -18,7 +18,10 @@ class MainMenu extends BeatState {
 	}
 
 	// Things to select.
-	var itemLineUp:Array<String> = Paths.getFileContent(Paths.txt('images/menus/main/itemLineUp')).trimSplit('\n');
+	var itemLineUp:Array<String> = [
+		for (item in Paths.readFolderOrderTxt('images/menus/main', 'xml', false))
+			item.path
+	];
 
 	// Objects in the state.
 	var bg:FlxSprite;
