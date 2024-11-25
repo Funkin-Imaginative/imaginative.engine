@@ -4,7 +4,9 @@
 		"hxdiscord",
 		"Infront",
 		"jignored",
-		"luajit"
+		"LOCKON",
+		"luajit",
+		"PAGEUP"
 	],
 
 	"editor.codeActionsOnSave": {
@@ -14,7 +16,7 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.{haxe,hscript,hsc,hxs,hxc,hxp}": "haxe"
+		"*.hxp": "haxe"
 	},
 	"files.autoGuessEncoding": true,
 	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
@@ -27,12 +29,6 @@
 		"conditionals": true,
 		"parameterTypes": true
 	},
-
-	"prettier.htmlWhitespaceSensitivity": "strict",
-	"prettier.singleQuote": true,
-	"prettier.tabWidth": 4,
-	"prettier.trailingComma": "none",
-	"prettier.useTabs": true,
 
 	"xml.format.emptyElements": "collapse",
 	"xml.format.enforceQuoteStyle": "preferred",
