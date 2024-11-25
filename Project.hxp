@@ -227,7 +227,7 @@ using StringTools;
 		if ( canHaxeScript.isEnabled(this)) addHaxelib('hscript-improved', 'git');
 		if ( canLuaScript .isEnabled(this)) addHaxelib('linc_luajit',      'git');
 		if (  discordRPC  .isEnabled(this)) addHaxelib('hxdiscord_rpc');
-		if (allowVideos   .isEnabled(this)) addHaxelib('hxvlc');
+		if (allowVideos   .isEnabled(this)) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.isEnabled(this)) addHaxelib('thx.semver');
 
 		// very optional
