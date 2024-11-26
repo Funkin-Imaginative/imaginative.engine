@@ -215,11 +215,10 @@ class SpriteUtil {
 				if (Paths.spriteSheetExists(newTexture))
 					try {
 						sprite.frames = Paths.frames(newTexture, textureType);
+					} catch(error:haxe.Exception) {
+						loadImage(sprite, newTexture);
 					} catch(error:haxe.Exception)
-						try {
-							loadImage(sprite, newTexture);
-						} catch(error:haxe.Exception)
-							log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 				else loadImage(sprite, newTexture);
 		}
 		return sprite;

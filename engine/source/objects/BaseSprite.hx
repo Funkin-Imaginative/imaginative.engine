@@ -136,11 +136,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 				try {
 					frames = Paths.frames(newTexture, textureType);
 					resetTextures(Paths.image(newTexture), textureType);
+				} catch(error:haxe.Exception) {
+					loadImage(newTexture);
 				} catch(error:haxe.Exception)
-					try {
-						loadImage(newTexture);
-					} catch(error:haxe.Exception)
-						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 			else return loadImage(newTexture);
 		return this;
 	}
@@ -250,11 +249,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 					log('Invalid information in extra array or the null check failed.', ErrorMessage);
 			}
 		} catch(error:haxe.Exception) {
-			try {
-				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
-			} catch(error:haxe.Exception)
-				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
-		}
+			log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+		} catch(error:haxe.Exception)
+			log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 	}
 
 	/* override function set_x(value:Float):Float {
