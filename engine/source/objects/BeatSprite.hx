@@ -70,10 +70,11 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 				beatInterval = inputData.beat.interval;
 				skipNegativeBeats = inputData.beat.skipnegative;
 			}
-		} catch(error:haxe.Exception) {
-			log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
 		} catch(error:haxe.Exception)
-			log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			try {
+				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+			} catch(error:haxe.Exception)
+				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		super.renderData(inputData, applyStartValues);
 	}
 

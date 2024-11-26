@@ -97,10 +97,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 				theirIcon = inputData.character.icon;
 				singLength = inputData.character.singlength;
 			}
-		} catch(error:haxe.Exception) {
-			log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
 		} catch(error:haxe.Exception)
-			log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			try {
+				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
+			} catch(error:haxe.Exception)
+				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		super.renderData(inputData, false);
 	}
 
