@@ -6,7 +6,8 @@
 		"jignored",
 		"LOCKON",
 		"luajit",
-		"PAGEUP"
+		"PAGEUP",
+		"preprocesor"
 	],
 
 	"editor.codeActionsOnSave": {

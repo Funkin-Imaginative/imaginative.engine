@@ -99,7 +99,8 @@ class Main extends Sprite {
 				}
 			}
 
-			http.onError = (error:String) -> log('error: $error', ErrorMessage);
+			http.onError = (error:String) ->
+				log('error: $error', ErrorMessage);
 
 			http.request();
 		}

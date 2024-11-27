@@ -14,7 +14,7 @@ enum abstract LogLevel(String) from String to String {
 }
 
 class Console {
-	static var ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
+	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
 
 	@:allow(backend.system.Main.new)
 	static function init():Void {

@@ -161,7 +161,7 @@ class StoryMenu extends BeatState {
 
 				if (data.path.trim() != '' || data.path != null) {
 					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
-						log('"${Paths.object(modPath).format()}" doesn\'t exist.', WarningMessage);
+						log('Object "${Paths.object(modPath).path}" doesn\'t exist.', WarningMessage);
 						cantFindList.push(modPath.path);
 					}
 				}
@@ -171,7 +171,6 @@ class StoryMenu extends BeatState {
 				sprite.extra.set('offsets', data.offsets);
 				sprite.scale.scale(data.size);
 				sprite.updateHitbox();
-
 
 				sprite.extra.set('willHey', data.willHey);
 				sprite.extra.set('offsets', data.offsets);
@@ -335,7 +334,8 @@ class StoryMenu extends BeatState {
 				if (levelLocked) {
 					final ogX:Float = level.sprite.x;
 					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
-						onUpdate: (_:FlxTween) -> level.updateLock(),
+						onUpdate: (_:FlxTween) ->
+							level.updateLock(),
 						onComplete: (_:FlxTween) -> {
 							level.sprite.x = ogX;
 							levelShake = null;
@@ -345,7 +345,8 @@ class StoryMenu extends BeatState {
 				if (diffLocked) {
 					final ogY:Float = diffHolder.sprite.y;
 					diffShake = FlxTween.shake(diffHolder.sprite, 0.1, time, Y, {
-						onUpdate: (_:FlxTween) -> diffHolder.updateLock(),
+						onUpdate: (_:FlxTween) ->
+							diffHolder.updateLock(),
 						onComplete: (_:FlxTween) -> {
 							diffHolder.sprite.y = ogY;
 							diffShake = null;

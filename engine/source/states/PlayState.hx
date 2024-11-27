@@ -227,7 +227,12 @@ class PlayState extends BeatState {
 			assets.sounds.reverse();
 
 			countdownStarted = true;
-			FlxTween.num((-crochet * (countdownLength + 1)) + conductor.posOffset, conductor.posOffset, ((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000, (output:Float) -> songPosition = output);
+			FlxTween.num(
+				(-crochet * (countdownLength + 1)) + conductor.posOffset,
+				conductor.posOffset,
+				((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000,
+				(output:Float) -> songPosition = output
+			);
 			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
 				/* new FlxTimer().start(stepCrochet / 1000, (_:FlxTimer) -> {
 					conductor.stepHit(Math.floor(-(timer.loopsLeft * stepsPerBeat)));
@@ -252,14 +257,16 @@ class PlayState extends BeatState {
 
 					FlxTween.tween(sprite, {alpha: 0}, crochet / 1.2 / 1000, {
 						ease: FlxEase.cubeInOut,
-						onComplete: (_:FlxTween) -> sprite.destroy()
+						onComplete: (_:FlxTween) ->
+							sprite.destroy()
 					});
 				}
 
 				if (timer.loopsLeft == 0) {
 					conductor.play();
 					songStarted = true;
-					conductor._onComplete = () -> scripts.call('onEndSong');
+					conductor._onComplete = () ->
+						scripts.call('onEndSong');
 				}
 			}, countdownLength + 1);
 		});

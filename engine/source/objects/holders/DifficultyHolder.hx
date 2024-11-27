@@ -64,6 +64,7 @@ class DifficultyHolder extends FlxBasic {
 			if (Paths.spriteSheetExists('ui/difficulties/$name'))
 				sprite.animation.addByPrefix('idle', 'idle', 24);
 			else sprite.animation.add('idle', [0], 24, false);
+			sprite.anims.set('idle', {offset: new Position(0, 0), swapName: '', flipName: ''});
 			refreshAnim();
 
 			if (isLocked)
@@ -78,7 +79,7 @@ class DifficultyHolder extends FlxBasic {
 	 * Refreshes the animation.
 	 */
 	inline public function refreshAnim():Void {
-		sprite.animation.play('idle', true);
+		sprite.playAnim('idle', true);
 		sprite.centerOffsets();
 		sprite.centerOrigin();
 	}

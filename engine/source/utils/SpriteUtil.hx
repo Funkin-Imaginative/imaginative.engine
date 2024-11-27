@@ -291,24 +291,24 @@ class SpriteUtil {
 	/**
 	 * Add's an object in front of another.
 	 * @param obj The object to insert.
-	 * @param fromThis The object to be placed in front of.
+	 * @param from The object to be placed in front of.
 	 * @param into Specified group.
 	 * @return `T` ~ Current instance for chaining.
 	 */
-	inline public static function addInfrontOf<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addInfrontOf<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
 		final group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
-		return group.insert(group.members.indexOf(fromThis) + 1, obj);
+		return group.insert(group.members.indexOf(from) + 1, obj);
 	}
 	/**
 	 * Add's an object behind of another.
 	 * @param obj The object to insert.
-	 * @param fromThis The object to be placed behind of.
+	 * @param from The object to be placed behind of.
 	 * @param into Specified group.
 	 * @return `T` ~ Current instance for chaining.
 	 */
-	inline public static function addBehind<T:FlxBasic>(obj:T, fromThis:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addBehind<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
 		final group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
-		return group.insert(group.members.indexOf(fromThis), obj);
+		return group.insert(group.members.indexOf(from), obj);
 	}
 
 	/**
