@@ -134,35 +134,90 @@ final class HaxeScript extends Script {
 			#end
 
 			// Custom Functions //
-			'addInfrontOf' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				return SpriteUtil.addInfrontOf(obj, fromThis, into);
-			},
-			'addBehind' => (obj:FlxBasic, fromThis:FlxBasic, ?into:FlxGroup) -> {
-				return SpriteUtil.addBehind(obj, fromThis, into);
-			},
-			'disableScript' => () -> {
-				script.active = false;
-			},
-			'trace' => (value:Dynamic) -> {
-				log(value, script.interp.posInfos());
-			},
-			'log' => (value:Dynamic, level:LogLevel = LogMessage) -> {
-				log(value, level, script.interp.posInfos());
-			},
+			'addInfrontOf' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+				return SpriteUtil.addInfrontOf(obj, from, into),
+			'addBehind' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+				return SpriteUtil.addBehind(obj, from, into),
+
+			'trace' => (value:Dynamic) ->
+				log(value, FromHaxe, script.interp.posInfos()),
+			'log' => (value:Dynamic, level:LogLevel = LogMessage) ->
+				log(value, level, FromHaxe, script.interp.posInfos()),
+
+			'disableScript' => () ->
+				script.active = false,
 
 			// self //
 			'__this__' => script
 		];
 	}
 
+	var __importedPaths:Array<String> = [];
+
 	@:allow(backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String)
 		super(file, code);
 
+	@:access(backend.Console.formatLogInfo)
 	override function renderNecessities():Void {
+		__importedPaths.push(pathing.format());
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
+		parser.preprocesorValues = #if (neko || eval || display) haxe.macro.Context.getDefines() #else new Map<String, Dynamic>() #end;
+		interp.errorHandler = (error:Error) -> {
+			var content:String = error.toString();
+			if (content.startsWith(error.origin))
+				content = content.substr(error.origin.length);
+			_log(Console.formatLogInfo(content, ErrorMessage, error.origin, error.line), ErrorMessage);
+		}
+		interp.importFailedCallback = (importPath:Array<String>) -> {
+			final sourcePath:String = 'source/${importPath.join('/')}';
+			for (ext in exts) {
+				// current path probably wont work, as I haven't setup the directory properly
+				var path:String = '$sourcePath.$ext';
+				if (__importedPaths.contains(path))
+					return true; // prevent double import
+				if (Paths.fileExists(path)) {
+					final content:String = Paths.getFileContent(path);
+					var expr:Expr = null;
+					try {
+						if (content != null && content.trim() != '') {
+							parser.line = 1;
+							expr = parser.parseString(content, '${importPath.join('/')}.$ext');
+						}
+					} catch(error:Error)
+						try {
+							interp.errorHandler(error);
+						} catch(error:Error)
+							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+					if (expr != null) {
+						@:privateAccess
+							interp.exprReturn(expr);
+						__importedPaths.push(path);
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		interp.staticVariables = Script.staticVars;
+
+		/**
+		Snapshot in time.
+		```haxe
+		interp.importFailedCallback = (importPath:Array<String>) -> {
+			final sourcePath:ModPath = 'source/${importPath.join('/')}';
+			for (ext in exts) {
+				// abstracts can die in a fire for thousands of years... ITS NOT THE SAME FUCKING INSTANCE YOU BITCH!!!!
+				var path:ModPath = sourcePath; // .pushExt(ext)
+				path.pushExt(ext);
+				// any cloning methods I did, didn't wanna work 😭
+			}
+			return false;
+		}
+		```
+		**/
 	}
 
 	override function renderScript(file:ModPath, ?code:String):Void {
@@ -184,11 +239,14 @@ final class HaxeScript extends Script {
 			if (code != null && code.trim() != '') {
 				expr = parser.parseString(code, pathing.format() ?? 'from string');
 				canRun = true;
+				return;
 			}
-		} catch(error:haxe.Exception) {
-			log('Error while parsing script: ${error.message}', ErrorMessage);
-			canRun = false;
-		}
+		} catch(error:Error)
+			try {
+				interp.errorHandler(error);
+			} catch(error:Error)
+				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+		canRun = false;
 	}
 
 	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
