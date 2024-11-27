@@ -50,6 +50,7 @@ using flixel.util.FlxSpriteUtil;
 using flixel.util.FlxStringUtil;
 
 /* Engine */
+import backend.Console._log;
 import backend.Console.log;
 import backend.Console;
 import backend.Controls;

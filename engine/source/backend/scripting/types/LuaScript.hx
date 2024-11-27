@@ -13,17 +13,16 @@ final class LuaScript extends Script {
 	public static final exts:Array<String> = ['lua'];
 
 	#if CAN_LUA_SCRIPT
+	@:access(backend.Console.formatLogInfo)
 	static function getScriptImports(script:LuaScript):Map<String, Dynamic> {
 		return [
-			'disableScript' => () -> {
-				script.active = false;
-			},
-			'print' => (value:Dynamic) -> {
-				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', LogMessage, null);
-			},
-			'log' => (value:Dynamic, level:String = 'log') -> {
-				log('${FilePath.withoutExtension(script.pathing.format().replace('/', '.'))}: $value', level, null);
-			}
+			'print' => (value:Dynamic) ->
+				_log(Console.formatLogInfo(value, LogMessage, script.pathing.format(), FromLua)),
+			'log' => (value:Dynamic, level:String = LogMessage) ->
+				_log(Console.formatLogInfo(value, level, script.pathing.format(), FromLua)),
+
+			'disableScript' => () ->
+				script.active = false
 		];
 	}
 

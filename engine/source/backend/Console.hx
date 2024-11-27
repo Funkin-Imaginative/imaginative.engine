@@ -13,14 +13,28 @@ enum abstract LogLevel(String) from String to String {
 	var LogMessage = 'log';
 }
 
+/**
+ * Just an enum, since, you wont need to use it. When scripting anyway.
+ */
+enum LogFrom {
+	FromSource;
+	FromHaxe;
+	FromLua;
+	FromUnknown;
+}
+
 class Console {
 	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
 
 	@:allow(backend.system.Main.new)
-	static function init():Void {
-		Log.trace = (value:Dynamic, ?infos:PosInfos) -> {
-			log(value, infos);
+	inline static function init():Void {
+		if (Log.trace != ogTrace) {
+			_log('You can\'t run this again!');
+			return;
 		}
+
+		Log.trace = (value:Dynamic, ?infos:PosInfos) ->
+			log(value, infos);
 
 		LogFrontEnd.onLogs = (data:Dynamic, style:LogStyle, fireOnce:Bool) -> {
 			var level:LogLevel = LogMessage;
@@ -29,54 +43,114 @@ class Console {
 			else if (style == LogStyle.NORMAL) level = SystemMessage;
 			else if (style == LogStyle.NOTICE) level = SystemMessage;
 			else if (style == LogStyle.WARNING) level = WarningMessage;
-
-			log(data, level, null);
+			_log(data, level);
 		}
+
+		final initMessage = 'Initialized Custom Trace System';
+		#if CONSOLE_FANCY_PRINT
+		final officialMessage:String = #if official 'Fancy print enabled.' #else 'Thank you for using fancy print, hope you like it!' #end;
+		_log('$officialMessage\n    $initMessage');
+		#else
+		_log(initMessage);
+		#end
 	}
 
-	static function formatInfos(value:Dynamic, infos:PosInfos):String {
-		var content:String = Std.string(value);
-		if (infos == null)
-			return content;
-		var front:String = '${FilePath.withoutExtension(infos.fileName.replace('/', '.'))}:${infos.lineNumber}';
-		if (infos.customParams != null)
-			for (value in infos.customParams)
-				content += ', ${Std.string(value)}';
-		return '$front: $content';
-	}
+	inline static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
+		var log:String = switch (level) {
+			case ErrorMessage:      'Error';
+			case WarningMessage:  'Warning';
+			case SystemMessage:    'System';
+			case DebugMessage:      'Debug';
+			case LogMessage:      'Message';
+		}
 
-	static function formatLogLevel(level:LogLevel):String {
-		var result:String = '[';
-		result += switch (level) { // the numbers are the word lengths
+		var info:String = '${file ?? 'Unknown'}';
+		info += line == null ? '' : ':$line';
+		if (info.trim() != '')
+			info += '\n';
+
+		var message:String = Std.string(value);
+
+		#if CONSOLE_FANCY_PRINT
+		var who:String = switch (from) {
+			case FromSource: 'Source';
+			case FromHaxe: 'Haxe Script';
+			case FromLua: 'Lua Script';
+			default: 'Unknown';
+		}
+		var description:String = switch (level) {
 			case ErrorMessage:
-				'    ERROR    '; // 5
+				'It seems an error has ourred!';
 			case WarningMessage:
-				'   WARNING   '; // 7
+				'Uh oh, something happened!';
 			case SystemMessage:
-				'     SYS     '; // 3
+				null;
 			case DebugMessage:
-				'    DEBUG    '; // 5
+				null;
 			case LogMessage:
-				'   MESSAGE   '; // 7
+				null;
 		}
-		result += '] ';
-		return result;
+		if (description != null)
+			description = ' $description';
+		var split:Array<String> = '$log ~${description ?? ''}\n$info$message\nThrown from $who.'.split('\n');
+		var length:Int = 0;
+		for (i => item in split) {
+			if (length < split[i].length)
+				length = split[i].length;
+		}
+		for (i => item in split) {
+			var l:String = i == 0 ? ' /' : (i == (split.length - 1) ? ' \\' : '| ');
+			var r:String = i == 0 ? '\\ ' : (i == (split.length - 1) ? '/ ' : ' |');
+			var lineLen:Int = item.trim().length;
+			var edge:Bool = i == 0 || i == (split.length - 1);
+			split[i] = '$l ${item.trim()}${[for (i in 0...length - lineLen) ' '].join('')} $r';
+		}
+		split.insert(0, '   ${[for (i in 0...length) '-'].join('')}');
+		split.insert(0, '');
+		split.push('   ${[for (i in 0...length) '-'].join('')}');
+		return split.join('\n');
+		#else
+		if (info.trim() != '')
+			info = '"$info" ~ ';
+		if (extra != null)
+			for (value in extra)
+				message += ', ${Std.string(value)}';
+		return '$log ~ $info$message'.trim();
+		#end
 	}
 
 	/**
 	 * The engine's special trace function.
 	 * @param value The information you want to pop on to the console.
 	 * @param level The level status of the message.
+	 * @param from States if script or source logged this.
 	 * @param infos The code position information.
 	 */
-	public static function log(value:Dynamic, level:LogLevel = LogMessage, ?infos:PosInfos):Void {
-		// When compiling debug it's basically forced off DebugMessage level in a sense.
+	public static function log(value:Dynamic, level:LogLevel = LogMessage, from:LogFrom = FromSource, ?infos:PosInfos):Void {
+		// When compiling debug it's basically forced off the DebugMessage level in a sense.
 		#if !debug
 		if (Settings.setup.debugMode && level != DebugMessage)
 			return;
 		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
 			return;
 		#end
-		Sys.println(formatLogLevel(level) + formatInfos(value, infos));
+		Sys.println(formatLogInfo(value, level, infos.fileName, infos.lineNumber, from));
+	}
+
+	/**
+	 * It's just log, but without the file and line in the print.
+	 * @param value The information you want to pop on to the console.
+	 * @param level The level status of the message.
+	 * @param from States if script or source logged this.
+	 */
+	public static function _log(value:Dynamic, level:LogLevel = SystemMessage, from:LogFrom = FromSource):Void {
+		// When compiling debug it's basically forced off the DebugMessage level in a sense.
+		#if !debug
+		if (Settings.setup.debugMode && level != DebugMessage)
+			return;
+		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
+			return;
+		#end
+		Sys.println(formatLogInfo(value, level, '', from));
 	}
 }

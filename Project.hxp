@@ -1,9 +1,8 @@
+import haxe.io.Path;
+import sys.FileSystem;
+import sys.io.Process;
 import hxp.*;
 import lime.tools.*;
-import sys.FileSystem;
-import haxe.io.Path;
-import sys.io.Process;
-import haxe.Timer;
 
 using StringTools;
 
@@ -118,6 +117,8 @@ using StringTools;
 			return;
 		}
 
+		setDefine('official'); // idk how I'm gonna handle this atm
+
 		/* Define Setup */
 		knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
@@ -143,6 +144,7 @@ using StringTools;
 				allowVideos.enable();
 		}
 		allowShaders.enable();
+		consoleFancyPrint.enable(false);
 		/* Define Setup */
 
 		/* App Setup */
