@@ -15,8 +15,8 @@
 	{"name": "hxcpp-debug-server"},
 
 	{
-		"name": "moonchart", "version": "git",
-		"url": "https://github.com/MaybeMaru/moonchart"
+		"name": "moonchart", "version": "git", "branch": "imaginative",
+		"url": "https://github.com/Funkin-Imaginative/moonchart"
 	},
 
 	{
