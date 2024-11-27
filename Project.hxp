@@ -104,6 +104,11 @@ using StringTools;
 	 */
 	static final allowVideos:CompilerFlag = 'ALLOW_VIDEOS';
 
+	/**
+	 * States the console print should be fancy.
+	 */
+	static final consoleFancyPrint:CompilerFlag = 'CONSOLE_FANCY_PRINT';
+
 	override public function new() {
 		super();
 
@@ -144,7 +149,7 @@ using StringTools;
 				allowVideos.enable();
 		}
 		allowShaders.enable();
-		consoleFancyPrint.enable(false);
+		consoleFancyPrint.softEnable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -264,61 +269,122 @@ using StringTools;
 		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
 	}
 
-	//
-	// HELPER FUNCTIONS
-	// Easy functions to make the code more readable.
-	//
-
+	/**
+	 * If true, your compiling on desktop.
+	 */
 	inline public function isDesktop():Bool
 		return hasDefine('desktop');
+	/**
+	 * If true, your compiling on mobile.
+	 */
 	inline public function isMobile():Bool
 		return hasDefine('mobile');
 
+	/**
+	 * If true, your compiling on a 32 bit system.
+	 */
 	inline public function is32Bit():Bool
 		return this.architectures.contains(Architecture.X86);
+	/**
+	 * If true, your compiling on a 64 bit system.
+	 */
 	inline public function is64Bit():Bool
 		return this.architectures.contains(Architecture.X64);
 
 
+	/**
+	 * If true, your compiling on windows.
+	 */
 	inline public function isWindows():Bool
 		return hasDefine('windows');
+	/**
+	 * If true, your compiling on mac.
+	 */
 	inline public function isMac():Bool
 		return hasDefine('mac');
+	/**
+	 * If true, your compiling on linux.
+	 */
 	inline public function isLinux():Bool
 		return hasDefine('linux');
 
+	/**
+	 * If true, your compiling on android.
+	 */
 	inline public function isAndroid():Bool
 		return this.targetFlags.exists('android');
+	/**
+	 * If true, your compiling on ios.
+	 */
 	inline public function isIOS():Bool
 		return this.targetFlags.exists('ios');
 
+	/**
+	 * If true, your compiling on a release build.
+	 */
 	inline public function isRelease():Bool
 		return hasDefine('release');
+	/**
+	 * If true, your compiling on a debug build.
+	 */
 	inline public function isDebug():Bool
 		return hasDefine('debug');
 
+	/**
+	 * Set's a haxedef.
+	 * @param name The haxedef key.
+	 * @param value The value of the haxedef.
+	 */
 	inline public function setHaxedef(name:String, value:String = ''):Void {
 		info('Set haxedef "$name"${value == null ? '' : ' value of "$value"'}.');
 		this.haxedefs.set(name, value);
 	}
+	/**
+	 * Get's information from a haxedef.
+	 * @param name The haxedef key.
+	 * @return The value of the haxedef.
+	 */
 	inline public function getHaxedef(name:String):Null<Dynamic>
 		return this.haxedefs.get(name);
+	/**
+	 * Unset's a haxedef.
+	 * @param name The haxedef key.
+	 */
 	inline public function unsetHaxedef(name:String):Void
 		if (hasHaxedef(name)) {
 			info('Unset haxedef "$name".');
 			this.haxedefs.remove(name);
 		}
+	/**
+	 * Check's if a haxedef exists.
+	 * @param name The haxedef key.
+	 * @return If true, the define exists.
+	 */
 	inline public function hasHaxedef(name:String):Bool
 		return this.haxedefs.exists(name);
 
+	/**
+	 * Set's a define.
+	 * @param name The define key.
+	 * @param value The value of the define.
+	 */
 	inline public function setDefine(name:String, value:String = ''):Void {
 		info('Set define "$name"${value == null ? '' : ' value of "$value"'}.');
 		this.defines.set(name, value);
 		this.haxedefs.set(name, value);
 		this.environment.set(name, value);
 	}
+	/**
+	 * Get's information from a define.
+	 * @param name The define key.
+	 * @return The value of the define.
+	 */
 	inline public function getDefine(name:String):Null<Dynamic>
 		return this.defines.get(name);
+	/**
+	 * Unset's a define.
+	 * @param name The define key.
+	 */
 	inline public function unsetDefine(name:String):Void
 		if (hasDefine(name)) {
 			info('Unset define "$name".');
@@ -326,6 +392,11 @@ using StringTools;
 			this.haxedefs.remove(name);
 			this.environment.remove(name);
 		}
+	/**
+	 * Check's if a define exists.
+	 * @param name The define key.
+	 * @return If true, the define exists.
+	 */
 	inline public function hasDefine(name:String):Bool
 		return this.defines.exists(name);
 
@@ -339,12 +410,14 @@ using StringTools;
 
 	/**
 	 * Add a `haxeflag` to the project.
+	 * @param value The flag.
 	 */
 	inline public function addHaxeFlag(value:String):Void
 		this.haxeflags.push(value);
 
 	/**
 	 * Call a Haxe build macro.
+	 * @param value The macro.
 	 */
 	inline public function addHaxeMacro(value:String):Void
 		addHaxeFlag('--macro $value');
@@ -352,7 +425,7 @@ using StringTools;
 	/**
 	 * Add an icon to the project.
 	 * @param icon The path to the icon.
-	 * @param size The size of the icon. Optional.
+	 * @param size The size of the icon, optional.
 	 */
 	inline public function addIcon(icon:String, ?size:Int):Void
 		this.icons.push(new Icon(icon, size));
@@ -488,14 +561,18 @@ abstract CompilerFlag(String) {
 
 	/**
 	 * Enable this feature flag by setting the appropriate compile define.
-	 * @param keep
+	 * @param value The flag value.
 	 */
-	inline public function enable(keep:Bool = true):Void
+	inline public function enable(value:String = ''):Void
 		if (!exists())
-			if (keep)
-				parentProject.setDefine(this);
-			else
-				parentProject.setHaxedef(this);
+			parentProject.setDefine(this, value);
+	/**
+	 * Enable this feature flag by setting the appropriate compile define.
+	 * @param value The flag value.
+	 */
+	inline public function softEnable(value:String = ''):Void
+		if (!exists())
+			parentProject.setHaxedef(this, value);
 	/**
 	 * Disable this feature flag by removing the appropriate compile define.
 	 */
