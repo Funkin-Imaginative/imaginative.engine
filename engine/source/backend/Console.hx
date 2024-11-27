@@ -49,13 +49,13 @@ class Console {
 		final initMessage = 'Initialized Custom Trace System';
 		#if CONSOLE_FANCY_PRINT
 		final officialMessage:String = #if official 'Fancy print enabled.' #else 'Thank you for using fancy print, hope you like it!' #end;
-		_log('$officialMessage\n    $initMessage');
+		_log('$officialMessage\n\t$initMessage');
 		#else
 		_log(initMessage);
 		#end
 	}
 
-	inline static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
+	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		var log:String = switch (level) {
 			case ErrorMessage:      'Error';
 			case WarningMessage:  'Warning';
@@ -69,7 +69,7 @@ class Console {
 		if (info.trim() != '')
 			info += '\n';
 
-		var message:String = Std.string(value);
+		var message:String = Std.string(value).replace('\t', '    ').replace('	', '    '); // keep consistant length
 
 		#if CONSOLE_FANCY_PRINT
 		var who:String = switch (from) {
@@ -94,20 +94,20 @@ class Console {
 			description = ' $description';
 		var split:Array<String> = '$log ~${description ?? ''}\n$info$message\nThrown from $who.'.split('\n');
 		var length:Int = 0;
-		for (i => item in split) {
+		for (i => _ in split) {
 			if (length < split[i].length)
 				length = split[i].length;
 		}
 		for (i => item in split) {
 			var l:String = i == 0 ? ' /' : (i == (split.length - 1) ? ' \\' : '| ');
 			var r:String = i == 0 ? '\\ ' : (i == (split.length - 1) ? '/ ' : ' |');
-			var lineLen:Int = item.trim().length;
+			var lineLen:Int = item.length;
 			var edge:Bool = i == 0 || i == (split.length - 1);
-			split[i] = '$l ${item.trim()}${[for (i in 0...length - lineLen) ' '].join('')} $r';
+			split[i] = '$l $item${[for (_ in 0...length - lineLen) ' '].join('')} $r';
 		}
-		split.insert(0, '   ${[for (i in 0...length) '-'].join('')}');
+		split.insert(0, '   * ${[for (_ in 0...length - 4) '-'].join('')} *');
 		split.insert(0, '');
-		split.push('   ${[for (i in 0...length) '-'].join('')}');
+		split.push('   * ${[for (_ in 0...length - 4) '-'].join('')} *');
 		return split.join('\n');
 		#else
 		if (info.trim() != '')
@@ -115,7 +115,7 @@ class Console {
 		if (extra != null)
 			for (value in extra)
 				message += ', ${Std.string(value)}';
-		return '$log ~ $info$message'.trim();
+		return '$log ~ $info$message';
 		#end
 	}
 
