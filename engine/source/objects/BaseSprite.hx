@@ -389,7 +389,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * The arguments are to reverse the name.
 	 * @param ignoreSwap If true, it won't use the swap name.
 	 * @param ignoreFlip If true, it won't use the flip name.
-	 * @return `Null<String>` The animation name.
+	 * @return `Null<String>` ~ The animation name.
 	 */
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
@@ -432,7 +432,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.
 	 * @param inGeneral If false, it only checks if the animation is listed in the map.
-	 * @return `Bool`
+	 * @return `Bool` ~ If true, the animation exists.
 	 */
 	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool {
 		return inGeneral ? animation.exists(name) : (animation.exists(name) && anims.exists(name));
