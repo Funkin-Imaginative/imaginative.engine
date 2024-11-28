@@ -1,5 +1,7 @@
 package objects.gameplay;
 
+import openfl.events.KeyboardEvent;
+
 class ArrowField extends BeatGroup {
 	/**
 	 * Stores extra data that coders can use for cool stuff.
@@ -78,22 +80,38 @@ class ArrowField extends BeatGroup {
 
 		add(strums);
 		add(notes);
+
+		// input system
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _KEY_DOWN);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _KEY_UP);
 	}
 
-	override function update(elapsed:Float):Void {
-		super.update(elapsed);
-
-		if (!PlayConfig.botplay && status != null && PlayConfig.enableP2) {
+	function _KEY_DOWN(event:KeyboardEvent) {
+		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
 			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
 			for (i => strum in strums.members) {
 				final hasHit:Bool = [controls.noteLeft, controls.noteDown, controls.noteUp, controls.noteRight][i];
 				final beingHeld:Bool = [controls.noteLeftHeld, controls.noteDownHeld, controls.noteUpHeld, controls.noteRightHeld][i];
-				final wasReleased:Bool = [controls.noteLeftReleased, controls.noteDownReleased, controls.noteUpReleased, controls.noteRightReleased][i];
 
-				if (beingHeld)
+				if (hasHit)
 					strum.playAnim('press');
 			}
 		}
+	}
+	function _KEY_UP(event:KeyboardEvent) {
+		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
+			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
+			for (i => strum in strums.members) {
+				final wasReleased:Bool = [controls.noteLeftReleased, controls.noteDownReleased, controls.noteUpReleased, controls.noteRightReleased][i];
+
+				if (wasReleased && strum.getAnimName() == 'press')
+					strum.playAnim('static');
+			}
+		}
+	}
+
+	override function update(elapsed:Float):Void {
+		super.update(elapsed);
 	}
 
 	/**
@@ -116,5 +134,11 @@ class ArrowField extends BeatGroup {
 	 */
 	public function parse(info:Dynamic):Void {
 
+	}
+
+	override function destroy() {
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _KEY_DOWN);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _KEY_UP);
+		super.destroy();
 	}
 }

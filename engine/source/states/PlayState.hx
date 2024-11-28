@@ -188,6 +188,7 @@ class PlayState extends BeatState {
 			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
 
+		// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
 		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
 		playerField = new ArrowField((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
 		enemyField.cameras = playerField.cameras = [camHUD];

@@ -47,6 +47,13 @@ class Strum extends FlxSprite {
 		scale.scale(0.7);
 		updateHitbox();
 		playAnim('static');
+
+		animation.onFinish.add((name:String) -> {
+			// switch (name) {
+			// 	case press:
+
+			// }
+		});
 	}
 
 	/**
@@ -63,5 +70,35 @@ class Strum extends FlxSprite {
 			centerOffsets();
 			centerOrigin();
 		}
+	}
+
+	/**
+	 * Get's the name of the currently playing animation.
+	 * The arguments are to reverse the name.
+	 * @return `Null<String>` ~ The animation name.
+	 */
+	 inline public function getAnimName():Null<String> {
+		if (animation.name != null)
+			return animation.name;
+		return null;
+	}
+	/**
+	 * Tells you if the animation has finished playing.
+	 * @return `Bool`
+	 */
+	inline public function isAnimFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	/**
+	 * When run, it forces the animation to finish.
+	 */
+	inline public function finishAnim():Void
+		if (animation.curAnim != null)
+			animation.curAnim.finish();
+	/**
+	 * Check's if the animation exists.
+	 * @param name The animation name to check.
+	 * @return `Bool` ~ If true, the animation exists.
+	 */
+	inline public function doesAnimExist(name:String/* , inGeneral:Bool */):Bool {
+		return /* inGeneral ? */ animation.exists(name) /* : (animation.exists(name) && anims.exists(name)) */;
 	}
 }

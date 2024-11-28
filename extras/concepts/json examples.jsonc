@@ -58,7 +58,7 @@
 	},
 
 	// meta data for softmodding shenanigan's
-	"meta": {
+	"metas": {
 		// level data for weeks and shit
 		"level": {
 			"title": "Teaching Time",
@@ -107,7 +107,97 @@
 		}
 	},
 
-	// extra data that will be stored, note that only certain types of things will receive this data, like sprites
+	"chart": {
+		"speed": 1,
+		"stage": "stage",
+		"fields": [
+			{
+				"tag": "hi",
+				"characters": ["bf"],
+				"notes": [
+					{
+						"id": 0,
+						"sustain": 100,
+						"time": 10,
+						"type": null
+					}
+				],
+				"speed": 0
+			},
+			{
+				"tag": "loser",
+				"characters": ["opponent"],
+				"notes": [],
+				"speed": 0
+			}
+		],
+		"characters": [
+			{
+				"tag": "gfVersion",
+				"name": "gf",
+				"position": "center"
+			},
+			{
+				"tag": "bf",
+				"name": "boyfriend",
+				"position": "right"
+			},
+			{
+				"tag": "opponent",
+				"name": "dad",
+				"position": "left"
+			},
+			{
+				"tag": "coolswag",
+				"name": "pico",
+				"position": "right"
+			}
+		],
+		"fieldSettings": {
+			"order": ["loser", "hi"],
+			"enemy": "loser",
+			"player": "hi"
+		}
+	},
+	"events": [
+		{
+			"name": "Script Call",
+			"params": [
+				"surprise pico"
+			],
+			"time": 10,
+			"sub": 0
+		},
+		{
+			"name": "Change Stage",
+			"params": [
+				"stage-erect"
+			],
+			"time": 20,
+			"sub": 0
+		},
+		{
+			"name": "Camera Zooming",
+			"params": [
+				0.03,
+				0.06,
+				1,
+				0.7
+			],
+			"time": 30,
+			"sub": 0
+		},
+		{
+			"name": "Set Camera Target",
+			"params": [
+				"coolswag"
+			],
+			"time": 30,
+			"sub": 1
+		}
+	],
+
+	// extra data that will be stored, note that only certain types of things will receive this field, like sprites
 	"extra": [
 		{"name": "there fucking dead", "data": null},
 		{"name": "isPibby", "data": true}
