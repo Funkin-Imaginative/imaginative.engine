@@ -54,6 +54,9 @@ import backend.Console._log;
 import backend.Console.log;
 import backend.Console;
 import backend.Controls;
+#if DISCORD_RICH_PRESENCE
+import backend.RichPresence;
+#end
 import backend.configs.PlayConfig;
 import backend.interfaces.ITexture;
 import backend.music.Conductor;

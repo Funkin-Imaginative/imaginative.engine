@@ -148,6 +148,8 @@ using StringTools;
 			if (isDesktop() || isMobile())
 				allowVideos.enable();
 		}
+		if (discordRPC.exists())
+			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
 		consoleFancyPrint.softEnable();
 		/* Define Setup */
