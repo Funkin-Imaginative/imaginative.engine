@@ -7,7 +7,8 @@
 		"LOCKON",
 		"luajit",
 		"PAGEUP",
-		"preprocesor"
+		"preprocesor",
+		"tweens"
 	],
 
 	"editor.codeActionsOnSave": {
