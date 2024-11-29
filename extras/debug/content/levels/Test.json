@@ -1,0 +1,11 @@
+{
+	"title": "Testing Things Out",
+	"songs": ["Test"],
+	"startingDiff": 0,
+	"difficulties": ["normal"],
+	"objects": [
+		{"path": "main:characters/boyfriend"},
+		{"path": "main:characters/boyfriend"}
+	],
+	"color": "#FFFFFF"
+}
