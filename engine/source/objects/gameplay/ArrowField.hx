@@ -27,7 +27,7 @@ class ArrowField extends BeatGroup {
 		if (this == player) return true;
 		return null;
 	}
-	inline function set_status(value:Null<Bool>):Null<Bool> {
+	inline function set_status(?value:Bool):Null<Bool> {
 		switch (value) {
 			case false:
 				if (enemy == player) swapTargetFields();

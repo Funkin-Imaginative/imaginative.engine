@@ -50,7 +50,7 @@ typedef SongData = {
 	/**
 	 * The song color.
 	 */
-	var color:Null<FlxColor>;
+	var ?color:FlxColor;
 	/**
 	 * Allowed modes for the song.
 	 */

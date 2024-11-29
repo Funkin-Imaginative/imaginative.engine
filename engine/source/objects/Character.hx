@@ -17,7 +17,7 @@ typedef CharacterData = {
 	/**
 	 * The character's health bar color.
 	 */
-	var color:Null<FlxColor>;
+	var ?color:FlxColor;
 	/**
 	 * The character's icon.
 	 */
