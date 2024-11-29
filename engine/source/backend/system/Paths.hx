@@ -415,6 +415,15 @@ class Paths {
 	inline public static function object(file:ModPath):ModPath
 		return json('${file.type}:content/objects/${file.path}');
 	/**
+	 * Get's the path of a chart json.
+	 * @param song The song folder name.
+	 * @param difficulty The difficulty key.
+	 * @param variant The variant key.
+	 * @return `ModPath` ~ The path data.
+	 */
+	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ModPath
+		return json('engine/assets/content/songs/$song/charts/${variant == 'normal' ? '' : '$variant/'}$difficulty');
+	/**
 	 * Get's the path of a character json.
 	 * From `../content/objects/characters/`.
 	 * @param file The mod path.

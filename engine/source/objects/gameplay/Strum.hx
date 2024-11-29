@@ -47,13 +47,7 @@ class Strum extends FlxSprite {
 		scale.scale(0.7);
 		updateHitbox();
 		playAnim('static');
-
-		animation.onFinish.add((name:String) -> {
-			// switch (name) {
-			// 	case press:
-
-			// }
-		});
+		updateHitbox();
 	}
 
 	/**

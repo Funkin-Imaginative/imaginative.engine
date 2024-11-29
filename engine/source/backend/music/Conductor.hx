@@ -47,7 +47,7 @@ typedef AudioData = {
 	/**
 	 * Contains all known bpm changes.
 	 */
-	@:default([]) var checkpoints:Array<CheckpointTyping>;
+	var checkpoints:Array<CheckpointTyping>;
 }
 
 // MAYBE: Add documentation.

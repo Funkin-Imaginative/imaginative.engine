@@ -1,6 +1,7 @@
 package utils;
 
 import json2object.JsonParser;
+import states.editors.ChartEditor.ChartData;
 
 typedef AllowedModesTyping = {
 	/**
@@ -65,7 +66,7 @@ typedef ExtraData = {
 	/**
 	 * The data contents.
 	 */
-	var data:Dynamic;
+	// @:jignored var data:Dynamic;
 }
 
 /**
@@ -238,11 +239,23 @@ class ParseUtil {
 	}
 
 	/**
+	 * Parse's a chart json.
+	 * @param song The song folder name.
+	 * @param difficulty The difficulty key.
+	 * @param variant The variant key.
+	 * @return `ChartData` ~ The parsed chart json.
+	 */
+	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
+		final jsonPath:ModPath = Paths.chart(song, difficulty, variant);
+		return new json2object.JsonParser<ChartData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+	}
+
+	/**
 	 * Parse's a SpriteText json.
 	 * @param font The font json file name.
 	 * @return `SpriteTextSetup` ~ The parsed font json.
 	 */
-	public static function spriteFont(font:ModPath):SpriteTextSetup {
+	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
 		final jsonPath:ModPath = Paths.spriteFont(font);
 		return new JsonParser<SpriteTextSetup>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 	}

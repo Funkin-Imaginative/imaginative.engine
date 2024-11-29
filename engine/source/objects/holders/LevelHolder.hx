@@ -4,7 +4,7 @@ typedef ObjectTyping = {
 	/**
 	 * Is the object json mod path.
 	 */
-	@:default('') var path:String;
+	var path:String;
 	/**
 	 * Is the sprite data.
 	 */

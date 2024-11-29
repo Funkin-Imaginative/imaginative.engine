@@ -1,23 +1,5 @@
 package objects.gameplay;
 
-/**
- * States what note part it is.
- */
-enum abstract NotePart(String) from String to String {
-	/**
-	 * The head of the note.
-	 */
-	var NoteHead = 'Head';
-	/**
-	 * A tail piece of a sustain.
-	 */
-	var NoteTail = 'Tail';
-	/**
-	 * The end of a sustain.
-	 */
-	var NoteEnd = 'End';
-}
-
 class Note extends FlxSprite {
 	// Cool variables.
 	/**
@@ -33,6 +15,10 @@ class Note extends FlxSprite {
 	 * The field the note is assigned to.
 	 */
 	public var setField(default, null):ArrowField;
+	/**
+	 * The sustain pieces this note has.
+	 */
+	public var tail:BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
 
 	// Note specific variables.
 	/**
@@ -41,13 +27,9 @@ class Note extends FlxSprite {
 	public static var baseWidth(default, null):Float = 160 * 0.7;
 
 	/**
-	 * States what note part it is.
-	 */
-	public var part(default, null):NotePart;
-	/**
 	 * The strum lane index.
 	 */
-	public var id(default, null):Int;
+	public var id:Int;
 	/**
 	 * Its just id but with % applied.
 	 */
@@ -55,25 +37,36 @@ class Note extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
+	/**
+	 *
+	 */
+	public var time:Float;
+
 	@:allow(objects.gameplay.ArrowField.parse)
-	override function new(field:ArrowField, id:Int, time:Float, part:NotePart = NoteHead) {
+	override function new(field:ArrowField, id:Int, time:Float) {
 		setField = field;
 		this.id = id;
 
 		super(-10000, -10000);
 
-		var col:String = ['purple', 'blue', 'green', 'red'][idMod];
+		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
 
-		this.loadTexture('gameplay/notes/NOTE_assets');
+		this.loadTexture('gameplay/arrows/notes');
 
-		switch (this.part = part) {
-			case NoteHead: animation.addByPrefix('note', '${col}0', 24);
-			case NoteTail: animation.addByPrefix('note', '$col hold piece', 24);
-			case NoteEnd: animation.addByPrefix('note', '$col hold end', 24);
-		}
+		animation.addByPrefix('head', 'note$dir', 24, false);
 
-		animation.play('note', true);
+		animation.play('head', true);
 		scale.scale(0.7);
 		updateHitbox();
+		animation.play('head', true);
+		updateHitbox();
+	}
+
+	@:allow(objects.gameplay.ArrowField.parse)
+	static function generateSustain(note:Note, length:Float) {
+		if (length > 0) {
+			var sustain:Sustain = new Sustain(note);
+			note.tail.add(sustain);
+		}
 	}
 }

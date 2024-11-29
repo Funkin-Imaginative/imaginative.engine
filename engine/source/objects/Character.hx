@@ -140,7 +140,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	override public function tryDance():Void {
 		switch (animContext) {
 			case IsSinging | HasMissed:
-				if (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition)
+				if (lastHit + (singLength * 1000) < Conductor.song.songPosition)
 					dance();
 			default:
 				super.tryDance();

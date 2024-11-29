@@ -1,6 +1,7 @@
 package objects.gameplay;
 
 import openfl.events.KeyboardEvent;
+import states.editors.ChartEditor.ChartField;
 
 class ArrowField extends BeatGroup {
 	/**
@@ -54,6 +55,11 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
+	 * Any character tag names in this array will react to notes for this field.
+	 */
+	public var assignedSingers:Array<String> = [];
+
+	/**
 	 * The strums of the field.
 	 */
 	public var strums:BeatTypedGroup<Strum> = new BeatTypedGroup<Strum>();
@@ -61,6 +67,10 @@ class ArrowField extends BeatGroup {
 	 * The notes of the field.
 	 */
 	public var notes:BeatTypedGroup<Note> = new BeatTypedGroup<Note>();
+	/**
+	 * The sustains of the field.
+	 */
+	public var sustains:BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
 
 	/**
 	 * The amount of strums in the field.
@@ -70,7 +80,7 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
-	override public function new(x:Float = 0, y:Float = 0, mania:Int = 4) {
+	override public function new(x:Float = 0, y:Float = 0, mania:Int = 4, ?singers:Array<String>) {
 		strumCount = mania;
 		super();
 
@@ -78,40 +88,64 @@ class ArrowField extends BeatGroup {
 			strums.add(new Strum(this, i));
 		setStrumPositions(x, y);
 
+		if (singers != null)
+			assignedSingers = singers;
+
 		add(strums);
 		add(notes);
+		insert(members.indexOf(true ? strums : notes), sustains); // behindStrums
 
 		// input system
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _KEY_DOWN);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _KEY_UP);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _input);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _input);
 	}
 
-	function _KEY_DOWN(event:KeyboardEvent) {
+	function _input(event:KeyboardEvent):Void {
 		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
 			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
-			for (i => strum in strums.members) {
-				final hasHit:Bool = [controls.noteLeft, controls.noteDown, controls.noteUp, controls.noteRight][i];
-				final beingHeld:Bool = [controls.noteLeftHeld, controls.noteDownHeld, controls.noteUpHeld, controls.noteRightHeld][i];
-
-				if (hasHit)
-					strum.playAnim('press');
-			}
+			for (i => strum in strums.members)
+				input(
+					i,
+					strum,
+					[
+						controls.noteLeft,
+						controls.noteDown,
+						controls.noteUp,
+						controls.noteRight
+					]
+					[i],
+					[
+						controls.noteLeftHeld,
+						controls.noteDownHeld,
+						controls.noteUpHeld,
+						controls.noteRightHeld
+					]
+					[i],
+					[
+						controls.noteLeftReleased,
+						controls.noteDownReleased,
+						controls.noteUpReleased,
+						controls.noteRightReleased
+					]
+					[i]
+				);
 		}
 	}
-	function _KEY_UP(event:KeyboardEvent) {
-		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
-			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
-			for (i => strum in strums.members) {
-				final wasReleased:Bool = [controls.noteLeftReleased, controls.noteDownReleased, controls.noteUpReleased, controls.noteRightReleased][i];
 
-				if (wasReleased && strum.getAnimName() == 'press')
-					strum.playAnim('static');
-			}
-		}
-	}
+	/**
+	 * Where input stuff really begins.
+	 * @param i The strum index.
+	 * @param strum The strum object.
+	 * @param hasHit If true, a bind was pressed.
+	 * @param beingHeld If true, a bind is being held.
+	 * @param wasReleased If true, a bind was released.
+	 */
+	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
+		if (hasHit)
+			strum.playAnim('press');
 
-	override function update(elapsed:Float):Void {
-		super.update(elapsed);
+		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confrim'))
+			strum.playAnim('static');
 	}
 
 	/**
@@ -129,16 +163,20 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Parses chart ArrowField information.
-	 * @param info The chart ArrowField data.
+	 * Parses ChartField information.
+	 * @param data The ChartField data.
 	 */
-	public function parse(info:Dynamic):Void {
-
+	public function parse(data:ChartField):Void {
+		for (base in data.notes) {
+			var note:Note = new Note(this, base.id, base.time);
+			// Note.generateSustain(note, base.length);
+			sustains.add(notes.add(note).tail);
+		}
 	}
 
 	override function destroy() {
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _KEY_DOWN);
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _KEY_UP);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _input);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _input);
 		super.destroy();
 	}
 }

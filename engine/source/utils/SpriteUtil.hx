@@ -48,7 +48,7 @@ typedef AnimationTyping = {
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
 	 */
-	@:default([]) var indices:Array<Int>;
+	var indices:Array<Int>;
 	/**
 	 * The offset for the set animation.
 	 */
@@ -57,13 +57,13 @@ typedef AnimationTyping = {
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	@:default('') var swapKey:String;
+	var swapKey:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	@:default('') var flipKey:String;
+	var flipKey:String;
 	/**
 	 * The flip offset for the set animation.
 	 */
@@ -119,7 +119,7 @@ typedef SpriteData = {
 	/**
 	 * Extra data for the sprite.
 	 */
-	@:jignored var ?extra:Array<ExtraData>;
+	var ?extra:Array<ExtraData>;
 }
 
 enum abstract SpriteType(String) from String to String {

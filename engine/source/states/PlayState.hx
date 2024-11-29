@@ -1,5 +1,7 @@
 package states;
 
+import states.editors.ChartEditor.ChartData;
+
 typedef CountdownAssets = {
 	/**
 	 * Countdown images.
@@ -73,7 +75,7 @@ class PlayState extends BeatState {
 	/**
 	 * The chart information.
 	 */
-	public static var chartData:Dynamic;
+	public static var chartData:ChartData;
 	/**
 	 * Contains all events obtained from the `chartData`.
 	 */
@@ -180,13 +182,47 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		// if (chartData == null)
-		// 	chartData = blah;
+		chartData = ParseUtil.chart(curSong, difficulty, variant) ?? ParseUtil.chart('Test') ?? {
+			speed: 2.6,
+			stage: 'void',
+			fields: {
+				{
+					tag: 'balls',
+					characters: ['penis'],
+					notes: [
+						{
+							id: 0,
+							length: 6000,
+							time: 8000,
+							characters: ['penis'],
+							type: ''
+						}
+					],
+					speed: 0
+				}
+			},
+			characters: [
+				{
+					tag: 'penis',
+					name: 'boyfriend',
+					position: ''
+				}
+			],
+			fieldSettings: {
+				order: ['balls'],
+				enemy: '',
+				player: ''
+			}
+		}
 
 		countdownAssets = {
 			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),
 			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
+
+		camPoint = new FlxObject(0, 0, 1, 1);
+		camGame.follow(camPoint, LOCKON, 0.05);
+		add(camPoint);
 
 		// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
 		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
@@ -195,9 +231,9 @@ class PlayState extends BeatState {
 		add(ArrowField.enemy = enemyField);
 		add(ArrowField.player = playerField);
 
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camGame.follow(camPoint, LOCKON, 0.05);
-		add(camPoint);
+		add(spectator = new Character(400, 130, 'gf', true));
+		add(enemy = new Character(100, 100));
+		add(player = new Character(770, 100, true));
 
 		super.create();
 
@@ -271,10 +307,6 @@ class PlayState extends BeatState {
 				}
 			}, countdownLength + 1);
 		});
-
-		add(spectator = new Character(400, 130, 'gf', true));
-		add(enemy = new Character(100, 100));
-		add(player = new Character(770, 100, true));
 
 		camPoint.setPosition(spectator.getCamPos().x, spectator.getCamPos().y);
 		camGame.snapToTarget();
