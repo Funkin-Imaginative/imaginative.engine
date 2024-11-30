@@ -38,9 +38,14 @@ class Note extends FlxSprite {
 		return id % setField.strumCount;
 
 	/**
-	 *
+	 * The note position in steps.
 	 */
 	public var time:Float;
+
+	/**
+	 * Any character tag names in this array will overwrite the notes field array.
+	 */
+	public var assignedSingers:Array<Character> = [];
 
 	@:allow(objects.gameplay.ArrowField.parse)
 	override function new(field:ArrowField, id:Int, time:Float) {

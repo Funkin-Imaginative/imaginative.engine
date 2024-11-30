@@ -150,28 +150,82 @@ class PlayState extends BeatState {
 	 * The current camera position.
 	 */
 	public var camPoint:FlxObject;
+	/**
+	 * The current camera target.
+	 */
+	public var cameraTarget:String = null;
+	/**
+	 * The previous camera target.
+	 */
+	public var prevCameraTarget:String = null;
+
+	// Character variables.
+	/**
+	 * Contains all existing characters.
+	 */
+	public var characterMapping:Map<String, Character> = new Map<String, Character>();
 
 	/**
 	 * What would be known as the Girlfriend.
 	 */
-	public var spectator:Character;
+	// public var spectator:Character;
+
 	/**
 	 * What would be known as Daddy Dearest.
 	 */
-	public var enemy:Character;
+	public var enemy(get, set):Character;
+	inline function get_enemy():Character
+		return enemies[0];
+	inline function set_enemy(value:Character):Character
+		return enemies[1] = value;
 	/**
 	 * What would be known as the Boyfriend.
 	 */
-	public var player:Character;
+	public var player(get, set):Character;
+	inline function get_player():Character
+		return players[0];
+	inline function set_player(value:Character):Character
+		return players[0] = value;
+
+	/**
+	 * All characters from the enemy field.
+	 */
+	public var enemies(get, set):Array<Character>;
+	inline function get_enemies():Array<Character>
+		return enemyField.assignedSingers;
+	inline function set_enemies(value:Array<Character>):Array<Character>
+		return enemyField.assignedSingers = value;
+	/**
+	 * All characters from the player field.
+	 */
+	public var players(get, set):Array<Character>;
+	inline function get_players():Array<Character>
+		return playerField.assignedSingers;
+	inline function set_players(value:Array<Character>):Array<Character>
+		return playerField.assignedSingers = value;
+
+	// ArrowField variables.
+	/**
+	 * Contains all existing arrow fields.
+	 */
+	public var arrowFieldMapping:Map<String, ArrowField> = new Map<String, ArrowField>();
 
 	/**
 	 * The enemy field.
 	 */
-	public var enemyField:ArrowField;
+	public var enemyField(get, set):ArrowField;
+	inline function get_enemyField():ArrowField
+		return ArrowField.enemy;
+	inline function set_enemyField(value:ArrowField):ArrowField
+		return ArrowField.enemy = value;
 	/**
 	 * The player field.
 	 */
-	public var playerField:ArrowField;
+	public var playerField(get, set):ArrowField;
+	inline function get_playerField():ArrowField
+		return ArrowField.player;
+	inline function set_playerField(value:ArrowField):ArrowField
+		return ArrowField.player = value;
 
 	override function create():Void {
 		scripts = new ScriptGroup(this);
@@ -182,10 +236,12 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		chartData = ParseUtil.chart(curSong, difficulty, variant) ?? ParseUtil.chart('Test') ?? {
+		// chart parsing
+		var loadedSong:String = '';
+		chartData = ParseUtil.chart(loadedSong = curSong, difficulty, variant) ?? ParseUtil.chart(loadedSong = 'Test') ?? {
 			speed: 2.6,
 			stage: 'void',
-			fields: {
+			fields: [
 				{
 					tag: 'balls',
 					characters: ['penis'],
@@ -197,10 +253,9 @@ class PlayState extends BeatState {
 							characters: ['penis'],
 							type: ''
 						}
-					],
-					speed: 0
+					]
 				}
-			},
+			],
 			characters: [
 				{
 					tag: 'penis',
@@ -209,11 +264,77 @@ class PlayState extends BeatState {
 				}
 			],
 			fieldSettings: {
+				cameraTarget: 'penis',
 				order: ['balls'],
-				enemy: '',
-				player: ''
+				enemy: loadedSong = 'Null',
+				player: 'balls'
 			}
 		}
+		log('Song "$loadedSong" loaded.', DebugMessage);
+
+		// character creation.
+		for (base in chartData.characters) {
+			var pos:Position = new Position(
+				switch (base.position) {
+					case 'enemy': 100;
+					case 'player': 770;
+					case 'spectator': 400;
+					default: 0;
+				},
+				switch (base.position) {
+					case 'enemy': 100;
+					case 'player': 100;
+					case 'spectator': 130;
+					default: 0;
+				}
+			);
+			var character:Character = new Character(pos.x, pos.y, base.name, base.position != 'enemy');
+			characterMapping.set(base.tag, character);
+			log('Character "${base.tag}" loaded.', DebugMessage);
+			add(character);
+		}
+
+		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
+			cameraTarget = chartData.fieldSettings.cameraTarget;
+		log('Starting camera target is "$cameraTarget".', DebugMessage);
+
+		// arrow field creation
+		for (base in chartData.fields) {
+			var field:ArrowField = new ArrowField([
+				for (tag => char in characterMapping)
+					if (base.characters.contains(tag))
+						char
+			]);
+			field.parse(base);
+			arrowFieldMapping.set(base.tag, field);
+			log('Field "${base.tag}" loaded.', DebugMessage);
+			field.cameras = [camHUD];
+			field.visible = false;
+			add(field);
+		}
+
+		// arrow field setup
+		for (order in chartData.fieldSettings.order) {
+			var fields:Array<ArrowField> = [
+				for (tag => field in arrowFieldMapping)
+					if (order.contains(tag))
+						field
+			];
+			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
+			for (i => field in fields) {
+				var fieldWidth:Float = Note.baseWidth * 4;
+				field.setFieldPosition((FlxG.width / 2) - (fieldWidth / 2) + (fieldWidth * i) - (fieldWidth * ((order.length - 1) / 2)), (FlxG.height / 2) - (FlxG.height / 2.2));
+				field.visible = true;
+			}
+		}
+
+		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
+			ArrowField.enemy = arrowFieldMapping.get(chartData.fieldSettings.enemy);
+		if (arrowFieldMapping.exists(chartData.fieldSettings.player))
+			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
+
+		playerField.setFieldPosition((FlxG.width / 2), (FlxG.height / 2) - (FlxG.height / 2.2));
+		playerField.visible = true;
 
 		countdownAssets = {
 			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),
@@ -223,17 +344,6 @@ class PlayState extends BeatState {
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camGame.follow(camPoint, LOCKON, 0.05);
 		add(camPoint);
-
-		// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
-		enemyField = new ArrowField((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
-		playerField = new ArrowField((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.3));
-		enemyField.cameras = playerField.cameras = [camHUD];
-		add(ArrowField.enemy = enemyField);
-		add(ArrowField.player = playerField);
-
-		add(spectator = new Character(400, 130, 'gf', true));
-		add(enemy = new Character(100, 100));
-		add(player = new Character(770, 100, true));
 
 		super.create();
 
@@ -308,10 +418,9 @@ class PlayState extends BeatState {
 			}, countdownLength + 1);
 		});
 
-		camPoint.setPosition(spectator.getCamPos().x, spectator.getCamPos().y);
+		camPoint.setPosition(characterMapping.get(cameraTarget).getCamPos().x, characterMapping.get(cameraTarget).getCamPos().y);
 		camGame.snapToTarget();
 		camGame.zoom = 0.9;
-		camPoint.setPosition(player.getCamPos().x, player.getCamPos().y);
 	}
 
 	override function createPost():Void {

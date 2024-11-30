@@ -422,7 +422,7 @@ class Paths {
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ModPath
-		return json('engine/assets/content/songs/$song/charts/${variant == 'normal' ? '' : '$variant/'}$difficulty');
+		return json('content/songs/$song/charts/${variant == 'normal' ? '' : '$variant/'}$difficulty');
 	/**
 	 * Get's the path of a character json.
 	 * From `../content/objects/characters/`.

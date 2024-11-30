@@ -37,11 +37,20 @@ class Sustain extends FlxSprite {
 
 	public var isEnd:Bool;
 
+	/**
+	 * Any character tag names in this array will overwrite the notes field array.
+	 */
+	public var assignedSingers(get, set):Array<Character>;
+	inline function get_assignedSingers():Array<Character>
+		return setParent.assignedSingers;
+	inline function set_assignedSingers(value:Array<Character>):Array<Character>
+		return setParent.assignedSingers = value;
+
 	override public function new(parent:Note, end:Bool = false) {
 		setParent = parent;
 		end;
 
-		super(-10000, -10000);
+		super(setParent.x, setParent.y);
 
 		var col:String = ['purple', 'blue', 'green', 'red'][idMod];
 

@@ -97,11 +97,11 @@ class Script extends FlxBasic implements IScript {
 		final paths:Array<String> = [Paths.script(file).format()];
 		#end
 
-		log([
+		/* log([
 			for (path in paths)
 				if (path != null && path.trim() != '')
 					path
-		], DebugMessage);
+		], DebugMessage); */
 
 		var scripts:Array<Script> = [];
 		for (path in paths) {

@@ -9,7 +9,7 @@ class ArrowField extends BeatGroup {
 	 */
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
-	// Even tho you can have a but ton of ArrowField's you can ONLY play as one!
+	// Even though you can have a but ton of ArrowField's you can ONLY play as one!
 	/**
 	 * The main enemy field.
 	 */
@@ -18,8 +18,9 @@ class ArrowField extends BeatGroup {
 	 * The main player field.
 	 */
 	public static var player:ArrowField;
+
 	/**
-	 * States if its the main enemy or player field.
+	 * States if it's the main enemy or player field.
 	 * False is the enemy, true is the player, and null is neither.
 	 */
 	public var status(get, set):Null<Bool>;
@@ -57,7 +58,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * Any character tag names in this array will react to notes for this field.
 	 */
-	public var assignedSingers:Array<String> = [];
+	public var assignedSingers:Array<Character> = [];
 
 	/**
 	 * The strums of the field.
@@ -80,13 +81,13 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
-	override public function new(x:Float = 0, y:Float = 0, mania:Int = 4, ?singers:Array<String>) {
+	override public function new(mania:Int = 4, ?singers:Array<Character>) {
 		strumCount = mania;
 		super();
 
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
-		setStrumPositions(x, y);
+		setFieldPosition(FlxG.width / 2, FlxG.height / 2);
 
 		if (singers != null)
 			assignedSingers = singers;
@@ -149,11 +150,11 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Set's the strum positions.
+	 * Set's the position of the strums.
 	 * @param x The x position.
 	 * @param y The y position.
 	 */
-	public function setStrumPositions(x:Float = 0, y:Float = 0):Void {
+	public function setFieldPosition(x:Float = 0, y:Float = 0):Void {
 		for (i => strum in strums.members) {
 			strum.setPosition(x - (Note.baseWidth / 2), y);
 			strum.x += Note.baseWidth * i;
@@ -163,7 +164,7 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Parses ChartField information.
+	 * Parse's ChartField information.
 	 * @param data The ChartField data.
 	 */
 	public function parse(data:ChartField):Void {
@@ -174,7 +175,9 @@ class ArrowField extends BeatGroup {
 		}
 	}
 
-	override function destroy() {
+	override function destroy():Void {
+		if (enemy == this) enemy = null;
+		if (player == this) player = null;
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _input);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _input);
 		super.destroy();
