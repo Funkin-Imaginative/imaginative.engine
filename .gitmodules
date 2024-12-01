@@ -1,7 +1,7 @@
 [submodule "Assets Folder"]
 	path = engine/assets
-	url = https://github.com/Funkin-Imaginative/imaginative.assets.dev
+	url = https://github.com/Funkin-Imaginative/imaginative.assets
 
 [submodule "Extras Folder"]
 	path = extras
-	url = https://github.com/Funkin-Imaginative/imaginative.extras.dev
+	url = https://github.com/Funkin-Imaginative/imaginative.extras
