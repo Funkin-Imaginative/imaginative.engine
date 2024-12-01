@@ -135,4 +135,25 @@ class FunkinUtil {
 			daList[i] = daList[i].trim();
 		return daList;
 	}
+
+	/**
+	 * Uses the arguments value and max to create a number that ranges the argument range. ex: toPercent(4, 10, 1) returns 0.4
+	 * @param value The current value of the percentage. ex: 4
+	 * @param max The max value of the the percentage. ex: 10
+	 * @param range The format of the percentage. ex: 1
+	 * @return `Float` ~ The percentage. ex: 0.4
+	 */
+	inline public static function toPercent(value:Float, max:Float, range:Float = 1):Float {
+		return (value / max) * range;
+	}
+	/**
+	 * Uses the arguments percent and max to create a number that ranges the argument range. ex: undoPercent(0.4, 10, 1) returns 4
+	 * @param percent The current percentage of the value. ex: 0.4
+	 * @param max The max percentage of the the value. ex: 10
+	 * @param range The format of the value. ex: 1
+	 * @return `Float` ~ The value. ex: 4
+	 */
+	inline public static function undoPercent(percent:Float, max:Float, range:Float = 100):Float {
+		return (percent * max) / range;
+	}
 }

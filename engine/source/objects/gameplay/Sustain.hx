@@ -22,6 +22,8 @@ class Sustain extends FlxSprite {
 	 */
 	public var setParent(default, null):Note;
 
+	// public var scrollAngle:Float = 0;
+
 	/**
 	 * The strum lane index.
 	 */
@@ -35,7 +37,14 @@ class Sustain extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
-	public var isEnd:Bool;
+	/**
+	 * The sustain position in steps, is an offset of the parent's time.
+	 */
+	public var time:Float;
+
+	public var isEnd(default, null):Bool;
+	@:unreflective inline public function setEnd(value:Bool):Bool
+		return isEnd = value;
 
 	/**
 	 * Any character tag names in this array will overwrite the notes field array.
@@ -46,16 +55,17 @@ class Sustain extends FlxSprite {
 	inline function set_assignedSingers(value:Array<Character>):Array<Character>
 		return setParent.assignedSingers = value;
 
-	override public function new(parent:Note, end:Bool = false) {
+	override public function new(parent:Note, time:Float, end:Bool = false) {
 		setParent = parent;
-		end;
+		this.time = time;
+		isEnd = end;
 
 		super(setParent.x, setParent.y);
 
 		var col:String = ['purple', 'blue', 'green', 'red'][idMod];
 
 		// this.loadTexture('gameplay/notes/NOTE_assets');
-		makeGraphic(50, end ? 60 : 80, (end ? [0x3c1f56, 0x1542b7, 0x0a4447, 0x651038] : [0xc24b99, 0x00ffff, 0x12fa05, 0xf9393f])[idMod]);
+		makeGraphic(50, end ? 60 : 80, (end ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
 
 		var name:String = end ? 'end' : 'hold';
 		// case NoteTail: animation.addByPrefix('hold', '$col hold piece', 24, false);

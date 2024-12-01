@@ -84,6 +84,7 @@ import objects.Character;
 import objects.gameplay.ArrowField;
 import objects.gameplay.Note;
 import objects.gameplay.Strum;
+import objects.gameplay.Sustain;
 import objects.holders.DifficultyHolder;
 import objects.holders.LevelHolder;
 import objects.ui.HealthIcon;

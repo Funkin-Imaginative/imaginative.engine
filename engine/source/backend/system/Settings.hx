@@ -130,25 +130,34 @@ enum abstract FpsType(String) from String to String {
 	public var ghostTapping:Bool = false;
 
 	/**
-	 * The timing for the killer rating window.
+	 * The timing window cap in milliseconds.
 	 */
-	public var killerWindow:Float = 12.5;
+	public var maxWindow:Float = 230;
 	/**
-	 * The timing for the sick rating window.
+	 * The timing window percent for the killer rating window.
 	 */
-	public var sickWindow:Float = 45;
+	public var killerWindow:Float = 0.0543478260869565;
 	/**
-	 * The timing for the good rating window.
+	 * The timing window percent for the sick rating window.
 	 */
-	public var goodWindow:Float = 90;
+	public var sickWindow:Float = 0.195652173913043;
 	/**
-	 * The timing for the bad rating window.
+	 * The timing window percent for the good rating window.
 	 */
-	public var badWindow:Float = 135;
+	public var goodWindow:Float = 0.391304347826087;
 	/**
-	 * The timing for the shit rating window.
+	 * The timing window percent for the bad rating window.
 	 */
-	public var shitWindow:Float = 160;
+	public var badWindow:Float = 0.58695652173913;
+	/**
+	 * The timing window percent for the shit rating window.
+	 */
+	public var shitWindow:Float = 0.695652173913043;
+
+	/**
+	 * If true, missing a note or sustain piece will make you miss that entire note. Otherwise you can miss each note piece.
+	 */
+	public var missFullSustain:Bool = true;
 }
 
 /**

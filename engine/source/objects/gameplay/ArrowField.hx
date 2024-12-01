@@ -1,5 +1,10 @@
 package objects.gameplay;
 
+import backend.scripting.events.objects.gameplay.GeneralMissEvent;
+import backend.scripting.events.objects.gameplay.NoteHitEvent;
+import backend.scripting.events.objects.gameplay.NoteMissEvent;
+import backend.scripting.events.objects.gameplay.SustainHitEvent;
+import backend.scripting.events.objects.gameplay.SustainMissEvent;
 import openfl.events.KeyboardEvent;
 import states.editors.ChartEditor.ChartField;
 
@@ -54,6 +59,27 @@ class ArrowField extends BeatGroup {
 		enemy = prevPlay;
 		player = prevEnemy;
 	}
+
+	/**
+	 * Dispatches when a note is hit.
+	 */
+	public var onNoteHit:FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
+	/**
+	 * Dispatches when a note is hit.
+	 */
+	public var onSustainHit:FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
+	/**
+	 * Dispatches when a note is missed.
+	 */
+	public var onNoteMiss:FlxTypedSignal<NoteMissEvent->Void> = new FlxTypedSignal<NoteMissEvent->Void>();
+	/**
+	 * Dispatches when a note is missed.
+	 */
+	public var onSustainMiss:FlxTypedSignal<SustainMissEvent->Void> = new FlxTypedSignal<SustainMissEvent->Void>();
+	/**
+	 * Dispatches when a note is missed.
+	 */
+	public var onGeneralMiss:FlxTypedSignal<GeneralMissEvent->Void> = new FlxTypedSignal<GeneralMissEvent->Void>();
 
 	/**
 	 * Any character tag names in this array will react to notes for this field.
@@ -145,8 +171,33 @@ class ArrowField extends BeatGroup {
 		if (hasHit)
 			strum.playAnim('press');
 
-		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confrim'))
+		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confirm'))
 			strum.playAnim('static');
+
+		if (hasHit) {
+			for (note in notes) {
+				if (note.canHit && !note.wasHit && !note.tooLate && note.id == i) {
+					note.hasBeenHit();
+					note.visible = false;
+					var event:NoteHitEvent = new NoteHitEvent(note, i, this);
+					onNoteHit.dispatch(event);
+					if (!event.stopStrumConfirm)
+						note.setParent.playAnim('confirm');
+				}
+			}
+		}
+		if (beingHeld) {
+			for (group in sustains) {
+				for (sustain in group) {
+					if (sustain.setParent.canHit && sustain.setParent.wasHit) {
+						var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
+						onSustainHit.dispatch(event);
+						if (!event.stopStrumConfirm)
+							sustain.setParent.setParent.playAnim('confirm');
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -169,8 +220,8 @@ class ArrowField extends BeatGroup {
 	 */
 	public function parse(data:ChartField):Void {
 		for (base in data.notes) {
-			var note:Note = new Note(this, base.id, base.time);
-			// Note.generateSustain(note, base.length);
+			var note:Note = new Note(this, strums.members[base.id], base.id, base.time);
+			Note.generateTail(note, base.length);
 			sustains.add(notes.add(note).tail);
 		}
 	}

@@ -179,6 +179,34 @@ class Main extends Sprite {
 		trace(Paths.vocal('High', 'Player').format());
 		trace(Paths.font('vcr').format());
 		trace(Paths.image('ui/arrows').format()); */
+
+		// Was testing rating window caps.
+		/* // variables
+		final cap:Float = 230;
+		var killer:Float = 12.5;
+		var sick:Float = 45;
+		var good:Float = 90;
+		var bad:Float = 135;
+		var shit:Float = 160;
+
+		// cap test
+		trace('Test: ${FunkinUtil.toPercent(cap, cap, 1)}');
+
+		// to percent
+		killer = FunkinUtil.toPercent(killer, cap, 1);
+		sick = FunkinUtil.toPercent(sick, cap, 1);
+		good = FunkinUtil.toPercent(good, cap, 1);
+		bad = FunkinUtil.toPercent(bad, cap, 1);
+		shit = FunkinUtil.toPercent(shit, cap, 1);
+		trace('Percent ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit');
+
+		// undo percent
+		killer = FunkinUtil.undoPercent(killer, cap, 1);
+		sick = FunkinUtil.undoPercent(sick, cap, 1);
+		good = FunkinUtil.undoPercent(good, cap, 1);
+		bad = FunkinUtil.undoPercent(bad, cap, 1);
+		shit = FunkinUtil.undoPercent(shit, cap, 1);
+		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
 	}
 
 	/**
