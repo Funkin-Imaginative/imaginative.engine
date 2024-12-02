@@ -106,6 +106,41 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public static var charter(default, null):Conductor = new Conductor();
 
+	@:unreflective static var isSub:Bool = false;
+	// Direct access.
+	/**
+	 * The current state or substate conductor instance.
+	 */
+	public static var direct(get, never):Conductor;
+	static function get_direct():Conductor {
+		var stopWhile:Bool = false;
+		var state:FlxState = FlxG.state;
+		isSub = false;
+		while (!stopWhile) {
+			if (state.subState != null && state.subState is IBeat) {
+				state = state.subState;
+				isSub = true;
+			} else stopWhile = true;
+		}
+		return isSub ? cast(state, BeatSubState).conductor : cast(state, BeatState).conductor;
+	}
+	/**
+	 * The current state conductor instance.
+	 */
+	public static var mainDirect(get, never):Conductor;
+	inline static function get_mainDirect():Conductor {
+		var lol:Conductor = get_direct(); // doing it like this so isSub gets set properly
+		return isSub ? null : lol;
+	}
+	/**
+	 * The current substate conductor instance.
+	 */
+	public static var subDirect(get, never):Conductor;
+	inline static function get_subDirect():Conductor {
+		var lol:Conductor = get_direct(); // doing it like this so isSub gets set properly
+		return isSub ? lol : null;
+	}
+
 	/**
 	 * Contains data for the song to play.
 	 */

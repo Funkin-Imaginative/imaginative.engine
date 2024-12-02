@@ -55,6 +55,8 @@ class Note extends FlxSprite {
 
 	// public var scrollAngle:Float = 270;
 
+	public var lowPriority:Bool = false;
+
 	/**
 	 * Any character tag names in this array will overwrite the notes field array.
 	 */
@@ -63,14 +65,14 @@ class Note extends FlxSprite {
 	// important
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
-		return time >= Conductor.song.songPosition - Settings.setupP1.maxWindow && time <= Conductor.song.songPosition + Settings.setupP1.maxWindow;
+		return time >= setField.conductor.songPosition - Settings.setupP1.maxWindow && time <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return time < Conductor.song.songPosition - (300 / __scrollSpeed) && wasHit;
+		return time < setField.conductor.songPosition - (300 / __scrollSpeed) && wasHit;
 	}
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
-		return Conductor.song.songPosition < time;
+		return setField.conductor.songPosition < time;
 	public var wasHit(default, null):Bool = false;
 	@:allow(objects.gameplay.ArrowField.input)
 	@:unreflective inline function hasBeenHit():Bool
@@ -82,6 +84,8 @@ class Note extends FlxSprite {
 		setParent = parent;
 		this.id = id;
 		this.time = time;
+		tail.memberAdded.add((_:Sustain) -> tail.members.sort(sortTail));
+		tail.memberRemoved.add((_:Sustain) -> tail.members.sort(sortTail));
 
 		super(-10000, -10000);
 
@@ -117,7 +121,7 @@ class Note extends FlxSprite {
 		var angleDir:Float = Math.PI / 180;
 		angleDir = scrollAngle * angleDir;
 		var pos:Position = new Position(strum.x, strum.y);
-		distance.position = 0.45 * (distance.time = Conductor.song.songPosition - time) * __scrollSpeed;
+		distance.position = 0.45 * (distance.time = setField.conductor.songPosition - time) * __scrollSpeed;
 
 		// pos.x += offset.x;
 		pos.x += Math.cos(angleDir) * distance.position;
@@ -133,9 +137,9 @@ class Note extends FlxSprite {
 			angleDir = scrollAngle * angleDir;
 			sustain.angle = scrollAngle - 90;
 
-			var followsParent:Bool = !pastedStrum;
+			var followsParent:Bool = false;//pastedStrum;
 			var pos:Position = new Position(followsParent ? x : strum.x, followsParent ? y : strum.y);
-			distance.position = 0.45 * (distance.time = Conductor.song.songPosition - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
+			distance.position = 0.45 * (distance.time = setField.conductor.songPosition - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
 
 			// pos.x += offset.x;
 			pos.x -= sustain.width / 2;
@@ -151,12 +155,21 @@ class Note extends FlxSprite {
 
 	@:allow(objects.gameplay.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float) {
-		final roundedLength:Int = Math.round(length / Conductor.song.stepCrochet);
+		final roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
-				var sustain:Sustain = new Sustain(note, (Conductor.song.stepCrochet * susNote), susNote == roundedLength);
+				if (susNote == roundedLength) trace('is an end');
+				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == roundedLength);
 				note.tail.add(sustain);
 			}
 		}
 	}
+
+	inline public static function sortNotes(a:Note, b:Note):Int {
+		if (a.lowPriority && !b.lowPriority) return 1;
+		else if (!a.lowPriority && b.lowPriority) return -1;
+		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
+	}
+	inline public static function sortTail(a:Sustain, b:Sustain):Int
+		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
 }

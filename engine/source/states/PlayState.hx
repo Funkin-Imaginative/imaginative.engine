@@ -323,6 +323,7 @@ class PlayState extends BeatState {
 			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
 			for (i => field in fields) {
 				var fieldWidth:Float = Note.baseWidth * 4;
+				// TODO: Get ArrowField positioning working!
 				field.setFieldPosition((FlxG.width / 2) - (fieldWidth / 2) + (fieldWidth * i) - (fieldWidth * ((order.length - 1) / 2)), (FlxG.height / 2) - (FlxG.height / 2.2));
 				field.visible = true;
 			}
@@ -333,8 +334,10 @@ class PlayState extends BeatState {
 		if (arrowFieldMapping.exists(chartData.fieldSettings.player))
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
-		playerField.setFieldPosition((FlxG.width / 2), (FlxG.height / 2) - (FlxG.height / 2.2));
-		playerField.visible = true;
+		// position system doesn't work yet, so for now there being put on screen like this
+		enemyField.setFieldPosition((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.2));
+		playerField.setFieldPosition((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.2));
+		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
 			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),

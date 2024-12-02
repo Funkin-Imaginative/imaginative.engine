@@ -46,6 +46,19 @@ class Sustain extends FlxSprite {
 	@:unreflective inline public function setEnd(value:Bool):Bool
 		return isEnd = value;
 
+	public var canHit(get, never):Bool;
+	inline function get_canHit():Bool {
+		return (time + setParent.time) >= setField.conductor.songPosition - Settings.setupP1.maxWindow && (time + setParent.time) <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
+	}
+	public var tooLate(get, never):Bool;
+	inline function get_tooLate():Bool {
+		return (time + setParent.time) < setField.conductor.songPosition - (300 / setParent.__scrollSpeed) && wasHit;
+	}
+	public var wasHit(default, null):Bool = false;
+	@:allow(objects.gameplay.ArrowField.input)
+	@:unreflective inline function hasBeenHit():Bool
+		return wasHit = true;
+
 	/**
 	 * Any character tag names in this array will overwrite the notes field array.
 	 */

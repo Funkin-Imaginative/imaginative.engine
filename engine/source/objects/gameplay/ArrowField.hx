@@ -14,6 +14,13 @@ class ArrowField extends BeatGroup {
 	 */
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
+	/**
+	 * The conductor the arrow field follows.
+	 */
+	public var conductor(get, default):Conductor = null;
+	inline function get_conductor():Conductor
+		return conductor ?? Conductor.mainDirect;
+
 	// Even though you can have a but ton of ArrowField's you can ONLY play as one!
 	/**
 	 * The main enemy field.
@@ -129,7 +136,8 @@ class ArrowField extends BeatGroup {
 
 	function _input(event:KeyboardEvent):Void {
 		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
-			var controls:Controls = status != PlayConfig.enemyPlay ? Controls.p1 : Controls.p2;
+			final isP2:Bool = status == PlayConfig.enemyPlay;
+			var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
 			for (i => strum in strums.members)
 				input(
 					i,
@@ -154,7 +162,8 @@ class ArrowField extends BeatGroup {
 						controls.noteUpReleased,
 						controls.noteRightReleased
 					]
-					[i]
+					[i],
+					isP2 ? Settings.setupP2 : Settings.setupP1
 				);
 		}
 	}
@@ -166,17 +175,14 @@ class ArrowField extends BeatGroup {
 	 * @param hasHit If true, a bind was pressed.
 	 * @param beingHeld If true, a bind is being held.
 	 * @param wasReleased If true, a bind was released.
+	 * @param settings The player settings.
 	 */
-	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
-		if (hasHit)
-			strum.playAnim('press');
-
-		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confirm'))
-			strum.playAnim('static');
-
+	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings):Void {
 		if (hasHit) {
-			for (note in notes) {
-				if (note.canHit && !note.wasHit && !note.tooLate && note.id == i) {
+			var activeNotes:Array<Note> = notes.members.filter((note:Note) -> return note.canHit && !note.wasHit && !note.tooLate && note.id == i);
+			activeNotes.sort(Note.sortNotes);
+			if (activeNotes.length != 0) {
+				for (note in activeNotes) {
 					note.hasBeenHit();
 					note.visible = false;
 					var event:NoteHitEvent = new NoteHitEvent(note, i, this);
@@ -184,20 +190,41 @@ class ArrowField extends BeatGroup {
 					if (!event.stopStrumConfirm)
 						note.setParent.playAnim('confirm');
 				}
-			}
-		}
-		if (beingHeld) {
-			for (group in sustains) {
-				for (sustain in group) {
-					if (sustain.setParent.canHit && sustain.setParent.wasHit) {
-						var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
-						onSustainHit.dispatch(event);
-						if (!event.stopStrumConfirm)
-							sustain.setParent.setParent.playAnim('confirm');
-					}
+			} else {
+				if (settings.ghostTapping) {
+					// ghost tap
+				} else {
+					// miss
 				}
+				strum.playAnim('press');
 			}
 		}
+		var activeSustains:Array<Sustain> = [
+			for (group in sustains)
+				for (sustain in group)
+					sustain
+		].filter((sustain:Sustain) -> return sustain.canHit && !sustain.wasHit && !sustain.tooLate && sustain.id == i);
+		activeSustains.sort(Note.sortTail);
+		if (activeSustains.length != 0 && beingHeld) {
+			for (sustain in activeSustains) {
+				sustain.hasBeenHit();
+				sustain.visible = false;
+				var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
+				onSustainHit.dispatch(event);
+				if (!event.stopStrumConfirm)
+					sustain.setParent.setParent.playAnim('confirm');
+			}
+		}
+
+		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confirm'))
+			strum.playAnim('static');
+	}
+
+	override function update(elapsed:Float):Void {
+		for (note in notes) {
+			//
+		}
+		super.update(elapsed);
 	}
 
 	/**
@@ -231,6 +258,11 @@ class ArrowField extends BeatGroup {
 		if (player == this) player = null;
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _input);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _input);
+		onNoteHit.destroy();
+		onSustainHit.destroy();
+		onNoteMiss.destroy();
+		onSustainMiss.destroy();
+		onGeneralMiss.destroy();
 		super.destroy();
 	}
 }
