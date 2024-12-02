@@ -1,0 +1,22 @@
+name: Missing Documentation
+description: |
+  If there's documentation missing, tell us!
+  You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+labels: [documentation]
+body:
+  - type: dropdown
+    id: location
+    attributes:
+      label: What places are missing documentation?
+      description: Check the boxes to state set places.
+      multiple: true
+      options:
+        - The wiki. (NOT AVAILABLE YET, don't ask where it is)
+        - In source.
+
+  - type: textarea
+    attributes:
+      label: What needs to be documented?
+      placeholder: In the source code class ____ is missing comments for ____, ____ and ____!
+    validations:
+      required: true

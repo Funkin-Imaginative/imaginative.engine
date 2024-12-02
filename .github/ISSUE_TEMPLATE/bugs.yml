@@ -1,0 +1,51 @@
+name: Report a Bug
+description: |
+  Report a bug you found in the engine.
+  You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+labels: [bug]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Give context to what lead you to this bug.
+      placeholder: I did ____ and ____, as well as ____.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug as clearly as possible.
+      placeholder: Well ____ happened when I ____ which shouldn't have happened.
+    validations:
+      required: true
+
+  - type: input
+    id: console-logs
+    attributes:
+      label: Console Logs
+
+  - type: dropdown
+    id: modding-types
+    attributes:
+      label: How are you modding the engine?
+      description: Check the boxes to state what things you've done.
+      multiple: true
+      options:
+        - I edited the **source code**.
+        - I used **haxe scripting**.
+        - I used **lua scripting**.
+        - I haven't changed anything!
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build-target
+    attributes:
+      label: What platform are you running the engine on?
+      options:
+        - Windows
+        - Linux
+        - Mac
+        - Android
+        - IOS
+    validations:
+      required: true

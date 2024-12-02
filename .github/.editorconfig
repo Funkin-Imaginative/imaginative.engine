@@ -1,0 +1,5 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+[*.yml]
+indent_style = space
+indent_size = 2

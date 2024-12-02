@@ -1,0 +1,26 @@
+name: Feature Request
+description: |
+  Request something you want put in the engine!
+  You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: What feature do you want to get added on the **base** engine?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: eyetest
+    attributes:
+      label: |
+        To test your sight, and reliability, please select the option of what should **NOT** be requested. **[insert, this is from psych joke here]**
+      options:
+        - Credit that was forgotten.
+        - A useful feature.
+        - Actual feedback.
+        - A good idea.
+        - Modchart editor and online multiplayer.
+        - Better compatibility with other engines.
+    validations:
+      required: true
