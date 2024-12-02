@@ -1,5 +1,5 @@
 name: Missing Documentation
-description: If there's documentation missing, tell us!You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+description: If there's documentation missing, tell us!
 labels: [documentation]
 body:
   - type: dropdown

@@ -1,7 +1,5 @@
 name: Report a Bug
-description: |
-  Report a bug you found in the engine.
-  You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+description: Report a bug you found in the engine.
 labels: [bug]
 body:
   - type: textarea
