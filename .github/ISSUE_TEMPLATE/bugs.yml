@@ -2,6 +2,14 @@ name: Report a Bug
 description: Report a bug you found in the engine.
 labels: [bug]
 body:
+  - type: input
+    id: version
+    attributes:
+      label: |
+        What version of the engine are you using?
+        If it's an action build please provide it with a link or something of the sorts.
+      placeholder: v0.3-pre-alpha action 2826 [example link]
+
   - type: textarea
     id: description
     attributes:
