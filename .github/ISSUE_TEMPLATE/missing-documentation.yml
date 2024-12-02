@@ -11,6 +11,8 @@ body:
       options:
         - The wiki. (NOT AVAILABLE YET, don't ask where it is)
         - In source.
+    validations:
+      required: true
 
   - type: textarea
     attributes:
