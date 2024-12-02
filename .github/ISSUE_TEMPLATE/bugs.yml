@@ -3,16 +3,14 @@ description: Report a bug you found in the engine.
 labels: [bug]
 body:
   - type: textarea
-    id: context
-    attributes:
-      label: Give context to what lead you to this bug.
-      placeholder: I did ____ and ____, as well as ____.
-
-  - type: textarea
     id: description
     attributes:
-      label: Describe the bug as clearly as possible.
-      placeholder: Well ____ happened when I ____ which shouldn't have happened.
+      label: |
+        Describe the bug as clearly as possible.
+        Give context to what lead you to this bug.
+      placeholder: |
+        I did ____ and ____, as well as ____.
+        Then ____ happened when I ____ which shouldn't have happened.
     validations:
       required: true
 
