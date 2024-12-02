@@ -1,7 +1,5 @@
 name: Feature Request
-description: |
-  Request something you want put in the engine!
-  You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
+description: Request something you want put in the engine!You can also do this here! --> [https://discord.com/channels/1302332813634174996/1302402017309888623](https://discord.com/channels/1302332813634174996/1302402017309888623)
 labels: [enhancement]
 body:
   - type: textarea
