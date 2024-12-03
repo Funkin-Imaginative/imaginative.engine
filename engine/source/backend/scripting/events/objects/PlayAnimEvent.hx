@@ -1,6 +1,7 @@
 package backend.scripting.events.objects;
 
-final class PlayAnimEvent extends ScriptEvent {
+// is extended for the note/sustain hit/missed events
+class PlayAnimEvent extends ScriptEvent {
 	/**
 	 * The animation name.
 	 */

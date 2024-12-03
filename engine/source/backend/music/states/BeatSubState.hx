@@ -6,7 +6,7 @@ package backend.music.states;
  */
 class BeatSubState extends FlxSubState /* implements IBeat */ {
 	/**
-	 * The states conductor.
+	 * The states conductor instance.
 	 */
 	@:isVar public var conductor(get, set):Conductor;
 	function get_conductor():Conductor
@@ -114,10 +114,6 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return conductor.songPosition;
 
 	// Actual state stuff below.
-	/**
-	 * Direct access to the state instance.
-	 */
-	public static var direct:BeatSubState;
 
 	/**
 	 * If false, this sub state is the current state.
@@ -188,7 +184,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	override public function create():Void {
-		Conductor.beatSubStates.push(direct = this);
+		Conductor.beatSubStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
@@ -294,7 +290,6 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function destroy():Void {
 		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
-		direct = null;
 		super.destroy();
 	}
 }

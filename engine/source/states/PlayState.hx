@@ -25,6 +25,11 @@ class PlayState extends BeatState {
 	}
 
 	/**
+	 * Direct access to the state instance.
+	 */
+	public static var direct:PlayState;
+
+	/**
 	 * The amount of beats the countdown lasts for.
 	 */
 	public var countdownLength(default, set):Int = 4;
@@ -162,6 +167,7 @@ class PlayState extends BeatState {
 	// Character variables.
 	/**
 	 * Contains all existing characters.
+	 * `May move to ArrowField.`
 	 */
 	public var characterMapping:Map<String, Character> = new Map<String, Character>();
 
@@ -192,17 +198,17 @@ class PlayState extends BeatState {
 	 */
 	public var enemies(get, set):Array<Character>;
 	inline function get_enemies():Array<Character>
-		return enemyField.assignedSingers;
+		return enemyField.assignedActors;
 	inline function set_enemies(value:Array<Character>):Array<Character>
-		return enemyField.assignedSingers = value;
+		return enemyField.assignedActors = value;
 	/**
 	 * All characters from the player field.
 	 */
 	public var players(get, set):Array<Character>;
 	inline function get_players():Array<Character>
-		return playerField.assignedSingers;
+		return playerField.assignedActors;
 	inline function set_players(value:Array<Character>):Array<Character>
-		return playerField.assignedSingers = value;
+		return playerField.assignedActors = value;
 
 	// ArrowField variables.
 	/**
@@ -228,7 +234,7 @@ class PlayState extends BeatState {
 		return ArrowField.player = value;
 
 	override function create():Void {
-		scripts = new ScriptGroup(this);
+		scripts = new ScriptGroup(direct = this);
 
 		bgColor = 0xFFBDBDBD;
 
@@ -311,6 +317,106 @@ class PlayState extends BeatState {
 			field.cameras = [camHUD];
 			field.visible = false;
 			add(field);
+
+			inline function characterSing(songPos:Float, actors:Array<Character>, i:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
+				for (char in actors) {
+					if (char != null) {
+						var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][i];
+						char.playAnim('sing$temp', context, suffix);
+						char.lastHit = conductor.songPosition;
+					}
+				}
+			}
+
+			/**
+			I'ma bit confused on how I should order the script calling.
+
+			Should it be like this?
+			```haxe
+			field.on[____].add((event) -> {
+				scripts.event('pre[____]', event);
+				scripts.event('[____]', event);
+
+				if (!event.prevented) {
+					// code
+				}
+			});
+			```
+
+			Or maybe like psych?
+			```haxe
+			field.on[____].add((event) -> {
+				scripts.event('pre[____]', event);
+
+				if (!event.prevented) {
+					// code
+
+					scripts.event('[____]', event);
+				}
+			});
+			```
+
+			Or... this? idfk 😭
+			```haxe
+			field.on[____].add((event) -> {
+				scripts.event('pre[____]', event);
+
+				if (!event.prevented) {
+					// code
+
+					scripts.event('[____]', event);
+					scripts.event('[____]Post', event);
+				}
+			});
+			```
+			**/
+			field.onNoteHit.add((event) -> {
+				scripts.event('preNoteHit', event);
+				scripts.event('noteHit', event);
+
+				if (!event.prevented) {
+					characterSing(event.field.conductor.songPosition, event.note.assignedActors, event.idMod, IsSinging, event.force, event.suffix);
+				}
+			});
+			field.onSustainHit.add((event) -> {
+				scripts.event('preSustainHit', event);
+				scripts.event('sustainHit', event);
+
+				if (!event.prevented) {
+					characterSing(event.field.conductor.songPosition, event.sustain.assignedActors, event.idMod, IsSinging, event.force, event.suffix);
+				}
+			});
+			field.onNoteMissed.add((event) -> {
+				scripts.event('preNoteMissed', event);
+				scripts.event('noteMissed', event);
+
+				if (!event.prevented) {
+					characterSing(event.field.conductor.songPosition, event.note.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+				}
+			});
+			field.onSustainMissed.add((event) -> {
+				scripts.event('preSustainMissed', event);
+				scripts.event('sustainMissed', event);
+
+				if (!event.prevented) {
+					characterSing(event.field.conductor.songPosition, event.sustain.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+				}
+			});
+			field.onVoidMiss.add((event) -> {
+				scripts.event('preVoidMiss', event);
+				scripts.event('voidMiss', event);
+
+				if (!event.prevented) {
+					if (event.triggerMiss) {
+						if (!event.stopMissAnimation)
+							characterSing(event.field.conductor.songPosition, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+					}
+				}
+			});
+			field.userInput.add((event) -> {
+				scripts.event('preFieldInput', event);
+				scripts.event('fieldInput', event);
+			});
 		}
 
 		// arrow field setup
@@ -467,6 +573,7 @@ class PlayState extends BeatState {
 
 	override function destroy():Void {
 		scripts.end();
+		direct = null;
 		super.destroy();
 	}
 

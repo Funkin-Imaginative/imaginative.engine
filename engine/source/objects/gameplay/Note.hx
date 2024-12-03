@@ -18,13 +18,14 @@ class Note extends FlxSprite {
 	/**
 	 * The parent strum of this note.
 	 */
-	public var setParent(get, null):Strum;
-	inline function get_setParent():Strum
-		return setParent ?? setField.strums.members[idMod];
+	public var setStrum(get, null):Strum;
+	inline function get_setStrum():Strum {
+		return setStrum ?? (setField.strums.members[id] ?? setField.strums.members[idMod]);
+	}
 	/**
 	 * The sustain pieces this note has.
 	 */
-	public var tail:BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
+	public var tail(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
 
 	// Note specific variables.
 	/**
@@ -39,11 +40,12 @@ class Note extends FlxSprite {
 	/**
 	 * Its just id but with % applied.
 	 */
-	public var idMod(get, null):Int;
+	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
 	/**
+	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	public var time:Float;
@@ -58,9 +60,10 @@ class Note extends FlxSprite {
 	public var lowPriority:Bool = false;
 
 	/**
-	 * Any character tag names in this array will overwrite the notes field array.
+	 * Any characters in this array will overwrite the notes parent field array.
+	 * `May make it contain string instead.`
 	 */
-	public var assignedSingers:Array<Character> = [];
+	public var assignedActors:Array<Character> = [];
 
 	// important
 	public var canHit(get, never):Bool;
@@ -68,20 +71,19 @@ class Note extends FlxSprite {
 		return time >= setField.conductor.songPosition - Settings.setupP1.maxWindow && time <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return time < setField.conductor.songPosition - (300 / __scrollSpeed) && wasHit;
+		return time < setField.conductor.songPosition - (300 / __scrollSpeed) && !wasHit;
 	}
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
 		return setField.conductor.songPosition < time;
-	public var wasHit(default, null):Bool = false;
-	@:allow(objects.gameplay.ArrowField.input)
-	@:unreflective inline function hasBeenHit():Bool
-		return wasHit = true;
+	public var wasHit:Bool = false;
+	public var wasMissed:Bool = false;
 
-	@:allow(objects.gameplay.ArrowField.parse)
-	override function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
+	public var canDie:Bool = false;
+
+	override public function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
 		setField = field;
-		setParent = parent;
+		setStrum = parent;
 		this.id = id;
 		this.time = time;
 		tail.memberAdded.add((_:Sustain) -> tail.members.sort(sortTail));
@@ -105,7 +107,6 @@ class Note extends FlxSprite {
 	override function update(elapsed:Float):Void {
 		super.update(elapsed);
 		followStrum();
-		// if (tooLate && !wasHit)
 	}
 
 	/**
@@ -113,7 +114,7 @@ class Note extends FlxSprite {
 	 * @param strum
 	 */
 	public function followStrum(?strum:Strum):Void {
-		strum ??= setParent;
+		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
 		var scrollAngle:Float = 270;
@@ -158,11 +159,22 @@ class Note extends FlxSprite {
 		final roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
-				if (susNote == roundedLength) trace('is an end');
-				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == roundedLength);
+				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == (roundedLength - 1));
 				note.tail.add(sustain);
 			}
 		}
+	}
+
+
+	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
+		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ??= note.id) && !note.canDie);
+		result.sort(sortNotes);
+		return result;
+	}
+	inline public static function filterTail(sustains:Array<Sustain>, ?i:Int):Array<Sustain> {
+		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return sustain.canHit && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ??= sustain.id) && !sustain.canDie);
+		result.sort(sortTail);
+		return result;
 	}
 
 	inline public static function sortNotes(a:Note, b:Note):Int {
@@ -172,4 +184,17 @@ class Note extends FlxSprite {
 	}
 	inline public static function sortTail(a:Sustain, b:Sustain):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
+
+	override public function kill():Void {
+		tail.kill();
+		super.kill();
+	}
+	override public function revive():Void {
+		tail.revive();
+		super.revive();
+	}
+	override public function destroy():Void {
+		tail.destroy();
+		super.destroy();
+	}
 }

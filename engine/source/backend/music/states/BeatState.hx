@@ -6,7 +6,7 @@ package backend.music.states;
  */
 class BeatState extends FlxState /* implements IBeat */ {
 	/**
-	 * The states conductor.
+	 * The states conductor instance.
 	 */
 	@:isVar public var conductor(get, set):Conductor;
 	function get_conductor():Conductor
@@ -114,10 +114,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 		return conductor.songPosition;
 
 	// Actual state stuff below.
-	/**
-	 * Direct access to the state instance.
-	 */
-	public static var direct:BeatState;
 
 	/**
 	 * The scripts that have access to the state itself.
@@ -220,7 +216,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                      curMeasureFloat));
 		#end
 
-		Conductor.beatStates.push(direct = this);
+		Conductor.beatStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
@@ -309,7 +305,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 		stateScripts.end();
 		Conductor.beatStates.remove(this);
 		bgColor = FlxColor.BLACK;
-		direct = null;
 		super.destroy();
 	}
 }

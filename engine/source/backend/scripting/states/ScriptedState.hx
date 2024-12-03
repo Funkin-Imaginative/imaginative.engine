@@ -19,10 +19,8 @@ class ScriptedState extends BeatState {
 	public static var lastConductor:Conductor = null;
 
 	override public function new(stateName:String, ?conductorInst:Conductor) {
-		if (stateName != null)
-			prevName = stateName;
-		if (conductorInst != null)
-			conductor = conductorInst;
+		prevName = stateName ?? 'NullState';
+		conductor = (conductorInst ?? (lastConductor ??= Conductor.menu));
 		super(true, prevName);
 	}
 }

@@ -1,6 +1,6 @@
 package backend.scripting.events.objects.gameplay;
 
-final class NoteHitEvent extends PlayAnimEvent {
+final class NoteMissedEvent extends PlayAnimEvent {
 	/**
 	 * The note instance.
 	 */
@@ -20,17 +20,9 @@ final class NoteHitEvent extends PlayAnimEvent {
 	 */
 	public var field:ArrowField;
 	/**
-	 * If true, it creates a splash instance.
+	 * If true, it prevents the press animation from playing on the target strum.
 	 */
-	public var createSplash:Bool = false;
-	/**
-	 * If true, it creates a hold cover instance.
-	 */
-	public var createHoldCover:Bool = true;
-	/**
-	 * If true, it prevents the comfirm animation from playing on the target strum.
-	 */
-	public var stopStrumConfirm:Bool = false;
+	public var stopStrumPress:Bool;
 
 	/**
 	 * The first assigned actor attached to the note.
@@ -49,10 +41,11 @@ final class NoteHitEvent extends PlayAnimEvent {
 	inline function set_characters(value:Array<Character>):Array<Character>
 		return note.assignedActors = value;
 
-	override public function new(note:Note, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
-		super('', force, IsSinging, suffix);
+	override public function new(note:Note, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
+		super('', force, HasMissed, suffix);
 		this.note = note;
 		this.id = id ??= note.id;
 		this.field = field ??= note.setField;
+		this.stopStrumPress = stopStrumPress;
 	}
 }

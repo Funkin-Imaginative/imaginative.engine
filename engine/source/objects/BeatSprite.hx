@@ -87,12 +87,14 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 				if (!event.prevented) {
 					final prevAnimContext:AnimationContext = animContext;
 					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
-					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed) animContext = prevAnimContext; // for `tryDance()` checks
+					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed)
+						animContext = prevAnimContext; // for `tryDance()` checks
 					scripts.call('playingSpecialAnimPost', [event]);
 				}
 			}
 
-			if (animContext != IsDancing) tryDance();
+			if (animContext != IsDancing)
+				tryDance();
 		}
 		super.update(elapsed);
 	}

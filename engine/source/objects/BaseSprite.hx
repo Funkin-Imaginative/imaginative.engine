@@ -370,8 +370,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * @param frame The starting frame. By default it's 0.
 	 *              Although if reversed it will use the last frame instead.
 	 */
-	inline public function playAnim(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
+	public function playAnim(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;
+		if (type == IsCharacterSprite)
+			theName = '$theName${context == HasMissed ? 'miss' : ''}';
 		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
 		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;
 
@@ -421,7 +423,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
 	 */
-	inline public function isAnimFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	inline public function isAnimFinished():Bool {
+		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	}
 	/**
 	 * When run, it forces the animation to finish.
 	 */

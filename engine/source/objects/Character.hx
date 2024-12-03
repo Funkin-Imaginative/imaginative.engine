@@ -7,7 +7,7 @@ typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:Position;
 	var ?color:String;
 	@:default('face') var icon:String;
-	@:default(2) var singlength:Float;
+	@:default(0.5) var holdlength:Float;
 }
 typedef CharacterData = {
 	/**
@@ -23,9 +23,10 @@ typedef CharacterData = {
 	 */
 	var icon:String;
 	/**
-	 * The sing time the character has.
+	 * The amount of time in seconds the animation can be forced to last.
+	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	var singlength:Float;
+	var holdlength:Float;
 }
 
 /**
@@ -50,13 +51,14 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var theirIcon(default, null):String = 'face';
 
 	/**
-	 * Used to help `singLength`.
+	 * Used to help `holdLength`.
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
-	 * The sing time the character has.
+	 * The amount of time in seconds the animation can be forced to last.
+	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	public var singLength:Float = 2;
+	public var holdLength:Float = 0.5;
 
 	/**
 	 * The camera offset position.
@@ -95,7 +97,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
 				theirIcon = inputData.character.icon;
-				singLength = inputData.character.singlength;
+				holdLength = inputData.character.holdlength;
 			}
 		} catch(error:haxe.Exception)
 			try {
@@ -140,7 +142,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	override public function tryDance():Void {
 		switch (animContext) {
 			case IsSinging | HasMissed:
-				if (lastHit + (singLength * 1000) < Conductor.song.songPosition)
+				if (holdLength > 0 ? (lastHit + (holdLength * 1000) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
 					dance();
 			default:
 				super.tryDance();

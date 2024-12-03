@@ -24,7 +24,7 @@ class Strum extends FlxSprite {
 	/**
 	 * Its just id but with % applied.
 	 */
-	public var idMod(get, null):Int;
+	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
@@ -34,6 +34,21 @@ class Strum extends FlxSprite {
 		return PlayState.chartData.speed;
 
 	// public var scrollAngle:Float = 270;
+
+	/**
+	 * Used to help `holdLength`.
+	 */
+	public var lastHit:Float = Math.NEGATIVE_INFINITY;
+	/**
+	 * The amount of time in seconds the animation can be forced to last.
+	 * If set to 0, the animation that is played, plays out normally.
+	 */
+	public var holdLength:Float = 0.66;
+
+	/**
+	 * If true, after the holdlength is reached the animation will go back to "static".
+	 */
+	public var willReset:Bool;
 
 	@:allow(objects.gameplay.ArrowField.new)
 	override function new(field:ArrowField, id:Int) {
@@ -57,19 +72,41 @@ class Strum extends FlxSprite {
 		updateHitbox();
 	}
 
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+
+		if (willReset && getAnimName() != 'static')
+			if (holdLength > 0 ? (lastHit + (holdLength * 1000) < setField.conductor.songPosition) : (getAnimName() == null || isAnimFinished()))
+				playAnim(
+					switch (getAnimName()) {
+						case 'confirm': 'press';
+						default: 'static';
+					},
+					switch (getAnimName()) {
+						case 'confirm': true;
+						case 'press': setField.isPlayer ? false : true;
+						default: false;
+					}
+				);
+	}
+
 	/**
 	 * Play's an animation.
 	 * @param name The animation name.
+	 * @param reset If true, after the holdlength is reached the animation will go back to "static".
 	 * @param force If true, the game won't care if another one is already playing.
 	 * @param reverse If true, the animation will play backwards.
 	 * @param frame The starting frame. By default it's 0.
 	 *              Although if reversed it will use the last frame instead.
 	 */
-	public function playAnim(name:String, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
+	public function playAnim(name:String, reset:Bool = false, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {
 			animation.play(name, force, reverse, frame);
 			centerOffsets();
 			centerOrigin();
+			if (reset)
+				lastHit = setField.conductor.songPosition;
+			willReset = reset;
 		}
 	}
 
@@ -78,7 +115,7 @@ class Strum extends FlxSprite {
 	 * The arguments are to reverse the name.
 	 * @return `Null<String>` ~ The animation name.
 	 */
-	 inline public function getAnimName():Null<String> {
+	inline public function getAnimName():Null<String> {
 		if (animation.name != null)
 			return animation.name;
 		return null;
@@ -87,7 +124,9 @@ class Strum extends FlxSprite {
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
 	 */
-	inline public function isAnimFinished():Bool return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	inline public function isAnimFinished():Bool {
+		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
+	}
 	/**
 	 * When run, it forces the animation to finish.
 	 */

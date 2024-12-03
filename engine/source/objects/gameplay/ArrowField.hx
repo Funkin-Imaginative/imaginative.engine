@@ -1,10 +1,11 @@
 package objects.gameplay;
 
-import backend.scripting.events.objects.gameplay.GeneralMissEvent;
+import backend.scripting.events.objects.gameplay.FieldInputEvent;
 import backend.scripting.events.objects.gameplay.NoteHitEvent;
-import backend.scripting.events.objects.gameplay.NoteMissEvent;
+import backend.scripting.events.objects.gameplay.NoteMissedEvent;
 import backend.scripting.events.objects.gameplay.SustainHitEvent;
-import backend.scripting.events.objects.gameplay.SustainMissEvent;
+import backend.scripting.events.objects.gameplay.SustainMissedEvent;
+import backend.scripting.events.objects.gameplay.VoidMissEvent;
 import openfl.events.KeyboardEvent;
 import states.editors.ChartEditor.ChartField;
 
@@ -17,7 +18,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The conductor the arrow field follows.
 	 */
-	public var conductor(get, default):Conductor = null;
+	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
 		return conductor ?? Conductor.mainDirect;
 
@@ -41,17 +42,18 @@ class ArrowField extends BeatGroup {
 		if (this == player) return true;
 		return null;
 	}
-	inline function set_status(?value:Bool):Null<Bool> {
+	function set_status(?value:Bool):Null<Bool> {
 		switch (value) {
 			case false:
-				if (enemy == player) swapTargetFields();
+				if (this == player) swapTargetFields();
 				else enemy = this;
 			case true:
-				if (player == enemy) swapTargetFields();
+				if (this == enemy) swapTargetFields();
 				else player = this;
 			case null:
-				var prevStatus:Null<Bool> = status; // jic
-				if (prevStatus != null) prevStatus ? player = null : enemy = null;
+				final prevStatus:Null<Bool> = status; // jic
+				if (prevStatus != null)
+					prevStatus ? player = null : enemy = null;
 		}
 		return status;
 	}
@@ -66,45 +68,60 @@ class ArrowField extends BeatGroup {
 		enemy = prevPlay;
 		player = prevEnemy;
 	}
+	/**
+	 * If true, this field is maintained by a player.
+	 */
+	public var isPlayer(get, never):Bool;
+	inline function get_isPlayer():Bool {
+		return status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay;
+	}
 
+	// signals
 	/**
 	 * Dispatches when a note is hit.
 	 */
-	public var onNoteHit:FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
+	public var onNoteHit(default, null):FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
 	/**
 	 * Dispatches when a note is hit.
 	 */
-	public var onSustainHit:FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
+	public var onSustainHit(default, null):FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
 	/**
 	 * Dispatches when a note is missed.
 	 */
-	public var onNoteMiss:FlxTypedSignal<NoteMissEvent->Void> = new FlxTypedSignal<NoteMissEvent->Void>();
+	public var onNoteMissed(default, null):FlxTypedSignal<NoteMissedEvent->Void> = new FlxTypedSignal<NoteMissedEvent->Void>();
 	/**
 	 * Dispatches when a note is missed.
 	 */
-	public var onSustainMiss:FlxTypedSignal<SustainMissEvent->Void> = new FlxTypedSignal<SustainMissEvent->Void>();
+	public var onSustainMissed(default, null):FlxTypedSignal<SustainMissedEvent->Void> = new FlxTypedSignal<SustainMissedEvent->Void>();
 	/**
 	 * Dispatches when a note is missed.
 	 */
-	public var onGeneralMiss:FlxTypedSignal<GeneralMissEvent->Void> = new FlxTypedSignal<GeneralMissEvent->Void>();
+	public var onVoidMiss(default, null):FlxTypedSignal<VoidMissEvent->Void> = new FlxTypedSignal<VoidMissEvent->Void>();
+	/**
+	 * Dispatches when a note is missed.
+	 */
+	public var userInput(default, null):FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
 
 	/**
-	 * Any character tag names in this array will react to notes for this field.
+	 * Any characters in this array will react to notes for this field.
+	 * `May make it contain string instead.`
 	 */
-	public var assignedSingers:Array<Character> = [];
+	public var assignedActors:Array<Character> = [];
 
 	/**
 	 * The strums of the field.
 	 */
-	public var strums:BeatTypedGroup<Strum> = new BeatTypedGroup<Strum>();
+	public var strums(default, null):BeatTypedGroup<Strum> = new BeatTypedGroup<Strum>();
 	/**
 	 * The notes of the field.
 	 */
-	public var notes:BeatTypedGroup<Note> = new BeatTypedGroup<Note>();
+	public var notes(default, null):BeatTypedGroup<Note> = new BeatTypedGroup<Note>();
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains:BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
+	public var sustains(default, null):BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
+
+	public var noteKillRange:Float = 350;
 
 	/**
 	 * The amount of strums in the field.
@@ -123,108 +140,212 @@ class ArrowField extends BeatGroup {
 		setFieldPosition(FlxG.width / 2, FlxG.height / 2);
 
 		if (singers != null)
-			assignedSingers = singers;
+			assignedActors = singers;
 
 		add(strums);
 		add(notes);
 		insert(members.indexOf(true ? strums : notes), sustains); // behindStrums
 
-		// input system
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _input);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _input);
+		// input system, having separate because I think I was having double input
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _down_input);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _up_input);
 	}
 
-	function _input(event:KeyboardEvent):Void {
-		if (status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay) {
-			final isP2:Bool = status == PlayConfig.enemyPlay;
-			var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
-			for (i => strum in strums.members)
-				input(
-					i,
-					strum,
-					[
-						controls.noteLeft,
-						controls.noteDown,
-						controls.noteUp,
-						controls.noteRight
-					]
-					[i],
-					[
-						controls.noteLeftHeld,
-						controls.noteDownHeld,
-						controls.noteUpHeld,
-						controls.noteRightHeld
-					]
-					[i],
-					[
-						controls.noteLeftReleased,
-						controls.noteDownReleased,
-						controls.noteUpReleased,
-						controls.noteRightReleased
-					]
-					[i],
-					isP2 ? Settings.setupP2 : Settings.setupP1
-				);
+	// var lastInput:String = '';
+	inline function _down_input(event:KeyboardEvent):Void {
+		if (isPlayer) {
+			_input(event);
+			/* if (lastInput != 'holding') {
+				lastInput = FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED) ? 'pressed' : 'holding';
+				trace('key $lastInput');
+			} */
 		}
+	}
+	inline function _up_input(event:KeyboardEvent):Void {
+		if (isPlayer) {
+			_input(event);
+			/* lastInput = 'released';
+			trace('key $lastInput'); */
+		}
+	}
+	inline function _input(event:KeyboardEvent):Void {
+		final isP2:Bool = status == PlayConfig.enemyPlay;
+		var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
+		for (i => strum in strums.members)
+			input(
+				i,
+				strum,
+				[
+					controls.noteLeft,
+					controls.noteDown,
+					controls.noteUp,
+					controls.noteRight
+				]
+				[i],
+				[
+					controls.noteLeftHeld,
+					controls.noteDownHeld,
+					controls.noteUpHeld,
+					controls.noteRightHeld
+				]
+				[i],
+				[
+					controls.noteLeftReleased,
+					controls.noteDownReleased,
+					controls.noteUpReleased,
+					controls.noteRightReleased
+				]
+				[i],
+				isP2 ? Settings.setupP2 : Settings.setupP1
+			);
 	}
 
 	/**
 	 * Where input stuff really begins.
-	 * @param i The strum index.
-	 * @param strum The strum object.
+	 * @param i The strum lane index.
+	 * @param strum The strum object instance.
 	 * @param hasHit If true, a bind was pressed.
 	 * @param beingHeld If true, a bind is being held.
 	 * @param wasReleased If true, a bind was released.
-	 * @param settings The player settings.
+	 * @param settings The player settings instance.
 	 */
-	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings):Void {
+	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings):Void {
+		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased, settings);
+		userInput.dispatch(event);
+		if (event.prevented) return;
+
+		// note hits
 		if (hasHit) {
-			var activeNotes:Array<Note> = notes.members.filter((note:Note) -> return note.canHit && !note.wasHit && !note.tooLate && note.id == i);
-			activeNotes.sort(Note.sortNotes);
+			var activeNotes:Array<Note> = Note.filterNotes(notes.members, i);
 			if (activeNotes.length != 0) {
 				for (note in activeNotes) {
-					note.hasBeenHit();
-					note.visible = false;
-					var event:NoteHitEvent = new NoteHitEvent(note, i, this);
-					onNoteHit.dispatch(event);
-					if (!event.stopStrumConfirm)
-						note.setParent.playAnim('confirm');
+					var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
+					if (activeNotes.length > 1) {
+						var backNote:Note = activeNotes[1];
+						if (backNote.id == frontNote.id) {
+							if (Math.abs(backNote.time - frontNote.time) < 1.0)
+								backNote.canDie = true;
+							else if (backNote.time < frontNote.time)
+								frontNote = backNote;
+						}
+					}
+					_onNoteHit(frontNote, i);
 				}
 			} else {
-				if (settings.ghostTapping) {
-					// ghost tap
-				} else {
-					// miss
+				// void hits (random key presses / ghost tapping)
+				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
+				onVoidMiss.dispatch(event);
+				if (!event.prevented) {
+					// using event as mush as we can, jic scripts somehow edited everything 💀
+					if (!event.stopStrumPress)
+						event.strum.playAnim('press', !event.triggerMiss);
 				}
-				strum.playAnim('press');
-			}
-		}
-		var activeSustains:Array<Sustain> = [
-			for (group in sustains)
-				for (sustain in group)
-					sustain
-		].filter((sustain:Sustain) -> return sustain.canHit && !sustain.wasHit && !sustain.tooLate && sustain.id == i);
-		activeSustains.sort(Note.sortTail);
-		if (activeSustains.length != 0 && beingHeld) {
-			for (sustain in activeSustains) {
-				sustain.hasBeenHit();
-				sustain.visible = false;
-				var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
-				onSustainHit.dispatch(event);
-				if (!event.stopStrumConfirm)
-					sustain.setParent.setParent.playAnim('confirm');
 			}
 		}
 
-		if (wasReleased && (strum.getAnimName() == 'press' || strum.getAnimName() == 'confirm'))
+		// sustain hits
+		if (beingHeld) {
+			for (sustain in Note.filterTail([
+				for (group in sustains)
+					for (sustain in group)
+						sustain
+			], i))
+				_onSustainHit(sustain, i);
+		}
+
+
+		if (!event.stopStrumPress && wasReleased && strum.getAnimName() != 'static')
 			strum.playAnim('static');
 	}
 
 	override function update(elapsed:Float):Void {
 		for (note in notes) {
-			//
+			// lol
+			if (note.tooLate && (conductor.songPosition - note.time) > Math.max(conductor.stepCrochet, noteKillRange / note.__scrollSpeed)) {
+				if (!note.wasHit && !note.wasMissed)
+					_onNoteMissed(note);
+				note.canDie = true;
+			}
+			if (!isPlayer) {
+				if (note.time <= conductor.songPosition && !note.tooLate && !note.wasHit && !note.wasMissed)
+					_onNoteHit(note);
+			}
+			var shouldKill:Bool = note.canDie;
+			for (sustain in note.tail)
+				if (!(shouldKill = sustain.canDie))
+					break;
+			if (shouldKill)
+				note.kill();
 		}
+		for (sustain in [
+			for (group in sustains)
+				for (sustain in group)
+					sustain
+		]) {
+			// lol
+			if (sustain.tooLate && (conductor.songPosition - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepCrochet, noteKillRange / sustain.setHead.__scrollSpeed)) {
+				if (!sustain.wasHit && !sustain.wasMissed)
+					_onSustainMissed(sustain);
+				sustain.canDie = true;
+			}
+			if (!isPlayer) {
+				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+					_onSustainHit(sustain);
+			}
+		}
+
 		super.update(elapsed);
+	}
+
+	inline function _onNoteHit(note:Note, ?i:Int):Void {
+		if (note.wasHit) return;
+		i ??= note.id;
+		note.wasHit = true;
+		note.visible = false;
+		var event:NoteHitEvent = new NoteHitEvent(note, i, this);
+		onNoteHit.dispatch(event);
+		if (!event.prevented) {
+			// using event as mush as we can, jic scripts somehow edited everything 💀
+			if (!event.stopStrumConfirm)
+				event.note.setStrum.playAnim('confirm', true);
+		}
+	}
+	inline function _onSustainHit(sustain:Sustain, ?i:Int):Void {
+		if (sustain.wasHit) return;
+		i ??= sustain.id;
+		sustain.wasHit = true;
+		sustain.visible = false;
+		var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
+		onSustainHit.dispatch(event);
+		if (!event.prevented) {
+			// using event as mush as we can, jic scripts somehow edited everything 💀
+			if (!event.stopStrumConfirm)
+				event.sustain.setStrum.playAnim('confirm', true);
+		}
+	}
+	inline function _onNoteMissed(note:Note, ?i:Int):Void {
+		if (note.wasMissed) return;
+		i ??= note.id;
+		note.wasMissed = true;
+		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
+		onNoteMissed.dispatch(event);
+		if (!event.prevented) {
+			// using event as mush as we can, jic scripts somehow edited everything 💀
+			if (!event.stopStrumPress)
+				event.note.setStrum.playAnim('press', !event.field.isPlayer);
+		}
+	}
+	inline function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
+		if (sustain.wasMissed) return;
+		i ??= sustain.id;
+		sustain.wasMissed = true;
+		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
+		onSustainMissed.dispatch(event);
+		if (!event.prevented) {
+			// using event as mush as we can, jic scripts somehow edited everything 💀
+			if (!event.stopStrumPress)
+				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
+		}
 	}
 
 	/**
@@ -249,6 +370,12 @@ class ArrowField extends BeatGroup {
 		for (base in data.notes) {
 			var note:Note = new Note(this, strums.members[base.id], base.id, base.time);
 			Note.generateTail(note, base.length);
+			var lol:Array<String> = base.characters ??= [];
+			note.assignedActors = PlayState.direct == null ? [] : [
+				for (tag => char in PlayState.direct.characterMapping)
+					if (lol.contains(tag))
+						char
+			];
 			sustains.add(notes.add(note).tail);
 		}
 	}
@@ -256,13 +383,14 @@ class ArrowField extends BeatGroup {
 	override function destroy():Void {
 		if (enemy == this) enemy = null;
 		if (player == this) player = null;
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _input);
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _input);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _down_input);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _up_input);
 		onNoteHit.destroy();
 		onSustainHit.destroy();
-		onNoteMiss.destroy();
-		onSustainMiss.destroy();
-		onGeneralMiss.destroy();
+		onNoteMissed.destroy();
+		onSustainMissed.destroy();
+		onVoidMiss.destroy();
+		userInput.destroy();
 		super.destroy();
 	}
 }

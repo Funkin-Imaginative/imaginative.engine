@@ -1,6 +1,6 @@
 package backend.scripting.events.objects.gameplay;
 
-final class SustainHitEvent extends PlayAnimEvent {
+final class SustainMissedEvent extends PlayAnimEvent {
 	/**
 	 * The sustain instance.
 	 */
@@ -20,9 +20,9 @@ final class SustainHitEvent extends PlayAnimEvent {
 	 */
 	public var field:ArrowField;
 	/**
-	 * If true, it prevents the comfirm animation from playing on the target strum.
+	 * If true, it prevents the press animation from playing on the target strum.
 	 */
-	public var stopStrumConfirm:Bool = false;
+	public var stopStrumPress:Bool;
 
 	/**
 	 * The first assigned actor attached to the sustain.
@@ -41,10 +41,11 @@ final class SustainHitEvent extends PlayAnimEvent {
 	inline function set_characters(value:Array<Character>):Array<Character>
 		return sustain.assignedActors = value;
 
-	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
-		super('', force, IsSinging, suffix);
+	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
+		super('', force, HasMissed, suffix);
 		this.sustain = sustain;
 		this.id = id ??= sustain.id;
 		this.field = field ??= sustain.setField;
+		this.stopStrumPress = stopStrumPress;
 	}
 }

@@ -70,26 +70,26 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param beatsPM The number of beats per measure.
 	 * @param stepsPB The number of steps per beat.
 	 */
-	public var onBPMChange:FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
+	public var onBPMChange(default, null):FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
 	/**
 	 * Dispatches when the next step happens.
 	 * @param curStep The current step.
 	 */
-	public var onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onStepHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next beat happens.
 	 * @param curBeat The current beat.
 	 */
-	public var onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onBeatHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next measure happens.
 	 * @param curMeasure The current measure.
 	 */
-	public var onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public var onMeasureHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the music ends.
 	 */
-	public var onComplete:FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
+	public var onComplete(default, null):FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
 	public var _onComplete:Void->Void;
 
 	// Main Conductors.
@@ -149,7 +149,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		name: 'None',
 		bpm: 100,
 		signature: [4, 4],
-		checkpoints: []
+		checkpoints: [],
+		offset: 0
 	}
 	/**
 	 * The sound group all conductor audio is tied to.
