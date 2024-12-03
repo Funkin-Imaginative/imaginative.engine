@@ -11,16 +11,16 @@ WIP
 
 [Nebula](https://github.com/NebulaStellaNova): Programmer and great friend.
 ### Stuff From Others
-[CNE Devs](https://github.com/FNF-CNE-Devs): [`flixel`](https://github.com/FNF-CNE-Devs/flixel) and [`flixel-addons`](https://github.com/FNF-CNE-Devs/flixel-addons) forks, [`hscript-improved`](https://github.com/FNF-CNE-Devs/hscript-improved) and one of this engine's inspirations.
+[CNE Devs](https://github.com/FNF-CNE-Devs): [`flixel`](https://github.com/FNF-CNE-Devs/flixel) and [`flixel-addons`](https://github.com/FNF-CNE-Devs/flixel-addons) forks, [`hscript-improved`](https://github.com/FNF-CNE-Devs/hscript-improved) and one of this engine's inspirations!
 
-[SuperPowers04](https://github.com/superpowers04): [`linc_luajit`](https://github.com/superpowers04/linc_luajit).
+[SuperPowers04](https://github.com/superpowers04): [`linc_luajit`](https://github.com/superpowers04/linc_luajit), for all my lua needs.
 
-[Guillaume Desquesnes](https://github.com/elnabo): [`json2object`](https://github.com/elnabo/json2object).
+[Guillaume Desquesnes](https://github.com/elnabo): [`json2object`](https://github.com/elnabo/json2object), a great json parser! Too bad it fuckings hates Dynamic.
 
-[MaybeMaru](https://github.com/MaybeMaru): [`moonchart`](https://github.com/MaybeMaru/moonchart).
+[MaybeMaru](https://github.com/MaybeMaru): [`moonchart`](https://github.com/MaybeMaru/moonchart), how the engine converts charts from other engines!
 
-[Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc).
+[Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) for playing videos, and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc) for discord rich presence.
 
-[Franco Ponticelli](https://github.com/fponticelli): [`thx.semver`](https://lib.haxe.org/p/thx.semver).
+[Franco Ponticelli](https://github.com/fponticelli): [`thx.semver`](https://lib.haxe.org/p/thx.semver), good for version handling! I just gotta make sure I double check the version numbers I'll eventually use.
 
-[T-Bar](https://lib.haxe.org/u/T-Bar): [`hxWindowColorMode`](https://lib.haxe.org/p/hxWindowColorMode).
+[T-Bar](https://lib.haxe.org/u/T-Bar): [`hxWindowColorMode`](https://lib.haxe.org/p/hxWindowColorMode)... what? I like colors.
