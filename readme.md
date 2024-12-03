@@ -17,6 +17,8 @@ WIP
 
 [Guillaume Desquesnes](https://github.com/elnabo): [`json2object`](https://github.com/elnabo/json2object).
 
+[MaybeMaru](https://github.com/MaybeMaru): [`moonchart`](https://github.com/MaybeMaru/moonchart).
+
 [Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc).
 
 [Franco Ponticelli](https://github.com/fponticelli): [`thx.semver`](https://lib.haxe.org/p/thx.semver).
