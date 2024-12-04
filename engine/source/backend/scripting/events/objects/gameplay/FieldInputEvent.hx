@@ -1,4 +1,4 @@
-package backend.scripting.event.objects.gameplay;
+package backend.scripting.events.objects.gameplay;
 
 class FieldInputEvent extends ScriptEvent {
 	/**
