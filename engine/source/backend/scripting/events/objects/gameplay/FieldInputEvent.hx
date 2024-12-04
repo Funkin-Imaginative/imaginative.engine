@@ -41,6 +41,7 @@ class FieldInputEvent extends ScriptEvent {
 	public var stopStrumPress:Bool = false;
 
 	override public function new(?i:Int, strum:Strum, ?field:ArrowField, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings) {
+		super();
 		this.i = i ??= strum.id;
 		this.strum = strum;
 		this.field = field ??= strum.setField;

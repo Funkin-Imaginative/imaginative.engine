@@ -16,6 +16,13 @@ final class VoidMissEvent extends PlayAnimEvent {
 	 */
 	public var field:ArrowField;
 	/**
+	 * The strum that would be potentially affected by the miss.
+	 * @return `Strum`
+	 */
+	public var strum(get, never):Strum;
+	inline function get_strum():Strum
+		return field.strums.members[id ?? idMod];
+	/**
 	 * If true, the player will have consequences for pressing a key for no reason.
 	 */
 	public var triggerMiss:Bool;
