@@ -1,12 +1,12 @@
 #if desktop
-package backend.system;
+package backend.configs;
 
 /**
  * A class that simply points OpenALSoft to a custom configuration file when the game starts up.
  * The config overrides a few global OpenALSoft settings with the aim of improving audio quality on desktop targets.
  * @author From Psych Engine.
  */
-#if !DISABLE_DCE @:keep #end class ALSoftConfig {
+#if !DISABLE_DCE @:keep #end final class ALSoftConfig {
 	#if !DISABLE_DCE
 	@:allow(backend.system.Main.new)
 	static function fuckDCE():Void {}

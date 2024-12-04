@@ -65,7 +65,7 @@ class Main extends Sprite {
 	public function new():Void {
 		Console.init();
 		#if (!DISABLE_DCE && desktop)
-		ALSoftConfig.fuckDCE();
+		backend.config.ALSoftConfig.fuckDCE();
 		#end
 
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);

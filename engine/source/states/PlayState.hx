@@ -242,42 +242,6 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		// chart parsing
-		var loadedSong:String = '';
-		chartData = ParseUtil.chart(loadedSong = curSong, difficulty, variant) ?? ParseUtil.chart(loadedSong = 'Test') ?? {
-			speed: 2.6,
-			stage: 'void',
-			fields: [
-				{
-					tag: 'balls',
-					characters: ['penis'],
-					notes: [
-						{
-							id: 0,
-							length: 6000,
-							time: 8000,
-							characters: ['penis'],
-							type: ''
-						}
-					]
-				}
-			],
-			characters: [
-				{
-					tag: 'penis',
-					name: 'boyfriend',
-					position: ''
-				}
-			],
-			fieldSettings: {
-				cameraTarget: 'penis',
-				order: ['balls'],
-				enemy: loadedSong = 'Null',
-				player: 'balls'
-			}
-		}
-		log('Song "$loadedSong" loaded.', DebugMessage);
-
 		// character creation.
 		for (base in chartData.characters) {
 			var pos:Position = new Position(
@@ -583,7 +547,7 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	public static function renderLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
+	inline public static function renderLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
 		levelData = level;
 		songList = [for (song in levelData.songs) song.folder];
 		storyIndex = 0;
@@ -601,7 +565,7 @@ class PlayState extends BeatState {
 	 * @param playAsEnemy Should the player be the enemy instead?
 	 * @param p2AsEnemy Should the enemy be another player?
 	 */
-	public static function renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
+	inline public static function renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
 		PlayConfig.enemyPlay = playAsEnemy;
 		PlayConfig.enableP2 = p2AsEnemy;
@@ -615,9 +579,43 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	public static function _renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal'):Void {
+	inline public static function _renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal'):Void {
 		PlayState.difficulty = difficulty;
 		PlayState.variant = variant;
-		//chartData = blah;
+		// chart parsing
+		var loadedSong:String = '';
+		chartData = ParseUtil.chart(loadedSong = song, difficulty, variant) ?? ParseUtil.chart(loadedSong = 'Test') ?? {
+			speed: 2.6,
+			stage: 'void',
+			fields: [
+				{
+					tag: 'balls',
+					characters: ['penis'],
+					notes: [
+						{
+							id: 0,
+							length: 6000,
+							time: 8000,
+							characters: ['penis'],
+							type: ''
+						}
+					]
+				}
+			],
+			characters: [
+				{
+					tag: 'penis',
+					name: 'boyfriend',
+					position: ''
+				}
+			],
+			fieldSettings: {
+				cameraTarget: 'penis',
+				order: ['balls'],
+				enemy: loadedSong = 'Null',
+				player: 'balls'
+			}
+		}
+		log('Song "$loadedSong" loaded.', DebugMessage);
 	}
 }

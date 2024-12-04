@@ -43,7 +43,7 @@ class Strum extends FlxSprite {
 	 * The amount of time in seconds the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	public var holdLength:Float = 0.66;
+	public var holdLength:Float = 0.45;
 
 	/**
 	 * If true, after the holdlength is reached the animation will go back to "static".
