@@ -70,7 +70,7 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('content/levels', 'json', false)
 		]) {
 			for (i => name in list) {
-				final level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
+				var level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
@@ -91,7 +91,7 @@ class StoryMenu extends BeatState {
 		diffs = new FlxTypedGroup<DifficultyHolder>();
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
-			final diff:DifficultyHolder = new DifficultyHolder(name, true);
+			var diff:DifficultyHolder = new DifficultyHolder(name, true);
 			diff.sprite.scale.set(0.85, 0.85);
 			diff.sprite.updateHitbox();
 			diff.refreshAnim();
@@ -108,13 +108,13 @@ class StoryMenu extends BeatState {
 		}
 		add(diffs);
 
-		final arrowDistance:Float = 200 * 0.85;
-		final arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
+		var arrowDistance:Float = 200 * 0.85;
+		var arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
 		for (dir in ['left', 'right']) {
-			final arrow:BaseSprite = dir == 'left' ? leftArrow : rightArrow;
+			var arrow:BaseSprite = dir == 'left' ? leftArrow : rightArrow;
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
 
@@ -218,7 +218,7 @@ class StoryMenu extends BeatState {
 		changeSelection();
 		changeDifficulty();
 
-		final mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
+		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
 		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
 		camera.snapToTarget();
 	}
@@ -264,7 +264,7 @@ class StoryMenu extends BeatState {
 				selectCurrent();
 		}
 
-		final item:BaseSprite = levels.members[curSelected].sprite;
+		var item:BaseSprite = levels.members[curSelected].sprite;
 		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
@@ -276,7 +276,7 @@ class StoryMenu extends BeatState {
 		if (prevSelected != curSelected)
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
-		final level:LevelHolder = levels.members[curSelected];
+		var level:LevelHolder = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
@@ -300,7 +300,7 @@ class StoryMenu extends BeatState {
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (move != 0 || !pureSelect) {
-			final arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
+			var arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
 			arrow.animation.play('confirm', true);
 			arrow.centerOffsets();
 			arrow.centerOrigin();
@@ -324,15 +324,15 @@ class StoryMenu extends BeatState {
 	function selectCurrent():Void {
 		canSelect = false;
 
-		final level:LevelHolder = levels.members[curSelected];
-		final levelLocked:Bool = level.isLocked;
-		final diffLocked:Bool = diffHolder.isLocked;
+		var level:LevelHolder = levels.members[curSelected];
+		var levelLocked:Bool = level.isLocked;
+		var diffLocked:Bool = diffHolder.isLocked;
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				final time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
+				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
 				if (levelLocked) {
-					final ogX:Float = level.sprite.x;
+					var ogX:Float = level.sprite.x;
 					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
 						onUpdate: (_:FlxTween) ->
 							level.updateLock(),
@@ -343,7 +343,7 @@ class StoryMenu extends BeatState {
 					});
 				}
 				if (diffLocked) {
-					final ogY:Float = diffHolder.sprite.y;
+					var ogY:Float = diffHolder.sprite.y;
 					diffShake = FlxTween.shake(diffHolder.sprite, 0.1, time, Y, {
 						onUpdate: (_:FlxTween) ->
 							diffHolder.updateLock(),

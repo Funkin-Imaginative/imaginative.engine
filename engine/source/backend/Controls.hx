@@ -264,31 +264,35 @@ class Controls implements IFlxDestroyable {
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public static function globalPressed(key:String):Bool return FlxG.keys.anyJustPressed(globalBinds[key]);
+	inline public static function globalPressed(key:String):Bool
+		return FlxG.keys.anyJustPressed(globalBinds[key]);
 	/**
 	 * Global held input.
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public static function globalHeld(key:String):Bool return FlxG.keys.anyPressed(globalBinds[key]);
+	inline public static function globalHeld(key:String):Bool
+		return FlxG.keys.anyPressed(globalBinds[key]);
 	/**
 	 * Global released input.
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public static function globalReleased(key:String):Bool return FlxG.keys.anyJustReleased(globalBinds[key]);
+	inline public static function globalReleased(key:String):Bool
+		return FlxG.keys.anyJustReleased(globalBinds[key]);
 
 	/**
 	 * [Description]
 	 * @param key The key name.
 	 * @return `PressTypes`
 	 */
-	inline public function globalKeyPress(key:String):PressTypes
+	inline public function globalKeyPress(key:String):PressTypes {
 		return {
 			pressed: globalPressed(key),
 			held: globalHeld(key),
 			released: globalReleased(key)
 		}
+	}
 
 	/**
 	 * The binds, these binds are per controls set.
@@ -299,33 +303,37 @@ class Controls implements IFlxDestroyable {
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public function pressed(key:String):Bool return FlxG.keys.anyJustPressed(setBinds[key]);
+	inline public function pressed(key:String):Bool
+		return FlxG.keys.anyJustPressed(setBinds[key]);
 	/**
 	 * Held input.
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public function held(key:String):Bool return FlxG.keys.anyPressed(setBinds[key]);
+	inline public function held(key:String):Bool
+		return FlxG.keys.anyPressed(setBinds[key]);
 	/**
 	 * Released input.
 	 * @param key The key name.
 	 * @return `Bool`
 	 */
-	inline public function released(key:String):Bool return FlxG.keys.anyJustReleased(setBinds[key]);
+	inline public function released(key:String):Bool
+		return FlxG.keys.anyJustReleased(setBinds[key]);
 
 	/**
 	 * [Description]
 	 * @param key The key name.
 	 * @return `PressTypes`
 	 */
-	inline public function keyPress(key:String):PressTypes
+	inline public function keyPress(key:String):PressTypes {
 		return {
 			pressed: pressed(key),
 			held: held(key),
 			released: released(key)
 		}
+	}
 
-	public function new() {
+	inline public function new() {
 		setBinds = [
 			// Controls //
 			'noteLeft' => [D, LEFT],
@@ -338,6 +346,6 @@ class Controls implements IFlxDestroyable {
 	/**
 	 * When called it destroys the controls instance.
 	 */
-	public function destroy():Void
+	inline public function destroy():Void
 		setBinds.clear();
 }

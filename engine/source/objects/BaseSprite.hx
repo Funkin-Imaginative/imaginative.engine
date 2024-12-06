@@ -97,8 +97,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	public function loadTexture(newTexture:ModPath):BaseSprite {
-		final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
-		final textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
+		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
+		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
@@ -129,8 +129,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	public function loadSheet(newTexture:ModPath):BaseSprite {
-		final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
-		final textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
+		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
+		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
 		if (Paths.fileExists(Paths.image(newTexture)))
 			if (Paths.spriteSheetExists(newTexture))
 				try {
@@ -377,10 +377,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		theName = ((swapAnimTriggers && flipX) && doesAnimExist(getAnimInfo(theName).swapName, true)) ? getAnimInfo(theName).swapName : theName;
 		theName = (flipAnimTrigger == flipX && doesAnimExist(getAnimInfo(theName).flipName, true)) ? getAnimInfo(theName).flipName : theName;
 
-		final suffixResult:String = suffix == null ? '' : (invalidSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invalidSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
+		var suffixResult:String = suffix == null ? '' : (invalidSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invalidSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
-			final animInfo:AnimMapping = getAnimInfo(theName);
+			var animInfo:AnimMapping = getAnimInfo(theName);
 			animation.play(theName, force, reverse, frame);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 			animContext = context;
@@ -448,7 +448,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		if (__offsetFlip) {
 			scale.x *= -1;
-			final bounds = super.getScreenBounds(newRect, camera);
+			var bounds = super.getScreenBounds(newRect, camera);
 			scale.x *= -1;
 			return bounds;
 		}

@@ -327,7 +327,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	inline public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
+	public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
@@ -348,7 +348,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param variant The variant of the song to play.
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	inline public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
+	public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null) audio = new FlxSound();
 		else if (audio.active) audio.stop();
@@ -370,7 +370,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added audio track.
 	 */
-	inline public function addExtraAudio(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
+	public function addExtraAudio(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.music(music);
 		if (!Paths.fileExists(file)) {
 			log('Failed to find audio "${music.format()}".', WarningMessage);
@@ -397,7 +397,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added vocal track.
 	 */
-	inline public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
+	public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.vocal(song, suffix, variant);
 		if (!Paths.fileExists(file)) {
 			log('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
@@ -421,10 +421,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param file Json path for the metadata.
 	 * @return `AudioData`
 	 */
-	inline public function getMetadata(file:String):AudioData {
+	public function getMetadata(file:String):AudioData {
 		try {
-			final jsonPath:ModPath = Paths.json(file);
-			final content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+			var jsonPath:ModPath = Paths.json(file);
+			var content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 			if (content == null) {
 				log('$file: Metadata parse failed.', ErrorMessage);
 				return {
@@ -538,7 +538,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	@:allow(backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
 	@:allow(backend.music.states.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
-	inline function callToState(timeType:SongTimeType, curTime:Int):Void {
+	function callToState(timeType:SongTimeType, curTime:Int):Void {
 		for (state in beatStates)
 			if (state != null && state.conductor == this && (state.persistentUpdate || state.subState == null))
 				switch (timeType) {

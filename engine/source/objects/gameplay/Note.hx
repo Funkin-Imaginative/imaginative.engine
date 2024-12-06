@@ -156,7 +156,7 @@ class Note extends FlxSprite {
 
 	@:allow(objects.gameplay.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float) {
-		final roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
+		var roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
 				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == (roundedLength - 1));

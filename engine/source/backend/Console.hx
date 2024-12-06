@@ -46,9 +46,9 @@ class Console {
 			_log(data, level);
 		}
 
-		final initMessage = 'Initialized Custom Trace System';
+		var initMessage = 'Initialized Custom Trace System';
 		#if CONSOLE_FANCY_PRINT
-		final officialMessage:String = #if official 'Fancy print enabled.' #else 'Thank you for using fancy print, hope you like it!' #end;
+		var officialMessage:String = #if official 'Fancy print enabled.' #else 'Thank you for using fancy print, hope you like it!' #end;
 		_log('$officialMessage\n\t$initMessage');
 		#else
 		_log(initMessage);

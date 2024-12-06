@@ -94,7 +94,7 @@ class ParseUtil {
 	 * @return `DifficultyData` ~ The parsed difficulty json.
 	 */
 	inline public static function difficulty(key:String):DifficultyData {
-		final jsonPath:ModPath = Paths.difficulty(key);
+		var jsonPath:ModPath = Paths.difficulty(key);
 		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		contents.display = contents.display ?? key;
 		return contents;
@@ -106,7 +106,7 @@ class ParseUtil {
 	 * @return `LevelData` ~ The parsed level json.
 	 */
 	public static function level(name:ModPath):LevelData {
-		final jsonPath:ModPath = Paths.level(name);
+		var jsonPath:ModPath = Paths.level(name);
 		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
 			data.flip = data.flip ?? ((i + 1) > Math.floor(contents.objects.length / 2));
@@ -148,9 +148,9 @@ class ParseUtil {
 	 * @return `SpriteData` ~ The parsed object json.
 	 */
 	public static function object(file:ModPath, type:SpriteType):SpriteData {
-		final jsonPath:ModPath = Paths.object(file);
-		final typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
-		final tempData:Dynamic = json(jsonPath);
+		var jsonPath:ModPath = Paths.object(file);
+		var typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+		var tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
 		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
@@ -246,7 +246,7 @@ class ParseUtil {
 	 * @return `ChartData` ~ The parsed chart json.
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
-		final jsonPath:ModPath = Paths.chart(song, difficulty, variant);
+		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
 		return new json2object.JsonParser<ChartData>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 	}
 
@@ -256,7 +256,7 @@ class ParseUtil {
 	 * @return `SpriteTextSetup` ~ The parsed font json.
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
-		final jsonPath:ModPath = Paths.spriteFont(font);
+		var jsonPath:ModPath = Paths.spriteFont(font);
 		return new JsonParser<SpriteTextSetup>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 	}
 
@@ -266,8 +266,8 @@ class ParseUtil {
 	 * @return `SongData` ~ The parsed meta json.
 	 */
 	public static function song(name:ModPath):SongData {
-		final jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
-		final contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
+		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
+		var contents:SongParse = new JsonParser<SongParse>().fromJson(Paths.getFileContent(jsonPath), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,
 			folder: contents.folder,

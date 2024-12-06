@@ -108,7 +108,7 @@ class Modding {
 	 * @param type The mod type to get a list from.
 	 * @return `Array<String>` ~ Mod folder names.
 	 */
-	inline public static function getModList(type:ModType):Array<String> {
+	public static function getModList(type:ModType):Array<String> {
 		var folders:Array<ModPath> = Paths.readFolderOrderTxt(switch (type) {
 			case SOLO: 'solo';
 			case MOD: 'mods';

@@ -32,7 +32,7 @@ class RichPresence {
 	static function init():Void {
 		if (initialized) return;
 
-		final handlers:DiscordEventHandlers = DiscordEventHandlers.create();
+		var handlers:DiscordEventHandlers = DiscordEventHandlers.create();
 		handlers.ready = Function.fromStaticFunction(onReady);
 		handlers.disconnected = Function.fromStaticFunction(onDisconnect);
 		handlers.errored = Function.fromStaticFunction(onError);
@@ -57,7 +57,7 @@ class RichPresence {
 	 * Updates the rich presence.
 	 */
 	public static function changePresence(details:String, ?state:String, ?smallImage:String, largeImage:String = 'engine-logo'):Void {
-		final time:Float = Date.now().getTime();
+		var time:Float = Date.now().getTime();
 
 		direct.type = DiscordActivityType_Playing;
 		direct.details = details ?? 'In Menus';
@@ -81,9 +81,9 @@ class RichPresence {
 	}
 
 	private static function onReady(request:cpp.RawConstPointer<DiscordUser>):Void {
-		final name:String = request[0].username;
-		final globalName:String = request[0].username;
-		final discrim:Int = Std.parseInt(request[0].discriminator);
+		var name:String = request[0].username;
+		var globalName:String = request[0].username;
+		var discrim:Int = Std.parseInt(request[0].discriminator);
 		_log('Connected successfully to ${discrim != 0 ? '$name#$discrim' : name} ($globalName)');
 		changePresence(null);
 	}

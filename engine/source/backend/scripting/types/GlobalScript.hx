@@ -31,7 +31,7 @@ class GlobalScript {
 	}
 
 	@:allow(backend.system.Main.new)
-	static function init():Void {
+	inline static function init():Void {
 		FlxG.signals.focusLost.add(() -> call('focusLost'));
 		FlxG.signals.focusGained.add(() -> call('focusGained'));
 
@@ -68,7 +68,7 @@ class GlobalScript {
 	 * @param def If it's null then return this.
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
-	public static function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	inline public static function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (scripts != null)
 			return scripts.call(func, args, def);
 		return def;
@@ -79,26 +79,26 @@ class GlobalScript {
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
-	public static function event<SC:ScriptEvent>(func:String, event:SC):SC {
+	inline public static function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (scripts != null)
 			return scripts.event(func, event);
 		return event;
 	}
 
 	@:allow(backend.music.Conductor.callToState)
-	static function stepHit(curStep:Int, conductor:Conductor):Void {
+	inline static function stepHit(curStep:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curStep', curStep);
 		call('stepHit', [curStep, conductor]);
 	}
 	@:allow(backend.music.Conductor.callToState)
-	static function beatHit(curBeat:Int, conductor:Conductor):Void {
+	inline static function beatHit(curBeat:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curBeat', curBeat);
 		call('beatHit', [curBeat, conductor]);
 	}
 	@:allow(backend.music.Conductor.callToState)
-	static function measureHit(curMeasure:Int, conductor:Conductor):Void {
+	inline static function measureHit(curMeasure:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curMeasure', curMeasure);
 		call('measureHit', [curMeasure, conductor]);

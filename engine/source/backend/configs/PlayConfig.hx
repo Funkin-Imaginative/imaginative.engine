@@ -24,7 +24,7 @@ class PlayConfig {
 	 * @param cap The max hit window in milliseconds.
 	 * @return `Float` ~ The rating window as a percentage.
 	 */
-	public static function makeRatingPercent(value:Float, cap:Float):Float
+	inline public static function makeRatingPercent(value:Float, cap:Float):Float
 		return FunkinUtil.toPercent(value, cap, 1);
 	/**
 	 * Turns a percent rating hit window into a milliseconds.
@@ -32,6 +32,6 @@ class PlayConfig {
 	 * @param cap The max hit window in milliseconds.
 	 * @return `Float` ~ The rating window in milliseconds.
 	 */
-	public static function undoRatingPercent(value:Float, cap:Float):Float
+	inline public static function undoRatingPercent(value:Float, cap:Float):Float
 		return FunkinUtil.undoPercent(value, cap, 1);
 }

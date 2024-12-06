@@ -38,7 +38,7 @@ class FunkinUtil {
 	 * @param path The path to the mod folder.
 	 */
 	@:noUsing inline public static function addMissingFolders(path:String):Void {
-		final folders:Array<String> = [
+		var folders:Array<String> = [
 			'content',
 			'content/difficulties',
 			'content/events',

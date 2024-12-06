@@ -51,7 +51,7 @@ class ArrowField extends BeatGroup {
 				if (this == enemy) swapTargetFields();
 				else player = this;
 			case null:
-				final prevStatus:Null<Bool> = status; // jic
+				var prevStatus:Null<Bool> = status; // jic
 				if (prevStatus != null)
 					prevStatus ? player = null : enemy = null;
 		}
@@ -169,7 +169,7 @@ class ArrowField extends BeatGroup {
 		}
 	}
 	inline function _input(event:KeyboardEvent):Void {
-		final isP2:Bool = status == PlayConfig.enemyPlay;
+		var isP2:Bool = status == PlayConfig.enemyPlay;
 		var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
 		for (i => strum in strums.members)
 			input(

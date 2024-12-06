@@ -62,7 +62,7 @@ class Main extends Sprite {
 	@SuppressWarnings('checkstyle:CommentedOutCode')
 	@:access(flixel.input.mouse.FlxMouse.new)
 	@:access(backend.system.frontEnds.OverlayCameraFrontEnd)
-	public function new():Void {
+	inline public function new():Void {
 		Console.init();
 		#if (!DISABLE_DCE && desktop)
 		backend.config.ALSoftConfig.fuckDCE();
@@ -182,7 +182,7 @@ class Main extends Sprite {
 
 		// Was testing rating window caps.
 		/* // variables
-		final cap:Float = 230;
+		var cap:Float = 230;
 		var killer:Float = 12.5;
 		var sick:Float = 45;
 		var good:Float = 90;

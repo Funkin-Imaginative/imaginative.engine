@@ -470,6 +470,7 @@ class Paths {
 	 * @return `FlxAtlasFrames`
 	 */
 	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
+	public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
 			if (fileExists(xml('${file.type}:images/${file.path}'))) type = IsSparrow;
 			if (fileExists(txt('${file.type}:images/${file.path}'))) type = IsPacker;

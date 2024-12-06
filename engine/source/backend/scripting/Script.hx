@@ -39,7 +39,7 @@ enum abstract ScriptType(String) from String to String {
  */
 class Script extends FlxBasic implements IScript {
 	@:allow(backend.system.Main)
-	static function init():Void {
+	inline static function init():Void {
 		exts = [
 			for (exts in [HaxeScript.exts, LuaScript.exts])
 				for (ext in exts)
@@ -92,9 +92,9 @@ class Script extends FlxBasic implements IScript {
 				return result;
 			} else return [Paths.script(file).format()];
 		}
-		final paths:Array<String> = scriptPath(file);
+		var paths:Array<String> = scriptPath(file);
 		#else
-		final paths:Array<String> = [Paths.script(file).format()];
+		var paths:Array<String> = [Paths.script(file).format()];
 		#end
 
 		/* log([

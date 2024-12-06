@@ -464,9 +464,9 @@ class PlayState extends BeatState {
 
 				conductor.beatHit(-timer.loopsLeft);
 
-				final assetIndex:Int = timer.loopsLeft - 1;
-				final soundAsset:ModPath = assets.sounds[assetIndex];
-				final imageAsset:ModPath = assets.images[assetIndex];
+				var assetIndex:Int = timer.loopsLeft - 1;
+				var soundAsset:ModPath = assets.sounds[assetIndex];
+				var imageAsset:ModPath = assets.images[assetIndex];
 				if (Paths.fileExists(Paths.sound(soundAsset)))
 					FlxG.sound.play(Paths.sound(soundAsset).format());
 				if (Paths.fileExists(Paths.image(imageAsset))) {

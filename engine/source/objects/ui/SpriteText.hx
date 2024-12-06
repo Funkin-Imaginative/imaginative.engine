@@ -151,7 +151,7 @@ class SpriteTextLine extends FlxTypedSpriteGroup<SpriteTextCharacter> {
 		}
 
 		if (value.trim() != '') {
-			final start:Array<String> = value.split('');
+			var start:Array<String> = value.split('');
 
 			var result:Array<String> = [];
 			var key:Array<String> = [];

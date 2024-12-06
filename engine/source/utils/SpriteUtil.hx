@@ -168,8 +168,8 @@ class SpriteUtil {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadTexture(newTexture);
 		else if (sprite is FlxSprite) {
-			final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
-			final textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
+			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
+			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
 			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
 					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
@@ -209,8 +209,8 @@ class SpriteUtil {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadSheet(newTexture);
 		else if (sprite is FlxSprite) {
-			final sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
-			final textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
+			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
+			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
 			if (Paths.fileExists(Paths.image(newTexture)))
 				if (Paths.spriteSheetExists(newTexture))
 					try {
@@ -296,7 +296,7 @@ class SpriteUtil {
 	 * @return `T` ~ Current instance for chaining.
 	 */
 	inline public static function addInfrontOf<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
-		final group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
+		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from) + 1, obj);
 	}
 	/**
@@ -307,7 +307,7 @@ class SpriteUtil {
 	 * @return `T` ~ Current instance for chaining.
 	 */
 	inline public static function addBehind<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
-		final group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
+		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from), obj);
 	}
 

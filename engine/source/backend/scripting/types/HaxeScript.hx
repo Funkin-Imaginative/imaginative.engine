@@ -172,14 +172,14 @@ final class HaxeScript extends Script {
 			_log(Console.formatLogInfo(content, ErrorMessage, error.origin, error.line), ErrorMessage);
 		}
 		interp.importFailedCallback = (importPath:Array<String>) -> {
-			final sourcePath:String = 'source/${importPath.join('/')}';
+			var sourcePath:String = 'source/${importPath.join('/')}';
 			for (ext in exts) {
 				// current path probably wont work, as I haven't setup the directory properly
 				var path:String = '$sourcePath.$ext';
 				if (__importedPaths.contains(path))
 					return true; // prevent double import
 				if (Paths.fileExists(path)) {
-					final content:String = Paths.getFileContent(path);
+					var content:String = Paths.getFileContent(path);
 					var expr:Expr = null;
 					try {
 						if (content != null && content.trim() != '') {
@@ -207,7 +207,7 @@ final class HaxeScript extends Script {
 		Snapshot in time.
 		```haxe
 		interp.importFailedCallback = (importPath:Array<String>) -> {
-			final sourcePath:ModPath = 'source/${importPath.join('/')}';
+			var sourcePath:ModPath = 'source/${importPath.join('/')}';
 			for (ext in exts) {
 				// abstracts can die in a fire for thousands of years... ITS NOT THE SAME FUCKING INSTANCE YOU BITCH!!!!
 				var path:ModPath = sourcePath; // .pushExt(ext)
@@ -227,7 +227,7 @@ final class HaxeScript extends Script {
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 
 		try {
-			final content:String = Paths.getFileContent(file);
+			var content:String = Paths.getFileContent(file);
 			this.code = content.trim() == '' ? code : content;
 		} catch(error:haxe.Exception) {
 			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
@@ -279,7 +279,7 @@ final class HaxeScript extends Script {
 		for (name => thing in interp.variables)
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;
-		final oldParent:Dynamic = interp.scriptObject;
+		var oldParent:Dynamic = interp.scriptObject;
 		renderScript(pathing);
 
 		for (name => thing in getScriptImports(this))
@@ -312,7 +312,7 @@ final class HaxeScript extends Script {
 		if (interp == null || !interp.variables.exists(func))
 			return null;
 
-		final func = get(func);
+		var func = get(func);
 		if (func != null && Reflect.isFunction(func))
 			try {
 				return Reflect.callMethod(null, func, args ?? []);

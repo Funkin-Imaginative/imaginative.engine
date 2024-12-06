@@ -166,7 +166,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	 * @param def If it's null then return this.
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
-	public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	inline public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
 			return stateScripts.call(func, args, def);
 		return def;
@@ -177,7 +177,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
-	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+	inline public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
 			return stateScripts.event(func, event);
 		return event;
