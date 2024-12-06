@@ -1,6 +1,11 @@
 package backend.system;
 
 import flixel.graphics.frames.FlxAtlasFrames;
+#if CONTAINS_EMBEDDED_FILES
+import lime.tools.AssetType as LimeAssetType;
+import openfl.utils.AssetType as OpenFLAssetType;
+import openfl.utils.Assets;
+#end
 
 /**
  * Used to help ModPath abstract.
@@ -92,7 +97,7 @@ enum abstract ModType(String) {
 	}
 
 	/**
-	 * This function tells if main is solo and judges appropriately.
+	 * This function tells if the main mod is the current solo mod and judges appropriately.
 	 * @return `ModType`
 	 */
 	inline public static function getMain():ModType
@@ -142,7 +147,10 @@ enum abstract ModType(String) {
 	 * @return `ModType`
 	 */
 	@:from inline public static function fromArray(from:Array<String>):ModType {
-		return switch ([for (t in from) fromString(t)]) {
+		return switch ([
+			for (t in from)
+				fromString(t)
+		]) {
 			case [MAIN, SOLO, MOD]: ANY;
 			case [MAIN, SOLO]: LEAD;
 			case [SOLO, MOD]: MODDED;
@@ -175,7 +183,7 @@ abstract ModPath(String) {
 	public var valid(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_valid():Bool
-		return isDirectory ? true : Paths.fileExists(format(), false);
+		return isDirectory || Paths.fileExists(format(), false) || Paths.fileExists(path, false);
 
 	/**
 	 * The mod path.
@@ -193,7 +201,7 @@ abstract ModPath(String) {
 	public var isDirectory(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isDirectory():Bool
-		return Paths.folderExists(format(), false);
+		return Paths.folderExists(format(), false) || Paths.folderExists(path, false);
 	/**
 	 * This variable holds the name of the file extension.
 	 */
@@ -210,19 +218,12 @@ abstract ModPath(String) {
 	 */
 	public var type(get, set):ModType;
 	@SuppressWarnings('checkstyle:FieldDocComment')
-	inline function get_type():ModType {
-		var typing:ModType = this.split(':')[0];
-		if (typing == null)
-			return ANY;
-		return typing;
-	}
+	inline function get_type():ModType
+		return ModType.fromString(this.split(':')[0]) ?? ANY;
 	@SuppressWarnings('checkstyle:FieldDocComment')
-	inline function set_type(value:ModType):ModType {
+	inline function set_type(value:ModType):ModType
 		// `I swear to god I almost murdered this abstract.`
-		if (value == null)
-			return this = 'any:${this.split(':')[1]}';
-		return this = '$value:${this.split(':')[1]}';
-	}
+		return this = '${value ?? ANY}:${this.split(':')[1]}';
 
 	/**
 	 * Set's up the mod path.
@@ -257,8 +258,7 @@ abstract ModPath(String) {
 	 * @return `ModPath`
 	 */
 	@:from inline public static function fromString(from:String):ModPath {
-		from = from.contains(':') ? from : 'any:$from';
-		var split:Array<String> = from.trimSplit(':');
+		var split:Array<String> = (from.contains(':') ? from : 'any:$from').trimSplit(':');
 		var type:String = split[0];
 		var path:String = split[1];
 		return new ModPath(path, ModType.modPathHelper(type));
@@ -295,18 +295,19 @@ class Paths {
 	 * Prepend's the root folder path.
 	 * @param file The mod path.
 	 * @param type The path type.
+	 * @param name If something is input, it forces what mod folder get an asset from.
 	 * @return `String` ~ The full path.
 	 */
-	public static function applyRoot(file:String, type:ModType = ANY):String {
+	public static function applyRoot(file:String, type:ModType = ANY, ?name:String):String {
 		var result:String = '';
 		var check:String = '';
 
 		#if MOD_SUPPORT
 		if (result == '' && ModType.pathCheck(MOD, type))
-			if (itemExists(check = Modding.getModsRoot(file), false))
+			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : 'mods/$name/$file'), false))
 				result = check;
 		if (result == '' && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = 'solo/${Modding.curSolo}/$file', false))
+			if (itemExists(check = 'solo/${name ?? Modding.curSolo}/$file', false))
 				result = check;
 		if (result == '' && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = 'solo/${Main.mainMod}/$file', false))
@@ -327,6 +328,15 @@ class Paths {
 	 */
 	inline public static function getRootPath(type:ModType):String
 		return type.returnRootPath();
+
+	/**
+	 * Easy and quick ModPath instance.
+	 * Mostly useless but for scripting it may be useful.
+	 * @param file The mod path.
+	 * @return `ModPath` ~ The path data.
+	 */
+	inline public static function file(file:ModPath):ModPath
+		return file;
 
 	/**
 	 * Get's a file from several possible extension types.
@@ -469,7 +479,6 @@ class Paths {
 	 * @param type The texture type.
 	 * @return `FlxAtlasFrames`
 	 */
-	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 	public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
 			if (fileExists(xml('${file.type}:images/${file.path}'))) type = IsSparrow;
@@ -640,8 +649,10 @@ class Paths {
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Bool` ~ If true, it exists.
 	 */
-	inline public static function fileExists(file:ModPath, doTypeCheck:Bool = true):Bool
-		return FileSystem.exists(doTypeCheck ? file.format() : file.path);
+	inline public static function fileExists(file:ModPath, doTypeCheck:Bool = true):Bool {
+		var finalPath:String = doTypeCheck ? file.format() : file.path;
+		return FileSystem.exists(finalPath) #if CONTAINS_EMBEDDED_FILES || Assets.exists(finalPath, AssetType.getFromExt(finalPath)) #end;
+	}
 	/**
 	 * Check's if a folder exists.
 	 * @param file The mod path.
@@ -673,6 +684,136 @@ class Paths {
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `String` ~ The file contents.
 	 */
-	inline public static function getFileContent(file:ModPath, doTypeCheck:Bool = true):String
-		return fileExists(file, doTypeCheck) ? sys.io.File.getContent(doTypeCheck ? file.format() : file.path) : '';
+	inline public static function getFileContent(file:ModPath, doTypeCheck:Bool = true):String {
+		var finalPath:String = doTypeCheck ? file.format() : file.path;
+		var sysContent:Null<String> = fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
+		var limeContent:Null<String> = #if CONTAINS_EMBEDDED_FILES fileExists(file, doTypeCheck) ? Assets.getText(finalPath) : #end null;
+		return sysContent ?? limeContent ?? '';
+	}
 }
+
+#if CONTAINS_EMBEDDED_FILES
+enum abstract AssetType(String) from String to String {
+	/**
+	 * Binary asset, data that is not readable as text.
+	 */
+	var BINARY;
+	var BUNDLE;
+	/**
+	 * Font asset, such as ttf or otf file.
+	 */
+	var FONT;
+	/**
+	 * Image asset, such as png or jpg file.
+	 */
+	var IMAGE;
+	var MANIFEST;
+	/**
+	 * MovieClip asset, such as from a swf file.
+	 */
+	var MOVIE_CLIP;
+	/**
+	 * Audio asset, such as ogg or wav file.
+	 */
+	var MUSIC;
+	/**
+	 * Audio asset, such as ogg or wav file.
+	 */
+	var SOUND;
+	/**
+	* Used internally in Lime/OpenFL tools.
+	*/
+	var TEMPLATE;
+	/**
+	 * Text asset.
+	 */
+	var TEXT;
+
+	@:access(lime.tools.AssetHelper.knownExtensions)
+	inline public static function getFromExt(id:String):AssetType {
+		var ext:String = FilePath.extension(id).toLowerCase();
+		var exts:Map<String, LimeAssetType> = lime.tools.AssetHelper.knownExtensions;
+
+		return exts.exists(ext) ? exts.get(ext) : switch(ext) {
+			default: TEXT;
+		}
+	}
+
+	/**
+	 * Coverts Lime's AssetType to mine.
+	 * @param from Lime's AssetType.
+	 * @return `AssetType` ~ My AssetType.
+	 */
+	@:from inline public static function fromLimeVersion(from:LimeAssetType):AssetType {
+		return switch (from) {
+			case LimeAssetType.BINARY: BINARY;
+			case LimeAssetType.BUNDLE: BUNDLE;
+			case LimeAssetType.FONT: FONT;
+			case LimeAssetType.IMAGE: IMAGE;
+			case LimeAssetType.MANIFEST: MANIFEST;
+			case LimeAssetType.MOVIE_CLIP: MOVIE_CLIP;
+			case LimeAssetType.MUSIC: MUSIC;
+			case LimeAssetType.SOUND: SOUND;
+			case LimeAssetType.TEMPLATE: TEMPLATE;
+			case LimeAssetType.TEXT: TEXT;
+		}
+	}
+	/**
+	 * Coverts my AssetType to Lime's.
+	 * @param from My AssetType.
+	 * @return `AssetType` ~ Lime's AssetType.
+	 */
+	@:to inline public function toLimeVersion():LimeAssetType {
+		var self:AssetType = this;
+		return switch (self) {
+			case BINARY: LimeAssetType.BINARY;
+			case BUNDLE: LimeAssetType.BUNDLE;
+			case FONT: LimeAssetType.FONT;
+			case IMAGE: LimeAssetType.IMAGE;
+			case MANIFEST: LimeAssetType.MANIFEST;
+			case MOVIE_CLIP: LimeAssetType.MOVIE_CLIP;
+			case MUSIC: LimeAssetType.MUSIC;
+			case SOUND: LimeAssetType.SOUND;
+			case TEMPLATE: LimeAssetType.TEMPLATE;
+			case TEXT: LimeAssetType.TEXT;
+		}
+	}
+
+	/**
+	 * Coverts OpenFL's AssetType to mine.
+	 * @param from OpenFL's AssetType.
+	 * @return `AssetType` ~ My AssetType.
+	 */
+	@:from inline public static function fromOpenFLVersion(from:OpenFLAssetType):AssetType {
+		return switch (from) {
+			case OpenFLAssetType.BINARY: BINARY;
+			case OpenFLAssetType.FONT: FONT;
+			case OpenFLAssetType.IMAGE: IMAGE;
+			case OpenFLAssetType.MOVIE_CLIP: MOVIE_CLIP;
+			case OpenFLAssetType.MUSIC: MUSIC;
+			case OpenFLAssetType.SOUND: SOUND;
+			case OpenFLAssetType.TEMPLATE: TEMPLATE;
+			case OpenFLAssetType.TEXT: TEXT;
+		}
+	}
+	/**
+	 * Coverts my AssetType to OpenFL's.
+	 * @param from My AssetType.
+	 * @return `AssetType` ~ OpenFL's AssetType.
+	 */
+	@:to inline public function toOpenFLVersion():OpenFLAssetType {
+		var self:AssetType = this;
+		return switch (self) {
+			case BINARY: OpenFLAssetType.BINARY;
+			case FONT: OpenFLAssetType.FONT;
+			case IMAGE: OpenFLAssetType.IMAGE;
+			case MOVIE_CLIP: OpenFLAssetType.MOVIE_CLIP;
+			case MUSIC: OpenFLAssetType.MUSIC;
+			case SOUND: OpenFLAssetType.SOUND;
+			case TEMPLATE: OpenFLAssetType.TEMPLATE;
+			case TEXT: OpenFLAssetType.TEXT;
+			default: OpenFLAssetType.BINARY;
+		}
+	}
+}
+#end

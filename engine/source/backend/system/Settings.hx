@@ -18,10 +18,10 @@ enum abstract FpsType(String) from String to String {
 	var Vsync;
 }
 
-/*
+/**
    This class at first was jokingly named "PullingAPsychEngine".
    While coding this file I realized how much I was pulling a psych engine.
-*/
+**/
 /**
  * The main settings for the engine.
  */

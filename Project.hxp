@@ -6,6 +6,25 @@ import lime.tools.*;
 
 using StringTools;
 
+class EngineAsset {
+	/**
+	 * The key name of the item should be the final path!
+	 */
+	public static var mapping:Map<String, EngineAsset> = new Map<String, EngineAsset>();
+
+	public var path:String;
+	public var rename:String;
+	public var library:String;
+	public var embed:Bool;
+
+	public function new(path:String, ?rename:String, ?library:String, embed:Bool = false) {
+		this.path = path;
+		this.rename = rename;
+		this.library = library;
+		this.embed = embed;
+	}
+}
+
 /**
  * This project instead used a hxp file instead of a xml!
  * This makes it easier to organize everything imo.
@@ -212,7 +231,7 @@ using StringTools;
 			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays(excludeList, repoItems));
 		}
 		if (isDebug())
-			addAssetPath('extras/debug/', finalPath, ['*'], mergeArrays(excludeList, repoItems));
+			addAssetPath('extras/debug/', finalPath, true, ['*'], mergeArrays(excludeList, repoItems));
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 		/* Path Settings */
@@ -271,6 +290,19 @@ using StringTools;
 
 		// related to flixel cne fork
 		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
+
+		// truly push assets
+		var defineEmbed:Bool = false;
+		for (setAsset in EngineAsset.mapping) {
+			var willEmbed:Bool = /* isDebug() ? false : */ setAsset.embed;
+			if (willEmbed)
+				defineEmbed = true;
+			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, willEmbed);
+			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
+			this.assets.push(asset);
+		}
+		// if (defineEmbed) // save memory on compiled build... probably
+		setHaxedef('CONTAINS_EMBEDDED_FILES');
 	}
 
 	/**
@@ -418,7 +450,6 @@ using StringTools;
 	 */
 	inline public function addHaxeFlag(value:String):Void
 		this.haxeflags.push(value);
-
 	/**
 	 * Call a Haxe build macro.
 	 * @param value The macro.
@@ -433,31 +464,29 @@ using StringTools;
 	 */
 	inline public function addIcon(icon:String, ?size:Int):Void
 		this.icons.push(new Icon(icon, size));
-
 	/**
 	 * Add an asset to the game build.
 	 * @param path The path the asset is located at.
 	 * @param rename The path the asset should be placed.
+	 * @param force If true, if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the asset to. `null` = "default"
 	 * @param embed Whether to embed the asset in the executable.
 	 */
-	inline public function addAsset(path:String, ?rename:String, ?library:String, embed:Bool = false):Void {
-		// path, rename, type, embed, setDefaults
-		var asset = new Asset(path, rename, null, isDebug() ? false : embed, true);
-		@:nullSafety(Off) asset.library = library ?? 'default';
-		this.assets.push(asset);
-	}
+	inline public function addAsset(path:String, ?rename:String, force:Bool = false, ?library:String, embed:Bool = false):Void
+		if (!EngineAsset.mapping.exists(rename ?? path) || force)
+			EngineAsset.mapping.set(rename ?? path, new EngineAsset(path, rename, library, embed));
 
 	/**
 	 * Add an entire path of assets to the game build.
 	 * @param path The path the assets are located at.
 	 * @param rename The path the assets should be placed.
+	 * @param force If true, if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the assets to. `null` = "default"
 	 * @param include An optional array to include specific asset names.
 	 * @param exclude An optional array to exclude specific asset names.
 	 * @param embed Whether to embed the assets in the executable.
 	 */
-	public function addAssetPath(path:String, ?rename:String, ?library:String, ?include:Array<String>, ?exclude:Array<String>, embed:Bool = false):Void {
+	public function addAssetPath(path:String, ?rename:String, force:Bool = false, ?library:String, ?include:Array<String>, ?exclude:Array<String>, embed:Bool = false):Void {
 		// Argument parsing.
 		if (path == '')
 			return;
@@ -498,7 +527,7 @@ using StringTools;
 						if (embed)
 							willEmbed = embed;
 
-						addAssetPath('$path/$file', '$targetPath$file', library, include, exclude, willEmbed);
+						addAssetPath('$path/$file', '$targetPath$file', force, library, include, exclude, willEmbed);
 					}
 				} else if (FileSystem.exists('$path/$file'))
 					if (this.filter(file, include, exclude)) {
@@ -515,7 +544,7 @@ using StringTools;
 							willEmbed = embed;
 
 						if (folderEmbedded) info('File "$path/$file" is already in an "embed" folder. Embedding denied.');
-						else addAsset('$path/$file', '$targetPath$renamedFile', willEmbed);
+						else addAsset('$path/$file', '$targetPath$renamedFile', force, willEmbed);
 					}
 			}
 	}

@@ -6,9 +6,9 @@ package backend.system;
  */
 class Modding {
 	/**
-	 * It true, the current up front mod loaded doesn't allow lower end mods to run.
+	 * If true, the current up front mod loaded doesn't allow lower end mods to run.
 	 */
-	public static var soloOnlyMode:Bool = false;
+	public static var soloOnlyMode(default, null):Bool = false;
 
 	/**
 	 * If enabled, only up front mods can run.

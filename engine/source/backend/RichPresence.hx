@@ -13,12 +13,14 @@ class RichPresence {
 	/**
 	 * The client ID for the rich presence.
 	 */
-	public static final clientID:String = '1093650535103615096';
+	public static var clientID(default, set):String;
+	inline static function set_name(value:String):String
+		return clientID = value ?? '1093650535103615096';
 
 	/**
 	 * Whether the rich presence has already been initialized.
 	 */
-	public static var initialized:Bool = false;
+	public static var initialized(default, null):Bool = false;
 
 	/**
 	 * The current rich presence instance.
@@ -29,8 +31,9 @@ class RichPresence {
 	 * Initializes the rich presence.
 	 */
 	@:allow(backend.system.Main.new)
-	static function init():Void {
-		if (initialized) return;
+	inline static function init():Void {
+		if (initialized)
+			return;
 
 		var handlers:DiscordEventHandlers = DiscordEventHandlers.create();
 		handlers.ready = Function.fromStaticFunction(onReady);
@@ -75,7 +78,9 @@ class RichPresence {
 	 * Called when the player closes the window or disables rich presence in the options.
 	 */
 	public static function shutdown():Void {
-		if (!initialized) return;
+		if (!initialized)
+			return;
+
 		initialized = false;
 		Discord.Shutdown();
 	}

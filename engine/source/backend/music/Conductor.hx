@@ -251,7 +251,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var posOffset(get, null):Float = 0;
 	inline function get_posOffset():Float {
-		if (posOffset != data.offset) posOffset = data.offset;
+		if (posOffset != data.offset)
+			posOffset = data.offset;
 		return posOffset;
 	}
 
@@ -329,8 +330,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
-		if (audio == null) audio = new FlxSound();
-		else if (audio.active) audio.stop();
+		if (audio == null)
+			audio = new FlxSound();
+		else if (audio.active)
+		audio.stop();
 
 		audio.loadEmbedded(Paths.music(music).format(), true);
 		FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
@@ -339,7 +342,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		data = getMetadata('${music.type}:music/${music.path}');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
-		if (afterLoad != null) afterLoad(audio);
+
+		if (afterLoad != null)
+			afterLoad(audio);
 	}
 
 	/**
@@ -350,8 +355,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
 		reset();
-		if (audio == null) audio = new FlxSound();
-		else if (audio.active) audio.stop();
+		if (audio == null)
+			audio = new FlxSound();
+		else if (audio.active)
+			audio.stop();
 
 		audio.loadEmbedded(Paths.inst(song, variant).format());
 		FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
@@ -360,7 +367,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
 		applyBPMChanges();
 		changeBPM(data.bpm, data.signature[0], data.signature[1]);
-		if (afterLoad != null) afterLoad(audio);
+
+		if (afterLoad != null)
+			afterLoad(audio);
 	}
 
 	/**
@@ -385,7 +394,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
-		if (afterLoad != null) afterLoad(vocals);
+		if (afterLoad != null)
+			afterLoad(vocals);
 		return vocals;
 	}
 
@@ -412,7 +422,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
-		if (afterLoad != null) afterLoad(vocals);
+		if (afterLoad != null)
+			afterLoad(vocals);
 		return vocals;
 	}
 
@@ -443,7 +454,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				name: 'None',
 				bpm: 100,
 				signature: [4, 4],
-				checkpoints: []
+				checkpoints: [],
+				offset: 0
 			}
 		}
 	}
@@ -453,6 +465,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	public function update():Void {
+		// gonna make the songPosition update by itself and have all audio instances follow it for better song starts and ends
 		if (audio == null || !audio.playing) {
 			lastSongPos = audio != null ? audio.time - posOffset : -posOffset;
 			return;
@@ -682,7 +695,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		return stepsPerBeat * beatsPerMeasure;
 
 	inline public function getMeasuresLength():Float {
-		if (audio == null) return 0;
+		if (audio == null)
+			return 0;
 		return getStepForTime(audio.length) / getMeasureLength();
 	}
 

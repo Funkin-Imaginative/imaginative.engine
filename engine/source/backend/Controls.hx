@@ -211,6 +211,12 @@ class Controls implements IFlxDestroyable {
 
 	// Debug //
 	/**
+	 * When botplay is pressed.
+	 */
+	public static var botplay(get, never):Bool;
+	inline static function get_botplay():Bool
+		return globalPressed('botplay');
+	/**
 	 * When resetState is pressed.
 	 */
 	public static var resetState(get, never):Bool;
@@ -255,6 +261,7 @@ class Controls implements IFlxDestroyable {
 		'fullscreen' => [F11],
 
 		// Debug //
+		'botplay' => [F4],
 		'resetState' => [F5],
 		'shortcutState' => [F6],
 		'reloadGlobalScripts' => [F7]
