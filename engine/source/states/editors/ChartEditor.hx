@@ -82,7 +82,7 @@ typedef ChartEvent = {
 	/**
 	 * The event parameters.
 	 */
-	// @:jignored var params:Array<Dynamic>;
+	var params:Array<OneOfFour<Int, Float, Bool, String>>;
 	/**
 	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.
@@ -120,7 +120,6 @@ typedef ChartData = {
 	 */
 	var ?events:Array<ChartEvent>;
 }
-
 
 class ChartEditor extends BeatState {
 	override public function get_conductor():Conductor

@@ -243,9 +243,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 			if (Reflect.hasField(inputData, 'extra') && inputData.extra != null) {
 				try {
-					// if (inputData.extra.length > 1)
-					// 	for (extraData in inputData.extra)
-					// 		extra.set(extraData.name, extraData.data);
+					if (inputData.extra.length > 1)
+						for (extraData in inputData.extra)
+							extra.set(extraData.name, extraData.data);
 				} catch(error:haxe.Exception)
 					log('Invalid information in extra array or the null check failed.', ErrorMessage);
 			}

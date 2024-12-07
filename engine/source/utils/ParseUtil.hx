@@ -66,7 +66,7 @@ typedef ExtraData = {
 	/**
 	 * The data contents.
 	 */
-	// @:jignored var data:Dynamic;
+	var data:OneOfFour<Int, Float, Bool, String>;
 }
 
 /**

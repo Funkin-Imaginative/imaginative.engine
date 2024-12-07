@@ -247,7 +247,7 @@ class EngineAsset {
 		addHaxelib('flixel-addons', 'git');
 
 		// json parsing
-		addHaxelib('json2object');
+		addHaxelib('json2object', 'git');
 		addHaxelib('checkstyle'); // pretty export
 
 		// debugging
