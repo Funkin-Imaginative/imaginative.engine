@@ -154,7 +154,7 @@ class ArrowField extends BeatGroup {
 	// var lastInput:String = '';
 	inline function _down_input(event:KeyboardEvent):Void {
 		if (isPlayer) {
-			_input(event);
+			_input();
 			/* if (lastInput != 'holding') {
 				lastInput = FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED) ? 'pressed' : 'holding';
 				trace('key $lastInput');
@@ -163,12 +163,12 @@ class ArrowField extends BeatGroup {
 	}
 	inline function _up_input(event:KeyboardEvent):Void {
 		if (isPlayer) {
-			_input(event);
+			_input();
 			/* lastInput = 'released';
 			trace('key $lastInput'); */
 		}
 	}
-	inline function _input(event:KeyboardEvent):Void {
+	inline function _input():Void {
 		var isP2:Bool = status == PlayConfig.enemyPlay;
 		var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
 		for (i => strum in strums.members)
