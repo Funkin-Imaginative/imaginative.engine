@@ -678,6 +678,7 @@ class Paths {
 	inline public static function spriteSheetExists(file:ModPath):Bool
 		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
 
+	// BUG: Exists check doesn't check if its embedded or not since it does ||.
 	/**
 	 * Get's the content of a file containing text.
 	 * @param file The mod path.

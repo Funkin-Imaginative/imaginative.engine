@@ -301,8 +301,8 @@ class EngineAsset {
 			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
 			this.assets.push(asset);
 		}
-		// if (defineEmbed) // save memory on compiled build... probably
-		setHaxedef('CONTAINS_EMBEDDED_FILES');
+		if (defineEmbed) // save memory on compiled build... probably
+			setHaxedef('CONTAINS_EMBEDDED_FILES');
 	}
 
 	/**
@@ -474,7 +474,7 @@ class EngineAsset {
 	 */
 	inline public function addAsset(path:String, ?rename:String, force:Bool = false, ?library:String, embed:Bool = false):Void
 		if (!EngineAsset.mapping.exists(rename ?? path) || force)
-			EngineAsset.mapping.set(rename ?? path, new EngineAsset(path, rename, library, embed));
+			EngineAsset.mapping.set(rename ?? path, new EngineAsset(Path.normalize(path), @:nullSafety(Off) Path.normalize(rename), library, embed));
 
 	/**
 	 * Add an entire path of assets to the game build.
@@ -497,9 +497,7 @@ class EngineAsset {
 		if (exclude == null)
 			exclude = [];
 
-		var targetPath:String = rename ?? path;
-		if (targetPath != '')
-			targetPath += '/';
+		var targetPath:String = Path.normalize(rename ?? path);
 
 		// Validate path.
 		if (!FileSystem.exists(path)) {
@@ -527,7 +525,7 @@ class EngineAsset {
 						if (embed)
 							willEmbed = embed;
 
-						addAssetPath('$path/$file', '$targetPath$file', force, library, include, exclude, willEmbed);
+						addAssetPath('$path/$file', '${Path.addTrailingSlash(targetPath)}$renamedFolder', force, library, include, exclude, willEmbed);
 					}
 				} else if (FileSystem.exists('$path/$file'))
 					if (this.filter(file, include, exclude)) {
@@ -544,7 +542,7 @@ class EngineAsset {
 							willEmbed = embed;
 
 						if (folderEmbedded) info('File "$path/$file" is already in an "embed" folder. Embedding denied.');
-						else addAsset('$path/$file', '$targetPath$renamedFile', force, willEmbed);
+						else addAsset('$path/$file', '${Path.addTrailingSlash(targetPath)}$renamedFile', force, willEmbed);
 					}
 			}
 	}
