@@ -14,7 +14,7 @@ class RichPresence {
 	 * The client ID for the rich presence.
 	 */
 	public static var clientID(default, set):String;
-	inline static function set_name(value:String):String
+	inline static function set_clientID(value:String):String
 		return clientID = value ?? '1093650535103615096';
 
 	/**
