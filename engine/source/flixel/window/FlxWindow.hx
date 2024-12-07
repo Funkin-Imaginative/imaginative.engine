@@ -1,4 +1,4 @@
-package objects.window;
+package flixel.window;
 
 import lime.app.Application;
 import lime.ui.Window;
@@ -21,7 +21,6 @@ typedef TitleParts = {
 
 /**
  * Flixel doesn't have a window class so... I made one myself!
- * Might just move this to flixel.window! :trollface:
  */
 class FlxWindow implements IFlxDestroyable {
 	/**
@@ -173,7 +172,7 @@ class FlxWindow implements IFlxDestroyable {
 	public var bounds:WindowBounds;
 
 	@:allow(backend.system.Main)
-	static function init():Void {
+	inline static function init():Void {
 		FlxWindow.direct = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
 	}
 

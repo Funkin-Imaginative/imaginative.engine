@@ -1,10 +1,10 @@
-package objects.window;
+package flixel.window;
 
 /**
  * Used to help FlxWindow's do nice movement.
  * Might just have FlxWindow extend FlxObject or FlxSprite at some point instead.
  */
-@:allow(objects.window.FlxWindow)
+@:allow(flixel.window.FlxWindow)
 class WindowBounds extends FlxSprite {
 	/**
 	 * The parent window.

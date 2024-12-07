@@ -78,6 +78,8 @@ import backend.system.Modding;
 #end
 import backend.system.Paths;
 import backend.system.Settings;
+import flixel.window.FlxWindow;
+import flixel.window.WindowBounds;
 import objects.BaseSprite;
 import objects.BeatSprite;
 import objects.Character;
@@ -89,8 +91,6 @@ import objects.holders.DifficultyHolder;
 import objects.holders.LevelHolder;
 import objects.ui.HealthIcon;
 import objects.ui.SpriteText;
-import objects.window.FlxWindow;
-import objects.window.WindowBounds;
 import states.PlayState;
 import utils.ParseUtil;
 import utils.PlatformUtil;
