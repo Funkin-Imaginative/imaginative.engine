@@ -60,6 +60,8 @@ class Sustain extends FlxSprite {
 		return setHead.assignedActors;
 	inline function set_assignedActors(value:Array<Character>):Array<Character>
 		return setHead.assignedActors = value;
+	inline public function renderActors():Array<Character>
+		return setHead.renderActors();
 
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {

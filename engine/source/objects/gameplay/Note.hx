@@ -63,6 +63,8 @@ class Note extends FlxSprite {
 	 * `May make it contain string instead.`
 	 */
 	public var assignedActors:Array<Character> = [];
+	inline public function renderActors():Array<Character>
+		return assignedActors.length == 0 ? setField.assignedActors : assignedActors;
 
 	// important
 	public var canHit(get, never):Bool;

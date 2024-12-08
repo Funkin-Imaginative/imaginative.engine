@@ -339,7 +339,7 @@ class PlayState extends BeatState {
 				scripts.event('noteHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.assignedActors, event.idMod, IsSinging, event.force, event.suffix);
+					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
 				}
 			});
 			field.onSustainHit.add((event) -> {
@@ -347,7 +347,7 @@ class PlayState extends BeatState {
 				scripts.event('sustainHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.assignedActors, event.idMod, IsSinging, event.force, event.suffix);
+					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
 				}
 			});
 			field.onNoteMissed.add((event) -> {
@@ -355,7 +355,7 @@ class PlayState extends BeatState {
 				scripts.event('noteMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
 			});
 			field.onSustainMissed.add((event) -> {
@@ -363,7 +363,7 @@ class PlayState extends BeatState {
 				scripts.event('sustainMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
 			});
 			field.onVoidMiss.add((event) -> {
