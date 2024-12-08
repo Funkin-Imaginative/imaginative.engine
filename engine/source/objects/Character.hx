@@ -7,7 +7,7 @@ typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:Position;
 	var ?color:String;
 	@:default('face') var icon:String;
-	@:default(0.5) var holdlength:Float;
+	@:default(4) var singlength:Float;
 }
 typedef CharacterData = {
 	/**
@@ -26,7 +26,7 @@ typedef CharacterData = {
 	 * The amount of time in seconds the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	var holdlength:Float;
+	var singlength:Float;
 }
 
 /**
@@ -51,14 +51,14 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var theirIcon(default, null):String = 'face';
 
 	/**
-	 * Used to help `holdLength`.
+	 * Used to help `singLength`.
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
-	 * The amount of time in seconds the animation can be forced to last.
+	 * The amount of time in steps the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	public var holdLength:Float = 0.5;
+	public var singLength:Float = 0.5;
 
 	/**
 	 * The camera offset position.
@@ -97,7 +97,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
 				theirIcon = inputData.character.icon;
-				holdLength = inputData.character.holdlength;
+				singLength = inputData.character.singlength;
 			}
 		} catch(error:haxe.Exception)
 			try {
@@ -142,7 +142,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	override public function tryDance():Void {
 		switch (animContext) {
 			case IsSinging | HasMissed:
-				if (holdLength > 0 ? (lastHit + (holdLength * 1000) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
+				if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
 					dance();
 			default:
 				super.tryDance();

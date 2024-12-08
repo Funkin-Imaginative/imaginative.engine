@@ -36,17 +36,17 @@ class Strum extends FlxSprite {
 	// public var scrollAngle:Float = 270;
 
 	/**
-	 * Used to help `holdLength`.
+	 * Used to help `glowLength`.
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
-	 * The amount of time in seconds the animation can be forced to last.
+	 * The amount of time in steps the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	public var holdLength:Float = 0.45;
+	public var glowLength:Float = 4;
 
 	/**
-	 * If true, after the holdlength is reached the animation will go back to "static".
+	 * If true, after the glowlength is reached the animation will go back to "static".
 	 */
 	public var willReset:Bool;
 
@@ -76,24 +76,14 @@ class Strum extends FlxSprite {
 		super.update(elapsed);
 
 		if (willReset && getAnimName() != 'static')
-			if (holdLength > 0 ? (lastHit + (holdLength * 1000) < setField.conductor.songPosition) : (getAnimName() == null || isAnimFinished()))
-				playAnim(
-					switch (getAnimName()) {
-						case 'confirm': 'press';
-						default: 'static';
-					},
-					switch (getAnimName()) {
-						case 'confirm': true;
-						case 'press': setField.isPlayer ? false : true;
-						default: false;
-					}
-				);
+			if (glowLength > 0 ? (lastHit + (setField.conductor.stepCrochet * glowLength) < setField.conductor.songPosition) : (getAnimName() == null || isAnimFinished()))
+				playAnim(setField.isPlayer ? 'press' : 'static');
 	}
 
 	/**
 	 * Play's an animation.
 	 * @param name The animation name.
-	 * @param reset If true, after the holdlength is reached the animation will go back to "static".
+	 * @param reset If true, after the glowlength is reached the animation will go back to "static".
 	 * @param force If true, the game won't care if another one is already playing.
 	 * @param reverse If true, the animation will play backwards.
 	 * @param frame The starting frame. By default it's 0.

@@ -165,7 +165,7 @@ class ParseUtil {
 				camera: new Position(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
 				color: typeData.character.color,
 				icon: typeData.character.icon,
-				holdlength: typeData.character.holdlength
+				singlength: typeData.character.singlength
 			}
 		}
 
