@@ -1,14 +1,11 @@
 package backend.system;
 
 import flixel.FlxGame;
+import flixel.input.mouse.FlxMouse;
 import openfl.Lib;
-import openfl.display.DisplayObject;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
 import backend.system.frontEnds.OverlayCameraFrontEnd;
-#if FLX_MOUSE
-import flixel.input.mouse.FlxMouse;
-#end
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
@@ -107,12 +104,9 @@ class Main extends Sprite {
 		}
 		#end
 
-		FlxG.mouse.visible = false;
-		FlxG.mouse = new FlxMouse(_inputContainer);
-		FlxG.mouse.visible = true;
+		FlxG.mouse.useSystemCursor = true; // we use custom object lol
 
-		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode(true);
-
+		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
@@ -157,10 +151,13 @@ class Main extends Sprite {
 		FlxG.signals.preDraw.add(() -> cameras.lock());
 		FlxG.signals.postDraw.add(() -> {
 			overlay.draw();
-			if (FlxG.renderTile)
-				cameras.render();
+			cameras.render();
 			cameras.unlock();
 		});
+
+		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
+		erect.screenCenter();
+		overlay.add(erect); */
 
 		// Was testing Path functions.
 		/* trace(Paths.txt('images/menus/main/itemLineUp').format());
@@ -207,22 +204,6 @@ class Main extends Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
-	}
-
-	/**
-	 * Regular DisplayObject's are normally displayed over the Flixel cursor and the Flixel debugger if simply
-	 * added to stage. This function simplifies things by adding a DisplayObject directly below mouse level.
-	 * @param Child The DisplayObject to add.
-	 * @param IndexModifier Amount to add to the index, makes sure the index stays within bounds.
-	 * @return `T:DisplayObject` ~ The added DisplayObject.
-	 */
-	public static function addChildBelowMouse<T:DisplayObject>(Child:T, IndexModifier:Int = 0):T {
-		var index:Int = direct.getChildIndex(_inputContainer);
-		var max:Int = direct.numChildren;
-
-		index = FlxMath.maxAdd(index, IndexModifier, max);
-		direct.addChildAt(Child, index);
-		return Child;
 	}
 }
 
