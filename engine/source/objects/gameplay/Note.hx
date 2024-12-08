@@ -19,9 +19,8 @@ class Note extends FlxSprite {
 	 * The parent strum of this note.
 	 */
 	public var setStrum(get, null):Strum;
-	inline function get_setStrum():Strum {
-		return setStrum ?? (setField.strums.members[id] ?? setField.strums.members[idMod]);
-	}
+	inline function get_setStrum():Strum
+		return setStrum ?? setField.strums.members[id] ?? setField.strums.members[idMod];
 	/**
 	 * The sustain pieces this note has.
 	 */

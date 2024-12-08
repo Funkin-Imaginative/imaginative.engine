@@ -20,7 +20,7 @@ class ScriptedState extends BeatState {
 
 	override public function new(stateName:String, ?conductorInst:Conductor) {
 		prevName = stateName ?? 'NullState';
-		conductor = (conductorInst ?? (lastConductor ??= Conductor.menu));
+		conductor = conductorInst ?? (lastConductor ??= Conductor.menu);
 		super(true, prevName);
 	}
 }

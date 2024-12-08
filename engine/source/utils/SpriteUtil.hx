@@ -285,7 +285,7 @@ class SpriteUtil {
 	 */
 	@:access(flixel.group.FlxTypedGroup.resolveGroup)
 	inline public static function getGroup<T:FlxBasic>(obj:T):FlxTypedGroup<Dynamic> {
-		return FlxTypedGroup.resolveGroup(obj) ?? (FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState ?? (cast FlxG.state));
+		return FlxTypedGroup.resolveGroup(obj) ?? (FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState ?? cast FlxG.state);
 	}
 
 	/**

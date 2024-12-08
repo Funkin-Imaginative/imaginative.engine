@@ -250,7 +250,8 @@ class ArrowField extends BeatGroup {
 					for (sustain in group)
 						sustain
 			], i))
-				_onSustainHit(sustain, i);
+				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition)
+					_onSustainHit(sustain, i);
 		}
 
 
