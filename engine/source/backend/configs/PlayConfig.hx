@@ -34,4 +34,12 @@ class PlayConfig {
 	 */
 	inline public static function undoRatingPercent(value:Float, cap:Float):Float
 		return FunkinUtil.undoPercent(value, cap, 1);
+
+	public static function calculateRating(diff:Float, settings:PlayerSettings):String {
+		var data:Array<String> = ['killer', 'sick', 'good', 'bad', 'shit'];
+		for (i in 0...data.length - 1)
+			if (diff <= PlayConfig.undoRatingPercent(Reflect.getProperty(settings, '${data[i]}Window'), settings.maxWindow))
+				return data[i];
+		return data[data.length - 1];
+	}
 }

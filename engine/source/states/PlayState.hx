@@ -233,6 +233,9 @@ class PlayState extends BeatState {
 	inline function set_playerField(value:ArrowField):ArrowField
 		return ArrowField.player = value;
 
+	//temp
+	var rating:BaseSprite;
+
 	override function create():Void {
 		scripts = new ScriptGroup(direct = this);
 
@@ -241,6 +244,17 @@ class PlayState extends BeatState {
 		camGame = camera; // may make a separate camera class for shiz
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
+
+		rating = new BaseSprite(500, 300, 'gameplay/combo/combo');
+		rating.cameras = [camHUD];
+		add(rating);
+
+		/* rating.y = camPoint.y - FlxG.camera.height * 0.1 - 60;
+		rating.x = FlxMath.bound(
+			FlxG.width * 0.55 - 40,
+			camPoint.x - FlxG.camera.width / 2 + rating.width,
+			camPoint.x + FlxG.camera.width / 2 - rating.width
+		); */
 
 		// character creation.
 		for (base in chartData.characters) {
@@ -340,6 +354,12 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+
+					// doing it here for now
+					if (event.field.isPlayer) {
+						var rtg:String = PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1);
+						rating.loadImage('gameplay/combo/$rtg');
+					}
 				}
 			});
 			field.onSustainHit.add((event) -> {
