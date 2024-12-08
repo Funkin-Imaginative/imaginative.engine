@@ -6,7 +6,6 @@ import backend.scripting.events.objects.gameplay.NoteMissedEvent;
 import backend.scripting.events.objects.gameplay.SustainHitEvent;
 import backend.scripting.events.objects.gameplay.SustainMissedEvent;
 import backend.scripting.events.objects.gameplay.VoidMissEvent;
-import openfl.events.KeyboardEvent;
 import states.editors.ChartEditor.ChartField;
 
 class ArrowField extends BeatGroup {
@@ -145,29 +144,8 @@ class ArrowField extends BeatGroup {
 		add(strums);
 		add(notes);
 		insert(members.indexOf(true ? strums : notes), sustains); // behindStrums
-
-		// input system, having separate because I think I was having double input
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _down_input);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _up_input);
 	}
 
-	// var lastInput:String = '';
-	inline function _down_input(event:KeyboardEvent):Void {
-		if (isPlayer) {
-			_input();
-			/* if (lastInput != 'holding') {
-				lastInput = FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED) ? 'pressed' : 'holding';
-				trace('key $lastInput');
-			} */
-		}
-	}
-	inline function _up_input(event:KeyboardEvent):Void {
-		if (isPlayer) {
-			_input();
-			/* lastInput = 'released';
-			trace('key $lastInput'); */
-		}
-	}
 	inline function _input():Void {
 		var isP2:Bool = status == PlayConfig.enemyPlay;
 		var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
@@ -260,6 +238,9 @@ class ArrowField extends BeatGroup {
 	}
 
 	override function update(elapsed:Float):Void {
+		if (isPlayer)
+			_input();
+
 		for (note in notes) {
 			// lol
 			if (note.tooLate && (conductor.songPosition - note.time) > Math.max(conductor.stepCrochet, noteKillRange / note.__scrollSpeed)) {
@@ -384,8 +365,6 @@ class ArrowField extends BeatGroup {
 	override function destroy():Void {
 		if (enemy == this) enemy = null;
 		if (player == this) player = null;
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _down_input);
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _up_input);
 		onNoteHit.destroy();
 		onSustainHit.destroy();
 		onNoteMissed.destroy();
