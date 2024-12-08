@@ -13,6 +13,37 @@ typedef CountdownAssets = {
 	var sounds:Array<ModPath>;
 }
 
+class SongEvent {
+	/**
+	 * States if the song event is from the chart.
+	 */
+	public var fromChart:Bool;
+
+	/**
+	 * NOTE: As of rn this is actually in milliseconds!!!!!
+	 * The event position in steps.
+	 */
+	public var time:Float;
+	/**
+	 * The event code to run.
+	 */
+	var code:Void->Void;
+
+	inline public function new(time:Float, code:Void->Void, fromChart:Bool = false) {
+		this.time = time;
+		this.code = code;
+
+		this.fromChart = fromChart;
+	}
+
+	/**
+	 * Execute's the event code.
+	 */
+	inline public function execute():Void
+		if (code != null)
+			code();
+}
+
 /**
  * Where all the funny beep boops happen!
  */
@@ -81,11 +112,7 @@ class PlayState extends BeatState {
 	 * The chart information.
 	 */
 	public static var chartData:ChartData;
-	/**
-	 * Contains all events obtained from the `chartData`.
-	 */
-	public var chartEvents:Array<Dynamic> = [];
-	// public var stepEvents:Map<Float, Void->Void> = new Map<Float, Void->Void>();
+	public var songEvents:Array<SongEvent>;
 
 	/**
 	 * Contains the week information.
