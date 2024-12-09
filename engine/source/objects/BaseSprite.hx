@@ -37,7 +37,7 @@ enum abstract AnimationContext(String) from String to String {
 	var Unclear;
 }
 
-typedef AnimMapping = {
+typedef AnimationMapping = {
 	/**
 	 * Offsets for that set animation.
 	 */
@@ -267,7 +267,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	/**
 	 * A map holding data for each animation.
 	 */
-	public var anims:Map<String, AnimMapping> = new Map<String, AnimMapping>();
+	public var anims:Map<String, AnimationMapping> = new Map<String, AnimationMapping>();
 	/**
 	 * The current animation context.
 	 */
@@ -380,7 +380,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		var suffixResult:String = suffix == null ? '' : (invalidSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invalidSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
-			var animInfo:AnimMapping = getAnimInfo(theName);
+			var animInfo:AnimationMapping = getAnimInfo(theName);
 			animation.play(theName, force, reverse, frame);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 			animContext = context;
@@ -406,10 +406,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Get's information on a set animation of your choosing.
 	 * This way you won't have to worry about certain things.
 	 * @param name The animation name.
-	 * @return `AnimMapping` ~ The animation information.
+	 * @return `AnimationMapping` ~ The animation information.
 	 */
-	inline public function getAnimInfo(name:String):AnimMapping {
-		var data:AnimMapping;
+	inline public function getAnimInfo(name:String):AnimationMapping {
+		var data:AnimationMapping;
 		if (doesAnimExist(name, true))
 			if (anims.exists(name))
 				data = anims.get(name);
