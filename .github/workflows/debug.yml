@@ -15,9 +15,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Haxe environment
-        uses: krdlab/setup-haxe@v1
+      - name: Checking Latest Commit
+        uses: actions/checkout@main
+        with:
+          submodules: true
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.3.6
 
@@ -30,23 +34,22 @@ jobs:
             .haxelib/
             export/debug/windows/haxe/
             export/debug/windows/obj/
-          restore-keys: |
-            windows-debug-cache
+          restore-keys: windows-debug-cache
 
-      - name: Installing Libs
-        run: |
-          haxe -cp setup -D analyzer-optimize --run Main --always
-          haxelib install hxcpp-debug-server
-      - name: Building the game
-        run: |
-          haxelib run lime build windows -debug
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+      - name: Install Libraries
+        run: haxe -cp setup -D analyzer-optimize --run Main --always
+
+      - name: Compile Engine
+        run: haxelib run lime debug windows -debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
         with:
           name: Windows
           path: export/debug/windows/bin
           overwrite: true
           include-hidden-files: true
+          if-no-files-found: error
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -67,6 +70,7 @@ jobs:
                 console.log('Cache cleared.')
               }
             }
+
       - name: Run New Cache
         uses: actions/cache@v3
         with:
@@ -76,17 +80,20 @@ jobs:
             .haxelib/
             export/debug/windows/haxe/
             export/debug/windows/obj/
-          restore-keys: |
-            windows-debug-cache
+          restore-keys: windows-debug-cache
 
   mac:
     permissions: write-all
     runs-on: macos-13
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Haxe environment
-        uses: krdlab/setup-haxe@v1
+      - name: Checking Latest Commit
+        uses: actions/checkout@main
+        with:
+          submodules: true
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.3.6
 
@@ -99,25 +106,22 @@ jobs:
             .haxelib/
             export/debug/mac/haxe/
             export/debug/mac/obj/
-          restore-keys: |
-            mac-debug-cache
+          restore-keys: mac-debug-cache
 
       - name: Installing Libs
-        run: |
-          haxe -cp setup -D analyzer-optimize --run Main --always
-          haxelib install hxcpp-debug-server
+        run: haxe -cp setup -D analyzer-optimize --run Main --always
+
       - name: Building the game
-        run: |
-          haxelib run lime build mac -debug
-      - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/debug/macos/bin .
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        run: haxelib run lime debug mac -debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
         with:
           name: Mac
-          path: Imaginative.tar.gz
+          path: export/debug/macos/bin
           overwrite: true
           include-hidden-files: true
+          if-no-files-found: error
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -138,6 +142,7 @@ jobs:
                 console.log('Cache cleared.')
               }
             }
+
       - name: Run New Cache
         uses: actions/cache@v3
         with:
@@ -147,17 +152,20 @@ jobs:
             .haxelib/
             export/debug/mac/haxe/
             export/debug/mac/obj/
-          restore-keys: |
-            mac-debug-cache
+          restore-keys: mac-debug-cache
 
   linux:
     permissions: write-all
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Haxe environment
-        uses: krdlab/setup-haxe@v1
+      - name: Checking Latest Commit
+        uses: actions/checkout@main
+        with:
+          submodules: true
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.3.6
 
@@ -170,28 +178,25 @@ jobs:
             .haxelib/
             export/debug/linux/haxe/
             export/debug/linux/obj/
-          restore-keys: |
-            linux-debug-cache
+          restore-keys: linux-debug-cache
 
-      - name: Installing LibVLC
-        run: |
-          sudo apt-get install libvlc-dev libvlccore-dev
+      - name: Installing Dependencies
+        run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
+
       - name: Installing Libs
-        run: |
-          haxe -cp setup -D analyzer-optimize --run Main --always
-          haxelib install hxcpp-debug-server
+        run: haxe -cp setup -D analyzer-optimize --run Main --always
+
       - name: Building the game
-        run: |
-          haxelib run lime build linux -debug
-      - name: Tar files
-        run: tar -zcvf Imaginative.tar.gz -C export/debug/linux/bin .
-      - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        run: haxelib run lime debug linux -debug
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
         with:
           name: Linux
-          path: Imaginative.tar.gz
+          path: export/debug/linux/bin
           overwrite: true
           include-hidden-files: true
+          if-no-files-found: error
 
       - name: Clearing Cache
         uses: actions/github-script@v6
@@ -221,5 +226,4 @@ jobs:
             .haxelib/
             export/debug/linux/haxe/
             export/debug/linux/obj/
-          restore-keys: |
-            linux-debug-cache
+          restore-keys: linux-debug-cache
