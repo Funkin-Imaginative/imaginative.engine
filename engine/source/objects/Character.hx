@@ -139,13 +139,13 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	inline function set_singSuffix(value:String):String
 		return singSuffix = value.trim();
 
-	override public function tryDance():Void {
-		switch (animContext) {
+	override public function tryDance(force:Bool = false):Void {
+		switch (force ? IsDancing : animContext) {
 			case IsSinging | HasMissed:
 				if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
 					dance();
 			default:
-				super.tryDance();
+				super.tryDance(force);
 		}
 	}
 

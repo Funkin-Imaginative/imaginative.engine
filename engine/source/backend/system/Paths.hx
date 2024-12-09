@@ -587,12 +587,12 @@ class Paths {
 		return multExt(file, videoExts);
 	/**
 	 * Get's the path of a cutscene.
-	 * From either `../content/songs/[PlayState.curSong]/` or `../videos`.
+	 * From either `../content/songs/[PlayState.setSong]/` or `../videos`.
 	 * @param file The mod path.
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function cutscene(file:ModPath):ModPath {
-		var path:ModPath = video('content/songs/${PlayState.curSong}/${file.path}');
+		var path:ModPath = video('content/songs/${PlayState.setSong}/${file.path}');
 		if (!fileExists(path))
 			path = video('${file.type}:videos/${file.path}');
 		return path;

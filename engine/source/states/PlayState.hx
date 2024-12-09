@@ -124,7 +124,7 @@ class PlayState extends BeatState {
 	public static var storyIndex(default, set):Int = 0;
 	inline static function set_storyIndex(value:Int):Int {
 		var val:Int = storyIndex = FlxMath.wrap(value, 0, songList.length - 1);
-		songDisplay = FunkinUtil.getSongDisplay(curSong = songList[val]);
+		songDisplay = FunkinUtil.getSongDisplay(setSong = songList[val]);
 		return val;
 	}
 	/**
@@ -144,7 +144,7 @@ class PlayState extends BeatState {
 	/**
 	 * The folder name of the current song.
 	 */
-	public static var curSong(default, null):String;
+	public static var setSong(default, null):String;
 
 	/**
 	 * The difficulty key of the current song.
@@ -274,6 +274,7 @@ class PlayState extends BeatState {
 
 		rating = new BaseSprite(500, 300, 'gameplay/combo/combo');
 		rating.cameras = [camHUD];
+		rating.alpha = 0.0001;
 		add(rating);
 
 		/* rating.y = camPoint.y - FlxG.camera.height * 0.1 - 60;
@@ -334,45 +335,29 @@ class PlayState extends BeatState {
 			}
 
 			/**
-			I'ma bit confused on how I should order the script calling.
+			Starting to think of doing these method's.
 
-			Should it be like this?
 			```haxe
-			field.on[____].add((event) -> {
-				scripts.event('pre[____]', event);
+			scripts.event('pre[____]', event);
+			scripts.event('[____]', event);
+
+			if (!event.prevented) {
+				// code
+			}
+
+			scripts.event('[____]Post', event);
+			```
+
+			or
+
+			```haxe
+			scripts.event('pre[____]', event);
+			if (!event.prevented) {
 				scripts.event('[____]', event);
-
-				if (!event.prevented) {
-					// code
-				}
-			});
-			```
-
-			Or maybe like psych?
-			```haxe
-			field.on[____].add((event) -> {
-				scripts.event('pre[____]', event);
-
-				if (!event.prevented) {
-					// code
-
-					scripts.event('[____]', event);
-				}
-			});
-			```
-
-			Or... this? idfk 😭
-			```haxe
-			field.on[____].add((event) -> {
-				scripts.event('pre[____]', event);
-
-				if (!event.prevented) {
-					// code
-
-					scripts.event('[____]', event);
+				if (!event.prevented) { // idfk lmao, probably wont do this now that I've written it out lol
 					scripts.event('[____]Post', event);
 				}
-			});
+			}
 			```
 			**/
 			field.onNoteHit.add((event) -> {
@@ -384,10 +369,22 @@ class PlayState extends BeatState {
 
 					// doing it here for now
 					if (event.field.isPlayer) {
-						var rtg:String = PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1);
-						rating.loadImage('gameplay/combo/$rtg');
+						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
+						FlxTween.cancelTweensOf(rating, ['alpha']);
+						rating.alpha = 0.0001;
+						FlxTween.tween(rating, {alpha: 1}, (conductor.stepCrochet / 1000) * 1.2, {
+							ease: FlxEase.quadIn,
+							onComplete: (_:FlxTween) -> {
+								FlxTween.tween(rating, {alpha: 0.0001}, (conductor.stepCrochet / 1000) * 2.4 , {
+									startDelay: (conductor.stepCrochet / 1000) * 1.5 ,
+									ease: FlxEase.expoOut
+								});
+							}
+						});
 					}
 				}
+
+				scripts.event('noteHitPost', event);
 			});
 			field.onSustainHit.add((event) -> {
 				scripts.event('preSustainHit', event);
@@ -396,6 +393,8 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
 				}
+
+				scripts.event('sustainHitPost', event);
 			});
 			field.onNoteMissed.add((event) -> {
 				scripts.event('preNoteMissed', event);
@@ -404,6 +403,8 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
+
+				scripts.event('noteMissedPost', event);
 			});
 			field.onSustainMissed.add((event) -> {
 				scripts.event('preSustainMissed', event);
@@ -412,6 +413,8 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
+
+				scripts.event('sustainMissedPost', event);
 			});
 			field.onVoidMiss.add((event) -> {
 				scripts.event('preVoidMiss', event);
@@ -423,10 +426,13 @@ class PlayState extends BeatState {
 							characterSing(event.field.conductor.songPosition, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
 					}
 				}
+
+				scripts.event('voidMissPost', event);
 			});
 			field.userInput.add((event) -> {
 				scripts.event('preFieldInput', event);
 				scripts.event('fieldInput', event);
+				scripts.event('fieldInputPost', event);
 			});
 		}
 
@@ -467,7 +473,7 @@ class PlayState extends BeatState {
 
 		super.create();
 
-		for (folder in ['content/songs', 'content/songs/$curSong/scripts']) {
+		for (folder in ['content/songs', 'content/songs/$setSong/scripts']) {
 			for (ext in Script.exts) {
 				for (file in Paths.readFolder(folder, ext)) {
 					for (script in Script.create(file)) {
@@ -481,10 +487,10 @@ class PlayState extends BeatState {
 		scripts.load();
 		scripts.call('create');
 
-		conductor.loadSong(curSong, variant, (_:FlxSound) -> {
-			conductor.addVocalTrack(curSong, '', variant);
-			conductor.addVocalTrack(curSong, 'Enemy', variant);
-			conductor.addVocalTrack(curSong, 'Player', variant);
+		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
+			conductor.addVocalTrack(setSong, '', variant);
+			conductor.addVocalTrack(setSong, 'Enemy', variant);
+			conductor.addVocalTrack(setSong, 'Player', variant);
 
 			var assets:CountdownAssets = {
 				images: countdownAssets.images.copy(),
@@ -532,8 +538,15 @@ class PlayState extends BeatState {
 				if (timer.loopsLeft == 0) {
 					conductor.play();
 					songStarted = true;
-					conductor._onComplete = () ->
-						scripts.call('onEndSong');
+					conductor._onComplete = () -> {
+						for (char in characterMapping) {
+							if (char.animContext == IsSinging || char.animContext == HasMissed) {
+								char.tryDance(true);
+								char.finishAnim();
+							}
+						}
+						scripts.call('onSongEnd');
+					}
 				}
 			}, countdownLength + 1);
 		});
@@ -600,7 +613,7 @@ class PlayState extends BeatState {
 		storyIndex = 0;
 		storyMode = true;
 		PlayConfig.enemyPlay = PlayConfig.enableP2 = false;
-		_renderSong(songList[0], difficulty, variant);
+		renderChart(songList[0], difficulty, variant);
 		log('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && levelData.songs.length > 1) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
@@ -612,11 +625,11 @@ class PlayState extends BeatState {
 	 * @param playAsEnemy Should the player be the enemy instead?
 	 * @param p2AsEnemy Should the enemy be another player?
 	 */
-	inline public static function renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
+	inline public static function renderSong(song:String = 'Test', difficulty:String, variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
 		PlayConfig.enemyPlay = playAsEnemy;
 		PlayConfig.enableP2 = p2AsEnemy;
-		_renderSong(song, difficulty, variant);
+		renderChart(song, difficulty, variant);
 		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
@@ -626,24 +639,24 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	inline public static function _renderSong(song:String = 'test', difficulty:String = 'normal', variant:String = 'normal'):Void {
-		PlayState.difficulty = difficulty;
-		PlayState.variant = variant;
+	@:noCompletion inline public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
 		// chart parsing
-		var loadedSong:String = '';
-		chartData = ParseUtil.chart(loadedSong = song, difficulty, variant) ?? ParseUtil.chart(loadedSong = 'Test') ?? {
+		var loadedChart:String = song;
+		var diff:String = difficulty;
+		var varia:String = variant;
+		chartData = ParseUtil.chart(loadedChart, diff, varia) ?? ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal') ?? {
 			speed: 2.6,
 			stage: 'void',
 			fields: [
 				{
-					tag: 'balls',
-					characters: ['penis'],
+					tag: 'field',
+					characters: ['bf'],
 					notes: [
 						{
 							id: 0,
 							length: 6000,
 							time: 8000,
-							characters: ['penis'],
+							characters: ['bf'],
 							type: ''
 						}
 					]
@@ -651,18 +664,20 @@ class PlayState extends BeatState {
 			],
 			characters: [
 				{
-					tag: 'penis',
+					tag: 'bf',
 					name: 'boyfriend',
 					position: ''
 				}
 			],
 			fieldSettings: {
-				cameraTarget: 'penis',
-				order: ['balls'],
-				enemy: loadedSong = 'Null',
-				player: 'balls'
+				cameraTarget: 'bf',
+				order: ['field'],
+				enemy: loadedChart = diff = varia = 'null',
+				player: 'field'
 			}
 		}
-		log('Song "$loadedSong" loaded.', DebugMessage);
+		log('Song "$loadedChart" loaded.', DebugMessage);
+		PlayState.difficulty = diff;
+		PlayState.variant = varia;
 	}
 }

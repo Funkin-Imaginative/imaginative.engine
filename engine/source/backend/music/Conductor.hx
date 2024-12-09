@@ -263,6 +263,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	public function new() {
 		conductorSoundGroup = new FlxSoundGroup();
+
 		audio = new FlxSound();
 		audio.autoDestroy = false; // jic
 		audio.onComplete = () -> {
@@ -270,6 +271,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (_onComplete != null)
 				_onComplete();
 		}
+
 		FlxG.signals.preUpdate.add(update);
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);
