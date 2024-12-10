@@ -35,7 +35,7 @@ enum abstract ScriptType(String) from String to String {
 
 /**
  * All your scripting needs are right here!
- * @author Class started by @Zyflx. Expanded on by @rodney528.
+ * @author Class started by @Zyflx, expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
 	@:allow(backend.system.Main)
