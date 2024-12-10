@@ -51,7 +51,6 @@ class Script extends FlxBasic implements IScript {
 	 * Every script instance created.
 	 */
 	public static var scripts:Array<Script> = [];
-	public static var staticVars:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * All possible script extension types.
@@ -138,7 +137,7 @@ class Script extends FlxBasic implements IScript {
 		if (code == null)
 			pathing = file;
 		super();
-		renderScript(pathing);
+		renderScript(pathing, code);
 		renderNecessities();
 		if (code == null) {
 			scripts.push(this);
