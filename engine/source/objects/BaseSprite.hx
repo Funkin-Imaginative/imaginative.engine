@@ -5,7 +5,7 @@ import flixel.addons.effects.FlxSkewedSprite;
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
- * @author Original by @FNF-CNE-Devs, done kinda differently by @rodney528.
+ * @author Original by @CodenameCrew, done kinda differently by @rodney528.
  */
 enum abstract AnimationContext(String) from String to String {
 	/**

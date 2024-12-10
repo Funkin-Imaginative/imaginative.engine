@@ -3,11 +3,11 @@
 
 	{
 		"name": "flixel", "version": "git",
-		"url": "https://github.com/FNF-CNE-Devs/flixel"
+		"url": "https://github.com/CodenameCrew/cne-flixel"
 	},
 	{
 		"name": "flixel-addons", "version": "git",
-		"url": "https://github.com/FNF-CNE-Devs/flixel-addons"
+		"url": "https://github.com/CodenameCrew/cne-flixel-addons"
 	},
 
 	{
@@ -24,7 +24,7 @@
 	},
 
 	{
-		"name": "hscript-improved", "version": "git", "url": "https://github.com/FNF-CNE-Devs/hscript-improved",
+		"name": "hscript-improved", "version": "git", "url": "https://github.com/CodenameCrew/hscript-improved",
 		"branch": "custom-classes", "optional": true, "description": "include haxe scripting support"
 	},
 	{

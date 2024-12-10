@@ -38,7 +38,7 @@ class Main {
 					global: false,
 					name: 'hscript-improved',
 					version: 'git',
-					url: 'https://github.com/FNF-CNE-Devs/hscript-improved',
+					url: 'https://github.com/CodenameCrew/hscript-improved',
 					branch: 'custom-classes',
 					optional: true,
 					description: 'include haxe scripting support'
