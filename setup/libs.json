@@ -24,7 +24,7 @@
 	},
 
 	{
-		"name": "hscript-improved", "version": "git", "url": "https://github.com/FNF-CNE-Devs/hscript-improved",
+		"name": "rulescript", "version": "git", "url": "https://github.com/Kriptel/RuleScript",
 		"branch": "custom-classes", "optional": true, "description": "include haxe scripting support"
 	},
 	{

@@ -36,9 +36,9 @@ class Main {
 			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify([
 				{
 					global: false,
-					name: 'hscript-improved',
+					name: 'rulescript',
 					version: 'git',
-					url: 'https://github.com/FNF-CNE-Devs/hscript-improved',
+					url: 'https://github.com/Kriptel/RuleScript',
 					branch: 'custom-classes',
 					optional: true,
 					description: 'include haxe scripting support'
