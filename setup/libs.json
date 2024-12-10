@@ -25,7 +25,7 @@
 
 	{
 		"name": "rulescript", "version": "git", "url": "https://github.com/Kriptel/RuleScript",
-		"branch": "custom-classes", "optional": true, "description": "include haxe scripting support"
+		"optional": true, "description": "include haxe scripting support"
 	},
 	{
 		"name": "linc_luajit", "version": "git", "url": "https://github.com/superpowers04/linc_luajit",
