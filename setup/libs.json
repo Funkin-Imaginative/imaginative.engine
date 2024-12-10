@@ -3,11 +3,11 @@
 
 	{
 		"name": "flixel", "version": "git",
-		"url": "https://github.com/FNF-CNE-Devs/flixel"
+		"url": "https://github.com/CodenameCrew/cne-flixel"
 	},
 	{
 		"name": "flixel-addons", "version": "git",
-		"url": "https://github.com/FNF-CNE-Devs/flixel-addons"
+		"url": "https://github.com/CodenameCrew/cne-flixel-addons"
 	},
 
 	{

@@ -483,7 +483,6 @@ class PlayState extends BeatState {
 			}
 		}
 
-		scripts.set('chartData', chartData);
 		scripts.load();
 		scripts.call('create');
 
