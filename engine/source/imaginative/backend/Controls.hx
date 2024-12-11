@@ -2,13 +2,6 @@ package imaginative.backend;
 
 import flixel.input.keyboard.FlxKey;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef PressTypes = {
-	var pressed:Bool;
-	var held:Bool;
-	var released:Bool;
-}
-
 // TODO: Rewrite variable documentation and names for this class.
 /**
  * This class handles user controls. Without it, how would you do anything?
@@ -294,19 +287,6 @@ class Controls implements IFlxDestroyable {
 		return FlxG.keys.anyJustReleased(globalBinds[key]);
 
 	/**
-	 * [Description]
-	 * @param key The key name.
-	 * @return `PressTypes`
-	 */
-	inline public function globalKeyPress(key:String):PressTypes {
-		return {
-			pressed: globalPressed(key),
-			held: globalHeld(key),
-			released: globalReleased(key)
-		}
-	}
-
-	/**
 	 * The binds, these binds are per controls set.
 	 */
 	public var setBinds:Map<String, Array<FlxKey>>;
@@ -331,19 +311,6 @@ class Controls implements IFlxDestroyable {
 	 */
 	inline public function released(key:String):Bool
 		return FlxG.keys.anyJustReleased(setBinds[key]);
-
-	/**
-	 * [Description]
-	 * @param key The key name.
-	 * @return `PressTypes`
-	 */
-	inline public function keyPress(key:String):PressTypes {
-		return {
-			pressed: pressed(key),
-			held: held(key),
-			released: released(key)
-		}
-	}
 
 	inline public function new() {
 		setBinds = [

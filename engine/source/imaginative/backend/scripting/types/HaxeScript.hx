@@ -226,13 +226,7 @@ final class HaxeScript extends Script {
 
 		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 
-		try {
-			var content:String = Paths.getFileContent(file);
-			this.code = content.trim() == '' ? code : content;
-		} catch(error:haxe.Exception) {
-			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
-			this.code = '';
-		}
+		super.renderScript(file, code);
 	}
 	override function loadCodeString(code:String):Void {
 		try {
@@ -249,10 +243,19 @@ final class HaxeScript extends Script {
 		canRun = false;
 	}
 
-	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
+	/**
+	 * Load's code from string.
+	 * @param code The script code.
+	 * @param vars Variables to input into the haxe script instance.
+	 * @param funcToRun Function to run inside the haxe script instance.
+	 * @param funcArgs Arguments to run for said function.
+	 * @return `HaxeScript` ~ The haxe script instance from string.
+	 */
+	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
 		var script:HaxeScript = new HaxeScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
+		script.load();
 		script.call(funcToRun, funcArgs ?? []);
 		return script;
 	}
@@ -304,10 +307,8 @@ final class HaxeScript extends Script {
 
 	override public function set(variable:String, value:Dynamic):Void
 		interp.variables.set(variable, value);
-	override public function get(variable:String, ?def:Dynamic):Dynamic {
-		var whatsGotten:Dynamic = interp.variables.get(variable);
-		return whatsGotten == null ? def : whatsGotten;
-	}
+	override public function get(variable:String, ?def:Dynamic):Dynamic
+		return interp.variables.get(variable) ?? def;
 	override public function call(func:String, ?args:Array<Dynamic>):Dynamic {
 		if (interp == null || !interp.variables.exists(func))
 			return null;
@@ -327,9 +328,9 @@ final class HaxeScript extends Script {
 	}
 
 	override public function destroy():Void {
-		super.destroy();
 		interp = null;
 		parser = null;
+		super.destroy();
 	}
 	#else
 	@:allow(imaginative.backend.scripting.Script.create)

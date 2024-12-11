@@ -100,7 +100,7 @@ class Note extends FlxSprite {
 		updateHitbox();
 	}
 
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		followStrum();
 	}

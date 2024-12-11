@@ -263,7 +263,7 @@ class PlayState extends BeatState {
 	//temp
 	var rating:BaseSprite;
 
-	override function create():Void {
+	override public function create():Void {
 		scripts = new ScriptGroup(direct = this);
 
 		bgColor = 0xFFBDBDBD;
@@ -557,46 +557,46 @@ class PlayState extends BeatState {
 		camGame.zoom = 0.9;
 	}
 
-	override function createPost():Void {
+	override public function createPost():Void {
 		super.createPost();
 		scripts.call('createPost');
 	}
 
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		super.update(elapsed);
 		scripts.call('updatePost', [elapsed]);
 	}
 
-	override function stepHit(curStep:Int):Void {
+	override public function stepHit(curStep:Int):Void {
 		super.stepHit(curStep);
 		scripts.call('stepHit', [curStep]);
 	}
-	override function beatHit(curBeat:Int):Void {
+	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 		scripts.call('beatHit', [curBeat]);
 	}
-	override function measureHit(curMeasure:Int):Void {
+	override public function measureHit(curMeasure:Int):Void {
 		super.measureHit(curMeasure);
 		scripts.call('measureHit', [curMeasure]);
 	}
 
-	override function draw():Void {
+	override public function draw():Void {
 		var event:ScriptEvent = scripts.event('draw', new ScriptEvent());
 		if (!event.prevented) super.draw();
 		scripts.event('drawPost', event);
 	}
 
-	override function onFocus():Void {
+	override public function onFocus():Void {
 		scripts.call('onFocus');
 		super.onFocus();
 	}
-	override function onFocusLost():Void {
+	override public function onFocusLost():Void {
 		scripts.call('onFocusLost');
 		super.onFocusLost();
 	}
 
-	override function destroy():Void {
+	override public function destroy():Void {
 		scripts.end();
 		direct = null;
 		super.destroy();
@@ -640,7 +640,7 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	@:noCompletion inline public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
+	inline public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
 		// chart parsing
 		var loadedChart:String = song;
 		var diff:String = difficulty;

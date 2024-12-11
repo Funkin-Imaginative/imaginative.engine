@@ -149,7 +149,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		return this;
 	}
 
-	override function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
+	override public function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
 		return cast super.makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
@@ -297,7 +297,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Loads the internal sprite scripts.
 	 * @param file The mod path.
 	 */
-	public function loadScript(file:ModPath):Void {
+	function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global'];
