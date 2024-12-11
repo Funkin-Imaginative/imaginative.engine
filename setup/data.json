@@ -28,8 +28,8 @@
 		},
 
 		{
-			"name": "hscript-improved", "version": "git", "branch": "custom-classes",
-			"url": "https://github.com/CodenameCrew/hscript-improved"
+			"name": "rulescript", "version": "git",
+			"url": "https://github.com/Kriptel/RuleScript"
 		},
 		{
 			"name": "linc_luajit", "version": "git",
@@ -47,7 +47,7 @@
 	],
 	"questions": [
 		{
-			"name": "hscript-improved",
+			"name": "rulescript",
 			"description": "include haxe scripting support"
 		},
 		{
