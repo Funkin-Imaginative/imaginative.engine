@@ -146,7 +146,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	override function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
-		return super.makeSolid(width, height, color, unique, key);
+		return cast super.makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
 	/**
