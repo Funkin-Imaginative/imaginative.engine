@@ -32,8 +32,8 @@
 			"url": "https://github.com/CodenameCrew/hscript-improved"
 		},
 		{
-			"name": "linc_luajit", "version": "git",
-			"url": "https://github.com/superpowers04/linc_luajit"
+			"name": "lscript", "version": "git",
+			"url": "https://github.com/SrtHero278/lscript"
 		},
 		{"name": "hxdiscord_rpc"},
 		{
@@ -51,7 +51,7 @@
 			"description": "include haxe scripting support"
 		},
 		{
-			"name": "linc_luajit",
+			"name": "lscript",
 			"description": "include lua scripting support"
 		},
 		{
