@@ -78,7 +78,7 @@ class Main extends Sprite {
 		#end
 
 		// If debug we cut to the chase.
-		addChild(new FlxGame(#if (!debug || (debug && release)) states.StartScreen #else states.TitleScreen #end, 60, 60, true));
+		addChild(new FlxGame(#if (!debug || (debug && release)) imaginative.states.StartScreen #else imaginative.states.TitleScreen #end, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		FlxSprite.defaultAntialiasing = true;
 
@@ -126,7 +126,7 @@ class Main extends Sprite {
 
 				if (Controls.shortcutState) {
 					log('Heading to the MainMenu...', SystemMessage);
-					BeatState.switchState(new states.menus.MainMenu());
+					BeatState.switchState(new imaginative.states.menus.MainMenu());
 					log('Successfully entered the MainMenu!', SystemMessage);
 				}
 

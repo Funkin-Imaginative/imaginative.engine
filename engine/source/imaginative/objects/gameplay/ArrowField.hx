@@ -1,11 +1,11 @@
 package imaginative.objects.gameplay;
 
+import imaginative.backend.scripting.events.objects.gameplay.FieldInputEvent;
 import imaginative.backend.scripting.events.objects.gameplay.NoteHitEvent;
 import imaginative.backend.scripting.events.objects.gameplay.NoteMissedEvent;
 import imaginative.backend.scripting.events.objects.gameplay.SustainHitEvent;
 import imaginative.backend.scripting.events.objects.gameplay.SustainMissedEvent;
 import imaginative.backend.scripting.events.objects.gameplay.VoidMissEvent;
-import imaginative.imaginative.backend.scripting.events.objects.gameplay.FieldInputEvent;
 import imaginative.states.editors.ChartEditor.ChartField;
 
 class ArrowField extends BeatGroup {

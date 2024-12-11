@@ -44,7 +44,7 @@ class TitleScreen extends BeatState {
 				camera.flash(FlxColor.WHITE, 1);
 				FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);
 				leaving = true;
-				BeatState.switchState(new states.menus.MainMenu());
+				BeatState.switchState(new imaginative.states.menus.MainMenu());
 			}
 			if (!skipped && played)
 				skipIntro();

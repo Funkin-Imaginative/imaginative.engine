@@ -17,7 +17,7 @@ class GlobalScript {
 			'event' => event,
 		];
 
-	@:allow(backend.system.Main.new)
+	@:allow(imaginative.backend.system.Main.new)
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.end();
