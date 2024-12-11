@@ -53,6 +53,10 @@ typedef AnimationMapping = {
 	 * Basically it's good for asymmetrical characters.
 	 */
 	@:default('') var flipName:String;
+	/**
+	 * Stores extra data that coders can use for cool stuff.
+	 */
+	var extra:Map<String, Dynamic>;
 }
 
 /**
@@ -206,7 +210,8 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 						anims.set(anim.name, {
 							offset: new Position(anim.offset.x, anim.offset.y),
 							swapName: anim.swapKey ?? '',
-							flipName: anim.flipKey ?? ''
+							flipName: anim.flipKey ?? '',
+							extra: new Map<String, Dynamic>()
 						});
 						if (i == 0) {
 							playAnim(anim.name);
@@ -406,9 +411,9 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 			if (anims.exists(name))
 				data = anims.get(name);
 			else
-				data = {offset: new Position(), swapName: '', flipName: ''}
+				data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		else
-			data = {offset: new Position(), swapName: '', flipName: ''}
+			data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		return data;
 	}
 	/**
