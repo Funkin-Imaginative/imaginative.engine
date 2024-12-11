@@ -1,6 +1,8 @@
 package objects.gameplay;
 
-class Strum extends FlxSprite {
+import backend.objects.SelfContainedSprite;
+
+class Strum extends SelfContainedSprite {
 	// Cool variables.
 	/**
 	 * Custom update function.

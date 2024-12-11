@@ -1,6 +1,6 @@
 package objects;
 
-import flixel.addons.effects.FlxSkewedSprite;
+import backend.objects.SelfContainedSprite;
 
 /**
  * Tells you what a sprites current animation is supposed to mean.
@@ -58,7 +58,7 @@ typedef AnimationMapping = {
 /**
  * This class is a version of FlxSkewedSprite but with animation support among other things.
  */
-class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
+class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 	// Cool variables.
 	/**
 	 * Custom update function.

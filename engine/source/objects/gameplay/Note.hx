@@ -1,6 +1,8 @@
 package objects.gameplay;
 
-class Note extends FlxSprite {
+import backend.objects.SelfContainedSprite;
+
+class Note extends SelfContainedSprite {
 	// Cool variables.
 	/**
 	 * Custom update function.
