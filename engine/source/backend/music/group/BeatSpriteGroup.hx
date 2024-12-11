@@ -9,12 +9,6 @@ typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
  * This class is just `FlxTypedSpriteGroup` but with `IBeat` implementation.
  */
 class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {
-	override public function new(x:Float = 0, y:Float = 0, maxSize:Int = 0) {
-		super(x, y);
-		group.destroy();
-		group = new BeatTypedGroup<T>(maxSize);
-	}
-
 	/**
 	 * The current step.
 	 */
