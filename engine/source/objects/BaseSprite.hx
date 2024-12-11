@@ -145,16 +145,8 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 		return this;
 	}
 
-	@SuppressWarnings('checkstyle:FieldDocComment')
-	/**
-	 * Literally just so
-	 * ```haxe
-	 * var sprite:BaseSprite = new BaseSprite().makeSolid();
-	 * ```
-	 * would work.
-	 */
-	inline public function makeBox<T:BaseSprite>(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T
-		return cast makeSolid(width, height, color, unique, key);
+	override function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
+		return super.makeSolid(width, height, color, unique, key);
 
 	// Where the BaseSprite class really begins.
 	/**
