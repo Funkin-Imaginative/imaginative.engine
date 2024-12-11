@@ -28,11 +28,6 @@ class Note extends FlxSprite {
 
 	// Note specific variables.
 	/**
-	 * The base overall note width.
-	 */
-	public static var baseWidth(default, null):Float = 160 * 0.7;
-
-	/**
 	 * The strum lane index.
 	 */
 	public var id:Int;
@@ -118,7 +113,7 @@ class Note extends FlxSprite {
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
-		var scrollAngle:Float = 270;
+		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
 
 		var angleDir:Float = Math.PI / 180;
 		angleDir = scrollAngle * angleDir;

@@ -144,11 +144,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().makeBox(FlxG.width, 56);
+		weekTopBg = new BaseSprite().makeSolid(FlxG.width, 56);
 		weekTopBg.color = camera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).makeBox(FlxG.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 

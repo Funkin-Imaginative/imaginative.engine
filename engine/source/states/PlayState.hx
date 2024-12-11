@@ -445,9 +445,11 @@ class PlayState extends BeatState {
 			];
 			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
 			for (i => field in fields) {
-				var fieldWidth:Float = Note.baseWidth * 4;
 				// TODO: Get ArrowField positioning working!
-				field.setFieldPosition((FlxG.width / 2) - (fieldWidth / 2) + (fieldWidth * i) - (fieldWidth * ((order.length - 1) / 2)), (FlxG.height / 2) - (FlxG.height / 2.2));
+				field.y = (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1));
+				field.x = (FlxG.width / 2) - (field.strums.width / 2);
+				field.x += field.strums.width * i;
+				field.x -= (field.strums.width * ((fields.length - 1) / 2));
 				field.visible = true;
 			}
 		}
@@ -458,8 +460,8 @@ class PlayState extends BeatState {
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
 		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.setFieldPosition((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.2));
-		playerField.setFieldPosition((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - (FlxG.height / 2.2));
+		enemyField.setPosition((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP2.downscroll ? -1 : 1)));
+		playerField.setPosition((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)));
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
