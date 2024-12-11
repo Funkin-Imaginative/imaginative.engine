@@ -13,3 +13,31 @@ You could also just launch the bat or sh file in the setup folder.
 > ```
 > haxe --version
 > ```
+
+setup json example
+```json
+{
+	"dependencies": [
+		{
+			"name": "flixel", "version": "git",
+			"url": "https://github.com/CodenameCrew/cne-flixel",
+			// Forces the dependencies of the library. If it already has dependencies it skips them so it being blank just skips dependencies.
+			"dependencies": [{"name": "openfl"}, {"name": "lime"}]
+		},
+
+		{
+			"name": "moonchart", "version": "git", "branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/moonchart"
+		},
+
+		{"name": "hxWindowColorMode"}
+	],
+	// Anything listed here becomes optional.
+	"questions": [
+		{
+			"name": "hxWindowColorMode",
+			"description": "allow the window border color to be changed"
+		}
+	]
+}
+```
