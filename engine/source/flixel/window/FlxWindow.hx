@@ -171,7 +171,7 @@ class FlxWindow implements IFlxDestroyable {
 	 */
 	public var bounds:WindowBounds;
 
-	@:allow(backend.system.Main)
+	@:allow(imaginative.backend.system.Main)
 	inline static function init():Void {
 		FlxWindow.direct = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
 	}

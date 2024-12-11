@@ -41,6 +41,8 @@ import flixel.util.FlxTimer;
 import flixel.util.typeLimit.OneOfFour;
 import flixel.util.typeLimit.OneOfThree;
 import flixel.util.typeLimit.OneOfTwo;
+import flixel.window.FlxWindow;
+import flixel.window.WindowBounds;
 
 using flixel.util.FlxArrayUtil;
 using flixel.util.FlxBitmapDataUtil;
@@ -50,53 +52,51 @@ using flixel.util.FlxSpriteUtil;
 using flixel.util.FlxStringUtil;
 
 /* Engine */
-import backend.Console._log;
-import backend.Console.log;
-import backend.Console;
-import backend.Controls;
+import imaginative.backend.Console._log;
+import imaginative.backend.Console.log;
+import imaginative.backend.Console;
+import imaginative.backend.Controls;
 #if DISCORD_RICH_PRESENCE
-import backend.RichPresence;
+import imaginative.backend.RichPresence;
 #end
-import backend.configs.PlayConfig;
-import backend.interfaces.ITexture;
-import backend.music.Conductor;
-import backend.music.group.BeatGroup;
-import backend.music.group.BeatSpriteGroup;
-import backend.music.interfaces.IBeat;
-import backend.music.states.BeatState;
-import backend.music.states.BeatSubState;
-import backend.objects.Position;
-import backend.objects.TypeXY;
-import backend.scripting.Script;
-import backend.scripting.events.ScriptEvent;
-import backend.scripting.group.ScriptGroup;
-import backend.scripting.interfaces.IScript;
-import backend.scripting.types.GlobalScript;
-import backend.system.Main;
+import imaginative.backend.configs.PlayConfig;
+import imaginative.backend.interfaces.ITexture;
+import imaginative.backend.music.Conductor;
+import imaginative.backend.music.group.BeatGroup;
+import imaginative.backend.music.group.BeatSpriteGroup;
+import imaginative.backend.music.interfaces.IBeat;
+import imaginative.backend.music.states.BeatState;
+import imaginative.backend.music.states.BeatSubState;
+import imaginative.backend.objects.Position;
+import imaginative.backend.objects.TypeXY;
+import imaginative.backend.scripting.Script;
+import imaginative.backend.scripting.events.ScriptEvent;
+import imaginative.backend.scripting.group.ScriptGroup;
+import imaginative.backend.scripting.interfaces.IScript;
+import imaginative.backend.scripting.types.GlobalScript;
+import imaginative.backend.system.Main;
 #if MOD_SUPPORT
-import backend.system.Modding;
+import imaginative.backend.system.Modding;
 #end
-import backend.system.Paths;
-import backend.system.Settings;
-import flixel.window.FlxWindow;
-import flixel.window.WindowBounds;
-import objects.BaseSprite;
-import objects.BeatSprite;
-import objects.Character;
-import objects.gameplay.ArrowField;
-import objects.gameplay.Note;
-import objects.gameplay.Strum;
-import objects.gameplay.Sustain;
-import objects.holders.DifficultyHolder;
-import objects.holders.LevelHolder;
-import objects.ui.HealthIcon;
-import objects.ui.SpriteText;
-import states.PlayState;
-import utils.ParseUtil;
-import utils.PlatformUtil;
+import imaginative.backend.system.Paths;
+import imaginative.backend.system.Settings;
+import imaginative.objects.BaseSprite;
+import imaginative.objects.BeatSprite;
+import imaginative.objects.Character;
+import imaginative.objects.gameplay.ArrowField;
+import imaginative.objects.gameplay.Note;
+import imaginative.objects.gameplay.Strum;
+import imaginative.objects.gameplay.Sustain;
+import imaginative.objects.holders.DifficultyHolder;
+import imaginative.objects.holders.LevelHolder;
+import imaginative.objects.ui.HealthIcon;
+import imaginative.objects.ui.SpriteText;
+import imaginative.states.PlayState;
+import imaginative.utils.ParseUtil;
+import imaginative.utils.PlatformUtil;
 
-using utils.FunkinUtil;
-using utils.SpriteUtil;
+using imaginative.utils.FunkinUtil;
+using imaginative.utils.SpriteUtil;
 
 /* Libs */
 #if ALLOW_VIDEOS
