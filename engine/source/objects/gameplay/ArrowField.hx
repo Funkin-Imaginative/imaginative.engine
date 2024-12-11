@@ -81,7 +81,7 @@ class ArrowField extends BeatGroup {
 	 */
 	public var onNoteHit(default, null):FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
 	/**
-	 * Dispatches when a note is hit.
+	 * Dispatches when a sustain is hit.
 	 */
 	public var onSustainHit(default, null):FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
 	/**
@@ -89,15 +89,15 @@ class ArrowField extends BeatGroup {
 	 */
 	public var onNoteMissed(default, null):FlxTypedSignal<NoteMissedEvent->Void> = new FlxTypedSignal<NoteMissedEvent->Void>();
 	/**
-	 * Dispatches when a note is missed.
+	 * Dispatches when a sustain is missed.
 	 */
 	public var onSustainMissed(default, null):FlxTypedSignal<SustainMissedEvent->Void> = new FlxTypedSignal<SustainMissedEvent->Void>();
 	/**
-	 * Dispatches when a note is missed.
+	 * Dispatches when you tap without hitting a note.
 	 */
 	public var onVoidMiss(default, null):FlxTypedSignal<VoidMissEvent->Void> = new FlxTypedSignal<VoidMissEvent->Void>();
 	/**
-	 * Dispatches when a note is missed.
+	 * Dispatches when user input happens at all.
 	 */
 	public var userInput(default, null):FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
 
