@@ -216,7 +216,7 @@ final class LuaScript extends Script {
 	#else
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		log('Lua scripting isn\'t supported in this build.', SystemMessage);
+		log(#if linux 'LScript doesn\'t compile on linux for some reason.' #else 'Lua scripting isn\'t supported in this build.' #end, SystemMessage);
 		super(file, null);
 	}
 	#end
