@@ -71,9 +71,17 @@ class ArrowField extends BeatGroup {
 	 * If true, this field is maintained by a player.
 	 */
 	public var isPlayer(get, never):Bool;
-	inline function get_isPlayer():Bool {
+	inline function get_isPlayer():Bool
 		return status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay;
-	}
+
+	public var controls(get, never):Null<Controls>;
+	inline function get_controls():Null<Controls>
+		if (status == null) return Controls.blank;
+		else return status == PlayConfig.enemyPlay ? Controls.p2 : Controls.p1;
+	public var settings(get, never):Null<PlayerSettings>;
+	inline function get_settings():Null<PlayerSettings>
+		if (status == null) return Settings.setupP1;
+		else return status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1;
 
 	// signals
 	/**
@@ -110,7 +118,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):BeatTypedGroup<Strum> = new BeatTypedGroup<Strum>();
+	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
 	/**
 	 * The notes of the field.
 	 */
@@ -121,6 +129,7 @@ class ArrowField extends BeatGroup {
 	public var sustains(default, null):BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
 
 	public var noteKillRange:Float = 350;
+	public var strumSpacing:Float = -45;
 
 	/**
 	 * The amount of strums in the field.
@@ -130,13 +139,18 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
-	override public function new(mania:Int = 4, ?singers:Array<Character>) {
+	override public function new(?singers:Array<Character>, mania:Int = 4) {
 		strumCount = mania;
 		super();
 
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
-		setFieldPosition(FlxG.width / 2, FlxG.height / 2);
+
+		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
+		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
+
+		resetInternalPositions();
+		setPosition(FlxG.width / 2, FlxG.height / 2);
 
 		if (singers != null)
 			assignedActors = singers;
@@ -147,8 +161,6 @@ class ArrowField extends BeatGroup {
 	}
 
 	inline function _input():Void {
-		var isP2:Bool = status == PlayConfig.enemyPlay;
-		var controls:Controls = isP2 ? Controls.p2 : Controls.p1;
 		for (i => strum in strums.members)
 			input(
 				i,
@@ -174,7 +186,7 @@ class ArrowField extends BeatGroup {
 					controls.noteRightReleased
 				]
 				[i],
-				isP2 ? Settings.setupP2 : Settings.setupP1
+				settings
 			);
 	}
 
@@ -238,6 +250,7 @@ class ArrowField extends BeatGroup {
 	}
 
 	override function update(elapsed:Float):Void {
+		// Hopefully the on update method is temporary until I can find a better way. As on input was giving some issues.
 		if (isPlayer)
 			_input();
 
@@ -330,18 +343,51 @@ class ArrowField extends BeatGroup {
 		}
 	}
 
-	/**
-	 * Set's the position of the strums.
-	 * @param x The x position.
-	 * @param y The y position.
-	 */
-	public function setFieldPosition(x:Float = 0, y:Float = 0):Void {
+	public var totalWidth(default, null):Float;
+	public function resetInternalPositions():Void {
+		inline function helper(a:Strum, b:Strum):Void
+			if (a != null && b != null)
+				b.x = a.x + a.width + strumSpacing;
+
 		for (i => strum in strums.members) {
-			strum.setPosition(x - (Note.baseWidth / 2), y);
-			strum.x += Note.baseWidth * i;
-			strum.x -= (Note.baseWidth * ((strumCount - 1) / 2));
-			// if (SaveManager.getOption('strumShift')) strum.x -= Note.baseWidth / 2.4;
+			strum.y = -strum.height / 2;
+			helper(strum, strums.members[i + 1]);
 		}
+
+		totalWidth = 0; // reset width
+		for (i => strum in strums.members)
+			totalWidth += strum.width;
+
+		totalWidth += strumSpacing * (strumCount - 1);
+		for (strum in strums)
+			strum.x -= totalWidth / 2;
+	}
+
+	/**
+	 * The center x position of the field.
+	 */
+	@:isVar public var x(get, set):Float = 0;
+	inline function get_x():Float
+		return strums.x;
+	inline function set_x(value:Float):Float
+		return strums.x = value;
+	/**
+	 * The center y position of the field.
+	 */
+	@:isVar public var y(get, set):Float = 0;
+	inline function get_y():Float
+		return strums.y;
+	inline function set_y(value:Float):Float
+		return strums.y = value;
+
+	/**
+	 * Set's the center position of the strum group.
+	 * @param x The center x position.
+	 * @param y The center y position.
+	 */
+	inline public function setPosition(x:Float = 0, y:Float = 0):Void {
+		this.x = x;
+		this.y = y;
 	}
 
 	/**

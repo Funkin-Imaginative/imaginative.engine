@@ -31,7 +31,7 @@ class Main {
 	static var optionalCheck:Map<String, Bool> = new Map<String, Bool>();
 	static var questDesc:Map<String, String> = new Map<String, String>();
 
-	static var dashes:String = '-------------------------------------------------------------------------------';
+	inline static var dashes:String = '-------------------------------------------------------------------------------';
 
 	public static function main():Void {
 		// arguments

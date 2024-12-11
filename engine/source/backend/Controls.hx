@@ -23,6 +23,11 @@ class Controls implements IFlxDestroyable {
 	 */
 	public static var p2(default, null):Controls = new Controls();
 
+	/**
+	 * Used for arrow field's when it's not maintained by a player.
+	 */
+	public static var blank(default, null):Controls = new Controls();
+
 	// UI //
 	/**
 	 * When you press left to move through ui elements

@@ -25,7 +25,7 @@ enum abstract FpsType(String) from String to String {
 /**
  * The main settings for the engine.
  */
-@:structInit class MainSettings {
+class MainSettings {
 	#if MOD_SUPPORT
 	/**
 	 * If true, this is like enabling soloOnlyMode in Modding.
@@ -105,12 +105,14 @@ enum abstract FpsType(String) from String to String {
 	 * If true, logs with the `Warning` level won't show up.
 	 */
 	public var ignoreLogWarnings:Bool = true;
+
+	@:allow(backend.system.Settings) function new() {}
 }
 
 /**
  * The settings for each player.
  */
-@:structInit class PlayerSettings {
+class PlayerSettings {
 	/**
 	 * If true, the strums will be at the bottom of the screen instead of the top.
 	 */
@@ -123,7 +125,7 @@ enum abstract FpsType(String) from String to String {
 	/**
 	 * Basically, do you wish for the characters to repeat their sing anim every time they hit a sustain note?
 	 */
-	public var beatLoop:Bool = true;
+	public var stepJitter:Bool = true;
 	/**
 	 * If true, press shit all you fucking want asshole.
 	 */
@@ -158,6 +160,8 @@ enum abstract FpsType(String) from String to String {
 	 * If true, missing a note or sustain piece will make you miss that entire note. Otherwise you can miss each note piece.
 	 */
 	public var missFullSustain:Bool = true;
+
+	@:allow(backend.system.Settings) function new() {}
 }
 
 /**
@@ -167,33 +171,33 @@ class Settings {
 	/**
 	 * The current settings.
 	 */
-	public static var setup(default, set):MainSettings = {}
+	public static var setup(default, set):MainSettings = new MainSettings();
 	inline static function set_setup(value:MainSettings):MainSettings
 		return setup = value;
 	/**
 	 * Default settings.
 	 */
-	public static var defaults(default, null):MainSettings = {}
+	public static var defaults(default, null):MainSettings = new MainSettings();
 
 	/**
 	 * Player 1's settings!
 	 */
-	public static var setupP1(default, set):PlayerSettings = {}
+	public static var setupP1(default, set):PlayerSettings = new PlayerSettings();
 	inline static function set_setupP1(value:PlayerSettings):PlayerSettings
 		return setupP1 = value;
 	/**
 	 * Default player 1 settings.
 	 */
-	public static var defaultsP1(default, null):PlayerSettings = {}
+	public static var defaultsP1(default, null):PlayerSettings = new PlayerSettings();
 
 	/**
 	 * Player 2's settings!
 	 */
-	public static var setupP2(default, set):PlayerSettings = {}
+	public static var setupP2(default, set):PlayerSettings = new PlayerSettings();
 	inline static function set_setupP2(value:PlayerSettings):PlayerSettings
 		return setupP2 = value;
 	/**
 	 * Default player settings.
 	 */
-	public static var defaultsP2(default, null):PlayerSettings = {}
+	public static var defaultsP2(default, null):PlayerSettings = new PlayerSettings();
 }
