@@ -17,8 +17,8 @@ final class HaxeScript extends Script {
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
-	var rulescript:RuleScript = new RuleScript();
-	var expr:Expr;
+	var rulescript(default, null):RuleScript = new RuleScript();
+	var expr(default, null):Expr;
 	var interp(get, never):RuleScriptInterp;
 	inline function get_interp():RuleScriptInterp
 		return rulescript.interp;
@@ -263,6 +263,11 @@ final class HaxeScript extends Script {
 	override public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		event.returnCall = call(func, [event]);
 		return event;
+	}
+
+	override public function destroy():Void {
+		rulescript = null;
+		super.destroy();
 	}
 	#else
 	@:allow(backend.scripting.Script.create)
