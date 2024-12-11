@@ -54,7 +54,7 @@ class EngineAsset {
 	/**
 	 * The class path to the preloader class.
 	 */
-	static final preloaderClassPath:String = 'backend.system.Preloader';
+	static final preloaderClassPath:String = 'imaginative.backend.system.Preloader';
 	/**
 	 * The package name.
 	 */
@@ -62,7 +62,7 @@ class EngineAsset {
 	/**
 	 * The class path to the main class.
 	 */
-	static final mainClassPath:String = 'backend.system.Main';
+	static final mainClassPath:String = 'imaginative.backend.system.Main';
 	/**
 	 * The company name.
 	 */
