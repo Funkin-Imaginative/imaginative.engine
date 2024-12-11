@@ -7,3 +7,4 @@ vscode-project.hxml
 # unnecessary folders
 .haxelib/
 export/
+dumb/
