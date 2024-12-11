@@ -1,10 +1,10 @@
-package backend.macro;
+package imaginative.backend.macro;
 
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
 #end
-import backend.objects.SelfContainedSprite;
+import imaginative.backend.objects.SelfContainedSprite;
 
 #if DISABLE_DCE @:keep #end class SelfContainedMacro {
 	public static function findByName(fields:Array<Field>, name:String):Null<Field> {
