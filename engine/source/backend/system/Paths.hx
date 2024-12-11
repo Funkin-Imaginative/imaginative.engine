@@ -10,7 +10,7 @@ import openfl.utils.Assets;
 /**
  * Used to help ModPath abstract.
  */
-enum abstract ModType(String) {
+@:runtimeValue enum abstract ModType(String) {
 	// Base Paths
 	/**
 	 * Main Mod.
@@ -176,7 +176,7 @@ enum abstract ModType(String) {
 /**
  * Used for getting the paths of many files within the engine!
  */
-abstract ModPath(String) {
+@:runtimeValue abstract ModPath(String) {
 	/**
 	 * States if the path is invalid.
 	 */
