@@ -1,6 +1,6 @@
 package imaginative.objects;
 
-import backend.objects.SelfContainedSprite;
+import imaginative.backend.objects.SelfContainedSprite;
 
 /**
  * Tells you what a sprites current animation is supposed to mean.

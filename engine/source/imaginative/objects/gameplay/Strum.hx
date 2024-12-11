@@ -1,6 +1,6 @@
 package imaginative.objects.gameplay;
 
-import backend.objects.SelfContainedSprite;
+import imaginative.backend.objects.SelfContainedSprite;
 
 class Strum extends SelfContainedSprite {
 	// Cool variables.
