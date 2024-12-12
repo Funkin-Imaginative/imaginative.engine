@@ -2,7 +2,7 @@
 	"configurations": [
 		{
 			"name": "Main",
-			"preLaunchTask": "Check Libraries (Detect Globality)",
+			"preLaunchTask": "Compile Debug",
 			"request": "launch",
 			"type": "lime"
 		}
