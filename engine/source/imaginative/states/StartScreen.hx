@@ -12,7 +12,7 @@ class StartScreen extends BeatState {
 	var welcomeText:FlxText;
 	var warnText:FlxText;
 
-	override function create():Void {
+	override public function create():Void {
 		super.create();
 		if (!conductor.audio.playing)
 			conductor.loadMusic('lunchbox', 0, (sound:FlxSound) -> sound.fadeIn(4, 0.7));
@@ -47,7 +47,7 @@ class StartScreen extends BeatState {
 		add(warnText);
 	}
 
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
 			canSelect = false;

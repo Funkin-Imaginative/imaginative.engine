@@ -85,7 +85,7 @@ class RichPresence {
 		Discord.Shutdown();
 	}
 
-	private static function onReady(request:cpp.RawConstPointer<DiscordUser>):Void {
+	static function onReady(request:cpp.RawConstPointer<DiscordUser>):Void {
 		var name:String = request[0].username;
 		var globalName:String = request[0].username;
 		var discrim:Int = Std.parseInt(request[0].discriminator);
@@ -93,14 +93,14 @@ class RichPresence {
 		changePresence(null);
 	}
 
-	inline private static function onDisconnect(code:Int, message:cpp.ConstCharStar):Void {
+	inline static function onDisconnect(code:Int, message:cpp.ConstCharStar):Void {
 		_log('RichPresence disconnected. | ($code:$message)');
 	}
-	inline private static function onError(code:Int, message:cpp.ConstCharStar):Void {
+	inline static function onError(code:Int, message:cpp.ConstCharStar):Void {
 		_log('An error has occurred. | ($code:$message)');
 	}
 
-	inline private static function updatePresence():Void
+	inline static function updatePresence():Void
 		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(direct));
 }
 #end

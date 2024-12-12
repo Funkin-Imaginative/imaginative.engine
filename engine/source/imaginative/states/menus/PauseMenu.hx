@@ -17,7 +17,7 @@ class PauseMenu extends BeatSubState {
 		super();
 	}
 
-	override function create():Void {
+	override public function create():Void {
 		script = Script.create(scriptPath, false)[0];
 		super.create();
 	}

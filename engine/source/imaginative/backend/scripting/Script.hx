@@ -146,7 +146,15 @@ class Script extends FlxBasic implements IScript {
 	}
 
 	var code:String = '';
-	function renderScript(file:ModPath, ?code:String):Void {}
+	function renderScript(file:ModPath, ?code:String):Void {
+		try {
+			var content:String = Paths.getFileContent(file);
+			this.code = content.trim() == '' ? code : content;
+		} catch(error:haxe.Exception) {
+			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
+			this.code = '';
+		}
+	}
 	function loadCodeString(code:String):Void {}
 
 	/**
@@ -157,7 +165,8 @@ class Script extends FlxBasic implements IScript {
 	 * @param funcArgs Arguments to run for said function.
 	 * @return `Script` ~ The script instance from string.
 	 */
-	public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script return this;
+	/* public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script
+		return this; */
 
 	/**
 	 * States if the script has loaded.
@@ -179,8 +188,10 @@ class Script extends FlxBasic implements IScript {
 	 * The parent object that the script is tied to.
 	 */
 	public var parent(get, set):Dynamic;
-	function get_parent():Dynamic return null;
-	function set_parent(value:Dynamic):Dynamic return value = null;
+	function get_parent():Dynamic
+		return null;
+	function set_parent(value:Dynamic):Dynamic
+		return value = null;
 
 	/**
 	 * Set's the public map for getting global variables.
@@ -200,21 +211,24 @@ class Script extends FlxBasic implements IScript {
 	 * @param def If it's null then return this.
 	 * @return `Dynamic` ~ The value the variable will hold.
 	 */
-	public function get(variable:String, ?def:Dynamic):Dynamic return def;
+	public function get(variable:String, ?def:Dynamic):Dynamic
+		return def;
 	/**
 	 * Call's a function in the script instance.
 	 * @param func Name of the function to call.
 	 * @param args Arguments of said function.
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
-	public function call(func:String, ?args:Array<Dynamic>):Dynamic return null;
+	public function call(func:String, ?args:Array<Dynamic>):Dynamic
+		return null;
 	/**
 	 * Call's a function in the script instance and triggers an event.
 	 * @param func Name of the function to call.
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
-	public function event<SC:ScriptEvent>(func:String, event:SC):SC return event;
+	public function event<SC:ScriptEvent>(func:String, event:SC):SC
+		return event;
 
 	/**
 	 * End's the script.
