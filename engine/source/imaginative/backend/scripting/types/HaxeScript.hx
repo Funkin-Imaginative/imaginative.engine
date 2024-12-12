@@ -174,13 +174,7 @@ final class HaxeScript extends Script {
 	override function renderScript(file:ModPath, ?code:String):Void {
 		parser.allowAll();
 
-		try {
-			var content:String = Paths.getFileContent(file);
-			this.code = content.trim() == '' ? code : content;
-		} catch(error:haxe.Exception) {
-			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
-			this.code = '';
-		}
+		super.renderScript(file, code);
 	}
 	override function loadCodeString(code:String):Void {
 		try {
@@ -194,10 +188,19 @@ final class HaxeScript extends Script {
 		canRun = false;
 	}
 
-	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
+	/**
+	 * Load's code from string.
+	 * @param code The script code.
+	 * @param vars Variables to input into the haxe script instance.
+	 * @param funcToRun Function to run inside the haxe script instance.
+	 * @param funcArgs Arguments to run for said function.
+	 * @return `HaxeScript` ~ The haxe script instance from string.
+	 */
+	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
 		var script:HaxeScript = new HaxeScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
+		script.load();
 		script.call(funcToRun, funcArgs ?? []);
 		return script;
 	}

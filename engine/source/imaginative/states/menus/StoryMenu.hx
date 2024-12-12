@@ -223,7 +223,9 @@ class StoryMenu extends BeatState {
 		camera.snapToTarget();
 	}
 
-	function hoverIsCorrect(item:LevelHolder):Bool return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
+	function hoverIsCorrect(item:LevelHolder):Bool {
+		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && (FlxG.mouse.overlaps(item.sprite) || (item.isLocked && FlxG.mouse.overlaps(item.lock)));
+	}
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
