@@ -144,21 +144,15 @@ final class LuaScript extends Script {
 		super(file, code);
 
 	override function renderScript(file:ModPath, ?code:String):Void {
-		try {
-			var content:String = Paths.getFileContent(file);
-			this.code = content.trim() == '' ? code : content;
-		} catch(error:haxe.Exception) {
-			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
-			this.code = '';
-		}
+		super.renderScript(file, code);
 		lscript = new LScript(this.code);
 	}
 
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadCodeString(code:String):Void {
 		try {
-			// for (name => thing in getScriptImports(this))
-			// 	set(name, thing);
+			for (name => thing in getScriptImports(this))
+				set(name, thing);
 			canRun = true;
 			return;
 		} catch(error:haxe.Exception)
@@ -166,12 +160,20 @@ final class LuaScript extends Script {
 		canRun = false;
 	}
 
-	override public function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):LuaScript {
+	/**
+	 * Load's code from string.
+	 * @param code The script code.
+	 * @param vars Variables to input into the lua script instance.
+	 * @param funcToRun Function to run inside the lua script instance.
+	 * @param funcArgs Arguments to run for said function.
+	 * @return `LuaScript` ~ The lua script instance from string.
+	 */
+	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):LuaScript {
 		var script:LuaScript = new LuaScript('', code);
 		for (name => thing in vars)
 			script.set(name, thing);
-		script.call(funcToRun, funcArgs ?? []);
 		script.load();
+		script.call(funcToRun, funcArgs ?? []);
 		return script;
 	}
 
