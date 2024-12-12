@@ -290,7 +290,6 @@ class EngineAsset {
 
 		// related to flixel cne fork
 		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
-		addHaxeMacro('addGlobalMetadata("flixel.group.FlxGroup.FlxTypedGroup", "@:build(imaginative.backend.macro.SelfContainedMacro.makeItWork())", false)');
 
 		// truly push assets
 		var defineEmbed:Bool = false;

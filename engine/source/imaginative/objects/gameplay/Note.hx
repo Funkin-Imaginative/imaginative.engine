@@ -1,8 +1,8 @@
 package imaginative.objects.gameplay;
 
-import imaginative.backend.objects.SelfContainedSprite;
+// import imaginative.backend.objects.SelfContainedSprite;
 
-class Note extends SelfContainedSprite {
+class Note extends FlxSprite {
 	// Cool variables.
 	/**
 	 * Custom update function.
