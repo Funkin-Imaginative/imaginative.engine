@@ -15,7 +15,7 @@ You could also just launch the bat or sh file in the setup folder.
 > ```
 
 setup json example
-```json
+```jsonc
 {
 	"dependencies": [
 		{
