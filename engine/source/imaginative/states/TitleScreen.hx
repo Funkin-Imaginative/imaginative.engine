@@ -11,7 +11,7 @@ class TitleScreen extends BeatState {
 	var titleText:BaseSprite;
 	var ngLogo:BaseSprite;
 
-	override function create():Void {
+	override public function create():Void {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
 			if (!conductor.audio.playing)
@@ -35,7 +35,7 @@ class TitleScreen extends BeatState {
 		});
 	}
 
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		if (Controls.accept || FlxG.mouse.justPressed) {
 			if (!leaving && skipped) {
 				titleText.playAnim('press');
@@ -53,7 +53,7 @@ class TitleScreen extends BeatState {
 		super.update(elapsed);
 	}
 
-	override function beatHit(curBeat:Int):Void {
+	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 
 		if (!started)

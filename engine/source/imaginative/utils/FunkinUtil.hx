@@ -16,16 +16,6 @@ enum abstract MenuSFX(String) from String to String {
 	 * Scroll sound effect.
 	 */
 	var ScrollSFX = 'scroll';
-
-	/**
-	 * Play's a menu sound effect.
-	 * @param volume The volume
-	 * @param subFolder Sub folder path/name.
-	 * @param onComplete FlxG.sound.play's onComplete function.
-	 * @return `FlxSound` ~ The menu sound.
-	 */
-	public function playSFX(volume:Float = 1, ?subFolder:String, ?onComplete:Void->Void):FlxSound
-		return FunkinUtil.playMenuSFX(this, volume, subFolder, onComplete);
 }
 
 /**

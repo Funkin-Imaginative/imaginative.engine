@@ -37,7 +37,7 @@ interface IScript {
 	 * @param funcArgs Arguments to run for said function.
 	 * @return `Script` ~ The script instance from string.
 	 */
-	function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script;
+	// function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script;
 
 	/**
 	 * States if the script has loaded.

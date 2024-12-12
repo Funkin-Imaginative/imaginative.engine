@@ -249,7 +249,7 @@ class ArrowField extends BeatGroup {
 			strum.playAnim('static');
 	}
 
-	override function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		// Hopefully the on update method is temporary until I can find a better way. As on input was giving some issues.
 		if (isPlayer)
 			_input();
