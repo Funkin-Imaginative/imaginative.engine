@@ -73,7 +73,7 @@ class TitleScreen extends BeatState {
 				l.visible = false;
 
 		ngLogo = new BaseSprite('menus/title/newgrounds');
-		ngLogo.scale.set(0.8, 0.8);
+		ngLogo.scale.scale(0.8);
 		ngLogo.updateHitbox();
 		ngLogo.screenCenter(X);
 		ngLogo.visible = false;

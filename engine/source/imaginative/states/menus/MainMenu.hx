@@ -58,7 +58,7 @@ class MainMenu extends BeatState {
 		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
 		bgColor = bg.color;
 		bg.scrollFactor.set(0.1, 0.1);
-		bg.scale.set(1.2, 1.2);
+		bg.scale.scale(1.2);
 		bg.updateHitbox();
 		bg.screenCenter();
 		add(bg);

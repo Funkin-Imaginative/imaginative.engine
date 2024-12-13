@@ -92,7 +92,7 @@ class StoryMenu extends BeatState {
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
 			var diff:DifficultyHolder = new DifficultyHolder(name, true);
-			diff.sprite.scale.set(0.85, 0.85);
+			diff.sprite.scale.scale(0.85);
 			diff.sprite.updateHitbox();
 			diff.refreshAnim();
 			diff.sprite.screenCenter();
@@ -127,7 +127,7 @@ class StoryMenu extends BeatState {
 				}
 			}
 
-			arrow.scale.set(0.85, 0.85);
+			arrow.scale.scale(0.85);
 			arrow.updateHitbox();
 
 			arrow.animation.play('idle', true);
