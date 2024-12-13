@@ -143,6 +143,8 @@ class EngineAsset {
 
 		setDefine('official'); // idk how I'm gonna handle this atm
 
+		addIcon('extras/art/logo.png');
+
 		/* Define Setup */
 		knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
