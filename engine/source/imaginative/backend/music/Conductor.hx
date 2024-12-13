@@ -241,7 +241,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Current position of the song in milliseconds.
 	 */
-	public var songPosition(default, null):Float;
+	public var songPosition:Float;
 	/**
 	 * Previous songPosition.
 	 */
@@ -259,7 +259,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Array of all the BPM changes that will occur.
 	 */
-	public var bpmChanges:Array<BPMChange> = [];
+	public var bpmChanges(default, null):Array<BPMChange> = [];
 
 	public function new() {
 		conductorSoundGroup = new FlxSoundGroup();
@@ -278,42 +278,66 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	inline function destroySound(sound:FlxSound):Void {
-		if (sound.group != null && sound.group.sounds.contains(sound))
-			sound.group.remove(sound);
+		if (sound.group != null)
+			if (conductorSoundGroup.sounds.contains(sound))
+				conductorSoundGroup.remove(sound);
+			else if (sound.group.sounds.contains(sound))
+				sound.group.remove(sound);
 		sound.destroy();
 	}
 
 	/**
-	 * Play's conductor audio.
+	 * States if the conductor audio is playing or not.
 	 */
-	inline public function play():Void
+	public var playing(default, null):Bool = false;
+
+	/**
+	 * Play's the conductor audio.
+	 */
+	inline public function play(startTime:Float = 0, ?endTime:Float):Void {
+		if (playing) return;
 		for (sound in conductorSoundGroup.sounds)
 			sound.play();
+		playing = true;
+	}
 
 	/**
-	 * Pause's conductor audio.
+	 * Pause's the conductor audio.
 	 */
-	inline public function pause():Void
+	inline public function pause():Void {
+		if (!playing) return;
 		conductorSoundGroup.pause();
+		playing = false;
+	}
 
 	/**
-	 * Resume's conductor audio.
+	 * Resume's the conductor audio.
 	 */
-	inline public function resume():Void
+	inline public function resume():Void {
+		if (playing) return;
 		conductorSoundGroup.resume();
+		playing = true;
+	}
 
 	/**
-	 * Stop's conductor audio.
+	 * Stop's the conductor audio.
 	 */
-	inline public function stop():Void
+	inline public function stop():Void {
+		if (!playing) return;
 		for (sound in conductorSoundGroup.sounds)
 			sound.stop();
+		playing = false;
+	}
 
 	/**
-	 * Reset's conductor.
+	 * Reset's the conductor.
 	 */
 	inline public function reset():Void {
-		stop();
+		// not using the stop function since the conductor might not be playing when it's told to be reset
+		for (sound in conductorSoundGroup.sounds)
+			sound.stop();
+		playing = false;
+
 		for (sound in extra)
 			destroySound(sound);
 		extra = [];
@@ -445,7 +469,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					name: 'None',
 					bpm: 100,
 					signature: [4, 4],
-					checkpoints: []
+					checkpoints: [],
+					offset: 0
 				}
 			}
 			return content;
