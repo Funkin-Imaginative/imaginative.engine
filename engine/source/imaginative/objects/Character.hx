@@ -147,16 +147,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	override public function tryDance(force:Bool = false):Void {
 		switch (force ? IsDancing : animContext) {
 			case IsSinging | HasMissed:
-				if (controls == null) {
-					if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
-						dance();
-				} else {
-					var released:Bool = controls.noteLeftReleased || controls.noteDownReleased || controls.noteUpReleased || controls.noteRightReleased;
-					if ((singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))) {
-						if (!released) return;
-						dance();
-						finishAnim();
-					}
+				if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished())) {
+					if (controls != null)
+						if (controls.noteLeftHeld || controls.noteDownHeld || controls.noteUpHeld || controls.noteRightHeld)
+							return;
+					dance();
 				}
 			default:
 				super.tryDance(force);
