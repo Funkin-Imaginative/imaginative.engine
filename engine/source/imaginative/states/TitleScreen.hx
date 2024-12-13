@@ -14,8 +14,8 @@ class TitleScreen extends BeatState {
 	override public function create():Void {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
-			if (!conductor.audio.playing)
-				conductor.loadMusic('freakyMenu', 0, (sound:FlxSound) -> sound.fadeIn(4, 0, 0.7));
+			if (!conductor.playing)
+				conductor.loadMusic('freakyMenu', 0, (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
 			add(logo);

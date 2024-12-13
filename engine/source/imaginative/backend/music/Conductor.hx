@@ -165,6 +165,28 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var extra(default, null):Array<FlxSound> = [];
 
+	/**
+	 * States if the conductor should update the songPosition itself.
+	 * Mostly used for when the song time is under or above the audio time length.
+	 */
+	public var autoSetTime(get, never):Bool;
+	inline function get_autoSetTime():Bool
+		return songPosition < 0 || songPosition > audio.length;
+
+	/**
+	 * States if the conductor audio is playing or not.
+	 */
+	public var playing(default, null):Bool = false;
+
+	/**
+	 * The conductor's volume level.
+	 */
+	public var volume(get, set):Float;
+	inline function get_volume():Float
+		return conductorSoundGroup.volume;
+	inline function set_volume(value:Float):Float
+		return conductorSoundGroup.volume = value;
+
 	// BPM's.
 	/**
 	 * Starting BPM.
@@ -241,7 +263,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Current position of the song in milliseconds.
 	 */
-	public var songPosition:Float;
+	public var songPosition(default, null):Float = 0;
 	/**
 	 * Previous songPosition.
 	 */
@@ -287,17 +309,14 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * States if the conductor audio is playing or not.
-	 */
-	public var playing(default, null):Bool = false;
-
-	/**
 	 * Play's the conductor audio.
+	 * @param startTime The song starting time.
 	 */
-	inline public function play(startTime:Float = 0, ?endTime:Float):Void {
-		if (playing) return;
-		for (sound in conductorSoundGroup.sounds)
-			sound.play();
+	inline public function play(startTime:Float = 0):Void {
+		songPosition = startTime;
+		if (!autoSetTime)
+			for (sound in conductorSoundGroup.sounds)
+				sound.play(startTime);
 		playing = true;
 	}
 
@@ -305,7 +324,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Pause's the conductor audio.
 	 */
 	inline public function pause():Void {
-		if (!playing) return;
 		conductorSoundGroup.pause();
 		playing = false;
 	}
@@ -314,8 +332,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Resume's the conductor audio.
 	 */
 	inline public function resume():Void {
-		if (playing) return;
-		conductorSoundGroup.resume();
+		if (!autoSetTime)
+			conductorSoundGroup.resume();
 		playing = true;
 	}
 
@@ -323,7 +341,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Stop's the conductor audio.
 	 */
 	inline public function stop():Void {
-		if (!playing) return;
 		for (sound in conductorSoundGroup.sounds)
 			sound.stop();
 		playing = false;
@@ -333,11 +350,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Reset's the conductor.
 	 */
 	inline public function reset():Void {
-		// not using the stop function since the conductor might not be playing when it's told to be reset
-		for (sound in conductorSoundGroup.sounds)
-			sound.stop();
-		playing = false;
-
+		stop();
 		for (sound in extra)
 			destroySound(sound);
 		extra = [];
@@ -349,7 +362,43 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Sets the audio it should play.
+	 * Pulled the fade code from FlxSound, lmao.
+	 */
+	var fadeTween:FlxTween;
+	/**
+	 * Fades in the conductor audio.
+	 * @param duration The amount of time the fade in should take.
+	 * @param to The value to tween to.
+	 */
+	inline public function fadeIn(duration:Float = 1, to:Float = 1, ?onComplete:FlxTween->Void):Void {
+		if (!playing)
+			play();
+
+		stopFade();
+		fadeTween = FlxTween.num(volume, to, duration, {onComplete: onComplete}, (value:Float) -> volume = value);
+	}
+	/**
+	 * Fades out the conductor audio.
+	 * @param duration The amount of time the fade out should take.
+	 * @param to The value to tween to.
+	 */
+	inline public function fadeOut(duration:Float = 1, to:Float = 0, ?onComplete:FlxTween->Void):Void {
+		stopFade();
+		fadeTween = FlxTween.num(volume, to, duration, {onComplete: onComplete}, (value:Float) -> volume = value);
+	}
+	/**
+	 * Stops the fade tween dead in it's tracks!
+	 * @param returnValue Do you wish to have the conductor volume return to a different value?
+	 */
+	inline public function stopFade(?returnValue:Float):Void {
+		if (fadeTween != null)
+			fadeTween.cancel();
+		if (returnValue != null)
+			volume = returnValue;
+	}
+
+	/**
+	 * Sets the music it should play.
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
@@ -358,8 +407,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = new FlxSound();
-		else if (audio.active)
-		audio.stop();
 
 		audio.loadEmbedded(Paths.music(music).format(), true);
 		FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
@@ -383,8 +430,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = new FlxSound();
-		else if (audio.active)
-			audio.stop();
 
 		audio.loadEmbedded(Paths.inst(song, variant).format());
 		FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
@@ -399,7 +444,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Add's an extra audio track to run.
+	 * Add's an extra music track to run.
 	 * @param music The name of the audio file.
 	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
@@ -487,34 +532,41 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		}
 	}
 
-	var __offsetViolation:Float = 0;
-
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	public function update():Void {
-		// gonna make the songPosition update by itself and have all audio instances follow it for better song starts and ends
-		if (audio == null || !audio.playing) {
-			lastSongPos = audio != null ? audio.time - posOffset : -posOffset;
+		if (!playing)
+			return;
+
+		if (audio == null) {
+			lastSongPos = audio == null ? 0 : (audio.playing ? audio.time : songPosition);
 			return;
 		}
-		if (lastSongPos != (lastSongPos = audio.time - posOffset))
-			songPosition = lastSongPos; // update conductor
-		else songPosition += posOffset + FlxG.elapsed * 1000;
-		audio.update(FlxG.elapsed);
 
-		for (sound in extra) {
-			// idea from psych
-			if (audio.time < sound.length) {
-				// CNE's method.
-				if ((__offsetViolation = Math.max(0, __offsetViolation + (sound.time != audio.time ? FlxG.elapsed : -FlxG.elapsed / 2))) > 10) {
-					sound.pause();
-					sound.time = audio.time;
-					sound.play();
-					__offsetViolation = 0;
-				}
-			} else sound.pause();
-			sound.update(FlxG.elapsed);
-		}
+		if (!audio.playing && !autoSetTime)
+			audio.play();
+		else if (audio.playing && autoSetTime)
+			audio.pause();
+
+		if (audio.playing) {
+			if (lastSongPos != (lastSongPos = audio.time))
+				songPosition = lastSongPos; // update conductor
+			else songPosition += FlxG.elapsed * 1000;
+			audio.update(FlxG.elapsed);
+
+			for (sound in extra) {
+				// idea from psych
+				if (audio.time < sound.length) {
+					if (Math.abs(songPosition - audio.time) > 20) {
+						sound.pause();
+						sound.time = audio.time;
+						sound.play();
+						// _log('Resynced conductor audio.');
+					}
+				} else sound.pause();
+				sound.update(FlxG.elapsed);
+			}
+		} else songPosition += FlxG.elapsed * 1000;
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChange = {

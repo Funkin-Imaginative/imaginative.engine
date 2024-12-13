@@ -46,7 +46,7 @@ class MainMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		// Might try to simplify this.
-		if (!conductor.audio.playing)
+		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 
 		// Camera position.

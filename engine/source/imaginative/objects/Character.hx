@@ -139,11 +139,25 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	inline function set_singSuffix(value:String):String
 		return singSuffix = value.trim();
 
+	/**
+	 * Only really used for making it so holding a note will prevent idle.
+	 */
+	@:allow(imaginative.backend.configs.PlayConfig.characterSing) var controls:Null<Controls>;
+
 	override public function tryDance(force:Bool = false):Void {
 		switch (force ? IsDancing : animContext) {
 			case IsSinging | HasMissed:
-				if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
-					dance();
+				if (controls == null) {
+					if (singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))
+						dance();
+				} else {
+					var released:Bool = controls.noteLeftReleased || controls.noteDownReleased || controls.noteUpReleased || controls.noteRightReleased;
+					if ((singLength > 0 ? (lastHit + (Conductor.song.stepCrochet * singLength) < Conductor.song.songPosition) : (getAnimName() == null || isAnimFinished()))) {
+						if (!released) return;
+						dance();
+						finishAnim();
+					}
+				}
 			default:
 				super.tryDance(force);
 		}

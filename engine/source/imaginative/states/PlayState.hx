@@ -324,16 +324,6 @@ class PlayState extends BeatState {
 			field.visible = false;
 			add(field);
 
-			inline function characterSing(songPos:Float, actors:Array<Character>, i:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
-				for (char in actors) {
-					if (char != null) {
-						var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][i];
-						char.playAnim('sing$temp', context, suffix);
-						char.lastHit = conductor.songPosition;
-					}
-				}
-			}
-
 			/**
 			Starting to think of doing these method's.
 
@@ -365,18 +355,18 @@ class PlayState extends BeatState {
 				scripts.event('noteHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					PlayConfig.characterSing(event.field, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
 
 					// doing it here for now
 					if (event.field.isPlayer) {
 						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
-						FlxTween.tween(rating, {alpha: 1}, (conductor.stepCrochet / 1000) * 1.2, {
+						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepCrochet / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
-								FlxTween.tween(rating, {alpha: 0.0001}, (conductor.stepCrochet / 1000) * 2.4 , {
-									startDelay: (conductor.stepCrochet / 1000) * 1.5 ,
+								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepCrochet / 1000) * 2.4 , {
+									startDelay: (event.field.conductor.stepCrochet / 1000) * 1.5 ,
 									ease: FlxEase.expoOut
 								});
 							}
@@ -391,7 +381,7 @@ class PlayState extends BeatState {
 				scripts.event('sustainHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					PlayConfig.characterSing(event.field, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
 				}
 
 				scripts.event('sustainHitPost', event);
@@ -401,7 +391,7 @@ class PlayState extends BeatState {
 				scripts.event('noteMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					PlayConfig.characterSing(event.field, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
 
 				scripts.event('noteMissedPost', event);
@@ -411,7 +401,7 @@ class PlayState extends BeatState {
 				scripts.event('sustainMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					PlayConfig.characterSing(event.field, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
 				}
 
 				scripts.event('sustainMissedPost', event);
@@ -423,7 +413,7 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
-							characterSing(event.field.conductor.songPosition, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+							PlayConfig.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
 					}
 				}
 
@@ -501,23 +491,7 @@ class PlayState extends BeatState {
 			assets.sounds.reverse();
 
 			countdownStarted = true;
-			FlxTween.num(
-				(-crochet * (countdownLength + 1)) + conductor.posOffset,
-				conductor.posOffset,
-				((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000,
-				(output:Float) -> songPosition = output
-			);
 			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
-				/* new FlxTimer().start(stepCrochet / 1000, (_:FlxTimer) -> {
-					conductor.stepHit(Math.floor(-(timer.loopsLeft * stepsPerBeat)));
-					if (curStep % stepsPerBeat == 0)
-						conductor.beatHit(-timer.loopsLeft);
-					if (curBeat % beatsPerMeasure == 0)
-						conductor.measureHit(Math.floor(-(timer.loopsLeft / beatsPerMeasure)));
-				}, stepsPerBeat); */
-
-				conductor.beatHit(-timer.loopsLeft);
-
 				var assetIndex:Int = timer.loopsLeft - 1;
 				var soundAsset:ModPath = assets.sounds[assetIndex];
 				var imageAsset:ModPath = assets.images[assetIndex];
@@ -537,7 +511,7 @@ class PlayState extends BeatState {
 				}
 
 				if (timer.loopsLeft == 0) {
-					conductor.play();
+					conductor.play(-crochet * countdownLength);
 					songStarted = true;
 					conductor._onComplete = () -> {
 						for (char in characterMapping) {

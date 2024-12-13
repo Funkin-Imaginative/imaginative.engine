@@ -59,7 +59,7 @@ class FunkinUtil {
 	 * @return `FlxSound` ~ The menu sound.
 	 */
 	@:noUsing inline public static function playMenuSFX(sound:MenuSFX, volume:Float = 1, ?subFolder:String, ?onComplete:Void->Void):FlxSound {
-		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound').format(), volume, onComplete ?? () -> {});
+		var menuSound:FlxSound = FlxG.sound.play(Paths.sound('menu${subFolder == null ? '' : '/$subFolder'}/$sound').format(), volume, onComplete);
 		menuSound.persist = true;
 		return menuSound;
 	}

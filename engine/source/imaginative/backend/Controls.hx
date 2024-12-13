@@ -320,6 +320,8 @@ class Controls implements IFlxDestroyable {
 			'noteUp' => [K, UP],
 			'noteRight' => [L, RIGHT]
 		];
+		if (this == blank)
+			setBinds.clear();
 	}
 
 	/**

@@ -78,7 +78,7 @@ class Main extends Sprite {
 		#end
 
 		// If debug we cut to the chase.
-		addChild(new FlxGame(#if (!debug || (debug && release)) imaginative.states.StartScreen #else imaginative.states.TitleScreen #end, 60, 60, true));
+		addChild(new FlxGame(imaginative.states.StartScreen, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		FlxSprite.defaultAntialiasing = true;
 
