@@ -128,8 +128,14 @@ class ArrowField extends BeatGroup {
 	 */
 	public var sustains(default, null):BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
 
+	/**
+	 * How far out until a note is killed.
+	 */
 	public var noteKillRange:Float = 350;
-	public var strumSpacing:Float = -45;
+	/**
+	 * The distance between the each strum.
+	 */
+	public var strumSpacing:Float = -50;
 
 	/**
 	 * The amount of strums in the field.
