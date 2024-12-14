@@ -408,7 +408,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio == null)
 			audio = new FlxSound();
 
-		audio.loadEmbedded(Paths.music(music).format(), true);
+		audio.loadEmbedded(Paths.music(music), true);
 		FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
 		audio.persist = true;
 
@@ -431,7 +431,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio == null)
 			audio = new FlxSound();
 
-		audio.loadEmbedded(Paths.inst(song, variant).format());
+		audio.loadEmbedded(Paths.inst(song, variant));
 		FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
 		audio.persist = false;
 
@@ -460,7 +460,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var vocals:FlxSound = new FlxSound();
 		vocals.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(file.format(), true);
+		vocals.loadEmbedded(file, true);
 		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
 		vocals.persist = audio.persist;
 
@@ -488,7 +488,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var vocals:FlxSound = new FlxSound();
 		vocals.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(file.format());
+		vocals.loadEmbedded(file);
 		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
 		vocals.persist = audio.persist;
 

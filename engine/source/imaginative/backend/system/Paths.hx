@@ -285,6 +285,36 @@ abstract ModPath(String) {
 	 */
 	@:to inline public function toArray():Array<Dynamic>
 		return [type, path];
+
+	// FlxAssets fix
+	/**
+	 * Converts a ModPath to an FlxGraphicAsset.
+	 * Fixes issues with having to run the format function.
+	 * @return `FlxGraphicAsset`
+	 */
+	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset
+		return cast format();
+	/**
+	 * Converts a ModPath to an FlxSoundAsset.
+	 * Fixes issues with having to run the format function.
+	 * @return `FlxSoundAsset`
+	 */
+	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset
+		return cast format();
+	/**
+	 * Converts a ModPath to an FlxXmlAsset.
+	 * Fixes issues with having to run the format function.
+	 * @return `FlxXmlAsset`
+	 */
+	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset
+		return cast format();
+	/**
+	 * Converts a ModPath to an FlxAsepriteJsonAsset.
+	 * Fixes issues with having to run the format function.
+	 * @return `FlxAsepriteJsonAsset`
+	 */
+	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset
+		return cast format();
 }
 
 /**
@@ -499,7 +529,7 @@ class Paths {
 	 * @return `FlxAtlasFrames` ~ The Sparrow frame collection.
 	 */
 	inline public static function getSparrowFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromSparrow(image(file).format(), xml('${file.type}:images/${file.path}').format());
+		return FlxAtlasFrames.fromSparrow(image(file), xml('${file.type}:images/${file.path}'));
 	/**
 	 * Get's packer sheet data.
 	 * @param file The mod path.
@@ -507,7 +537,7 @@ class Paths {
 	 * @return `FlxAtlasFrames` ~ The Packer frame collection.
 	 */
 	inline public static function getPackerFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromSpriteSheetPacker(image(file).format(), txt('${file.type}:images/${file.path}').format());
+		return FlxAtlasFrames.fromSpriteSheetPacker(image(file), txt('${file.type}:images/${file.path}'));
 	/**
 	 * Get's aseprite sheet data.
 	 * @param file The mod path.
@@ -515,7 +545,7 @@ class Paths {
 	 * @return `FlxAtlasFrames` ~ The Aseprite frame collection.
 	 */
 	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromAseprite(image(file).format(), json('${file.type}:images/${file.path}').format());
+		return FlxAtlasFrames.fromAseprite(image(file), json('${file.type}:images/${file.path}'));
 
 	/**
 	 * All possible sound extension types.
