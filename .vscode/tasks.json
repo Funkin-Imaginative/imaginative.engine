@@ -22,7 +22,12 @@
 			],
 			"type": "shell"
 		},
-		/* EDIT ALL "cpp" INSTANCES TO BE OF YOUR PLATFORM */
+		/**
+		 * EDIT ALL "cpp" INSTANCES TO BE OF YOUR PLATFORM!
+		 *
+		 * If my fucking ".gitignore" would **WORK**.
+		 * You wouldn't have to worry about pushing this in a PR and fucking shit.
+		 */
 		{
 			"command": "lime test cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
 			"group": {
