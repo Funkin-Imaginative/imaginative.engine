@@ -22,6 +22,7 @@
 			],
 			"type": "shell"
 		},
+		/* EDIT ALL "cpp" INSTANCES TO BE OF YOUR PLATFORM */
 		{
 			"command": "lime test cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
 			"group": {
@@ -49,7 +50,8 @@
 			"type": "shell"
 		},
 		{
-			"command": "lime test cpp",
+			"command": "test",
+			"group": "test",
 			"label": "Run Release",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -57,7 +59,7 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"type": "shell"
+			"type": "lime"
 		},
 		{
 			"command": "lime build cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
@@ -82,7 +84,8 @@
 			"type": "shell"
 		},
 		{
-			"command": "lime build cpp",
+			"command": "build",
+			"group": "build",
 			"label": "Compile Release",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -90,7 +93,7 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"type": "shell"
+			"type": "lime"
 		}
 	],
 	"version": "2.0.0"

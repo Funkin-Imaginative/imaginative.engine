@@ -6,8 +6,14 @@ vscode-project.hxml
 
 # unnecessary folders
 .haxelib/
+.vscode/
 export/
 dump/
 
-# switch out "cpp" with your platform (windows, mac, linux, android, ios)
-.vscode/tasks.json
+# exceptions
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+# switch out "cpp" with your platform (windows, mac or linux most likely)
+# !.vscode/tasks.json
+### WHY DOESN'T IT FUCKING IGNORE IT?????????
