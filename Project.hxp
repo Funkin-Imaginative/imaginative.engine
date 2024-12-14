@@ -136,7 +136,12 @@ class EngineAsset {
 		if (hasDefine('web') || hasDefine('html5')) {
 			error('None of that thank you! I don\'t want people using the engine for web ports. If you don\'t remember, there used to be so many that base game wasn\'t first in search results!');
 			return;
-		} else if (isDesktop() || isMobile()) {} else {
+		} else if (isDesktop() || isMobile()) {
+			if (isMac()) { // fix for compiling on mac
+				setDefine('mac');
+				setDefine('macos');
+			}
+		} else {
 			error('Hey this engine only works on desktop and android devices!');
 			return;
 		}
@@ -339,7 +344,7 @@ class EngineAsset {
 	 * If true, your compiling on mac.
 	 */
 	inline public function isMac():Bool
-		return hasDefine('mac');
+		return hasDefine('mac') || hasDefine('macos');
 	/**
 	 * If true, your compiling on linux.
 	 */
