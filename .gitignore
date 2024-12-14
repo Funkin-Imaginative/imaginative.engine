@@ -8,3 +8,6 @@ vscode-project.hxml
 .haxelib/
 export/
 dump/
+
+# switch out "cpp" with your platform (windows, mac, linux, android, ios)
+.vscode/tasks.json
