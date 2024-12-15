@@ -112,7 +112,7 @@ class PlayState extends BeatState {
 	 * The chart information.
 	 */
 	public static var chartData:ChartData;
-	public var songEvents:Array<SongEvent>;
+	public var songEvents:Array<SongEvent> = [];
 
 	/**
 	 * Contains the week information.
@@ -539,6 +539,13 @@ class PlayState extends BeatState {
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		super.update(elapsed);
+
+		while (songEvents.length > 0 && songEvents.last().time <= songPosition) {
+			var poppedEvent:SongEvent = songEvents.pop();
+			if (poppedEvent != null)
+				poppedEvent.execute();
+		}
+
 		scripts.call('updatePost', [elapsed]);
 	}
 

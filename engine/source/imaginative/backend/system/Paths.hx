@@ -289,28 +289,28 @@ abstract ModPath(String) {
 	// FlxAssets fix
 	/**
 	 * Converts a ModPath to an FlxGraphicAsset.
-	 * Fixes issues with having to run the format function.
+	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxGraphicAsset`
 	 */
 	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset
 		return cast format();
 	/**
 	 * Converts a ModPath to an FlxSoundAsset.
-	 * Fixes issues with having to run the format function.
+	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxSoundAsset`
 	 */
 	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset
 		return cast format();
 	/**
 	 * Converts a ModPath to an FlxXmlAsset.
-	 * Fixes issues with having to run the format function.
+	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxXmlAsset`
 	 */
 	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset
 		return cast format();
 	/**
 	 * Converts a ModPath to an FlxAsepriteJsonAsset.
-	 * Fixes issues with having to run the format function.
+	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxAsepriteJsonAsset`
 	 */
 	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset
