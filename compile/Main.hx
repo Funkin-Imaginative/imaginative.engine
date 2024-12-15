@@ -121,12 +121,13 @@ class Main {
 			if (commandType != 'clean')
 				if (commandType != 'update')
 					if (commandType != 'build')
-						if (commandType != 'test') {
-							if (commandType != null)
-								args.insert(0, commandType);
-							Sys.println('Please input a lime command type.');
-							commandType = Sys.stdin().readLine().toLowerCase();
-						}
+						if (commandType != 'run')
+							if (commandType != 'test') {
+								if (commandType != null)
+									args.insert(0, commandType);
+								Sys.println('Please input a lime command type.');
+								commandType = Sys.stdin().readLine().toLowerCase();
+							}
 		}
 		return commandType.trim();
 	}
