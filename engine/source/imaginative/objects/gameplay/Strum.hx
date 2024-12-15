@@ -76,7 +76,7 @@ class Strum extends FlxSprite {
 		super.update(elapsed);
 
 		if (willReset && getAnimName() != 'static')
-			if (glowLength > 0 ? (lastHit + (setField.conductor.stepCrochet * glowLength) < setField.conductor.songPosition) : (getAnimName() == null || isAnimFinished()))
+			if (glowLength > 0 ? (lastHit + (setField.conductor.stepTime * glowLength) < setField.conductor.time) : (getAnimName() == null || isAnimFinished()))
 				playAnim(setField.isPlayer ? 'press' : 'static');
 	}
 
@@ -95,7 +95,7 @@ class Strum extends FlxSprite {
 			centerOffsets();
 			centerOrigin();
 			if (reset)
-				lastHit = setField.conductor.songPosition;
+				lastHit = setField.conductor.time;
 			willReset = reset;
 		}
 	}

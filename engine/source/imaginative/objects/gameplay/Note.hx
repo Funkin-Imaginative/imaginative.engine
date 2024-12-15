@@ -64,14 +64,14 @@ class Note extends FlxSprite {
 	// important
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
-		return time >= setField.conductor.songPosition - Settings.setupP1.maxWindow && time <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
+		return time >= setField.conductor.time - Settings.setupP1.maxWindow && time <= setField.conductor.time + Settings.setupP1.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return time < setField.conductor.songPosition - (300 / __scrollSpeed) && !wasHit;
+		return time < setField.conductor.time - (300 / __scrollSpeed) && !wasHit;
 	}
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
-		return setField.conductor.songPosition < time;
+		return setField.conductor.time < time;
 	public var wasHit:Bool = false;
 	public var wasMissed:Bool = false;
 
@@ -118,7 +118,7 @@ class Note extends FlxSprite {
 		var angleDir:Float = Math.PI / 180;
 		angleDir = scrollAngle * angleDir;
 		var pos:Position = new Position(strum.x, strum.y);
-		distance.position = 0.45 * (distance.time = setField.conductor.songPosition - time) * __scrollSpeed;
+		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * __scrollSpeed;
 
 		// pos.x += offset.x;
 		pos.x += Math.cos(angleDir) * distance.position;
@@ -136,7 +136,7 @@ class Note extends FlxSprite {
 
 			var followsParent:Bool = false;//pastedStrum;
 			var pos:Position = new Position(followsParent ? x : strum.x, followsParent ? y : strum.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.songPosition - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
+			distance.position = 0.45 * (distance.time = setField.conductor.time - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
 
 			// pos.x += offset.x;
 			pos.x -= sustain.width / 2;
@@ -152,10 +152,10 @@ class Note extends FlxSprite {
 
 	@:allow(imaginative.objects.gameplay.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float) {
-		var roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
+		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
-				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == (roundedLength - 1));
+				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
 				note.tail.add(sustain);
 			}
 		}

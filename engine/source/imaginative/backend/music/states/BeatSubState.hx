@@ -88,30 +88,30 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return conductor.stepsPerBeat;
 
 	/**
-	 * How long a beat is in milliseconds.
-	 */
-	public var crochet(get, never):Float;
-	inline function get_crochet():Float
-		return conductor.crochet;
-	/**
 	 * How long a step is in milliseconds.
 	 */
-	public var stepCrochet(get, never):Float;
-	inline function get_stepCrochet():Float
-		return conductor.stepCrochet;
+	public var stepTime(get, never):Float;
+	inline function get_stepTime():Float
+		return conductor.stepTime;
+	/**
+	 * How long a beat is in milliseconds.
+	 */
+	public var beatTime(get, never):Float;
+	inline function get_beatTime():Float
+		return conductor.beatTime;
 	/**
 	 * How long a measure is in milliseconds.
 	 */
-	public var partCrochet(get, never):Float;
-	inline function get_partCrochet():Float
-		return conductor.partCrochet;
+	public var measureTime(get, never):Float;
+	inline function get_measureTime():Float
+		return conductor.measureTime;
 
 	/**
 	 * Current position of the song in milliseconds.
 	 */
-	public var songPosition(get, default):Float;
-	inline function get_songPosition():Float
-		return conductor.songPosition;
+	public var time(get, default):Float;
+	inline function get_time():Float
+		return conductor.time;
 
 	// Actual state stuff below.
 

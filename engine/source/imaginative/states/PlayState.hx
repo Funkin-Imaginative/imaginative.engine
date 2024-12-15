@@ -49,10 +49,10 @@ class SongEvent {
  */
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
 	}
 	override public function set_conductor(value:Conductor):Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
 	}
 
 	/**
@@ -79,7 +79,7 @@ class PlayState extends BeatState {
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
-	 * @return `Array<ModPath>`
+	 * @return `Array<ModPath>` ~ The mod paths of the items.
 	 */
 	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, suffix:String = ''):Array<ModPath> {
 		if (root == null)
@@ -285,6 +285,7 @@ class PlayState extends BeatState {
 		); */
 
 		// character creation.
+		var loadedCharacters:Array<String> = [];
 		for (base in chartData.characters) {
 			var pos:Position = new Position(
 				switch (base.position) {
@@ -302,15 +303,17 @@ class PlayState extends BeatState {
 			);
 			var character:Character = new Character(pos.x, pos.y, base.name, base.position != 'enemy');
 			characterMapping.set(base.tag, character);
-			log('Character "${base.tag}" loaded.', DebugMessage);
+			loadedCharacters.push(base.tag);
 			add(character);
 		}
+		log('Character${loadedCharacters.length > 1 ? "'s" : ''} ${[for (i => char in loadedCharacters) (i == (loadedCharacters.length - 2) && loadedCharacters.length > 1) ? '"$char" and' : '"$char"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
 		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
 			cameraTarget = chartData.fieldSettings.cameraTarget;
 		log('Starting camera target is "$cameraTarget".', DebugMessage);
 
 		// arrow field creation
+		var loadedFields:Array<String> = [];
 		for (base in chartData.fields) {
 			var field:ArrowField = new ArrowField([
 				for (tag => char in characterMapping)
@@ -319,7 +322,7 @@ class PlayState extends BeatState {
 			]);
 			field.parse(base);
 			arrowFieldMapping.set(base.tag, field);
-			log('Field "${base.tag}" loaded.', DebugMessage);
+			loadedFields.push(base.tag);
 			field.cameras = [camHUD];
 			field.visible = false;
 			add(field);
@@ -359,14 +362,14 @@ class PlayState extends BeatState {
 
 					// doing it here for now
 					if (event.field.isPlayer) {
-						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
+						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
-						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepCrochet / 1000) * 1.2, {
+						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
-								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepCrochet / 1000) * 2.4 , {
-									startDelay: (event.field.conductor.stepCrochet / 1000) * 1.5 ,
+								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4 , {
+									startDelay: (event.field.conductor.stepTime / 1000) * 1.5 ,
 									ease: FlxEase.expoOut
 								});
 							}
@@ -425,6 +428,7 @@ class PlayState extends BeatState {
 				scripts.event('fieldInputPost', event);
 			});
 		}
+		log('Field${loadedFields.length > 1 ? "'s" : ''} ${[for (i => field in loadedFields) (i == (loadedFields.length - 2) && loadedFields.length > 1) ? '"$field" and' : '"$field"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
 		// arrow field setup
 		for (order in chartData.fieldSettings.order) {
@@ -483,47 +487,20 @@ class PlayState extends BeatState {
 			conductor.addVocalTrack(setSong, 'Enemy', variant);
 			conductor.addVocalTrack(setSong, 'Player', variant);
 
-			var assets:CountdownAssets = {
-				images: countdownAssets.images.copy(),
-				sounds: countdownAssets.sounds.copy()
-			}
-			assets.images.reverse();
-			assets.sounds.reverse();
-
-			countdownStarted = true;
-			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
-				var assetIndex:Int = timer.loopsLeft - 1;
-				var soundAsset:ModPath = assets.sounds[assetIndex];
-				var imageAsset:ModPath = assets.images[assetIndex];
-				if (Paths.fileExists(Paths.sound(soundAsset)))
-					FlxG.sound.play(Paths.sound(soundAsset));
-				if (Paths.fileExists(Paths.image(imageAsset))) {
-					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
-					sprite.cameras = [camHUD];
-					sprite.screenCenter();
-					add(sprite);
-
-					FlxTween.tween(sprite, {alpha: 0}, crochet / 1.2 / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: (_:FlxTween) ->
-							sprite.destroy()
-					});
-				}
-
-				if (timer.loopsLeft == 0) {
-					conductor.play(-crochet * countdownLength);
-					songStarted = true;
-					conductor._onComplete = () -> {
-						for (char in characterMapping) {
-							if (char.animContext == IsSinging || char.animContext == HasMissed) {
-								char.tryDance(true);
-								char.finishAnim();
-							}
-						}
-						scripts.call('onSongEnd');
+			conductor._onComplete = (event) -> {
+				for (char in characterMapping) {
+					if (char.animContext == IsSinging || char.animContext == HasMissed) {
+						char.tryDance(true);
+						char.finishAnim();
 					}
 				}
-			}, countdownLength + 1);
+				scripts.event('onSongEnd', event);
+				songEnded = true;
+				if (!event.prevented)
+					endSong();
+			}
+
+			startSong();
 		});
 
 		camPoint.setPosition(characterMapping.get(cameraTarget).getCamPos().x, characterMapping.get(cameraTarget).getCamPos().y);
@@ -540,13 +517,53 @@ class PlayState extends BeatState {
 		scripts.call('update', [elapsed]);
 		super.update(elapsed);
 
-		while (songEvents.length > 0 && songEvents.last().time <= songPosition) {
+		while (songEvents.length > 0 && songEvents.last().time <= time) {
 			var poppedEvent:SongEvent = songEvents.pop();
 			if (poppedEvent != null)
 				poppedEvent.execute();
 		}
 
 		scripts.call('updatePost', [elapsed]);
+	}
+
+	function startSong():Void {
+		var assets:CountdownAssets = {
+			images: countdownAssets.images.copy(),
+			sounds: countdownAssets.sounds.copy()
+		}
+		assets.images.reverse();
+		assets.sounds.reverse();
+
+		countdownStarted = true;
+		countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
+			var assetIndex:Int = timer.loopsLeft - 1;
+
+			var soundAsset:ModPath = assets.sounds[assetIndex];
+			if (Paths.fileExists(Paths.sound(soundAsset)))
+				FlxG.sound.play(Paths.sound(soundAsset));
+
+			var imageAsset:ModPath = assets.images[assetIndex];
+			if (Paths.fileExists(Paths.image(imageAsset))) {
+				var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
+				sprite.cameras = [camHUD];
+				sprite.screenCenter();
+				add(sprite);
+
+				FlxTween.tween(sprite, {alpha: 0}, beatTime / 1.2 / 1000, {
+					ease: FlxEase.cubeInOut,
+					onComplete: (_:FlxTween) ->
+						sprite.destroy()
+				});
+			}
+
+			if (timer.loopsLeft == 0)
+				songStarted = true;
+		}, countdownLength + 1);
+		conductor.play(-beatTime * (countdownLength + 1));
+	}
+
+	function endSong():Void {
+
 	}
 
 	override public function stepHit(curStep:Int):Void {

@@ -246,7 +246,7 @@ class ArrowField extends BeatGroup {
 					for (sustain in group)
 						sustain
 			], i))
-				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition)
+				if ((sustain.time + sustain.setHead.time) <= conductor.time)
 					_onSustainHit(sustain, i);
 		}
 
@@ -262,13 +262,13 @@ class ArrowField extends BeatGroup {
 
 		for (note in notes) {
 			// lol
-			if (note.tooLate && (conductor.songPosition - note.time) > Math.max(conductor.stepCrochet, noteKillRange / note.__scrollSpeed)) {
+			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / note.__scrollSpeed)) {
 				if (!note.wasHit && !note.wasMissed)
 					_onNoteMissed(note);
 				note.canDie = true;
 			}
 			if (!isPlayer) {
-				if (note.time <= conductor.songPosition && !note.tooLate && !note.wasHit && !note.wasMissed)
+				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
 			}
 			var shouldKill:Bool = note.canDie;
@@ -284,13 +284,13 @@ class ArrowField extends BeatGroup {
 					sustain
 		]) {
 			// lol
-			if (sustain.tooLate && (conductor.songPosition - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepCrochet, noteKillRange / sustain.setHead.__scrollSpeed)) {
+			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.setHead.__scrollSpeed)) {
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
 				sustain.canDie = true;
 			}
 			if (!isPlayer) {
-				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 			}
 		}

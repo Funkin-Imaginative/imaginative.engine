@@ -89,8 +89,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Dispatches when the music ends.
 	 */
-	public var onComplete(default, null):FlxTypedSignal<Void->Void> = new FlxTypedSignal<Void->Void>();
-	public var _onComplete:Void->Void;
+	public var onComplete(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
+	public var _onComplete:ScriptEvent->Void;
 
 	// Main Conductors.
 	/**
@@ -155,7 +155,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * The sound group all conductor audio is tied to.
 	 */
-	public var conductorSoundGroup(default, null):FlxSoundGroup;
+	public var soundGroup(default, null):FlxSoundGroup;
 	/**
 	 * The audio tied to the conductor.
 	 */
@@ -166,12 +166,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public var extra(default, null):Array<FlxSound> = [];
 
 	/**
-	 * States if the conductor should update the songPosition itself.
+	 * States if the conductor should update the time itself.
 	 * Mostly used for when the song time is under or above the audio time length.
 	 */
 	public var autoSetTime(get, never):Bool;
 	inline function get_autoSetTime():Bool
-		return songPosition < 0 || songPosition > audio.length;
+		return time < 0 || time > audio.length;
 
 	/**
 	 * States if the conductor audio is playing or not.
@@ -183,9 +183,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var volume(get, set):Float;
 	inline function get_volume():Float
-		return conductorSoundGroup.volume;
+		return soundGroup.volume;
 	inline function set_volume(value:Float):Float
-		return conductorSoundGroup.volume = value;
+		return soundGroup.volume = value;
 
 	// BPM's.
 	/**
@@ -242,40 +242,40 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public var stepsPerBeat(default, null):Int = 4;
 
 	/**
-	 * How long a beat is in milliseconds.
-	 */
-	public var crochet(get, never):Float;
-	inline function get_crochet():Float
-		return 60 / bpm * 1000;
-	/**
 	 * How long a step is in milliseconds.
 	 */
-	public var stepCrochet(get, never):Float;
-	inline function get_stepCrochet():Float
-		return crochet / stepsPerBeat;
+	public var stepTime(get, never):Float;
+	inline function get_stepTime():Float
+		return beatTime / stepsPerBeat;
+	/**
+	 * How long a beat is in milliseconds.
+	 */
+	public var beatTime(get, never):Float;
+	inline function get_beatTime():Float
+		return 60 / bpm * 1000;
 	/**
 	 * How long a measure is in milliseconds.
 	 */
-	public var partCrochet(get, never):Float;
-	inline function get_partCrochet():Float
-		return crochet * beatsPerMeasure;
+	public var measureTime(get, never):Float;
+	inline function get_measureTime():Float
+		return beatTime * beatsPerMeasure;
 
 	/**
 	 * Current position of the song in milliseconds.
 	 */
-	public var songPosition(default, null):Float = 0;
+	public var time(default, null):Float = 0;
 	/**
-	 * Previous songPosition.
+	 * Previous time.
 	 */
-	public var lastSongPos(default, null):Float;
+	public var prevTime(default, null):Float;
 	/**
 	 * The audio offset.
 	 */
-	public var posOffset(get, null):Float = 0;
-	inline function get_posOffset():Float {
-		if (posOffset != data.offset)
-			posOffset = data.offset;
-		return posOffset;
+	public var timeOffset(get, null):Float = 0;
+	inline function get_timeOffset():Float {
+		if (timeOffset != data.offset)
+			timeOffset = data.offset;
+		return timeOffset;
 	}
 
 	/**
@@ -284,14 +284,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public var bpmChanges(default, null):Array<BPMChange> = [];
 
 	public function new() {
-		conductorSoundGroup = new FlxSoundGroup();
+		soundGroup = new FlxSoundGroup();
 
 		audio = new FlxSound();
 		audio.autoDestroy = false; // jic
 		audio.onComplete = () -> {
-			onComplete.dispatch();
+			var event:ScriptEvent = new ScriptEvent();
+			onComplete.dispatch(event);
 			if (_onComplete != null)
-				_onComplete();
+				_onComplete(event);
 		}
 
 		FlxG.signals.preUpdate.add(update);
@@ -301,8 +302,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	inline function destroySound(sound:FlxSound):Void {
 		if (sound.group != null)
-			if (conductorSoundGroup.sounds.contains(sound))
-				conductorSoundGroup.remove(sound);
+			if (soundGroup.sounds.contains(sound))
+				soundGroup.remove(sound);
 			else if (sound.group.sounds.contains(sound))
 				sound.group.remove(sound);
 		sound.destroy();
@@ -313,10 +314,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param startTime The song starting time.
 	 */
 	inline public function play(startTime:Float = 0):Void {
-		songPosition = startTime;
+		time = startTime;
 		if (!autoSetTime)
-			for (sound in conductorSoundGroup.sounds)
-				sound.play(startTime);
+			for (sound in soundGroup.sounds)
+				sound.play(time);
 		playing = true;
 	}
 
@@ -324,7 +325,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Pause's the conductor audio.
 	 */
 	inline public function pause():Void {
-		conductorSoundGroup.pause();
+		soundGroup.pause();
 		playing = false;
 	}
 
@@ -333,7 +334,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	inline public function resume():Void {
 		if (!autoSetTime)
-			conductorSoundGroup.resume();
+			soundGroup.resume();
 		playing = true;
 	}
 
@@ -341,7 +342,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Stop's the conductor audio.
 	 */
 	inline public function stop():Void {
-		for (sound in conductorSoundGroup.sounds)
+		for (sound in soundGroup.sounds)
 			sound.stop();
 		playing = false;
 	}
@@ -355,7 +356,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			destroySound(sound);
 		extra = [];
 
-		songPosition = lastSongPos = curStepFloat = curStep = curBeat = curMeasure = 0;
+		time = prevTime = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
 		changeBPM();
 		startBpm = prevBpm = bpm;
@@ -409,7 +410,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			audio = new FlxSound();
 
 		audio.loadEmbedded(Paths.music(music), true);
-		FlxG.sound.loadHelper(audio, volume, conductorSoundGroup);
+		FlxG.sound.loadHelper(audio, volume, soundGroup);
 		audio.persist = true;
 
 		data = getMetadata('${music.type}:music/${music.path}');
@@ -432,7 +433,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			audio = new FlxSound();
 
 		audio.loadEmbedded(Paths.inst(song, variant));
-		FlxG.sound.loadHelper(audio, 1, conductorSoundGroup);
+		FlxG.sound.loadHelper(audio, 1, soundGroup);
 		audio.persist = false;
 
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
@@ -461,7 +462,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		vocals.autoDestroy = false; // jic
 
 		vocals.loadEmbedded(file, true);
-		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
+		FlxG.sound.loadHelper(vocals, audio.volume, soundGroup);
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
@@ -489,7 +490,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		vocals.autoDestroy = false; // jic
 
 		vocals.loadEmbedded(file);
-		FlxG.sound.loadHelper(vocals, audio.volume, conductorSoundGroup);
+		FlxG.sound.loadHelper(vocals, audio.volume, soundGroup);
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
@@ -539,7 +540,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			return;
 
 		if (audio == null) {
-			lastSongPos = audio == null ? 0 : (audio.playing ? audio.time : songPosition);
+			prevTime = audio == null ? 0 : (audio.playing ? audio.time : time);
 			return;
 		}
 
@@ -549,15 +550,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			audio.pause();
 
 		if (audio.playing) {
-			if (lastSongPos != (lastSongPos = audio.time))
-				songPosition = lastSongPos; // update conductor
-			else songPosition += FlxG.elapsed * 1000;
+			if (prevTime != (prevTime = audio.time))
+				time = prevTime; // update conductor
+			else time += FlxG.elapsed * 1000;
 			audio.update(FlxG.elapsed);
 
 			for (sound in extra) {
 				// idea from psych
 				if (audio.time < sound.length) {
-					if (Math.abs(songPosition - audio.time) > 20) {
+					if (Math.abs(time - audio.time) > 20) {
 						sound.pause();
 						sound.time = audio.time;
 						sound.play();
@@ -566,7 +567,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				} else sound.pause();
 				sound.update(FlxG.elapsed);
 			}
-		} else songPosition += FlxG.elapsed * 1000;
+		} else time += FlxG.elapsed * 1000;
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChange = {
@@ -577,7 +578,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				stepsPB: 0
 			}
 			for (change in bpmChanges)
-				if (songPosition >= change.songTime)
+				if (time >= change.songTime)
 					lastChange = change;
 
 			if (
@@ -587,7 +588,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			) changeBPM(lastChange.bpm);
 
 			// beat and measure versions update automatically
-			curStepFloat = lastChange.stepTime + ((songPosition - lastChange.songTime) / stepCrochet);
+			curStepFloat = lastChange.stepTime + ((time - lastChange.songTime) / stepTime);
 
 			// update step
 			if (curStep != (curStep = Math.floor(curStepFloat))) {
@@ -618,14 +619,14 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	@:access(flixel.sound.FlxSound.onFocus)
 	inline public function onFocus():Void
-		for (sound in conductorSoundGroup.sounds)
+		for (sound in soundGroup.sounds)
 			sound.onFocus();
 
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	@:access(flixel.sound.FlxSound.onFocusLost)
 	inline public function onFocusLost():Void
-		for (sound in conductorSoundGroup.sounds)
+		for (sound in soundGroup.sounds)
 			sound.onFocusLost();
 
 	@:allow(imaginative.backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
@@ -682,7 +683,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Changes the current BPM position of the song.
+	 * Changes the current BPM of this part of the song.
 	 * @param bpm New "beats per minute" number.
 	 * @param beatsPerMeasure New "beats per measure" number.
 	 * @param stepsPerBeat New "steps per beat" number.
@@ -793,7 +794,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		onBeatHit.destroy();
 		onMeasureHit.destroy();
 
-		for (sound in conductorSoundGroup.sounds)
+		for (sound in soundGroup.sounds)
 			destroySound(sound);
 		extra = [];
 	}

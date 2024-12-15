@@ -54,7 +54,7 @@ class PlayConfig {
 			char.controls = field.isPlayer ? field.controls : null;
 			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][i];
 			char.playAnim('sing$temp', context, suffix);
-			char.lastHit = field.conductor.songPosition;
+			char.lastHit = field.conductor.time;
 		}
 	}
 }
