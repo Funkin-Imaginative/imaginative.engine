@@ -144,8 +144,8 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 */
 	@:allow(imaginative.backend.configs.PlayConfig.characterSing) var controls:Null<Controls>;
 
-	override public function tryDance(force:Bool = false):Void {
-		switch (force ? IsDancing : animContext) {
+	override public function tryDance():Void {
+		switch (animContext) {
 			case IsSinging | HasMissed:
 				if (singLength > 0 ? (lastHit + (Conductor.song.stepTime * singLength) < Conductor.song.time) : (getAnimName() == null || isAnimFinished())) {
 					if (controls != null)
@@ -154,7 +154,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 					dance();
 				}
 			default:
-				super.tryDance(force);
+				super.tryDance();
 		}
 	}
 

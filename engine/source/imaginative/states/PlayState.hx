@@ -489,10 +489,8 @@ class PlayState extends BeatState {
 
 			conductor._onComplete = (event) -> {
 				for (char in characterMapping) {
-					if (char.animContext == IsSinging || char.animContext == HasMissed) {
-						char.tryDance(true);
-						char.finishAnim();
-					}
+					if (char.animContext == IsSinging || char.animContext == HasMissed)
+						char.lastHit = time - (char.singLength / 2);
 				}
 				scripts.event('onSongEnd', event);
 				songEnded = true;
