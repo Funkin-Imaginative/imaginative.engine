@@ -3,17 +3,10 @@
 desktop.ini
 RECOVER_*.fla
 vscode-project.hxml
+compile/platform.txt
 
 # unnecessary folders
 .haxelib/
 .vscode/
 export/
 dump/
-
-# exceptions
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/settings.json
-# switch out "cpp" with your platform (windows, mac or linux most likely)
-# !.vscode/tasks.json
-### WHY DOESN'T IT FUCKING IGNORE IT?????????

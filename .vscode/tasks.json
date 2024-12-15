@@ -22,14 +22,8 @@
 			],
 			"type": "shell"
 		},
-		/**
-		 * EDIT ALL "cpp" INSTANCES TO BE OF YOUR PLATFORM!
-		 *
-		 * If my fucking ".gitignore" would **WORK**.
-		 * You wouldn't have to worry about pushing this in a PR and fucking shit.
-		 */
 		{
-			"command": "lime test cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main test -debug --haxelib=hxcpp-debug-server --connect 6000",
 			"group": {
 				"isDefault": true,
 				"kind": "build"
@@ -44,7 +38,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "lime test cpp -final",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main test -final",
 			"label": "Run Test",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -55,8 +49,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "test",
-			"group": "test",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main test",
 			"label": "Run Release",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -64,10 +57,10 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"type": "lime"
+			"type": "shell"
 		},
 		{
-			"command": "lime build cpp -debug --haxelib=hxcpp-debug-server --connect 6000",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main build -debug --haxelib=hxcpp-debug-server --connect 6000",
 			"label": "Compile Debug",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -78,7 +71,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "lime build cpp -final",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main build -final",
 			"label": "Compile Test",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -89,8 +82,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "build",
-			"group": "build",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main build",
 			"label": "Compile Release",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -98,7 +90,7 @@
 				"$haxe-error",
 				"$haxe-trace"
 			],
-			"type": "lime"
+			"type": "shell"
 		}
 	],
 	"version": "2.0.0"
