@@ -12,6 +12,8 @@ class Main {
 	public static function main():Void {
 		args = Sys.args();
 
+		Sys.println(dashes);
+
 		if (args.contains('--check-platform')) {
 			platformCheck();
 			return;
@@ -43,7 +45,6 @@ class Main {
 		var finalArgs:Array<String> = [typeCheck(args.shift()), getCompileTarget()];
 		for (arg in args)
 			finalArgs.push(arg);
-		Sys.println(dashes);
 		Sys.println('lime ${finalArgs.join(' ')}');
 		Sys.command('lime', finalArgs);
 	}
