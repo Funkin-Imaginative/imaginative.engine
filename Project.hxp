@@ -133,6 +133,19 @@ class EngineAsset {
 
 		CompilerFlag.init(this);
 
+		if (FileSystem.exists('compile/platform.txt')) {
+			if (sys.io.File.getContent('compile/platform.txt').trim() == 'cpp') {
+				Sys.println('...');
+				Sys.sleep(2);
+				Sys.println('Thought you could get away with it huh?');
+				Sys.sleep(2);
+				Sys.println('WELL NO.');
+				Sys.sleep(1);
+				Sys.println('PEANUT BUTTER & CHEESE');
+				Sys.exit(1);
+			}
+		}
+
 		if (hasDefine('web') || hasDefine('html5')) {
 			error('None of that thank you! I don\'t want people using the engine for web ports. If you don\'t remember, there used to be so many that base game wasn\'t first in search results!');
 			return;

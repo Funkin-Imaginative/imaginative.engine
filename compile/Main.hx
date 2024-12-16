@@ -33,6 +33,9 @@ class Main {
 				if (FileSystem.exists('compile/platform.txt'))
 					FileSystem.deleteFile('compile/platform.txt');
 				platformCheck(true, true);
+			} else {
+				if (FileSystem.exists('compile/platform.txt'))
+					FileSystem.deleteFile('compile/platform.txt');
 			}
 			return;
 		}
