@@ -327,7 +327,7 @@ class PlayState extends BeatState {
 
 		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
 			cameraTarget = chartData.fieldSettings.cameraTarget;
-		log('Starting camera target is "$cameraTarget".', DebugMessage);
+		log('The beginning camera target is "$cameraTarget".', DebugMessage);
 
 		// arrow field creation
 		var loadedFields:Array<String> = [];
@@ -462,6 +462,7 @@ class PlayState extends BeatState {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
 							PlayConfig.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+
 						for (char in event.field.assignedActors)
 							for (track in char.assignedTracks)
 								track.volume = 0;
@@ -537,21 +538,38 @@ class PlayState extends BeatState {
 			 * K: Suffix, V: The Track.
 			 */
 			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
-			for (suffix in vocalSuffixes)
-				tracks.set(suffix, conductor.addVocalTrack(setSong, suffix, variant));
+			for (suffix in vocalSuffixes) {
+				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, variant);
+				if (track != null)
+					tracks.set(suffix, track);
+			}
 
+			// assigns tracks to characters
 			for (charTag => suffixes in vocalTargeting)
 				for (suffix in suffixes)
-					characterMapping.get(charTag).assignedTracks.push(tracks.get(suffix));
+					if (tracks.exists(suffix))
+						characterMapping.get(charTag).assignedTracks.push(tracks.get(suffix));
 
-			if (vocalSuffixes.length < 1)
+			// loads main suffixes
+			if (tracks.empty()) {
+				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', variant);
+				if (enemyTrack != null)
+					enemy.assignedTracks.push(enemyTrack);
+
+				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', variant);
+				if (playerTrack != null)
+					player.assignedTracks.push(playerTrack);
+			}
+
+			// loads general track
+			if (tracks.empty())
 				generalVocals = conductor.addVocalTrack(setSong, '', variant);
 
 			conductor._onComplete = (event) -> {
-				for (char in characterMapping) {
+				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
 						char.lastHit = time - (char.singLength / 2);
-				}
+
 				scripts.event('onSongEnd', event);
 				songEnded = true;
 				if (!event.prevented)
