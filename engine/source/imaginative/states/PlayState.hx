@@ -67,7 +67,7 @@ class PlayState extends BeatState {
 	inline function set_countdownLength(value:Int):Int
 		return countdownLength = value < 1 ? 1 : value;
 	/**
-	 * The variable that says how far in the countdown is.
+	 * The variable that tracks the countdown.
 	 */
 	public var countdownTimer:FlxTimer = new FlxTimer();
 	/**
@@ -593,30 +593,32 @@ class PlayState extends BeatState {
 		assets.sounds.reverse();
 
 		countdownStarted = true;
-		countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
-			var assetIndex:Int = timer.loopsLeft - 1;
+		if (countdownLength <= 1) {
+			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
+				var assetIndex:Int = timer.loopsLeft - 1;
 
-			var soundAsset:ModPath = assets.sounds[assetIndex];
-			if (Paths.fileExists(Paths.sound(soundAsset)))
-				FlxG.sound.play(Paths.sound(soundAsset));
+				var soundAsset:ModPath = assets.sounds[assetIndex];
+				if (Paths.fileExists(Paths.sound(soundAsset)))
+					FlxG.sound.play(Paths.sound(soundAsset));
 
-			var imageAsset:ModPath = assets.images[assetIndex];
-			if (Paths.fileExists(Paths.image(imageAsset))) {
-				var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
-				sprite.cameras = [camHUD];
-				sprite.screenCenter();
-				add(sprite);
+				var imageAsset:ModPath = assets.images[assetIndex];
+				if (Paths.fileExists(Paths.image(imageAsset))) {
+					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
+					sprite.cameras = [camHUD];
+					sprite.screenCenter();
+					add(sprite);
 
-				FlxTween.tween(sprite, {alpha: 0}, beatTime / 1.2 / 1000, {
-					ease: FlxEase.cubeInOut,
-					onComplete: (_:FlxTween) ->
-						sprite.destroy()
-				});
-			}
+					FlxTween.tween(sprite, {alpha: 0}, beatTime / 1.2 / 1000, {
+						ease: FlxEase.cubeInOut,
+						onComplete: (_:FlxTween) ->
+							sprite.destroy()
+					});
+				}
 
-			if (timer.loopsLeft == 0)
-				songStarted = true;
-		}, countdownLength + 1);
+				if (timer.loopsLeft == 0)
+					songStarted = true;
+			}, countdownLength + 1);
+		}
 		conductor.play(-beatTime * (countdownLength + 1));
 	}
 

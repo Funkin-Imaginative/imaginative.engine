@@ -49,10 +49,10 @@ class PlayConfig {
 		return data[data.length - 1];
 	}
 
-	inline public static function characterSing(field:ArrowField, actors:Array<Character>, i:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
+	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
 		for (char in actors.filter((char:Character) -> return char != null)) {
 			char.controls = field.isPlayer ? field.controls : null;
-			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][i];
+			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][id];
 			char.playAnim('sing$temp', context, suffix);
 			char.lastHit = field.conductor.time;
 		}
