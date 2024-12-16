@@ -104,6 +104,11 @@ class PlayState extends BeatState {
 	public var songEnded:Bool = false;
 
 	/**
+	 * The general vocal track instance.
+	 */
+	public var generalVocals:Null<FlxSound>;
+
+	/**
 	 * It true, your score will save.
 	 */
 	public var saveScore:Bool = true;
@@ -285,6 +290,11 @@ class PlayState extends BeatState {
 		); */
 
 		// character creation.
+		var vocalSuffixes:Array<String> = [];
+		/**
+		 * K: Character Tag, V: Vocal Suffix List.
+		 */
+		var vocalTargeting:Map<String, Array<String>> = new Map<String, Array<String>>();
 		var loadedCharacters:Array<String> = [];
 		for (base in chartData.characters) {
 			var pos:Position = new Position(
@@ -305,6 +315,13 @@ class PlayState extends BeatState {
 			characterMapping.set(base.tag, character);
 			loadedCharacters.push(base.tag);
 			add(character);
+
+			var suffix:String = base.vocals ?? character.vocalSuffix ?? /* base.tag ?? */ character.theirName; // unsure
+			if (!vocalSuffixes.contains(suffix))
+				vocalSuffixes.push(suffix);
+			if (!vocalTargeting.exists(base.tag))
+				vocalTargeting.set(base.tag, []);
+			vocalTargeting.get(base.tag).push(suffix);
 		}
 		log('Character${loadedCharacters.length > 1 ? "'s" : ''} ${[for (i => char in loadedCharacters) (i == (loadedCharacters.length - 2) && loadedCharacters.length > 1) ? '"$char" and' : '"$char"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
@@ -358,7 +375,14 @@ class PlayState extends BeatState {
 				scripts.event('noteHit', event);
 
 				if (!event.prevented) {
-					PlayConfig.characterSing(event.field, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					var actors:Array<Character> = event.note.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 1;
+					if (generalVocals != null)
+						generalVocals.volume = 1;
 
 					// doing it here for now
 					if (event.field.isPlayer) {
@@ -384,7 +408,14 @@ class PlayState extends BeatState {
 				scripts.event('sustainHit', event);
 
 				if (!event.prevented) {
-					PlayConfig.characterSing(event.field, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					var actors:Array<Character> = event.sustain.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 1;
+					if (generalVocals != null)
+						generalVocals.volume = 1;
 				}
 
 				scripts.event('sustainHitPost', event);
@@ -394,7 +425,14 @@ class PlayState extends BeatState {
 				scripts.event('noteMissed', event);
 
 				if (!event.prevented) {
-					PlayConfig.characterSing(event.field, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					var actors:Array<Character> = event.note.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 0;
+					if (generalVocals != null)
+						generalVocals.volume = 0;
 				}
 
 				scripts.event('noteMissedPost', event);
@@ -404,7 +442,14 @@ class PlayState extends BeatState {
 				scripts.event('sustainMissed', event);
 
 				if (!event.prevented) {
-					PlayConfig.characterSing(event.field, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					var actors:Array<Character> = event.sustain.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 0;
+					if (generalVocals != null)
+						generalVocals.volume = 0;
 				}
 
 				scripts.event('sustainMissedPost', event);
@@ -417,6 +462,11 @@ class PlayState extends BeatState {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
 							PlayConfig.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+						for (char in event.field.assignedActors)
+							for (track in char.assignedTracks)
+								track.volume = 0;
+						if (generalVocals != null)
+							generalVocals.volume = 0;
 					}
 				}
 
@@ -483,9 +533,19 @@ class PlayState extends BeatState {
 		scripts.call('create');
 
 		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
-			conductor.addVocalTrack(setSong, '', variant);
-			conductor.addVocalTrack(setSong, 'Enemy', variant);
-			conductor.addVocalTrack(setSong, 'Player', variant);
+			/**
+			 * K: Suffix, V: The Track.
+			 */
+			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
+			for (suffix in vocalSuffixes)
+				tracks.set(suffix, conductor.addVocalTrack(setSong, suffix, variant));
+
+			for (charTag => suffixes in vocalTargeting)
+				for (suffix in suffixes)
+					characterMapping.get(charTag).assignedTracks.push(tracks.get(suffix));
+
+			if (vocalSuffixes.length < 1)
+				generalVocals = conductor.addVocalTrack(setSong, '', variant);
 
 			conductor._onComplete = (event) -> {
 				for (char in characterMapping) {

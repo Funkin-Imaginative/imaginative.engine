@@ -8,6 +8,7 @@ typedef CharacterParse = {
 	var ?color:String;
 	@:default('face') var icon:String;
 	@:default(4) var singlength:Float;
+	var ?vocals:Float;
 }
 typedef CharacterData = {
 	/**
@@ -27,6 +28,11 @@ typedef CharacterData = {
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
 	var singlength:Float;
+	/**
+	 * The character's vocal suffix.
+	 * Leave blank to use their file name.
+	 */
+	var ?vocals:String;
 }
 
 /**
@@ -49,6 +55,15 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 * The character icon.
 	 */
 	public var theirIcon(default, null):String = 'face';
+
+	/**
+	 * The character's vocal suffix.
+	 */
+	public var vocalSuffix(default, null):String;
+	/**
+	 * The vocal tracks that the character can interact with.
+	 */
+	public var assignedTracks:Array<FlxSound> = [];
 
 	/**
 	 * Used to help `singLength`.
@@ -98,6 +113,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 				healthColor = inputData.character.color;
 				theirIcon = inputData.character.icon;
 				singLength = inputData.character.singlength;
+				vocalSuffix = inputData.character.vocals ?? theirName;
 			}
 		} catch(error:haxe.Exception)
 			try {

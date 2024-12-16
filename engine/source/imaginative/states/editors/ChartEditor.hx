@@ -53,6 +53,10 @@ typedef ChartCharacter = {
 	 * The location the character will be placed.
 	 */
 	var position:String;
+	/**
+	 * The character's vocal suffix override.
+	 */
+	var ?vocals:String;
 }
 
 typedef FieldSettings = {
