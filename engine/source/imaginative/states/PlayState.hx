@@ -316,7 +316,7 @@ class PlayState extends BeatState {
 			loadedCharacters.push(base.tag);
 			add(character);
 
-			var suffix:String = base.vocals ?? character.vocalSuffix ?? /* base.tag ?? */ character.theirName; // unsure
+			var suffix:String = base.vocals ?? character.vocalSuffix ?? base.tag; // since vocalSuffix can be theirName, i'ma just go with this
 			if (!vocalSuffixes.contains(suffix))
 				vocalSuffixes.push(suffix);
 			if (!vocalTargeting.exists(base.tag))
@@ -611,7 +611,7 @@ class PlayState extends BeatState {
 		assets.sounds.reverse();
 
 		countdownStarted = true;
-		if (countdownLength <= 1) {
+		if (countdownLength >= 1) {
 			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
 				var assetIndex:Int = timer.loopsLeft - 1;
 
