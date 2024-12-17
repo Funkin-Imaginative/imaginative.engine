@@ -191,8 +191,7 @@ class ArrowField extends BeatGroup {
 					controls.noteUpReleased,
 					controls.noteRightReleased
 				]
-				[i],
-				settings
+				[i]
 			);
 	}
 
@@ -203,10 +202,9 @@ class ArrowField extends BeatGroup {
 	 * @param hasHit If true, a bind was pressed.
 	 * @param beingHeld If true, a bind is being held.
 	 * @param wasReleased If true, a bind was released.
-	 * @param settings The player settings instance.
 	 */
-	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings):Void {
-		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased, settings);
+	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
+		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased);
 		userInput.dispatch(event);
 		if (event.prevented) return;
 
