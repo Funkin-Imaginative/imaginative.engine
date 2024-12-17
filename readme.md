@@ -22,5 +22,3 @@ WIP
 [Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) for playing videos, and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc) for discord rich presence.
 
 [Franco Ponticelli](https://github.com/fponticelli): [`thx.semver`](https://lib.haxe.org/p/thx.semver), good for version handling! I just gotta make sure I double check the version numbers I'll eventually use.
-
-[T-Bar](https://lib.haxe.org/u/T-Bar): [`hxWindowColorMode`](https://lib.haxe.org/p/hxWindowColorMode)... what? I like colors.

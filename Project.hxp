@@ -282,10 +282,6 @@ class EngineAsset {
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
-
-		// very optional
-		if (isWindows() || isLinux())
-			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
 		if (!isDebug())
