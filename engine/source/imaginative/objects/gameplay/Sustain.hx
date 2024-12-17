@@ -28,7 +28,7 @@ class Sustain extends FlxSprite {
 	 */
 	public var setHead(default, null):Note;
 
-	// public var scrollAngle:Float = 0;
+	public var scrollAngle:Float = 0;
 
 	/**
 	 * The strum lane index.
@@ -105,11 +105,6 @@ class Sustain extends FlxSprite {
 		mods = new ArrowModifier(this);
 
 		mods.alpha = 0.6;
-	}
-
-	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-		mods.update(elapsed);
 	}
 
 	/**

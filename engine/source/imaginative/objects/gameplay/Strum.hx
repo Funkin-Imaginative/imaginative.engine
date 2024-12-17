@@ -32,7 +32,7 @@ class Strum extends FlxSprite {
 	inline function get___scrollSpeed():Float
 		return mods.apply.speedIsMult ? setField.scrollSpeed * mods.speed : mods.speed;
 
-	// public var scrollAngle:Float = 270;
+	public var scrollAngle:Float = 0;
 
 	/**
 	 * Used to help `glowLength`.
@@ -82,8 +82,6 @@ class Strum extends FlxSprite {
 		if (willReset && getAnimName() != 'static')
 			if (glowLength > 0 ? (lastHit + (setField.conductor.stepTime * glowLength) < setField.conductor.time) : (getAnimName() == null || isAnimFinished()))
 				playAnim(setField.isPlayer ? 'press' : 'static');
-
-		mods.update(elapsed);
 	}
 
 	/**

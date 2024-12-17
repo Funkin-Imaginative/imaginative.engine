@@ -7,11 +7,15 @@ package imaginative.backend.objects;
 	/**
 	 * The X position.
 	 */
-	public var x:Float = 0;
+	public var x(default, set):Float = 0;
+	public dynamic function set_x(value:Float):Float
+		return x = value;
 	/**
 	 * The Y position.
 	 */
-	public var y:Float = 0;
+	public var y(default, set):Float = 0;
+	public dynamic function set_y(value:Float):Float
+		return y = value;
 
 	public function new(x:Float = 0, y:Float = 0)
 		set(x, y);
@@ -22,7 +26,7 @@ package imaginative.backend.objects;
 	 * @param y The new Y position.
 	 * @return `Position` ~ Current instance for chaining.
 	 */
-	inline public function set(x:Float = 0, y:Float = 0):Position {
+	public dynamic function set(x:Float = 0, y:Float = 0):Position {
 		this.x = x ?? 0;
 		this.y = y ?? 0;
 		return this;

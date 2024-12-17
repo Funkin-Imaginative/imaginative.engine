@@ -7,11 +7,15 @@ package imaginative.backend.objects;
 	/**
 	 * X
 	 */
-	public var x:T;
+	public var x(default, set):T;
+	public dynamic function set_x(value:T):T
+		return x = value;
 	/**
 	 * Y
 	 */
-	public var y:T;
+	public var y(default, set):T;
+	public dynamic function set_y(value:T):T
+		return y = value;
 
 	public function new(x:T, y:T)
 		set(x, y);
@@ -22,7 +26,7 @@ package imaginative.backend.objects;
 	 * @param y The new Y.
 	 * @return `TypeXY<T>` ~ Current instance for chaining.
 	 */
-	inline public function set(x:T, y:T):TypeXY<T> {
+	public dynamic function set(x:T, y:T):TypeXY<T> {
 		this.x = x ?? this.x;
 		this.y = y ?? this.y;
 		return this;

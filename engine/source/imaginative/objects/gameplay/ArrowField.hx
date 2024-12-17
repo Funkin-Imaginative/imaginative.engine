@@ -8,6 +8,36 @@ import imaginative.backend.scripting.events.objects.gameplay.SustainMissedEvent;
 import imaginative.backend.scripting.events.objects.gameplay.VoidMissEvent;
 import imaginative.states.editors.ChartEditor.ChartField;
 
+/**
+ * This only really exists so I can set the modifier stuff properly.
+ */
+class StrumGroup extends BeatTypedSpriteGroup<Strum> {
+	// this shit is wanting to be a bitch, I don't wanna do this shit on update :sob:
+	// the initVars func runs
+	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
+	override function initVars() {
+		super.initVars();
+		var point:FlxCallbackPoint = cast scale;
+		@:privateAccess
+		var og:FlxPoint->Void = point._setXCallback;
+		@:privateAccess // but this fucking doesn't
+		point._setXYCallback = point._setYCallback = point._setXCallback = (lol:FlxPoint) -> {
+			og(lol);
+			for (note in members[0].setField.notes)
+				note.mods.update_scale();
+		}
+		scale = cast point;
+	}
+
+	@:access(imaginative.objects.gameplay.ArrowModifier.update_alpha)
+	override public function set_alpha(value:Float):Float {
+		var set:Float = super.set_alpha(value);
+		for (note in members[0].setField.notes)
+			note.mods.update_alpha();
+		return set;
+	}
+}
+
 class ArrowField extends BeatGroup {
 	/**
 	 * Stores extra data that coders can use for cool stuff.
@@ -118,7 +148,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
+	public var strums(default, null):StrumGroup = new StrumGroup();
 	/**
 	 * The notes of the field.
 	 */
@@ -134,6 +164,7 @@ class ArrowField extends BeatGroup {
 	public var noteKillRange:Float = 350;
 	/**
 	 * The distance between the each strum.
+	 * TODO: Make it so strum skins will have their own spacing!
 	 */
 	public var strumSpacing:Float = -7;
 	/**
@@ -141,10 +172,18 @@ class ArrowField extends BeatGroup {
 	 * This overrides the base chart speed.
 	 * When null is returns the base chart speed.
 	 */
-	public var scrollSpeed(get, default):Null<Float> = null;
-	inline function get_scrollSpeed():Null<Float>
-		return scrollSpeed ?? PlayState.chartData.speed;
-
+	public var scrollSpeed(default, set):Null<Float>;
+	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
+	inline function set_scrollSpeed(?value:Float):Float {
+		scrollSpeed = value ?? PlayState.chartData.speed;
+		for (sustain in sustains)
+			sustain.mods.update_scale();
+		return scrollSpeed;
+	}
+	public var scrollAngle(default, set):Null<Float>;
+	inline function set_scrollAngle(?value:Float):Null<Float> {
+		return scrollAngle = value ?? (settings.downscroll ? 90 : 270);
+	}
 
 	/**
 	 * The amount of strums in the field.
@@ -160,6 +199,8 @@ class ArrowField extends BeatGroup {
 
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
+
+		scrollSpeed = scrollAngle = null; // runs the "set_" function
 
 		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
 		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));

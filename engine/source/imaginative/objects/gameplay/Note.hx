@@ -48,7 +48,7 @@ class Note extends FlxSprite {
 	inline function get___scrollSpeed():Float
 		return mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed;
 
-	// public var scrollAngle:Float = 270;
+	public var scrollAngle:Float = 0;
 
 	public var lowPriority:Bool = false;
 
@@ -104,7 +104,6 @@ class Note extends FlxSprite {
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		followStrum();
-		mods.update(elapsed);
 	}
 
 	/**
@@ -115,12 +114,12 @@ class Note extends FlxSprite {
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
-		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
-		if (__scrollSpeed < 0) scrollAngle += 180;
-		scrollAngle += setField.strums.angle;
+		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle;
+		if (__scrollSpeed < 0) resultAngle += 180;
+		resultAngle += setField.strums.angle;
 
 		var angleDir:Float = Math.PI / 180;
-		angleDir = scrollAngle * angleDir;
+		angleDir = resultAngle * angleDir;
 		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
 		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
@@ -138,11 +137,12 @@ class Note extends FlxSprite {
 		);
 
 		for (sustain in tail) {
-			// var scrollAngle:Float = scrollAngle + sustain.scrollAngle;
+			var resultAngle:Float = resultAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = scrollAngle * angleDir;
-			sustain.angle = scrollAngle + 90;
+			angleDir = resultAngle * angleDir;
+			if (mods.apply.angle)
+				sustain.angle = resultAngle + 90 + mods.angle;
 
 			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
 			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
