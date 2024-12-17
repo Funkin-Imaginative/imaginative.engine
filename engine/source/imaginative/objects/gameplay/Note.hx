@@ -161,12 +161,12 @@ class Note extends FlxSprite {
 
 
 	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
-		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ??= note.id) && !note.canDie);
+		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id) && !note.canDie);
 		result.sort(sortNotes);
 		return result;
 	}
-	inline public static function filterTail(sustains:Array<Sustain>, ?i:Int):Array<Sustain> {
-		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return sustain.canHit && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ??= sustain.id) && !sustain.canDie);
+	inline public static function filterTail(sustains:Array<Sustain>, isMiss:Bool = false, ?i:Int):Array<Sustain> {
+		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id) && !sustain.canDie);
 		result.sort(sortTail);
 		return result;
 	}

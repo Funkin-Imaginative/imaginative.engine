@@ -327,6 +327,9 @@ class ArrowField extends BeatGroup {
 		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
+			if (event.field.settings.missFullSustain)
+				for (sustain in Note.filterTail(event.note.tail, true))
+					sustain.wasMissed = true;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.note.setStrum.playAnim('press', !event.field.isPlayer);
@@ -339,6 +342,9 @@ class ArrowField extends BeatGroup {
 		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
+			if (event.field.settings.missFullSustain)
+				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
+					sustain.wasMissed = true;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
