@@ -126,7 +126,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains(default, null):BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
+	public var sustains(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
 
 	/**
 	 * How far out until a note is killed.
@@ -160,6 +160,12 @@ class ArrowField extends BeatGroup {
 
 		if (singers != null)
 			assignedActors = singers;
+
+		notes.memberAdded.add((_:Note) -> notes.members.sort(Note.sortNotes));
+		notes.memberRemoved.add((_:Note) -> notes.members.sort(Note.sortNotes));
+
+		sustains.memberAdded.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
+		sustains.memberRemoved.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
 
 		add(strums);
 		add(notes);
@@ -239,11 +245,7 @@ class ArrowField extends BeatGroup {
 
 		// sustain hits
 		if (beingHeld) {
-			for (sustain in Note.filterTail([
-				for (group in sustains)
-					for (sustain in group)
-						sustain
-			], i))
+			for (sustain in Note.filterTail(sustains.members, i))
 				if ((sustain.time + sustain.setHead.time) <= conductor.time)
 					_onSustainHit(sustain, i);
 		}
@@ -276,11 +278,7 @@ class ArrowField extends BeatGroup {
 			if (shouldKill)
 				note.kill();
 		}
-		for (sustain in [
-			for (group in sustains)
-				for (sustain in group)
-					sustain
-		]) {
+		for (sustain in sustains) {
 			// lol
 			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.setHead.__scrollSpeed)) {
 				if (!sustain.wasHit && !sustain.wasMissed)
@@ -408,7 +406,8 @@ class ArrowField extends BeatGroup {
 					if (lol.contains(tag))
 						char
 			];
-			sustains.add(notes.add(note).tail);
+			for (sustain in notes.add(note).tail)
+				sustains.add(sustain);
 		}
 	}
 

@@ -24,7 +24,7 @@ class Note extends FlxSprite {
 	/**
 	 * The sustain pieces this note has.
 	 */
-	public var tail(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
+	public var tail(default, null):Array<Sustain> = [];
 
 	// Note specific variables.
 	/**
@@ -82,8 +82,6 @@ class Note extends FlxSprite {
 		setStrum = parent;
 		this.id = id;
 		this.time = time;
-		tail.memberAdded.add((_:Sustain) -> tail.members.sort(sortTail));
-		tail.memberRemoved.add((_:Sustain) -> tail.members.sort(sortTail));
 
 		super(-10000, -10000);
 
@@ -155,7 +153,7 @@ class Note extends FlxSprite {
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
 				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
-				note.tail.add(sustain);
+				note.tail.push(sustain);
 			}
 		}
 	}
@@ -181,15 +179,18 @@ class Note extends FlxSprite {
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
 
 	override public function kill():Void {
-		tail.kill();
+		for (sustain in tail)
+			sustain.kill();
 		super.kill();
 	}
 	override public function revive():Void {
-		tail.revive();
+		for (sustain in tail)
+			sustain.revive();
 		super.revive();
 	}
 	override public function destroy():Void {
-		tail.destroy();
+		for (sustain in tail)
+			sustain.destroy();
 		super.destroy();
 	}
 }
