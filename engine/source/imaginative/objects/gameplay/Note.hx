@@ -155,6 +155,7 @@ class Note extends FlxSprite {
 				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
 				note.tail.push(sustain);
 			}
+			note.tail.sort(sortTail);
 		}
 	}
 
