@@ -83,19 +83,47 @@ class Sustain extends FlxSprite {
 
 		super(setHead.x, setHead.y);
 
-		// var dir:String = ['left', 'down', 'up', 'right'][idMod];
-
-		// this.loadTexture('gameplay/arrows/funkin');
-		makeGraphic(50, isEnd ? 60 : 80, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
-
+		var useImage:Bool = true;
 		var name:String = isEnd ? 'end' : 'hold';
-		// animation.addByPrefix(name, '$dir $name', 24, false);
+		if (useImage) {
+			var dir:String = ['left', 'down', 'up', 'right'][idMod];
+			this.loadTexture('gameplay/arrows/funkin');
+			animation.addByPrefix(name, '$dir $name', 24, false);
+		} else {
+			makeGraphic(50, isEnd ? 60 : 97, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
+			alpha = 0.6;
+		}
 
-		// animation.play(name, true);
+		if (useImage)
+			animation.play(name, true);
 		scale.scale(0.7);
+		if (!isEnd)
+			applyBaseScaleY(this, setHead.__scrollSpeed);
 		updateHitbox();
-		// animation.play(name, true);
-		// updateHitbox();
-		origin.y = 0;
+		if (useImage) {
+			animation.play(name, true);
+			updateHitbox();
+		}
+	}
+
+	/**
+	 * This function applies the base Y scaling to a sustain.
+	 * `97 * 0.7 = 67.9` The math to get the perfect sustain scale.
+	 * It is the perfect one btw, I tested with makeGraphic.
+	 * Though for some skins it may look off.
+	 * @param sustain The sustain to apply it to.
+	 * @param mult The scale multiplier.
+	 *             You'd most likely put the scroll speed here.
+	 */
+	inline public static function applyBaseScaleY(sustain:Sustain, mult:Float = 1):Void {
+		// setGraphicSize
+		sustain.scale.y = (67.9 / sustain.frameHeight) * mult;
+
+		// updateHitbox
+		sustain.height = Math.abs(sustain.scale.y) * sustain.frameHeight;
+		sustain.offset.y = -0.5 * (sustain.height - sustain.frameHeight);
+
+		// centerOrigin
+		sustain.origin.y = sustain.frameHeight * 0.5;
 	}
 }

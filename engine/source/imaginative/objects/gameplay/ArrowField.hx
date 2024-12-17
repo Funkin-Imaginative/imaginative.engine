@@ -135,7 +135,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The distance between the each strum.
 	 */
-	public var strumSpacing:Float = -50;
+	public var strumSpacing:Float = -7;
 
 	/**
 	 * The amount of strums in the field.
@@ -321,7 +321,7 @@ class ArrowField extends BeatGroup {
 		if (!event.prevented) {
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumConfirm)
-				event.sustain.setStrum.playAnim('confirm', true);
+				event.sustain.setStrum.playAnim(event.sustain.setStrum.doesAnimExist('confirm-hold') ? 'confirm-hold' : 'confirm', true);
 		}
 	}
 	inline function _onNoteMissed(note:Note, ?i:Int):Void {

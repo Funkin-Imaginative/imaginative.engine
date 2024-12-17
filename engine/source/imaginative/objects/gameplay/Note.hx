@@ -116,14 +116,16 @@ class Note extends FlxSprite {
 		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
 
 		var angleDir:Float = Math.PI / 180;
-		angleDir = scrollAngle * angleDir;
+		angleDir = scrollAngle * angleDir + setField.strums.angle;
 		var pos:Position = new Position(strum.x, strum.y);
 		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * __scrollSpeed;
 
-		// pos.x += offset.x;
+		pos.x -= width / 2;
+		pos.x += strum.width / 2;
 		pos.x += Math.cos(angleDir) * distance.position;
 
-		// pos.y += offset.y;
+		pos.y -= height / 2;
+		pos.y += strum.height / 2;
 		pos.y += Math.sin(angleDir) * distance.position;
 		setPosition(pos.x, pos.y);
 
@@ -131,20 +133,17 @@ class Note extends FlxSprite {
 			// var scrollAngle:Float = scrollAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = scrollAngle * angleDir;
-			sustain.angle = scrollAngle - 90;
+			angleDir = scrollAngle * angleDir + setField.strums.angle;
+			sustain.angle = scrollAngle + 90;
 
-			var followsParent:Bool = false;//pastedStrum;
-			var pos:Position = new Position(followsParent ? x : strum.x, followsParent ? y : strum.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
+			var pos:Position = new Position(strum.x, strum.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * __scrollSpeed;
 
-			// pos.x += offset.x;
 			pos.x -= sustain.width / 2;
-			pos.x += (followsParent ? width : strum.width) / 2;
+			pos.x += strum.width / 2;
 			pos.x += Math.cos(angleDir) * distance.position;
 
-			// pos.y += offset.y;
-			pos.y += (followsParent ? width : strum.width) / 2;
+			pos.y += strum.height / 2;
 			pos.y += Math.sin(angleDir) * distance.position;
 			sustain.setPosition(pos.x, pos.y);
 		}

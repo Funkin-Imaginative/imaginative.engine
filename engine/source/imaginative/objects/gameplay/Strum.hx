@@ -48,7 +48,7 @@ class Strum extends FlxSprite {
 	/**
 	 * If true, after the glowlength is reached the animation will go back to "static".
 	 */
-	public var willReset:Bool;
+	public var willReset:Bool = false;
 
 	@:allow(imaginative.objects.gameplay.ArrowField.new)
 	override function new(field:ArrowField, id:Int) {
@@ -63,8 +63,8 @@ class Strum extends FlxSprite {
 
 		animation.addByPrefix('static', '$dir static', 24, false);
 		animation.addByPrefix('press', '$dir press', 24, false);
-		animation.addByPrefix('confirm', '$dir confirm', 24, false);
-		animation.addByPrefix('confirm-hold', '$dir hold confirm', 24);
+		animation.addByPrefix('confirm', '$dir confirm start', 24, false);
+		animation.addByPrefix('confirm-hold', '$dir confirm hold', 24);
 
 		playAnim('static');
 		scale.scale(0.7);
