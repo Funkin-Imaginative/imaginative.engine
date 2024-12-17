@@ -50,6 +50,8 @@ class Strum extends FlxSprite {
 	 */
 	public var willReset:Bool = false;
 
+	public var mods:ArrowModifier;
+
 	@:allow(imaginative.objects.gameplay.ArrowField.new)
 	override function new(field:ArrowField, id:Int) {
 		setField = field;
@@ -71,6 +73,8 @@ class Strum extends FlxSprite {
 		updateHitbox();
 		playAnim('static');
 		updateHitbox();
+
+		mods = new ArrowModifier(this);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -79,6 +83,8 @@ class Strum extends FlxSprite {
 		if (willReset && getAnimName() != 'static')
 			if (glowLength > 0 ? (lastHit + (setField.conductor.stepTime * glowLength) < setField.conductor.time) : (getAnimName() == null || isAnimFinished()))
 				playAnim(setField.isPlayer ? 'press' : 'static');
+
+		mods.update(elapsed);
 	}
 
 	/**

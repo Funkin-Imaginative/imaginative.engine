@@ -77,6 +77,8 @@ class Note extends FlxSprite {
 
 	public var canDie:Bool = false;
 
+	public var mods:ArrowModifier;
+
 	override public function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
 		setField = field;
 		setStrum = parent;
@@ -96,11 +98,14 @@ class Note extends FlxSprite {
 		updateHitbox();
 		animation.play('head', true);
 		updateHitbox();
+
+		mods = new ArrowModifier(this);
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		followStrum();
+		mods.update(elapsed);
 	}
 
 	/**
@@ -112,10 +117,11 @@ class Note extends FlxSprite {
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
 		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
+		scrollAngle += setField.strums.angle;
 
 		var angleDir:Float = Math.PI / 180;
-		angleDir = scrollAngle * angleDir + setField.strums.angle;
-		var pos:Position = new Position(strum.x, strum.y);
+		angleDir = scrollAngle * angleDir;
+		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
 		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * __scrollSpeed;
 
 		pos.x -= width / 2;
@@ -125,16 +131,20 @@ class Note extends FlxSprite {
 		pos.y -= height / 2;
 		pos.y += strum.height / 2;
 		pos.y += Math.sin(angleDir) * distance.position;
-		setPosition(pos.x, pos.y);
+
+		setPosition(
+			mods.apply.position.x ? pos.x : x,
+			mods.apply.position.y ? pos.y : y
+		);
 
 		for (sustain in tail) {
 			// var scrollAngle:Float = scrollAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = scrollAngle * angleDir + setField.strums.angle;
+			angleDir = scrollAngle * angleDir;
 			sustain.angle = scrollAngle + 90;
 
-			var pos:Position = new Position(strum.x, strum.y);
+			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
 			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * __scrollSpeed;
 
 			pos.x -= sustain.width / 2;
@@ -143,7 +153,11 @@ class Note extends FlxSprite {
 
 			pos.y += strum.height / 2;
 			pos.y += Math.sin(angleDir) * distance.position;
-			sustain.setPosition(pos.x, pos.y);
+
+			sustain.setPosition(
+				sustain.mods.apply.position.x ? pos.x : sustain.x,
+				sustain.mods.apply.position.y ? pos.y : sustain.y
+			);
 		}
 	}
 

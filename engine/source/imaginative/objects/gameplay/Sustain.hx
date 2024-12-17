@@ -76,6 +76,8 @@ class Sustain extends FlxSprite {
 
 	public var canDie:Bool = false;
 
+	public var mods:ArrowModifier;
+
 	override public function new(parent:Note, time:Float, end:Bool = false) {
 		setHead = parent;
 		this.time = time;
@@ -83,27 +85,26 @@ class Sustain extends FlxSprite {
 
 		super(setHead.x, setHead.y);
 
-		var useImage:Bool = true;
 		var name:String = isEnd ? 'end' : 'hold';
-		if (useImage) {
-			var dir:String = ['left', 'down', 'up', 'right'][idMod];
-			this.loadTexture('gameplay/arrows/funkin');
-			animation.addByPrefix(name, '$dir $name', 24, false);
-		} else {
-			makeGraphic(50, isEnd ? 60 : 97, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
-			alpha = 0.6;
-		}
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
+		this.loadTexture('gameplay/arrows/funkin');
+		animation.addByPrefix(name, '$dir $name', 24, false);
 
-		if (useImage)
-			animation.play(name, true);
+		animation.play(name, true);
 		scale.scale(0.7);
-		if (!isEnd)
-			applyBaseScaleY(this, setHead.__scrollSpeed);
+		applyBaseScaleY(this, setHead.__scrollSpeed);
 		updateHitbox();
-		if (useImage) {
-			animation.play(name, true);
-			updateHitbox();
-		}
+		animation.play(name, true);
+		updateHitbox();
+
+		mods = new ArrowModifier(this);
+
+		mods.alpha = 0.6;
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		mods.update(elapsed);
 	}
 
 	/**
@@ -116,6 +117,9 @@ class Sustain extends FlxSprite {
 	 *             You'd most likely put the scroll speed here.
 	 */
 	inline public static function applyBaseScaleY(sustain:Sustain, mult:Float = 1):Void {
+		// prevent scaling on sustain end
+		if (sustain.isEnd) return;
+
 		// setGraphicSize
 		sustain.scale.y = (67.9 / sustain.frameHeight) * mult;
 
