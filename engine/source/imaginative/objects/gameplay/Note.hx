@@ -87,11 +87,11 @@ class Note extends FlxSprite {
 
 		super(-10000, -10000);
 
-		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 
-		this.loadTexture('gameplay/arrows/notes');
+		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('head', 'note$dir', 24, false);
+		animation.addByPrefix('head', '$dir head', 24, false);
 
 		animation.play('head', true);
 		scale.scale(0.7);

@@ -83,14 +83,13 @@ class Sustain extends FlxSprite {
 
 		super(setHead.x, setHead.y);
 
-		var col:String = ['purple', 'blue', 'green', 'red'][idMod];
+		// var dir:String = ['left', 'down', 'up', 'right'][idMod];
 
-		// this.loadTexture('gameplay/notes/NOTE_assets');
+		// this.loadTexture('gameplay/arrows/funkin');
 		makeGraphic(50, isEnd ? 60 : 80, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
 
 		var name:String = isEnd ? 'end' : 'hold';
-		// case NoteTail: animation.addByPrefix('hold', '$col hold piece', 24, false);
-		// case NoteEnd: animation.addByPrefix('end', '$col hold end', 24, false);
+		// animation.addByPrefix(name, '$dir $name', 24, false);
 
 		// animation.play(name, true);
 		scale.scale(0.7);

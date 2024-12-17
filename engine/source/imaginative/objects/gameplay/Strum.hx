@@ -57,13 +57,14 @@ class Strum extends FlxSprite {
 
 		super();
 
-		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 
-		this.loadTexture('gameplay/arrows/noteStrumline');
+		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('static', 'static$dir', 24, false);
-		animation.addByPrefix('press', 'press$dir', 24, false);
-		animation.addByPrefix('confirm', 'confirm$dir', 24, false);
+		animation.addByPrefix('static', '$dir static', 24, false);
+		animation.addByPrefix('press', '$dir press', 24, false);
+		animation.addByPrefix('confirm', '$dir confirm', 24, false);
+		animation.addByPrefix('confirm-hold', '$dir hold confirm', 24);
 
 		playAnim('static');
 		scale.scale(0.7);
