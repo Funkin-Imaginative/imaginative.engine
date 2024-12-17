@@ -546,7 +546,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 		if (!audio.playing && !autoSetTime)
 			audio.play();
-		else if (audio.playing && autoSetTime)
+		if (audio.playing && autoSetTime)
 			audio.pause();
 
 		if (audio.playing) {
@@ -564,7 +564,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 						sound.play();
 						// _log('Resynced conductor audio.');
 					}
-				} else sound.pause();
+				} else if (sound.playing)
+					sound.pause();
 				sound.update(FlxG.elapsed);
 			}
 		} else time += FlxG.elapsed * 1000;

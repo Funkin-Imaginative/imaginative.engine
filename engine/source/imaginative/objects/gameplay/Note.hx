@@ -44,10 +44,9 @@ class Note extends FlxSprite {
 	 */
 	public var time:Float;
 
-	// public var scrollSpeed:Float = 0;
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float
-		return PlayState.chartData.speed;
+		return mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed;
 
 	// public var scrollAngle:Float = 270;
 
@@ -67,7 +66,7 @@ class Note extends FlxSprite {
 		return time >= setField.conductor.time - Settings.setupP1.maxWindow && time <= setField.conductor.time + Settings.setupP1.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return time < setField.conductor.time - (300 / __scrollSpeed) && !wasHit;
+		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
@@ -117,12 +116,13 @@ class Note extends FlxSprite {
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
 		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
+		if (__scrollSpeed < 0) scrollAngle += 180;
 		scrollAngle += setField.strums.angle;
 
 		var angleDir:Float = Math.PI / 180;
 		angleDir = scrollAngle * angleDir;
 		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * __scrollSpeed;
+		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
 		pos.x -= width / 2;
 		pos.x += strum.width / 2;
@@ -145,7 +145,7 @@ class Note extends FlxSprite {
 			sustain.angle = scrollAngle + 90;
 
 			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * __scrollSpeed;
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
 
 			pos.x -= sustain.width / 2;
 			pos.x += strum.width / 2;

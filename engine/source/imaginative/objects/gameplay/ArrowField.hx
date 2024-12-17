@@ -136,6 +136,15 @@ class ArrowField extends BeatGroup {
 	 * The distance between the each strum.
 	 */
 	public var strumSpacing:Float = -7;
+	/**
+	 * The scroll speed of the field.
+	 * This overrides the base chart speed.
+	 * When null is returns the base chart speed.
+	 */
+	public var scrollSpeed(get, default):Null<Float> = null;
+	inline function get_scrollSpeed():Null<Float>
+		return scrollSpeed ?? PlayState.chartData.speed;
+
 
 	/**
 	 * The amount of strums in the field.
@@ -280,7 +289,7 @@ class ArrowField extends BeatGroup {
 		}
 		for (sustain in sustains) {
 			// lol
-			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.setHead.__scrollSpeed)) {
+			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.__scrollSpeed)) {
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
 				sustain.canDie = true;

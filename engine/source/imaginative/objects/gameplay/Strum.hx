@@ -28,10 +28,9 @@ class Strum extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
-	// public var scrollSpeed:Float = 0;
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float
-		return PlayState.chartData.speed;
+		return mods.apply.speedIsMult ? setField.scrollSpeed * mods.speed : mods.speed;
 
 	// public var scrollAngle:Float = 270;
 

@@ -25,6 +25,12 @@ typedef ArrowModHandler = {
 	 * EFFCTS: Strum, Note, Sustain
 	 */
 	public var alpha:Bool;
+
+	/**
+	 * If true, the speed var becomes a multiplier.
+	 * If false, it is the direct speed.
+	 */
+	public var speedIsMult:Bool;
 }
 
 class ArrowModifier {
@@ -40,7 +46,8 @@ class ArrowModifier {
 		followLead: true,
 		position: new TypeXY<Bool>(true, true),
 		scale: true,
-		alpha: true
+		alpha: true,
+		speedIsMult: true
 	}
 
 	// arrow mods
@@ -64,6 +71,11 @@ class ArrowModifier {
 	 * EFFCTS: Strum, Note, Sustain
 	 */
 	public var alpha:Float = 1;
+	/**
+	 * This is an scroll speed variable.
+	 * EFFCTS: Strum, Note, Sustain
+	 */
+	public var speed:Float = 1;
 
 	public function new(?strum:Strum, ?note:Note, ?sustain:Sustain) {
 		if ([strum == null, note == null, sustain == null].filter((nil:Bool) -> return !nil).length != 1)
@@ -105,7 +117,7 @@ class ArrowModifier {
 					(apply.followLead ? sustain.setHead.scale.x : 0.7) * scale.x,
 					(apply.followLead ? sustain.setHead.scale.y : 0.7) * scale.y
 				);
-				Sustain.applyBaseScaleY(sustain, sustain.setHead.__scrollSpeed); // will be triggered on a "set_" at some point
+				Sustain.applyBaseScaleY(sustain, Math.abs(sustain.__scrollSpeed)); // will be triggered on a "set_" at some point
 			}
 			if (apply.alpha)
 				sustain.alpha = (apply.followLead ? sustain.setHead.alpha : 1) * alpha;

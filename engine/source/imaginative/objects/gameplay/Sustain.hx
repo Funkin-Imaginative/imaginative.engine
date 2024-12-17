@@ -48,8 +48,14 @@ class Sustain extends FlxSprite {
 	 * The sustain position in steps, is an offset of the parent's time.
 	 */
 	public var time:Float;
-
+	/**
+	 * States if this sustain piece is the tail end.
+	 */
 	public var isEnd(default, null):Bool;
+
+	public var __scrollSpeed(get, never):Float;
+	inline function get___scrollSpeed():Float
+		return mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed;
 
 	/**
 	 * Any characters in this array will overwrite the sustains parent field array.
@@ -69,7 +75,7 @@ class Sustain extends FlxSprite {
 	}
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return (time + setHead.time) < setField.conductor.time - (300 / setHead.__scrollSpeed) && !wasHit;
+		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	public var wasHit:Bool = false;
 	public var wasMissed:Bool = false;
@@ -92,7 +98,6 @@ class Sustain extends FlxSprite {
 
 		animation.play(name, true);
 		scale.scale(0.7);
-		applyBaseScaleY(this, setHead.__scrollSpeed);
 		updateHitbox();
 		animation.play(name, true);
 		updateHitbox();

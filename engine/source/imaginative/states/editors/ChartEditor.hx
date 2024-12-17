@@ -38,6 +38,10 @@ typedef ChartField = {
 	 * Array of notes to load.
 	 */
 	var notes:Array<ChartNote>;
+	/**
+	 * The independent field scroll speed.
+	 */
+	var ?speed:Float;
 }
 
 typedef ChartCharacter = {

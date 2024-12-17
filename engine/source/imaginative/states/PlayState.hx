@@ -340,6 +340,7 @@ class PlayState extends BeatState {
 			field.parse(base);
 			arrowFieldMapping.set(base.tag, field);
 			loadedFields.push(base.tag);
+			field.scrollSpeed = base.speed;
 			field.cameras = [camHUD];
 			field.visible = false;
 			add(field);
@@ -568,7 +569,12 @@ class PlayState extends BeatState {
 			conductor._onComplete = (event) -> {
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
-						char.lastHit = time - (char.singLength / 2);
+						char.lastHit = time;
+
+				for (field in arrowFieldMapping)
+					for (strum in field.strums)
+						if (strum.willReset)
+							strum.lastHit = time;
 
 				scripts.event('onSongEnd', event);
 				songEnded = true;
