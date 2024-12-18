@@ -490,14 +490,25 @@ class PlayState extends BeatState {
 						field
 			];
 			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
-			for (i => field in fields) {
+			/* for (i => field in fields) {
 				// TODO: Get ArrowField positioning working!
-				field.y = (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1));
-				field.x = (FlxG.width / 2) - (field.strums.width / 2);
-				field.x += field.strums.width * i;
-				field.x -= (field.strums.width * ((fields.length - 1) / 2));
+				if (field.length < 3) {
+					field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
+					for (strum in field.strums)
+						strum.updateHitbox();
+				}
 				field.visible = true;
 			}
+			var hatred:Array<FlxObject> = [
+				for (field in fields)
+					new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
+			];
+			hatred.space((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)), (FlxG.width / 2) + (FlxG.width / 4) - (FlxG.width / 2) - (FlxG.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
+				var field:ArrowField = fields[hatred.indexOf(object)];
+				field.setPosition(x, y);
+			});
+			while (hatred.length > 0)
+				hatred.pop().destroy(); */
 		}
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))

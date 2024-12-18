@@ -8,36 +8,6 @@ import imaginative.backend.scripting.events.objects.gameplay.SustainMissedEvent;
 import imaginative.backend.scripting.events.objects.gameplay.VoidMissEvent;
 import imaginative.states.editors.ChartEditor.ChartField;
 
-/**
- * This only really exists so I can set the modifier stuff properly.
- */
-class StrumGroup extends BeatTypedSpriteGroup<Strum> {
-	// this shit is wanting to be a bitch, I don't wanna do this shit on update :sob:
-	// the initVars func runs
-	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
-	override function initVars() {
-		super.initVars();
-		var point:FlxCallbackPoint = cast scale;
-		@:privateAccess
-		var og:FlxPoint->Void = point._setXCallback;
-		@:privateAccess // but this fucking doesn't
-		point._setXYCallback = point._setYCallback = point._setXCallback = (lol:FlxPoint) -> {
-			og(lol);
-			for (note in members[0].setField.notes)
-				note.mods.update_scale();
-		}
-		scale = cast point;
-	}
-
-	@:access(imaginative.objects.gameplay.ArrowModifier.update_alpha)
-	override public function set_alpha(value:Float):Float {
-		var set:Float = super.set_alpha(value);
-		for (note in members[0].setField.notes)
-			note.mods.update_alpha();
-		return set;
-	}
-}
-
 class ArrowField extends BeatGroup {
 	/**
 	 * Stores extra data that coders can use for cool stuff.
@@ -148,7 +118,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):StrumGroup = new StrumGroup();
+	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
 	/**
 	 * The notes of the field.
 	 */
@@ -193,6 +163,7 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
+	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, mania:Int = 4) {
 		strumCount = mania;
 		super();
@@ -201,6 +172,14 @@ class ArrowField extends BeatGroup {
 			strums.add(new Strum(this, i));
 
 		scrollSpeed = scrollAngle = null; // runs the "set_" function
+
+		scale = new FlxCallbackPoint(
+			(point:FlxPoint) -> {
+				strums.scale.copyFrom(point);
+				for (note in notes)
+					note.mods.update_scale();
+			}
+		);
 
 		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
 		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
@@ -401,8 +380,17 @@ class ArrowField extends BeatGroup {
 		}
 	}
 
+	/**
+	 * The total calculated with of the strums.
+	 */
 	public var totalWidth(default, null):Float;
+	/**
+	 * Reset's the internal positions of the strums.
+	 */
 	public function resetInternalPositions():Void {
+		for (strum in strums)
+			strum.x = 0;
+
 		inline function helper(a:Strum, b:Strum):Void
 			if (a != null && b != null)
 				b.x = a.x + a.width + strumSpacing;
@@ -412,13 +400,7 @@ class ArrowField extends BeatGroup {
 			helper(strum, strums.members[i + 1]);
 		}
 
-		totalWidth = 0; // reset width
-		for (i => strum in strums.members)
-			totalWidth += strum.width;
-
-		totalWidth += strumSpacing * (strumCount - 1);
-		for (strum in strums)
-			strum.x -= totalWidth / 2;
+		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
 	}
 
 	/**
@@ -439,13 +421,38 @@ class ArrowField extends BeatGroup {
 		return strums.y = value;
 
 	/**
-	 * Set's the center position of the strum group.
+	 * Set's the center position of the field.
 	 * @param x The center x position.
 	 * @param y The center y position.
 	 */
 	inline public function setPosition(x:Float = 0, y:Float = 0):Void {
 		this.x = x;
 		this.y = y;
+	}
+
+	/**
+	 * The scale of the field.
+	 */
+	public var scale:FlxPoint;
+	/**
+	 * Update's the strums hitboxes.
+	 */
+	inline public function updateHitbox():Void
+		for (strum in strums)
+			strum.updateHitbox();
+
+	/**
+	 * The field alpha.
+	 */
+	public var alpha(get, set):Float;
+	inline function get_alpha():Float
+		return strums.alpha;
+	@:access(imaginative.objects.gameplay.ArrowModifier.update_alpha)
+	inline function set_alpha(value:Float):Float {
+		strums.alpha = value;
+		for (note in notes)
+			note.mods.update_alpha();
+		return strums.alpha;
 	}
 
 	/**

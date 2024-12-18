@@ -150,8 +150,8 @@ class ArrowModifier {
 		if (strum != null) {
 			if (apply.scale) {
 				strum.scale.set( // 0.7 being base scale, which will be given a variable at some point
-					(apply.followLead ? strum.setField.strums.scale.x : 0.7) * scale.x,
-					(apply.followLead ? strum.setField.strums.scale.y : 0.7) * scale.y
+					(apply.followLead ? strum.setField.scale.x : 0.7) * scale.x,
+					(apply.followLead ? strum.setField.scale.y : 0.7) * scale.y
 				);
 				for (note in strum.setField.notes)
 					note.mods.update_scale();
@@ -200,7 +200,7 @@ class ArrowModifier {
 	function update_alpha():Void {
 		if (strum != null) {
 			if (apply.alpha)
-				strum.alpha = (apply.followLead ? strum.setField.strums.alpha : 1) * alpha;
+				strum.alpha = (apply.followLead ? strum.setField.alpha : 1) * alpha;
 			for (note in strum.setField.notes)
 				note.mods.update_alpha();
 		}
