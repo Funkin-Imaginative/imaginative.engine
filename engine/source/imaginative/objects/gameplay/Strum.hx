@@ -62,10 +62,10 @@ class Strum extends FlxSprite {
 
 		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('static', '$dir static', 24, false);
-		animation.addByPrefix('press', '$dir press', 24, false);
-		animation.addByPrefix('confirm', '$dir confirm start', 24, false);
-		animation.addByPrefix('confirm-hold', '$dir confirm hold', 24);
+		animation.addByPrefix('static', '$dir strum static', 24, false);
+		animation.addByPrefix('press', '$dir strum press', 24, false);
+		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
+		animation.addByPrefix('confirm-hold', '$dir strum hold confirm', 24);
 
 		playAnim('static');
 		scale.scale(0.7);

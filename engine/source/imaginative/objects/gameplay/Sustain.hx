@@ -94,7 +94,7 @@ class Sustain extends FlxSprite {
 		var name:String = isEnd ? 'end' : 'hold';
 		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 		this.loadTexture('gameplay/arrows/funkin');
-		animation.addByPrefix(name, '$dir $name', 24, false);
+		animation.addByPrefix(name, '$dir note $name', 24, false);
 
 		animation.play(name, true);
 		scale.scale(0.7);

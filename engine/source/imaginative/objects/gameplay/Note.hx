@@ -90,7 +90,7 @@ class Note extends FlxSprite {
 
 		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('head', '$dir head', 24, false);
+		animation.addByPrefix('head', '$dir note head', 24, false);
 
 		animation.play('head', true);
 		scale.scale(0.7);
