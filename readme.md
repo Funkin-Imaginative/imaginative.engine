@@ -1,4 +1,6 @@
 # Welcome to Imaginative Engine!
+This engine is still work in progress!
+Be weary of any issues you may encounter.
 # Credits
 ### Members
 [Rodney](https://github.com/rodney528): Main programmer and director.
