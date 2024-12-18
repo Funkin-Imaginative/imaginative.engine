@@ -1,6 +1,6 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
-@:access(imaginative.objects.gameplay.ArrowModifier)
+@:access(imaginative.objects.gameplay.arrows.ArrowModifier)
 class ArrowModHandler {
 	var parent(null, null):ArrowModifier;
 

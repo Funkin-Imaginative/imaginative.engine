@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 class Note extends FlxSprite {
 	// Cool variables.
@@ -161,7 +161,7 @@ class Note extends FlxSprite {
 		}
 	}
 
-	@:allow(imaginative.objects.gameplay.ArrowField.parse)
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float) {
 		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
 		if (roundedLength > 0) {

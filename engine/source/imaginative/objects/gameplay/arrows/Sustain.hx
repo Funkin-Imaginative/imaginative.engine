@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 class Sustain extends FlxSprite {
 	// Cool variables.

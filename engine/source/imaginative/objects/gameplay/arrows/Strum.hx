@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 class Strum extends FlxSprite {
 	// Cool variables.
@@ -51,7 +51,7 @@ class Strum extends FlxSprite {
 
 	public var mods:ArrowModifier;
 
-	@:allow(imaginative.objects.gameplay.ArrowField.new)
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)
 	override function new(field:ArrowField, id:Int) {
 		setField = field;
 		this.id = id;

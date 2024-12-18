@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 import imaginative.backend.scripting.events.objects.gameplay.FieldInputEvent;
 import imaginative.backend.scripting.events.objects.gameplay.NoteHitEvent;
@@ -143,7 +143,7 @@ class ArrowField extends BeatGroup {
 	 * When null is returns the base chart speed.
 	 */
 	public var scrollSpeed(default, set):Null<Float>;
-	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	inline function set_scrollSpeed(?value:Float):Float {
 		scrollSpeed = value ?? PlayState.chartData.speed;
 		for (sustain in sustains)
@@ -163,7 +163,7 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
-	@:access(imaginative.objects.gameplay.ArrowModifier.update_scale)
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, mania:Int = 4) {
 		strumCount = mania;
 		super();
@@ -447,7 +447,7 @@ class ArrowField extends BeatGroup {
 	public var alpha(get, set):Float;
 	inline function get_alpha():Float
 		return strums.alpha;
-	@:access(imaginative.objects.gameplay.ArrowModifier.update_alpha)
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_alpha)
 	inline function set_alpha(value:Float):Float {
 		strums.alpha = value;
 		for (note in notes)
