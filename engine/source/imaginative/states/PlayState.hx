@@ -580,12 +580,12 @@ class PlayState extends BeatState {
 			conductor._onComplete = (event) -> {
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
-						char.lastHit = Math.NEGATIVE_INFINITY;
+						char.dance();
 
 				for (field in arrowFieldMapping)
 					for (strum in field.strums)
 						if (strum.willReset)
-							strum.lastHit = Math.NEGATIVE_INFINITY;
+							strum.playAnim('static');
 
 				scripts.event('onSongEnd', event);
 				songEnded = true;
