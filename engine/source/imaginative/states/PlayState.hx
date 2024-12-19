@@ -1,5 +1,6 @@
 package imaginative.states;
 
+import imaginative.objects.gameplay.hud.HUDTemplate;
 import imaginative.states.editors.ChartEditor.ChartData;
 
 typedef CountdownAssets = {
@@ -173,6 +174,10 @@ class PlayState extends BeatState {
 	 * Scripts for the funny softcoding bullshit.
 	 */
 	public var scripts:ScriptGroup;
+	/**
+	 * The HUD itself.
+	 */
+	public var hud:HUDTemplate;
 
 	/**
 	 * The main camera, all characters and stage elements will be shown here.
@@ -277,10 +282,26 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
+		hud = switch (chartData.hud ??= 'funkin') {
+			case 'funkin':
+				switch (Settings.setup.HUDSelection) {
+					case Funkin: new HUDTemplate();
+					case Kade: new HUDTemplate();
+					case Psych: new HUDTemplate();
+					case Codename: new HUDTemplate();
+					case VSlice: new HUDTemplate();
+					case Imaginative: new HUDTemplate();
+				}
+			default:
+				new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
+		}
+		hud.cameras = [camHUD];
+		add(hud);
+
 		rating = new BaseSprite(500, 300, 'gameplay/combo/combo');
 		rating.cameras = [camHUD];
 		rating.alpha = 0.0001;
-		add(rating);
+		hud.elements.add(rating);
 
 		/* rating.y = camPoint.y - FlxG.camera.height * 0.1 - 60;
 		rating.x = FlxMath.bound(
@@ -341,9 +362,8 @@ class PlayState extends BeatState {
 			arrowFieldMapping.set(base.tag, field);
 			loadedFields.push(base.tag);
 			field.scrollSpeed = base.speed;
-			field.cameras = [camHUD];
 			field.visible = false;
-			add(field);
+			hud.fields.add(field);
 
 			/**
 			Starting to think of doing these method's.
@@ -503,7 +523,7 @@ class PlayState extends BeatState {
 				for (field in fields)
 					new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
 			];
-			hatred.space((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)), (FlxG.width / 2) + (FlxG.width / 4) - (FlxG.width / 2) - (FlxG.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
+			hatred.space((FlxG.width / 2) - (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll), (FlxG.width / 2) + (FlxG.width / 4) - (FlxG.width / 2) - (FlxG.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
 				var field:ArrowField = fields[hatred.indexOf(object)];
 				field.setPosition(x, y);
 			});
@@ -517,8 +537,8 @@ class PlayState extends BeatState {
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
 		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.setPosition((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP2.downscroll ? -1 : 1)));
-		playerField.setPosition((FlxG.width / 2) + (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)));
+		enemyField.setPosition((FlxG.width / 2) - (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP2.downscroll));
+		playerField.setPosition((FlxG.width / 2) + (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll));
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
@@ -768,7 +788,8 @@ class PlayState extends BeatState {
 				order: ['field'],
 				enemy: loadedChart = diff = varia = 'null',
 				player: 'field'
-			}
+			},
+			hud: 'funkin'
 		}
 		log('Song "$loadedChart" loaded.', DebugMessage);
 		PlayState.difficulty = diff;

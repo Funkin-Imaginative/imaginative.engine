@@ -50,6 +50,10 @@ class MainSettings {
 	 * If true, the gameover screen will hard cut to the confirm animation.
 	 */
 	public var instantRespawn:Bool = false;
+	/**
+	 * The hud you wish to pick for the default.
+	 */
+	public var HUDSelection:imaginative.objects.gameplay.hud.HUDTemplate.HUDType = Imaginative;
 
 	/**
 	 * If true, antialiasing can be applied to things.
