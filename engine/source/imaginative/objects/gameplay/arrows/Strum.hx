@@ -29,9 +29,14 @@ class Strum extends FlxSprite {
 		return id % setField.strumCount;
 
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return mods.apply.speedIsMult ? setField.scrollSpeed * mods.speed : mods.speed;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+	}
 
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the field speed.
+	 */
 	public var scrollAngle:Float = 0;
 
 	/**

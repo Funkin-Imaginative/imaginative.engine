@@ -137,6 +137,21 @@ class ArrowField extends BeatGroup {
 	 * TODO: Make it so strum skins will have their own spacing!
 	 */
 	public var strumSpacing:Float = -7;
+
+	/**
+	 * This function is used to get the scroll speed but also check for the personal speed!
+	 * This really only exists to not fuck up the scrollSpeed get functionality.
+	 * ```haxe
+	 * // just so
+	 * scrollSpeed = scrollSpeed + 2;
+	 * // wouldn't actually be
+	 * scrollSpeed = personalScrollSpeed + 2;
+	 * // that wouldn't be fun
+	 * ```
+	 * @return `Float` ~ Target scroll speed.
+	 */
+	inline public function getScrollSpeed():Float
+		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : scrollSpeed;
 	/**
 	 * The scroll speed of the field.
 	 * This overrides the base chart speed.
@@ -150,6 +165,10 @@ class ArrowField extends BeatGroup {
 			sustain.mods.update_scale();
 		return scrollSpeed;
 	}
+	/**
+	 * The direction the notes will come from.
+	 * Downscroll is 90, while upscroll is 270.
+	 */
 	public var scrollAngle(default, set):Null<Float>;
 	inline function set_scrollAngle(?value:Float):Null<Float> {
 		return scrollAngle = value ?? (settings.downscroll ? 90 : 270);
@@ -403,6 +422,8 @@ class ArrowField extends BeatGroup {
 		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
+
+		strums.centerOrigin();
 	}
 
 	/**

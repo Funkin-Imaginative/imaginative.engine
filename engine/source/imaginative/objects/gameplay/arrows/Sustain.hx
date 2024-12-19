@@ -28,6 +28,10 @@ class Sustain extends FlxSprite {
 	 */
 	public var setHead(default, null):Note;
 
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the parent note speed.
+	 */
 	public var scrollAngle:Float = 0;
 
 	/**
@@ -54,8 +58,9 @@ class Sustain extends FlxSprite {
 	public var isEnd(default, null):Bool;
 
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
+	}
 
 	/**
 	 * Any characters in this array will overwrite the sustains parent field array.

@@ -45,11 +45,19 @@ class Note extends FlxSprite {
 	public var time:Float;
 
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+	}
 
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the strum of the same id's speed.
+	 */
 	public var scrollAngle:Float = 0;
 
+	/**
+	 * If true, this note will have less priority in the input system and in most cases be detected last.
+	 */
 	public var lowPriority:Bool = false;
 
 	/**
