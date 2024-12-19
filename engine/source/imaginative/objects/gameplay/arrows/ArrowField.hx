@@ -423,7 +423,9 @@ class ArrowField extends BeatGroup {
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
 
-		strums.centerOrigin();
+		// this fucking moves the strums so much lmao
+		// strums.centerOffsets();
+		// strums.centerOrigin();
 	}
 
 	/**
