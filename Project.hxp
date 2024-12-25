@@ -223,7 +223,7 @@ class EngineAsset {
 
 		/* Path Settings */
 		if (isDesktop())
-			addAsset('extras/alsoft.txt', 'plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
+			addAsset('extras/alsoft.txt', '${isMac() ? 'Resources/' : ''}plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
 
 		var buildFolder:String = 'build';
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
