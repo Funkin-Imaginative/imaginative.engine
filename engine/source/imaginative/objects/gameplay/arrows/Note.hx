@@ -1,5 +1,7 @@
 package imaginative.objects.gameplay.arrows;
 
+// import imaginative.backend.objects.SelfContainedSprite;
+
 class Note extends FlxSprite {
 	// Cool variables.
 	/**
