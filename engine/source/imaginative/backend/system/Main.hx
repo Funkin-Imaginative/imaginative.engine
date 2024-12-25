@@ -80,6 +80,7 @@ class Main extends Sprite {
 		// If debug we cut to the chase.
 		addChild(new FlxGame(imaginative.states.StartScreen, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
+		addChild(new EngineInfoText());
 		FlxSprite.defaultAntialiasing = true;
 
 		#if CHECK_FOR_UPDATES
