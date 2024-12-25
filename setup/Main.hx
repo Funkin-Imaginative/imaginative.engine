@@ -31,7 +31,7 @@ class Main {
 	static var optionalCheck:Map<String, Bool> = new Map<String, Bool>();
 	static var questDesc:Map<String, String> = new Map<String, String>();
 
-	inline static var dashes:String = '-------------------------------------------------------------------------------';
+	inline static final dashes:String = '-------------------------------------------------------------------------------';
 
 	public static function main():Void {
 		// arguments
@@ -95,7 +95,7 @@ class Main {
 			for (tag => value in optionalCheck)
 				if (!optionalCheck.get(tag)) {
 					Sys.println('Do you wish to ${questDesc.exists(tag) ? questDesc.get(tag) : 'install $tag'}? [y/n]');
-					if (Sys.stdin().readLine().toLowerCase() == 'y')
+					if (Sys.stdin().readLine().toLowerCase().trim() == 'y')
 						optionalCheck.set(tag, true);
 				}
 		}
@@ -110,7 +110,7 @@ class Main {
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
-		var haxeVer:String = proc.stdout.readLine();
+		var haxeVer:String = proc.stdout.readLine().toLowerCase().trim();
 		if (haxeVer != '4.3.6') {
 			// check for outdated haxe
 			var curHaxeVer:Array<Int> = [
@@ -141,7 +141,7 @@ class Main {
 			Sys.println('If it didn\'t say it before: Because of this component if you want to compile you have to restart the device.');
 			Sys.println(dashes);
 			Sys.println('Do you wish to do it now? [y/n]');
-			if (Sys.stdin().readLine().toLowerCase() == 'y') Sys.command('shutdown /r /t 0 /f');
+			if (Sys.stdin().readLine().toLowerCase().trim() == 'y') Sys.command('shutdown /r /t 0 /f');
 		}
 	}
 
@@ -167,7 +167,7 @@ class Main {
 		}
 	}
 
-	static function getBuildTarget() {
+	static function getBuildTarget():String {
 		return switch(Sys.systemName()) {
 			case 'Windows':
 				'windows';
@@ -175,8 +175,8 @@ class Main {
 				'macos';
 			case 'Linux':
 				'linux';
-			case def:
-				def.toLowerCase();
+			default:
+				Sys.systemName().toLowerCase().trim();
 		}
 	}
 }

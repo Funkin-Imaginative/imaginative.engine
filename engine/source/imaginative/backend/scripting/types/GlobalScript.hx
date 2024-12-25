@@ -38,25 +38,25 @@ class GlobalScript {
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> call('gameResized', [width, height]));
 
 		FlxG.signals.preDraw.add(() -> call('preDraw'));
-		FlxG.signals.postDraw.add(() -> call('postDraw'));
+		FlxG.signals.postDraw.add(() -> call('drawPost'));
 
 		FlxG.signals.preGameStart.add(() -> call('preGameStart'));
-		FlxG.signals.postGameStart.add(() -> call('postGameStart'));
+		FlxG.signals.postGameStart.add(() -> call('gameStartPost'));
 
 		FlxG.signals.preGameReset.add(() -> call('preGameReset'));
-		FlxG.signals.postGameReset.add(() -> call('postGameReset'));
+		FlxG.signals.postGameReset.add(() -> call('gameResetPost'));
 
 		FlxG.signals.preUpdate.add(() -> {
 			call('preUpdate', [FlxG.elapsed]);
 			call('update', [FlxG.elapsed]);
 		});
 		FlxG.signals.postUpdate.add(() -> {
-			call('postUpdate', [FlxG.elapsed]);
+			call('updatePost', [FlxG.elapsed]);
 		});
 
 		FlxG.signals.preStateCreate.add((state:FlxState) -> call('preStateCreate', [state]));
 		FlxG.signals.preStateSwitch.add(() -> call('preStateSwitch'));
-		FlxG.signals.postStateSwitch.add(() -> call('postStateSwitch'));
+		FlxG.signals.postStateSwitch.add(() -> call('stateSwitchPost'));
 
 		loadScript();
 	}

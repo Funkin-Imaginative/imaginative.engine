@@ -41,9 +41,7 @@
 			"url": "https://github.com/MAJigsaw77/hxvlc",
 			"dependencies": [{"name": "hxcpp"}]
 		},
-		{"name": "thx.semver"},
-
-		{"name": "hxWindowColorMode"}
+		{"name": "thx.semver"}
 	],
 	"questions": [
 		{
@@ -65,11 +63,6 @@
 		{
 			"name": "thx.semver",
 			"description": "the engine to have version checking capabilities"
-		},
-
-		{
-			"name": "hxWindowColorMode",
-			"description": "allow the window border color to be changed"
 		}
 	]
 }
