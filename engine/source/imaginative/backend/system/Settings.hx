@@ -123,6 +123,15 @@ class PlayerSettings {
 	public var middlescroll:Bool = false;
 
 	/**
+	 * Your personal scroll speed value that you enjoy the most!
+	 */
+	public var personalScrollSpeed:Float = 2.45;
+	/**
+	 * If true, the personalScrollSpeed setting will override the your current arrow field speed!
+	 */
+	public var enablePersonalScrollSpeed:Bool = false;
+
+	/**
 	 * Basically, do you wish for the characters to repeat their sing anim every time they hit a sustain note?
 	 */
 	public var stepJitter:Bool = true;

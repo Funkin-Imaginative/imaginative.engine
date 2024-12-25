@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 // import imaginative.backend.objects.SelfContainedSprite;
 
@@ -30,7 +30,11 @@ class Sustain extends FlxSprite {
 	 */
 	public var setHead(default, null):Note;
 
-	// public var scrollAngle:Float = 0;
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the parent note speed.
+	 */
+	public var scrollAngle:Float = 0;
 
 	/**
 	 * The strum lane index.
@@ -50,8 +54,15 @@ class Sustain extends FlxSprite {
 	 * The sustain position in steps, is an offset of the parent's time.
 	 */
 	public var time:Float;
-
+	/**
+	 * States if this sustain piece is the tail end.
+	 */
 	public var isEnd(default, null):Bool;
+
+	public var __scrollSpeed(get, never):Float;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
+	}
 
 	/**
 	 * Any characters in this array will overwrite the sustains parent field array.
@@ -67,16 +78,18 @@ class Sustain extends FlxSprite {
 
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
-		return (time + setHead.time) >= setField.conductor.songPosition - Settings.setupP1.maxWindow && (time + setHead.time) <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
+		return (time + setHead.time) >= setField.conductor.time - Settings.setupP1.maxWindow && (time + setHead.time) <= setField.conductor.time + Settings.setupP1.maxWindow;
 	}
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return (time + setHead.time) < setField.conductor.songPosition - (300 / setHead.__scrollSpeed) && !wasHit;
+		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	public var wasHit:Bool = false;
 	public var wasMissed:Bool = false;
 
 	public var canDie:Bool = false;
+
+	public var mods:ArrowModifier;
 
 	override public function new(parent:Note, time:Float, end:Bool = false) {
 		setHead = parent;
@@ -85,20 +98,43 @@ class Sustain extends FlxSprite {
 
 		super(setHead.x, setHead.y);
 
-		var col:String = ['purple', 'blue', 'green', 'red'][idMod];
-
-		// this.loadTexture('gameplay/notes/NOTE_assets');
-		makeGraphic(50, isEnd ? 60 : 80, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[idMod]);
-
 		var name:String = isEnd ? 'end' : 'hold';
-		// case NoteTail: animation.addByPrefix('hold', '$col hold piece', 24, false);
-		// case NoteEnd: animation.addByPrefix('end', '$col hold end', 24, false);
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
+		this.loadTexture('gameplay/arrows/funkin');
+		animation.addByPrefix(name, '$dir note $name', 24, false);
 
-		// animation.play(name, true);
+		animation.play(name, true);
 		scale.scale(0.7);
 		updateHitbox();
-		// animation.play(name, true);
-		// updateHitbox();
-		origin.y = 0;
+		animation.play(name, true);
+		updateHitbox();
+
+		mods = new ArrowModifier(this);
+
+		mods.alpha = 0.6;
+	}
+
+	/**
+	 * This function applies the base Y scaling to a sustain.
+	 * `97 * 0.7 = 67.9` The math to get the perfect sustain scale.
+	 * It is the perfect one btw, I tested with makeGraphic.
+	 * Though for some skins it may look off.
+	 * @param sustain The sustain to apply it to.
+	 * @param mult The scale multiplier.
+	 *             You'd most likely put the scroll speed here.
+	 */
+	inline public static function applyBaseScaleY(sustain:Sustain, mult:Float = 1):Void {
+		// prevent scaling on sustain end
+		if (sustain.isEnd) return;
+
+		// setGraphicSize
+		sustain.scale.y = (67.9 / sustain.frameHeight) * mult;
+
+		// updateHitbox
+		sustain.height = Math.abs(sustain.scale.y) * sustain.frameHeight;
+		sustain.offset.y = -0.5 * (sustain.height - sustain.frameHeight);
+
+		// centerOrigin
+		sustain.origin.y = sustain.frameHeight * 0.5;
 	}
 }

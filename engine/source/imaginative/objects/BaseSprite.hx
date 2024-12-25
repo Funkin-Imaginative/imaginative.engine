@@ -122,7 +122,7 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic).format(), animated, width, height);
+				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic), animated, width, height);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return this;

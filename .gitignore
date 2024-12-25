@@ -3,8 +3,10 @@
 desktop.ini
 RECOVER_*.fla
 vscode-project.hxml
+compile/platform.txt
 
 # unnecessary folders
 .haxelib/
+.vscode/
 export/
-dumb/
+dump/

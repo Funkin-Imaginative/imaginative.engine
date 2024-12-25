@@ -194,7 +194,7 @@ class SpriteUtil {
 		else if (sprite is FlxSprite)
 			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
-					sprite.loadGraphic(Paths.image(newTexture).format(), animated, width, height);
+					sprite.loadGraphic(Paths.image(newTexture), animated, width, height);
 				} catch(error:haxe.Exception)
 					log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return sprite;

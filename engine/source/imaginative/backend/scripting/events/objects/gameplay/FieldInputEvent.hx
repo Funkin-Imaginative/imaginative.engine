@@ -40,7 +40,7 @@ class FieldInputEvent extends ScriptEvent {
 
 	public var stopStrumPress:Bool = false;
 
-	override public function new(?i:Int, strum:Strum, ?field:ArrowField, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings) {
+	override public function new(?i:Int, strum:Strum, ?field:ArrowField, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, ?settings:PlayerSettings) {
 		super();
 		this.i = i ??= strum.id;
 		this.strum = strum;
@@ -48,6 +48,6 @@ class FieldInputEvent extends ScriptEvent {
 		this.hasHit = hasHit;
 		this.beingHeld = beingHeld;
 		this.wasReleased = wasReleased;
-		this.settings = settings;
+		this.settings = settings ??= field.settings;
 	}
 }
