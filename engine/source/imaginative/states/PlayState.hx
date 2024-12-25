@@ -164,11 +164,11 @@ class PlayState extends BeatState {
 	/**
 	 * If true, the player character can die upon losing all their health.
 	 */
-	public var canPlayerDie:Bool = !PlayConfig.enemyPlay && !PlayConfig.enableP2;
+	public var canPlayerDie:Bool = !ArrowField.enemyPlay && !ArrowField.enableP2;
 	/**
 	 * If true, the enemy character can die upon losing all their health.
 	 */
-	public var canEnemyDie:Bool = PlayConfig.enemyPlay && !PlayConfig.enableP2;
+	public var canEnemyDie:Bool = ArrowField.enemyPlay && !ArrowField.enableP2;
 
 	/**
 	 * Scripts for the funny softcoding bullshit.
@@ -282,19 +282,20 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		hud = switch (chartData.hud ??= 'funkin') {
+		hud = new imaginative.objects.gameplay.hud.VSliceHUD(); /* switch (chartData.hud ??= 'funkin') {
 			case 'funkin':
 				switch (Settings.setup.HUDSelection) {
 					case Funkin: new HUDTemplate();
 					case Kade: new HUDTemplate();
 					case Psych: new HUDTemplate();
 					case Codename: new HUDTemplate();
-					case VSlice: new HUDTemplate();
+					case VSlice: new imaginative.objects.gameplay.hud.VSliceHUD();
 					case Imaginative: new HUDTemplate();
+					default: new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
 				}
 			default:
 				new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
-		}
+		} */
 		hud.cameras = [camHUD];
 		add(hud);
 
@@ -397,7 +398,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -407,7 +408,7 @@ class PlayState extends BeatState {
 
 					// doing it here for now
 					if (event.field.isPlayer) {
-						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
+						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == ArrowField.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
@@ -430,7 +431,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -447,7 +448,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -464,7 +465,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -482,7 +483,7 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
-							PlayConfig.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+							ArrowField.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
 
 						for (char in event.field.assignedActors)
 							for (track in char.assignedTracks)
@@ -537,8 +538,10 @@ class PlayState extends BeatState {
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
 		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.setPosition((FlxG.width / 2) - (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP2.downscroll));
-		playerField.setPosition((FlxG.width / 2) + (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll));
+		enemyField.x = (FlxG.width / 2) - (FlxG.width / 4);
+		playerField.x = (FlxG.width / 2) + (FlxG.width / 4);
+		enemyField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, enemyField);
+		playerField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, playerField);
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
@@ -552,15 +555,11 @@ class PlayState extends BeatState {
 
 		super.create();
 
-		for (folder in ['content/songs', 'content/songs/$setSong/scripts']) {
-			for (ext in Script.exts) {
-				for (file in Paths.readFolder(folder, ext)) {
-					for (script in Script.create(file)) {
+		for (folder in ['content/songs', 'content/songs/$setSong/scripts'])
+			for (ext in Script.exts)
+				for (file in Paths.readFolder(folder, ext))
+					for (script in Script.create(file))
 						scripts.add(script);
-					}
-				}
-			}
-		}
 
 		scripts.load();
 		scripts.call('create');
@@ -726,7 +725,7 @@ class PlayState extends BeatState {
 		songList = [for (song in levelData.songs) song.folder];
 		storyIndex = 0;
 		storyMode = true;
-		PlayConfig.enemyPlay = PlayConfig.enableP2 = false;
+		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
 		log('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && levelData.songs.length > 1) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
@@ -741,8 +740,8 @@ class PlayState extends BeatState {
 	 */
 	inline public static function renderSong(song:String = 'Test', difficulty:String, variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
-		PlayConfig.enemyPlay = playAsEnemy;
-		PlayConfig.enableP2 = p2AsEnemy;
+		ArrowField.enemyPlay = playAsEnemy;
+		ArrowField.enableP2 = p2AsEnemy;
 		renderChart(song, difficulty, variant);
 		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}

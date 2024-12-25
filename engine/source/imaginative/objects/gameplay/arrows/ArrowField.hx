@@ -32,6 +32,29 @@ class ArrowField extends BeatGroup {
 	public static var player:ArrowField;
 
 	/**
+	 * If enabled, botplay will be active when entering a song.
+	 */
+	public static var botplay:Bool = false;
+	/**
+	 * If enabled, you play as the enemy instead of the player.
+	 */
+	public static var enemyPlay:Bool = false;
+	/**
+	 * If enabled, the enemy will be controlled by a second player.
+	 * But with enemyPlay your swapped around, making P1 the enemy and P2 the player.
+	 */
+	public static var enableP2:Bool = false;
+
+	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
+		for (char in actors.filter((char:Character) -> return char != null)) {
+			char.controls = field.isPlayer ? field.controls : null;
+			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][id];
+			char.playAnim('sing$temp', context, suffix);
+			char.lastHit = field.conductor.time;
+		}
+	}
+
+	/**
 	 * States if it's the main enemy or player field.
 	 * False is the enemy, true is the player, and null is neither.
 	 */
@@ -72,16 +95,20 @@ class ArrowField extends BeatGroup {
 	 */
 	public var isPlayer(get, never):Bool;
 	inline function get_isPlayer():Bool
-		return status != null && (status == !PlayConfig.enemyPlay || PlayConfig.enableP2) && !PlayConfig.botplay;
+		return status != null && (status == !enemyPlay || enableP2) && !botplay;
 
-	public var controls(get, never):Null<Controls>;
-	inline function get_controls():Null<Controls>
+	public var controls(get, never):Controls;
+	inline function get_controls():Controls
 		if (status == null) return Controls.blank;
-		else return status == PlayConfig.enemyPlay ? Controls.p2 : Controls.p1;
-	public var settings(get, never):Null<PlayerSettings>;
-	inline function get_settings():Null<PlayerSettings>
+		else return status == enemyPlay ? Controls.p2 : Controls.p1;
+	public var settings(get, never):PlayerSettings;
+	inline function get_settings():PlayerSettings
 		if (status == null) return Settings.setupP1;
-		else return status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1;
+		else return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+	public var stats(get, never):PlayerStats;
+	private function get_stats():PlayerStats
+		if (status == null) return Scoring.unregisteredStats;
+		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
 
 	// signals
 	/**
@@ -351,6 +378,7 @@ class ArrowField extends BeatGroup {
 		onNoteHit.dispatch(event);
 		if (!event.prevented) {
 			// using event as mush as we can, jic scripts somehow edited everything 💀
+			event.field.stats.combo++;
 			if (!event.stopStrumConfirm)
 				event.note.setStrum.playAnim('confirm', true);
 		}
@@ -378,6 +406,7 @@ class ArrowField extends BeatGroup {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.note.tail, true))
 					sustain.wasMissed = true;
+			event.field.stats.combo--;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.note.setStrum.playAnim('press', !event.field.isPlayer);
@@ -393,6 +422,7 @@ class ArrowField extends BeatGroup {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
 					sustain.wasMissed = true;
+			event.field.stats.combo--;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
