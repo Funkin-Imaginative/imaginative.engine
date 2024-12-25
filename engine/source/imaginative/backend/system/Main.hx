@@ -1,7 +1,6 @@
 package imaginative.backend.system;
 
 import flixel.FlxGame;
-import flixel.input.mouse.FlxMouse;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
@@ -80,11 +79,12 @@ class Main extends Sprite {
 		// If debug we cut to the chase.
 		addChild(new FlxGame(imaginative.states.StartScreen, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
+		addChild(new EngineInfoText());
 		FlxSprite.defaultAntialiasing = true;
 
 		#if CHECK_FOR_UPDATES
 		if (Settings.setup.checkForUpdates) {
-			var http:haxe.Http = new haxe.Http("https://raw.githubusercontent.com/Funkin-Imaginative/imaginative.engine.dev/refs/heads/main/project.xml?token=GHSAT0AAAAAACW7FJHPLYQBPTHCRFLHZ2R2ZZU3VRA");
+			/* var http:haxe.Http = new haxe.Http("https://raw.githubusercontent.com/Funkin-Imaginative/imaginative.engine.dev/refs/heads/main/project.xml?token=GHSAT0AAAAAACW7FJHPLYQBPTHCRFLHZ2R2ZZU3VRA");
 
 			http.onData = (data:String) -> {
 				latestVersion = new haxe.xml.Access(Xml.parse(data).firstElement()).node.app.att.version;
@@ -97,7 +97,7 @@ class Main extends Sprite {
 			http.onError = (error:String) ->
 				log('error: $error', ErrorMessage);
 
-			http.request();
+			http.request(); */
 		}
 		#end
 
