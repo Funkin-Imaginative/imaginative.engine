@@ -23,7 +23,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp compile -D analyzer-optimize --run Main test -debug --haxelib=hxcpp-debug-server --connect 6000",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main test -debug",
 			"group": {
 				"isDefault": true,
 				"kind": "build"
@@ -60,7 +60,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp compile -D analyzer-optimize --run Main build -debug --haxelib=hxcpp-debug-server --connect 6000",
+			"command": "haxe -cp compile -D analyzer-optimize --run Main build -debug",
 			"label": "Compile Debug",
 			"problemMatcher": [
 				"$haxe-absolute",
