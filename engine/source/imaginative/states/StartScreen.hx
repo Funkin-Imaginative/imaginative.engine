@@ -4,7 +4,9 @@ package imaginative.states;
  * Simple little start screen.
  */
 class StartScreen extends BeatState {
+	var leaving:Bool = false;
 	var canSelect:Bool = false;
+
 	var tweenAxes:FlxAxes = [X, Y, XY][FlxG.random.int(0, 2)];
 	var swapAxes:FlxAxes = [X, Y, XY][FlxG.random.int(0, 2)];
 
@@ -14,14 +16,14 @@ class StartScreen extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		if (!conductor.audio.playing)
-			conductor.loadMusic('lunchbox', 0, (sound:FlxSound) -> sound.fadeIn(4, 0.7));
+		if (!conductor.playing)
+			conductor.loadMusic('lunchbox', 0, (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 		camera.fade(4, true, () -> canSelect = true);
 		if (tweenAxes.x) camera.scroll.x -= camera.width * (swapAxes.x ? -1 : 1);
 		if (tweenAxes.y) camera.scroll.y -= camera.height * (swapAxes.y ? -1 : 1);
 		FlxTween.tween(camera, {'scroll.x': 0, 'scroll.y': 0}, 3, {ease: FlxEase.cubeOut, startDelay: 1});
 
-		simpleBg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 200, 200, true, 0x7B939300, 0x7B930000));
+		simpleBg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 200, 200, true, 0x7B000000, 0x7BFFFFFF));
 		simpleBg.velocity.set(
 			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1),
 			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1)
@@ -49,12 +51,18 @@ class StartScreen extends BeatState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
+
+		// skips the leave transition
+		if (leaving && (Controls.accept || FlxG.mouse.justPressed))
+			BeatState.switchState(new TitleScreen());
+
 		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
+			leaving = true;
 			canSelect = false;
 			FunkinUtil.playMenuSFX(ConfirmSFX);
-			conductor.audio.fadeOut(3, 0, (_:FlxTween) -> conductor.reset());
-			camera.fade(3.5, () -> BeatState.switchState(new TitleScreen()), true); // jic
-			FlxTween.completeTweensOf(camera);
+			conductor.fadeOut(3, (_:FlxTween) -> conductor.reset());
+			camera.fade(3.5, () -> BeatState.switchState(new TitleScreen()), true);
+			FlxTween.completeTweensOf(camera); // skips the entry transition
 			FlxTween.tween(camera, {
 				'scroll.x': tweenAxes.x ? ((camera.scroll.x + camera.width) * (swapAxes.x ? -1 : 1)) : 0,
 				'scroll.y': tweenAxes.y ? ((camera.scroll.y + camera.height) * (swapAxes.y ? -1 : 1)) : 0

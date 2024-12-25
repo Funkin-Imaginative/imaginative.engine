@@ -49,10 +49,10 @@ class SongEvent {
  */
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
 	}
 	override public function set_conductor(value:Conductor):Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.menu;
+		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
 	}
 
 	/**
@@ -67,7 +67,7 @@ class PlayState extends BeatState {
 	inline function set_countdownLength(value:Int):Int
 		return countdownLength = value < 1 ? 1 : value;
 	/**
-	 * The variable that says how far in the countdown is.
+	 * The variable that tracks the countdown.
 	 */
 	public var countdownTimer:FlxTimer = new FlxTimer();
 	/**
@@ -79,7 +79,7 @@ class PlayState extends BeatState {
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
-	 * @return `Array<ModPath>`
+	 * @return `Array<ModPath>` ~ The mod paths of the items.
 	 */
 	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, suffix:String = ''):Array<ModPath> {
 		if (root == null)
@@ -104,6 +104,11 @@ class PlayState extends BeatState {
 	public var songEnded:Bool = false;
 
 	/**
+	 * The general vocal track instance.
+	 */
+	public var generalVocals:Null<FlxSound>;
+
+	/**
 	 * It true, your score will save.
 	 */
 	public var saveScore:Bool = true;
@@ -112,7 +117,7 @@ class PlayState extends BeatState {
 	 * The chart information.
 	 */
 	public static var chartData:ChartData;
-	public var songEvents:Array<SongEvent>;
+	public var songEvents:Array<SongEvent> = [];
 
 	/**
 	 * Contains the week information.
@@ -285,6 +290,12 @@ class PlayState extends BeatState {
 		); */
 
 		// character creation.
+		var vocalSuffixes:Array<String> = [];
+		/**
+		 * K: Character Tag, V: Vocal Suffix List.
+		 */
+		var vocalTargeting:Map<String, Array<String>> = new Map<String, Array<String>>();
+		var loadedCharacters:Array<String> = [];
 		for (base in chartData.characters) {
 			var pos:Position = new Position(
 				switch (base.position) {
@@ -302,15 +313,24 @@ class PlayState extends BeatState {
 			);
 			var character:Character = new Character(pos.x, pos.y, base.name, base.position != 'enemy');
 			characterMapping.set(base.tag, character);
-			log('Character "${base.tag}" loaded.', DebugMessage);
+			loadedCharacters.push(base.tag);
 			add(character);
+
+			var suffix:String = base.vocals ?? character.vocalSuffix ?? base.tag; // since vocalSuffix can be theirName, i'ma just go with this
+			if (!vocalSuffixes.contains(suffix))
+				vocalSuffixes.push(suffix);
+			if (!vocalTargeting.exists(base.tag))
+				vocalTargeting.set(base.tag, []);
+			vocalTargeting.get(base.tag).push(suffix);
 		}
+		log('Character${loadedCharacters.length > 1 ? "'s" : ''} ${[for (i => char in loadedCharacters) (i == (loadedCharacters.length - 2) && loadedCharacters.length > 1) ? '"$char" and' : '"$char"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
 		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
 			cameraTarget = chartData.fieldSettings.cameraTarget;
-		log('Starting camera target is "$cameraTarget".', DebugMessage);
+		log('The beginning camera target is "$cameraTarget".', DebugMessage);
 
 		// arrow field creation
+		var loadedFields:Array<String> = [];
 		for (base in chartData.fields) {
 			var field:ArrowField = new ArrowField([
 				for (tag => char in characterMapping)
@@ -319,20 +339,11 @@ class PlayState extends BeatState {
 			]);
 			field.parse(base);
 			arrowFieldMapping.set(base.tag, field);
-			log('Field "${base.tag}" loaded.', DebugMessage);
+			loadedFields.push(base.tag);
+			field.scrollSpeed = base.speed;
 			field.cameras = [camHUD];
 			field.visible = false;
 			add(field);
-
-			inline function characterSing(songPos:Float, actors:Array<Character>, i:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
-				for (char in actors) {
-					if (char != null) {
-						var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][i];
-						char.playAnim('sing$temp', context, suffix);
-						char.lastHit = conductor.songPosition;
-					}
-				}
-			}
 
 			/**
 			Starting to think of doing these method's.
@@ -365,18 +376,25 @@ class PlayState extends BeatState {
 				scripts.event('noteHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					var actors:Array<Character> = event.note.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 1;
+					if (generalVocals != null)
+						generalVocals.volume = 1;
 
 					// doing it here for now
 					if (event.field.isPlayer) {
-						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.songPosition - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
+						rating.loadImage('gameplay/combo/${PlayConfig.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == PlayConfig.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
-						FlxTween.tween(rating, {alpha: 1}, (conductor.stepCrochet / 1000) * 1.2, {
+						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
-								FlxTween.tween(rating, {alpha: 0.0001}, (conductor.stepCrochet / 1000) * 2.4 , {
-									startDelay: (conductor.stepCrochet / 1000) * 1.5 ,
+								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4 , {
+									startDelay: (event.field.conductor.stepTime / 1000) * 1.5 ,
 									ease: FlxEase.expoOut
 								});
 							}
@@ -391,7 +409,14 @@ class PlayState extends BeatState {
 				scripts.event('sustainHit', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, IsSinging, event.force, event.suffix);
+					var actors:Array<Character> = event.sustain.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 1;
+					if (generalVocals != null)
+						generalVocals.volume = 1;
 				}
 
 				scripts.event('sustainHitPost', event);
@@ -401,7 +426,14 @@ class PlayState extends BeatState {
 				scripts.event('noteMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.note.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					var actors:Array<Character> = event.note.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 0;
+					if (generalVocals != null)
+						generalVocals.volume = 0;
 				}
 
 				scripts.event('noteMissedPost', event);
@@ -411,7 +443,14 @@ class PlayState extends BeatState {
 				scripts.event('sustainMissed', event);
 
 				if (!event.prevented) {
-					characterSing(event.field.conductor.songPosition, event.sustain.renderActors(), event.idMod, HasMissed, event.force, event.suffix);
+					var actors:Array<Character> = event.sustain.renderActors();
+					PlayConfig.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+
+					for (char in actors)
+						for (track in char.assignedTracks)
+							track.volume = 0;
+					if (generalVocals != null)
+						generalVocals.volume = 0;
 				}
 
 				scripts.event('sustainMissedPost', event);
@@ -423,7 +462,13 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
-							characterSing(event.field.conductor.songPosition, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+							PlayConfig.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+
+						for (char in event.field.assignedActors)
+							for (track in char.assignedTracks)
+								track.volume = 0;
+						if (generalVocals != null)
+							generalVocals.volume = 0;
 					}
 				}
 
@@ -435,6 +480,7 @@ class PlayState extends BeatState {
 				scripts.event('fieldInputPost', event);
 			});
 		}
+		log('Field${loadedFields.length > 1 ? "'s" : ''} ${[for (i => field in loadedFields) (i == (loadedFields.length - 2) && loadedFields.length > 1) ? '"$field" and' : '"$field"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
 		// arrow field setup
 		for (order in chartData.fieldSettings.order) {
@@ -444,14 +490,25 @@ class PlayState extends BeatState {
 						field
 			];
 			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
-			for (i => field in fields) {
+			/* for (i => field in fields) {
 				// TODO: Get ArrowField positioning working!
-				field.y = (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1));
-				field.x = (FlxG.width / 2) - (field.strums.width / 2);
-				field.x += field.strums.width * i;
-				field.x -= (field.strums.width * ((fields.length - 1) / 2));
+				if (field.length < 3) {
+					field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
+					for (strum in field.strums)
+						strum.updateHitbox();
+				}
 				field.visible = true;
 			}
+			var hatred:Array<FlxObject> = [
+				for (field in fields)
+					new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
+			];
+			hatred.space((FlxG.width / 2) - (FlxG.width / 4), (FlxG.height / 2) - ((FlxG.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)), (FlxG.width / 2) + (FlxG.width / 4) - (FlxG.width / 2) - (FlxG.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
+				var field:ArrowField = fields[hatred.indexOf(object)];
+				field.setPosition(x, y);
+			});
+			while (hatred.length > 0)
+				hatred.pop().destroy(); */
 		}
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
@@ -489,67 +546,54 @@ class PlayState extends BeatState {
 		scripts.call('create');
 
 		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
-			conductor.addVocalTrack(setSong, '', variant);
-			conductor.addVocalTrack(setSong, 'Enemy', variant);
-			conductor.addVocalTrack(setSong, 'Player', variant);
-
-			var assets:CountdownAssets = {
-				images: countdownAssets.images.copy(),
-				sounds: countdownAssets.sounds.copy()
+			/**
+			 * K: Suffix, V: The Track.
+			 */
+			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
+			for (suffix in vocalSuffixes) {
+				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, variant);
+				if (track != null)
+					tracks.set(suffix, track);
 			}
-			assets.images.reverse();
-			assets.sounds.reverse();
 
-			countdownStarted = true;
-			FlxTween.num(
-				(-crochet * (countdownLength + 1)) + conductor.posOffset,
-				conductor.posOffset,
-				((crochet * (countdownLength + 1)) + conductor.posOffset) / 1000,
-				(output:Float) -> songPosition = output
-			);
-			countdownTimer.start(crochet / 1000, (timer:FlxTimer) -> {
-				/* new FlxTimer().start(stepCrochet / 1000, (_:FlxTimer) -> {
-					conductor.stepHit(Math.floor(-(timer.loopsLeft * stepsPerBeat)));
-					if (curStep % stepsPerBeat == 0)
-						conductor.beatHit(-timer.loopsLeft);
-					if (curBeat % beatsPerMeasure == 0)
-						conductor.measureHit(Math.floor(-(timer.loopsLeft / beatsPerMeasure)));
-				}, stepsPerBeat); */
+			// assigns tracks to characters
+			for (charTag => suffixes in vocalTargeting)
+				for (suffix in suffixes)
+					if (tracks.exists(suffix))
+						characterMapping.get(charTag).assignedTracks.push(tracks.get(suffix));
 
-				conductor.beatHit(-timer.loopsLeft);
+			// loads main suffixes
+			if (tracks.empty()) {
+				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', variant);
+				if (enemyTrack != null)
+					enemy.assignedTracks.push(enemyTrack);
 
-				var assetIndex:Int = timer.loopsLeft - 1;
-				var soundAsset:ModPath = assets.sounds[assetIndex];
-				var imageAsset:ModPath = assets.images[assetIndex];
-				if (Paths.fileExists(Paths.sound(soundAsset)))
-					FlxG.sound.play(Paths.sound(soundAsset).format());
-				if (Paths.fileExists(Paths.image(imageAsset))) {
-					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
-					sprite.cameras = [camHUD];
-					sprite.screenCenter();
-					add(sprite);
+				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', variant);
+				if (playerTrack != null)
+					player.assignedTracks.push(playerTrack);
+			}
 
-					FlxTween.tween(sprite, {alpha: 0}, crochet / 1.2 / 1000, {
-						ease: FlxEase.cubeInOut,
-						onComplete: (_:FlxTween) ->
-							sprite.destroy()
-					});
-				}
+			// loads general track
+			if (tracks.empty())
+				generalVocals = conductor.addVocalTrack(setSong, '', variant);
 
-				if (timer.loopsLeft == 0) {
-					conductor.play();
-					songStarted = true;
-					conductor._onComplete = () -> {
-						for (char in characterMapping) {
-							if (char.animContext == IsSinging || char.animContext == HasMissed) {
-								char.tryDance(true);
-								char.finishAnim();
-							}
-						}
-						scripts.call('onSongEnd');
-					}
-				}
-			}, countdownLength + 1);
+			conductor._onComplete = (event) -> {
+				for (char in characterMapping)
+					if (char.animContext == IsSinging || char.animContext == HasMissed)
+						char.dance();
+
+				for (field in arrowFieldMapping)
+					for (strum in field.strums)
+						if (strum.willReset)
+							strum.playAnim('static');
+
+				scripts.event('onSongEnd', event);
+				songEnded = true;
+				if (!event.prevented)
+					endSong();
+			}
+
+			startSong();
 		});
 
 		camPoint.setPosition(characterMapping.get(cameraTarget).getCamPos().x, characterMapping.get(cameraTarget).getCamPos().y);
@@ -565,7 +609,56 @@ class PlayState extends BeatState {
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		super.update(elapsed);
+
+		while (songEvents.length > 0 && songEvents.last().time <= time) {
+			var poppedEvent:SongEvent = songEvents.pop();
+			if (poppedEvent != null)
+				poppedEvent.execute();
+		}
+
 		scripts.call('updatePost', [elapsed]);
+	}
+
+	function startSong():Void {
+		var assets:CountdownAssets = {
+			images: countdownAssets.images.copy(),
+			sounds: countdownAssets.sounds.copy()
+		}
+		assets.images.reverse();
+		assets.sounds.reverse();
+
+		countdownStarted = true;
+		if (countdownLength >= 1) {
+			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
+				var assetIndex:Int = timer.loopsLeft - 1;
+
+				var soundAsset:ModPath = assets.sounds[assetIndex];
+				if (Paths.fileExists(Paths.sound(soundAsset)))
+					FlxG.sound.play(Paths.sound(soundAsset));
+
+				var imageAsset:ModPath = assets.images[assetIndex];
+				if (Paths.fileExists(Paths.image(imageAsset))) {
+					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
+					sprite.cameras = [camHUD];
+					sprite.screenCenter();
+					add(sprite);
+
+					FlxTween.tween(sprite, {alpha: 0}, beatTime / 1.2 / 1000, {
+						ease: FlxEase.cubeInOut,
+						onComplete: (_:FlxTween) ->
+							sprite.destroy()
+					});
+				}
+
+				if (timer.loopsLeft == 0)
+					songStarted = true;
+			}, countdownLength + 1);
+		}
+		conductor.play(-beatTime * (countdownLength + 1));
+	}
+
+	function endSong():Void {
+
 	}
 
 	override public function stepHit(curStep:Int):Void {

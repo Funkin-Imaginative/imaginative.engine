@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 class Strum extends FlxSprite {
 	// Cool variables.
@@ -28,12 +28,16 @@ class Strum extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
-	// public var scrollSpeed:Float = 0;
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return PlayState.chartData.speed;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+	}
 
-	// public var scrollAngle:Float = 270;
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the field speed.
+	 */
+	public var scrollAngle:Float = 0;
 
 	/**
 	 * Used to help `glowLength`.
@@ -48,35 +52,40 @@ class Strum extends FlxSprite {
 	/**
 	 * If true, after the glowlength is reached the animation will go back to "static".
 	 */
-	public var willReset:Bool;
+	public var willReset:Bool = false;
 
-	@:allow(imaginative.objects.gameplay.ArrowField.new)
+	public var mods:ArrowModifier;
+
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)
 	override function new(field:ArrowField, id:Int) {
 		setField = field;
 		this.id = id;
 
 		super();
 
-		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 
-		this.loadTexture('gameplay/arrows/noteStrumline');
+		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('static', 'static$dir', 24, false);
-		animation.addByPrefix('press', 'press$dir', 24, false);
-		animation.addByPrefix('confirm', 'confirm$dir', 24, false);
+		animation.addByPrefix('static', '$dir strum static', 24, false);
+		animation.addByPrefix('press', '$dir strum press', 24, false);
+		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
+		animation.addByPrefix('confirm-hold', '$dir strum hold confirm', 24);
 
 		playAnim('static');
 		scale.scale(0.7);
 		updateHitbox();
 		playAnim('static');
 		updateHitbox();
+
+		mods = new ArrowModifier(this);
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
 		if (willReset && getAnimName() != 'static')
-			if (glowLength > 0 ? (lastHit + (setField.conductor.stepCrochet * glowLength) < setField.conductor.songPosition) : (getAnimName() == null || isAnimFinished()))
+			if (glowLength > 0 ? (lastHit + (setField.conductor.stepTime * glowLength) < setField.conductor.time) : (getAnimName() == null || isAnimFinished()))
 				playAnim(setField.isPlayer ? 'press' : 'static');
 	}
 
@@ -95,7 +104,7 @@ class Strum extends FlxSprite {
 			centerOffsets();
 			centerOrigin();
 			if (reset)
-				lastHit = setField.conductor.songPosition;
+				lastHit = setField.conductor.time;
 			willReset = reset;
 		}
 	}

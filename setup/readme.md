@@ -30,13 +30,13 @@ setup json example
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{"name": "hxWindowColorMode"}
+		{"name": "hxvlc"}
 	],
 	// Anything listed here becomes optional.
 	"questions": [
 		{
-			"name": "hxWindowColorMode",
-			"description": "allow the window border color to be changed"
+			"name": "hxvlc",
+			"description": "allow videos to be played"
 		}
 	]
 }

@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 import imaginative.backend.scripting.events.objects.gameplay.FieldInputEvent;
 import imaginative.backend.scripting.events.objects.gameplay.NoteHitEvent;
@@ -126,10 +126,53 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains(default, null):BeatTypedGroup<BeatTypedGroup<Sustain>> = new BeatTypedGroup<BeatTypedGroup<Sustain>>();
+	public var sustains(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
 
+	/**
+	 * How far out until a note is killed.
+	 */
 	public var noteKillRange:Float = 350;
-	public var strumSpacing:Float = -45;
+	/**
+	 * The distance between the each strum.
+	 * TODO: Make it so strum skins will have their own spacing!
+	 */
+	public var strumSpacing:Float = -7;
+
+	/**
+	 * This function is used to get the scroll speed but also check for the personal speed!
+	 * This really only exists to not fuck up the scrollSpeed get functionality.
+	 * ```haxe
+	 * // just so
+	 * scrollSpeed = scrollSpeed + 2;
+	 * // wouldn't actually be
+	 * scrollSpeed = personalScrollSpeed + 2;
+	 * // that wouldn't be fun
+	 * ```
+	 * @return `Float` ~ Target scroll speed.
+	 */
+	inline public function getScrollSpeed():Float
+		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : scrollSpeed;
+	/**
+	 * The scroll speed of the field.
+	 * This overrides the base chart speed.
+	 * When null is returns the base chart speed.
+	 */
+	public var scrollSpeed(default, set):Null<Float>;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
+	inline function set_scrollSpeed(?value:Float):Float {
+		scrollSpeed = value ?? PlayState.chartData.speed;
+		for (sustain in sustains)
+			sustain.mods.update_scale();
+		return scrollSpeed;
+	}
+	/**
+	 * The direction the notes will come from.
+	 * Downscroll is 90, while upscroll is 270.
+	 */
+	public var scrollAngle(default, set):Null<Float>;
+	inline function set_scrollAngle(?value:Float):Null<Float> {
+		return scrollAngle = value ?? (settings.downscroll ? 90 : 270);
+	}
 
 	/**
 	 * The amount of strums in the field.
@@ -139,12 +182,23 @@ class ArrowField extends BeatGroup {
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, mania:Int = 4) {
 		strumCount = mania;
 		super();
 
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
+
+		scrollSpeed = scrollAngle = null; // runs the "set_" function
+
+		scale = new FlxCallbackPoint(
+			(point:FlxPoint) -> {
+				strums.scale.copyFrom(point);
+				for (note in notes)
+					note.mods.update_scale();
+			}
+		);
 
 		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
 		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
@@ -154,6 +208,12 @@ class ArrowField extends BeatGroup {
 
 		if (singers != null)
 			assignedActors = singers;
+
+		notes.memberAdded.add((_:Note) -> notes.members.sort(Note.sortNotes));
+		notes.memberRemoved.add((_:Note) -> notes.members.sort(Note.sortNotes));
+
+		sustains.memberAdded.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
+		sustains.memberRemoved.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
 
 		add(strums);
 		add(notes);
@@ -185,8 +245,7 @@ class ArrowField extends BeatGroup {
 					controls.noteUpReleased,
 					controls.noteRightReleased
 				]
-				[i],
-				settings
+				[i]
 			);
 	}
 
@@ -197,10 +256,9 @@ class ArrowField extends BeatGroup {
 	 * @param hasHit If true, a bind was pressed.
 	 * @param beingHeld If true, a bind is being held.
 	 * @param wasReleased If true, a bind was released.
-	 * @param settings The player settings instance.
 	 */
-	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, settings:PlayerSettings):Void {
-		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased, settings);
+	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
+		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased);
 		userInput.dispatch(event);
 		if (event.prevented) return;
 
@@ -235,12 +293,8 @@ class ArrowField extends BeatGroup {
 
 		// sustain hits
 		if (beingHeld) {
-			for (sustain in Note.filterTail([
-				for (group in sustains)
-					for (sustain in group)
-						sustain
-			], i))
-				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition)
+			for (sustain in Note.filterTail(sustains.members, i))
+				if ((sustain.time + sustain.setHead.time) <= conductor.time)
 					_onSustainHit(sustain, i);
 		}
 
@@ -256,13 +310,13 @@ class ArrowField extends BeatGroup {
 
 		for (note in notes) {
 			// lol
-			if (note.tooLate && (conductor.songPosition - note.time) > Math.max(conductor.stepCrochet, noteKillRange / note.__scrollSpeed)) {
+			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / note.__scrollSpeed)) {
 				if (!note.wasHit && !note.wasMissed)
 					_onNoteMissed(note);
 				note.canDie = true;
 			}
 			if (!isPlayer) {
-				if (note.time <= conductor.songPosition && !note.tooLate && !note.wasHit && !note.wasMissed)
+				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
 			}
 			var shouldKill:Bool = note.canDie;
@@ -272,19 +326,15 @@ class ArrowField extends BeatGroup {
 			if (shouldKill)
 				note.kill();
 		}
-		for (sustain in [
-			for (group in sustains)
-				for (sustain in group)
-					sustain
-		]) {
+		for (sustain in sustains) {
 			// lol
-			if (sustain.tooLate && (conductor.songPosition - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepCrochet, noteKillRange / sustain.setHead.__scrollSpeed)) {
+			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.__scrollSpeed)) {
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
 				sustain.canDie = true;
 			}
 			if (!isPlayer) {
-				if ((sustain.time + sustain.setHead.time) <= conductor.songPosition && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 			}
 		}
@@ -315,7 +365,7 @@ class ArrowField extends BeatGroup {
 		if (!event.prevented) {
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumConfirm)
-				event.sustain.setStrum.playAnim('confirm', true);
+				event.sustain.setStrum.playAnim(event.sustain.setStrum.doesAnimExist('confirm-hold') ? 'confirm-hold' : 'confirm', true);
 		}
 	}
 	inline function _onNoteMissed(note:Note, ?i:Int):Void {
@@ -325,6 +375,9 @@ class ArrowField extends BeatGroup {
 		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
+			if (event.field.settings.missFullSustain)
+				for (sustain in Note.filterTail(event.note.tail, true))
+					sustain.wasMissed = true;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.note.setStrum.playAnim('press', !event.field.isPlayer);
@@ -337,14 +390,26 @@ class ArrowField extends BeatGroup {
 		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
+			if (event.field.settings.missFullSustain)
+				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
+					sustain.wasMissed = true;
 			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumPress)
 				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
 		}
 	}
 
+	/**
+	 * The total calculated with of the strums.
+	 */
 	public var totalWidth(default, null):Float;
+	/**
+	 * Reset's the internal positions of the strums.
+	 */
 	public function resetInternalPositions():Void {
+		for (strum in strums)
+			strum.x = 0;
+
 		inline function helper(a:Strum, b:Strum):Void
 			if (a != null && b != null)
 				b.x = a.x + a.width + strumSpacing;
@@ -354,13 +419,13 @@ class ArrowField extends BeatGroup {
 			helper(strum, strums.members[i + 1]);
 		}
 
-		totalWidth = 0; // reset width
-		for (i => strum in strums.members)
-			totalWidth += strum.width;
-
-		totalWidth += strumSpacing * (strumCount - 1);
+		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
+
+		// this fucking moves the strums so much lmao
+		// strums.centerOffsets();
+		// strums.centerOrigin();
 	}
 
 	/**
@@ -381,13 +446,38 @@ class ArrowField extends BeatGroup {
 		return strums.y = value;
 
 	/**
-	 * Set's the center position of the strum group.
+	 * Set's the center position of the field.
 	 * @param x The center x position.
 	 * @param y The center y position.
 	 */
 	inline public function setPosition(x:Float = 0, y:Float = 0):Void {
 		this.x = x;
 		this.y = y;
+	}
+
+	/**
+	 * The scale of the field.
+	 */
+	public var scale:FlxPoint;
+	/**
+	 * Update's the strums hitboxes.
+	 */
+	inline public function updateHitbox():Void
+		for (strum in strums)
+			strum.updateHitbox();
+
+	/**
+	 * The field alpha.
+	 */
+	public var alpha(get, set):Float;
+	inline function get_alpha():Float
+		return strums.alpha;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_alpha)
+	inline function set_alpha(value:Float):Float {
+		strums.alpha = value;
+		for (note in notes)
+			note.mods.update_alpha();
+		return strums.alpha;
 	}
 
 	/**
@@ -404,7 +494,8 @@ class ArrowField extends BeatGroup {
 					if (lol.contains(tag))
 						char
 			];
-			sustains.add(notes.add(note).tail);
+			for (sustain in notes.add(note).tail)
+				sustains.add(sustain);
 		}
 	}
 

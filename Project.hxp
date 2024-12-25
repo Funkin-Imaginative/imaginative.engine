@@ -133,15 +133,35 @@ class EngineAsset {
 
 		CompilerFlag.init(this);
 
+		if (FileSystem.exists('compile/platform.txt')) {
+			if (sys.io.File.getContent('compile/platform.txt').trim() == 'cpp') {
+				Sys.println('...');
+				Sys.sleep(2);
+				Sys.println('Thought you could get away with it huh?');
+				Sys.sleep(2);
+				Sys.println('WELL NO.');
+				Sys.sleep(1);
+				Sys.println('PEANUT BUTTER & CHEESE');
+				Sys.exit(1);
+			}
+		}
+
 		if (hasDefine('web') || hasDefine('html5')) {
 			error('None of that thank you! I don\'t want people using the engine for web ports. If you don\'t remember, there used to be so many that base game wasn\'t first in search results!');
 			return;
-		} else if (isDesktop() || isMobile()) {} else {
+		} else if (isDesktop() || isMobile()) {
+			if (isMac()) { // fix for compiling on mac
+				setDefine('mac');
+				setDefine('macos');
+			}
+		} else {
 			error('Hey this engine only works on desktop and android devices!');
 			return;
 		}
 
 		setDefine('official'); // idk how I'm gonna handle this atm
+
+		addIcon('extras/art/logo.png');
 
 		/* Define Setup */
 		knowsVersionID.enable();
@@ -262,10 +282,6 @@ class EngineAsset {
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
-
-		// very optional
-		if (isWindows() || isLinux())
-			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
 		if (!isDebug())
@@ -337,7 +353,7 @@ class EngineAsset {
 	 * If true, your compiling on mac.
 	 */
 	inline public function isMac():Bool
-		return hasDefine('mac');
+		return hasDefine('mac') || hasDefine('macos');
 	/**
 	 * If true, your compiling on linux.
 	 */

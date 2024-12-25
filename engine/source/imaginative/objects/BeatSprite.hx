@@ -108,10 +108,9 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 
 	/**
 	 * When run, it attempts to trigger the dance.
-	 * @param force Wether it should force the dance to trigger.
 	 */
-	public function tryDance(force:Bool = false):Void {
-		switch (force ? IsDancing : animContext) {
+	public function tryDance():Void {
+		switch (animContext) {
 			case IsDancing:
 				dance();
 			case NoDancing | NoSinging:

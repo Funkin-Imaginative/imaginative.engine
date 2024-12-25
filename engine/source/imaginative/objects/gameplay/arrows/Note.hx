@@ -1,4 +1,4 @@
-package imaginative.objects.gameplay;
+package imaginative.objects.gameplay.arrows;
 
 class Note extends FlxSprite {
 	// Cool variables.
@@ -24,7 +24,7 @@ class Note extends FlxSprite {
 	/**
 	 * The sustain pieces this note has.
 	 */
-	public var tail(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
+	public var tail(default, null):Array<Sustain> = [];
 
 	// Note specific variables.
 	/**
@@ -44,13 +44,20 @@ class Note extends FlxSprite {
 	 */
 	public var time:Float;
 
-	// public var scrollSpeed:Float = 0;
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return PlayState.chartData.speed;
+	inline function get___scrollSpeed():Float {
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+	}
 
-	// public var scrollAngle:Float = 270;
+	/**
+	 * The direction the notes will come from.
+	 * This offsets from the strum of the same id's speed.
+	 */
+	public var scrollAngle:Float = 0;
 
+	/**
+	 * If true, this note will have less priority in the input system and in most cases be detected last.
+	 */
 	public var lowPriority:Bool = false;
 
 	/**
@@ -64,40 +71,42 @@ class Note extends FlxSprite {
 	// important
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
-		return time >= setField.conductor.songPosition - Settings.setupP1.maxWindow && time <= setField.conductor.songPosition + Settings.setupP1.maxWindow;
+		return time >= setField.conductor.time - Settings.setupP1.maxWindow && time <= setField.conductor.time + Settings.setupP1.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
-		return time < setField.conductor.songPosition - (300 / __scrollSpeed) && !wasHit;
+		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
-		return setField.conductor.songPosition < time;
+		return setField.conductor.time < time;
 	public var wasHit:Bool = false;
 	public var wasMissed:Bool = false;
 
 	public var canDie:Bool = false;
+
+	public var mods:ArrowModifier;
 
 	override public function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
 		setField = field;
 		setStrum = parent;
 		this.id = id;
 		this.time = time;
-		tail.memberAdded.add((_:Sustain) -> tail.members.sort(sortTail));
-		tail.memberRemoved.add((_:Sustain) -> tail.members.sort(sortTail));
 
 		super(-10000, -10000);
 
-		var dir:String = ['Left', 'Down', 'Up', 'Right'][idMod];
+		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 
-		this.loadTexture('gameplay/arrows/notes');
+		this.loadTexture('gameplay/arrows/funkin');
 
-		animation.addByPrefix('head', 'note$dir', 24, false);
+		animation.addByPrefix('head', '$dir note head', 24, false);
 
 		animation.play('head', true);
 		scale.scale(0.7);
 		updateHitbox();
 		animation.play('head', true);
 		updateHitbox();
+
+		mods = new ArrowModifier(this);
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -113,62 +122,73 @@ class Note extends FlxSprite {
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
-		var scrollAngle:Float = setField.settings.downscroll ? 90 : 270;
+		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle;
+		if (__scrollSpeed < 0) resultAngle += 180;
+		resultAngle += setField.strums.angle;
 
 		var angleDir:Float = Math.PI / 180;
-		angleDir = scrollAngle * angleDir;
-		var pos:Position = new Position(strum.x, strum.y);
-		distance.position = 0.45 * (distance.time = setField.conductor.songPosition - time) * __scrollSpeed;
+		angleDir = resultAngle * angleDir;
+		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
+		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
-		// pos.x += offset.x;
+		pos.x -= width / 2;
+		pos.x += strum.width / 2;
 		pos.x += Math.cos(angleDir) * distance.position;
 
-		// pos.y += offset.y;
+		pos.y -= height / 2;
+		pos.y += strum.height / 2;
 		pos.y += Math.sin(angleDir) * distance.position;
-		setPosition(pos.x, pos.y);
+
+		setPosition(
+			mods.apply.position.x ? pos.x : x,
+			mods.apply.position.y ? pos.y : y
+		);
 
 		for (sustain in tail) {
-			// var scrollAngle:Float = scrollAngle + sustain.scrollAngle;
+			var resultAngle:Float = resultAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = scrollAngle * angleDir;
-			sustain.angle = scrollAngle - 90;
+			angleDir = resultAngle * angleDir;
+			if (mods.apply.angle)
+				sustain.angle = resultAngle + 90 + mods.angle;
 
-			var followsParent:Bool = false;//pastedStrum;
-			var pos:Position = new Position(followsParent ? x : strum.x, followsParent ? y : strum.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.songPosition - ((followsParent ? 0 : time) + sustain.time)) * __scrollSpeed;
+			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
 
-			// pos.x += offset.x;
 			pos.x -= sustain.width / 2;
-			pos.x += (followsParent ? width : strum.width) / 2;
+			pos.x += strum.width / 2;
 			pos.x += Math.cos(angleDir) * distance.position;
 
-			// pos.y += offset.y;
-			pos.y += (followsParent ? width : strum.width) / 2;
+			pos.y += strum.height / 2;
 			pos.y += Math.sin(angleDir) * distance.position;
-			sustain.setPosition(pos.x, pos.y);
+
+			sustain.setPosition(
+				sustain.mods.apply.position.x ? pos.x : sustain.x,
+				sustain.mods.apply.position.y ? pos.y : sustain.y
+			);
 		}
 	}
 
-	@:allow(imaginative.objects.gameplay.ArrowField.parse)
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float) {
-		var roundedLength:Int = Math.round(length / note.setField.conductor.stepCrochet);
+		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
 		if (roundedLength > 0) {
 			for (susNote in 0...roundedLength) {
-				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepCrochet * susNote), susNote == (roundedLength - 1));
-				note.tail.add(sustain);
+				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
+				note.tail.push(sustain);
 			}
+			note.tail.sort(sortTail);
 		}
 	}
 
 
 	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
-		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ??= note.id) && !note.canDie);
+		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id) && !note.canDie);
 		result.sort(sortNotes);
 		return result;
 	}
-	inline public static function filterTail(sustains:Array<Sustain>, ?i:Int):Array<Sustain> {
-		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return sustain.canHit && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ??= sustain.id) && !sustain.canDie);
+	inline public static function filterTail(sustains:Array<Sustain>, isMiss:Bool = false, ?i:Int):Array<Sustain> {
+		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id) && !sustain.canDie);
 		result.sort(sortTail);
 		return result;
 	}
@@ -182,15 +202,18 @@ class Note extends FlxSprite {
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
 
 	override public function kill():Void {
-		tail.kill();
+		for (sustain in tail)
+			sustain.kill();
 		super.kill();
 	}
 	override public function revive():Void {
-		tail.revive();
+		for (sustain in tail)
+			sustain.revive();
 		super.revive();
 	}
 	override public function destroy():Void {
-		tail.destroy();
+		for (sustain in tail)
+			sustain.destroy();
 		super.destroy();
 	}
 }

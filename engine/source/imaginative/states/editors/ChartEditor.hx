@@ -38,6 +38,10 @@ typedef ChartField = {
 	 * Array of notes to load.
 	 */
 	var notes:Array<ChartNote>;
+	/**
+	 * The independent field scroll speed.
+	 */
+	var ?speed:Float;
 }
 
 typedef ChartCharacter = {
@@ -53,6 +57,10 @@ typedef ChartCharacter = {
 	 * The location the character will be placed.
 	 */
 	var position:String;
+	/**
+	 * The character's vocal suffix override.
+	 */
+	var ?vocals:String;
 }
 
 typedef FieldSettings = {
