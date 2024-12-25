@@ -1,7 +1,6 @@
 package imaginative.backend.system;
 
 import flixel.FlxGame;
-import flixel.input.mouse.FlxMouse;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.UncaughtErrorEvent;
