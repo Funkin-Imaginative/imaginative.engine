@@ -1,6 +1,6 @@
 package imaginative.objects.gameplay.hud;
 
-import flixel.ui.FlxBar;
+import imaginative.objects.ui.Bar;
 
 enum abstract HUDType(String) from String to String {
 	var Template;
@@ -30,7 +30,7 @@ class HUDTemplate extends BeatGroup {
 	public var fields:BeatTypedGroup<ArrowField> = new BeatTypedGroup<ArrowField>();
 
 	// hud specific shit
-	public var healthBar:FlxBar;
+	public var healthBar:Bar;
 	public var statsText:FlxText;
 
 	/**
@@ -105,7 +105,30 @@ class HUDTemplate extends BeatGroup {
 				for (script in Script.create('lead:content/huds/${type}HUD'))
 					scripts.add(script);
 
-	var temp:Float = 1;
+	public var health:Float = 1;
+
+	function initHealthBar():Bar {
+		var healthBarYPos:Float = Settings.setupP1.downscroll ? FlxG.height * 0.1 : FlxG.height * 0.9;
+		var bar:Bar = new Bar(0, healthBarYPos + 4, RIGHT_LEFT, Std.int(600 - 8), Std.int(20 - 8), this, 'health', 0, 2);
+		bar.createFilledBar(FlxColor.RED, FlxColor.YELLOW);
+		bar.screenCenter(X);
+		return bar;
+	}
+	function initStatsText():FlxText {
+		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '', 20);
+		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		return text;
+	}
+
+	function createElements():Void {
+		healthBar = initHealthBar();
+		elements.add(healthBar);
+
+		statsText = initStatsText();
+		elements.add(statsText);
+		updateStatsText();
+	}
+
 	override public function new() {
 		super();
 
@@ -114,16 +137,14 @@ class HUDTemplate extends BeatGroup {
 		scripts.load();
 		call(true, 'create');
 
-		healthBar = new FlxBar(0, 0, RIGHT_TO_LEFT, Std.int(600 - 8), Std.int(200 - 8), this, 'temp', 0, 2);
-		healthBar.createFilledBar(FlxColor.RED, FlxColor.YELLOW);
-		elements.add(healthBar);
-
-		statsText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '', 20);
-		statsText.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
-		elements.add(statsText);
+		createElements();
 
 		add(elements);
 		add(fields);
+	}
+
+	public function updateStatsText():Void {
+		statsText.text = ArrowField.botplay ? 'Bot Play Enabled' : 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
 	}
 
 	var _fields(null, null):Array<ArrowField>;

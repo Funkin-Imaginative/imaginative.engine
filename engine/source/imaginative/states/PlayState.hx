@@ -406,6 +406,10 @@ class PlayState extends BeatState {
 					if (generalVocals != null)
 						generalVocals.volume = 1;
 
+					if (event.field.status != null)
+						hud.health += 0.03 * (event.field.status ? 1 : -1);
+					hud.updateStatsText();
+
 					// doing it here for now
 					if (event.field.isPlayer) {
 						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == ArrowField.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
@@ -563,6 +567,8 @@ class PlayState extends BeatState {
 
 		scripts.load();
 		scripts.call('create');
+
+		hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
 		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
 			/**
