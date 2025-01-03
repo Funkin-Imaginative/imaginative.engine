@@ -59,7 +59,8 @@ import imaginative.backend.Controls;
 #if DISCORD_RICH_PRESENCE
 import imaginative.backend.RichPresence;
 #end
-import imaginative.backend.configs.PlayConfig;
+import imaginative.backend.gameplay.Judging;
+import imaginative.backend.gameplay.Scoring;
 import imaginative.backend.interfaces.ITexture;
 import imaginative.backend.music.Conductor;
 import imaginative.backend.music.group.BeatGroup;

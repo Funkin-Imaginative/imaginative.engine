@@ -80,7 +80,6 @@ final class HaxeScript extends Script {
 
 			// Engine //
 			'Controls' => Controls,
-			'PlayConfig' => PlayConfig,
 			'Conductor' => Conductor,
 			'BeatGroup' => BeatGroup,
 			'BeatSpriteGroup' => BeatSpriteGroup,
