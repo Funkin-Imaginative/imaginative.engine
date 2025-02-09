@@ -108,8 +108,12 @@ class HUDTemplate extends BeatGroup {
 	public var health:Float = 1;
 
 	function initHealthBar():Bar {
-		var healthBarYPos:Float = Settings.setupP1.downscroll ? FlxG.height * 0.1 : FlxG.height * 0.9;
-		var bar:Bar = new Bar(0, healthBarYPos + 4, RIGHT_LEFT, Std.int(600 - 8), Std.int(20 - 8), this, 'health', 0, 2);
+		// temp bg add
+		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.height * 0.1 : FlxG.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		bg.screenCenter(X);
+		elements.add(bg);
+
+		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
 		bar.createFilledBar(FlxColor.RED, FlxColor.YELLOW);
 		bar.screenCenter(X);
 		return bar;
@@ -144,7 +148,7 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	public function updateStatsText():Void {
-		statsText.text = ArrowField.botplay ? 'Bot Play Enabled' : 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
+		statsText.text = 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
 	}
 
 	var _fields(null, null):Array<ArrowField>;
