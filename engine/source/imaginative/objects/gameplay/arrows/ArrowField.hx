@@ -325,7 +325,6 @@ class ArrowField extends BeatGroup {
 					_onSustainHit(sustain, i);
 		}
 
-
 		if (!event.stopStrumPress && wasReleased && strum.getAnimName() != 'static')
 			strum.playAnim('static');
 	}
