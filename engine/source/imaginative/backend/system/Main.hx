@@ -69,7 +69,9 @@ class Main extends Sprite {
 		FlxWindow.init();
 		Script.init();
 		GlobalScript.init();
+		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
+		#end
 
 		#if KNOWS_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');
