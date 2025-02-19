@@ -131,13 +131,13 @@ class Note extends FlxSprite {
 		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
 		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
+		pos.x += Math.cos(angleDir) * distance.position;
 		pos.x -= width / 2;
 		pos.x += strum.width / 2;
-		pos.x += Math.cos(angleDir) * distance.position;
 
+		pos.y += Math.sin(angleDir) * distance.position;
 		pos.y -= height / 2;
 		pos.y += strum.height / 2;
-		pos.y += Math.sin(angleDir) * distance.position;
 
 		setPosition(
 			mods.apply.position.x ? pos.x : x,
@@ -155,12 +155,12 @@ class Note extends FlxSprite {
 			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
 			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
 
+			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;
 			pos.x += strum.width / 2;
-			pos.x += Math.cos(angleDir) * distance.position;
 
-			pos.y += strum.height / 2;
 			pos.y += Math.sin(angleDir) * distance.position;
+			pos.y += strum.height / 2;
 
 			sustain.setPosition(
 				sustain.mods.apply.position.x ? pos.x : sustain.x,

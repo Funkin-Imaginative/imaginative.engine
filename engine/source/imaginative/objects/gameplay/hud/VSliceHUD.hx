@@ -21,11 +21,10 @@ class VSliceHUD extends HUDTemplate {
 		elements.add(bg);
 
 		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
-		bar.createFilledBar(FlxColor.RED, FlxColor.YELLOW);
-		return bar;
+		return bar.setColors(FlxColor.RED, 0xFF66FF33, true);
 	}
 	override function initStatsText():FlxText {
-		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '', 20);
+		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '');
 		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
 		return text;
 	}

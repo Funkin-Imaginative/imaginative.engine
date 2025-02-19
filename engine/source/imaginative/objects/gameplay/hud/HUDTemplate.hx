@@ -113,14 +113,11 @@ class HUDTemplate extends BeatGroup {
 		bg.screenCenter(X);
 		elements.add(bg);
 
-		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
-		bar.createFilledBar(FlxColor.RED, FlxColor.YELLOW);
-		bar.screenCenter(X);
-		return bar;
+		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
 	}
 	function initStatsText():FlxText {
-		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '', 20);
-		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '');
+		text.setFormat(Paths.font('vcr').format(), 20, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		return text;
 	}
 
@@ -166,7 +163,7 @@ class HUDTemplate extends BeatGroup {
 			if (basic != null && basic.exists && basic.visible)
 				if (basic == fields) {
 					var i:Int = 0;
-					var basic:FlxBasic = null;
+					var basic:ArrowField = null;
 
 					// orders the player and enemy fields above all
 					_fields = fields.members.copy().filter((field:ArrowField) -> return field.status == null);

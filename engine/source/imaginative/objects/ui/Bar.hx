@@ -99,6 +99,7 @@ class Bar extends FlxBar {
 		super(x, y, direction, width, height, parentRef, variable, min, max, showBorder);
 		blankColors = new BarColors(this, true);
 		colors = new BarColors(this);
+		update(0);
 	}
 
 	override public function updateBar():Void {

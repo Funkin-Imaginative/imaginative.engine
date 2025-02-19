@@ -282,15 +282,14 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		hud = new imaginative.objects.gameplay.hud.VSliceHUD(); /* switch (chartData.hud ??= 'funkin') {
+		hud = new imaginative.objects.gameplay.hud.ImaginativeHUD(); /* switch (chartData.hud ??= 'funkin') {
 			case 'funkin':
 				switch (Settings.setup.HUDSelection) {
-					case Funkin: new HUDTemplate();
-					case Kade: new HUDTemplate();
-					case Psych: new HUDTemplate();
-					case Codename: new HUDTemplate();
 					case VSlice: new imaginative.objects.gameplay.hud.VSliceHUD();
-					case Imaginative: new HUDTemplate();
+					case Kade: new imaginative.objects.gameplay.hud.KadeHUD();
+					case Psych: new imaginative.objects.gameplay.hud.PsychHUD();
+					case Codename: new imaginative.objects.gameplay.hud.CodenameHUD();
+					case Imaginative: new imaginative.objects.gameplay.hud.ImaginativeHUD();
 					default: new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
 				}
 			default:
@@ -542,10 +541,10 @@ class PlayState extends BeatState {
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
 		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, enemyField);
-		playerField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, playerField);
 		enemyField.x = (camHUD.width / 2) - (camHUD.width / 4);
 		playerField.x = (camHUD.width / 2) + (camHUD.width / 4);
+		enemyField.y = hud.getFieldYLevel(Settings.setupP1.downscroll, enemyField);
+		playerField.y = hud.getFieldYLevel(Settings.setupP1.downscroll, playerField);
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
