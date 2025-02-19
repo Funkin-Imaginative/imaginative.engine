@@ -304,11 +304,11 @@ class PlayState extends BeatState {
 		rating.alpha = 0.0001;
 		hud.elements.add(rating);
 
-		/* rating.y = camPoint.y - FlxG.camera.height * 0.1 - 60;
+		/* rating.y = camPoint.y - camHUD.height * 0.1 - 60;
 		rating.x = FlxMath.bound(
-			FlxG.width * 0.55 - 40,
-			camPoint.x - FlxG.camera.width / 2 + rating.width,
-			camPoint.x + FlxG.camera.width / 2 - rating.width
+			camHUD.width * 0.55 - 40,
+			camPoint.x - camHUD.width / 2 + rating.width,
+			camPoint.x + camHUD.width / 2 - rating.width
 		); */
 
 		// character creation.
@@ -528,7 +528,7 @@ class PlayState extends BeatState {
 				for (field in fields)
 					new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
 			];
-			hatred.space((FlxG.width / 2) - (FlxG.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll), (FlxG.width / 2) + (FlxG.width / 4) - (FlxG.width / 2) - (FlxG.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
+			hatred.space((camHUD.width / 2) - (camHUD.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll), (camHUD.width / 2) + (camHUD.width / 4) - (camHUD.width / 2) - (camHUD.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
 				var field:ArrowField = fields[hatred.indexOf(object)];
 				field.setPosition(x, y);
 			});
@@ -542,10 +542,10 @@ class PlayState extends BeatState {
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
 
 		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.x = (FlxG.width / 2) - (FlxG.width / 4);
-		playerField.x = (FlxG.width / 2) + (FlxG.width / 4);
 		enemyField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, enemyField);
 		playerField.y = hud.getFieldYLevel(Settings.setupP2.downscroll, playerField);
+		enemyField.x = (camHUD.width / 2) - (camHUD.width / 4);
+		playerField.x = (camHUD.width / 2) + (camHUD.width / 4);
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {

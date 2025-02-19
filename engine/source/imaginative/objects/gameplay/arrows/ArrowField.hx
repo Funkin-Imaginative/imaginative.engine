@@ -231,7 +231,7 @@ class ArrowField extends BeatGroup {
 		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
 
 		resetInternalPositions();
-		setPosition(FlxG.width / 2, FlxG.height / 2);
+		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
 
 		if (singers != null)
 			assignedActors = singers;

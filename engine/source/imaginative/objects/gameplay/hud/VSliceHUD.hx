@@ -10,13 +10,13 @@ class VSliceHUD extends HUDTemplate {
 	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
 		field ??= ArrowField.player;
 		var height:Float = field?.strums?.height ?? 161;
-		var yLevel:Float = (downscroll ? FlxG.height - height - 24 : 24) + (height / 2);
+		var yLevel:Float = (downscroll ? FlxG.camera.height - height - 24 : 24) + (height / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.height * 0.1 : FlxG.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.camera.height * 0.1 : FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		elements.add(bg);
 

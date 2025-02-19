@@ -41,7 +41,7 @@ class HUDTemplate extends BeatGroup {
 	 * @return `Float` ~ The field y level.
 	 */
 	public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
-		var yLevel:Float = (FlxG.height / 2) - ((FlxG.height / 2.6) * (downscroll ? -1 : 1));
+		var yLevel:Float = (FlxG.camera.height / 2) - ((FlxG.camera.height / 2.6) * (downscroll ? -1 : 1));
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
@@ -109,7 +109,7 @@ class HUDTemplate extends BeatGroup {
 
 	function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.height * 0.1 : FlxG.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.camera.height * 0.1 : FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		elements.add(bg);
 

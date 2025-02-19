@@ -96,8 +96,8 @@ class StoryMenu extends BeatState {
 			diff.sprite.updateHitbox();
 			diff.refreshAnim();
 			diff.sprite.screenCenter();
-			diff.sprite.x += FlxG.width / 2.95;
-			diff.sprite.y += FlxG.height / 3.5;
+			diff.sprite.x += FlxG.camera.width / 2.95;
+			diff.sprite.y += FlxG.camera.height / 3.5;
 			diff.sprite.alpha = 0.0001;
 			diff.updateLock();
 			diffMap.set(name, diffs.add(diff));
@@ -144,11 +144,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().makeSolid(FlxG.width, 56);
+		weekTopBg = new BaseSprite().makeSolid(FlxG.camera.width, 56);
 		weekTopBg.color = camera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.camera.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
@@ -183,7 +183,7 @@ class StoryMenu extends BeatState {
 
 		for (level in levels)
 			for (i => sprite in level.weekObjects) {
-				sprite.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.setPosition(FlxG.camera.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
 				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
 
@@ -195,16 +195,16 @@ class StoryMenu extends BeatState {
 
 		add(weekObjects);
 
-		scoreText = new FlxText(10, 10, FlxG.width - 20, 'Score: 0')
+		scoreText = new FlxText(10, 10, FlxG.camera.width - 20, 'Score: 0')
 		.setFormat(Paths.font('vcr').format(), 32, LEFT);
 		add(scoreText);
 
-		titleText = new FlxText(10, 10, FlxG.width - 20, 'awaiting title...')
+		titleText = new FlxText(10, 10, FlxG.camera.width - 20, 'awaiting title...')
 		.setFormat(Paths.font('vcr').format(), 32, RIGHT);
 		titleText.alpha = 0.7;
 		add(titleText);
 
-		trackList = new FlxText(20, weekBg.y + weekBg.height + 20, Std.int(((FlxG.width - 400) / 2) - 80), '$trackText\n\nWoah!\ncrAzy\nWhy am I a banana??')
+		trackList = new FlxText(20, weekBg.y + weekBg.height + 20, Std.int(((FlxG.camera.width - 400) / 2) - 80), '$trackText\n\nWoah!\ncrAzy\nWhy am I a banana??')
 		.setFormat(Paths.font('vcr').format(), 32, 0xFFE55778, CENTER);
 		add(trackList);
 
@@ -219,7 +219,7 @@ class StoryMenu extends BeatState {
 		changeDifficulty();
 
 		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
-		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
+		camPoint.setPosition(mid.x, mid.y - (FlxG.camera.height / 3.4));
 		camera.snapToTarget();
 	}
 
@@ -267,7 +267,7 @@ class StoryMenu extends BeatState {
 		}
 
 		var item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.height / 3.4);
+		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.camera.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
