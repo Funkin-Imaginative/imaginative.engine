@@ -411,14 +411,14 @@ class PlayState extends BeatState {
 
 					// doing it here for now
 					if (event.field.isPlayer) {
-						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.status == ArrowField.enemyPlay ? Settings.setupP2 : Settings.setupP1)}');
+						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.settings)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
 								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4 , {
-									startDelay: (event.field.conductor.stepTime / 1000) * 1.5 ,
+									startDelay: (event.field.conductor.stepTime / 1000) * 1.5,
 									ease: FlxEase.expoOut
 								});
 							}
@@ -524,8 +524,6 @@ class PlayState extends BeatState {
 		// position system doesn't work yet, so for now there being put on screen like this
 		enemyField.x = (camHUD.width / 2) - (camHUD.width / 4);
 		playerField.x = (camHUD.width / 2) + (camHUD.width / 4);
-		enemyField.y = hud.getFieldYLevel(Settings.setupP1.downscroll, enemyField);
-		playerField.y = hud.getFieldYLevel(Settings.setupP1.downscroll, playerField);
 		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {

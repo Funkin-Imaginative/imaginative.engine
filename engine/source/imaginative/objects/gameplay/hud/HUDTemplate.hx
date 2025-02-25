@@ -22,7 +22,6 @@ class HUDTemplate extends BeatGroup {
 	 * Contains all hud elements like the health bar and icons.
 	 */
 	public var elements:BeatGroup = new BeatGroup();
-	// public var combo:BeatGroup = new BeatGroup();
 	/**
 	 * Contains all existing ArrowFields.
 	 * Well it doesn't really have to contain *all* of them.
