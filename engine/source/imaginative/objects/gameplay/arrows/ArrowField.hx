@@ -32,6 +32,8 @@ class ArrowField extends BeatGroup {
 	public static var player:ArrowField;
 
 	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
+		if (camera == null)
+			camera = FlxG.camera;
 		for (i => field in fields) {
 			if (field.length < 3)
 				field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
