@@ -9,8 +9,7 @@ class VSliceHUD extends HUDTemplate {
 
 	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
 		field ??= ArrowField.player;
-		var height:Float = field?.strums?.height ?? 161;
-		var yLevel:Float = (downscroll ? FlxG.camera.height - height - 24 : 24) + (height / 2);
+		var yLevel:Float = (downscroll ? FlxG.camera.height - ArrowField.arrowSize - 24 : 24) + (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 

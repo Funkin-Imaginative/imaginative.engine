@@ -1,26 +1,36 @@
 package imaginative.objects.gameplay.arrows;
 
+enum abstract ArrowModFollowType(String) from String to String {
+	var FIELD;
+	var STRUM;
+	var NOTE;
+	// var SUSTAIN; // useless, as the system can't go backwards
+	var NONE = null;
+}
+
 @:access(imaginative.objects.gameplay.arrows.ArrowModifier)
 class ArrowModHandler {
 	var parent(null, null):ArrowModifier;
 
 	/**
-	 * If true, the tied object will follow any parent like object it has ties with.
-	 * Strum follows field, note follows strum and sustain follows note.
-	 * Note that this system doesn't always apply.
+	 * States what object to follow.
+	 * By default, Strum follows field, note follows strum and sustain follows note.
+	 * Note that this system doesn't always apply. Also it can't go backwards, that would be a pain in the ass to deal with.
 	 * EFFCTS: Strum, Note, Sustain
 	 */
-	public var followLead(default, set):Bool = true;
-	inline function set_followLead(value:Bool):Bool {
-		followLead = value;
-		parent.update_scale();
-		parent.update_angle();
-		parent.update_alpha();
-		return followLead;
+	public var followType(default, set):ArrowModFollowType;
+	inline function set_followType(value:ArrowModFollowType):ArrowModFollowType {
+		followType = value;
+		try {
+			parent.update_scale();
+			parent.update_angle();
+			parent.update_alpha();
+		} catch(error:haxe.Exception) {}
+		return followType;
 	}
 
 	/**
-	 * Applyers for x and y position individually.
+	 * Appliers for x and y position individually.
 	 * Setting either to false completely stops the note from following it's target strum.
 	 * EFFCTS: Note, Sustain
 	 */
@@ -67,8 +77,10 @@ class ArrowModHandler {
 		return speedIsMult;
 	}
 
-	public function new (parent:ArrowModifier)
+	public function new (parent:ArrowModifier, ?startFollowType:ArrowModFollowType) {
 		this.parent = parent;
+		followType = startFollowType;
+	}
 }
 
 class ArrowModifier {
@@ -80,7 +92,7 @@ class ArrowModifier {
 	/**
 	 * Handles what mods should be enabled.
 	 */
-	public var apply:ArrowModHandler;
+	public var handler:ArrowModHandler;
 
 	// arrow mods
 	/**
@@ -143,35 +155,50 @@ class ArrowModifier {
 			return scale.y;
 		}
 
-		apply = new ArrowModHandler(this);
+		var startType:ArrowModFollowType = NONE;
+		if (strum != null) startType = FIELD;
+		if (note != null) startType = STRUM;
+		if (sustain != null) startType = NOTE;
+		handler = new ArrowModHandler(this, startType);
 	}
 
 	function update_scale():Void {
-		if (strum != null) {
-			if (apply.scale) {
-				strum.scale.set( // 0.7 being base scale, which will be given a variable at some point
-					(apply.followLead ? strum.setField.scale.x : 0.7) * scale.x,
-					(apply.followLead ? strum.setField.scale.y : 0.7) * scale.y
+		if (handler.scale) {
+			if (strum != null) {
+				var followScale:Array<Float> = switch (handler.followType) {
+					case FIELD: [strum.setField.scale.x, strum.setField.scale.y];
+					default: [1, 1];
+				}
+				strum.scale.set( // 0.7 being base scale, which might be given a variable at some point
+					0.7 * followScale[0] * scale.x,
+					0.7 * followScale[1] * scale.y
 				);
-				for (note in strum.setField.notes)
+				for (note in strum.setField.notes.members.copy().filter((note:Note) -> return note.id == strum.id))
 					note.mods.update_scale();
 			}
-		}
-		if (note != null) {
-			if (apply.scale) {
-				note.scale.set( // not sure how to do this rn
-					(apply.followLead ? note.setStrum.scale.x : 0.7) * scale.x,
-					(apply.followLead ? note.setStrum.scale.y : 0.7) * scale.y
+			if (note != null) {
+				var followScale:Array<Float> = switch (handler.followType) {
+					case FIELD: [0.7 * note.setField.scale.x, 0.7 * note.setField.scale.y];
+					case STRUM: [note.setStrum.scale.x, note.setStrum.scale.y];
+					default: [0.7, 0.7];
+				}
+				note.scale.set(
+					followScale[0] * scale.x,
+					followScale[1] * scale.y
 				);
 				for (sustain in note.tail)
 					sustain.mods.update_scale();
 			}
-		}
-		if (sustain != null) {
-			if (apply.scale) {
+			if (sustain != null) {
+				var followScale:Array<Float> = switch (handler.followType) {
+					case FIELD: [0.7 * sustain.setField.scale.x, 0.7 * sustain.setField.scale.y];
+					case STRUM: [sustain.setStrum.scale.x, sustain.setStrum.scale.y];
+					case NOTE: [sustain.setHead.scale.x, sustain.setHead.scale.y];
+					default: [0.7, 0.7];
+				}
 				sustain.scale.set(
-					(apply.followLead ? sustain.setHead.scale.x : 0.7) * scale.x,
-					(apply.followLead ? sustain.setHead.scale.y : 0.7) * scale.y
+					followScale[0] * scale.x,
+					followScale[1] * scale.y
 				);
 				Sustain.applyBaseScaleY(sustain, Math.abs(sustain.__scrollSpeed));
 			}
@@ -179,40 +206,60 @@ class ArrowModifier {
 	}
 
 	function update_angle():Void {
-		if (strum != null) {
-			if (apply.angle)
-				strum.angle = apply.followLead ? strum.setField.strums.angle + angle : angle;
-			for (note in strum.setField.notes)
-				note.mods.update_angle();
+		if (handler.angle) {
+			if (strum != null) {
+				var followAngle:Float = switch (handler.followType) {
+					case FIELD: strum.setField.strums.angle;
+					default: 0;
+				}
+				strum.angle = followAngle + angle;
+				for (note in strum.setField.notes.members.copy().filter((note:Note) -> return note.id == strum.id))
+					note.mods.update_angle();
+			}
+			if (note != null) {
+				var followAngle:Float = switch (handler.followType) {
+					case FIELD: note.setField.strums.angle;
+					case STRUM: note.setStrum.angle;
+					default: 0;
+				}
+				note.angle = followAngle + angle;
+			}
+			// doesn't follow specific object, plus it's probably better this way
+			if (sustain != null)
+				sustain.angle = sustain.setField.scrollAngle + sustain.setStrum.scrollAngle + sustain.setHead.scrollAngle + sustain.scrollAngle + 90 + angle;
 		}
-		if (note != null) {
-			if (apply.angle)
-				note.angle = apply.followLead ? note.setStrum.angle + angle : angle;
-			/* for (sustain in note.tail)
-				sustain.mods.update_angle(); */
-		}
-		/* if (sustain != null) {
-			if (apply.angle)
-				sustain.angle = apply.followLead ? sustain.setStrum.angle + angle : angle;
-		} */
 	}
 
 	function update_alpha():Void {
-		if (strum != null) {
-			if (apply.alpha)
-				strum.alpha = (apply.followLead ? strum.setField.alpha : 1) * alpha;
-			for (note in strum.setField.notes)
-				note.mods.update_alpha();
-		}
-		if (note != null) {
-			if (apply.alpha)
-				note.alpha = (apply.followLead ? note.setStrum.alpha : 1) * alpha;
-			for (sustain in note.tail)
-				sustain.mods.update_alpha();
-		}
-		if (sustain != null) {
-			if (apply.alpha)
-				sustain.alpha = (apply.followLead ? sustain.setHead.alpha : 1) * alpha;
+		if (handler.alpha) {
+			if (strum != null) {
+				var followAlpha:Float = switch (handler.followType) {
+					case FIELD: strum.setField.alpha;
+					default: 1;
+				}
+				strum.alpha = followAlpha * alpha;
+				for (note in strum.setField.notes.members.copy().filter((note:Note) -> return note.id == strum.id))
+					note.mods.update_alpha();
+			}
+			if (note != null) {
+				var followAlpha:Float = switch (handler.followType) {
+					case FIELD: note.setField.alpha;
+					case STRUM: note.setStrum.alpha;
+					default: 1;
+				}
+				note.alpha = followAlpha * alpha;
+				for (sustain in note.tail)
+					sustain.mods.update_alpha();
+			}
+			if (sustain != null) {
+				var followAlpha:Float = switch (handler.followType) {
+					case FIELD: sustain.setField.alpha;
+					case STRUM: sustain.setStrum.alpha;
+					case NOTE: sustain.setHead.alpha;
+					default: 1;
+				}
+				sustain.alpha = followAlpha * alpha;
+			}
 		}
 	}
 }

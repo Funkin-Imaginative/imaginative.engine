@@ -41,10 +41,11 @@ class ArrowField extends BeatGroup {
 		}
 		var hatred:Array<FlxObject> = [
 			for (field in fields)
-				new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
+				new FlxObject(field.x, field.y, field.totalWidth, arrowSize)
 		];
 		hatred.space((camera.width / 2) - (camera.width / 4), 0, (camera.width / 2) + (camera.width / 4) - (camera.width / 2) - (camera.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
-			fields[hatred.indexOf(object)].x = x;
+			var field:ArrowField = fields[hatred.indexOf(object)];
+			field.x = /* field.totalWidth / 2 + */ x;
 		});
 		for (obj in hatred)
 			obj.destroy();
@@ -182,8 +183,9 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The distance between the each strum.
 	 * TODO: Make it so strum skins will have their own spacing!
+	 * TODO: REWORK THIS
 	 */
-	public var strumSpacing:Float = 8;
+	public var strumSpacing:Float = 0;
 
 	/**
 	 * This function is used to get the scroll speed but also check for the personal speed!
@@ -217,8 +219,13 @@ class ArrowField extends BeatGroup {
 	 * Downscroll is 90, while upscroll is 270.
 	 */
 	public var scrollAngle(default, set):Null<Float>;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
 	inline function set_scrollAngle(?value:Float):Null<Float> {
-		return scrollAngle = value ?? (settings.downscroll ? 90 : 270);
+		value ??= (settings.downscroll ? 90 : 270);
+		scrollAngle = value;
+		for (sustain in sustains)
+			sustain.mods.update_angle();
+		return value;
 	}
 
 	/**
@@ -449,13 +456,22 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * The base arrow width.
+	 * The base arrow size.
 	 */
-	public static var arrowWidth = 160 * 0.7;
+	public static var arrowSize(default, null):Float = 160 * 0.7;
+
 	/**
-	 * The total calculated with of the strums.
+	 * The average width you'll get from this field.
+	 */
+	public var averageWidth(get, null):Float;
+	inline function get_averageWidth():Float {
+		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 1));
+	}
+	/**
+	 * The total calculated width of the strums.
 	 */
 	public var totalWidth(default, null):Float;
+
 	/**
 	 * Reset's the internal positions of the strums.
 	 */
@@ -465,14 +481,14 @@ class ArrowField extends BeatGroup {
 
 		inline function helper(a:Strum, b:Strum):Void
 			if (a != null && b != null)
-				b.x = a.x + arrowWidth + strumSpacing;
+				b.x = a.x + arrowSize + strumSpacing;
 
 		for (i => strum in strums.members) {
-			strum.y = -strum.height / 2;
+			strum.y = -arrowSize / 2;
 			helper(strum, strums.members[i + 1]);
 		}
 
-		totalWidth = (strums.members[strums.length - 1].x + arrowWidth) - strums.members[0].x;
+		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
 	}

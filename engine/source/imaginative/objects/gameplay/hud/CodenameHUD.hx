@@ -12,10 +12,9 @@ class CodenameHUD extends HUDTemplate {
 
 	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
 		field ??= ArrowField.player;
-		var height:Float = field?.strums?.height ?? 161;
 		var yLevel:Float = 50;
-		if (downscroll) yLevel = FlxG.camera.height - yLevel - height;
-		yLevel += (height / 2);
+		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
+		yLevel += (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 

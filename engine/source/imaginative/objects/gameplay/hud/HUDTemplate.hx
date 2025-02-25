@@ -167,12 +167,12 @@ class HUDTemplate extends BeatGroup {
 
 					// orders the player and enemy fields above all
 					_fields = fields.members.copy().filter((field:ArrowField) -> return field.status == null);
-					var bot:ArrowField = ArrowField.enemyPlay ? ArrowField.player : ArrowField.enemy;
-					if (bot != null)
-						_fields.insert(0, bot);
 					var top:ArrowField = ArrowField.enemyPlay ? ArrowField.enemy : ArrowField.player;
 					if (top != null)
 						_fields.insert(0, top);
+					var bot:ArrowField = ArrowField.enemyPlay ? ArrowField.player : ArrowField.enemy;
+					if (bot != null)
+						_fields.insert(0, bot);
 
 					while (i < _fields.length) {
 						basic = _fields[i++];

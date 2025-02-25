@@ -9,8 +9,7 @@ class PsychHUD extends HUDTemplate {
 
 	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
 		field ??= ArrowField.player;
-		var height:Float = field?.strums?.height ?? 161;
-		var yLevel:Float = (downscroll ? (FlxG.camera.height - 150) : 50) + (height / 2);
+		var yLevel:Float = (downscroll ? (FlxG.camera.height - 150) : 50) + (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
