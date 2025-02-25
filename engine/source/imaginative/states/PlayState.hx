@@ -507,33 +507,14 @@ class PlayState extends BeatState {
 		log('Field${loadedFields.length > 1 ? "'s" : ''} ${[for (i => field in loadedFields) (i == (loadedFields.length - 2) && loadedFields.length > 1) ? '"$field" and' : '"$field"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
 
 		// arrow field setup
-		for (order in chartData.fieldSettings.order) {
-			var fields:Array<ArrowField> = [
-				for (tag => field in arrowFieldMapping)
-					if (order.contains(tag))
-						field
-			];
-			// TODO: @Zyflx said to tweak the y position, do it after HUD visuals are finalized.
-			/* for (i => field in fields) {
-				// TODO: Get ArrowField positioning working!
-				if (field.length < 3) {
-					field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
-					for (strum in field.strums)
-						strum.updateHitbox();
-				}
-				field.visible = true;
-			}
-			var hatred:Array<FlxObject> = [
-				for (field in fields)
-					new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
-			];
-			hatred.space((camHUD.width / 2) - (camHUD.width / 4), hud.getFieldYLevel(Settings.setupP1.downscroll), (camHUD.width / 2) + (camHUD.width / 4) - (camHUD.width / 2) - (camHUD.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
-				var field:ArrowField = fields[hatred.indexOf(object)];
-				field.setPosition(x, y);
-			});
-			while (hatred.length > 0)
-				hatred.pop().destroy(); */
-		}
+		var fields:Array<ArrowField> = [
+			for (tag in chartData.fieldSettings.order)
+				if (arrowFieldMapping.exists(tag))
+					arrowFieldMapping.get(tag)
+		];
+		// ArrowField.setupFieldXPositions(fields, camHUD);
+		for (field in fields)
+			field.y = hud.getFieldYLevel(Settings.setupP1.downscroll, field);
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
 			ArrowField.enemy = arrowFieldMapping.get(chartData.fieldSettings.enemy);

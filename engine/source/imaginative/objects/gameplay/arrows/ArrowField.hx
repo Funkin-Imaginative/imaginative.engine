@@ -31,6 +31,24 @@ class ArrowField extends BeatGroup {
 	 */
 	public static var player:ArrowField;
 
+	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
+		for (i => field in fields) {
+			if (field.length < 3)
+				field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
+			field.visible = true;
+		}
+		var hatred:Array<FlxObject> = [
+			for (field in fields)
+				new FlxObject(field.x, field.y, field.totalWidth, field.strums.members[0].height)
+		];
+		hatred.space((camera.width / 2) - (camera.width / 4), 0, (camera.width / 2) + (camera.width / 4) - (camera.width / 2) - (camera.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
+			fields[hatred.indexOf(object)].x = x;
+		});
+		for (obj in hatred)
+			obj.destroy();
+		return fields;
+	}
+
 	/**
 	 * If enabled, botplay will be active when entering a song.
 	 */
@@ -163,7 +181,7 @@ class ArrowField extends BeatGroup {
 	 * The distance between the each strum.
 	 * TODO: Make it so strum skins will have their own spacing!
 	 */
-	public var strumSpacing:Float = -7;
+	public var strumSpacing:Float = 8;
 
 	/**
 	 * This function is used to get the scroll speed but also check for the personal speed!
@@ -429,6 +447,10 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
+	 * The base arrow width.
+	 */
+	public static var arrowWidth = 160 * 0.7;
+	/**
 	 * The total calculated with of the strums.
 	 */
 	public var totalWidth(default, null):Float;
@@ -441,20 +463,16 @@ class ArrowField extends BeatGroup {
 
 		inline function helper(a:Strum, b:Strum):Void
 			if (a != null && b != null)
-				b.x = a.x + a.width + strumSpacing;
+				b.x = a.x + arrowWidth + strumSpacing;
 
 		for (i => strum in strums.members) {
 			strum.y = -strum.height / 2;
 			helper(strum, strums.members[i + 1]);
 		}
 
-		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
+		totalWidth = (strums.members[strums.length - 1].x + arrowWidth) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
-
-		// this fucking moves the strums so much lmao
-		// strums.centerOffsets();
-		// strums.centerOrigin();
 	}
 
 	/**
@@ -488,12 +506,6 @@ class ArrowField extends BeatGroup {
 	 * The scale of the field.
 	 */
 	public var scale:FlxPoint;
-	/**
-	 * Update's the strums hitboxes.
-	 */
-	inline public function updateHitbox():Void
-		for (strum in strums)
-			strum.updateHitbox();
 
 	/**
 	 * The field alpha.
