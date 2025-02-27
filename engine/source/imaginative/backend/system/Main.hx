@@ -83,7 +83,7 @@ class Main extends Sprite {
 		// Taken from Psych
 		// https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
 		// https://github.com/ShadowMario/FNF-PsychEngine/commit/ecdb1a037a20bd16275981f0afd0b37aea79c53c
-		untyped __cpp__("SetProcessDPIAware();");
+		// untyped __cpp__("SetProcessDPIAware();");
 
 		var display = lime.system.System.getDisplay(0);
 		if (display != null) {
