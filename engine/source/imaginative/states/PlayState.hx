@@ -1,6 +1,6 @@
 package imaginative.states;
 
-import imaginative.objects.gameplay.hud.HUDTemplate;
+import imaginative.objects.gameplay.hud.*;
 import imaginative.states.editors.ChartEditor.ChartData;
 
 typedef CountdownAssets = {
@@ -282,19 +282,19 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new FlxCamera(), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		hud = new imaginative.objects.gameplay.hud.ImaginativeHUD(); /* switch (chartData.hud ??= 'funkin') {
+		hud = switch (chartData.hud ??= 'funkin') {
 			case 'funkin':
 				switch (Settings.setup.HUDSelection) {
-					case VSlice: new imaginative.objects.gameplay.hud.VSliceHUD();
-					case Kade: new imaginative.objects.gameplay.hud.KadeHUD();
-					case Psych: new imaginative.objects.gameplay.hud.PsychHUD();
-					case Codename: new imaginative.objects.gameplay.hud.CodenameHUD();
-					case Imaginative: new imaginative.objects.gameplay.hud.ImaginativeHUD();
-					default: new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
+					case VSlice: new VSliceHUD();
+					case Kade: new KadeHUD();
+					case Psych: new PsychHUD();
+					case Codename: new CodenameHUD();
+					case Imaginative: new ImaginativeHUD();
+					default: new ImaginativeHUD(); // lol // new ScriptedHUD(chartData.hud);
 				}
 			default:
-				new imaginative.objects.gameplay.hud.ScriptedHUD(chartData.hud);
-		} */
+				new ScriptedHUD(chartData.hud);
+		}
 		hud.cameras = [camHUD];
 		add(hud);
 

@@ -2,16 +2,6 @@ package imaginative.objects.gameplay.hud;
 
 import imaginative.objects.ui.Bar;
 
-enum abstract HUDType(String) from String to String {
-	var Template;
-	var VSlice;
-	var Kade;
-	var Psych;
-	var Codename;
-	var Imaginative;
-	var Custom;
-}
-
 class HUDTemplate extends BeatGroup {
 	public var type(get, never):HUDType;
 	function get_type():HUDType
@@ -29,8 +19,21 @@ class HUDTemplate extends BeatGroup {
 	public var fields:BeatTypedGroup<ArrowField> = new BeatTypedGroup<ArrowField>();
 
 	// hud specific shit
+	/**
+	 * This bar tells you how much health you have left.
+	 */
 	public var healthBar:Bar;
+
+	/**
+	 * This this the stats text.
+	 * It tells you what your stats are!
+	 */
 	public var statsText:FlxText;
+	/**
+	 * This this the stats text but for player 2.
+	 * It tells you what player 2's stats are!
+	 */
+	public var statsP2Text:FlxText;
 
 	/**
 	 * Returns the field y level for the hud.
@@ -40,7 +43,10 @@ class HUDTemplate extends BeatGroup {
 	 * @return `Float` ~ The field y level.
 	 */
 	public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
-		var yLevel:Float = (FlxG.camera.height / 2) - ((FlxG.camera.height / 2.6) * (downscroll ? -1 : 1));
+		field ??= ArrowField.player;
+		var yLevel:Float = 50;
+		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
+		yLevel += (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
@@ -71,7 +77,7 @@ class HUDTemplate extends BeatGroup {
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
 	public function call(?hudOnly:Bool, func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		for (script in getScripts())
+		for (script in getScripts(hudOnly))
 			if (script != null)
 				return script.call(func, args) ?? def;
 		return def;
@@ -85,7 +91,7 @@ class HUDTemplate extends BeatGroup {
 	 */
 	@:access(imaginative.backend.scripting.events.ScriptEvent.continueLoop)
 	public function event<SC:ScriptEvent>(?hudOnly:Bool, func:String, event:SC):SC {
-		for (script in getScripts()) {
+		for (script in getScripts(hudOnly)) {
 			if (!script.active) continue;
 			event.returnCall = call(func, [event]);
 			if (event.prevented && !event.continueLoop) break;
@@ -105,28 +111,40 @@ class HUDTemplate extends BeatGroup {
 					scripts.add(script);
 
 	public var health:Float = 1;
-
 	function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, Settings.setupP1.downscroll ? FlxG.camera.height * 0.1 : FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
+		if (Settings.setupP1.downscroll)
+			CodenameHUD.cneYLevel(bg);
 		elements.add(bg);
 
 		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
 	}
+
 	function initStatsText():FlxText {
-		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '');
-		text.setFormat(Paths.font('vcr').format(), 20, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		var text:FlxText = new FlxText((healthBar.x - 4) + (healthBar.width + 8) - 190, (healthBar.y - 4) + 30);
+		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		if (Settings.setupP1.downscroll)
+			CodenameHUD.cneYLevel(text);
+		return text;
+	}
+	function initStatsP2Text():FlxText {
+		var text:FlxText = new FlxText((healthBar.x - 4) - (healthBar.width + 8) + 190, (healthBar.y - 4) + 30);
+		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		if (Settings.setupP1.downscroll)
+			CodenameHUD.cneYLevel(text);
+		text.visible = ArrowField.enableP2;
 		return text;
 	}
 
 	function createElements():Void {
-		healthBar = initHealthBar();
-		elements.add(healthBar);
-
-		statsText = initStatsText();
-		elements.add(statsText);
+		elements.add(healthBar = initHealthBar());
+		elements.add(statsP2Text = initStatsP2Text());
+		elements.add(statsText = initStatsText());
+		call(true, 'onCreateElements');
 		updateStatsText();
+		updateStatsP2Text();
 	}
 
 	override public function new() {
@@ -138,13 +156,25 @@ class HUDTemplate extends BeatGroup {
 		call(true, 'create');
 
 		createElements();
-
 		add(elements);
 		add(fields);
+
+		call(true, 'createPost');
 	}
 
+	/**
+	 * Should be called when stats change.
+	 */
 	public function updateStatsText():Void {
-		statsText.text = 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
+		statsText.text = 'Score:${Scoring.statsP1.score}';
+		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
+	}
+	/**
+	 * Should be called when stats change.
+	 */
+	public function updateStatsP2Text():Void {
+		statsP2Text.text = 'Score:${Scoring.statsP2.score}';
+		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
 	}
 
 	var _fields(null, null):Array<ArrowField>;
@@ -182,5 +212,10 @@ class HUDTemplate extends BeatGroup {
 		}
 
 		FlxCamera._defaultCameras = oldDefaultCameras;
+	}
+
+	override public function destroy() {
+		scripts.end();
+		super.destroy();
 	}
 }

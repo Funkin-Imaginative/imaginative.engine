@@ -1,6 +1,5 @@
 package imaginative.objects.gameplay.hud;
 
-import imaginative.objects.gameplay.hud.HUDTemplate.HUDType;
 import imaginative.objects.ui.Bar;
 
 class VSliceHUD extends HUDTemplate {
@@ -22,13 +21,25 @@ class VSliceHUD extends HUDTemplate {
 		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
 		return bar.setColors(FlxColor.RED, 0xFF66FF33, true);
 	}
+
 	override function initStatsText():FlxText {
-		var text:FlxText = new FlxText(healthBar.x + healthBar.width - 190, healthBar.y + 30, 0, '');
+		var text:FlxText = new FlxText((healthBar.x - 4) + (healthBar.width + 8) - 190, (healthBar.y - 4) + 30);
 		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		return text;
+	}
+	override function initStatsP2Text():FlxText {
+		var text:FlxText = new FlxText((healthBar.x - 4) - (healthBar.width + 8) + 190, (healthBar.y - 4) + 30);
+		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
+		text.visible = ArrowField.enableP2;
 		return text;
 	}
 
 	override public function updateStatsText():Void {
-		statsText.text = ArrowField.botplay ? 'Bot Play Enabled' : 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
+		statsText.text = ArrowField.botplay && !ArrowField.enableP2 ? 'Bot Play Enabled' : 'Score: ${Scoring.statsP1.score.formatMoney(false)}';
+		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
+	}
+	override public function updateStatsP2Text():Void {
+		statsP2Text.text = 'Score: ${Scoring.statsP2.score.formatMoney(false)}';
+		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
 	}
 }

@@ -1,6 +1,5 @@
 package imaginative.objects.gameplay.hud;
 
-import imaginative.objects.gameplay.hud.HUDTemplate.HUDType;
 import imaginative.objects.ui.Bar;
 
 class CodenameHUD extends HUDTemplate {
@@ -9,14 +8,6 @@ class CodenameHUD extends HUDTemplate {
 
 	public var missesText:FlxText;
 	public var accuracyText:FlxText;
-
-	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
-		field ??= ArrowField.player;
-		var yLevel:Float = 50;
-		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
-		yLevel += (ArrowField.arrowSize / 2);
-		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
-	}
 
 	override function initHealthBar():Bar {
 		// temp bg add
@@ -27,10 +18,11 @@ class CodenameHUD extends HUDTemplate {
 		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
 		return bar.setColors(FlxColor.RED, 0xFF66FF33, true);
 	}
+
 	override function initStatsText():FlxText {
 		var texts:Array<FlxText> = [];
 		for (alignment in [RIGHT, CENTER, LEFT]) {
-			var text:FlxText = new FlxText(healthBar.x + 50, healthBar.y + 30, Std.int(healthBar.width - 100), '');
+			var text:FlxText = new FlxText((healthBar.x - 4) + 50, (healthBar.y - 4) + 30, Std.int((healthBar.width + 8) - 100));
 			text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, alignment, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 1;
 			texts.push(text);
@@ -40,6 +32,9 @@ class CodenameHUD extends HUDTemplate {
 		accuracyText.text = 'Accuracy:-% - [N/A]';
 		return texts[0];
 	}
+	override function initStatsP2Text():FlxText {
+		return new FlxText('', 0); // to prevent crashes
+	}
 
 	public static function cneYLevel<Sprite:FlxObject>(spr:Sprite):Sprite {
 		spr.y = FlxG.camera.height - spr.y - spr.height;
@@ -47,14 +42,25 @@ class CodenameHUD extends HUDTemplate {
 	}
 	override function createElements():Void {
 		super.createElements();
-		if (Settings.setupP1.downscroll)
-			for (object in elements)
+		if (Settings.setupP1.downscroll) {
+			// var ignoreList:Array<FlxBasic> = cast call('setHudYIgnoreList', [], []) ?? [];
+			for (object in elements/* .members.copy().filter(_ -> !ignoreList.contains(_)) */)
 				cneYLevel(cast object);
+		}
 	}
 
+	// cne doesn't give p2 their own texts, it just kinda stacks onto p1's... so I'm doing it like this i guess
+	// i could just put them on the other end of the health bar but im feelin lazy rn lol... and tired its- oh, 9:50... (pm)
 	override public function updateStatsText():Void {
-		statsText.text = 'Score:${Scoring.statsP1.score}';
-		missesText.text = 'Misses:${Scoring.statsP1.misses}';
-		accuracyText.text = 'Accuracy:${Scoring.statsP1.accuracy < 0 ? '-' : Std.string(Math.fround(Scoring.statsP1.accuracy * 100 * 100) / 100)}% - [N/A]';
+		statsText.text = 'Score:${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.score) + (ArrowField.enemyPlay ? Scoring.statsP2.score : 0)}';
+		missesText.text = 'Misses:${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.misses) + (ArrowField.enemyPlay ? Scoring.statsP2.misses : 0)}';
+		// this is just visual, don't worry
+		var accuracy:Float = ArrowField.enableP2 ? FlxMath.remapToRange(Scoring.statsP1.accuracy + Scoring.statsP2.accuracy, 0, 100, 0, 200) : (ArrowField.enemyPlay ? Scoring.statsP2.accuracy : Scoring.statsP1.accuracy);
+		accuracyText.text = 'Accuracy:${accuracy < 0 ? '-' : Std.string(Math.fround(accuracy * 100 * 100) / 100)}% - [N/A]';
+		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
+	}
+	override public function updateStatsP2Text() {
+		updateStatsText();
+		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
 	}
 }

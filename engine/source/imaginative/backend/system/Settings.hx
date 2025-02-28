@@ -53,7 +53,7 @@ class MainSettings {
 	/**
 	 * The hud you wish to pick for the default.
 	 */
-	public var HUDSelection:imaginative.objects.gameplay.hud.HUDTemplate.HUDType = Imaginative;
+	public var HUDSelection:imaginative.objects.gameplay.hud.HUDType = Imaginative;
 
 	/**
 	 * If true, antialiasing can be applied to things.
