@@ -148,6 +148,12 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function new() {
+		if (HUDType.direct == null)
+			HUDType.direct = this;
+		else {
+			_log('A HUD already exists, killing new one.');
+			destroy();
+		}
 		super();
 
 		scripts = new ScriptGroup(this);
@@ -216,6 +222,8 @@ class HUDTemplate extends BeatGroup {
 
 	override public function destroy() {
 		scripts.end();
+		if (HUDType.direct == this)
+			HUDType.direct = null;
 		super.destroy();
 	}
 }

@@ -1,11 +1,7 @@
 package imaginative.objects.gameplay.arrows;
 
-import imaginative.backend.scripting.events.objects.gameplay.FieldInputEvent;
-import imaginative.backend.scripting.events.objects.gameplay.NoteHitEvent;
-import imaginative.backend.scripting.events.objects.gameplay.NoteMissedEvent;
-import imaginative.backend.scripting.events.objects.gameplay.SustainHitEvent;
-import imaginative.backend.scripting.events.objects.gameplay.SustainMissedEvent;
-import imaginative.backend.scripting.events.objects.gameplay.VoidMissEvent;
+import imaginative.backend.scripting.events.objects.gameplay.*;
+import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
 
 class ArrowField extends BeatGroup {
@@ -338,9 +334,15 @@ class ArrowField extends BeatGroup {
 				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
 				onVoidMiss.dispatch(event);
 				if (!event.prevented) {
-					// using event as mush as we can, jic scripts somehow edited everything 💀
+					event.field.stats.combo = 0;
+					event.field.stats.misses++;
+
 					if (!event.stopStrumPress)
 						event.strum.playAnim('press', !event.triggerMiss);
+
+					if (event.field.status != null)
+						if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
+						else HUDType.direct.updateStatsText();
 				}
 			}
 		}
@@ -403,10 +405,16 @@ class ArrowField extends BeatGroup {
 		var event:NoteHitEvent = new NoteHitEvent(note, i, this);
 		onNoteHit.dispatch(event);
 		if (!event.prevented) {
-			// using event as mush as we can, jic scripts somehow edited everything 💀
 			event.field.stats.combo++;
+			event.field.stats.hits++;
+
+			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumConfirm)
 				event.note.setStrum.playAnim('confirm', true);
+
+			if (event.field.status != null)
+				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
+				else HUDType.direct.updateStatsText();
 		}
 	}
 	inline function _onSustainHit(sustain:Sustain, ?i:Int):Void {
@@ -417,9 +425,12 @@ class ArrowField extends BeatGroup {
 		var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
 		onSustainHit.dispatch(event);
 		if (!event.prevented) {
-			// using event as mush as we can, jic scripts somehow edited everything 💀
 			if (!event.stopStrumConfirm)
 				event.sustain.setStrum.playAnim(event.sustain.setStrum.doesAnimExist('confirm-hold') ? 'confirm-hold' : 'confirm', true);
+
+			if (event.field.status != null)
+				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
+				else HUDType.direct.updateStatsText();
 		}
 	}
 	inline function _onNoteMissed(note:Note, ?i:Int):Void {
@@ -432,10 +443,15 @@ class ArrowField extends BeatGroup {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.note.tail, true))
 					sustain.wasMissed = true;
-			event.field.stats.combo--;
-			// using event as mush as we can, jic scripts somehow edited everything 💀
+			event.field.stats.combo = 0;
+			event.field.stats.misses++;
+
 			if (!event.stopStrumPress)
 				event.note.setStrum.playAnim('press', !event.field.isPlayer);
+
+			if (event.field.status != null)
+				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
+				else HUDType.direct.updateStatsText();
 		}
 	}
 	inline function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
@@ -448,10 +464,15 @@ class ArrowField extends BeatGroup {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
 					sustain.wasMissed = true;
-			event.field.stats.combo--;
-			// using event as mush as we can, jic scripts somehow edited everything 💀
+			event.field.stats.combo = 0;
+			event.field.stats.misses++;
+
 			if (!event.stopStrumPress)
 				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
+
+			if (event.field.status != null)
+				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
+				else HUDType.direct.updateStatsText();
 		}
 	}
 

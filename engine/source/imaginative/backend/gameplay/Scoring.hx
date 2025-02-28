@@ -7,22 +7,26 @@ class PlayerStats {
 	public var accuracy:Float = 0;
 
 	/**
+	 * The total amount of notes that were hit.
+	 */
+	public var hits:Int = 0;
+	/**
 	 * The score count.
 	 */
 	public var score:Int = 0;
 	/**
-	 * The amount of notes were missed.
-	 * Can count sustains if the `missFullSustain` setting is off.
-	 */
-	public var misses:Int = 0;
-
-	/**
-	 * The amount of notes were hit.
+	 * The amount of notes that were hit in a row.
 	 * Does not count sustains.
 	 */
 	public var combo:Int = 0;
+
 	/**
-	 * The amount of times the combo was broken/reset.
+	 * The total amount of notes that were missed.
+	 * Can count sustains if the `missFullSustain` setting is off.
+	 */
+	public var misses:Int = 0;
+	/**
+	 * The total amount of times the combo was broken/reset.
 	 * This also includes misses but only for counter displays!
 	 * The variable itself shouldn't count misses.
 	 */

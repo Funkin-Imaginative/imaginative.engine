@@ -406,11 +406,14 @@ class PlayState extends BeatState {
 						generalVocals.volume = 1;
 
 					if (event.field.status != null)
-						hud.health += 0.03 * (event.field.status ? 1 : -1);
-					hud.updateStatsText();
-
-					// doing it here for now
+						hud.health += 0.02 * (event.field.status ? 1 : -1);
 					if (event.field.isPlayer) {
+						event.field.stats.score += 350;
+
+						if (event.field.status) hud.updateStatsText();
+						else hud.updateStatsP2Text();
+
+						// doing it here for now
 						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.settings)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
@@ -458,6 +461,16 @@ class PlayState extends BeatState {
 							track.volume = 0;
 					if (generalVocals != null)
 						generalVocals.volume = 0;
+
+					if (event.field.status != null)
+						hud.health -= 0.035 * (event.field.status ? 1 : -1);
+					if (event.field.isPlayer) {
+						event.field.stats.combo = 0;
+						event.field.stats.score -= 50;
+
+						if (event.field.status) hud.updateStatsText();
+						else hud.updateStatsP2Text();
+					}
 				}
 
 				scripts.event('noteMissedPost', event);
