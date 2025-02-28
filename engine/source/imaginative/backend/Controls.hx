@@ -315,10 +315,10 @@ class Controls implements IFlxDestroyable {
 	inline public function new() {
 		setBinds = [
 			// Controls //
-			'noteLeft' => [D, LEFT],
+			'noteLeft' => [E, LEFT],
 			'noteDown' => [F, DOWN],
 			'noteUp' => [K, UP],
-			'noteRight' => [L, RIGHT]
+			'noteRight' => [O, RIGHT]
 		];
 		if (this == blank)
 			setBinds.clear();
