@@ -38,12 +38,11 @@ class HUDTemplate extends BeatGroup {
 	/**
 	 * Returns the field y level for the hud.
 	 * @param downscroll If the position should be downscroll.
-	 * @param field Optional, you can include a field instance.
-	 *              Is used for some of the huds.
+	 * @param field Is used for some of the huds.
+	 *              Forced to be required to avoid `Null Object Reference`'s.
 	 * @return `Float` ~ The field y level.
 	 */
-	public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
-		field ??= ArrowField.player;
+	public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = 50;
 		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
 		yLevel += (ArrowField.arrowSize / 2);

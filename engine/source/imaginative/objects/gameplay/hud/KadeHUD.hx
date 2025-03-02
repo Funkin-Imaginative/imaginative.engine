@@ -6,8 +6,7 @@ class KadeHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Kade;
 
-	override public function getFieldYLevel(downscroll:Bool = false, ?field:ArrowField):Float {
-		field ??= ArrowField.player;
+	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (downscroll ? FlxG.height - 165 : 50) + (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
