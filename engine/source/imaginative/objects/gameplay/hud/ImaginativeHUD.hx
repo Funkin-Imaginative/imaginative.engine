@@ -5,6 +5,64 @@ import imaginative.objects.ui.Bar;
 class ImaginativeHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Imaginative;
+
+	public var breakText:FlxText;
+	public var accuracyText:FlxText;
+
+	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
+		var yLevel:Float = (FlxG.camera.height / 2) + (FlxG.camera.height / 2.7) * (downscroll ? 1 : -1);
+		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
+	}
+
+	override function initHealthBar():Bar {
+		// temp bg add
+		var bg:FlxSprite = new FlxSprite(0, (FlxG.camera.height / 2) + (FlxG.camera.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)).makeGraphic(600, 20, FlxColor.BLACK);
+		bg.y += bg.height / 2;
+		bg.screenCenter(X);
+		elements.add(bg);
+
+		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
+	}
+
+	function calculateTextYs(?downscroll:Bool):Array<Float> {
+		downscroll ??= Settings.setupP1.downscroll;
+		return [
+			Position.getObjMidpoint(healthBar).y + (50 * (downscroll ? 1 : -1)),
+			10 * (downscroll ? 1 : -1)
+		];
+	}
+	override function initStatsText():FlxText {
+		var texts:Array<FlxText> = [];
+		for (i in 0...3) {
+			var yCalc:Array<Float> = calculateTextYs();
+			var text:FlxText = new FlxText(0, yCalc[0] - (yCalc[1] * (i == 1 ? -1 : 1)), FlxG.camera.width / 3.2);
+			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+			text.screenCenter(X);
+			text.borderSize = 2;
+			texts.push(text);
+		}
+		elements.add(breakText = texts[0]);
+		elements.add(accuracyText = texts[1]);
+		accuracyText.text = 'Accuracy: 0% Start playing! (...)';
+		breakText.x = accuracyText.x - ((healthBar.width + 8) / 2);
+		texts[2].x = accuracyText.x + ((healthBar.width + 8) / 2);
+		return texts[2];
+	}
+	override function initStatsP2Text():FlxText {
+		return new FlxText('', 0); // to prevent crashes
+	}
+	override public function updateStatsText():Void {
+		breakText.text = 'Misses: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.misses) + (ArrowField.enemyPlay ? Scoring.statsP2.misses : 0)}';
+		// this is just visual, don't worry
+		var accuracy:Float = ArrowField.enableP2 ? FlxMath.remapToRange(Scoring.statsP1.accuracy + Scoring.statsP2.accuracy, 0, 100, 0, 200) : (ArrowField.enemyPlay ? Scoring.statsP2.accuracy : Scoring.statsP1.accuracy);
+		accuracyText.text = 'Accuracy: ${accuracy < 0 ? '-' : Std.string(Math.fround(accuracy * 100 * 100) / 100)}% Start playing! (...)';
+		statsText.text = 'Score: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.score) + (ArrowField.enemyPlay ? Scoring.statsP2.score : 0)}';
+		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
+	}
+	override public function updateStatsP2Text() {
+		updateStatsText();
+		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
+	}
 }
 
 /**
