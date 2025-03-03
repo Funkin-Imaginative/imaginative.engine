@@ -427,8 +427,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * When run, it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		if (animation.curAnim != null)
-			animation.curAnim.finish();
+		animation.finish();
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.
