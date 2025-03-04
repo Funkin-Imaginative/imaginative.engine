@@ -17,7 +17,7 @@ class ArrowField extends BeatGroup {
 	inline function get_conductor():Conductor
 		return conductor ?? Conductor.mainDirect;
 
-	// Even though you can have a but ton of ArrowField's you can ONLY play as one!
+	// Even though you can have a but ton of ArrowField's you can ***ONLY*** play as one!
 	/**
 	 * The main enemy field.
 	 */
@@ -111,23 +111,37 @@ class ArrowField extends BeatGroup {
 	 * If true, this field is maintained by a player.
 	 */
 	public var isPlayer(get, never):Bool;
-	inline function get_isPlayer():Bool
-		return status != null && (status == !enemyPlay || enableP2) && !botplay;
+	inline function get_isPlayer():Bool {
+		return status != null && (status != enemyPlay || enableP2) && !botplay;
+	}
 
+	/**
+	 * The field controls instance.
+	 */
 	public var controls(get, never):Controls;
 	inline function get_controls():Controls
 		if (status == null) return Controls.blank;
 		else return status == enemyPlay ? Controls.p2 : Controls.p1;
+	/**
+	 * The field settings instance.
+	 */
 	public var settings(get, never):PlayerSettings;
 	inline function get_settings():PlayerSettings
 		if (status == null) return Settings.setupP1;
 		else return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+	/**
+	 * The field stats instance.
+	 */
 	public var stats(get, never):PlayerStats;
 	private function get_stats():PlayerStats
 		if (status == null) return Scoring.unregisteredStats;
 		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
 
 	// signals
+	/**
+	 * Dispatches when user input happens at all.
+	 */
+	public var userInput(default, null):FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
 	/**
 	 * Dispatches when a note is hit.
 	 */
@@ -148,16 +162,12 @@ class ArrowField extends BeatGroup {
 	 * Dispatches when you tap without hitting a note.
 	 */
 	public var onVoidMiss(default, null):FlxTypedSignal<VoidMissEvent->Void> = new FlxTypedSignal<VoidMissEvent->Void>();
-	/**
-	 * Dispatches when user input happens at all.
-	 */
-	public var userInput(default, null):FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
 
 	/**
 	 * Any characters in this array will react to notes for this field.
 	 * `May make it contain string instead.`
 	 */
-	public var assignedActors:Array<Character> = [];
+	public var assignedActors:Array<Character>;
 
 	/**
 	 * The strums of the field.
@@ -179,7 +189,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The distance between the each strum.
 	 * TODO: Make it so strum skins will have their own spacing!
-	 * TODO: REWORK THIS
+	 * TODO: REWORK THIS COMPLETELY
 	 */
 	public var strumSpacing:Float = 0;
 
@@ -256,8 +266,7 @@ class ArrowField extends BeatGroup {
 		resetInternalPositions();
 		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
 
-		if (singers != null)
-			assignedActors = singers;
+		assignedActors = singers ?? [];
 
 		notes.memberAdded.add((_:Note) -> notes.members.sort(Note.sortNotes));
 		notes.memberRemoved.add((_:Note) -> notes.members.sort(Note.sortNotes));
@@ -321,9 +330,12 @@ class ArrowField extends BeatGroup {
 					if (activeNotes.length > 1) {
 						var backNote:Note = activeNotes[1];
 						if (backNote.id == frontNote.id) {
-							if (Math.abs(backNote.time - frontNote.time) < 1.0)
-								backNote.canDie = true;
-							else if (backNote.time < frontNote.time)
+							if (Math.abs(backNote.time - frontNote.time) < 1.0) {
+								var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
+								var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
+								deadNote.canDie = true;
+								frontNote = liveNote;
+							} else if (backNote.time < frontNote.time)
 								frontNote = backNote;
 						}
 					}
@@ -338,13 +350,9 @@ class ArrowField extends BeatGroup {
 						event.field.stats.combo = 0;
 						event.field.stats.misses++;
 					}
-
 					if (!event.stopStrumPress)
 						event.strum.playAnim('press', !event.triggerMiss);
-
-					if (event.field.status != null)
-						if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
-						else HUDType.direct.updateStatsText();
+					event.field.updateStatsText();
 				}
 			}
 		}
@@ -399,6 +407,14 @@ class ArrowField extends BeatGroup {
 		super.update(elapsed);
 	}
 
+	/**
+	 * Shortcut function to update the stats text of the hud.
+	 */
+	inline public function updateStatsText():Void
+		if (status != null && HUDType.direct != null)
+			if (status == enemyPlay) HUDType.direct.updateStatsP2Text();
+			else HUDType.direct.updateStatsText();
+
 	inline function _onNoteHit(note:Note, ?i:Int):Void {
 		if (note.wasHit) return;
 		i ??= note.id;
@@ -407,16 +423,15 @@ class ArrowField extends BeatGroup {
 		var event:NoteHitEvent = new NoteHitEvent(note, i, this);
 		onNoteHit.dispatch(event);
 		if (!event.prevented) {
-			event.field.stats.combo++;
-			event.field.stats.hits++;
-
-			// using event as mush as we can, jic scripts somehow edited everything 💀
+			if (event.field.isPlayer) {
+				event.field.stats.score += 350;
+				event.field.stats.combo++;
+				event.field.stats.hits++;
+			}
+			// using event as mush as we can, jic scripts somehow edit everything 💀
 			if (!event.stopStrumConfirm)
 				event.note.setStrum.playAnim('confirm', true);
-
-			if (event.field.status != null)
-				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
-				else HUDType.direct.updateStatsText();
+			event.field.updateStatsText();
 		}
 	}
 	inline function _onSustainHit(sustain:Sustain, ?i:Int):Void {
@@ -427,54 +442,53 @@ class ArrowField extends BeatGroup {
 		var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
 		onSustainHit.dispatch(event);
 		if (!event.prevented) {
+			if (event.field.isPlayer)
+				event.field.stats.score += 30;
 			if (!event.stopStrumConfirm)
 				event.sustain.setStrum.playAnim(event.sustain.setStrum.doesAnimExist('confirm-hold') ? 'confirm-hold' : 'confirm', true);
-
-			if (event.field.status != null)
-				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
-				else HUDType.direct.updateStatsText();
+			event.field.updateStatsText();
 		}
 	}
 	inline function _onNoteMissed(note:Note, ?i:Int):Void {
 		if (note.wasMissed) return;
 		i ??= note.id;
 		note.wasMissed = true;
+		note.mods.alpha *= 0.86;
 		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.note.tail, true))
 					sustain.wasMissed = true;
-			event.field.stats.combo = 0;
-			event.field.stats.misses++;
-
+			if (event.field.isPlayer) {
+				event.field.stats.score -= 50;
+				event.field.stats.combo = 0;
+				event.field.stats.misses++;
+			}
 			if (!event.stopStrumPress)
 				event.note.setStrum.playAnim('press', !event.field.isPlayer);
-
-			if (event.field.status != null)
-				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
-				else HUDType.direct.updateStatsText();
+			event.field.updateStatsText();
 		}
 	}
 	inline function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
 		if (sustain.wasMissed) return;
 		i ??= sustain.id;
 		sustain.wasMissed = true;
+		sustain.mods.alpha *= 0.86;
 		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
 					sustain.wasMissed = true;
-			event.field.stats.combo = 0;
-			event.field.stats.misses++;
-
+			if (event.field.isPlayer) {
+				event.field.stats.score -= 20;
+				event.field.stats.combo = 0;
+				event.field.stats.misses++;
+			}
 			if (!event.stopStrumPress)
 				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
-
-			if (event.field.status != null)
-				if (event.field.status == enemyPlay) HUDType.direct.updateStatsP2Text();
-				else HUDType.direct.updateStatsText();
+			event.field.updateStatsText();
 		}
 	}
 
