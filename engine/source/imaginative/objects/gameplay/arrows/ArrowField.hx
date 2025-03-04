@@ -334,8 +334,10 @@ class ArrowField extends BeatGroup {
 				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
 				onVoidMiss.dispatch(event);
 				if (!event.prevented) {
-					event.field.stats.combo = 0;
-					event.field.stats.misses++;
+					if (event.triggerMiss) {
+						event.field.stats.combo = 0;
+						event.field.stats.misses++;
+					}
 
 					if (!event.stopStrumPress)
 						event.strum.playAnim('press', !event.triggerMiss);
