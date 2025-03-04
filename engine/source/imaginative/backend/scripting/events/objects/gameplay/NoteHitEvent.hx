@@ -2,9 +2,18 @@ package imaginative.backend.scripting.events.objects.gameplay;
 
 final class NoteHitEvent extends PlayAnimEvent {
 	/**
+	 * The field the note is assigned to.
+	 */
+	public var field:ArrowField;
+	/**
+	 * The parent strum instance.
+	 */
+	public var strum:Strum;
+	/**
 	 * The note instance.
 	 */
 	public var note:Note;
+
 	/**
 	 * The strum lane index.
 	 */
@@ -15,18 +24,15 @@ final class NoteHitEvent extends PlayAnimEvent {
 	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % field.strumCount;
-	/**
-	 * The field the note is assigned to.
-	 */
-	public var field:ArrowField;
+
 	/**
 	 * If true, it creates a splash instance.
 	 */
-	public var createSplash:Bool = false;
+	public var createSplash:Bool = true;
 	/**
 	 * If true, it creates a hold cover instance.
 	 */
-	public var createHoldCover:Bool = true;
+	public var createHoldCover:Bool = note.length != 0;
 	/**
 	 * If true, it prevents the comfirm animation from playing on the target strum.
 	 */
@@ -54,5 +60,6 @@ final class NoteHitEvent extends PlayAnimEvent {
 		this.note = note;
 		this.id = id ??= note.id;
 		this.field = field ??= note.setField;
+		strum = note.setStrum;
 	}
 }

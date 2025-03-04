@@ -70,7 +70,9 @@ class Main extends Sprite {
 		FlxWindow.init();
 		Script.init();
 		GlobalScript.init();
+		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
+		#end
 
 		#if KNOWS_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');
@@ -121,7 +123,7 @@ class Main extends Sprite {
 
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerClass(PlayConfig);
+		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
 		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);

@@ -30,14 +30,21 @@ class Strum extends FlxSprite {
 
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
 	}
 
 	/**
 	 * The direction the notes will come from.
 	 * This offsets from the field speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		for (sustain in setField.sustains.members.copy().filter((sustain:Sustain) -> return sustain.id == id))
+			sustain.mods.update_angle();
+		return value;
+	}
 
 	/**
 	 * Used to help `glowLength`.
