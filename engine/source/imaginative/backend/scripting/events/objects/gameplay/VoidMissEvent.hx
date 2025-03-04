@@ -2,16 +2,6 @@ package imaginative.backend.scripting.events.objects.gameplay;
 
 final class VoidMissEvent extends PlayAnimEvent {
 	/**
-	 * The strum lane index.
-	 */
-	public var id:Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % field.strumCount;
-	/**
 	 * The field the void miss is assigned to.
 	 */
 	public var field:ArrowField;
@@ -22,6 +12,18 @@ final class VoidMissEvent extends PlayAnimEvent {
 	public var strum(get, never):Strum;
 	inline function get_strum():Strum
 		return field.strums.members[id ?? idMod];
+
+	/**
+	 * The strum lane index.
+	 */
+	public var id:Int;
+	/**
+	 * Its just id but with % applied.
+	 */
+	public var idMod(get, never):Int;
+	inline function get_idMod():Int
+		return id % field.strumCount;
+
 	/**
 	 * If true, the player will have consequences for pressing a key for no reason.
 	 */
@@ -55,6 +57,6 @@ final class VoidMissEvent extends PlayAnimEvent {
 		triggerMiss = !ghostTapping;
 		this.id = id;
 		this.field = field;
-		characters = field.assignedActors;
+		characters = field.assignedActors.copy();
 	}
 }

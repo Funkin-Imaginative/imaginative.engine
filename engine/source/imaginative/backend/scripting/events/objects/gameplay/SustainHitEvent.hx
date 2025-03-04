@@ -2,9 +2,22 @@ package imaginative.backend.scripting.events.objects.gameplay;
 
 final class SustainHitEvent extends PlayAnimEvent {
 	/**
+	 * The field the sustain is assigned to.
+	 */
+	public var field:ArrowField;
+	/**
+	 * The parent strum instance.
+	 */
+	public var strum:Strum;
+	/**
+	 * The parent note instance.
+	 */
+	public var note:Note;
+	/**
 	 * The sustain instance.
 	 */
 	public var sustain:Sustain;
+
 	/**
 	 * The strum lane index.
 	 */
@@ -15,10 +28,7 @@ final class SustainHitEvent extends PlayAnimEvent {
 	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % field.strumCount;
-	/**
-	 * The field the sustain is assigned to.
-	 */
-	public var field:ArrowField;
+
 	/**
 	 * If true, it prevents the comfirm animation from playing on the target strum.
 	 */
@@ -46,5 +56,7 @@ final class SustainHitEvent extends PlayAnimEvent {
 		this.sustain = sustain;
 		this.id = id ??= sustain.id;
 		this.field = field ??= sustain.setField;
+		strum = sustain.setStrum;
+		note = sustain.setHead;
 	}
 }

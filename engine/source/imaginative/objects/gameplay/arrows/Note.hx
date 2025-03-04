@@ -25,6 +25,12 @@ class Note extends FlxSprite {
 	 * The sustain pieces this note has.
 	 */
 	public var tail(default, null):Array<Sustain> = [];
+	/**
+	 * The tail length in time.
+	 */
+	public var length(get, never):Float;
+	inline function get_length():Float
+		return tail.length != 0 ? tail[tail.length - 1].time : 0;
 
 	// Note specific variables.
 	/**
