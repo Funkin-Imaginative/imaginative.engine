@@ -84,7 +84,7 @@ class Note extends FlxSprite {
 	// important
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
-		return time >= setField.conductor.time - Settings.setupP1.maxWindow && time <= setField.conductor.time + Settings.setupP1.maxWindow;
+		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;

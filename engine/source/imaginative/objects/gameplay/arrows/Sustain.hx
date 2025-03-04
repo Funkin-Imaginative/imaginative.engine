@@ -82,7 +82,7 @@ class Sustain extends FlxSprite {
 
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
-		return (time + setHead.time) >= setField.conductor.time - Settings.setupP1.maxWindow && (time + setHead.time) <= setField.conductor.time + Settings.setupP1.maxWindow;
+		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
