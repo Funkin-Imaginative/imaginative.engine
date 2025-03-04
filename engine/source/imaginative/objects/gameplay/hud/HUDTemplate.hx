@@ -167,6 +167,25 @@ class HUDTemplate extends BeatGroup {
 		call(true, 'createPost');
 	}
 
+	// TODO: figure out script calls
+	/* override public function update(elapsed:Float):Void {
+		call(true, 'update', [elapsed]);
+		super.update(elapsed);
+	}
+
+	override public function stepHit(curStep:Int):Void {
+		super.stepHit(curStep);
+		call(true, 'stepHit', [curStep]);
+	}
+	override public function beatHit(curBeat:Int):Void {
+		super.beatHit(curBeat);
+		call(true, 'beatHit', [curBeat]);
+	}
+	override public function measureHit(curMeasure:Int):Void {
+		super.measureHit(curMeasure);
+		call(true, 'measureHit', [curMeasure]);
+	} */
+
 	/**
 	 * Should be called when stats change.
 	 */

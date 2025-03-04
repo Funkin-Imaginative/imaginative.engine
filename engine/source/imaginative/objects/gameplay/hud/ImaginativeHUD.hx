@@ -6,8 +6,8 @@ class ImaginativeHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Imaginative;
 
-	public var breakText:FlxText;
-	public var accuracyText:FlxText;
+	public var breakInfo:FlxText;
+	public var accuracyInfo:FlxText;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (FlxG.camera.height / 2) + (FlxG.camera.height / 2.7) * (downscroll ? 1 : -1);
@@ -41,21 +41,68 @@ class ImaginativeHUD extends HUDTemplate {
 			text.borderSize = 2;
 			texts.push(text);
 		}
-		elements.add(breakText = texts[0]);
-		elements.add(accuracyText = texts[1]);
-		accuracyText.text = 'Accuracy: 0% Start playing! (...)';
-		breakText.x = accuracyText.x - ((healthBar.width + 8) / 2);
-		texts[2].x = accuracyText.x + ((healthBar.width + 8) / 2);
+		elements.add(breakInfo = texts[0]);
+		elements.add(accuracyInfo = texts[1]);
+		accuracyInfo.text = 'Accuracy: 0% Start playing! (...)';
+		breakInfo.x = accuracyInfo.x - ((healthBar.width + 8) / 2);
+		texts[2].x = accuracyInfo.x + ((healthBar.width + 8) / 2);
 		return texts[2];
 	}
 	override function initStatsP2Text():FlxText {
 		return new FlxText('', 0); // to prevent crashes
 	}
+
+	var range = {
+		outer: [0.4, 0.6],
+		inner: [0.3, 0.7]
+	}
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		var yCalc:Array<Float> = calculateTextYs();
+		var healthPercent:Float = FunkinUtil.toPercent(healthBar.percent, 100, 1);
+		breakInfo.y = FlxMath.lerp(yCalc[0] - yCalc[1], yCalc[0] + yCalc[1], FlxMath.bound(FlxMath.remapToRange(healthPercent, range.outer[1], 1, 0, 1), 0, 1));
+		accuracyInfo.y = FlxMath.lerp(yCalc[0] - yCalc[1], yCalc[0] + yCalc[1], FlxMath.remapToRange(healthPercent < 0.5 ? FlxMath.bound(FlxMath.remapToRange(healthPercent, range.inner[0], 0, 0, 1), 0, 1) : FlxMath.bound(FlxMath.remapToRange(healthPercent, range.inner[1], 1, 0, 1), 0, 1), 1, 0, 0, 1));
+		statsText.y = FlxMath.lerp(yCalc[0] + yCalc[1], yCalc[0] - yCalc[1], FlxMath.bound(FlxMath.remapToRange(healthPercent, range.outer[0], 0, 1, 0), 0, 1));
+	}
+
+	override public function beatHit(curBeat:Int):Void {
+		super.beatHit(curBeat);
+		var spedCalc:Int = 0;
+		if (true) {
+			var spedLevel:Array<Array<Int>> = [
+				[90, 1],
+				[70, 2],
+				[50, 3],
+				[30, 4],
+				[0, 0]
+			];
+			var value:Array<Int> = spedLevel[spedLevel.length - 1];
+			for (i in 0...spedLevel.length) {
+				value = spedLevel[i];
+				if (100 >= value[0])
+					spedCalc = value[1];
+				else break;
+			}
+			if (spedCalc <= 69 && spedCalc >= 69)
+				spedCalc = 1;
+		}
+
+		try {
+			if (true && (curBeat % spedCalc == 0 || accuracyInfo.text.contains('(...)'))) {
+				FlxTween.cancelTweensOf(accuracyInfo, ['scale.x', 'scale.y']);
+				accuracyInfo.scale.set(1.2, 1.2);
+				var beatCalc:Float = Conductor.direct.beatTime / 1000 / 2.3;
+				FlxTween.tween(accuracyInfo, {'scale.x': 1}, beatCalc, {ease: FlxEase.bounceOut});
+				FlxTween.tween(accuracyInfo, {'scale.y': 1}, beatCalc, {ease: FlxEase.smootherStepInOut});
+			}
+		} catch(error:haxe.Exception) {}
+	}
+
 	override public function updateStatsText():Void {
-		breakText.text = 'Misses: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.misses) + (ArrowField.enemyPlay ? Scoring.statsP2.misses : 0)}';
+		breakInfo.text = 'Misses: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.misses) + (ArrowField.enemyPlay ? Scoring.statsP2.misses : 0)}';
 		// this is just visual, don't worry
 		var accuracy:Float = ArrowField.enableP2 ? FlxMath.remapToRange(Scoring.statsP1.accuracy + Scoring.statsP2.accuracy, 0, 100, 0, 200) : (ArrowField.enemyPlay ? Scoring.statsP2.accuracy : Scoring.statsP1.accuracy);
-		accuracyText.text = 'Accuracy: ${accuracy < 0 ? '-' : Std.string(Math.fround(accuracy * 100 * 100) / 100)}% Start playing! (...)';
+		accuracyInfo.text = 'Accuracy: ${accuracy < 0 ? '-' : Std.string(Math.fround(accuracy * 100 * 100) / 100)}% Start playing! (...)';
 		statsText.text = 'Score: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.score) + (ArrowField.enemyPlay ? Scoring.statsP2.score : 0)}';
 		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
 	}
