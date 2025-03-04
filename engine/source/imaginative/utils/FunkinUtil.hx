@@ -67,18 +67,19 @@ class FunkinUtil {
 	/**
 	 * Get's the song folder names.
 	 * @param sortOrderByLevel If true, it sort the songs via the order txt.
-	 * @return `Array<String>`
+	 * @param pathType
+	 * @return `Array<ModPath>`
 	 */
-	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true):Array<String> {
-		var results:Array<String> = [];
+	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<ModPath> {
+		var results:Array<ModPath> = [];
 		try {
 			if (sortOrderByLevel)
-				for (name in Paths.readFolderOrderTxt('content/levels', 'json', false))
+				for (name in Paths.readFolderOrderTxt('$pathType:content/levels', 'json', false))
 					for (song in ParseUtil.level(name).songs)
-						results.push(song.folder);
+						results.push('$pathType:${song.folder}');
 		} catch(error:haxe.Exception)
 			log('Missing level json.', WarningMessage);
-		for (folder in Paths.readFolder('content/songs', false))
+		for (folder in Paths.readFolder('$pathType:content/songs', false))
 			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);
@@ -90,7 +91,7 @@ class FunkinUtil {
 	 * @param name The song folder name.
 	 * @return `String` ~ The songs display name.
 	 */
-	@:noUsing public static function getSongDisplay(name:String):String
+	@:noUsing inline public static function getSongDisplay(name:String):String
 		return ParseUtil.song(name).name;
 
 	/**

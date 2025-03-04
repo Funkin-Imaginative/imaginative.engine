@@ -57,6 +57,7 @@ class StoryMenu extends BeatState {
 		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 
+		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
@@ -108,6 +109,7 @@ class StoryMenu extends BeatState {
 		}
 		add(diffs);
 
+		// Menu elements.
 		var arrowDistance:Float = 200 * 0.85;
 		var arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
@@ -230,7 +232,6 @@ class StoryMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-
 			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);
 			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN)

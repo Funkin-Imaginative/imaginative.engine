@@ -79,7 +79,7 @@ typedef LevelData = {
  */
 class LevelHolder extends FlxBasic {
 	/**
-	 * The difficulty data.
+	 * The level data.
 	 */
 	public var data:LevelData;
 	/**
@@ -111,7 +111,7 @@ class LevelHolder extends FlxBasic {
 	 */
 	public var weekObjects:Array<BeatSprite> = [];
 
-	public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
+	override public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
 
 		data = ParseUtil.level(name);
@@ -161,6 +161,8 @@ class LevelHolder extends FlxBasic {
 
 	override public function destroy():Void {
 		scripts.end();
+		if (sprite != null) sprite.destroy();
+		if (lock != null) lock.destroy();
 		super.destroy();
 	}
 }

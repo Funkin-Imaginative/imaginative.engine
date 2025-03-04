@@ -47,7 +47,7 @@ class DifficultyHolder extends FlxBasic {
 	 */
 	public var isLocked:Bool = false;
 
-	public function new(x:Float = 0, y:Float = 0, diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
+	override public function new(x:Float = 0, y:Float = 0, diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
 
 		data = ParseUtil.difficulty(name = diff.toLowerCase());
@@ -112,6 +112,8 @@ class DifficultyHolder extends FlxBasic {
 
 	override public function destroy():Void {
 		scripts.end();
+		if (sprite != null) sprite.destroy();
+		if (lock != null) lock.destroy();
 		super.destroy();
 	}
 }
