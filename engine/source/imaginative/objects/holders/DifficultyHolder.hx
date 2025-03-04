@@ -79,6 +79,7 @@ class DifficultyHolder extends FlxBasic {
 	 * Refreshes the animation.
 	 */
 	inline public function refreshAnim():Void {
+		if (sprite == null) return;
 		sprite.playAnim('idle', true);
 		sprite.centerOffsets();
 		sprite.centerOrigin();
