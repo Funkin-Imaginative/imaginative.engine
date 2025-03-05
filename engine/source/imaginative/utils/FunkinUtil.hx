@@ -29,15 +29,17 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function addMissingFolders(path:String):Void {
 		var folders:Array<String> = [
-			'content',
-			'content/difficulties',
-			'content/events',
-			'content/objects',
-			'content/objects/characters',
-			'content/objects/icons',
-			'content/songs',
-			'content/stages',
-			'content/states',
+			// content
+				'content/difficulties',
+				'content/events',
+				'content/levels',
+				// objects
+					'content/objects/characters',
+					'content/objects/icons',
+				'content/scripts',
+				'content/songs',
+				'content/stages',
+				'content/states',
 			'fonts',
 			'images',
 			'music',
@@ -93,7 +95,6 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function getSongDisplay(name:String):String
 		return ParseUtil.song(name).name;
-
 	/**
 	 * Returns the difficulty display name.
 	 * @param diff The difficulty json name.
@@ -101,18 +102,13 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
 		return ParseUtil.difficulty(diff).display ?? diff;
-
 	/**
 	 * Returns the default variant of a difficulty
 	 * @param diff The difficulty json name.
 	 * @return `String` ~ The difficulties default variant.
 	 */
-	@:noUsing inline public static function getDifficultyVariant(diff:String):String {
-		try {
-			return ParseUtil.difficulty(diff).variant ?? 'normal';
-		} catch(error:haxe.Exception)
-			return 'normal';
-	}
+	@:noUsing inline public static function getDifficultyVariant(diff:String):String
+		return ParseUtil.difficulty(diff).variant ?? 'normal';
 
 	/**
 	 * Is basically an array's split function but each array slot is trimmed.
