@@ -1,6 +1,6 @@
 package imaginative.states.menus;
 
-import imaginative.backend.scripting.events.menus.story.*;
+import imaginative.backend.scripting.events.menus.*;
 
 /**
  * It's the story menu, don't know what your expecting to see here.
@@ -277,7 +277,7 @@ class StoryMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		var level:LevelHolder = levels.members[curSelected];
-		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongListEvent(level.data.songs)).songs.join('\n')}';
+		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongDisplayListEvent(level.data.songs)).songs.join('\n')}';
 		titleText.text = level.data.title;
 
 		for (level in levels)
