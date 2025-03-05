@@ -1,9 +1,9 @@
 package imaginative.states.menus;
 
-import imaginative.backend.scripting.events.menus.story.SongListEvent;
+import imaginative.backend.scripting.events.menus.story.*;
 
 /**
- * It's the story menu... still don't know what your expecting to see here.
+ * It's the story menu, don't know what your expecting to see here.
  */
 class StoryMenu extends BeatState {
 	// Menu related vars.
@@ -72,6 +72,7 @@ class StoryMenu extends BeatState {
 		]) {
 			for (i => name in list) {
 				var level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
+				level.screenCenter(X);
 				levels.add(level);
 
 				for (diff in level.data.difficulties)
@@ -93,14 +94,12 @@ class StoryMenu extends BeatState {
 		for (name in loadedDiffs) {
 			if (diffMap.exists(name)) continue;
 			var diff:DifficultyHolder = new DifficultyHolder(name, true);
-			diff.sprite.scale.scale(0.85);
-			diff.sprite.updateHitbox();
+			diff.scale.scale(0.85);
 			diff.refreshAnim();
-			diff.sprite.screenCenter();
-			diff.sprite.x += FlxG.width / 2.95;
-			diff.sprite.y += FlxG.height / 3.5;
-			diff.sprite.alpha = 0.0001;
-			diff.updateLock();
+			diff.screenCenter();
+			diff.x += FlxG.width / 2.95;
+			diff.y += FlxG.height / 3.5;
+			diff.alpha = 0.0001;
 			diffMap.set(name, diffs.add(diff));
 		}
 		if (diffs.length < 1) {
@@ -210,10 +209,8 @@ class StoryMenu extends BeatState {
 		.setFormat(Paths.font('vcr').format(), 32, 0xFFE55778, CENTER);
 		add(trackList);
 
-		for (l in diffs) {
-			l.sprite.scrollFactor.set();
-			l.lock.scrollFactor.set();
-		}
+		for (diff in diffs)
+			diff.scrollFactor.set();
 		for (l in [leftArrow, rightArrow, weekTopBg, weekBg, scoreText, titleText, trackList])
 			l.scrollFactor.set();
 
@@ -316,10 +313,8 @@ class StoryMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		for (diff in diffMap)
-			diff.sprite.alpha = 0.0001;
-		diffHolder.sprite.alpha = 1;
-		for (diff in diffMap)
-			diff.updateLock();
+			diff.alpha = 0.0001;
+		diffHolder.alpha = 1;
 	}
 
 	var levelShake:FlxTween;
@@ -335,23 +330,19 @@ class StoryMenu extends BeatState {
 			if (levelShake == null || diffShake == null) {
 				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
 				if (levelLocked) {
-					var ogX:Float = level.sprite.x;
-					levelShake = FlxTween.shake(level.sprite, 0.02, time, X, {
-						onUpdate: (_:FlxTween) ->
-							level.updateLock(),
+					var ogX:Float = level.x;
+					levelShake = FlxTween.shake(level, 0.02, time, X, {
 						onComplete: (_:FlxTween) -> {
-							level.sprite.x = ogX;
+							level.x = ogX;
 							levelShake = null;
 						}
 					});
 				}
 				if (diffLocked) {
-					var ogY:Float = diffHolder.sprite.y;
-					diffShake = FlxTween.shake(diffHolder.sprite, 0.1, time, Y, {
-						onUpdate: (_:FlxTween) ->
-							diffHolder.updateLock(),
+					var ogY:Float = diffHolder.y;
+					diffShake = FlxTween.shake(diffHolder, 0.1, time, Y, {
 						onComplete: (_:FlxTween) -> {
-							diffHolder.sprite.y = ogY;
+							diffHolder.y = ogY;
 							diffShake = null;
 						}
 					});
