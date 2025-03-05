@@ -13,50 +13,6 @@ typedef AllowedModesTyping = {
 	 */
 	@:default(false) var p2AsEnemy:Bool;
 }
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef SongParse = {
-	var folder:String;
-	var icon:String;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var ?color:String;
-	var allowedModes:AllowedModesTyping;
-}
-typedef SongData = {
-	/**
-	 * The song display name.
-	 */
-	var name:String;
-	/**
-	 * The song folder name.
-	 */
-	var folder:String;
-	/**
-	 * The song icon.
-	 */
-	var icon:String;
-	/**
-	 * The starting difficulty.
-	 */
-	var startingDiff:Int;
-	/**
-	 * The difficulties listing.
-	 */
-	var difficulties:Array<String>;
-	/**
-	 * The variations listing.
-	 */
-	var variants:Array<String>;
-	/**
-	 * The song color.
-	 */
-	var ?color:FlxColor;
-	/**
-	 * Allowed modes for the song.
-	 */
-	var allowedModes:AllowedModesTyping;
-}
 
 typedef ExtraData = {
 	/**
