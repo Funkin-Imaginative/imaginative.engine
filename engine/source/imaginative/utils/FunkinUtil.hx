@@ -67,7 +67,7 @@ class FunkinUtil {
 	/**
 	 * Get's the song folder names.
 	 * @param sortOrderByLevel If true, it sort the songs via the order txt.
-	 * @param pathType
+	 * @param pathType The mod path you want the function to look through.
 	 * @return `Array<ModPath>`
 	 */
 	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<ModPath> {
