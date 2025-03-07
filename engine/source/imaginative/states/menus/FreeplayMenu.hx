@@ -28,6 +28,8 @@ class FreeplayMenu extends BeatState {
 	static var curDiff:Int = 0;
 	var emptyDiffList(default, null):Bool = false;
 
+	var currentSongAudio:String = ':MENU:'; // using ":" since they can't be used in file/folder names
+
 	// Objects in the state.
 	var bg:FlxSprite;
 
@@ -138,12 +140,17 @@ class FreeplayMenu extends BeatState {
 
 			if (Controls.back) {
 				FunkinUtil.playMenuSFX(CancelSFX);
+				if (currentSongAudio != ':MENU:')
+					conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
 				BeatState.switchState(new MainMenu());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+				} else if (currentSongAudio != songs.members[curSelected].data.folder) {
+					var song:SongHolder = songs.members[curSelected];
+					conductor.loadSong(currentSongAudio = song.data.folder, song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 				} else selectCurrent();
 			}
 		}
@@ -152,11 +159,19 @@ class FreeplayMenu extends BeatState {
 			10 * (visualSelected + 1) - 50,
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
+		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
 		camera.bgColor = FlxColor.interpolate(camera.bgColor, songs.members[visualSelected].data.color, 0.1);
 		bg.color = camera.bgColor - 0xFF646464;
 
 		for (i => song in songs.members)
 			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
+	}
+
+	override public function beatHit(curBeat:Int):Void {
+		super.beatHit(curBeat);
+		// every other beat
+		if (curBeat % 2 == 0 && currentSongAudio != ':MENU:')
+			camera.zoom += 0.020;
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
