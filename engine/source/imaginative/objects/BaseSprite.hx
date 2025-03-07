@@ -272,7 +272,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	/**
 	 * Global offsets
 	 */
-	public var spriteOffsets:ObjectData = {
+	public var spriteOffsets:ObjectSetupData = {
 		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
 		scale: new Position()
