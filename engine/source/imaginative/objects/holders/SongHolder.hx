@@ -57,7 +57,7 @@ class SongHolder extends BeatSpriteGroup {
 	/**
 	 * The icon for the character you'll be battling against.
 	 */
-	public var icon:FlxSprite;//HealthIcon;
+	public var icon:HealthIcon;
 	/**
 	 * The lock sprite.
 	 */
@@ -97,15 +97,7 @@ class SongHolder extends BeatSpriteGroup {
 			text.borderSize = 3.5;
 			add(text);
 
-			// icon = new HealthIcon(text.width + 30, text.height / 2, '${name.type}:${data.icon}');
-			icon = new FlxSprite(text.width + 30, text.height / 2);
-			icon.loadGraphic(Paths.image('${name.type}:ui/icons/${data.icon}'));
-			var iSize:Float = Math.round(icon.width / icon.height);
-			icon.loadGraphic(Paths.image('${name.type}:ui/icons/${data.icon}'), true, Math.floor(icon.width / iSize), Math.floor(icon.height));
-			icon.scale.scale(icon.width < 150 ? 5 : 1);
-			icon.updateHitbox();
-			icon.animation.add('normal', [0], 0, false);
-			icon.animation.play('normal', true);
+			icon = new HealthIcon(text.width + 30, text.height / 2, '${name.type}:${data.icon}');
 			icon.y -= icon.height / 2;
 			add(icon);
 

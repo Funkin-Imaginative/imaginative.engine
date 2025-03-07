@@ -50,31 +50,34 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 
 	public function changeIcon(newTag:String, pathType:ModPath):Void {
 		if (tagName != newTag) {
-			// double check tag
-			var tag:ModPath = (Paths.fileExists(Paths.icon('$pathType:$newTag')) ? '$pathType:$newTag' : 'face');
+			try {
+				// double check tag
+				var tag:ModPath = (Paths.fileExists(Paths.icon('$pathType:$newTag')) ? '$pathType:$newTag' : 'face');
 
-			// remove previous icon scripts
-			scripts.call('onIconChange');
-			var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.pathing.path.contains('global'));
-			for (script in oldScripts)
-				if (scripts.members.contains(script)) {
-					scripts.remove(script);
-					script.end();
-				}
+				// remove previous icon scripts
+				scripts.call('onIconChange');
+				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.pathing.path.contains('global'));
+				for (script in oldScripts)
+					if (scripts.members.contains(script)) {
+						scripts.remove(script);
+						script.end();
+					}
 
-			// add new icon scripts
-			for (script in Script.create('${tag.type}:content/objects/${tag.path}'))
-				scripts.add(script);
+				// add new icon scripts
+				for (script in Script.create('${tag.type}:content/objects/${tag.path}'))
+					scripts.add(script);
 
-			// change texture and data
-			loadTexture('${tag.type}:icons/${tag.path}');
-			if (Paths.fileExists(Paths.icon(tag)))
-				renderData(ParseUtil.object('${tag.type}:icons/${tag.path}', type));
+				// change texture and data
+				loadTexture('${tag.type}:icons/${tag.path}');
+				if (Paths.fileExists(Paths.icon(tag)))
+					renderData(ParseUtil.object('${tag.type}:icons/${tag.path}', type));
 
-			// finalize stuff
-			tagName = tag;
-			scripts.call('create');
-			scripts.call('createPost');
+				// finalize stuff
+				tagName = tag;
+				scripts.call('create');
+				scripts.call('createPost');
+			} catch(error:haxe.Exception)
+				log('Icon change to "${Paths.icon(newTag).format()}" was unsuccessful.');
 		}
 	}
 }
