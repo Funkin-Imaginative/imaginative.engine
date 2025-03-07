@@ -236,14 +236,19 @@ class StoryMenu extends BeatState {
 
 			if (FlxG.mouse.wheel != 0)
 				changeSelection(-1 * FlxG.mouse.wheel);
+			var stopSelect:Bool = false;
 			if (FlxG.mouse.justPressed) {
 				if (FlxG.mouse.overlaps(leftArrow))
 					changeDifficulty(-1);
 				if (FlxG.mouse.overlaps(rightArrow))
 					changeDifficulty(1);
 				for (i => item in levels.members)
-					if (hoverIsCorrect(item))
-						return changeSelection(i, true);
+					if (curSelected == i)
+						continue;
+					else if (hoverIsCorrect(item)) {
+						changeSelection(i, stopSelect = true);
+						break;
+					}
 			}
 
 			if (Controls.uiLeft)
@@ -260,7 +265,7 @@ class StoryMenu extends BeatState {
 				FunkinUtil.playMenuSFX(CancelSFX);
 				BeatState.switchState(new MainMenu());
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected])))
+			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
 				selectCurrent();
 		}
 
