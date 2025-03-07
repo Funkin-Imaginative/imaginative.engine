@@ -24,13 +24,14 @@ typedef AssetTyping = {
 	 * Texture type.
 	 */
 	@:enum @:default(IsUnknown) var type:TextureType;
+	/**
+	 * Height and width dimensions.
+	 * Only if texture type is a graphic.
+	 */
+	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
 }
 
 typedef AnimationTyping = {
-	/**
-	 * The asset typing.
-	 */
-	var ?asset:AssetTyping;
 	/**
 	 * Name of the animation.
 	 */
@@ -39,11 +40,6 @@ typedef AnimationTyping = {
 	 * Animation key on data method.
 	 */
 	var ?tag:String;
-	/**
-	 * Height and width dimensions.
-	 * Only if texture type is a graphic.
-	 */
-	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.

@@ -157,15 +157,15 @@ class ParseUtil {
 			}
 
 		data.asset = typeData.asset;
+		if (Reflect.hasField(typeData.asset, 'dimensions'))
+			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x'), Reflect.getProperty(typeData.asset.dimensions, 'y'));
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
-			slot.asset = anim.asset ?? data.asset;
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag ?? slot.name;
 			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey ?? '';
 			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey ?? '';
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.getProperty(anim.dimensions, 'x'), Reflect.getProperty(anim.dimensions, 'y'));
 			slot.indices = anim.indices ?? [];
 			slot.offset = new Position(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
 			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));
