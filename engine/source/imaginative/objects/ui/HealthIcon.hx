@@ -28,6 +28,9 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		super.renderData(inputData, applyStartValues);
 	}
 
+	override function get_swapAnimTriggers():Bool
+		return true;
+
 	override function loadScript(file:ModPath):Void {
 		scripts = new ScriptGroup(this);
 
