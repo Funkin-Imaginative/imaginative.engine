@@ -109,7 +109,7 @@ class ParseUtil {
 		var tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
-		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
+		if (type == IsCharacterSprite && Reflect.hasField(tempData, 'character')) {
 			var gottenData:CharacterParse = null;
 			var typeData:SpriteData = typeData;
 			try {
