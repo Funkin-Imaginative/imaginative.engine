@@ -55,6 +55,10 @@ class SongHolder extends BeatSpriteGroup {
 	 */
 	public var text:FlxText;
 	/**
+	 * The icon for the character you'll be battling against.
+	 */
+	public var icon:FlxSprite;//HealthIcon;
+	/**
 	 * The lock sprite.
 	 */
 	public var lock:BaseSprite;
@@ -88,12 +92,28 @@ class SongHolder extends BeatSpriteGroup {
 		scripts.load();
 
 		if (loadSprites) {
-			text = new FlxText(0, 0, FlxG.width, name.path);
-			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 60, LEFT, OUTLINE, FlxColor.BLACK);
+			text = new FlxText(name.path);
+			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 60, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 3.5;
 			add(text);
 
+			// icon = new HealthIcon(text.width + 30, text.height / 2, '${name.type}:${data.icon}');
+			icon = new FlxSprite(text.width + 30, text.height / 2);
+			icon.loadGraphic(Paths.image('${name.type}:ui/icons/${data.icon}'));
+			var iSize:Float = Math.round(icon.width / icon.height);
+			icon.loadGraphic(Paths.image('${name.type}:ui/icons/${data.icon}'), true, Math.floor(icon.width / iSize), Math.floor(icon.height));
+			icon.scale.scale(icon.width < 150 ? 5 : 1);
+			icon.updateHitbox();
+			icon.animation.add('normal', [0], 0, false);
+			icon.animation.play('normal', true);
+			icon.y -= icon.height / 2;
+			add(icon);
+
 			if (isLocked) {
+				icon.color -= 0xFF646464;
+				text.color -= 0xFF646464;
+				text.borderColor -= 0xFF646464;
+
 				var mid:Position = Position.getObjMidpoint(text);
 				lock = new BaseSprite(mid.x, mid.y, 'ui/lock');
 				lock.x -= lock.width / 2;

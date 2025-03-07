@@ -49,7 +49,6 @@ class FreeplayMenu extends BeatState {
 
 		// Menu elements.
 		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
-		bgColor = bg.color;
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.scale(1.2);
 		bg.updateHitbox();
@@ -64,7 +63,7 @@ class FreeplayMenu extends BeatState {
 			FunkinUtil.getSongFolderNames()
 		]) {
 			for (i => name in list) {
-				var song:SongHolder = new SongHolder(5 * (i + 1) + 100, 150 * (i + 1), name, true);
+				var song:SongHolder = new SongHolder(10 * (i + 1) - 10 - (FlxG.width / 2), 150 * (i + 1), name, true);
 				songs.add(song);
 
 				for (diff in song.data.difficulties)
@@ -93,10 +92,12 @@ class FreeplayMenu extends BeatState {
 		changeSelection();
 
 		camPoint.setPosition(
-			FlxG.width / 2 + songs.members[0].text.x,
+			10 * (curSelected + 1) + 50,
 			Position.getObjMidpoint(songs.members[curSelected].text).y
 		);
 		camera.snapToTarget();
+		camera.bgColor = songs.members[visualSelected].data.color;
+		bg.color = camera.bgColor - 0xFF646464;
 	}
 
 	override public function update(elapsed:Float) {
@@ -118,7 +119,7 @@ class FreeplayMenu extends BeatState {
 			}
 			if (PlatformUtil.mouseJustMoved())
 				for (i => item in songs.members)
-					if (FlxG.mouse.overlaps(item))
+					if (FlxG.mouse.overlaps(item.text))
 						changeSelection(i, true);
 
 			if (Controls.uiLeft)
@@ -139,7 +140,7 @@ class FreeplayMenu extends BeatState {
 				FunkinUtil.playMenuSFX(CancelSFX);
 				BeatState.switchState(new MainMenu());
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected]))) {
+			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
@@ -148,19 +149,14 @@ class FreeplayMenu extends BeatState {
 		}
 
 		camPoint.setPosition(
-			FlxG.width / 2 + songs.members[0].text.x,
+			10 * (visualSelected + 1) - 50,
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
 		camera.bgColor = FlxColor.interpolate(camera.bgColor, songs.members[visualSelected].data.color, 0.1);
 		bg.color = camera.bgColor - 0xFF646464;
 
 		for (i => song in songs.members)
-			song.alpha = 0.3;
-		for (i in curSelected - 2...curSelected + 3) {
-			var song:SongHolder = songs.members[i];
-			if (song != null)
-				song.alpha = FlxMath.lerp(song.alpha, Math.abs(FlxMath.remapToRange(FlxMath.remapToRange(i, curSelected - 2, curSelected + 2, -0.3, 0.3), 0, 1, 1, 0)), 0.1);
-		}
+			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
