@@ -332,11 +332,14 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			scripts.call('createPost');
 	}
 
-	override public function update(elapsed:Float):Void {
-		if (!(this is IBeat)) scripts.call('update', [elapsed]);
+	function super_update(elapsed:Float):Void
 		super.update(elapsed);
+	override public function update(elapsed:Float):Void {
+		scripts.call('update', [elapsed]);
+		super.update(elapsed);
+		if (_update != null)
+			_update(elapsed);
 		scripts.call('updatePost', [elapsed]);
-		if (_update != null) _update(elapsed);
 	}
 
 	/**

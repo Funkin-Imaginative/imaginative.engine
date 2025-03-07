@@ -1,5 +1,7 @@
 package imaginative.objects.ui;
 
+import imaginative.backend.scripting.events.objects.PlaySpecialAnimEvent;
+
 /**
  * This class is used for a character's health icon.
  */
@@ -48,6 +50,42 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		scripts.call('createPost');
 	}
 
+	override public function update(elapsed:Float):Void {
+		scripts.call('update', [elapsed]);
+		if (!debugMode) {
+			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
+				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop'));
+				if (!event.prevented) {
+					var prevAnimContext:AnimationContext = animContext;
+					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
+					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed)
+						animContext = prevAnimContext; // for `tryDance()` checks
+					scripts.call('playingSpecialAnimPost', [event]);
+				}
+			}
+
+			if (animContext != IsDancing)
+				tryDance();
+		}
+		super_update(elapsed);
+		scale.x = FlxMath.lerp(1, scale.x, 0.56);
+		scale.y = FlxMath.lerp(1, scale.y, 0.56);
+		if (_update != null)
+			_update(elapsed);
+		scripts.call('updatePost', [elapsed]);
+	}
+
+	/**
+	 * If true, it prevents the scale bopping from occurring.
+	 */
+	public var preventScaleBop:Bool = false;
+	override public function beatHit(curBeat:Int) {
+		super.beatHit(curBeat);
+		if (preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
+			scale.set(1.2, 1.2);
+		scripts.call('beatHit', [curBeat]);
+	}
+
 	public function changeIcon(newTag:String, pathType:ModPath):Void {
 		if (tagName != newTag) {
 			try {
@@ -68,9 +106,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 					scripts.add(script);
 
 				// change texture and data
-				loadTexture('${tag.type}:icons/${tag.path}');
-				if (Paths.fileExists(Paths.icon(tag)))
-					renderData(ParseUtil.object('${tag.type}:icons/${tag.path}', type));
+				renderData(ParseUtil.object('${tag.type}:icons/${tag.path}', type));
 
 				// finalize stuff
 				tagName = tag;
