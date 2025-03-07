@@ -81,7 +81,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	public var preventScaleBop:Bool = false;
 	override public function beatHit(curBeat:Int) {
 		super.beatHit(curBeat);
-		if (preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
+		if (!preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
 			scale.set(1.2, 1.2);
 		scripts.call('beatHit', [curBeat]);
 	}
