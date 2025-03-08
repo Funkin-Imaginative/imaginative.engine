@@ -29,6 +29,7 @@ class FreeplayMenu extends BeatState {
 	var emptyDiffList(default, null):Bool = false;
 
 	var currentSongAudio:String = ':MENU:'; // using ":" since they can't be used in file/folder names
+	var currentSongVariant:String = ':MENU:'; // for variants, changes to ":MENU:"
 
 	// Objects in the state.
 	var bg:FlxSprite;
@@ -139,18 +140,48 @@ class FreeplayMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CancelSFX);
-				if (currentSongAudio != ':MENU:')
+				if (currentSongAudio == ':MENU:') {
+					FunkinUtil.playMenuSFX(CancelSFX);
+					BeatState.switchState(new MainMenu());
+				} else {
+					currentSongAudio = currentSongVariant = ':MENU:';
 					conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
-				BeatState.switchState(new MainMenu());
+				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else if (currentSongAudio != songs.members[curSelected].data.folder) {
+				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
 					var song:SongHolder = songs.members[curSelected];
-					conductor.loadSong(currentSongAudio = song.data.folder, song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
+					conductor.loadSong(currentSongAudio = song.data.folder, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> {
+						try {
+							var tracks:Array<FlxSound> = [];
+							var vocalSuffixes:Array<String> = [];
+							var chart:imaginative.states.editors.ChartEditor.ChartData = ParseUtil.chart(currentSongAudio, curDiffString, currentSongVariant);
+							for (base in chart.characters) {
+								var charVocals:String = null;
+								try {
+									charVocals = ParseUtil.object('characters/${base.name}', IsCharacterSprite).character.vocals;
+								} catch(error:haxe.Exception) {}
+								var suffix:String = base.vocals ?? charVocals ?? base.tag; // since charVocals can be name, i'ma just go with this
+								if (!vocalSuffixes.contains(suffix))
+									vocalSuffixes.push(suffix);
+							}
+							for (suffix in vocalSuffixes)
+								tracks.push(conductor.addVocalTrack(currentSongAudio, suffix, currentSongVariant));
+							// loads main suffixes
+							if (tracks.empty()) {
+								conductor.addVocalTrack(currentSongAudio, 'Enemy', currentSongVariant);
+								conductor.addVocalTrack(currentSongAudio, 'Player', currentSongVariant);
+							}
+							// loads general track
+							if (tracks.empty())
+								conductor.addVocalTrack(currentSongAudio, '', currentSongVariant);
+						} catch(error:haxe.Exception)
+							log('Chart parse for song "$currentSongAudio"${currentSongVariant.trim() == 'normal' ? '' : ', variant "$currentSongVariant"'} failed.', ErrorMessage);
+						conductor.play();
+					});
 				} else selectCurrent();
 			}
 		}
@@ -170,7 +201,7 @@ class FreeplayMenu extends BeatState {
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 		// every other beat
-		if (curBeat % 2 == 0 && currentSongAudio != ':MENU:')
+		if (curBeat % (currentSongAudio == ':MENU:' ? 2 : 1) == 0)
 			camera.zoom += 0.020;
 	}
 
@@ -199,9 +230,35 @@ class FreeplayMenu extends BeatState {
 		if (emptyDiffList) return;
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
-		if (prevDiff != curDiff)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		/* if (prevDiff != curDiff)
+			FunkinUtil.playMenuSFX(ScrollSFX, 0.7); */
 	}
 
-	function selectCurrent():Void {}
+	var songShake:FlxTween;
+	function selectCurrent():Void {
+		canSelect = false;
+
+		var song:SongHolder = songs.members[curSelected];
+		var songLocked:Bool = song.isLocked;
+		var diffLocked:Bool = diffMap[curDiffString].isLocked;
+
+		if (songLocked || diffLocked) {
+			if (songShake == null) {
+				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
+				var ogX:Float = song.text.x;
+				songShake = FlxTween.shake(song.text, 0.02, time, X, {
+					onComplete: (_:FlxTween) -> {
+						song.text.x = ogX;
+						songShake = null;
+					}
+				});
+				selectionCooldown(time);
+			}
+		} else {
+			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
+				PlayState.renderSong(song.data.folder, curDiffString, song.data.variants[curDiff]/* , playAsEnemy, p2AsEnemy */);
+				BeatState.switchState(new PlayState());
+			});
+		}
+	}
 }
