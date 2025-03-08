@@ -185,7 +185,7 @@ class FreeplayMenu extends BeatState {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else if (currentSongAudio != songs.members[curSelected].data.folder && currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
+				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
 					var song:SongHolder = songs.members[curSelected];
 					conductor.loadSong(currentSongAudio = song.data.folder, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> {
 						try {
