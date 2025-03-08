@@ -224,7 +224,7 @@ class MainMenu extends BeatState {
 	}
 
 	function selectCurrent():Void {
-		selectionCooldown();
+		selectionCooldown(1.1);
 
 		FunkinUtil.playMenuSFX(ConfirmSFX);
 
