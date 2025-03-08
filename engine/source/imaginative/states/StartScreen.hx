@@ -29,10 +29,10 @@ class StartScreen extends BeatState {
 			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1)
 		);
 
-		welcomeText = new FlxText(0, 250, FlxG.width, 'Welcome to\n[ROD]Imaginative Engine[ROD]!')
-		.setFormat(Paths.font('vcr').format(), 70, FlxColor.BLACK, CENTER, OUTLINE, FlxColor.WHITE);
-		warnText = new FlxText(0, 450, FlxG.width, 'This engine is [YOU]still[YOU] [FUCK]work in progress[FUCK]!\nBe weary of any issues you may encounter.')
-		.setFormat(Paths.font('vcr').format(), 40, FlxColor.BLACK, CENTER, OUTLINE, FlxColor.WHITE);
+		welcomeText = new FlxText(0, 250, FlxG.width, 'Welcome to\n[ROD]Imaginative Engine[ROD]!');
+		welcomeText.setFormat(Paths.font('vcr').format(), 70, FlxColor.BLACK, CENTER, OUTLINE, FlxColor.WHITE);
+		warnText = new FlxText(0, 450, FlxG.width, 'This engine is [YOU]still[YOU] [FUCK]work in progress[FUCK]!\nBe weary of any issues you may encounter.');
+		warnText.setFormat(Paths.font('vcr').format(), 40, FlxColor.BLACK, CENTER, OUTLINE, FlxColor.WHITE);
 
 		welcomeText.borderSize = 3;
 		welcomeText.applyMarkup(welcomeText.text, [

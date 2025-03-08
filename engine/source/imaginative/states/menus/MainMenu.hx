@@ -105,8 +105,8 @@ class MainMenu extends BeatState {
 
 		// version text setup
 		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
-		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ')
-		.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
+		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ');
+		buildTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
 		mainTextsGroup.add(buildTxt);
 
 		var theText:String = 'Imaginative Engine';
@@ -119,7 +119,8 @@ class MainMenu extends BeatState {
 		#end
 		theText += '\nMade relatively from scratch!';
 
-		versionTxt = new FlxText(0, buildTxt.height + 5, theText).setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		versionTxt = new FlxText(0, buildTxt.height + 5, theText);
+		versionTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		mainTextsGroup.add(versionTxt);
 
 		buildTxt.fieldWidth = versionTxt.width;
@@ -131,7 +132,8 @@ class MainMenu extends BeatState {
 		// defined text setup
 		definedTextsGroup = new FlxTypedSpriteGroup<FlxText>();
 
-		compilerTxt = new FlxText(' ~ Defined Compiler Tags ~ ').setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
+		compilerTxt = new FlxText(' ~ Defined Compiler Tags ~ ');
+		compilerTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
 		definedTextsGroup.add(compilerTxt);
 
 		var theText:Array<Array<String>> = [];
@@ -143,13 +145,13 @@ class MainMenu extends BeatState {
 		theText.push(['Has Discord Connectivity', Compiler.getDefine('DISCORD_RICH_PRESENCE') != null ? 'true' : 'false']);
 		theText.push(['Can Play Videos', Compiler.getDefine('ALLOW_VIDEOS') != null ? 'true' : 'false']);
 
-		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'))
-		.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'));
+		definedTagsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTagsTxt.fieldWidth = definedTagsTxt.width;
 		definedTextsGroup.add(definedTagsTxt);
 
-		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'))
-		.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'));
+		tagResultsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTextsGroup.add(definedTagsTxt);
 
 		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
