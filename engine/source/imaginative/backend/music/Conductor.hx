@@ -90,6 +90,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Dispatches when the music ends.
 	 */
 	public var onComplete(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
+	/**
+	 * Same as above but this is a one time use.
+	 * As it kills itself after it's called.
+	 */
 	public var _onComplete:ScriptEvent->Void;
 
 	// Main Conductors.
@@ -291,8 +295,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		audio.onComplete = () -> {
 			var event:ScriptEvent = new ScriptEvent();
 			onComplete.dispatch(event);
-			if (_onComplete != null)
+			if (_onComplete != null) {
 				_onComplete(event);
+				_onComplete = null;
+			}
 		}
 
 		FlxG.signals.preUpdate.add(update);
