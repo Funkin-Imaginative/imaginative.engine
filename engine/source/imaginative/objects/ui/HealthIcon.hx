@@ -71,8 +71,8 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 				tryDance();
 		}
 		super_update(elapsed);
-		scale.x = FlxMath.lerp(1, scale.x, 0.56);
-		scale.y = FlxMath.lerp(1, scale.y, 0.56);
+		scale.x = FlxMath.lerp(1, scale.x, 0.7);
+		scale.y = FlxMath.lerp(1, scale.y, 0.7);
 		if (_update != null)
 			_update(elapsed);
 		scripts.call('updatePost', [elapsed]);
