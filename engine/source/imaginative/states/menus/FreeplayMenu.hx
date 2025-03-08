@@ -59,8 +59,8 @@ class FreeplayMenu extends BeatState {
 
 		// Menu elements.
 		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
-		bg.scrollFactor.set(0.1, 0.1);
-		bg.scale.scale(1.2);
+		bg.scrollFactor.set();
+		bg.setUnstretchedGraphicSize(camera.width, camera.height, false);
 		bg.updateHitbox();
 		bg.screenCenter();
 		add(bg);
@@ -107,9 +107,9 @@ class FreeplayMenu extends BeatState {
 		infoTextBox.alpha = 0.45;
 		infoTextGroup.add(infoTextBox);
 
-		songNameText = new FlxText(10, 10, boxWidth - 10, 'Song: crAzy');
-		variantText = new FlxText(10, songNameText.y + songNameText.height + 10, boxWidth - 10, 'Variant: Normal');
-		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 10, '< Normal >');
+		songNameText = new FlxText(10, 10, boxWidth - 20, 'Song: crAzy');
+		variantText = new FlxText(10, songNameText.y + songNameText.height + 10, boxWidth - 20, 'Variant: Normal');
+		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 20, '< Normal >');
 		sideArrowsText = new FlxText(10, difficultyText.y, difficultyText.width, '<                       >');
 		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {
 			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);

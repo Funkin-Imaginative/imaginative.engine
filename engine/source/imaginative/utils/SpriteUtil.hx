@@ -244,6 +244,23 @@ class SpriteUtil {
 	}
 
 	/**
+	 * Allows you to set a graphic size (ex: 150x150), with proper hitbox without a stretched sprite.
+	 * @param sprite Sprite to apply the new graphic size to
+	 * @param width Width
+	 * @param height Height
+	 * @param fill Whenever the sprite should fill instead of shrinking (true)
+	 * @param maxScale Maximum scale (0 / none)
+	 * @author @CodenameCrew
+	 */
+	inline public static function setUnstretchedGraphicSize(sprite:FlxSprite, width:Int, height:Int, fill:Bool = true, maxScale:Float = 0) {
+		sprite.setGraphicSize(width, height);
+		sprite.updateHitbox();
+		var nScale = (fill ? Math.max : Math.min)(sprite.scale.x, sprite.scale.y);
+		if (maxScale > 0 && nScale > maxScale) nScale = maxScale;
+		sprite.scale.set(nScale, nScale);
+	}
+
+	/**
 	 * Get's the dominant color of a sprite.
 	 * @param sprite The sprite to check.
 	 * @return `FlxColor` ~ The dominant color.
