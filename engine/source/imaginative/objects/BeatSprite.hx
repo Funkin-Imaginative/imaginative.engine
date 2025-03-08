@@ -1,7 +1,6 @@
 package imaginative.objects;
 
-import imaginative.backend.scripting.events.objects.BopEvent;
-import imaginative.backend.scripting.events.objects.PlaySpecialAnimEvent;
+import imaginative.backend.scripting.events.objects.*;
 
 typedef BeatData = {
 	/**

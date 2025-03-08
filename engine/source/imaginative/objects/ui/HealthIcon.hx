@@ -92,6 +92,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	public function changeIcon(newTag:String, pathType:ModPath):Void {
 		if (tagName != newTag) {
 			try {
+				var prevAnim:String = getAnimName();
 				// double check tag
 				var tag:ModPath = (Paths.fileExists(Paths.icon('$pathType:$newTag')) ? '$pathType:$newTag' : 'face');
 
@@ -114,6 +115,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 				// finalize stuff
 				tagName = tag;
 				scripts.call('create');
+				playAnim(prevAnim);
 				scripts.call('createPost');
 			} catch(error:haxe.Exception)
 				log('Icon change to "${Paths.icon(newTag).format()}" was unsuccessful.');

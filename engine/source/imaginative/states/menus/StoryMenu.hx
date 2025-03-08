@@ -122,7 +122,7 @@ class StoryMenu extends BeatState {
 			arrow.animation.finishCallback = (name:String) -> {
 				switch (name) {
 					case 'confirm':
-						arrow.animation.play('idle', true);
+						arrow.playAnim('idle');
 						arrow.centerOffsets();
 						arrow.centerOrigin();
 				}
@@ -131,7 +131,7 @@ class StoryMenu extends BeatState {
 			arrow.scale.scale(0.85);
 			arrow.updateHitbox();
 
-			arrow.animation.play('idle', true);
+			arrow.playAnim('idle');
 			arrow.centerOffsets();
 			arrow.centerOrigin();
 
@@ -306,7 +306,7 @@ class StoryMenu extends BeatState {
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (move != 0 || !pureSelect) {
 			var arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
-			arrow.animation.play('confirm', true);
+			arrow.playAnim('confirm');
 			arrow.centerOffsets();
 			arrow.centerOrigin();
 		}
