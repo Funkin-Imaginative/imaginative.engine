@@ -37,6 +37,13 @@ class FreeplayMenu extends BeatState {
 	var songs:FlxTypedGroup<SongHolder>;
 	var diffs:FlxTypedGroup<DifficultyHolder>;
 
+	var infoTextGroup:FlxSpriteGroup;
+	var infoTextBox:FlxSprite;
+	var songNameText:FlxText;
+	var variantText:FlxText;
+	var difficultyText:FlxText;
+	var sideArrowsText:FlxText;
+
 	// Camera management.
 	var camPoint:FlxObject;
 
@@ -92,7 +99,33 @@ class FreeplayMenu extends BeatState {
 		}
 		add(diffs);
 
+		// informational text
+		infoTextGroup = new FlxSpriteGroup(camera.width, 10);
+
+		var boxWidth:Int = 400;
+		infoTextBox = new FlxSprite();
+		infoTextBox.alpha = 0.45;
+		infoTextGroup.add(infoTextBox);
+
+		songNameText = new FlxText(10, 10, boxWidth - 10, 'Song: crAzy');
+		variantText = new FlxText(10, songNameText.y + songNameText.height + 10, boxWidth - 10, 'Variant: Normal');
+		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 10, '< Normal >');
+		sideArrowsText = new FlxText(10, difficultyText.y, difficultyText.width, '<                       >');
+		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {
+			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);
+			text.borderSize = 2;
+			infoTextGroup.add(text);
+		}
+		sideArrowsText.alignment = difficultyText.alignment = CENTER;
+
+		infoTextBox.makeSolid(400, Std.int(infoTextGroup.height + 10), FlxColor.BLACK);
+		infoTextGroup.x -= infoTextGroup.width + 10;
+		infoTextGroup.scrollFactor.set();
+		add(infoTextGroup);
+
+		// regular menu shiz
 		changeSelection();
+		changeDifficulty();
 
 		camPoint.setPosition(
 			10 * (curSelected + 1) + 50,
@@ -152,7 +185,7 @@ class FreeplayMenu extends BeatState {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
+				} else if (currentSongAudio != songs.members[curSelected].data.folder && currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
 					var song:SongHolder = songs.members[curSelected];
 					conductor.loadSong(currentSongAudio = song.data.folder, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> {
 						try {
@@ -179,7 +212,7 @@ class FreeplayMenu extends BeatState {
 							if (tracks.empty())
 								conductor.addVocalTrack(currentSongAudio, '', currentSongVariant);
 						} catch(error:haxe.Exception)
-							log('Chart parse for song "$currentSongAudio"${currentSongVariant.trim() == 'normal' ? '' : ', variant "$currentSongVariant"'} failed.', ErrorMessage);
+							log('Chart parse for song "$currentSongAudio"${currentSongVariant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(currentSongVariant)}"'} failed.', ErrorMessage);
 						conductor.play();
 					});
 				} else selectCurrent();
@@ -200,8 +233,7 @@ class FreeplayMenu extends BeatState {
 
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
-		// every other beat
-		if (curBeat % (currentSongAudio == ':MENU:' ? 2 : 1) == 0)
+		if (curBeat % 1 == 0 && currentSongAudio != ':MENU:')
 			camera.zoom += 0.020;
 	}
 
@@ -213,6 +245,7 @@ class FreeplayMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		var song:SongHolder = songs.members[curSelected];
+		songNameText.text = 'Song: ${song.data.name}';
 
 		prevDiffList = curDiffList;
 		curDiffList = song.data.difficulties;
@@ -230,8 +263,12 @@ class FreeplayMenu extends BeatState {
 		if (emptyDiffList) return;
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
-		/* if (prevDiff != curDiff)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7); */
+		if (prevDiff != curDiff)
+			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+
+		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[curSelected].data.variants[curDiff])}';
+		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
+		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
 	}
 
 	var songShake:FlxTween;
@@ -246,10 +283,12 @@ class FreeplayMenu extends BeatState {
 			if (songShake == null) {
 				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
 				var ogX:Float = song.text.x;
+				song.icon.playAnim('losing');
 				songShake = FlxTween.shake(song.text, 0.02, time, X, {
 					onComplete: (_:FlxTween) -> {
 						song.text.x = ogX;
 						songShake = null;
+						song.icon.playAnim('normal');
 					}
 				});
 				selectionCooldown(time);
