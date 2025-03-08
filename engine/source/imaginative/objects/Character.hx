@@ -167,6 +167,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 					if (controls != null)
 						if (controls.noteLeftHeld || controls.noteDownHeld || controls.noteUpHeld || controls.noteRightHeld)
 							return;
+					controls = null;
 					dance();
 				}
 			default:
