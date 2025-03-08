@@ -325,7 +325,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script ?? new ModPath('', ANY));
+			loadScript(script);
 
 		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
 			var animInfo:AnimationMapping = getAnimInfo(name);
