@@ -578,8 +578,11 @@ class PlayState extends BeatState {
 			}
 
 			// loads general track
-			if (tracks.empty())
-				generalVocals = conductor.addVocalTrack(setSong, '', variant);
+			if (tracks.empty()) {
+				var generalTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, '', variant);
+				if (generalTrack != null)
+					generalVocals = generalTrack;
+			}
 
 			conductor._onComplete = (event) -> {
 				for (char in characterMapping)

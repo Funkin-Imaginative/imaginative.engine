@@ -73,7 +73,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 * The amount of time in steps the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	public var singLength:Float = 0.5;
+	public var singLength:Float = 2;
 
 	/**
 	 * The camera offset position.
@@ -111,7 +111,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
-				theirIcon = inputData.character.icon;
+				theirIcon = (Paths.fileExists(Paths.icon(inputData.character.icon)) ? inputData.character.icon : 'face');
 				singLength = inputData.character.singlength;
 				vocalSuffix = inputData.character.vocals ?? theirName;
 			}
@@ -167,6 +167,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 					if (controls != null)
 						if (controls.noteLeftHeld || controls.noteDownHeld || controls.noteUpHeld || controls.noteRightHeld)
 							return;
+					controls = null;
 					dance();
 				}
 			default:
