@@ -69,7 +69,7 @@ class FreeplayMenu extends BeatState {
 		// Menu elements.
 		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
 		bg.scrollFactor.set();
-		bg.setUnstretchedGraphicSize(camera.width, camera.height, false);
+		bg.setUnstretchedGraphicSize(FlxG.width, FlxG.height, false);
 		bg.updateHitbox();
 		bg.screenCenter();
 		add(bg);
@@ -109,7 +109,7 @@ class FreeplayMenu extends BeatState {
 		add(diffs);
 
 		// informational text
-		infoTextGroup = new FlxSpriteGroup(camera.width, 10);
+		infoTextGroup = new FlxSpriteGroup(FlxG.width, 10);
 
 		var boxWidth:Int = 400;
 		var infoTextBox:FlxSprite = new FlxSprite();
@@ -117,7 +117,7 @@ class FreeplayMenu extends BeatState {
 		infoTextGroup.add(infoTextBox);
 
 		songNameText = new FlxText(10, 10, boxWidth - 20, 'Song: crAzy');
-		variantText = new FlxText(10, songNameText.y + songNameText.height + 20, boxWidth - 20, 'Variant: Normal');
+		variantText = new FlxText(10, songNameText.y + songNameText.height + 17, boxWidth - 20, 'Variant: Normal');
 		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 20, '< Normal >');
 		sideArrowsText = new FlxText(10, difficultyText.y, difficultyText.width, '<                       >');
 		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {
@@ -132,17 +132,17 @@ class FreeplayMenu extends BeatState {
 		infoTextGroup.scrollFactor.set();
 		add(infoTextGroup);
 
-		songPlayingGroup = new FlxSpriteGroup(camera.width, camera.height);
+		songPlayingGroup = new FlxSpriteGroup(FlxG.width + 10, FlxG.height);
 
-		var boxWidth:Int = 800; // probably gonna do something about the artist text sometimes being really fucking long
+		var boxWidth:Int = 800;
 		var infoTextBox:FlxSprite = new FlxSprite();
 		infoTextBox.alpha = 0.45;
 		songPlayingGroup.add(infoTextBox);
 
 		musicNameText = new FlxText(10, 10, boxWidth - 20, '...');
-		artistText = new FlxText(10, musicNameText.y + musicNameText.height + 20, boxWidth - 20, 'By: Your Mom');
+		artistText = new FlxText(10, musicNameText.y + musicNameText.height + 17, 0, 'By: Your Mom');
 		songBpmText = new FlxText(10, 10, boxWidth - 20, '### BPM');
-		songSigText = new FlxText(10, songBpmText.y + songBpmText.height + 20, boxWidth - 20, '# / #');
+		songSigText = new FlxText(10, songBpmText.y + songBpmText.height + 17, boxWidth - 20, '# / #');
 		for (text in [musicNameText, artistText, songBpmText, songSigText]) {
 			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 2;
@@ -151,7 +151,6 @@ class FreeplayMenu extends BeatState {
 		songBpmText.alignment = songSigText.alignment = RIGHT;
 
 		infoTextBox.makeSolid(boxWidth, Std.int(songPlayingGroup.height + 10), FlxColor.BLACK);
-		songPlayingGroup.x -= songPlayingGroup.width + 10;
 		songPlayingGroup.y -= songPlayingGroup.height + 10;
 		songPlayingGroup.scrollFactor.set();
 		add(songPlayingGroup);
@@ -167,6 +166,16 @@ class FreeplayMenu extends BeatState {
 		camera.snapToTarget();
 		camera.bgColor = songs.members[visualSelected].data.color;
 		bg.color = camera.bgColor - 0xFF646464;
+	}
+	function updateMusicInfoBoxWidth():Void { // is being stupid
+		// var minWidth:Int = 500;
+		// var bg:FlxSprite = songPlayingGroup.members[0];
+		// var newWidth:Float = FlxMath.bound(bg.scale.x, minWidth, artistText.width + 100);
+		// for (text in [musicNameText, songBpmText, songSigText])
+		// 	text.fieldWidth = newWidth - 20;
+		// bg.scale.x = newWidth;
+		// bg.updateHitbox();
+		// songPlayingGroup.x = FlxG.width - songPlayingGroup.width + 10;
 	}
 
 	override public function update(elapsed:Float) {
@@ -215,8 +224,10 @@ class FreeplayMenu extends BeatState {
 					conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
 						conductor.volume = 0;
 						conductor.playFromTime(menuTimePosition, 0.8);
-						conductor.fadeOut(conductor.stepTime * 2.5 / 1000, 0.8);
+						conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
 					});
+					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
+					FlxTween.tween(songPlayingGroup, {x: FlxG.width + 10}, stepTime * 2.5 / 1000, {ease: FlxEase.quadIn});
 				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
@@ -234,6 +245,9 @@ class FreeplayMenu extends BeatState {
 					artistText.text = 'By: ${conductor.data.artist}';
 					songBpmText.text = '${conductor.data.bpm} BPM';
 					songSigText.text = conductor.data.signature.join(' / ');
+					updateMusicInfoBoxWidth();
+					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
+					FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
 				} else selectCurrent();
 			}
 		}

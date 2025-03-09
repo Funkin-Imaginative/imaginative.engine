@@ -89,7 +89,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		scripts.call('beatHit', [curBeat]);
 	}
 
-	public function changeIcon(newTag:String, pathType:ModPath):Void {
+	public function changeIcon(newTag:String, pathType:ModType = ANY):Void {
 		if (tagName != newTag) {
 			try {
 				var prevAnim:String = getAnimName();

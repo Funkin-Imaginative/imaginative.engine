@@ -85,6 +85,7 @@ class SongHolder extends BeatSpriteGroup {
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
 			var bruh:Array<ModPath> = ['lead:global', name];
+			log([for (file in bruh) file.format()], DebugMessage);
 			for (song in bruh)
 				for (script in Script.create('${name.type}:content/scripts/songs/${name.path}'))
 					scripts.add(script);
@@ -97,11 +98,12 @@ class SongHolder extends BeatSpriteGroup {
 			text.borderSize = 3.5;
 			add(text);
 
-			icon = new HealthIcon(text.width + 30, text.height / 2, '${name.type}:${data.icon}');
+			icon = new HealthIcon(text.width + 30, text.height / 2, data.icon/* '${name.type}:${data.icon}' */);
 			icon.y -= icon.height / 2;
 			add(icon);
 
 			if (isLocked) {
+				text.text += ' (Locked)';
 				icon.color -= 0xFF646464;
 				text.color -= 0xFF646464;
 				text.borderColor -= 0xFF646464;

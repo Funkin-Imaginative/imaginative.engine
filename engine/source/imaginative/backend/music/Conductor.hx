@@ -526,12 +526,13 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param variant The variant of the song to play.
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	public function loadFullSong(song:String, difficulty:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
+	public function loadFullSong(song:String, difficulty:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Null<imaginative.states.editors.ChartEditor.ChartData> {
+		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
 				var tracks:Array<FlxSound> = [];
 				var vocalSuffixes:Array<String> = [];
-				var chart:imaginative.states.editors.ChartEditor.ChartData = ParseUtil.chart(song, difficulty, variant);
+				chart = ParseUtil.chart(song, difficulty, variant);
 				for (base in chart.characters) {
 					var charVocals:String = null;
 					try {
@@ -566,6 +567,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (afterLoad != null)
 				afterLoad(_);
 		});
+		return chart;
 	}
 
 	/**
