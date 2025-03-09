@@ -657,7 +657,7 @@ class PlayState extends BeatState {
 					songStarted = true;
 			}, countdownLength + 1);
 		}
-		conductor.play(-beatTime * (countdownLength + 1));
+		conductor.playFromTime(-beatTime * (countdownLength + 1));
 	}
 
 	function endSong():Void {
