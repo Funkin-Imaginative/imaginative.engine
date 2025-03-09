@@ -55,7 +55,7 @@ class StoryMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		if (!conductor.playing)
-			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
+			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);

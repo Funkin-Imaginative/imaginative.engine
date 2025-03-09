@@ -47,7 +47,7 @@ class MainMenu extends BeatState {
 		super.create();
 		// Might try to simplify this.
 		if (!conductor.playing)
-			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
+			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -163,8 +163,8 @@ class MainMenu extends BeatState {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (conductor.audio.volume < 0.8)
-			conductor.audio.volume += 0.5 * elapsed;
+		if (conductor.volume < 0.8)
+			conductor.volume += 0.5 * elapsed;
 
 		super.update(elapsed);
 

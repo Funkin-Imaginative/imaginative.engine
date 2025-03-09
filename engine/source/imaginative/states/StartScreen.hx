@@ -17,7 +17,7 @@ class StartScreen extends BeatState {
 	override public function create():Void {
 		super.create();
 		if (!conductor.playing)
-			conductor.loadMusic('lunchbox', 0, (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
+			conductor.loadMusic('lunchbox', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 		camera.fade(4, true, () -> canSelect = true);
 		if (tweenAxes.x) camera.scroll.x -= camera.width * (swapAxes.x ? -1 : 1);
 		if (tweenAxes.y) camera.scroll.y -= camera.height * (swapAxes.y ? -1 : 1);
@@ -53,8 +53,13 @@ class StartScreen extends BeatState {
 		super.update(elapsed);
 
 		// skips the leave transition
-		if (leaving && (Controls.accept || FlxG.mouse.justPressed))
+		if (leaving && (Controls.accept || FlxG.mouse.justPressed)) {
+			@:privateAccess
+				if (conductor.fadeTween != null)
+					if (conductor.fadeTween.active)
+						conductor.reset();
 			BeatState.switchState(new TitleScreen());
+		}
 
 		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
 			leaving = true;

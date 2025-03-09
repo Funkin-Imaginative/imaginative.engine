@@ -28,8 +28,10 @@ class FreeplayMenu extends BeatState {
 	static var curDiff:Int = 0;
 	var emptyDiffList(default, null):Bool = false;
 
+	var menuTimePosition:Float = 0; // last known menu song time
 	var currentSongAudio:String = ':MENU:'; // using ":" since they can't be used in file/folder names
 	var currentSongVariant:String = ':MENU:'; // for variants, changes to ":MENU:"
+	var winningIcon:HealthIcon; // keeps track of the icon set to the winning animation so it can be reset
 
 	// Objects in the state.
 	var bg:FlxSprite;
@@ -37,8 +39,8 @@ class FreeplayMenu extends BeatState {
 	var songs:FlxTypedGroup<SongHolder>;
 	var diffs:FlxTypedGroup<DifficultyHolder>;
 
+	// song selection text
 	var infoTextGroup:FlxSpriteGroup;
-	var infoTextBox:FlxSprite;
 	var songNameText:FlxText;
 	var variantText:FlxText;
 	var difficultyText:FlxText;
@@ -50,7 +52,7 @@ class FreeplayMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		if (!conductor.playing)
-			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
+			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -103,7 +105,7 @@ class FreeplayMenu extends BeatState {
 		infoTextGroup = new FlxSpriteGroup(camera.width, 10);
 
 		var boxWidth:Int = 400;
-		infoTextBox = new FlxSprite();
+		var infoTextBox:FlxSprite = new FlxSprite();
 		infoTextBox.alpha = 0.45;
 		infoTextGroup.add(infoTextBox);
 
@@ -118,7 +120,7 @@ class FreeplayMenu extends BeatState {
 		}
 		sideArrowsText.alignment = difficultyText.alignment = CENTER;
 
-		infoTextBox.makeSolid(400, Std.int(infoTextGroup.height + 10), FlxColor.BLACK);
+		infoTextBox.makeSolid(boxWidth, Std.int(infoTextGroup.height + 10), FlxColor.BLACK);
 		infoTextGroup.x -= infoTextGroup.width + 10;
 		infoTextGroup.scrollFactor.set();
 		add(infoTextGroup);
@@ -177,8 +179,13 @@ class FreeplayMenu extends BeatState {
 					FunkinUtil.playMenuSFX(CancelSFX);
 					BeatState.switchState(new MainMenu());
 				} else {
+					winningIcon.playAnim('normal');
 					currentSongAudio = currentSongVariant = ':MENU:';
-					conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
+					conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
+						conductor.volume = 0;
+						conductor.playFromTime(menuTimePosition, 0.8);
+						conductor.fadeOut(conductor.stepTime * 2.5 / 1000, 0.8);
+					});
 				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
@@ -187,34 +194,10 @@ class FreeplayMenu extends BeatState {
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
 					var song:SongHolder = songs.members[curSelected];
-					conductor.loadSong(currentSongAudio = song.data.folder, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> {
-						try {
-							var tracks:Array<FlxSound> = [];
-							var vocalSuffixes:Array<String> = [];
-							var chart:imaginative.states.editors.ChartEditor.ChartData = ParseUtil.chart(currentSongAudio, curDiffString, currentSongVariant);
-							for (base in chart.characters) {
-								var charVocals:String = null;
-								try {
-									charVocals = ParseUtil.object('characters/${base.name}', IsCharacterSprite).character.vocals;
-								} catch(error:haxe.Exception) {}
-								var suffix:String = base.vocals ?? charVocals ?? base.tag; // since charVocals can be name, i'ma just go with this
-								if (!vocalSuffixes.contains(suffix))
-									vocalSuffixes.push(suffix);
-							}
-							for (suffix in vocalSuffixes)
-								tracks.push(conductor.addVocalTrack(currentSongAudio, suffix, currentSongVariant));
-							// loads main suffixes
-							if (tracks.empty()) {
-								conductor.addVocalTrack(currentSongAudio, 'Enemy', currentSongVariant);
-								conductor.addVocalTrack(currentSongAudio, 'Player', currentSongVariant);
-							}
-							// loads general track
-							if (tracks.empty())
-								conductor.addVocalTrack(currentSongAudio, '', currentSongVariant);
-						} catch(error:haxe.Exception)
-							log('Chart parse for song "$currentSongAudio"${currentSongVariant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(currentSongVariant)}"'} failed.', ErrorMessage);
-						conductor.play();
-					});
+					menuTimePosition = conductor.time;
+					if (winningIcon != null) winningIcon.playAnim('normal');
+					(winningIcon = song.icon).playAnim('winning');
+					conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 				} else selectCurrent();
 			}
 		}
@@ -269,6 +252,7 @@ class FreeplayMenu extends BeatState {
 		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[curSelected].data.variants[curDiff])}';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
 		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
+		sideArrowsText.visible = curDiffList.length > 1;
 	}
 
 	var songShake:FlxTween;
