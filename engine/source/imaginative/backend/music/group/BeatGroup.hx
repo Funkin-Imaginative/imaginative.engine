@@ -17,7 +17,7 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	 * Runs when the next step happens.
 	 * @param curStep The current step.
 	 */
-	inline public function stepHit(curStep:Int):Void {
+	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
 		for (member in members)
 			if (member is IBeat)
@@ -32,7 +32,7 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	 * Runs when the next beat happens.
 	 * @param curBeat The current beat.
 	 */
-	inline public function beatHit(curBeat:Int):Void {
+	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		for (member in members)
 			if (member is IBeat)
@@ -47,7 +47,7 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	 * Runs when the next measure happens.
 	 * @param curMeasure The current measure.
 	 */
-	inline public function measureHit(curMeasure:Int):Void {
+	public function measureHit(curMeasure:Int):Void {
 		this.curMeasure = curMeasure;
 		for (member in members)
 			if (member is IBeat)

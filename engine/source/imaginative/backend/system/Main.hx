@@ -15,6 +15,7 @@ class Main extends Sprite {
 	 */
 	public static var direct:Main;
 
+	// might get rid of these till I figure out how to resize the shit properly
 	/**
 	 * Overlay Camera.
 	 */
@@ -69,11 +70,28 @@ class Main extends Sprite {
 		FlxWindow.init();
 		Script.init();
 		GlobalScript.init();
+		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
+		#end
 
 		#if KNOWS_VERSION_ID
 		engineVersion = FlxWindow.direct.self.application.meta.get('version');
 		latestVersion = engineVersion;
+		#end
+
+		#if windows
+		// Taken from Psych
+		// https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
+		// https://github.com/ShadowMario/FNF-PsychEngine/commit/ecdb1a037a20bd16275981f0afd0b37aea79c53c
+		// untyped __cpp__("SetProcessDPIAware();");
+
+		var display = lime.system.System.getDisplay(0);
+		if (display != null) {
+			var dpiScale:Float = display.dpi / 96;
+			FlxWindow.direct.self.width = Std.int(1280 * dpiScale);
+			FlxWindow.direct.self.height = Std.int(720 * dpiScale);
+			FlxWindow.direct.centerWindow();
+		}
 		#end
 
 		// If debug we cut to the chase.
