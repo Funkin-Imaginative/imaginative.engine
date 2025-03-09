@@ -27,7 +27,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		return cast super.loadSheet(newTexture);
 
 	/**
-	 *	The amount of beats it takes to trigger the dance.
+	 * The amount of beats it takes to trigger the dance.
 	 */
 	public var bopRate(get, set):Int;
 	inline function get_bopRate():Int
