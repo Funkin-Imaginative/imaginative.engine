@@ -2,7 +2,6 @@ package flixel.window;
 
 import lime.app.Application;
 import lime.ui.Window;
-import openfl.system.Capabilities;
 
 typedef TitleParts = {
 	/**
@@ -57,7 +56,7 @@ class FlxWindow implements IFlxDestroyable {
 	 */
 	public var __x(get, never):Float;
 	inline function get___x():Float
-		return Capabilities.screenResolutionX;
+		return self.display.bounds.width;
 
 	/**
 	 * The x position of the window.
@@ -73,7 +72,7 @@ class FlxWindow implements IFlxDestroyable {
 	 */
 	public var __y(get, never):Float;
 	inline function get___y():Float
-		return Capabilities.screenResolutionY;
+		return self.display.bounds.height;
 
 	/**
 	 * The y position of the window.
@@ -207,8 +206,8 @@ class FlxWindow implements IFlxDestroyable {
 	 * Moves the window to the center of the screen.
 	 */
 	public function centerWindow():Void {
-		x = Math.round((__x / 2) - (width / 2));
-		y = Math.round((__y / 2) - (height / 2));
+		x = Std.int((__x / 2) - (width / 2));
+		y = Std.int((__y / 2) - (height / 2));
 	}
 
 	/**

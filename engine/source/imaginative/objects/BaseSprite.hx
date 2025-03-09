@@ -327,6 +327,11 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 		if (scripts == null)
 			loadScript(script ?? new ModPath('', ANY));
 
+		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
+			var animInfo:AnimationMapping = getAnimInfo(name);
+			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
+		});
+
 		scripts.call('create');
 		if (this is BaseSprite || this is BeatSprite)
 			scripts.call('createPost');
@@ -377,9 +382,7 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 		var suffixResult:String = suffix == null ? '' : (invalidSuffixCheck(theName, suffix.trim()) ? '-${suffix.trim()}' : (invalidSuffixCheck(theName, generalSuffixCheck(context)) ? '-${generalSuffixCheck(context)}' : ''));
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
-			var animInfo:AnimationMapping = getAnimInfo(theName);
 			animation.play(theName, force, reverse, frame);
-			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 			animContext = context;
 		}
 	}
@@ -427,8 +430,7 @@ class BaseSprite extends SelfContainedSprite implements ITexture<BaseSprite> {
 	 * When run, it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		if (animation.curAnim != null)
-			animation.curAnim.finish();
+		animation.finish();
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.
