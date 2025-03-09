@@ -2,6 +2,15 @@ package imaginative.backend.scripting.events.objects.gameplay;
 
 class FieldInputEvent extends ScriptEvent {
 	/**
+	 * The field the input is assigned to.
+	 */
+	public var field(default, null):ArrowField;
+	/**
+	 * The strum object instance.
+	 */
+	public var strum(default, null):Strum;
+
+	/**
 	 * The strum lane index.
 	 */
 	public var i(default, null):Int;
@@ -11,16 +20,7 @@ class FieldInputEvent extends ScriptEvent {
 	public var iMod(get, never):Int;
 	inline function get_iMod():Int
 		return i % field.strumCount;
-	/**
-	 * The strum object instance.
-	 */
-	public var strum(default, null):Strum;
-	/**
-	 * The field the input is assigned to.
-	 */
-	public var field(default, null):ArrowField;
-	inline function get_field():ArrowField
-		return strum.setField;
+
 	/**
 	 * If true, a bind was pressed.
 	 */
@@ -33,11 +33,15 @@ class FieldInputEvent extends ScriptEvent {
 	 * If true, a bind was released.
 	 */
 	public var wasReleased(default, null):Bool;
+
 	/**
 	 * The player settings instance.
 	 */
 	public var settings(default, null):PlayerSettings;
 
+	/**
+	 * If true, it prevents the press animation from playing on the target strum.
+	 */
 	public var stopStrumPress:Bool = false;
 
 	override public function new(?i:Int, strum:Strum, ?field:ArrowField, hasHit:Bool, beingHeld:Bool, wasReleased:Bool, ?settings:PlayerSettings) {

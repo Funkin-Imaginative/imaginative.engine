@@ -123,7 +123,7 @@ class Main extends Sprite {
 
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerClass(PlayConfig);
+		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
 		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);

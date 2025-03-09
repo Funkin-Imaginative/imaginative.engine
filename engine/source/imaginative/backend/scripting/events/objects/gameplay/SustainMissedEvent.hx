@@ -2,9 +2,22 @@ package imaginative.backend.scripting.events.objects.gameplay;
 
 final class SustainMissedEvent extends PlayAnimEvent {
 	/**
+	 * The field the sustain is assigned to.
+	 */
+	public var field:ArrowField;
+	/**
+	 * The parent strum instance.
+	 */
+	public var strum:Strum;
+	/**
+	 * The parent note instance.
+	 */
+	public var note:Note;
+	/**
 	 * The sustain instance.
 	 */
 	public var sustain:Sustain;
+
 	/**
 	 * The strum lane index.
 	 */
@@ -15,10 +28,7 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % field.strumCount;
-	/**
-	 * The field the sustain is assigned to.
-	 */
-	public var field:ArrowField;
+
 	/**
 	 * If true, it prevents the press animation from playing on the target strum.
 	 */
@@ -47,5 +57,7 @@ final class SustainMissedEvent extends PlayAnimEvent {
 		this.id = id ??= sustain.id;
 		this.field = field ??= sustain.setField;
 		this.stopStrumPress = stopStrumPress;
+		strum = sustain.setStrum;
+		note = sustain.setHead;
 	}
 }
