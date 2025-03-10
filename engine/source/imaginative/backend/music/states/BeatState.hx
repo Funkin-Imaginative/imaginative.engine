@@ -276,8 +276,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).stepHit(curStep);
+			IBeatHelper.iBeatCheck(member, curStep, IsStep);
 		call('stepHit', [curStep]);
 	}
 	/**
@@ -286,8 +285,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).beatHit(curBeat);
+			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
 		call('beatHit', [curBeat]);
 	}
 	/**
@@ -296,8 +294,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).measureHit(curMeasure);
+			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
 		call('measureHit', [curMeasure]);
 	}
 
