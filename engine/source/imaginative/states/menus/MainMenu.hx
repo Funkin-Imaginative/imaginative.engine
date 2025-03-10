@@ -25,8 +25,8 @@ class MainMenu extends BeatState {
 	];
 
 	// Objects in the state.
-	var bg:FlxSprite;
-	var flashBg:FlxSprite;
+	var bg:MenuSprite;
+	var flashBg:MenuSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
 
 	var mainTextsGroup:FlxTypedSpriteGroup<FlxText>;
@@ -45,7 +45,6 @@ class MainMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		// Might try to simplify this.
 		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
@@ -55,18 +54,15 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
-		bgColor = bg.color;
+		bg = new MenuSprite(FlxColor.YELLOW);
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.scale(1.2);
-		bg.updateHitbox();
 		bg.screenCenter();
 		add(bg);
 
-		flashBg = new FlxSprite().getBGSprite(FlxColor.MAGENTA); // flashing bg
+		flashBg = new MenuSprite(FlxColor.MAGENTA);
 		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
 		flashBg.scale.copyFrom(bg.scale);
-		flashBg.updateHitbox();
 		flashBg.visible = false;
 		add(flashBg);
 

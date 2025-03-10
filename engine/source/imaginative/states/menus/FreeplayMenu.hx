@@ -34,7 +34,7 @@ class FreeplayMenu extends BeatState {
 	var winningIcon:HealthIcon; // keeps track of the icon set to the winning animation so it can be reset
 
 	// Objects in the state.
-	var bg:FlxSprite;
+	var bg:MenuSprite;
 
 	var songs:FlxTypedGroup<SongHolder>;
 	var diffs:FlxTypedGroup<DifficultyHolder>;
@@ -67,10 +67,12 @@ class FreeplayMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
+		bg = new MenuSprite(FlxColor.YELLOW);
 		bg.scrollFactor.set();
-		bg.setUnstretchedGraphicSize(FlxG.width, FlxG.height, false);
-		bg.updateHitbox();
+		for (obj in bg) {
+			obj.setUnstretchedGraphicSize(FlxG.width, FlxG.height, false);
+			obj.updateHitbox();
+		}
 		bg.screenCenter();
 		add(bg);
 
@@ -164,8 +166,8 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[curSelected].text).y
 		);
 		camera.snapToTarget();
-		camera.bgColor = songs.members[visualSelected].data.color;
-		bg.color = camera.bgColor - 0xFF646464;
+		bg.blankBg.color = songs.members[visualSelected].data.color;
+		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
 	function updateMusicInfoBoxWidth():Void { // is being stupid
 		// var minWidth:Int = 500;
@@ -257,8 +259,8 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
 		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
-		camera.bgColor = FlxColor.interpolate(camera.bgColor, songs.members[visualSelected].data.color, 0.1);
-		bg.color = camera.bgColor - 0xFF646464;
+		bg.blankBg.color = FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1);
+		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 
 		for (i => song in songs.members)
 			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);

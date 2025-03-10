@@ -71,8 +71,8 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 				tryDance();
 		}
 		super_update(elapsed);
-		scale.x = FlxMath.lerp(1, scale.x, 0.7);
-		scale.y = FlxMath.lerp(1, scale.y, 0.7);
+		scale.x = FlxMath.lerp(spriteOffsets.scale.x, scale.x, 0.7);
+		scale.y = FlxMath.lerp(spriteOffsets.scale.y, scale.y, 0.7);
 		if (_update != null)
 			_update(elapsed);
 		scripts.call('updatePost', [elapsed]);
@@ -85,7 +85,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	override public function beatHit(curBeat:Int) {
 		super.beatHit(curBeat);
 		if (!preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
-			scale.set(1.2, 1.2);
+			scale.set(spriteOffsets.scale.x * 1.2, spriteOffsets.scale.y * 1.2);
 		scripts.call('beatHit', [curBeat]);
 	}
 

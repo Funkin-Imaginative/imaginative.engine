@@ -222,28 +222,6 @@ class SpriteUtil {
 	}
 
 	/**
-	 * Returns a fnf bg sprite.
-	 * TODO: Rework and figure this out.
-	 * @param sprite The sprite to affect.
-	 * @param color FlxColor input.
-	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY, it will use the menuBG color instead.
-	 * @param mod The mod type.
-	 * @return `FlxSprite` ~ Current instance for chaining.
-	 */
-	inline public static function getBGSprite<T:FlxSprite>(sprite:T, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY):T {
-		sprite.loadImage('$mod:menus/bgs/menuArt'); // wip lol
-		// sprite.makeGraphic(Math.floor(sprite.width), Math.floor(sprite.height));
-		sprite.color = funkinColor ? switch (color) {
-			case FlxColor.YELLOW: 0xFFFAE868;
-			case FlxColor.BLUE: 0xFF9272FF;
-			case FlxColor.MAGENTA: 0xFFF4709B;
-			case FlxColor.GRAY: 0xFFE1E1E1;
-			default: color;
-		} : color;
-		return sprite;
-	}
-
-	/**
 	 * Allows you to set a graphic size (ex: 150x150), with proper hitbox without a stretched sprite.
 	 * @param sprite Sprite to apply the new graphic size to
 	 * @param width Width
