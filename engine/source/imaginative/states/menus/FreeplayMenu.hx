@@ -221,6 +221,7 @@ class FreeplayMenu extends BeatState {
 					BeatState.switchState(new MainMenu());
 				} else {
 					winningIcon.playAnim('normal');
+					winningIcon.preventScaleBop = false;
 					currentSongAudio = currentSongVariant = ':MENU:';
 					conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
 						conductor.volume = 0;

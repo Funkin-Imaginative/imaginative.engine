@@ -190,13 +190,13 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CancelSFX);
+				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
 				BeatState.switchState(new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
-					FunkinUtil.playMenuSFX(ScrollSFX, 0.8);
+					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else selectCurrent();
 			}
 		}
