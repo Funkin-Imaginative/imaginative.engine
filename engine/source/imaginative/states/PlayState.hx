@@ -678,9 +678,11 @@ class PlayState extends BeatState {
 	}
 
 	override public function draw():Void {
-		var event:ScriptEvent = scripts.event('draw', new ScriptEvent());
-		if (!event.prevented) super.draw();
-		scripts.event('drawPost', event);
+		var event:ScriptEvent = scripts.event('onDraw', new ScriptEvent());
+		if (!event.prevented) {
+			super.draw();
+			scripts.event('onDrawPost', event);
+		}
 	}
 
 	override public function onFocus():Void {

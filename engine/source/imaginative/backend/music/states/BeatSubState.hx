@@ -213,6 +213,14 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		super.update(elapsed);
 	}
 
+	override public function draw():Void {
+		var event:ScriptEvent = event('onDraw', new ScriptEvent());
+		if (!event.prevented) {
+			super.draw();
+			this.event('onDrawPost', event);
+		}
+	}
+
 	/**
 	 * The state that the subState is attached to.
 	 */

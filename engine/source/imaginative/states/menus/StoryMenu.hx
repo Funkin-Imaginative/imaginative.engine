@@ -172,6 +172,8 @@ class StoryMenu extends BeatState {
 				sprite.extra.set('offsets', data.offsets);
 				sprite.scale.scale(data.size);
 				sprite.updateHitbox();
+				sprite.setUnstretchedGraphicSize(Std.int(weekBg.width - 50), Std.int(weekBg.height - 50), false);
+				sprite.updateHitbox();
 
 				sprite.extra.set('willHey', data.willHey);
 				sprite.extra.set('offsets', data.offsets);
@@ -249,12 +251,21 @@ class StoryMenu extends BeatState {
 						changeSelection(i, stopSelect = true);
 						break;
 					}
+			} else if (FlxG.mouse.pressed) {
+				if (FlxG.mouse.overlaps(leftArrow))
+					playArrowAnim(true);
+				if (FlxG.mouse.overlaps(rightArrow))
+					playArrowAnim();
 			}
 
 			if (Controls.uiLeft)
 				changeDifficulty(-1);
+			else if (Controls.uiLeftPress)
+				playArrowAnim(true);
 			if (Controls.uiRight)
 				changeDifficulty(1);
+			else if (Controls.uiRightPress)
+				playArrowAnim();
 
 			if (FlxG.keys.justPressed.HOME)
 				changeSelection(0, true);
@@ -303,14 +314,13 @@ class StoryMenu extends BeatState {
 		changeDifficulty(newIndex, true);
 	}
 
+	function playArrowAnim(isLeft:Bool = false):Void {
+		var arrow:BaseSprite = isLeft ? leftArrow : rightArrow;
+		arrow.playAnim('confirm');
+		arrow.centerOffsets();
+		arrow.centerOrigin();
+	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
-		if (move != 0 || !pureSelect) {
-			var arrow:BaseSprite = move == -1 ? leftArrow : rightArrow;
-			arrow.playAnim('confirm');
-			arrow.centerOffsets();
-			arrow.centerOrigin();
-		}
-
 		if (emptyDiffList) return;
 		prevDiff = curDiff;
 		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);

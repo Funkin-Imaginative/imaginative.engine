@@ -60,7 +60,7 @@ class MainMenu extends BeatState {
 		bg.screenCenter();
 		add(bg);
 
-		flashBg = new MenuSprite(FlxColor.MAGENTA);
+		flashBg = new MenuSprite(bg.x, bg.y, FlxColor.MAGENTA);
 		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
 		flashBg.scale.copyFrom(bg.scale);
 		flashBg.visible = false;
