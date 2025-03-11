@@ -30,10 +30,14 @@ class MenuSprite extends FlxSpriteGroup {
 		lineArt = new FlxSprite().loadImage('$mod:menus/bgs/menuArt');
 		blankBg = new FlxSprite().makeGraphic(Math.floor(lineArt.width), Math.floor(lineArt.height));
 
-		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color;
-		blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
+		changeColor(color, funkinColor);
 
 		add(blankBg);
 		add(lineArt);
+	}
+
+	inline public function changeColor(color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true):Void {
+		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color - 0xFF646464;
+		blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
 	}
 }
