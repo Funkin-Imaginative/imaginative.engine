@@ -15,8 +15,8 @@ final class SelectionChangeEvent extends MenuSFXEvent {
 	 */
 	public var changeAmount:Int;
 
-	override public function new(previousValue:Int, currentValue:Int, changeAmount:Int, playMenuSFX:Bool = true, sfxVolume:Float = 0.7) {
-		super(previousValue != currentValue ? playMenuSFX : false, sfxVolume);
+	override public function new(previousValue:Int, currentValue:Int, changeAmount:Int, playSFX:Bool = true, sfxVolume:Float = 0.7) {
+		super(previousValue != currentValue ? playSFX : false, sfxVolume);
 		this.previousValue = previousValue;
 		this.currentValue = currentValue;
 	}

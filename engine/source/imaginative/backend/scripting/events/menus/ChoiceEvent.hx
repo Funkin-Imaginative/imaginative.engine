@@ -6,8 +6,8 @@ final class ChoiceEvent extends MenuSFXEvent {
 	 */
 	public var choice:String;
 
-	override public function new(choice:String, playMenuSFX:Bool = true, sfxVolume:Float = 0.7) {
-		super(playMenuSFX, sfxVolume);
+	override public function new(choice:String, playSFX:Bool = true, sfxVolume:Float = 0.7) {
+		super(playSFX, sfxVolume);
 		this.choice = choice;
 	}
 }

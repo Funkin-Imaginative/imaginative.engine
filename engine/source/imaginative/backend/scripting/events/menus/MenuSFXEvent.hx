@@ -4,9 +4,9 @@ class MenuSFXEvent extends ScriptEvent {
 	/**
 	 * If true, the menu sound effect will play.
 	 */
-	public var playMenuSFX(get, default):Bool;
-	inline function get_playMenuSFX():Bool
-		return sfxVolume > 0 ? playMenuSFX : false;
+	public var playSFX(get, default):Bool;
+	inline function get_playSFX():Bool
+		return sfxVolume > 0 ? playSFX : false;
 	/**
 	 * The volume of the sound effect.
 	 */
@@ -17,9 +17,9 @@ class MenuSFXEvent extends ScriptEvent {
 	 */
 	public var sfxSubFolder:Null<String>;
 
-	override public function new(playMenuSFX:Bool = true, sfxVolume:Float = 0.7) {
+	override public function new(playSFX:Bool = true, sfxVolume:Float = 0.7) {
 		super();
-		this.playMenuSFX = playMenuSFX;
+		this.playSFX = playSFX;
 		this.sfxVolume = sfxVolume;
 	}
 }

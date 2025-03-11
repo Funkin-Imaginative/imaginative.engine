@@ -213,7 +213,7 @@ class MainMenu extends BeatState {
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
 
-		if (event.playMenuSFX)
+		if (event.playSFX)
 			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
 
 		for (i => item in menuItems.members) {
@@ -227,7 +227,7 @@ class MainMenu extends BeatState {
 		selectionCooldown(1.1);
 
 		var event:ChoiceEvent = event('onSelectItem', new ChoiceEvent(itemLineUp[curSelected]));
-		if (!event.prevented && event.playMenuSFX)
+		if (!event.prevented && event.playSFX)
 			FunkinUtil.playMenuSFX(ConfirmSFX, event.sfxVolume, event.sfxSubFolder);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
 			if (!event.prevented)
