@@ -55,7 +55,7 @@ class FunkinUtil {
 	/**
 	 * Play's a menu sound effect.
 	 * @param sound The sound.
-	 * @param volume The volume
+	 * @param volume The volume.
 	 * @param subFolder Sub folder path/name.
 	 * @param onComplete FlxG.sound.play's onComplete function.
 	 * @return `FlxSound` ~ The menu sound.
