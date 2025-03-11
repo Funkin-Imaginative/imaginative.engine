@@ -87,6 +87,7 @@ class MainMenu extends BeatState {
 		var highMid:Position = Position.getObjMidpoint(menuItems.members[0]);
 		var lowMid:Position = Position.getObjMidpoint(menuItems.members[menuItems.length - 1]);
 
+		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
 			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
@@ -198,7 +199,9 @@ class MainMenu extends BeatState {
 			}
 		}
 
-		camPoint.y = FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
+		var range:Float = FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1);
+		camPoint.y = FlxMath.lerp(highestY, lowestY, range);
+		bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, range), bg.y, 0.7);
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {

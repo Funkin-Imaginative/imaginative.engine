@@ -165,6 +165,8 @@ class FreeplayMenu extends BeatState {
 		camera.snapToTarget();
 		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
+		bg.x = FlxMath.lerp(0, FlxG.width - bg.width, FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1));
+		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1));
 	}
 	function updateMusicInfoBoxWidth():Void { // is being stupid
 		// var minWidth:Int = 500;
@@ -258,6 +260,9 @@ class FreeplayMenu extends BeatState {
 		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
 		bgColor = bg.blankBg.color = FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1);
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
+		var range:Float = FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1);
+		bg.x = FlxMath.lerp(FlxMath.lerp(0, FlxG.width - bg.width, range), bg.x, 0.7);
+		bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, range), bg.y, 0.7);
 
 		for (i => song in songs.members)
 			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
