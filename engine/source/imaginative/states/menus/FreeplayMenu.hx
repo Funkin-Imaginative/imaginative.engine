@@ -69,10 +69,7 @@ class FreeplayMenu extends BeatState {
 		// Menu elements.
 		bg = new MenuSprite();
 		bg.scrollFactor.set();
-		for (obj in bg) {
-			obj.setUnstretchedGraphicSize(FlxG.width, FlxG.height, false);
-			obj.updateHitbox();
-		}
+		bg.updateScale(1.2);
 		bg.screenCenter();
 		add(bg);
 

@@ -55,8 +55,8 @@ class MainMenu extends BeatState {
 		// Menu elements.
 		bg = new MenuSprite();
 		bgColor = bg.blankBg.color;
-		bg.scrollFactor.set(0.1, 0.1);
-		bg.scale.scale(1.2);
+		bg.scrollFactor.set();
+		bg.updateScale(1.2);
 		bg.screenCenter();
 		add(bg);
 

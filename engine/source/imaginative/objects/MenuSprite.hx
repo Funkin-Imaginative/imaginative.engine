@@ -40,4 +40,11 @@ class MenuSprite extends FlxSpriteGroup {
 		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color - 0xFF646464;
 		return blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
 	}
+
+	inline public function updateScale(x:Float = 1, ?y:Float):Void {
+		for (obj in [blankBg, lineArt]) {
+			obj.scale.set(x, y ?? x);
+			obj.updateHitbox();
+		}
+	}
 }
