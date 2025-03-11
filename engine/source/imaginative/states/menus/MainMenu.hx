@@ -2,6 +2,7 @@ package imaginative.states.menus;
 
 import haxe.macro.Compiler;
 import flixel.effects.FlxFlicker;
+import imaginative.backend.scripting.events.menus.*;
 
 /**
  * This is the main menu... what else were you expecting this to say?
@@ -53,7 +54,8 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new MenuSprite();
+		var event:MenuBackgroundEvent = event('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bgColor = bg.blankBg.color;
 		bg.scrollFactor.set();
 		bg.updateScale(1.2);
@@ -206,10 +208,13 @@ class MainMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		prevSelected = curSelected;
-		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
-		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = event('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevSelected = event.previousValue;
+		curSelected = event.currentValue;
+
+		if (event.playMenuSFX)
+			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
 
 		for (i => item in menuItems.members) {
 			item.playAnim(i == curSelected ? 'selected' : 'idle');
@@ -221,10 +226,12 @@ class MainMenu extends BeatState {
 	function selectCurrent():Void {
 		selectionCooldown(1.1);
 
-		FunkinUtil.playMenuSFX(ConfirmSFX);
-
+		var event:ChoiceEvent = event('onSelectItem', new ChoiceEvent(itemLineUp[curSelected]));
+		if (!event.prevented && event.playMenuSFX)
+			FunkinUtil.playMenuSFX(ConfirmSFX, event.sfxVolume, event.sfxSubFolder);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
-			switch (itemLineUp[curSelected]) {
+			if (!event.prevented)
+			switch (event.choice) {
 				case 'storymode':
 					BeatState.switchState(new StoryMenu());
 				case 'freeplay':
