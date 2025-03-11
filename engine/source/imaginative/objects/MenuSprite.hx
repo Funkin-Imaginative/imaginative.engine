@@ -21,13 +21,13 @@ class MenuSprite extends FlxSpriteGroup {
 	 * @param x The x position.
 	 * @param y The y position.
 	 * @param color FlxColor input.
-	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY, it will use the menuBG color instead.
-	 * @param mod The mod type.
+	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY it will use the menuBG color instead.
+	 * @param imagePathType The mod path type.
 	 */
-	override public function new(x:Float = 0, y:Float = 0, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY) {
+	override public function new(x:Float = 0, y:Float = 0, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, imagePathType:ModType = ANY) {
 		super(x, y);
 
-		lineArt = new FlxSprite().loadImage('$mod:menus/bgs/menuArt');
+		lineArt = new FlxSprite().loadImage('$imagePathType:menus/bgs/menuArt');
 		blankBg = new FlxSprite().makeGraphic(Math.floor(lineArt.width), Math.floor(lineArt.height));
 
 		changeColor(color, funkinColor);
