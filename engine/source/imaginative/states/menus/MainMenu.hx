@@ -76,7 +76,7 @@ class MainMenu extends BeatState {
 			var item:BaseSprite = new BaseSprite(0, 60 + (i * 160), 'menus/main/$name');
 			item.animation.addByPrefix('idle', '$name idle', 24);
 			item.animation.addByPrefix('selected', '$name selected', 24);
-			item.animation.play('idle');
+			item.playAnim('idle');
 			item.centerOffsets();
 			item.centerOrigin();
 			item.screenCenter(X);
@@ -215,7 +215,7 @@ class MainMenu extends BeatState {
 			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 
 		for (i => item in menuItems.members) {
-			item.animation.play(i == curSelected ? 'selected' : 'idle');
+			item.playAnim(i == curSelected ? 'selected' : 'idle');
 			item.centerOffsets();
 			item.centerOrigin();
 		}
