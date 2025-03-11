@@ -36,8 +36,8 @@ class MenuSprite extends FlxSpriteGroup {
 		add(lineArt);
 	}
 
-	inline public function changeColor(color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true):Void {
+	inline public function changeColor(color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true):FlxColor {
 		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color - 0xFF646464;
-		blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
+		return blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
 	}
 }

@@ -67,7 +67,7 @@ class FreeplayMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new MenuSprite(FlxColor.YELLOW);
+		bg = new MenuSprite();
 		bg.scrollFactor.set();
 		for (obj in bg) {
 			obj.setUnstretchedGraphicSize(FlxG.width, FlxG.height, false);
@@ -166,7 +166,7 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[curSelected].text).y
 		);
 		camera.snapToTarget();
-		bg.blankBg.color = songs.members[visualSelected].data.color;
+		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
 	function updateMusicInfoBoxWidth():Void { // is being stupid
@@ -259,7 +259,7 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
 		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
-		bg.blankBg.color = FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1);
+		bgColor = bg.blankBg.color = FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1);
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 
 		for (i => song in songs.members)

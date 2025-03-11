@@ -26,7 +26,6 @@ class MainMenu extends BeatState {
 
 	// Objects in the state.
 	var bg:MenuSprite;
-	var flashBg:MenuSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
 
 	var mainTextsGroup:FlxTypedSpriteGroup<FlxText>;
@@ -54,17 +53,12 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new MenuSprite(FlxColor.YELLOW);
+		bg = new MenuSprite();
+		bgColor = bg.blankBg.color;
 		bg.scrollFactor.set(0.1, 0.1);
 		bg.scale.scale(1.2);
 		bg.screenCenter();
 		add(bg);
-
-		flashBg = new MenuSprite(bg.x, bg.y, FlxColor.MAGENTA);
-		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
-		flashBg.scale.copyFrom(bg.scale);
-		flashBg.visible = false;
-		add(flashBg);
 
 		if (itemLineUp == null || itemLineUp.length < 1)
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
@@ -226,7 +220,6 @@ class MainMenu extends BeatState {
 
 		FunkinUtil.playMenuSFX(ConfirmSFX);
 
-		FlxFlicker.flicker(flashBg, 1.1, 0.6, false);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
 			switch (itemLineUp[curSelected]) {
 				case 'storymode':
@@ -244,6 +237,7 @@ class MainMenu extends BeatState {
 				case 'credits':
 					BeatState.switchState(new CreditsMenu());
 			}
-		});
+			bgColor = bg.changeColor();
+		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
 	}
 }
