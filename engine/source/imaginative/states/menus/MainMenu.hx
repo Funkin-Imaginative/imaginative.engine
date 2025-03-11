@@ -196,7 +196,7 @@ class MainMenu extends BeatState {
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
-					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+					FunkinUtil.playMenuSFX(ScrollSFX, 0.8);
 				} else selectCurrent();
 			}
 		}
@@ -226,7 +226,7 @@ class MainMenu extends BeatState {
 	function selectCurrent():Void {
 		selectionCooldown(1.1);
 
-		var event:ChoiceEvent = event('onSelectItem', new ChoiceEvent(itemLineUp[curSelected]));
+		var event:ChoiceEvent = event('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
 		if (!event.prevented && event.playSFX)
 			FunkinUtil.playMenuSFX(ConfirmSFX, event.sfxVolume, event.sfxSubFolder);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
