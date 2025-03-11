@@ -40,4 +40,16 @@ class MenuSprite extends FlxSpriteGroup {
 		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color - 0xFF646464;
 		blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
 	}
+
+	@:allow(imaginative.backend.music.states.BeatState) var shouldDraw:Bool = true;
+	override public function draw() {
+		if (shouldDraw)
+			super.draw();
+		else {
+			var last:Bool = visible;
+			visible = false;
+			super.draw();
+			visible = last;
+		}
+	}
 }
