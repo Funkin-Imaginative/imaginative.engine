@@ -120,7 +120,7 @@ class FreeplayMenu extends BeatState {
 
 		songNameText = new FlxText(10, 10, boxWidth - 20, 'Song: crAzy');
 		variantText = new FlxText(10, songNameText.y + songNameText.height + 17, boxWidth - 20, 'Variant: Normal');
-		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 20, '< Normal >');
+		difficultyText = new FlxText(10, variantText.y + variantText.height + 30, boxWidth - 20, 'Normal');
 		sideArrowsText = new FlxText(10, difficultyText.y, difficultyText.width, '<                       >');
 		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {
 			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);
