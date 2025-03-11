@@ -238,8 +238,12 @@ class FreeplayMenu extends BeatState {
 				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
 					var song:SongHolder = songs.members[curSelected];
 					menuTimePosition = conductor.time;
-					if (winningIcon != null) winningIcon.playAnim('normal');
+					if (winningIcon != null) {
+						winningIcon.playAnim('normal');
+						winningIcon.preventScaleBop = true;
+					}
 					(winningIcon = song.icon).playAnim('winning');
+					winningIcon.preventScaleBop = false;
 
 					conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 					musicNameText.text = conductor.data.name;
@@ -266,6 +270,11 @@ class FreeplayMenu extends BeatState {
 
 		for (i => song in songs.members)
 			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
+
+		if (FlxG.mouse.pressed)
+			for (i => item in songs.members)
+				if (FlxG.mouse.overlaps(item.icon))
+					item.icon.scale.set(item.icon.spriteOffsets.scale.x * 1.2, item.icon.spriteOffsets.scale.y * 1.2);
 	}
 
 	override public function beatHit(curBeat:Int):Void {
