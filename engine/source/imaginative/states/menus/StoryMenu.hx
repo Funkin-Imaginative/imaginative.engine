@@ -273,8 +273,12 @@ class StoryMenu extends BeatState {
 				changeSelection(levels.length - 1, true);
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CancelSFX);
-				BeatState.switchState(new MainMenu());
+				var event:MenuSFXEvent = event('onLeave', new MenuSFXEvent());
+				if (!event.prevented) {
+					if (event.playSFX)
+						FunkinUtil.playMenuSFX(CancelSFX, event.sfxVolume, event.sfxSubFolder);
+					BeatState.switchState(new MainMenu());
+				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
 				selectCurrent();
@@ -287,10 +291,13 @@ class StoryMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		prevSelected = curSelected;
-		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1);
-		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = event('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevSelected = event.previousValue;
+		curSelected = event.currentValue;
+
+		if (event.playSFX)
+			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
 
 		var level:LevelHolder = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongDisplayListEvent(level.data.songs)).songs.join('\n')}';
@@ -322,10 +329,13 @@ class StoryMenu extends BeatState {
 	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		prevDiff = curDiff;
-		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
-		if (prevDiff != curDiff)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = event('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevDiff = event.previousValue;
+		curDiff = event.currentValue;
+
+		if (event.playSFX)
+			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
 
 		for (diff in diffMap)
 			diff.alpha = 0.0001;
@@ -336,14 +346,18 @@ class StoryMenu extends BeatState {
 	var diffShake:FlxTween;
 	function selectCurrent():Void {
 		canSelect = false;
+		var event:LevelSelectionEvent = event('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, level.data.variants[curDiff]));
+		if (event.prevented) return;
 
-		var level:LevelHolder = levels.members[curSelected];
+		var level:LevelHolder = event.holder;
+		level.scripts.event('onLevelSelect', event);
+		if (event.prevented) return;
 		var levelLocked:Bool = level.isLocked;
 		var diffLocked:Bool = diffHolder.isLocked;
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
+				var time:Float = FunkinUtil.playMenuSFX(CancelSFX, event.sfxVolume, event.sfxSubFolder).time / 1000;
 				if (levelLocked) {
 					var ogX:Float = level.x;
 					levelShake = FlxTween.shake(level, 0.02, time, X, {
@@ -369,8 +383,8 @@ class StoryMenu extends BeatState {
 				if (sprite.extra.get('willHey'))
 					sprite.playAnim('hey', NoDancing);
 
-			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
-				PlayState.renderLevel(level.data, curDiffString, level.data.variants[curDiff]);
+			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX, event.sfxVolume, event.sfxSubFolder).time / 1000, (_:FlxTimer) -> {
+				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
 				BeatState.switchState(new PlayState());
 			});
 		}
