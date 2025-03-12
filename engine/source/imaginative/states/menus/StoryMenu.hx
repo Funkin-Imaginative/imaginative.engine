@@ -346,7 +346,7 @@ class StoryMenu extends BeatState {
 	var diffShake:FlxTween;
 	function selectCurrent():Void {
 		canSelect = false;
-		var event:LevelSelectionEvent = event('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, level.data.variants[curDiff]));
+		var event:LevelSelectionEvent = event('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, levels.members[curSelected].data.variants[curDiff]));
 		if (event.prevented) return;
 
 		var level:LevelHolder = event.holder;
