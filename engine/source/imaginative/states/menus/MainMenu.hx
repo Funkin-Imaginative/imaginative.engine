@@ -243,7 +243,8 @@ class MainMenu extends BeatState {
 				case 'merch':
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 				case 'options':
-					BeatState.switchState(new OptionsMenu());
+					selectionCooldown(0.4); // extend cooldown
+					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(new OptionsMenu()));
 				case 'credits':
 					BeatState.switchState(new CreditsMenu());
 			}
