@@ -1,5 +1,7 @@
 package imaginative.states.menus;
 
+import imaginative.backend.scripting.events.menus.*;
+
 /**
  * The freeplay menu, where you can pick any song!
  */
@@ -67,7 +69,8 @@ class FreeplayMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new MenuSprite();
+		var event:MenuBackgroundEvent = event('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bg.scrollFactor.set();
 		bg.updateScale(1.2);
 		bg.screenCenter();
@@ -216,20 +219,23 @@ class FreeplayMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				if (currentSongAudio == ':MENU:') {
-					FunkinUtil.playMenuSFX(CancelSFX);
-					BeatState.switchState(new MainMenu());
-				} else {
-					winningIcon.playAnim('normal');
-					winningIcon.preventScaleBop = true;
-					currentSongAudio = currentSongVariant = ':MENU:';
-					conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
-						conductor.volume = 0;
-						conductor.playFromTime(menuTimePosition, 0.8);
-						conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
-					});
-					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
-					FlxTween.tween(songPlayingGroup, {x: FlxG.width + 10}, stepTime * 2.5 / 1000, {ease: FlxEase.quadIn});
+				var event:ExitFreeplayEvent = event('onLeave', new ExitFreeplayEvent(currentSongAudio == ':MENU:'));
+				if (!event.prevented) {
+					if (event.stopSongAudio) {
+						event.playMenuSFX(CancelSFX);
+						BeatState.switchState(new MainMenu());
+					} else {
+						winningIcon.playAnim('normal');
+						winningIcon.preventScaleBop = true;
+						currentSongAudio = currentSongVariant = ':MENU:';
+						conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
+							conductor.volume = 0;
+							conductor.playFromTime(menuTimePosition, 0.8);
+							conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
+						});
+						FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
+						FlxTween.tween(songPlayingGroup, {x: FlxG.width + 10}, stepTime * 2.5 / 1000, {ease: FlxEase.quadIn});
+					}
 				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
@@ -263,8 +269,7 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
 		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
-		bgColor = bg.blankBg.color = FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1);
-		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
+		bgColor = bg.changeColor(FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 		var range:Float = FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1);
 		bg.x = FlxMath.lerp(FlxMath.lerp(0, FlxG.width - bg.width, range), bg.x, 0.7);
 		bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, range), bg.y, 0.7);
@@ -286,10 +291,11 @@ class FreeplayMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		prevSelected = curSelected;
-		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, songs.length - 1);
-		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = event('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, songs.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevSelected = event.previousValue;
+		curSelected = event.currentValue;
+		event.playMenuSFX(ScrollSFX);
 
 		var song:SongHolder = songs.members[curSelected];
 		songNameText.text = 'Song: ${song.data.name}';
@@ -308,10 +314,11 @@ class FreeplayMenu extends BeatState {
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		prevDiff = curDiff;
-		curDiff = FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1);
-		if (prevDiff != curDiff)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = event('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevDiff = event.previousValue;
+		curDiff = event.currentValue;
+		event.playMenuSFX(ScrollSFX);
 
 		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[curSelected].data.variants[curDiff])}';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
