@@ -40,8 +40,8 @@ final class LevelSelectionEvent extends MenuSFXEvent {
 	inline function get_isLocked():Bool
 		return holder.isLocked || diffHolder.isLocked;
 
-	override public function new(holder:LevelHolder, diffHolder:DifficultyHolder, levelKey:String, difficultyKey:String, variantKey:String, playSFX:Bool = true, sfxVolume:Float = 0.7) {
-		super(playSFX, sfxVolume);
+	override public function new(holder:LevelHolder, diffHolder:DifficultyHolder, levelKey:String, difficultyKey:String, variantKey:String) {
+		super();
 		this.holder = holder;
 		this.diffHolder = diffHolder;
 		this.levelKey = levelKey;

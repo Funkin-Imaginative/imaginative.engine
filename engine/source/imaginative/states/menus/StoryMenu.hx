@@ -275,8 +275,7 @@ class StoryMenu extends BeatState {
 			if (Controls.back) {
 				var event:MenuSFXEvent = event('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
-					if (event.playSFX)
-						FunkinUtil.playMenuSFX(CancelSFX, event.sfxVolume, event.sfxSubFolder);
+					event.playMenuSFX(CancelSFX);
 					BeatState.switchState(new MainMenu());
 				}
 			}
@@ -295,9 +294,7 @@ class StoryMenu extends BeatState {
 		if (event.prevented) return;
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
-
-		if (event.playSFX)
-			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
+		event.playMenuSFX(ScrollSFX);
 
 		var level:LevelHolder = levels.members[curSelected];
 		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongDisplayListEvent(level.data.songs)).songs.join('\n')}';
@@ -333,9 +330,7 @@ class StoryMenu extends BeatState {
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
-
-		if (event.playSFX)
-			FunkinUtil.playMenuSFX(ScrollSFX, event.sfxVolume, event.sfxSubFolder);
+		event.playMenuSFX(ScrollSFX);
 
 		for (diff in diffMap)
 			diff.alpha = 0.0001;
@@ -357,7 +352,7 @@ class StoryMenu extends BeatState {
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				var time:Float = FunkinUtil.playMenuSFX(CancelSFX, event.sfxVolume, event.sfxSubFolder).time / 1000;
+				var time:Float = event.playMenuSFX(CancelSFX, true).time / 1000;
 				if (levelLocked) {
 					var ogX:Float = level.x;
 					levelShake = FlxTween.shake(level, 0.02, time, X, {
@@ -383,7 +378,7 @@ class StoryMenu extends BeatState {
 				if (sprite.extra.get('willHey'))
 					sprite.playAnim('hey', NoDancing);
 
-			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX, event.sfxVolume, event.sfxSubFolder).time / 1000, (_:FlxTimer) -> {
+			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
 				BeatState.switchState(new PlayState());
 			});
