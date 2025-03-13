@@ -136,7 +136,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		log([for (file in bruh) file.format()], DebugMessage);
 
 		for (char in bruh)
-			for (script in Script.create('${char.type}content/objects/${char.path}'))
+			for (script in Script.create('${char.type}:content/objects/${char.path}'))
 				scripts.add(script);
 
 		scripts.load();

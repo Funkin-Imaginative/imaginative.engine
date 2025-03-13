@@ -49,19 +49,45 @@ class IBeatHelper {
 						beat.measureHit(curTime);
 				}
 			} else
-				reflectCheck(cast member, curTime, timeType);
+				reflectCheck(member, curTime, timeType);
 		}
 	}
 
 	static function reflectCheck(member:Dynamic, curTime:Int, timeType:SongTimeType):Void {
 		if (member is IBeat)
 			iBeatCheck(cast member, curTime, timeType);
-		else
-			functionReflect(member, switch (timeType) {
-				case IsStep: 'stepHit';
-				case IsBeat: 'beatHit';
-				case IsMeasure: 'measureHit';
-			}, [curTime]);
+		else {
+			if (member is FlxTypedGroup) {
+				var group:FlxTypedGroup<Dynamic> = cast member;
+				for (member in group) {
+					if (member is IBeat)
+						iBeatCheck(cast member, curTime, timeType);
+					else
+						functionReflect(member, switch (timeType) {
+							case IsStep: 'stepHit';
+							case IsBeat: 'beatHit';
+							case IsMeasure: 'measureHit';
+						}, [curTime]);
+				}
+			} else if (member is FlxTypedSpriteGroup) {
+				var group:FlxTypedSpriteGroup<Dynamic> = cast member;
+				for (member in group) {
+					if (member is IBeat)
+						iBeatCheck(cast member, curTime, timeType);
+					else
+						functionReflect(member, switch (timeType) {
+							case IsStep: 'stepHit';
+							case IsBeat: 'beatHit';
+							case IsMeasure: 'measureHit';
+						}, [curTime]);
+				}
+			} else
+				functionReflect(member, switch (timeType) {
+					case IsStep: 'stepHit';
+					case IsBeat: 'beatHit';
+					case IsMeasure: 'measureHit';
+				}, [curTime]);
+		}
 	}
 
 	static function functionReflect(member:Dynamic, funcName:String, args:Array<Dynamic>):Void {

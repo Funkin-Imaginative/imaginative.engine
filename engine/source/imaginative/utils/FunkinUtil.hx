@@ -29,15 +29,17 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function addMissingFolders(path:String):Void {
 		var folders:Array<String> = [
-			'content',
-			'content/difficulties',
-			'content/events',
-			'content/objects',
-			'content/objects/characters',
-			'content/objects/icons',
-			'content/songs',
-			'content/stages',
-			'content/states',
+			// content
+				'content/difficulties',
+				'content/events',
+				'content/levels',
+				// objects
+					'content/objects/characters',
+					'content/objects/icons',
+				'content/scripts',
+				'content/songs',
+				'content/stages',
+				'content/states',
 			'fonts',
 			'images',
 			'music',
@@ -53,7 +55,7 @@ class FunkinUtil {
 	/**
 	 * Play's a menu sound effect.
 	 * @param sound The sound.
-	 * @param volume The volume
+	 * @param volume The volume.
 	 * @param subFolder Sub folder path/name.
 	 * @param onComplete FlxG.sound.play's onComplete function.
 	 * @return `FlxSound` ~ The menu sound.
@@ -67,18 +69,19 @@ class FunkinUtil {
 	/**
 	 * Get's the song folder names.
 	 * @param sortOrderByLevel If true, it sort the songs via the order txt.
-	 * @return `Array<String>`
+	 * @param pathType The mod path you want the function to look through.
+	 * @return `Array<ModPath>`
 	 */
-	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true):Array<String> {
-		var results:Array<String> = [];
+	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<ModPath> {
+		var results:Array<ModPath> = [];
 		try {
 			if (sortOrderByLevel)
-				for (name in Paths.readFolderOrderTxt('content/levels', 'json', false))
+				for (name in Paths.readFolderOrderTxt('$pathType:content/levels', 'json', false))
 					for (song in ParseUtil.level(name).songs)
-						results.push(song.folder);
+						results.push('$pathType:${song.folder}');
 		} catch(error:haxe.Exception)
 			log('Missing level json.', WarningMessage);
-		for (folder in Paths.readFolder('content/songs', false))
+		for (folder in Paths.readFolder('$pathType:content/songs', false))
 			if (FilePath.extension(folder) == '')
 				if (!results.contains(folder))
 					results.push(folder);
@@ -90,9 +93,8 @@ class FunkinUtil {
 	 * @param name The song folder name.
 	 * @return `String` ~ The songs display name.
 	 */
-	@:noUsing public static function getSongDisplay(name:String):String
+	@:noUsing inline public static function getSongDisplay(name:String):String
 		return ParseUtil.song(name).name;
-
 	/**
 	 * Returns the difficulty display name.
 	 * @param diff The difficulty json name.
@@ -100,18 +102,13 @@ class FunkinUtil {
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
 		return ParseUtil.difficulty(diff).display ?? diff;
-
 	/**
 	 * Returns the default variant of a difficulty
 	 * @param diff The difficulty json name.
 	 * @return `String` ~ The difficulties default variant.
 	 */
-	@:noUsing inline public static function getDifficultyVariant(diff:String):String {
-		try {
-			return ParseUtil.difficulty(diff).variant ?? 'normal';
-		} catch(error:haxe.Exception)
-			return 'normal';
-	}
+	@:noUsing inline public static function getDifficultyVariant(diff:String):String
+		return ParseUtil.difficulty(diff).variant ?? 'normal';
 
 	/**
 	 * Is basically an array's split function but each array slot is trimmed.

@@ -1,6 +1,6 @@
 package imaginative.utils;
 
-typedef ObjectData = {
+typedef ObjectSetupData = {
 	/**
 	 * Position value.
 	 */
@@ -24,13 +24,14 @@ typedef AssetTyping = {
 	 * Texture type.
 	 */
 	@:enum @:default(IsUnknown) var type:TextureType;
+	/**
+	 * Height and width dimensions.
+	 * Only if texture type is a graphic.
+	 */
+	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
 }
 
 typedef AnimationTyping = {
-	/**
-	 * The asset typing.
-	 */
-	var ?asset:AssetTyping;
 	/**
 	 * Name of the animation.
 	 */
@@ -39,11 +40,6 @@ typedef AnimationTyping = {
 	 * Animation key on data method.
 	 */
 	var ?tag:String;
-	/**
-	 * Height and width dimensions.
-	 * Only if texture type is a graphic.
-	 */
-	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
@@ -90,7 +86,7 @@ typedef SpriteData = {
 	/**
 	 * The offset data.
 	 */
-	var ?offsets:ObjectData;
+	var ?offsets:ObjectSetupData;
 	/**
 	 * The asset typing.
 	 */
@@ -102,7 +98,7 @@ typedef SpriteData = {
 	/**
 	 * Start values.
 	 */
-	var ?starting:ObjectData;
+	var ?starting:ObjectSetupData;
 	/**
 	 * If true, the swap anim var can go off.
 	 * For characters and icons it always on.
@@ -226,24 +222,20 @@ class SpriteUtil {
 	}
 
 	/**
-	 * Returns a fnf bg sprite.
-	 * @param sprite The sprite to affect.
-	 * @param color FlxColor input.
-	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY, it will use the menuBG color instead.
-	 * @param mod The mod type.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * Allows you to set a graphic size (ex: 150x150), with proper hitbox without a stretched sprite.
+	 * @param sprite Sprite to apply the new graphic size to
+	 * @param width Width
+	 * @param height Height
+	 * @param fill Whenever the sprite should fill instead of shrinking (true)
+	 * @param maxScale Maximum scale (0 / none)
+	 * @author @CodenameCrew
 	 */
-	inline public static function getBGSprite<T:FlxSprite>(sprite:T, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, mod:ModType = ANY):T {
-		sprite.loadImage('$mod:menus/bgs/menuArt'); // wip lol
-		// sprite.makeGraphic(Math.floor(sprite.width), Math.floor(sprite.height));
-		sprite.color = funkinColor ? switch (color) {
-			case FlxColor.YELLOW: 0xFFFAE868;
-			case FlxColor.BLUE: 0xFF9272FF;
-			case FlxColor.MAGENTA: 0xFFF4709B;
-			case FlxColor.GRAY: 0xFFE1E1E1;
-			default: color;
-		} : color;
-		return sprite;
+	inline public static function setUnstretchedGraphicSize(sprite:FlxSprite, width:Int, height:Int, fill:Bool = true, maxScale:Float = 0) {
+		sprite.setGraphicSize(width, height);
+		sprite.updateHitbox();
+		var nScale = (fill ? Math.max : Math.min)(sprite.scale.x, sprite.scale.y);
+		if (maxScale > 0 && nScale > maxScale) nScale = maxScale;
+		sprite.scale.set(nScale, nScale);
 	}
 
 	/**

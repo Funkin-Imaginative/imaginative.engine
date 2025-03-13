@@ -89,6 +89,7 @@ import imaginative.objects.gameplay.arrows.Strum;
 import imaginative.objects.gameplay.arrows.Sustain;
 import imaginative.objects.holders.DifficultyHolder;
 import imaginative.objects.holders.LevelHolder;
+import imaginative.objects.holders.SongHolder;
 import imaginative.objects.ui.HealthIcon;
 import imaginative.objects.ui.SpriteText;
 import imaginative.states.PlayState;
