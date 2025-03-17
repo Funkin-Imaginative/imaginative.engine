@@ -681,7 +681,7 @@ class PlayState extends BeatState {
 		var event:ScriptEvent = scripts.event('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
-			scripts.event('onDrawPost', event);
+			scripts.call('onDrawPost');
 		}
 	}
 

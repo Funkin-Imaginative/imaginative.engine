@@ -273,7 +273,7 @@ class StoryMenu extends BeatState {
 				changeSelection(levels.length - 1, true);
 
 			if (Controls.back) {
-				var event:MenuSFXEvent = event('onLeave', new MenuSFXEvent());
+				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
 					event.playMenuSFX(CancelSFX);
 					BeatState.switchState(new MainMenu());
@@ -290,7 +290,7 @@ class StoryMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		var event:SelectionChangeEvent = event('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
@@ -326,7 +326,7 @@ class StoryMenu extends BeatState {
 	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		var event:SelectionChangeEvent = event('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
@@ -341,7 +341,7 @@ class StoryMenu extends BeatState {
 	var diffShake:FlxTween;
 	function selectCurrent():Void {
 		canSelect = false;
-		var event:LevelSelectionEvent = event('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, levels.members[curSelected].data.variants[curDiff]));
+		var event:LevelSelectionEvent = eventCall('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, levels.members[curSelected].data.variants[curDiff]));
 		if (event.prevented) return;
 
 		var level:LevelHolder = event.holder;
