@@ -1,8 +1,8 @@
-package imaginative.backend.scripting.events.objects.gameplay;
+package imaginative.backend.scripting.events.gameplay;
 
-final class SustainMissedEvent extends PlayAnimEvent {
+final class NoteMissedEvent extends PlayAnimEvent {
 	/**
-	 * The field the sustain is assigned to.
+	 * The field the note is assigned to.
 	 */
 	public var field:ArrowField;
 	/**
@@ -10,13 +10,9 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	 */
 	public var strum:Strum;
 	/**
-	 * The parent note instance.
+	 * The note instance.
 	 */
 	public var note:Note;
-	/**
-	 * The sustain instance.
-	 */
-	public var sustain:Sustain;
 
 	/**
 	 * The strum lane index.
@@ -35,7 +31,7 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	public var stopStrumPress:Bool;
 
 	/**
-	 * The first assigned actor attached to the sustain.
+	 * The first assigned actor attached to the note.
 	 */
 	public var character(get, set):Character;
 	inline function get_character():Character
@@ -43,21 +39,20 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	inline function set_character(value:Character):Character
 		return characters[0] = value;
 	/**
-	 * The assigned actors attached to the sustain.
+	 * The assigned actors attached to the note.
 	 */
 	public var characters(get, set):Array<Character>;
 	inline function get_characters():Array<Character>
-		return sustain.assignedActors;
+		return note.assignedActors;
 	inline function set_characters(value:Array<Character>):Array<Character>
-		return sustain.assignedActors = value;
+		return note.assignedActors = value;
 
-	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
+	override public function new(note:Note, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
 		super('', force, HasMissed, suffix);
-		this.sustain = sustain;
-		this.id = id ??= sustain.id;
-		this.field = field ??= sustain.setField;
+		this.note = note;
+		this.id = id ??= note.id;
+		this.field = field ??= note.setField;
 		this.stopStrumPress = stopStrumPress;
-		strum = sustain.setStrum;
-		note = sustain.setHead;
+		strum = note.setStrum;
 	}
 }

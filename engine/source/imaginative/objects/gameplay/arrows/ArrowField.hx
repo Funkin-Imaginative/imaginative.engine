@@ -1,6 +1,6 @@
 package imaginative.objects.gameplay.arrows;
 
-import imaginative.backend.scripting.events.objects.gameplay.*;
+import imaginative.backend.scripting.events.gameplay.*;
 import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
 

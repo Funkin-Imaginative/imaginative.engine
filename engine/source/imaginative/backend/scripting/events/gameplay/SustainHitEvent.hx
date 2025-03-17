@@ -1,8 +1,8 @@
-package imaginative.backend.scripting.events.objects.gameplay;
+package imaginative.backend.scripting.events.gameplay;
 
-final class NoteHitEvent extends PlayAnimEvent {
+final class SustainHitEvent extends PlayAnimEvent {
 	/**
-	 * The field the note is assigned to.
+	 * The field the sustain is assigned to.
 	 */
 	public var field:ArrowField;
 	/**
@@ -10,9 +10,13 @@ final class NoteHitEvent extends PlayAnimEvent {
 	 */
 	public var strum:Strum;
 	/**
-	 * The note instance.
+	 * The parent note instance.
 	 */
 	public var note:Note;
+	/**
+	 * The sustain instance.
+	 */
+	public var sustain:Sustain;
 
 	/**
 	 * The strum lane index.
@@ -26,20 +30,12 @@ final class NoteHitEvent extends PlayAnimEvent {
 		return id % field.strumCount;
 
 	/**
-	 * If true, it creates a splash instance.
-	 */
-	public var createSplash:Bool = true;
-	/**
-	 * If true, it creates a hold cover instance.
-	 */
-	public var createHoldCover:Bool;
-	/**
 	 * If true, it prevents the comfirm animation from playing on the target strum.
 	 */
 	public var stopStrumConfirm:Bool = false;
 
 	/**
-	 * The first assigned actor attached to the note.
+	 * The first assigned actor attached to the sustain.
 	 */
 	public var character(get, set):Character;
 	inline function get_character():Character
@@ -47,20 +43,20 @@ final class NoteHitEvent extends PlayAnimEvent {
 	inline function set_character(value:Character):Character
 		return characters[0] = value;
 	/**
-	 * The assigned actors attached to the note.
+	 * The assigned actors attached to the sustain.
 	 */
 	public var characters(get, set):Array<Character>;
 	inline function get_characters():Array<Character>
-		return note.assignedActors;
+		return sustain.assignedActors;
 	inline function set_characters(value:Array<Character>):Array<Character>
-		return note.assignedActors = value;
+		return sustain.assignedActors = value;
 
-	override public function new(note:Note, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
-		createHoldCover = note.length != 0;
+	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
 		super('', force, IsSinging, suffix);
-		this.note = note;
-		this.id = id ??= note.id;
-		this.field = field ??= note.setField;
-		strum = note.setStrum;
+		this.sustain = sustain;
+		this.id = id ??= sustain.id;
+		this.field = field ??= sustain.setField;
+		strum = sustain.setStrum;
+		note = sustain.setHead;
 	}
 }

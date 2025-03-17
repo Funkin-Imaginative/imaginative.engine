@@ -1,4 +1,4 @@
-package imaginative.backend.scripting.events.objects.gameplay;
+package imaginative.backend.scripting.events.gameplay;
 
 class FieldInputEvent extends ScriptEvent {
 	/**
