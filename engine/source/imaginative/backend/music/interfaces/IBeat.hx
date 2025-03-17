@@ -34,3 +34,39 @@ interface IBeat {
 	 */
 	function measureHit(curMeasure:Int):Void;
 }
+
+class IBeatHelper {
+	public static function iBeatCheck(member:FlxBasic, curTime:Int, timeType:SongTimeType):Void {
+		if (member != null) {
+			if (member is IBeat) {
+				var beat:IBeat = cast(member, IBeat);
+				switch (timeType) {
+					case IsStep:
+						beat.stepHit(curTime);
+					case IsBeat:
+						beat.beatHit(curTime);
+					case IsMeasure:
+						beat.measureHit(curTime);
+				}
+			} else
+				reflectCheck(cast member, curTime, timeType);
+		}
+	}
+
+	static function reflectCheck(member:Dynamic, curTime:Int, timeType:SongTimeType):Void {
+		if (member is IBeat)
+			iBeatCheck(cast member, curTime, timeType);
+		else
+			functionReflect(member, switch (timeType) {
+				case IsStep: 'stepHit';
+				case IsBeat: 'beatHit';
+				case IsMeasure: 'measureHit';
+			}, [curTime]);
+	}
+
+	static function functionReflect(member:Dynamic, funcName:String, args:Array<Dynamic>):Void {
+		var func = Reflect.getProperty(member, funcName);
+		if (Reflect.isFunction(func))
+			Reflect.callMethod(null, func, args);
+	}
+}
