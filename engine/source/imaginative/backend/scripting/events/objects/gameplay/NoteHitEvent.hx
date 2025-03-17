@@ -32,7 +32,7 @@ final class NoteHitEvent extends PlayAnimEvent {
 	/**
 	 * If true, it creates a hold cover instance.
 	 */
-	public var createHoldCover:Bool = note.length != 0;
+	public var createHoldCover:Bool;
 	/**
 	 * If true, it prevents the comfirm animation from playing on the target strum.
 	 */
@@ -56,6 +56,7 @@ final class NoteHitEvent extends PlayAnimEvent {
 		return note.assignedActors = value;
 
 	override public function new(note:Note, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
+		createHoldCover = note.length != 0;
 		super('', force, IsSinging, suffix);
 		this.note = note;
 		this.id = id ??= note.id;
