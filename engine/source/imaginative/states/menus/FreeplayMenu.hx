@@ -30,9 +30,9 @@ class FreeplayMenu extends BeatState {
 	static var curDiff:Int = 0;
 	var emptyDiffList(default, null):Bool = false;
 
-	var menuTimePosition:Float = 0; // last known menu song time
-	var currentSongAudio:String = ':MENU:'; // using ":" since they can't be used in file/folder names
-	var currentSongVariant:String = ':MENU:'; // for variants, changes to ":MENU:"
+	static var menuTimePosition:Float = 0; // last known menu song time
+	static var currentSongAudio:String = ':MENU:'; // using ":" since they can't be used in file/folder names
+	static var currentSongVariant:String = ':MENU:'; // for variants, changes to ":MENU:"
 	var winningIcon:HealthIcon; // keeps track of the icon set to the winning animation so it can be reset
 
 	// Objects in the state.
@@ -219,22 +219,22 @@ class FreeplayMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				var event:ExitFreeplayEvent = event('onLeave', new ExitFreeplayEvent(currentSongAudio == ':MENU:'));
+				var event:ExitFreeplayEvent = event('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
-						event.playMenuSFX(CancelSFX);
-						BeatState.switchState(new MainMenu());
-					} else {
 						winningIcon.playAnim('normal');
 						winningIcon.preventScaleBop = true;
 						currentSongAudio = currentSongVariant = ':MENU:';
 						conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
-							conductor.volume = 0;
-							conductor.playFromTime(menuTimePosition, 0.8);
+							conductor.playFromTime(menuTimePosition, 0);
 							conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
 						});
 						FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
 						FlxTween.tween(songPlayingGroup, {x: FlxG.width + 10}, stepTime * 2.5 / 1000, {ease: FlxEase.quadIn});
+						call('onStopSongPreview');
+					} else {
+						event.playMenuSFX(CancelSFX);
+						BeatState.switchState(new MainMenu());
 					}
 				}
 			}
@@ -242,25 +242,31 @@ class FreeplayMenu extends BeatState {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else if (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]) {
-					var song:SongHolder = songs.members[curSelected];
-					menuTimePosition = conductor.time;
-					if (winningIcon != null) {
-						winningIcon.playAnim('normal');
-						winningIcon.preventScaleBop = true;
-					}
-					(winningIcon = song.icon).playAnim('winning');
-					winningIcon.preventScaleBop = false;
+				} else {
+					var event:PreviewSongEvent = event('onPlaySongPreview', new PreviewSongEvent(currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]));
+					if (!event.prevented) {
+						if (event.playPreview) {
+							var song:SongHolder = songs.members[curSelected];
+							menuTimePosition = conductor.time;
+							if (winningIcon != null) {
+								winningIcon.playAnim('normal');
+								winningIcon.preventScaleBop = true;
+							}
+							(winningIcon = song.icon).playAnim('winning');
+							winningIcon.preventScaleBop = false;
 
-					conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
-					musicNameText.text = conductor.data.name;
-					artistText.text = 'By: ${conductor.data.artist}';
-					songBpmText.text = '${conductor.data.bpm} BPM';
-					songSigText.text = conductor.data.signature.join(' / ');
-					updateMusicInfoBoxWidth();
-					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
-					FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
-				} else selectCurrent();
+							event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
+							musicNameText.text = conductor.data.name;
+							artistText.text = 'By: ${conductor.data.artist}';
+							songBpmText.text = '${conductor.data.bpm} BPM';
+							songSigText.text = conductor.data.signature.join(' / ');
+							updateMusicInfoBoxWidth();
+							FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
+							FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
+							this.event('onSongPreview', event);
+						} else selectCurrent();
+					}
+				}
 			}
 		}
 
@@ -329,14 +335,18 @@ class FreeplayMenu extends BeatState {
 	var songShake:FlxTween;
 	function selectCurrent():Void {
 		canSelect = false;
+		var event:SongSelectionEvent = event('onSongSelect', new SongSelectionEvent(songs.members[curSelected], diffMap[curDiffString], songs.members[curSelected].data.name, curDiffString, songs.members[curSelected].data.variants[curDiff]));
+		if (event.prevented) return;
 
-		var song:SongHolder = songs.members[curSelected];
+		var song:SongHolder = event.holder;
+		song.scripts.event('onSongSelect', event);
+		if (event.prevented) return;
 		var songLocked:Bool = song.isLocked;
-		var diffLocked:Bool = diffMap[curDiffString].isLocked;
+		var diffLocked:Bool = event.diffHolder.isLocked;
 
 		if (songLocked || diffLocked) {
 			if (songShake == null) {
-				var time:Float = FunkinUtil.playMenuSFX(CancelSFX).time / 1000;
+				var time:Float = event.playMenuSFX(CancelSFX, true).time / 1000;
 				var ogX:Float = song.text.x;
 				song.icon.playAnim('losing');
 				songShake = FlxTween.shake(song.text, 0.02, time, X, {
@@ -349,8 +359,8 @@ class FreeplayMenu extends BeatState {
 				selectionCooldown(time);
 			}
 		} else {
-			new FlxTimer().start(FunkinUtil.playMenuSFX(ConfirmSFX).time / 1000, (_:FlxTimer) -> {
-				PlayState.renderSong(song.data.folder, curDiffString, song.data.variants[curDiff]/* , playAsEnemy, p2AsEnemy */);
+			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
+				PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
 				BeatState.switchState(new PlayState());
 			});
 		}
