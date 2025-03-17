@@ -32,7 +32,38 @@ class PlayerStats {
 	 */
 	public var breaks:Int = 0;
 
-	@:allow(imaginative.backend.gameplay.Scoring) function new() {}
+	public function new() {}
+
+	/**
+	 * Add's on the stats information from this field to another.
+	 * @param stats The stats to add to.
+	 */
+	inline public function addTo(stats:PlayerStats):Void {
+		stats.accuracy += accuracy;
+		stats.hits += hits;
+		stats.score += score;
+		stats.combo += combo;
+		stats.misses += misses;
+		stats.breaks += breaks;
+	}
+	/**
+	 * Add's from the stats information from another field to this one.
+	 * @param stats The stats to add from.
+	 */
+	inline public function addFrom(stats:PlayerStats):Void {
+		accuracy += stats.accuracy;
+		hits += stats.hits;
+		score += stats.score;
+		combo += stats.combo;
+		misses += stats.misses;
+		breaks += stats.breaks;
+	}
+
+	/**
+	 * Reset's all data within the class.
+	 */
+	inline public function reset():Void
+		accuracy = hits = score = combo = misses = breaks = 0;
 }
 
 class Scoring {

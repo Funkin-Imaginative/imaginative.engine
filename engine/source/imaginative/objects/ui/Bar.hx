@@ -99,7 +99,14 @@ class Bar extends FlxBar {
 		super(x, y, direction, width, height, parentRef, variable, min, max, showBorder);
 		blankColors = new BarColors(this, true);
 		colors = new BarColors(this);
-		update(0);
+		update(0); updateBar();
+	}
+
+	override function updateValueFromParent():Void {
+		if (parent is IScript) // script support
+			value = cast(parent, IScript).get(parentVariable, value);
+		else
+			super.updateValueFromParent();
 	}
 
 	override public function updateBar():Void {
