@@ -15,6 +15,7 @@ class StartScreen extends BeatState {
 	var warnText:FlxText;
 
 	override public function create():Void {
+		Conductor.init();
 		super.create();
 		if (!conductor.playing)
 			conductor.loadMusic('lunchbox', 0, (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
