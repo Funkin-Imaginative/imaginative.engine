@@ -200,20 +200,15 @@ class BeatState extends FlxState /* implements IBeat */ {
 
 	override public function create():Void {
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Conductor', FUNCTION(() ->
-			if (conductor == Conductor.menu) return 'Menu';
-			else if (conductor == Conductor.song) return 'Song';
-			else if (conductor == Conductor.charter) return 'Charter';
-			else return 'Unknown'
-		));
-		FlxG.game.debugger.watch.add('Artist',       FUNCTION(() -> return                conductor.data.artist));
-		FlxG.game.debugger.watch.add('Song',         FUNCTION(() -> return                  conductor.data.name));
-		FlxG.game.debugger.watch.add('Time',         FUNCTION(() -> return                                 time));
-		FlxG.game.debugger.watch.add('Bpm',          FUNCTION(() -> return                                  bpm));
-		FlxG.game.debugger.watch.add('Signature',    FUNCTION(() -> return     '$beatsPerMeasure/$stepsPerBeat'));
-		FlxG.game.debugger.watch.add('Step',         FUNCTION(() -> return                         curStepFloat));
-		FlxG.game.debugger.watch.add('Beat',         FUNCTION(() -> return                         curBeatFloat));
-		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                      curMeasureFloat));
+		FlxG.game.debugger.watch.add('Conductor',    FUNCTION(() -> return                        conductor.id));
+		FlxG.game.debugger.watch.add('Artist',       FUNCTION(() -> return               conductor.data.artist));
+		FlxG.game.debugger.watch.add('Song',         FUNCTION(() -> return                 conductor.data.name));
+		FlxG.game.debugger.watch.add('Time',         FUNCTION(() -> return                                time));
+		FlxG.game.debugger.watch.add('Bpm',          FUNCTION(() -> return                                 bpm));
+		FlxG.game.debugger.watch.add('Signature',    FUNCTION(() -> return    '$beatsPerMeasure/$stepsPerBeat'));
+		FlxG.game.debugger.watch.add('Step',         FUNCTION(() -> return                        curStepFloat));
+		FlxG.game.debugger.watch.add('Beat',         FUNCTION(() -> return                        curBeatFloat));
+		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                     curMeasureFloat));
 		#end
 
 		Conductor.beatStates.push(this);

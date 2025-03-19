@@ -65,10 +65,16 @@ enum abstract SongTimeType(String) from String to String {
 class Conductor implements IFlxDestroyable implements IBeat {
 	@:allow(imaginative.states.StartScreen)
 	static function init():Void {
-		menu = new Conductor();
-		song = new Conductor();
-		charter = new Conductor();
+		menu = new Conductor('Menu');
+		song = new Conductor('Song');
+		charter = new Conductor('Charter');
 	}
+
+	/**
+	 * The conductor id.
+	 * This is completely optional and is only used in the debug console.
+	 */
+	public var id(default, null):String;
 
 	// FlxSignals.
 	/**
@@ -294,7 +300,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var bpmChanges(default, null):Array<BPMChange> = [];
 
-	public function new() {
+	/**
+	 * Creates a new conductor instance.
+	 * @param id This is completely optional and is only used in the debug console.
+	 */
+	public function new(?id:String = 'Unknown') {
+		this.id = id;
 		soundGroup = new FlxSoundGroup();
 
 		audio = FlxG.sound.list.add(new FlxSound());

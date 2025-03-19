@@ -54,6 +54,10 @@ class StoryMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
+		#if FLX_DEBUG
+		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return    prevSelected));
+		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return     curSelected));
+		#end
 		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
