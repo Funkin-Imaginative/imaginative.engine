@@ -1,7 +1,6 @@
 package imaginative.objects;
 
-import imaginative.backend.scripting.events.objects.BopEvent;
-import imaginative.backend.scripting.events.objects.PlaySpecialAnimEvent;
+import imaginative.backend.scripting.events.objects.*;
 
 typedef BeatData = {
 	/**
@@ -96,7 +95,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			if (animContext != IsDancing)
 				tryDance();
 		}
-		super.update(elapsed);
+		super_update(elapsed);
+		if (_update != null)
+			_update(elapsed);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	/**
@@ -182,7 +184,8 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			tryDance();
 			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
-		scripts.call('beatHit', [curBeat]);
+		if (type != IsHealthIcon)
+			scripts.call('beatHit', [curBeat]);
 	}
 
 	/**

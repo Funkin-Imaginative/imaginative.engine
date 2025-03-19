@@ -661,7 +661,7 @@ class PlayState extends BeatState {
 					songStarted = true;
 			}, countdownLength + 1);
 		}
-		conductor.play(-beatTime * (countdownLength + 1));
+		conductor.playFromTime(-beatTime * (countdownLength + 1));
 	}
 
 	function endSong():Void {
@@ -682,9 +682,11 @@ class PlayState extends BeatState {
 	}
 
 	override public function draw():Void {
-		var event:ScriptEvent = scripts.event('draw', new ScriptEvent());
-		if (!event.prevented) super.draw();
-		scripts.event('drawPost', event);
+		var event:ScriptEvent = scripts.event('onDraw', new ScriptEvent());
+		if (!event.prevented) {
+			super.draw();
+			scripts.call('onDrawPost');
+		}
 	}
 
 	override public function onFocus():Void {

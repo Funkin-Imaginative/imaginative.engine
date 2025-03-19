@@ -1,6 +1,6 @@
-package imaginative.backend.scripting.events.menus.story;
+package imaginative.backend.scripting.events.menus;
 
-final class SongListEvent extends ScriptEvent {
+final class SongDisplayListEvent extends ScriptEvent {
 	/**
 	 * States if the level has been played already.
 	 */

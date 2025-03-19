@@ -157,7 +157,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param def If it's null then return this.
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
-	inline public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
 			return stateScripts.call(func, args, def);
 		return def;
@@ -168,7 +168,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
-	inline public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
 			return stateScripts.event(func, event);
 		return event;
@@ -220,18 +220,18 @@ class BeatState extends FlxState /* implements IBeat */ {
 		persistentUpdate = true;
 		loadScript();
 		super.create();
-		call('create');
+		scriptCall('create');
 	}
 	override public function createPost():Void {
 		super.createPost();
-		call('createPost');
+		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
-			call('preUpdate', [elapsed]);
+			scriptCall('preUpdate', [elapsed]);
 			update(elapsed);
-			call('updatePost', [elapsed]);
+			scriptCall('updatePost', [elapsed]);
 		}
 		if (_requestSubStateReset) {
 			_requestSubStateReset = false;
@@ -241,16 +241,24 @@ class BeatState extends FlxState /* implements IBeat */ {
 			subState.tryUpdate(elapsed);
 	}
 	override public function update(elapsed:Float):Void {
-		call('update', [elapsed]);
+		scriptCall('update', [elapsed]);
 		super.update(elapsed);
 	}
 
+	override public function draw():Void {
+		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
+		if (!event.prevented) {
+			super.draw();
+			scriptCall('onDrawPost');
+		}
+	}
+
 	override public function openSubState(SubState:FlxSubState):Void {
-		call('openingSubState', [SubState]);
+		scriptCall('openingSubState', [SubState]);
 		super.openSubState(SubState);
 	}
 	override public function closeSubState():Void {
-		call('closingSubState', [subState]);
+		scriptCall('closingSubState', [subState]);
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
@@ -263,11 +271,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 
 	override public function onFocus():Void {
 		super.onFocus();
-		call('onFocus');
+		scriptCall('onFocus');
 	}
 	override public function onFocusLost():Void {
 		super.onFocusLost();
-		call('onFocusLost');
+		scriptCall('onFocusLost');
 	}
 
 	/**
@@ -277,7 +285,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
-		call('stepHit', [curStep]);
+		scriptCall('stepHit', [curStep]);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -286,7 +294,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
-		call('beatHit', [curBeat]);
+		scriptCall('beatHit', [curBeat]);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -295,7 +303,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
-		call('measureHit', [curMeasure]);
+		scriptCall('measureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {

@@ -97,6 +97,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Dispatches when the music ends.
 	 */
 	public var onComplete(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
+	/**
+	 * Same as above but this is a one time use.
+	 * As it kills itself after it's called.
+	 */
 	public var _onComplete:ScriptEvent->Void;
 
 	// Main Conductors.
@@ -298,8 +302,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		audio.onComplete = () -> {
 			var event:ScriptEvent = new ScriptEvent();
 			onComplete.dispatch(event);
-			if (_onComplete != null)
+			if (_onComplete != null) {
 				_onComplete(event);
+				_onComplete = null;
+			}
 		}
 
 		FlxG.signals.preUpdate.add(update);
@@ -315,15 +321,30 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Play's the conductor audio.
-	 * @param startTime The song starting time.
+	 * An internal function for playing the conductor audio.
 	 */
-	inline public function play(startTime:Float = 0):Void {
-		time = startTime;
+	inline function _play():Void {
 		if (!autoSetTime)
 			for (sound in soundGroup.sounds)
 				sound.play(time);
 		playing = true;
+	}
+	/**
+	 * Play's the conductor audio from a specified time of your choosing.
+	 * @param startTime The song starting time.
+	 * @param startVolume The song starting volume.
+	 */
+	inline public function playFromTime(startTime:Float = 0, startVolume:Float = 1):Void {
+		time = startTime;
+		play(startVolume);
+	}
+	/**
+	 * Play's the conductor audio.
+	 * @param startVolume The song starting volume.
+	 */
+	inline public function play(startVolume:Float = 1):Void {
+		volume = startVolume;
+		_play();
 	}
 
 	/**
@@ -373,6 +394,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	var fadeTween:FlxTween;
 	/**
 	 * Fades in the conductor audio.
+	 * Note: Always starts from 0.
 	 * @param duration The amount of time the fade in should take.
 	 * @param to The value to tween to.
 	 */
@@ -381,7 +403,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			play();
 
 		stopFade();
-		fadeTween = FlxTween.num(volume, to, duration, {onComplete: onComplete}, (value:Float) -> volume = value);
+		fadeTween = FlxTween.num(0, to, duration, {onComplete: onComplete}, (value:Float) -> volume = value);
 	}
 	/**
 	 * Fades out the conductor audio.
@@ -393,7 +415,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		fadeTween = FlxTween.num(volume, to, duration, {onComplete: onComplete}, (value:Float) -> volume = value);
 	}
 	/**
-	 * Stops the fade tween dead in it's tracks!
+	 * Stops the fade tween dead in it's tracks.
 	 * @param returnValue Do you wish to have the conductor volume return to a different value?
 	 */
 	inline public function stopFade(?returnValue:Float):Void {
@@ -406,16 +428,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Sets the music it should play.
 	 * @param music The name of the audio file.
-	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
+	public function loadMusic(music:ModPath, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
 
 		audio.loadEmbedded(Paths.music(music), true);
-		FlxG.sound.loadHelper(audio, volume, soundGroup);
+		FlxG.sound.loadHelper(audio, 1, soundGroup);
 		audio.persist = true;
 
 		data = getMetadata('${music.type}:music/${music.path}');
@@ -427,7 +448,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Sets the song it should play.
+	 * Sets the song inst it should play.
 	 * @param song The name of the song.
 	 * @param variant The variant of the song to play.
 	 * @param afterLoad Function that runs after the audio has loaded.
@@ -452,11 +473,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Add's an extra music track to run.
 	 * @param music The name of the audio file.
-	 * @param volume What should the volume be?
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added audio track.
 	 */
-	public function addExtraAudio(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):FlxSound {
+	public function addExtraAudio(music:ModPath, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.music(music);
 		if (!Paths.fileExists(file)) {
 			log('Failed to find audio "${music.format()}".', WarningMessage);
@@ -467,7 +487,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		music.autoDestroy = false; // jic
 
 		music.loadEmbedded(file, true);
-		FlxG.sound.loadHelper(music, audio.volume, soundGroup);
+		FlxG.sound.loadHelper(music, 1, soundGroup);
 		music.persist = audio.persist;
 
 		extra.push(music);
@@ -495,13 +515,72 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		vocals.autoDestroy = false; // jic
 
 		vocals.loadEmbedded(file);
-		FlxG.sound.loadHelper(vocals, audio.volume, soundGroup);
+		FlxG.sound.loadHelper(vocals, 1, soundGroup);
 		vocals.persist = audio.persist;
 
 		extra.push(vocals);
 		if (afterLoad != null)
 			afterLoad(vocals);
 		return vocals;
+	}
+
+	/**
+	 * Sets the song it should play.
+	 * @param song The name of the song.
+	 * @param difficulty The difficulty of to chart load from.
+	 * @param variant The variant of the song to play.
+	 * @param afterLoad Function that runs after the audio has loaded.
+	 */
+	public function loadFullSong(song:String, difficulty:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Null<imaginative.states.editors.ChartEditor.ChartData> {
+		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
+		loadSong(song, variant, (_:FlxSound) -> {
+			try {
+				var tracks:Array<FlxSound> = [];
+				var vocalSuffixes:Array<String> = [];
+				chart = ParseUtil.chart(song, difficulty, variant);
+				for (base in chart.characters) {
+					var charVocals:String = null;
+					try {
+						charVocals = ParseUtil.object('characters/${base.name}', IsCharacterSprite).character.vocals;
+					} catch(error:haxe.Exception) {}
+					var suffix:String = base.vocals ?? charVocals ?? base.tag; // since charVocals can be name, i'ma just go with this
+					if (!vocalSuffixes.contains(suffix))
+						vocalSuffixes.push(suffix);
+				}
+				for (suffix in vocalSuffixes)
+					tracks.push(addVocalTrack(song, suffix, variant));
+				// loads main suffixes
+				if (tracks.empty()) {
+					var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
+					if (enemyTrack != null)
+						tracks.push(enemyTrack);
+					var playerTrack:FlxSound = addVocalTrack(song, 'Player', variant);
+					if (playerTrack != null)
+						tracks.push(playerTrack);
+				}
+				// loads general track
+				if (tracks.empty())
+					addVocalTrack(song, '', variant);
+			} catch(error:haxe.Exception) {
+				log('Chart parse for song "$song"${variant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed.', ErrorMessage);
+
+				var tracks:Array<FlxSound> = [];
+				// loads main suffixes
+				var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
+				if (enemyTrack != null)
+					tracks.push(enemyTrack);
+				var playerTrack:FlxSound = addVocalTrack(song, 'Player', variant);
+				if (playerTrack != null)
+					tracks.push(playerTrack);
+				// loads general track
+				if (tracks.empty())
+					addVocalTrack(song, '', variant);
+			}
+
+			if (afterLoad != null)
+				afterLoad(_);
+		});
+		return chart;
 	}
 
 	/**

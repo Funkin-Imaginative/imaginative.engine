@@ -13,50 +13,6 @@ typedef AllowedModesTyping = {
 	 */
 	@:default(false) var p2AsEnemy:Bool;
 }
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef SongParse = {
-	var folder:String;
-	var icon:String;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var ?color:String;
-	var allowedModes:AllowedModesTyping;
-}
-typedef SongData = {
-	/**
-	 * The song display name.
-	 */
-	var name:String;
-	/**
-	 * The song folder name.
-	 */
-	var folder:String;
-	/**
-	 * The song icon.
-	 */
-	var icon:String;
-	/**
-	 * The starting difficulty.
-	 */
-	var startingDiff:Int;
-	/**
-	 * The difficulties listing.
-	 */
-	var difficulties:Array<String>;
-	/**
-	 * The variations listing.
-	 */
-	var variants:Array<String>;
-	/**
-	 * The song color.
-	 */
-	var ?color:FlxColor;
-	/**
-	 * Allowed modes for the song.
-	 */
-	var allowedModes:AllowedModesTyping;
-}
 
 typedef ExtraData = {
 	/**
@@ -153,7 +109,7 @@ class ParseUtil {
 		var tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
-		if (type.isBeatType && (type == IsCharacterSprite && Reflect.hasField(tempData, 'character'))) {
+		if (type == IsCharacterSprite && Reflect.hasField(tempData, 'character')) {
 			var gottenData:CharacterParse = null;
 			var typeData:SpriteData = typeData;
 			try {
@@ -201,15 +157,15 @@ class ParseUtil {
 			}
 
 		data.asset = typeData.asset;
+		if (Reflect.hasField(typeData.asset, 'dimensions'))
+			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x'), Reflect.getProperty(typeData.asset.dimensions, 'y'));
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
-			slot.asset = anim.asset ?? data.asset;
 			slot.name = anim.name;
 			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag ?? slot.name;
 			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey ?? '';
 			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey ?? '';
-			if (Reflect.hasField(anim, 'dimensions')) slot.dimensions = new TypeXY<Int>(Reflect.getProperty(anim.dimensions, 'x'), Reflect.getProperty(anim.dimensions, 'y'));
 			slot.indices = anim.indices ?? [];
 			slot.offset = new Position(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
 			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));

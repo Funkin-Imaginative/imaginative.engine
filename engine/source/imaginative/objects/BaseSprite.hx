@@ -176,7 +176,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		try {
 			modPath = inputData.asset.image;
 			try {
-				loadTexture(modPath);
+				if (inputData.asset.type == IsGraphic)
+					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
@@ -192,20 +194,18 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 			try {
 				for (i => anim in inputData.animations) {
-					var subModPath:ModPath = null;
 					try {
 						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
-						subModPath = anim.asset.image;
-						switch (anim.asset.type) {
-							case IsUnknown:
-								log('The asset type was unknown! Tip: "${subModPath.format()}"', WarningMessage);
+						switch (inputData.asset.type) {
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
-							default:
+							case IsSparrow | IsPacker | IsAseprite:
 								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							default:
+								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
 						anims.set(anim.name, {
 							offset: new Position(anim.offset.x, anim.offset.y),
@@ -218,7 +218,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${subModPath.format()}", type "${anim.asset.type}".', ErrorMessage);
+						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 				}
 			} catch(error:haxe.Exception)
 				log('Couldn\'t add the animations.', WarningMessage);
@@ -272,7 +272,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	/**
 	 * Global offsets
 	 */
-	public var spriteOffsets:ObjectData = {
+	public var spriteOffsets:ObjectSetupData = {
 		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
 		scale: new Position()
@@ -325,7 +325,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script ?? new ModPath('', ANY));
+			loadScript(script);
 
 		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
 			var animInfo:AnimationMapping = getAnimInfo(name);
@@ -337,11 +337,14 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			scripts.call('createPost');
 	}
 
-	override public function update(elapsed:Float):Void {
-		if (!(this is IBeat)) scripts.call('update', [elapsed]);
+	function super_update(elapsed:Float):Void
 		super.update(elapsed);
+	override public function update(elapsed:Float):Void {
+		scripts.call('update', [elapsed]);
+		super.update(elapsed);
+		if (_update != null)
+			_update(elapsed);
 		scripts.call('updatePost', [elapsed]);
-		if (_update != null) _update(elapsed);
 	}
 
 	/**

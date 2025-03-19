@@ -2,6 +2,7 @@ package imaginative.states.menus;
 
 import haxe.macro.Compiler;
 import flixel.effects.FlxFlicker;
+import imaginative.backend.scripting.events.menus.*;
 
 /**
  * This is the main menu... what else were you expecting this to say?
@@ -25,8 +26,7 @@ class MainMenu extends BeatState {
 	];
 
 	// Objects in the state.
-	var bg:FlxSprite;
-	var flashBg:FlxSprite;
+	var bg:MenuSprite;
 	var menuItems:FlxTypedGroup<BaseSprite>;
 
 	var mainTextsGroup:FlxTypedSpriteGroup<FlxText>;
@@ -45,9 +45,8 @@ class MainMenu extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		// Might try to simplify this.
 		if (!conductor.playing)
-			conductor.loadMusic('freakyMenu', 0.8, (_:FlxSound) -> conductor.play());
+			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
@@ -55,20 +54,13 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		bg = new FlxSprite().getBGSprite(FlxColor.YELLOW);
-		bgColor = bg.color;
-		bg.scrollFactor.set(0.1, 0.1);
-		bg.scale.scale(1.2);
-		bg.updateHitbox();
+		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
+		bgColor = bg.blankBg.color;
+		bg.scrollFactor.set();
+		bg.updateScale(1.2);
 		bg.screenCenter();
 		add(bg);
-
-		flashBg = new FlxSprite().getBGSprite(FlxColor.MAGENTA); // flashing bg
-		flashBg.scrollFactor.copyFrom(bg.scrollFactor);
-		flashBg.scale.copyFrom(bg.scale);
-		flashBg.updateHitbox();
-		flashBg.visible = false;
-		add(flashBg);
 
 		if (itemLineUp == null || itemLineUp.length < 1)
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
@@ -80,7 +72,7 @@ class MainMenu extends BeatState {
 			var item:BaseSprite = new BaseSprite(0, 60 + (i * 160), 'menus/main/$name');
 			item.animation.addByPrefix('idle', '$name idle', 24);
 			item.animation.addByPrefix('selected', '$name selected', 24);
-			item.animation.play('idle');
+			item.playAnim('idle');
 			item.centerOffsets();
 			item.centerOrigin();
 			item.screenCenter(X);
@@ -97,6 +89,7 @@ class MainMenu extends BeatState {
 		var highMid:Position = Position.getObjMidpoint(menuItems.members[0]);
 		var lowMid:Position = Position.getObjMidpoint(menuItems.members[menuItems.length - 1]);
 
+		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
 			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
@@ -105,8 +98,8 @@ class MainMenu extends BeatState {
 
 		// version text setup
 		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
-		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ')
-		.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
+		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ');
+		buildTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
 		mainTextsGroup.add(buildTxt);
 
 		var theText:String = 'Imaginative Engine';
@@ -119,7 +112,8 @@ class MainMenu extends BeatState {
 		#end
 		theText += '\nMade relatively from scratch!';
 
-		versionTxt = new FlxText(0, buildTxt.height + 5, theText).setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		versionTxt = new FlxText(0, buildTxt.height + 5, theText);
+		versionTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		mainTextsGroup.add(versionTxt);
 
 		buildTxt.fieldWidth = versionTxt.width;
@@ -131,7 +125,8 @@ class MainMenu extends BeatState {
 		// defined text setup
 		definedTextsGroup = new FlxTypedSpriteGroup<FlxText>();
 
-		compilerTxt = new FlxText(' ~ Defined Compiler Tags ~ ').setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
+		compilerTxt = new FlxText(' ~ Defined Compiler Tags ~ ');
+		compilerTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
 		definedTextsGroup.add(compilerTxt);
 
 		var theText:Array<Array<String>> = [];
@@ -143,13 +138,13 @@ class MainMenu extends BeatState {
 		theText.push(['Has Discord Connectivity', Compiler.getDefine('DISCORD_RICH_PRESENCE') != null ? 'true' : 'false']);
 		theText.push(['Can Play Videos', Compiler.getDefine('ALLOW_VIDEOS') != null ? 'true' : 'false']);
 
-		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'))
-		.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'));
+		definedTagsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTagsTxt.fieldWidth = definedTagsTxt.width;
 		definedTextsGroup.add(definedTagsTxt);
 
-		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'))
-		.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
+		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'));
+		tagResultsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTextsGroup.add(definedTagsTxt);
 
 		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
@@ -161,8 +156,8 @@ class MainMenu extends BeatState {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (conductor.audio.volume < 0.8)
-			conductor.audio.volume += 0.5 * elapsed;
+		if (conductor.volume < 0.8)
+			conductor.volume += 0.5 * elapsed;
 
 		super.update(elapsed);
 
@@ -195,7 +190,7 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.back) {
-				FunkinUtil.playMenuSFX(CancelSFX);
+				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
 				BeatState.switchState(new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
@@ -206,31 +201,35 @@ class MainMenu extends BeatState {
 			}
 		}
 
-		camPoint.y = FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
+		var range:Float = FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1);
+		camPoint.y = FlxMath.lerp(highestY, lowestY, range);
+		bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, range), bg.y, 0.7);
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		prevSelected = curSelected;
-		curSelected = FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1);
-		if (prevSelected != curSelected)
-			FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
+		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
+		if (event.prevented) return;
+		prevSelected = event.previousValue;
+		curSelected = event.currentValue;
+		event.playMenuSFX(ScrollSFX);
 
 		for (i => item in menuItems.members) {
-			item.animation.play(i == curSelected ? 'selected' : 'idle');
+			item.playAnim(i == curSelected ? 'selected' : 'idle');
 			item.centerOffsets();
 			item.centerOrigin();
 		}
 	}
 
 	function selectCurrent():Void {
-		selectionCooldown();
+		selectionCooldown(1.1);
 
-		FunkinUtil.playMenuSFX(ConfirmSFX);
-
-		FlxFlicker.flicker(flashBg, 1.1, 0.6, false);
+		var event:ChoiceEvent = eventCall('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
+		if (!event.prevented)
+			event.playMenuSFX(ConfirmSFX);
 		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
-			switch (itemLineUp[curSelected]) {
+			if (!event.prevented)
+			switch (event.choice) {
 				case 'storymode':
 					BeatState.switchState(new StoryMenu());
 				case 'freeplay':
@@ -242,10 +241,12 @@ class MainMenu extends BeatState {
 				case 'merch':
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 				case 'options':
-					BeatState.switchState(new OptionsMenu());
+					selectionCooldown(0.4); // extend cooldown
+					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(new OptionsMenu()));
 				case 'credits':
 					BeatState.switchState(new CreditsMenu());
 			}
-		});
+			bgColor = bg.changeColor();
+		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
 	}
 }
