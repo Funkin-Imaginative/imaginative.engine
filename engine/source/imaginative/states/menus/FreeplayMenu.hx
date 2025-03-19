@@ -188,6 +188,11 @@ class FreeplayMenu extends BeatState {
 		// songPlayingGroup.x = FlxG.width - songPlayingGroup.width + 10;
 	}
 
+	override public function onReset():Void {
+		super.onReset();
+		currentSongAudio = currentSongVariant = ':MENU:';
+	}
+
 	override public function update(elapsed:Float) {
 		super.update(elapsed);
 

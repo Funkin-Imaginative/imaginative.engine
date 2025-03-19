@@ -246,10 +246,12 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
-		if (subState != null && subState is BeatSubState) {
-			cast(subState, BeatSubState).parent = this;
+		scriptCall('resetingSubState');
+		if (subState is BeatSubState) {
+			var subState:BeatSubState = cast subState;
+			subState.parent = this;
 			super.resetSubState();
-			cast(subState, BeatSubState).onSubstateOpen();
+			subState.onSubstateOpen();
 			return;
 		}
 		super.resetSubState();

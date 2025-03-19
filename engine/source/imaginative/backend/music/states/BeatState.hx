@@ -193,8 +193,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * It's just FlxG.resetState.
 	 */
 	public static function resetState():Void {
-		if (FlxG.state is BeatState)
-			cast(FlxG.state, BeatState).conductor.reset();
+		if (FlxG.state is BeatState) {
+			var state:BeatState = cast FlxG.state;
+			state.onReset();
+			state.conductor.reset();
+		}
 		FlxG.resetState();
 	}
 
@@ -257,11 +260,17 @@ class BeatState extends FlxState /* implements IBeat */ {
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
+		scriptCall('resetingSubState');
 		super.resetSubState();
-		if (subState != null && subState is BeatSubState) {
-			cast(subState, BeatSubState).parent = this;
-			cast(subState, BeatSubState).onSubstateOpen();
+		if (subState is BeatSubState) {
+			var subState:BeatSubState = cast subState;
+			subState.parent = this;
+			subState.onSubstateOpen();
 		}
+	}
+
+	public function onReset():Void {
+		scriptCall('resetingState');
 	}
 
 	override public function onFocus():Void {
