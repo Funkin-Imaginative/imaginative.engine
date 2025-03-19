@@ -32,7 +32,13 @@ class Sustain extends FlxSprite {
 	 * The direction the notes will come from.
 	 * This offsets from the parent note speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		mods.update_angle();
+		return value;
+	}
 
 	/**
 	 * The strum lane index.
@@ -59,7 +65,7 @@ class Sustain extends FlxSprite {
 
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
 	}
 
 	/**
@@ -76,7 +82,7 @@ class Sustain extends FlxSprite {
 
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
-		return (time + setHead.time) >= setField.conductor.time - Settings.setupP1.maxWindow && (time + setHead.time) <= setField.conductor.time + Settings.setupP1.maxWindow;
+		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
@@ -108,7 +114,6 @@ class Sustain extends FlxSprite {
 		updateHitbox();
 
 		mods = new ArrowModifier(this);
-
 		mods.alpha = 0.6;
 	}
 

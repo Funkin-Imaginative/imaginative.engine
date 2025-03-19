@@ -124,6 +124,10 @@ typedef ChartData = {
 	 */
 	var fieldSettings:FieldSettings;
 	/**
+	 * The song hud.
+	 */
+	@:default('funkin') var ?hud:String;
+	/**
 	 * Chart specific events.
 	 */
 	var ?events:Array<ChartEvent>;

@@ -25,6 +25,12 @@ class Note extends FlxSprite {
 	 * The sustain pieces this note has.
 	 */
 	public var tail(default, null):Array<Sustain> = [];
+	/**
+	 * The tail length in time.
+	 */
+	public var length(get, never):Float;
+	inline function get_length():Float
+		return tail.length != 0 ? tail[tail.length - 1].time : 0;
 
 	// Note specific variables.
 	/**
@@ -46,14 +52,21 @@ class Note extends FlxSprite {
 
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
 	}
 
 	/**
 	 * The direction the notes will come from.
 	 * This offsets from the strum of the same id's speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		for (sustain in tail)
+			sustain.mods.update_angle();
+		return value;
+	}
 
 	/**
 	 * If true, this note will have less priority in the input system and in most cases be detected last.
@@ -71,7 +84,7 @@ class Note extends FlxSprite {
 	// important
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
-		return time >= setField.conductor.time - Settings.setupP1.maxWindow && time <= setField.conductor.time + Settings.setupP1.maxWindow;
+		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
@@ -131,17 +144,17 @@ class Note extends FlxSprite {
 		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
 		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
+		pos.x += Math.cos(angleDir) * distance.position;
 		pos.x -= width / 2;
 		pos.x += strum.width / 2;
-		pos.x += Math.cos(angleDir) * distance.position;
 
+		pos.y += Math.sin(angleDir) * distance.position;
 		pos.y -= height / 2;
 		pos.y += strum.height / 2;
-		pos.y += Math.sin(angleDir) * distance.position;
 
 		setPosition(
-			mods.apply.position.x ? pos.x : x,
-			mods.apply.position.y ? pos.y : y
+			mods.handler.position.x ? pos.x : x,
+			mods.handler.position.y ? pos.y : y
 		);
 
 		for (sustain in tail) {
@@ -149,22 +162,20 @@ class Note extends FlxSprite {
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
 			angleDir = resultAngle * angleDir;
-			if (mods.apply.angle)
-				sustain.angle = resultAngle + 90 + mods.angle;
 
 			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
 			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
 
+			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;
 			pos.x += strum.width / 2;
-			pos.x += Math.cos(angleDir) * distance.position;
 
-			pos.y += strum.height / 2;
 			pos.y += Math.sin(angleDir) * distance.position;
+			pos.y += strum.height / 2;
 
 			sustain.setPosition(
-				sustain.mods.apply.position.x ? pos.x : sustain.x,
-				sustain.mods.apply.position.y ? pos.y : sustain.y
+				sustain.mods.handler.position.x ? pos.x : sustain.x,
+				sustain.mods.handler.position.y ? pos.y : sustain.y
 			);
 		}
 	}
