@@ -99,6 +99,7 @@ class SongHolder extends BeatSpriteGroup {
 			add(text);
 
 			icon = new HealthIcon(text.width + 30, text.height / 2, data.icon/* '${name.type}:${data.icon}' */);
+			icon.preventScaleBop = true;
 			icon.y -= icon.height / 2;
 			add(icon);
 

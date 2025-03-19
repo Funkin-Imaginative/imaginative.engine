@@ -194,7 +194,7 @@ class HUDTemplate extends BeatGroup {
 		scripts.load();
 		call(true, 'create');
 
-		visualHealth = health = FlxMath.bound(minHealth, maxHealth, 0.5);
+		visualHealth = health = FlxMath.lerp(minHealth, maxHealth, 0.5);
 		createElements();
 		add(elements);
 		add(fields);

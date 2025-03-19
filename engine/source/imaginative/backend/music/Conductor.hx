@@ -551,8 +551,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					tracks.push(addVocalTrack(song, suffix, variant));
 				// loads main suffixes
 				if (tracks.empty()) {
-					tracks.push(addVocalTrack(song, 'Enemy', variant));
-					tracks.push(addVocalTrack(song, 'Player', variant));
+					var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
+					if (enemyTrack != null)
+						tracks.push(enemyTrack);
+					var playerTrack:FlxSound = addVocalTrack(song, 'Player', variant);
+					if (playerTrack != null)
+						tracks.push(playerTrack);
 				}
 				// loads general track
 				if (tracks.empty())
@@ -562,8 +566,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 				var tracks:Array<FlxSound> = [];
 				// loads main suffixes
-				tracks.push(addVocalTrack(song, 'Enemy', variant));
-				tracks.push(addVocalTrack(song, 'Player', variant));
+				var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
+				if (enemyTrack != null)
+					tracks.push(enemyTrack);
+				var playerTrack:FlxSound = addVocalTrack(song, 'Player', variant);
+				if (playerTrack != null)
+					tracks.push(playerTrack);
 				// loads general track
 				if (tracks.empty())
 					addVocalTrack(song, '', variant);
