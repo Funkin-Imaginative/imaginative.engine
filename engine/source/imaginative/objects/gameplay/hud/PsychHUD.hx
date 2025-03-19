@@ -17,7 +17,7 @@ class PsychHUD extends HUDTemplate {
 		bg.screenCenter(X);
 		elements.add(bg);
 
-		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
+		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'visualHealth', minHealth, maxHealth);
 	}
 	override function initStatsText():FlxText {
 		var text:FlxText = new FlxText(0, (healthBar.y - 4) + 40 - 8, FlxG.camera.width);

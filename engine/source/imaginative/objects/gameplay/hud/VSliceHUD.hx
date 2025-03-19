@@ -17,7 +17,7 @@ class VSliceHUD extends HUDTemplate {
 		bg.screenCenter(X);
 		elements.add(bg);
 
-		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
+		var bar:Bar = new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'visualHealth', minHealth, maxHealth);
 		return bar.setColors(FlxColor.RED, 0xFF66FF33, true);
 	}
 

@@ -103,10 +103,14 @@ class Bar extends FlxBar {
 	}
 
 	override function updateValueFromParent():Void {
-		if (parent is IScript) // script support
-			value = cast(parent, IScript).get(parentVariable, value);
-		else
-			super.updateValueFromParent();
+		if (parent is IScript) { // script support
+			var script:IScript = cast parent;
+			value = FlxMath.bound(script.get(parentVariable, value), min, max);
+			script.set(parentVariable, value);
+		} else {
+			value = FlxMath.bound(Reflect.getProperty(parent, parentVariable), min, max);
+			Reflect.setProperty(parent, parentVariable, value);
+		}
 	}
 
 	override public function updateBar():Void {
@@ -118,7 +122,6 @@ class Bar extends FlxBar {
 			case BOTTOM_TO_TOP: centerPoint.set(x + (width / 2), y + height * FlxMath.remapToRange(percent, 0, 100, 1, 0));
 			default: centerPoint.set(x + (width / 2), y + (height / 2));
 		}
-
 		onBarUpdate.dispatch(FlxG.elapsed);
 	}
 

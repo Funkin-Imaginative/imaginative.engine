@@ -547,7 +547,7 @@ class PlayState extends BeatState {
 		scripts.load();
 		scripts.call('create');
 
-		hud.healthBar.setColors(enemy.healthColor, player.healthColor);
+		// hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
 		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
 			/**

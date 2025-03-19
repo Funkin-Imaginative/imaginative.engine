@@ -36,6 +36,41 @@ class HUDTemplate extends BeatGroup {
 	public var statsP2Text:FlxText;
 
 	/**
+	 * The current amount of health.
+	 */
+	public var health(default, set):Float;
+	inline function set_health(value:Float):Float
+		return health = FlxMath.bound(value, minHealth, maxHealth);
+	/**
+	 * The visual amount of health.
+	 */
+	public var visualHealth(default, set):Float;
+	inline function set_visualHealth(value:Float):Float
+		return visualHealth = FlxMath.bound(value, minHealth, maxHealth);
+	/**
+	 * The minimum amount of health possible.
+	 */
+	@:isVar public var minHealth(get, set):Float;
+	inline function get_minHealth():Float
+		return healthBar == null ? 0 : healthBar.min;
+	inline function set_minHealth(value:Float):Float {
+		if (healthBar != null)
+			healthBar.setRange(value, healthBar.max);
+		return minHealth = value;
+	}
+	/**
+	 * The maximum amount of health possible.
+	 */
+	@:isVar public var maxHealth(get, set):Float;
+	inline function get_maxHealth():Float
+		return healthBar == null ? 2 : healthBar.max;
+	inline function set_maxHealth(value:Float):Float {
+		if (healthBar != null)
+			healthBar.setRange(healthBar.min, value);
+		return maxHealth = value;
+	}
+
+	/**
 	 * Returns the field y level for the hud.
 	 * @param downscroll If the position should be downscroll.
 	 * @param field Is used for some of the huds.
@@ -109,7 +144,6 @@ class HUDTemplate extends BeatGroup {
 				for (script in Script.create('lead:content/huds/${type}HUD'))
 					scripts.add(script);
 
-	public var health:Float = 1;
 	function initHealthBar():Bar {
 		// temp bg add
 		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
@@ -118,7 +152,7 @@ class HUDTemplate extends BeatGroup {
 			CodenameHUD.cneYLevel(bg);
 		elements.add(bg);
 
-		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'health', 0, 2);
+		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'visualHealth', minHealth, maxHealth);
 	}
 
 	function initStatsText():FlxText {
@@ -160,6 +194,7 @@ class HUDTemplate extends BeatGroup {
 		scripts.load();
 		call(true, 'create');
 
+		visualHealth = health = FlxMath.bound(minHealth, maxHealth, 0.5);
 		createElements();
 		add(elements);
 		add(fields);
@@ -168,23 +203,11 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	// TODO: figure out script calls
-	/* override public function update(elapsed:Float):Void {
+	override public function update(elapsed:Float):Void {
 		call(true, 'update', [elapsed]);
 		super.update(elapsed);
+		visualHealth = FlxMath.lerp(health, visualHealth, 0.15);
 	}
-
-	override public function stepHit(curStep:Int):Void {
-		super.stepHit(curStep);
-		call(true, 'stepHit', [curStep]);
-	}
-	override public function beatHit(curBeat:Int):Void {
-		super.beatHit(curBeat);
-		call(true, 'beatHit', [curBeat]);
-	}
-	override public function measureHit(curMeasure:Int):Void {
-		super.measureHit(curMeasure);
-		call(true, 'measureHit', [curMeasure]);
-	} */
 
 	/**
 	 * Should be called when stats change.
