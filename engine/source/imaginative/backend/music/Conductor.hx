@@ -63,6 +63,13 @@ enum abstract SongTimeType(String) from String to String {
  */
 @:access(flixel.system.frontEnds.SoundFrontEnd.loadHelper)
 class Conductor implements IFlxDestroyable implements IBeat {
+	@:allow(imaginative.states.StartScreen)
+	static function init():Void {
+		menu = new Conductor();
+		song = new Conductor();
+		charter = new Conductor();
+	}
+
 	// FlxSignals.
 	/**
 	 * Dispatches when the bpm changes.
@@ -96,15 +103,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * The conductor for menu music.
 	 */
-	public static var menu(default, null):Conductor = new Conductor();
+	public static var menu(default, null):Conductor;
 	/**
 	 * The conductor for song music.
 	 */
-	public static var song(default, null):Conductor = new Conductor();
+	public static var song(default, null):Conductor;
 	/**
 	 * The conductor for the chart editor.
 	 */
-	public static var charter(default, null):Conductor = new Conductor();
+	public static var charter(default, null):Conductor;
 
 	@:unreflective static var isSub:Bool = false;
 	// Direct access.
@@ -286,7 +293,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public function new() {
 		soundGroup = new FlxSoundGroup();
 
-		audio = new FlxSound();
+		audio = FlxG.sound.list.add(new FlxSound());
 		audio.autoDestroy = false; // jic
 		audio.onComplete = () -> {
 			var event:ScriptEvent = new ScriptEvent();
@@ -296,8 +303,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		}
 
 		FlxG.signals.preUpdate.add(update);
-		FlxG.signals.focusGained.add(onFocus);
-		FlxG.signals.focusLost.add(onFocusLost);
 	}
 
 	inline function destroySound(sound:FlxSound):Void {
@@ -407,7 +412,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public function loadMusic(music:ModPath, volume:Float = 1, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null)
-			audio = new FlxSound();
+			audio = FlxG.sound.list.add(new FlxSound());
 
 		audio.loadEmbedded(Paths.music(music), true);
 		FlxG.sound.loadHelper(audio, volume, soundGroup);
@@ -430,7 +435,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null)
-			audio = new FlxSound();
+			audio = FlxG.sound.list.add(new FlxSound());
 
 		audio.loadEmbedded(Paths.inst(song, variant));
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
@@ -458,17 +463,17 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			return null;
 		}
 
-		var vocals:FlxSound = new FlxSound();
-		vocals.autoDestroy = false; // jic
+		var music:FlxSound = FlxG.sound.list.add(new FlxSound());
+		music.autoDestroy = false; // jic
 
-		vocals.loadEmbedded(file, true);
-		FlxG.sound.loadHelper(vocals, audio.volume, soundGroup);
-		vocals.persist = audio.persist;
+		music.loadEmbedded(file, true);
+		FlxG.sound.loadHelper(music, audio.volume, soundGroup);
+		music.persist = audio.persist;
 
-		extra.push(vocals);
+		extra.push(music);
 		if (afterLoad != null)
-			afterLoad(vocals);
-		return vocals;
+			afterLoad(music);
+		return music;
 	}
 
 	/**
@@ -486,7 +491,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			return null;
 		}
 
-		var vocals:FlxSound = new FlxSound();
+		var vocals:FlxSound = FlxG.sound.list.add(new FlxSound());
 		vocals.autoDestroy = false; // jic
 
 		vocals.loadEmbedded(file);
@@ -553,12 +558,11 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (prevTime != (prevTime = audio.time))
 				time = prevTime; // update conductor
 			else time += FlxG.elapsed * 1000;
-			audio.update(FlxG.elapsed);
 
 			for (sound in extra) {
 				// idea from psych
 				if (audio.time < sound.length) {
-					if (Math.abs(time - audio.time) > 20) {
+					if (Math.abs(time - audio.time) > 30) {
 						sound.pause();
 						sound.time = audio.time;
 						sound.play();
@@ -566,7 +570,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					}
 				} else if (sound.playing)
 					sound.pause();
-				sound.update(FlxG.elapsed);
 			}
 		} else time += FlxG.elapsed * 1000;
 
@@ -615,20 +618,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			}
 		}
 	}
-
-	@:dox(hide)
-	@SuppressWarnings('checkstyle:FieldDocComment')
-	@:access(flixel.sound.FlxSound.onFocus)
-	inline public function onFocus():Void
-		for (sound in soundGroup.sounds)
-			sound.onFocus();
-
-	@:dox(hide)
-	@SuppressWarnings('checkstyle:FieldDocComment')
-	@:access(flixel.sound.FlxSound.onFocusLost)
-	inline public function onFocusLost():Void
-		for (sound in soundGroup.sounds)
-			sound.onFocusLost();
 
 	@:allow(imaginative.backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
 	@:allow(imaginative.backend.music.states.BeatSubState) static var beatSubStates:Array<BeatSubState> = [];
@@ -787,8 +776,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function destroy():Void {
 		FlxG.signals.preUpdate.remove(update);
-		FlxG.signals.focusGained.remove(onFocus);
-		FlxG.signals.focusLost.remove(onFocusLost);
 
 		onBPMChange.destroy();
 		onStepHit.destroy();
