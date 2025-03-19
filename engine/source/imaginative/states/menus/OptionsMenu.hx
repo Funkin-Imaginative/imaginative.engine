@@ -83,8 +83,8 @@ class OptionsMenu extends BeatState {
 			} */
 		}
 
-		// camPoint.y = FlxMath.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
-		// bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1)), bg.y, 0.7);
+		// camPoint.y = FunkinUtil.lerp(highestY, lowestY, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
+		// bg.y = FunkinUtil.lerp(bg.y, FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1)), 0.16);
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {

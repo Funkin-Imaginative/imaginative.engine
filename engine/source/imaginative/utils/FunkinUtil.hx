@@ -124,6 +124,25 @@ class FunkinUtil {
 	}
 
 	/**
+	 * Returns the linear interpolation of two numbers if ratio is between 0 and 1, and the linear extrapolation otherwise.
+	 * @param a Number "A".
+	 * @param b Number "B".
+	 * @param ratio The amount of interpolation.
+	 * @param fpsSensitive If true, the ratio will be checked to run at the same speed, no matter the fps rate.
+	 * @return `Float` ~ The result.
+	 */
+	inline public static function lerp(a:Float, b:Float, ratio:Float, fpsSensitive:Bool = true):Float
+		return FlxMath.lerp(a, b, fpsSensitive ? getElapsedRatio(ratio) : ratio);
+	/**
+	 * Applies a ratio to a number.
+	 * @param ratio The ratio.
+	 * @param fps The FPS target to match. This argument is optional and is best left at 60.
+	 * @return `Float` ~ The resulting ratio.
+	 */
+	inline public static function getElapsedRatio(ratio:Float, fps:Float = 60):Float
+		return FlxMath.bound(ratio * fps * FlxG.elapsed, 0, 1);
+
+	/**
 	 * Uses the arguments value and max to create a number that ranges the argument range. ex: toPercent(4, 10, 1) returns 0.4
 	 * @param value The current value of the percentage. ex: 4
 	 * @param max The max value of the the percentage. ex: 10

@@ -206,7 +206,7 @@ class HUDTemplate extends BeatGroup {
 	override public function update(elapsed:Float):Void {
 		call(true, 'update', [elapsed]);
 		super.update(elapsed);
-		visualHealth = FlxMath.lerp(health, visualHealth, 0.15);
+		visualHealth = FunkinUtil.lerp(visualHealth, health, 0.15);
 	}
 
 	/**

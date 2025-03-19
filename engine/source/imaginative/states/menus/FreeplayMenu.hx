@@ -276,19 +276,19 @@ class FreeplayMenu extends BeatState {
 			10 * (visualSelected + 1) - 50,
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
-		camera.zoom = FlxMath.lerp(1, camera.zoom, 0.7);
+		camera.zoom = FunkinUtil.lerp(camera.zoom, 1, 0.16);
 		bgColor = bg.changeColor(FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 		var range:Float = FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1);
-		bg.x = FlxMath.lerp(FlxMath.lerp(0, FlxG.width - bg.width, range), bg.x, 0.7);
-		bg.y = FlxMath.lerp(FlxMath.lerp(0, FlxG.height - bg.height, range), bg.y, 0.7);
+		bg.x = FunkinUtil.lerp(bg.x, FlxMath.lerp(0, FlxG.width - bg.width, range), 0.16);
+		bg.y = FunkinUtil.lerp(bg.y, FlxMath.lerp(0, FlxG.height - bg.height, range), 0.16);
 
 		for (i => song in songs.members)
-			song.alpha = FlxMath.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
+			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
 
 		if (FlxG.mouse.pressed)
 			for (i => item in songs.members)
 				if (FlxG.mouse.overlaps(item.icon))
-					item.icon.scale.set(item.icon.spriteOffsets.scale.x * 1.2, item.icon.spriteOffsets.scale.y * 1.2);
+					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
 	}
 
 	override public function beatHit(curBeat:Int):Void {
