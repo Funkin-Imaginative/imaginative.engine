@@ -304,7 +304,7 @@ class FreeplayMenu extends BeatState {
 
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
-		if (curBeat % 1 == 0 && currentSongAudio != ':MENU:')
+		if (curBeat % beatsPerMeasure == 0 && currentSongAudio != ':MENU:')
 			camera.zoom += 0.020;
 	}
 
