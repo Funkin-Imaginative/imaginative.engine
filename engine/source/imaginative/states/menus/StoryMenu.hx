@@ -145,11 +145,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().makeSolid(FlxG.width, 56);
+		weekTopBg = new BaseSprite().makeSolid(FlxG.camera.width, 56);
 		weekTopBg.color = camera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.camera.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
@@ -186,7 +186,7 @@ class StoryMenu extends BeatState {
 
 		for (level in levels)
 			for (i => sprite in level.weekObjects) {
-				sprite.setPosition(FlxG.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.setPosition(FlxG.camera.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
 				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
 
@@ -220,7 +220,7 @@ class StoryMenu extends BeatState {
 		changeDifficulty();
 
 		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
-		camPoint.setPosition(mid.x, mid.y - (FlxG.height / 3.4));
+		camPoint.setPosition(mid.x, mid.y - (FlxG.camera.height / 3.4));
 		camera.snapToTarget();
 	}
 
@@ -284,7 +284,7 @@ class StoryMenu extends BeatState {
 		}
 
 		var item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.height / 3.4);
+		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.camera.height / 3.4);
 		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
