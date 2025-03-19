@@ -122,7 +122,7 @@ class MainMenu extends BeatState {
 		buildTxt.fieldWidth = versionTxt.width;
 
 		mainTextsGroup.scrollFactor.set();
-		mainTextsGroup.y = FlxG.height - mainTextsGroup.height - 5;
+		mainTextsGroup.y = FlxG.camera.height - mainTextsGroup.height - 5;
 		add(mainTextsGroup);
 
 		// defined text setup
@@ -153,8 +153,8 @@ class MainMenu extends BeatState {
 		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
 
 		definedTextsGroup.scrollFactor.set();
-		definedTextsGroup.x = FlxG.width - definedTextsGroup.width - 5;
-		definedTextsGroup.y = FlxG.height - definedTextsGroup.height - 5;
+		definedTextsGroup.x = FlxG.camera.width - definedTextsGroup.width - 5;
+		definedTextsGroup.y = FlxG.camera.height - definedTextsGroup.height - 5;
 		add(definedTextsGroup);
 	}
 

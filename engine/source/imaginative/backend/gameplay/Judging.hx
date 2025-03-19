@@ -1,22 +1,8 @@
-package imaginative.backend.configs;
+package imaginative.backend.gameplay;
 
-/**
- * This class is for handling player interactions in songs.
- */
-class PlayConfig {
-	/**
-	 * If enabled, botplay will be active when entering a song.
-	 */
-	public static var botplay:Bool = false;
-	/**
-	 * If enabled, you play as the enemy instead of the player.
-	 */
-	public static var enemyPlay:Bool = false;
-	/**
-	 * If enabled, the enemy will be controlled by a second player.
-	 * But with enemyPlay your swapped around, making P1 the enemy and P2 the player.
-	 */
-	public static var enableP2:Bool = false;
+class Judging {
+	public var maxScore:Int = 350;
+	// Math.floor(maxScore - (time - con_time));
 
 	/**
 	 * Turns a millisecond rating hit window into a percentage.
@@ -44,17 +30,8 @@ class PlayConfig {
 	public static function calculateRating(diff:Float, settings:PlayerSettings):String {
 		var data:Array<String> = ['killer', 'sick', 'good', 'bad', 'shit'];
 		for (i in 0...data.length - 1)
-			if (diff <= PlayConfig.undoRatingPercent(Reflect.getProperty(settings, '${data[i]}Window'), settings.maxWindow))
+			if (diff <= undoRatingPercent(Reflect.getProperty(settings, '${data[i]}Window'), settings.maxWindow))
 				return data[i];
 		return data[data.length - 1];
-	}
-
-	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
-		for (char in actors.filter((char:Character) -> return char != null)) {
-			char.controls = field.isPlayer ? field.controls : null;
-			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][id];
-			char.playAnim('sing$temp', context, suffix);
-			char.lastHit = field.conductor.time;
-		}
 	}
 }

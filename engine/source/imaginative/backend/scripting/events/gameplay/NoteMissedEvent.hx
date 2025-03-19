@@ -1,10 +1,19 @@
-package imaginative.backend.scripting.events.objects.gameplay;
+package imaginative.backend.scripting.events.gameplay;
 
 final class NoteMissedEvent extends PlayAnimEvent {
+	/**
+	 * The field the note is assigned to.
+	 */
+	public var field:ArrowField;
+	/**
+	 * The parent strum instance.
+	 */
+	public var strum:Strum;
 	/**
 	 * The note instance.
 	 */
 	public var note:Note;
+
 	/**
 	 * The strum lane index.
 	 */
@@ -15,10 +24,7 @@ final class NoteMissedEvent extends PlayAnimEvent {
 	public var idMod(get, never):Int;
 	inline function get_idMod():Int
 		return id % field.strumCount;
-	/**
-	 * The field the note is assigned to.
-	 */
-	public var field:ArrowField;
+
 	/**
 	 * If true, it prevents the press animation from playing on the target strum.
 	 */
@@ -47,5 +53,6 @@ final class NoteMissedEvent extends PlayAnimEvent {
 		this.id = id ??= note.id;
 		this.field = field ??= note.setField;
 		this.stopStrumPress = stopStrumPress;
+		strum = note.setStrum;
 	}
 }
