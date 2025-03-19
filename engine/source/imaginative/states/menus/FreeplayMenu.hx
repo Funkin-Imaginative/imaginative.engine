@@ -222,8 +222,10 @@ class FreeplayMenu extends BeatState {
 				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
-						winningIcon.playAnim('normal');
-						winningIcon.preventScaleBop = true;
+						if (winningIcon != null) {
+							winningIcon.playAnim('normal');
+							winningIcon.preventScaleBop = true;
+						}
 						currentSongAudio = currentSongVariant = ':MENU:';
 						conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
 							conductor.playFromTime(menuTimePosition, 0);
