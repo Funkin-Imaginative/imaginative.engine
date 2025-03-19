@@ -193,7 +193,7 @@ class FreeplayMenu extends BeatState {
 		currentSongAudio = currentSongVariant = ':MENU:';
 	}
 
-	override public function update(elapsed:Float) {
+	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
 		if (canSelect) {
