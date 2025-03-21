@@ -147,7 +147,7 @@ class FreeplayMenu extends BeatState {
 		infoTextBox.alpha = 0.45;
 		songPlayingGroup.add(infoTextBox);
 
-		musicNameText = new FlxText(10, 10, boxWidth - 20, '...');
+		musicNameText = new FlxText(10, 10, boxWidth - 20, '... ~ ##:##');
 		artistText = new FlxText(10, musicNameText.y + musicNameText.height + 17, 0, 'By: Your Mom');
 		songBpmText = new FlxText(10, 10, boxWidth - 20, '### BPM');
 		songSigText = new FlxText(10, songBpmText.y + songBpmText.height + 17, boxWidth - 20, '# / #');
@@ -269,7 +269,7 @@ class FreeplayMenu extends BeatState {
 							winningIcon.preventScaleBop = false;
 
 							event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
-							musicNameText.text = conductor.data.name;
+							musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
 							artistText.text = 'By: ${conductor.data.artist}';
 							songBpmText.text = '${conductor.data.bpm} BPM';
 							songSigText.text = conductor.data.signature.join(' / ');

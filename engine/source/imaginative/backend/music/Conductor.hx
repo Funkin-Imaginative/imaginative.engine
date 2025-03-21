@@ -65,7 +65,7 @@ enum abstract SongTimeType(String) from String to String {
 class Conductor implements IFlxDestroyable implements IBeat {
 	@:allow(imaginative.states.StartScreen)
 	static function init():Void {
-		menu = new Conductor('Menu');
+		menu = new Conductor('Menu', true);
 		song = new Conductor('Song');
 		charter = new Conductor('Charter');
 	}
@@ -75,6 +75,11 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * This is completely optional and is only used in the debug console.
 	 */
 	public var id(default, null):String;
+
+	/**
+	 * If true, when the audio ends it will loop.
+	 */
+	public var canLoop:Bool;
 
 	// FlxSignals.
 	/**
@@ -100,7 +105,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var onMeasureHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
-	 * Dispatches when the music ends.
+	 * Dispatches when the audio ends.
 	 */
 	public var onComplete(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
 	/**
@@ -108,6 +113,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * As it kills itself after it's called.
 	 */
 	public var _onComplete:ScriptEvent->Void;
+	/**
+	 * Dispatches when the audio loops.
+	 */
+	public var onLoop(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
 
 	// Main Conductors.
 	/**
@@ -115,7 +124,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public static var menu(default, null):Conductor;
 	/**
-	 * The conductor for song music.
+	 * The conductor for songs in PlayState.
 	 */
 	public static var song(default, null):Conductor;
 	/**
@@ -187,8 +196,11 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Mostly used for when the song time is under or above the audio time length.
 	 */
 	public var autoSetTime(get, never):Bool;
-	inline function get_autoSetTime():Bool
-		return time < 0 || time > audio.length;
+	inline function get_autoSetTime():Bool {
+		if (time > 0 && time < audio.length)
+			return false;
+		return true;
+	}
 
 	/**
 	 * States if the conductor audio is playing or not.
@@ -303,23 +315,35 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Creates a new conductor instance.
 	 * @param id This is completely optional and is only used in the debug console.
+	 * @param canLoop If true, when the audio ends it will loop.
 	 */
-	public function new(?id:String = 'Unknown') {
+	public function new(?id:String = 'Unknown', canLoop:Bool = false) {
 		this.id = id;
+		this.canLoop = canLoop;
 		soundGroup = new FlxSoundGroup();
 
 		audio = FlxG.sound.list.add(new FlxSound());
 		audio.autoDestroy = false; // jic
-		audio.onComplete = () -> {
-			var event:ScriptEvent = new ScriptEvent();
+
+		FlxG.signals.preUpdate.add(update);
+		FlxG.signals.focusGained.add(onFocus);
+		FlxG.signals.focusLost.add(onFocusLost);
+	}
+
+	inline function onCompleteFunc():Void {
+		var event:ScriptEvent = new ScriptEvent();
+		if (canLoop) {
+			prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
+			applyBPMChanges();
+			onLoop.dispatch(event);
+		} else {
+			playing = false; // will test this without this line later
 			onComplete.dispatch(event);
 			if (_onComplete != null) {
 				_onComplete(event);
 				_onComplete = null;
 			}
 		}
-
-		FlxG.signals.preUpdate.add(update);
 	}
 
 	inline function destroySound(sound:FlxSound):Void {
@@ -393,7 +417,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			destroySound(sound);
 		extra = [];
 
-		time = prevTime = curStepFloat = curStep = curBeat = curMeasure = 0;
+		prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
 		changeBPM();
 		startBpm = prevBpm = bpm;
@@ -445,6 +469,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
+		audio.autoDestroy = false; // jic
 
 		audio.loadEmbedded(Paths.music(music), true);
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
@@ -452,7 +477,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 		data = getMetadata('${music.type}:music/${music.path}');
 		applyBPMChanges();
-		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 
 		if (afterLoad != null)
 			afterLoad(audio);
@@ -468,14 +492,14 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
+		audio.autoDestroy = false; // jic
 
 		audio.loadEmbedded(Paths.inst(song, variant));
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
-		audio.persist = false;
+		audio.persist = true;
 
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
 		applyBPMChanges();
-		changeBPM(data.bpm, data.signature[0], data.signature[1]);
 
 		if (afterLoad != null)
 			afterLoad(audio);
@@ -499,7 +523,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 		music.loadEmbedded(file, true);
 		FlxG.sound.loadHelper(music, 1, soundGroup);
-		music.persist = audio.persist;
+		music.persist = true;
 
 		extra.push(music);
 		if (afterLoad != null)
@@ -527,7 +551,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 		vocals.loadEmbedded(file);
 		FlxG.sound.loadHelper(vocals, 1, soundGroup);
-		vocals.persist = audio.persist;
+		vocals.persist = true;
 
 		extra.push(vocals);
 		if (afterLoad != null)
@@ -628,6 +652,29 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		}
 	}
 
+	var _printResyncMessage(null, null):Bool = false;
+	/**
+	 * Resync's the extra tracks to the inst time when called.
+	 */
+	inline public function resyncVocals():Void {
+		if (!playing) return;
+		_printResyncMessage = false;
+		for (sound in extra) {
+			// idea from psych
+			if (audio.time < sound.length) {
+				if (Math.abs(time - audio.time) > 25) {
+					sound.pause();
+					sound.time = audio.time;
+					sound.play();
+					_printResyncMessage = true;
+				}
+			} else if (sound.playing)
+			sound.pause();
+		}
+		if (_printResyncMessage)
+			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
+	}
+
 	@:dox(hide)
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	public function update():Void {
@@ -637,6 +684,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio == null) {
 			prevTime = audio == null ? 0 : (audio.playing ? audio.time : time);
 			return;
+		} else { // jic
+			if (audio.onComplete != onCompleteFunc)
+				audio.onComplete = onCompleteFunc;
 		}
 
 		if (!audio.playing && !autoSetTime)
@@ -648,19 +698,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (prevTime != (prevTime = audio.time))
 				time = prevTime; // update conductor
 			else time += FlxG.elapsed * 1000;
-
-			for (sound in extra) {
-				// idea from psych
-				if (audio.time < sound.length) {
-					if (Math.abs(time - audio.time) > 30) {
-						sound.pause();
-						sound.time = audio.time;
-						sound.play();
-						// _log('Resynced conductor audio.');
-					}
-				} else if (sound.playing)
-					sound.pause();
-			}
+			resyncVocals();
 		} else time += FlxG.elapsed * 1000;
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
@@ -707,6 +745,18 @@ class Conductor implements IFlxDestroyable implements IBeat {
 						measureHit(i + 1);
 			}
 		}
+	}
+
+	var _wasPlaying(null, null):Bool = false;
+	inline function onFocus():Void {
+		if (FlxG.autoPause)
+			_wasPlaying = playing;
+		resyncVocals();
+	}
+	inline function onFocusLost():Void {
+		if (FlxG.autoPause)
+			playing = _wasPlaying;
+		resyncVocals();
 	}
 
 	@:allow(imaginative.backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
@@ -792,6 +842,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				stepsPB: data.signature[1]
 			}
 		];
+		changeBPM(startBpm = prevBpm = data.bpm, data.signature[0], data.signature[1]);
 
 		var curBPM:Float = data.bpm;
 		var curSig:Array<Int> = data.signature;
@@ -866,6 +917,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function destroy():Void {
 		FlxG.signals.preUpdate.remove(update);
+		FlxG.signals.focusGained.remove(onFocus);
+		FlxG.signals.focusLost.remove(onFocusLost);
 
 		onBPMChange.destroy();
 		onStepHit.destroy();
