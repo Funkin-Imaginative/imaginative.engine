@@ -197,7 +197,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public var autoSetTime(get, never):Bool;
 	inline function get_autoSetTime():Bool {
-		if (time > 0 && time < audio.length)
+		if (time > 0 && (time < audio.length || audioEnded))
 			return false;
 		return true;
 	}
@@ -215,6 +215,22 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		return soundGroup.volume;
 	inline function set_volume(value:Float):Float
 		return soundGroup.volume = value;
+
+	#if FLX_PITCH
+	/**
+	 * Set pitch, which also alters the playback speed. Default is 1.
+	 */
+	public var pitch(get, set):Float;
+	inline function get_pitch():Float
+		return audio == null ? 1 : audio.pitch;
+	inline function set_pitch(value:Float):Float {
+		if (audio == null) return 1;
+		audio.pitch = value;
+		for (sound in extra)
+			sound.pitch = audio.pitch;
+		return value;
+	}
+	#end
 
 	// BPM's.
 	/**
@@ -330,6 +346,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		FlxG.signals.focusLost.add(onFocusLost);
 	}
 
+	var audioEnded:Bool = false;
 	inline function onCompleteFunc():Void {
 		var event:ScriptEvent = new ScriptEvent();
 		if (canLoop) {
@@ -337,12 +354,13 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			applyBPMChanges();
 			onLoop.dispatch(event);
 		} else {
-			playing = false; // will test this without this line later
 			onComplete.dispatch(event);
 			if (_onComplete != null) {
 				_onComplete(event);
 				_onComplete = null;
 			}
+			playing = false; // ugh
+			audioEnded = true;
 		}
 	}
 
@@ -359,6 +377,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * An internal function for playing the conductor audio.
 	 */
 	inline function _play():Void {
+		audioEnded = false;
 		if (!autoSetTime)
 			for (sound in soundGroup.sounds)
 				sound.play(time);
@@ -469,15 +488,15 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
-		audio.autoDestroy = false; // jic
 
-		audio.loadEmbedded(Paths.music(music), true);
+		audio.loadEmbedded(Paths.music(music));
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
 		audio.persist = true;
 
 		data = getMetadata('${music.type}:music/${music.path}');
 		applyBPMChanges();
 
+		#if FLX_PITCH pitch = pitch; #end
 		if (afterLoad != null)
 			afterLoad(audio);
 	}
@@ -492,7 +511,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
-		audio.autoDestroy = false; // jic
 
 		audio.loadEmbedded(Paths.inst(song, variant));
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
@@ -501,6 +519,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
 		applyBPMChanges();
 
+		#if FLX_PITCH pitch = pitch; #end
 		if (afterLoad != null)
 			afterLoad(audio);
 	}
@@ -517,14 +536,13 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			log('Failed to find audio "${music.format()}".', WarningMessage);
 			return null;
 		}
-
 		var music:FlxSound = FlxG.sound.list.add(new FlxSound());
-		music.autoDestroy = false; // jic
 
-		music.loadEmbedded(file, true);
+		music.loadEmbedded(file);
 		FlxG.sound.loadHelper(music, 1, soundGroup);
 		music.persist = true;
 
+		#if FLX_PITCH music.pitch = pitch; #end
 		extra.push(music);
 		if (afterLoad != null)
 			afterLoad(music);
@@ -545,14 +563,13 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			log('Failed to find ${suffix.trim() == '' ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.trim() == '' ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
 			return null;
 		}
-
 		var vocals:FlxSound = FlxG.sound.list.add(new FlxSound());
-		vocals.autoDestroy = false; // jic
 
 		vocals.loadEmbedded(file);
 		FlxG.sound.loadHelper(vocals, 1, soundGroup);
 		vocals.persist = true;
 
+		#if FLX_PITCH vocals.pitch = pitch; #end
 		extra.push(vocals);
 		if (afterLoad != null)
 			afterLoad(vocals);
@@ -657,7 +674,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * Resync's the extra tracks to the inst time when called.
 	 */
 	inline public function resyncVocals():Void {
-		if (!playing) return;
+		if (!playing && !autoSetTime) return;
 		_printResyncMessage = false;
 		for (sound in extra) {
 			// idea from psych
@@ -669,7 +686,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					_printResyncMessage = true;
 				}
 			} else if (sound.playing)
-			sound.pause();
+				sound.pause();
 		}
 		if (_printResyncMessage)
 			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
@@ -694,7 +711,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio.playing && autoSetTime)
 			audio.pause();
 
-		if (audio.playing) {
+		if (audio.playing && !audioEnded) {
 			if (prevTime != (prevTime = audio.time))
 				time = prevTime; // update conductor
 			else time += FlxG.elapsed * 1000;
