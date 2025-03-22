@@ -108,7 +108,7 @@ jobs:
             export/build/mac/obj/
           restore-keys: mac-build-cache
 
-      - name: Installing Libs
+      - name: Install Libraries
         run: haxe -cp setup -D analyzer-optimize --run Main --always
 
       - name: Building the game
@@ -183,7 +183,7 @@ jobs:
       - name: Installing Dependencies
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
 
-      - name: Installing Libs
+      - name: Install Libraries
         run: haxe -cp setup -D analyzer-optimize --run Main --always
 
       - name: Building the game
