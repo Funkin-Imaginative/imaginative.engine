@@ -78,7 +78,7 @@ class FreeplayMenu extends BeatState {
 		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bg.scrollFactor.set();
-		bg.updateScale(1.2);
+		bg.updateSizeUnstretched(FlxG.width, FlxG.height, false);
 		bg.screenCenter();
 		add(bg);
 
@@ -174,8 +174,6 @@ class FreeplayMenu extends BeatState {
 		camera.snapToTarget();
 		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
-		bg.x = FlxMath.lerp(0, FlxG.width - bg.width, FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1));
-		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1));
 	}
 	function updateMusicInfoBoxWidth():Void { // is being stupid
 		// var minWidth:Int = 500;
@@ -289,9 +287,6 @@ class FreeplayMenu extends BeatState {
 		);
 		camera.zoom = FunkinUtil.lerp(camera.zoom, 1, 0.16);
 		bgColor = bg.changeColor(FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
-		var range:Float = FlxMath.remapToRange(visualSelected, 0, songs.length - 1, 0, 1);
-		bg.x = FunkinUtil.lerp(bg.x, FlxMath.lerp(0, FlxG.width - bg.width, range), 0.16);
-		bg.y = FunkinUtil.lerp(bg.y, FlxMath.lerp(0, FlxG.height - bg.height, range), 0.16);
 
 		for (i => song in songs.members)
 			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);

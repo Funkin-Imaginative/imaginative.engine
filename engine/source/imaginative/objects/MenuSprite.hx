@@ -41,10 +41,25 @@ class MenuSprite extends FlxSpriteGroup {
 		return blankBg.color = (funkinColor && blankBgColors.exists(color)) ? blankBgColors.get(color) : color;
 	}
 
-	inline public function updateScale(x:Float = 1, ?y:Float):Void {
+	inline public function updateScale(x:Float = 1, ?y:Float, updateHitbox:Bool = true):Void {
 		for (obj in [blankBg, lineArt]) {
 			obj.scale.set(x, y ?? x);
-			obj.updateHitbox();
+			if (updateHitbox)
+				obj.updateHitbox();
+		}
+	}
+	inline public function updateSize(width:Int = 0, height:Int = 0, updateHitbox:Bool = true):Void {
+		for (obj in [blankBg, lineArt]) {
+			obj.setGraphicSize(width, height);
+			if (updateHitbox)
+				obj.updateHitbox();
+		}
+	}
+	inline public function updateSizeUnstretched(width:Int = 0, height:Int = 0, fill:Bool = true, maxScale:Float = 0, updateHitbox:Bool = true):Void {
+		for (obj in [blankBg, lineArt]) {
+			obj.setUnstretchedGraphicSize(width, height, fill, maxScale);
+			if (updateHitbox)
+				obj.updateHitbox();
 		}
 	}
 }

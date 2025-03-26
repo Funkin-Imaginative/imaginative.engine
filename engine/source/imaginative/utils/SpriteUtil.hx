@@ -230,7 +230,7 @@ class SpriteUtil {
 	 * @param maxScale Maximum scale (0 / none)
 	 * @author @CodenameCrew
 	 */
-	inline public static function setUnstretchedGraphicSize(sprite:FlxSprite, width:Int, height:Int, fill:Bool = true, maxScale:Float = 0) {
+	inline public static function setUnstretchedGraphicSize(sprite:FlxSprite, width:Int = 0, height:Int = 0, fill:Bool = true, maxScale:Float = 0):Void {
 		sprite.setGraphicSize(width, height);
 		sprite.updateHitbox();
 		var nScale = (fill ? Math.max : Math.min)(sprite.scale.x, sprite.scale.y);
