@@ -319,6 +319,7 @@ abstract ModPath(String) {
 
 /**
  * Path helper functions.
+ * TODO: Change/clean up documentation.
  */
 class Paths {
 	/**
@@ -494,8 +495,10 @@ class Paths {
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function image(file:ModPath):ModPath {
-		var ugh:ModPath = '${file.type}:images/${file.path}';
-		return ugh.pushExt('png');
+		var path:ModPath = '${file.type}:images/${file.path}';
+		path.pushExt('png');
+		Assets.image(path);
+		return path;
 	}
 
 	/**
