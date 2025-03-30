@@ -138,7 +138,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			if (Paths.spriteSheetExists(newTexture))
 				try {
-					frames = Paths.frames(newTexture, textureType);
+					frames = Assets.frames(newTexture, textureType);
 					resetTextures(Paths.image(newTexture), textureType);
 				} catch(error:haxe.Exception)
 					try {

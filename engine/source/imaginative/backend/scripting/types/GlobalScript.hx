@@ -17,7 +17,7 @@ class GlobalScript {
 			'event' => event,
 		];
 
-	@:allow(imaginative.backend.system.Main.new)
+	@:allow(imaginative.states.EngineProcess)
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.end();
@@ -30,7 +30,7 @@ class GlobalScript {
 		scripts.load();
 	}
 
-	@:allow(imaginative.backend.system.Main.new)
+	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
 		FlxG.signals.focusLost.add(() -> call('focusLost'));
 		FlxG.signals.focusGained.add(() -> call('focusGained'));

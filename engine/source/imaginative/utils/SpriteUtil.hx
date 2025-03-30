@@ -210,7 +210,7 @@ class SpriteUtil {
 			if (Paths.fileExists(Paths.image(newTexture)))
 				if (Paths.spriteSheetExists(newTexture))
 					try {
-						sprite.frames = Paths.frames(newTexture, textureType);
+						sprite.frames = Assets.frames(newTexture, textureType);
 					} catch(error:haxe.Exception)
 						try {
 							loadImage(sprite, newTexture);

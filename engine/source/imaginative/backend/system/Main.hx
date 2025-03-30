@@ -1,9 +1,7 @@
 package imaginative.backend.system;
 
 import flixel.FlxGame;
-import openfl.Lib;
 import openfl.display.Sprite;
-import openfl.events.UncaughtErrorEvent;
 import imaginative.backend.system.frontEnds.OverlayCameraFrontEnd;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
@@ -57,19 +55,15 @@ class Main extends Sprite {
 	#end
 
 	@SuppressWarnings('checkstyle:CommentedOutCode')
-	@:access(flixel.input.mouse.FlxMouse.new)
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	inline public function new():Void {
-		Console.init();
-
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 
 		super();
 		direct = this;
 
 		FlxWindow.init();
 		Script.init();
-		GlobalScript.init();
 		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
 		#end
@@ -94,72 +88,20 @@ class Main extends Sprite {
 		}
 		#end
 
-		// If debug we cut to the chase.
-		addChild(new FlxGame(imaginative.states.StartScreen, 60, 60, true));
+		addChild(new FlxGame(imaginative.states.EngineProcess, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		addChild(new EngineInfoText());
-		FlxSprite.defaultAntialiasing = true;
 
-		#if CHECK_FOR_UPDATES
-		if (Settings.setup.checkForUpdates) {
-			/* var http:haxe.Http = new haxe.Http("https://raw.githubusercontent.com/Funkin-Imaginative/imaginative.engine.dev/refs/heads/main/project.xml?token=GHSAT0AAAAAACW7FJHPLYQBPTHCRFLHZ2R2ZZU3VRA");
-
-			http.onData = (data:String) -> {
-				latestVersion = new haxe.xml.Access(Xml.parse(data).firstElement()).node.app.att.version;
-				if (engineVersion < latestVersion) {
-					log('New version available!', WarningMessage);
-					updateAvailable = true;
-				}
-			}
-
-			http.onError = (error:String) ->
-				log('error: $error', ErrorMessage);
-
-			http.request(); */
-		}
-		#end
-
-		FlxG.mouse.useSystemCursor = true; // we use custom object lol
-
-		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
 		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);
-		FlxG.game.debugger.console.registerFunction('switchState', (nextState:FlxState) -> return BeatState.switchState(nextState));
-		FlxG.game.debugger.console.registerFunction('resetState', () -> return BeatState.resetState());
 		#end
 
 		cameras.reset();
 		overlay.cameras = [camera];
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
-		FlxG.signals.preUpdate.add(() -> {
-			if (Settings.setup.debugMode) {
-				if (Controls.resetState) {
-					log('Reseting state...', SystemMessage);
-					BeatState.resetState();
-					log('Reset state successfully!', SystemMessage);
-				}
-
-				if (Controls.shortcutState) {
-					log('Heading to the MainMenu...', SystemMessage);
-					BeatState.switchState(new imaginative.states.menus.MainMenu());
-					log('Successfully entered the MainMenu!', SystemMessage);
-				}
-
-				if (Controls.reloadGlobalScripts)
-					if (GlobalScript.scripts.length > 0) {
-						log('Reloading global scripts...', SystemMessage);
-						GlobalScript.loadScript();
-						log('Global scripts successfully reloaded.', SystemMessage);
-					} else {
-						log('Loading global scripts...', SystemMessage);
-						GlobalScript.loadScript();
-					}
-			}
-		});
 		FlxG.signals.postUpdate.add(() -> {
 			overlay.update(FlxG.elapsed);
 			cameras.update(FlxG.elapsed);
@@ -176,7 +118,7 @@ class Main extends Sprite {
 		overlay.add(erect); */
 
 		// Was testing Path functions.
-		/* trace(Paths.txt('images/menus/main/itemLineUp').format());
+		/* trace(Paths.txt('images/menus/main/order').format());
 		trace(Paths.xml('images/ui/arrows').format());
 		trace(Paths.json('content/difficulties/erect').format());
 		trace(Paths.object('characters/boyfriend').format());

@@ -26,7 +26,7 @@ enum LogFrom {
 class Console {
 	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
 
-	@:allow(imaginative.backend.system.Main.new)
+	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
 		if (Log.trace != ogTrace) {
 			_log('You can\'t run this again!');

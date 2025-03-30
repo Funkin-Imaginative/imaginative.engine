@@ -178,7 +178,7 @@ final class HaxeScript extends Script {
 				if (__importedPaths.contains(path))
 					return true; // prevent double import
 				if (Paths.fileExists(path)) {
-					var content:String = Paths.getFileContent(path);
+					var content:String = Assets.text(path);
 					var expr:Expr = null;
 					try {
 						if (content != null && content.trim() != '') {
