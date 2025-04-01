@@ -4,7 +4,7 @@ import flash.media.Sound;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
-import lime.utils.Assets as LimeAssets;
+// import lime.utils.Assets as LimeAssets;
 import openfl.display.BitmapData;
 import openfl.utils.Assets as OpenFLAssets; // #if CONTAINS_EMBEDDED_FILES // #end
 
