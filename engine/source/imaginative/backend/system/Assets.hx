@@ -4,9 +4,8 @@ import flash.media.Sound;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
-// import lime.utils.Assets as LimeAssets;
 import openfl.display.BitmapData;
-import openfl.utils.Assets as OpenFLAssets; // #if CONTAINS_EMBEDDED_FILES // #end
+import openfl.utils.Assets as OpenFLAssets;
 
 /**
  * This is mostly taken from Psych since idk what to actually do.
@@ -33,77 +32,39 @@ class Assets {
 		if (!dumpExclusions.contains(path))
 			dumpExclusions.push(path);
 	}
-	// /**
-	//  * Clears unused memory from the game.
-	//  */
-	// inline public static function clearUnusedMemory():Void {
-	// 	for (tag => graphic in loadedGraphics)
-	// 		// makes sure it's not currently being used and checks if it's in the exclusion list
-	// 		if (!assetsInUse.contains(tag) && !dumpExclusions.contains(tag)) {
-	// 			destroyGraphic(graphic);
-	// 			loadedGraphics.remove(tag);
-	// 		}
-	// 	// runs system garbage collector
-	// 	openfl.system.System.gc();
-	// }
-	// /**
-	//  * Clears stored memory from the game.
-	//  */
-	// @:access(flixel.system.frontEnds.BitmapFrontEnd._cache)
-	// inline public static function clearStoredMemory():Void {
-	// 	// clear non loaded graphics
-	// 	for (tag => graphic in FlxG.bitmap._cache) {
-	// 		if (!loadedGraphics.exists(tag))
-	// 			destroyGraphic(FlxG.bitmap.get(tag));
-	// 	}
-	// 	// clear non loaded sounds
-	// 	for (tag => sound in loadedSounds) {
-	// 		if (!assetsInUse.contains(tag) && !dumpExclusions.contains(tag)) {
-	// 			LimeAssets.cache.clear(tag);
-	// 			loadedSounds.remove(tag);
-	// 		}
-	// 	}
-	// }
-	// public static function freeGraphicsFromMemory():Void {
-	// 	var protected:Array<FlxGraphic> = [];
-	// 	function checkForGraphics(object:Dynamic):Void {
-	// 		if (object is FlxSprite) {
-	// 			var graphic:FlxGraphic = cast(object, FlxSprite).graphic;
-	// 			if (graphic != null)
-	// 				if (!protected.contains(graphic))
-	// 					protected.push(graphic);
-	// 		} else if (object is FlxTypedGroup) {
-	// 			var group:FlxTypedGroup<Dynamic> = cast object;
-	// 			for (member in group)
-	// 				checkForGraphics(member);
-	// 		} else if (object is FlxTypedSpriteGroup) {
-	// 			var group:FlxTypedSpriteGroup<Dynamic> = cast object;
-	// 			for (member in group)
-	// 				checkForGraphics(member);
-	// 		} else if (object is FlxState) {
-	// 			var state:FlxState = cast object;
-	// 			for (member in state.members)
-	// 				checkForGraphics(member);
-	// 			if (state.subState != null)
-	// 				checkForGraphics(state.subState);
-	// 		} else if (object is FlxSubState) {
-	// 			var state:FlxSubState = cast object;
-	// 			for (member in state.members)
-	// 				checkForGraphics(member);
-	// 			if (state.subState != null)
-	// 				checkForGraphics(state.subState);
-	// 		}
-	// 	}
-	// 	checkForGraphics(FlxG.state);
+	inline public static function clearGraphics(clearUnused:Bool = false):Void {
+		for (tag => graphic in loadedGraphics) {
+			if (graphic == null) continue;
+			if (dumpExclusions.contains(tag) && clearUnused && !assetsInUse.contains(tag)) continue;
 
-	// 	for (tag => graphic in loadedGraphics) {
-	// 		if (!dumpExclusions.contains(tag))
-	// 			if (!protected.contains(graphic)) {
-	// 				destroyGraphic(graphic);
-	// 				loadedGraphics.remove(tag);
-	// 			}
-	// 	}
-	// }
+			graphic.persist = false;
+			graphic.destroyOnNoUse = true;
+			graphic.dump();
+
+            if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
+            if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
+            if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
+
+			loadedGraphics.remove(tag);
+		}
+		if (clearUnused)
+			FlxG.bitmap.clearUnused();
+		openfl.system.System.gc();
+	}
+	inline public static function clearSounds(clearUnused:Bool = false):Void {
+		for (tag => sound in loadedSounds) {
+			if (sound == null) continue;
+			if (dumpExclusions.contains(tag) && clearUnused && !assetsInUse.contains(tag)) continue;
+
+			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
+
+			loadedSounds.remove(tag);
+		}
+	}
+	inline public static function clearCache(clearUnused:Bool = false):Void {
+		clearSounds(clearUnused);
+		clearGraphics(clearUnused);
+	}
 
 	/**
 	 * Assets that are currently being used have their mod paths stored in this array.
@@ -275,7 +236,7 @@ class Assets {
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return null;
+			return FlxGraphic.fromBitmapData(FlxAssets.getBitmapData('flixel/images/logo.png'));
 		}
 
 		if (Settings.setup.gpuCaching && bitmap.image != null) {
@@ -308,7 +269,7 @@ class Assets {
 				// #end
 				if (result == null) {
 					FlxG.log.error('No sound data from path "$path".');
-					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
+					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep.${#if (windows || android) 'ogg' #else 'mp3' #end}') : null;
 				}
 			}
 		}
