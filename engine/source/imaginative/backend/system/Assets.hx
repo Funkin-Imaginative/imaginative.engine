@@ -221,7 +221,7 @@ class Assets {
 	inline public static function text(file:ModPath, doTypeCheck:Bool = true):String {
 		var finalPath:String = doTypeCheck ? file.format() : file.path;
 		var sysContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
-		var limeContent:Null<String> = #if CONTAINS_EMBEDDED_FILES Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : #end null;
+		var limeContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : null;
 		return sysContent ?? limeContent ?? '';
 	}
 
@@ -229,10 +229,8 @@ class Assets {
 		var bitmap:BitmapData = null;
 		if (Paths.fileExists(path, false)) {
 			bitmap = BitmapData.fromFile(path);
-			// #if CONTAINS_EMBEDDED_FILES
 			if (bitmap == null)
 				bitmap = OpenFLAssets.getBitmapData(path);
-			// #end
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
@@ -263,10 +261,8 @@ class Assets {
 		if (!loadedSounds.exists(path)) {
 			if (Paths.fileExists(path, false)) {
 				result = Sound.fromFile(path);
-				// #if CONTAINS_EMBEDDED_FILES
 				if (result == null)
 					result = OpenFLAssets.getSound(path);
-				// #end
 				if (result == null) {
 					FlxG.log.error('No sound data from path "$path".');
 					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep.${#if (windows || android) 'ogg' #else 'mp3' #end}') : null;

@@ -309,17 +309,11 @@ class EngineAsset {
 		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
 
 		// truly push assets
-		var defineEmbed:Bool = false;
 		for (setAsset in EngineAsset.mapping) {
-			var willEmbed:Bool = /* isDebug() ? false : */ setAsset.embed;
-			if (willEmbed)
-				defineEmbed = true;
-			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, willEmbed);
+			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, /* isDebug() ? false : */ setAsset.embed);
 			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
 			this.assets.push(asset);
 		}
-		if (defineEmbed) // save memory on compiled build... probably
-			setHaxedef('CONTAINS_EMBEDDED_FILES');
 	}
 
 	/**
