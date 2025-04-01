@@ -89,10 +89,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData> = [];
-	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):ModPath {
+	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):Void {
 		textures = [];
 		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
-		return newTexture;
 	}
 
 	/**
@@ -103,7 +102,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	public function loadTexture(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.fileExists(Paths.image(newTexture, false)))
 			try {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
 				else return loadImage(newTexture);
@@ -120,9 +119,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.fileExists(Paths.image(newTexture, false)))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic), animated, width, height);
+				loadGraphic(Assets.image(newTexture), animated, width, height);
+				resetTextures(Paths.image(newTexture, false), IsGraphic);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return this;
@@ -135,11 +135,11 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	public function loadSheet(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.fileExists(Paths.image(newTexture, false)))
 			if (Paths.spriteSheetExists(newTexture))
 				try {
 					frames = Assets.frames(newTexture, textureType);
-					resetTextures(Paths.image(newTexture), textureType);
+					resetTextures(Paths.image(newTexture, false), textureType);
 				} catch(error:haxe.Exception)
 					try {
 						loadImage(newTexture);

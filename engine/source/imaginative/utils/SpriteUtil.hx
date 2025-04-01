@@ -166,7 +166,7 @@ class SpriteUtil {
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.fileExists(Paths.image(newTexture, false)))
 				try {
 					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
 					else loadImage(sprite, newTexture);
@@ -188,9 +188,9 @@ class SpriteUtil {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadImage(newTexture, animated, width, height);
 		else if (sprite is FlxSprite)
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.fileExists(Paths.image(newTexture, false)))
 				try {
-					sprite.loadGraphic(Paths.image(newTexture), animated, width, height);
+					sprite.loadGraphic(Assets.image(newTexture), animated, width, height);
 				} catch(error:haxe.Exception)
 					log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return sprite;
@@ -207,7 +207,7 @@ class SpriteUtil {
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.fileExists(Paths.image(newTexture, false)))
 				if (Paths.spriteSheetExists(newTexture))
 					try {
 						sprite.frames = Assets.frames(newTexture, textureType);

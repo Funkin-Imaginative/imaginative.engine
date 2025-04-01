@@ -8,69 +8,6 @@ import lime.utils.Assets as LimeAssets;
 import openfl.display.BitmapData;
 import openfl.utils.Assets as OpenFLAssets; // #if CONTAINS_EMBEDDED_FILES // #end
 
-enum abstract AssetType(String) from String to String {
-	var IMAGE;
-	var AUDIO;
-
-	var UNFILLED;
-}
-
-class EngineAsset {
-	/**
-	 * A shortcut function for making an EngineAsset from a ModPath.
-	 * @param path The mod path.
-	 * @param assetType The asset type.
-	 * @return `EngineAsset`
-	 */
-	inline public static function fromModPath(path:ModPath, assetType:AssetType = UNFILLED):EngineAsset {
-		path.simplifyPathType();
-		return new EngineAsset(path.path, assetType, path.type);
-	}
-
-	public var modPath:String;
-	public var assetType:AssetType;
-	public var fromEngine:Bool;
-	public var forcedModType:ModType;
-
-	public function new(modPath:String, assetType:AssetType = UNFILLED, fromEngine:Bool = true, forcedModType:ModType = ANY) {
-		this.modPath = modPath;
-		this.assetType = assetType;
-		this.fromEngine = fromEngine;
-		this.forcedModType = forcedModType;
-	}
-
-	inline public function pathTypingFormat():String {
-		return switch (assetType) {
-			case IMAGE: '${FilePath.withoutExtension(modPath)}.png'; // lol
-			case AUDIO: Paths.audio(modPath, false).path; // since Paths.audio doesn't add anything to the path itself, this works
-			case UNFILLED: modPath;
-		}
-	}
-
-	inline public function guessPath():String {
-		var type:ModType = forcedModType == ANY ? ModType.typeFromPath(modPath) : forcedModType;
-		if (!fromEngine || type == null) {
-			return modPath;
-		} else {
-			var mod:ModPath = new ModPath(modPath, type);
-			return mod.format();
-		}
-	}
-
-	inline public function createModPath():ModPath {
-		return new ModPath(pathTypingFormat(), forcedModType);
-	}
-
-	inline public function toString(values):String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('Mod Path', modPath),
-			LabelValuePair.weak('Asset Type', assetType),
-			LabelValuePair.weak('From Engine', fromEngine),
-			LabelValuePair.weak('Forced Mod Type', forcedModType)
-		]);
-	}
-}
-
 /**
  * This is mostly taken from Psych since idk what to actually do.
  */
@@ -78,33 +15,24 @@ class EngineAsset {
 class Assets {
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
-		for (asset in dumpExclusions) {
-			switch (asset.assetType) {
-				case IMAGE:
-					cacheBitmap(asset);
-				case AUDIO:
-					cacheSound(asset);
-				default:
-			}
-		}
+		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
+		excludeAsset(Paths.music('main:freakyMenu'));
+		excludeAsset(Paths.music('main:breakfast'));
 	}
 
 	/**
 	 * Paths that the game shouldn't dump their data for when dumping data.
 	 */
-	public static var dumpExclusions(default, null):Array<EngineAsset> = [
-		new EngineAsset('music/breakfast', AUDIO, MAIN),
-		new EngineAsset('music/freakyMenu', AUDIO, MAIN),
-		new EngineAsset('flixel/sounds/beep', AUDIO, false),
-		new EngineAsset('images/menus/bgs/menuArt', IMAGE, MAIN)
-	];
+	public static var dumpExclusions(default, null):Array<String> = [/* 'flixel/sounds/beep.${#if (windows || android) 'ogg' #else 'mp3' #end}' */];
 	/**
 	 * An asset to exclude from dumpping.
-	 * @param asset The asset.
+	 * @param file The mod path.
 	 */
-	inline public static function excludeAsset(asset:EngineAsset):Void
-		if (!dumpExclusions.contains(asset))
-			dumpExclusions.push(asset);
+	inline public static function excludeAsset(file:ModPath, doTypeCheck:Bool = true):Void {
+		var path:String = doTypeCheck ? file.format() : file.path;
+		if (!dumpExclusions.contains(path))
+			dumpExclusions.push(path);
+	}
 	// /**
 	//  * Clears unused memory from the game.
 	//  */
@@ -125,18 +53,14 @@ class Assets {
 	// inline public static function clearStoredMemory():Void {
 	// 	// clear non loaded graphics
 	// 	for (tag => graphic in FlxG.bitmap._cache) {
-	// 		var path:String = fixPath(tag);
-	// 		var modPath:ModPath = new ModPath(path, ModType.typeFromPath(tag));
-	// 		if (!loadedGraphics.exists(modPath))
+	// 		if (!loadedGraphics.exists(tag))
 	// 			destroyGraphic(FlxG.bitmap.get(tag));
 	// 	}
 	// 	// clear non loaded sounds
 	// 	for (tag => sound in loadedSounds) {
-	// 		var path:String = fixPath(tag);
-	// 		var modPath:ModPath = new ModPath(path, ModType.typeFromPath(tag));
-	// 		if (!assetsInUse.contains(modPath) && !dumpExclusions.contains(modPath)) {
+	// 		if (!assetsInUse.contains(tag) && !dumpExclusions.contains(tag)) {
 	// 			LimeAssets.cache.clear(tag);
-	// 			loadedSounds.remove(modPath);
+	// 			loadedSounds.remove(tag);
 	// 		}
 	// 	}
 	// }
@@ -146,7 +70,8 @@ class Assets {
 	// 		if (object is FlxSprite) {
 	// 			var graphic:FlxGraphic = cast(object, FlxSprite).graphic;
 	// 			if (graphic != null)
-	// 				protected.push(graphic);
+	// 				if (!protected.contains(graphic))
+	// 					protected.push(graphic);
 	// 		} else if (object is FlxTypedGroup) {
 	// 			var group:FlxTypedGroup<Dynamic> = cast object;
 	// 			for (member in group)
@@ -172,12 +97,10 @@ class Assets {
 	// 	checkForGraphics(FlxG.state);
 
 	// 	for (tag => graphic in loadedGraphics) {
-	// 		var path:String = fixPath(tag);
-	// 		var modPath:ModPath = new ModPath(path, ModType.typeFromPath(tag));
-	// 		if (!dumpExclusions.contains(modPath))
+	// 		if (!dumpExclusions.contains(tag))
 	// 			if (!protected.contains(graphic)) {
 	// 				destroyGraphic(graphic);
-	// 				loadedGraphics.remove(modPath);
+	// 				loadedGraphics.remove(tag);
 	// 			}
 	// 	}
 	// }
@@ -185,27 +108,27 @@ class Assets {
 	/**
 	 * Assets that are currently being used have their mod paths stored in this array.
 	 */
-	public static var assetsInUse:Array<EngineAsset> = [];
+	public static var assetsInUse:Array<String> = [];
 
 	/**
 	 * A map of all loaded graphics.
 	 */
-	public static var loadedGraphics:Map<EngineAsset, FlxGraphic> = new Map<EngineAsset, FlxGraphic>();
-	inline static function listGraphic(asset:EngineAsset, graphic:FlxGraphic):FlxGraphic {
-		asset.assetType = IMAGE; // force image type
-		loadedGraphics.set(asset, graphic);
-		assetsInUse.push(asset);
+	public static var loadedGraphics:Map<String, FlxGraphic> = new Map<String, FlxGraphic>();
+	inline static function listGraphic(path:String, graphic:FlxGraphic):FlxGraphic {
+		loadedGraphics.set(path, graphic);
+		if (!assetsInUse.contains(path))
+			assetsInUse.push(path);
 		return graphic;
 	}
 
 	/**
 	 * A map of all loaded sounds.
 	 */
-	public static var loadedSounds:Map<EngineAsset, Sound> = new Map<EngineAsset, Sound>();
-	inline static function listSound(asset:EngineAsset, sound:Sound):Sound {
-		asset.assetType = AUDIO; // force audio type
-		loadedSounds.set(asset, sound);
-		assetsInUse.push(asset);
+	public static var loadedSounds:Map<String, Sound> = new Map<String, Sound>();
+	inline static function listSound(path:String, sound:Sound):Sound {
+		loadedSounds.set(path, sound);
+		if (!assetsInUse.contains(path))
+			assetsInUse.push(path);
 		return sound;
 	}
 
@@ -222,13 +145,13 @@ class Assets {
 	 * @return `FlxGraphic` ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
-		var path:ModPath = Paths.image(file, false);
-		var asset:EngineAsset = EngineAsset.fromModPath(path, IMAGE);
-		if (loadedGraphics.exists(asset)) {
-			assetsInUse.push(asset);
-			return loadedGraphics.get(asset);
+		var path:String = Paths.image(file, false).format();
+		if (loadedGraphics.exists(path)) {
+			if (!assetsInUse.contains(path))
+				assetsInUse.push(path);
+			return loadedGraphics.get(path);
 		}
-		return cacheBitmap(asset);
+		return cacheBitmap(path);
 	}
 
 	/**
@@ -238,9 +161,13 @@ class Assets {
 	 * @return `Sound` ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
-		var path:ModPath = Paths.image(file, false);
-		var asset:EngineAsset = EngineAsset.fromModPath(path, IMAGE);
-		return cacheSound(asset, beepWhenNull);
+		var path:String = Paths.audio(file, false).format();
+		if (loadedSounds.exists(path)) {
+			if (!assetsInUse.contains(path))
+				assetsInUse.push(path);
+			return loadedSounds.get(path);
+		}
+		return cacheSound(path, beepWhenNull);
 	}
 	/**
 	 * Get's the data of a songs instrumental file.
@@ -337,19 +264,17 @@ class Assets {
 		return sysContent ?? limeContent ?? '';
 	}
 
-	static function cacheBitmap(asset:EngineAsset):FlxGraphic {
-		var modPath:ModPath = asset.createModPath();
-
+	static function cacheBitmap(path:String):FlxGraphic {
 		var bitmap:BitmapData = null;
-		if (Paths.fileExists(modPath, asset.fromEngine)) {
-			bitmap = BitmapData.fromFile(modPath.format());
+		if (Paths.fileExists(path, false)) {
+			bitmap = BitmapData.fromFile(path);
 			// #if CONTAINS_EMBEDDED_FILES
 			if (bitmap == null)
-				bitmap = OpenFLAssets.getBitmapData(modPath.format());
+				bitmap = OpenFLAssets.getBitmapData(path);
 			// #end
 		}
 		if (bitmap == null) {
-			FlxG.log.error('No bitmap data from path "${modPath.format()}".');
+			FlxG.log.error('No bitmap data from path "$path".');
 			return null;
 		}
 
@@ -366,39 +291,27 @@ class Assets {
 			bitmap.readable = true;
 		}
 
-		var graphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, modPath.format());
+		var graphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, path);
 		graphic.persist = true;
 		graphic.destroyOnNoUse = false;
 
-		return listGraphic(asset, graphic);
+		return listGraphic(path, graphic);
 	}
-	static function cacheSound(asset:EngineAsset, beepWhenNull:Bool = true):Sound {
-		var modPath:ModPath = asset.createModPath();
-
+	static function cacheSound(path:String, beepWhenNull:Bool = true):Sound {
 		var result:Sound = null;
-		if (!loadedSounds.exists(asset)) {
-			if (Paths.fileExists(modPath)) {
-				result = Sound.fromFile(modPath.format());
+		if (!loadedSounds.exists(path)) {
+			if (Paths.fileExists(path, false)) {
+				result = Sound.fromFile(path);
 				// #if CONTAINS_EMBEDDED_FILES
 				if (result == null)
-					result = OpenFLAssets.getSound(modPath.format());
+					result = OpenFLAssets.getSound(path);
 				// #end
 				if (result == null) {
-					FlxG.log.error('No sound data from path "${modPath.format()}".');
+					FlxG.log.error('No sound data from path "$path".');
 					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
 				}
 			}
 		}
-		return listSound(asset, result);
-	}
-
-	inline static function fixPath(nonModPath:String):String {
-		var path:String = nonModPath;
-		if (#if MOD_SUPPORT path.startsWith('solo') || path.startsWith('mods') #else path.startsWith(Main.mainMod) #end) {
-			var pathSplit:Array<String> = path.split('/');
-			pathSplit.pop(); #if MOD_SUPPORT pathSplit.pop(); #end
-			path = pathSplit.join('/');
-		}
-		return path;
+		return listSound(path, result);
 	}
 }

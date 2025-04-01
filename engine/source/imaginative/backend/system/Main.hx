@@ -126,7 +126,6 @@ class Main extends Sprite {
 		trace([for (file in Paths.readFolder('content/states', false)) file.format()]);
 		trace([for (file in Paths.readFolderOrderTxt('content/levels', 'json', false)) file.format()]);
 		trace(Paths.sound('soundTest').format());
-		trace(Paths.soundRandom('GF_', 1, 4).format());
 		trace(Paths.music('breakfast').format());
 		trace(Paths.video('videos/just here I guess lmao/toyCommercial').format());
 		trace(Paths.cutscene('2hotCutscene').format());

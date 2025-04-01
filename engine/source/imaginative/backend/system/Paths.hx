@@ -300,7 +300,7 @@ abstract ModPath(String) {
 	 * @return `FlxGraphicAsset`
 	 */
 	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset {
-		return cast(format(), String);
+		return cast(format(), String); // Assets.image('$type:$path');
 	}
 	/**
 	 * Converts a ModPath to an FlxSoundAsset.
@@ -308,7 +308,7 @@ abstract ModPath(String) {
 	 * @return `FlxSoundAsset`
 	 */
 	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset {
-		return cast(format(), String);
+		return cast(format(), String); // Assets.audio('$type:$path');
 	}
 	/**
 	 * Converts a ModPath to an FlxXmlAsset.
@@ -515,7 +515,7 @@ class Paths {
 	/**
 	 * All possible sound extension types.
 	 */
-	public static final soundExts:Array<String> = ['wav', 'ogg', 'mp3'];
+	public static final soundExts:Array<String> = [#if (windows || android) 'wav', 'ogg', #end 'mp3'];
 	/**
 	 * Get's the path of an audio file.
 	 * @param file The mod path.
@@ -566,17 +566,6 @@ class Paths {
 	 */
 	inline public static function sound(file:ModPath, cache:Bool = true):ModPath
 		return audio('${file.type}:sounds/${file.path}', cache);
-	/**
-	 * Same as the sound function but gets a variantion of it based on a number suffix.
-	 * `May remove.`
-	 * @param file The mod path.
-	 * @param min The minimum number.
-	 * @param max The maximum number.
-	 * @param cache If true, the image data will cache when the function is called.
-	 * @return `ModPath` ~ The path data.
-	 */
-	inline public static function soundRandom(file:ModPath, min:Int, max:Int, cache:Bool = true):ModPath
-		return sound('$file${FlxG.random.int(min, max)}', cache);
 
 	/**
 	 * All possible video extension types.
@@ -685,7 +674,7 @@ class Paths {
 	 * @return `Bool` ~ If true, it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
-		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
+		return fileExists(image(file, false)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
 }
 
 enum abstract AssetTypeHelper(String) from String to String {
