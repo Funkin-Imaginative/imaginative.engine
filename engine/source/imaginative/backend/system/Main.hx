@@ -73,20 +73,6 @@ class Main extends Sprite {
 		latestVersion = engineVersion;
 		#end
 
-		#if windows
-		// Taken from Psych
-		// https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
-		// https://github.com/ShadowMario/FNF-PsychEngine/commit/ecdb1a037a20bd16275981f0afd0b37aea79c53c
-		// untyped __cpp__("SetProcessDPIAware();");
-
-		var display = lime.system.System.getDisplay(0);
-		if (display != null) {
-			var dpiScale:Float = display.dpi / 96;
-			FlxWindow.direct.self.width = Std.int(1280 * dpiScale);
-			FlxWindow.direct.self.height = Std.int(720 * dpiScale);
-			FlxWindow.direct.centerWindow();
-		}
-		#end
 
 		addChild(new FlxGame(imaginative.states.EngineProcess, 60, 60, true));
 		addChild(_inputContainer = new Sprite());

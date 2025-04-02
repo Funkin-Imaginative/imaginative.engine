@@ -39,7 +39,7 @@ class EngineAsset {
 	 */
 	static final engineVersion:String = '0.0.0';
 	/**
-	 * The starting windowTitle.
+	 * The starting window title.
 	 * Although slightly mananaged by the `FlxWindow` class I'm still having this here.
 	 */
 	static final windowTitle:String = 'Friday Night Funkin\': Imaginative Engine';
@@ -48,9 +48,13 @@ class EngineAsset {
 	 */
 	static final exeFileName:String = 'Imaginative';
 	/**
-	 * The directory path to the source code.
+	 * The name of the main solo mod the assets folder should become when mod support is enabled.
 	 */
-	static final sourceCodeDirectory:String = 'engine/source';
+	static final mainModFolderName:String = 'funkin';
+	/**
+	 * The directory path**s** to the source code.
+	 */
+	static final sourceCodeDirectories:Array<String> = ['engine/source'];
 	/**
 	 * The class path to the preloader class.
 	 */
@@ -58,7 +62,7 @@ class EngineAsset {
 	/**
 	 * The package name.
 	 */
-	static final packageName:String = 'imaginative.engine.dev';
+	static final packageName:String = 'imaginative.engine';
 	/**
 	 * The class path to the main class.
 	 */
@@ -206,10 +210,10 @@ class EngineAsset {
 
 		/* Window Settings */
 		this.window.fps = 60;
-		this.window.width = 1280;
-		this.window.height = 720;
+		setDefine('InitialWidth', '${this.window.width = 1280}');
+		setDefine('InitialHeight', '${this.window.height = 720}');
 		this.window.background = 0xFF000000;
-		this.window.hardware = this.window.resizable = true;
+		this.window.allowHighDPI = this.window.hardware = this.window.resizable = true;
 		this.window.vsync = this.window.fullscreen = false;
 		this.window.allowShaders = allowShaders.exists();
 
@@ -231,28 +235,29 @@ class EngineAsset {
 		else if (isRelease() && isDebug()) buildFolder = 'test';
 		this.app.path = 'export/$buildFolder${is32Bit() ? '-32bit' : ''}';
 
-		setDefine('GeneralAssetFolder', modSupport.exists() ? 'funkin' : 'assets');
+		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
 		var finalPath:String = '${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
-		this.sources.push(sourceCodeDirectory);
+		for (path in sourceCodeDirectories)
+			this.sources.push(path);
 
-		inline function mergeArrays<T>(one:Array<T>, two:Array<T>):Array<T> {
-			var result:Array<T> = [];
-			for (a in [one, two])
+		inline function mergeArrays(arrays:Array<Array<String>>):Array<String> {
+			var result:Array<String> = [];
+			for (a in arrays)
 				for (v in a)
 					result.push(v);
 			return result;
 		}
 		var repoItems:Array<String> = ['.git*', '.prettier*', '.editorconfig', 'checkstyle.json', '.vscode']; // Should certain things stay?
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('engine/', '', ['*'], mergeArrays(excludeList, ['assets', 'modding', 'source', 'readme.md']));
-		addAssetPath('engine/assets', finalPath, ['*'], mergeArrays(excludeList, repoItems));
+		addAssetPath('engine/', '', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'readme.md']]));
+		addAssetPath('engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
 		if (modSupport.exists()) {
-			addAssetPath('engine/modding/upfront', 'solo', ['*'], mergeArrays(excludeList, repoItems));
-			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays(excludeList, repoItems));
+			addAssetPath('engine/modding/upfront', 'solo', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays([excludeList, repoItems]));
 		}
 		if (isDebug())
-			addAssetPath('extras/debug/', finalPath, true, ['*'], mergeArrays(excludeList, repoItems));
+			addAssetPath('extras/debug/', finalPath, true, ['*'], mergeArrays([excludeList, repoItems]));
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 		/* Path Settings */

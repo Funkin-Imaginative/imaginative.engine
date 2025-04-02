@@ -37,6 +37,7 @@ class EngineProcess extends BeatState {
 
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerClass(FlxWindow);
 		FlxG.game.debugger.console.registerClass(Scoring);
 		FlxG.game.debugger.console.registerClass(Conductor);
 		FlxG.game.debugger.console.registerClass(Assets);
