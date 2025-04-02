@@ -50,8 +50,8 @@ class TitleParts {
 	@:allow(flixel.window.FlxWindow)
 	inline function new(parent:FlxWindow, title:String) {
 		parentWindow = parent;
-		main = title;
 		onPartUpdate.add((title:String) -> parent.self.title = title);
+		main = title;
 	}
 
 	public function toString():String {
