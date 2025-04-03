@@ -1,18 +1,16 @@
-package;
+package compile;
 
 import sys.FileSystem;
 import sys.io.File;
 
 using StringTools;
 
-class Main {
-	inline static final dashes:String = '-------------------------------------------------------------------------------';
-
+class Compile {
 	static var args:Array<String>;
-	public static function main():Void {
-		args = Sys.args();
+	public static function run(ranArgs:Array<String>):Void {
+		args = ranArgs;
 
-		Sys.println(dashes);
+		Sys.println(Main.dashes);
 
 		if (args.contains('--check-platform')) {
 			platformCheck();
@@ -31,13 +29,13 @@ class Main {
 			Sys.sleep(1);
 			Sys.println('Do you wish to input your platform type? [y/n]');
 			if (Sys.stdin().readLine().toLowerCase() == 'y') {
-				Sys.println(dashes);
-				if (FileSystem.exists('compile/platform.txt'))
-					FileSystem.deleteFile('compile/platform.txt');
+				Sys.println(Main.dashes);
+				if (FileSystem.exists('commands/compile/platform.txt'))
+					FileSystem.deleteFile('commands/compile/platform.txt');
 				platformCheck(true, true);
 			} else {
-				if (FileSystem.exists('compile/platform.txt'))
-					FileSystem.deleteFile('compile/platform.txt');
+				if (FileSystem.exists('commands/compile/platform.txt'))
+					FileSystem.deleteFile('commands/compile/platform.txt');
 			}
 			return;
 		}
@@ -50,8 +48,8 @@ class Main {
 	}
 
 	static function platformCheck(doneAgain:Bool = false, wasCpp:Bool = false):Void {
-		if (FileSystem.exists('compile/platform.txt')) {
-			var content:String = File.getContent('compile/platform.txt').toLowerCase().trim();
+		if (FileSystem.exists('commands/compile/platform.txt')) {
+			var content:String = File.getContent('commands/compile/platform.txt').toLowerCase().trim();
 			if (content == 'cpp') {
 				if (wasCpp) {
 					Sys.println('HUH???');
@@ -59,14 +57,14 @@ class Main {
 					Sys.println('HOW??');
 					Sys.sleep(1);
 					Sys.println('You\'re fast!');
-					if (FileSystem.exists('compile/platform.txt'))
-						FileSystem.deleteFile('compile/platform.txt');
+					if (FileSystem.exists('commands/compile/platform.txt'))
+						FileSystem.deleteFile('commands/compile/platform.txt');
 					Sys.sleep(2);
 					Sys.println('This time I\'m booting you from the loop!');
 					for (i in 0...10) {
 						Sys.sleep(1);
-						if (FileSystem.exists('compile/platform.txt')) {
-							FileSystem.deleteFile('compile/platform.txt');
+						if (FileSystem.exists('commands/compile/platform.txt')) {
+							FileSystem.deleteFile('commands/compile/platform.txt');
 							Sys.println('\nNuh uh.');
 							break;
 						}
@@ -79,10 +77,10 @@ class Main {
 					Sys.println('cpp...');
 					Sys.sleep(3);
 					Sys.println('Yeah I\'m deletin\' that shit.');
-					if (FileSystem.exists('compile/platform.txt'))
-						FileSystem.deleteFile('compile/platform.txt');
+					if (FileSystem.exists('commands/compile/platform.txt'))
+						FileSystem.deleteFile('commands/compile/platform.txt');
 					Sys.sleep(2);
-					Sys.println(dashes);
+					Sys.println(Main.dashes);
 					platformCheck(false, true);
 				}
 			} else Sys.println(content);
@@ -99,19 +97,19 @@ class Main {
 					Sys.sleep(2);
 					Sys.println('No.');
 					Sys.sleep(0.5);
-					Sys.println(dashes);
+					Sys.println(Main.dashes);
 					platformCheck(true);
 					return;
 				} else {
 					Sys.sleep(1);
 					Sys.println('I said "auto", not "cpp"!');
 					Sys.sleep(1);
-					Sys.println(dashes);
+					Sys.println(Main.dashes);
 					platformCheck(true);
 					return;
 				}
 			}
-			File.saveContent('compile/platform.txt', content == 'auto' ? getCompileTarget() : content);
+			File.saveContent('commands/compile/platform.txt', content == 'auto' ? getCompileTarget() : content);
 		}
 	}
 
@@ -137,8 +135,8 @@ class Main {
 	}
 
 	static function getCompileTarget():String {
-		if (FileSystem.exists('compile/platform.txt')) {
-			var platform:String = File.getContent('compile/platform.txt').toLowerCase().trim();
+		if (FileSystem.exists('commands/compile/platform.txt')) {
+			var platform:String = File.getContent('commands/compile/platform.txt').toLowerCase().trim();
 			return switch (platform) {
 				case 'macos': 'mac';
 				default: platform;

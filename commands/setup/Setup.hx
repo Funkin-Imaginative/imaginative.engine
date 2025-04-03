@@ -1,4 +1,4 @@
-package;
+package setup;
 
 import haxe.Json;
 import sys.FileSystem;
@@ -26,16 +26,14 @@ typedef Question = {
 	var ?description:String;
 }
 
-class Main {
+class Setup {
 	static var data:SetupJson;
 	static var optionalCheck:Map<String, Bool> = new Map<String, Bool>();
 	static var questDesc:Map<String, String> = new Map<String, String>();
 
-	inline static final dashes:String = '-------------------------------------------------------------------------------';
-
-	public static function main():Void {
+	public static function run(ranArgs:Array<String>):Void {
 		// arguments
-		var args:Array<String> = Sys.args();
+		var args:Array<String> = ranArgs;
 		optionalCheck.set('global', args.contains('--global'));
 		questDesc.set('global', 'install the libraries globally');
 
@@ -83,7 +81,7 @@ class Main {
 			}
 		}
 
-		Sys.println(dashes);
+		Sys.println(Main.dashes);
 
 		if (args.contains('--always')) { // When "--always" is used, it installs all the libs.
 			Sys.println('Skipping questions.');
@@ -104,7 +102,7 @@ class Main {
 			if (!optionalCheck.get('global'))
 				FileSystem.createDirectory('.haxelib');
 
-		Sys.println(dashes);
+		Sys.println(Main.dashes);
 
 		dependenciesCheck(data.dependencies);
 
@@ -131,7 +129,7 @@ class Main {
 
 		// This part here was taken from Codename Engine's commandline stuff.
 		if (getBuildTarget().toLowerCase() == 'windows' && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
-			Sys.println(dashes);
+			Sys.println(Main.dashes);
 			Sys.println('Installing Microsoft Visual Studio Community (Dependency)');
 
 			Sys.command('curl -# -O https://download.visualstudio.microsoft.com/download/pr/3105fcfe-e771-41d6-9a1c-fc971e7d03a7/8eb13958dc429a6e6f7e0d6704d43a55f18d02a253608351b6bf6723ffdaf24e/vs_Community.exe');
@@ -139,7 +137,7 @@ class Main {
 
 			FileSystem.deleteFile('vs_Community.exe');
 			Sys.println('If it didn\'t say it before: Because of this component if you want to compile you have to restart the device.');
-			Sys.println(dashes);
+			Sys.println(Main.dashes);
 			Sys.println('Do you wish to do it now? [y/n]');
 			if (Sys.stdin().readLine().toLowerCase().trim() == 'y') Sys.command('shutdown /r /t 0 /f');
 		}
@@ -163,7 +161,7 @@ class Main {
 			if (lib.dependencies != null)
 				dependenciesCheck(lib.dependencies, true);
 			if (!doneAgain)
-				Sys.println(dashes);
+				Sys.println(Main.dashes);
 		}
 	}
 

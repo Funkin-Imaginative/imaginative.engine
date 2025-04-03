@@ -137,8 +137,8 @@ class EngineAsset {
 
 		CompilerFlag.init(this);
 
-		if (FileSystem.exists('compile/platform.txt')) {
-			if (sys.io.File.getContent('compile/platform.txt').trim() == 'cpp') {
+		if (FileSystem.exists('commands/compile/platform.txt')) {
+			if (sys.io.File.getContent('commands/compile/platform.txt').trim() == 'cpp') {
 				Sys.println('...');
 				Sys.sleep(2);
 				Sys.println('Thought you could get away with it huh?');
