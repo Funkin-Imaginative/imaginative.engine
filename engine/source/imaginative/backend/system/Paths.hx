@@ -604,9 +604,9 @@ class Paths {
 		if (folderExists(folder, doTypeCheck))
 			for (file in FileSystem.readDirectory(doTypeCheck ? folder.format() : folder.path))
 				if (setExt == null)
-					files.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
+					files.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 				else if (FilePath.extension(file) == setExt)
-					files.push(FilePath.withoutExtension(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file'));
+					files.push(FilePath.withoutExtension(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file'));
 		return files;
 	}
 	/**
@@ -621,15 +621,15 @@ class Paths {
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
 	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
-		var orderText:Array<String> = Assets.text(txt('${FilePath.addTrailingSlash(folder)}order')).trimSplit('\n');
+		var orderText:Array<String> = Assets.text(txt('${folder.type}:${FilePath.addTrailingSlash(folder.path)}order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
 		if (addNonListed)
 			for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
 				files.push(file);
 		for (file in orderText)
-			if (fileExists('${FilePath.addTrailingSlash(folder)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
-				results.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
+			if (fileExists('${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
+				results.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 		for (file in files)
 			if (!results.contains(file))
 				results.push(file);
