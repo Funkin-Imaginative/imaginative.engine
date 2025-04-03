@@ -54,6 +54,9 @@ class Main extends Sprite {
 	public static var updateAvailable(default, null):Bool = false;
 	#end
 
+	public static final initialWidth:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialWidth'));
+	public static final initialHeight:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialHeight'));
+
 	@SuppressWarnings('checkstyle:CommentedOutCode')
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	inline public function new():Void {
@@ -74,7 +77,7 @@ class Main extends Sprite {
 		#end
 
 
-		addChild(new FlxGame(imaginative.states.EngineProcess, 60, 60, true));
+		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		addChild(new EngineInfoText());
 

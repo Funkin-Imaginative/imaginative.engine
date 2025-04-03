@@ -1,6 +1,5 @@
 package imaginative.backend.system;
 
-import lime.app.Application;
 import lime.system.Display;
 import lime.system.System;
 
@@ -91,8 +90,8 @@ class Native {
 		final display:Null<Display> = System.getDisplay(0);
 		if (display != null) {
 			final dpiScale:Float = display.dpi / 96;
-			FlxWindow.direct.self.width = Std.int(Std.parseInt(haxe.macro.Compiler.getDefine('InitialWidth')) * dpiScale);
-			FlxWindow.direct.self.height = Std.int(Std.parseInt(haxe.macro.Compiler.getDefine('InitialHeight')) * dpiScale);
+			FlxWindow.direct.self.width = Std.int(Main.initialWidth * dpiScale);
+			FlxWindow.direct.self.height = Std.int(Main.initialHeight * dpiScale);
 			FlxWindow.direct.screenCenter();
 		}
 
