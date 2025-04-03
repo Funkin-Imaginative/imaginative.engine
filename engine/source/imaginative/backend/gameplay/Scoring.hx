@@ -68,7 +68,7 @@ class PlayerStats {
 
 class Scoring {
 	/**
-	 *	The player stats.
+	 * The player stats.
 	 */
 	public static var statsP1(default, null):PlayerStats = new PlayerStats();
 	/**
