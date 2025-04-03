@@ -148,7 +148,6 @@ enum abstract SpriteType(String) from String to String {
 	 * States that this is the a sprite that can bop to the beat. Even when not set as the `IsBeatSprite` type.
 	 */
 	public var isBeatType(get, never):Bool;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isBeatType():Bool
 		return this == IsBeatSprite || this == IsCharacterSprite || this == IsHealthIcon;
 }

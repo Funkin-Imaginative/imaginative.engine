@@ -27,7 +27,6 @@ typedef ObjectTyping = {
 	@:default(false) var willHey:Bool;
 }
 
-@SuppressWarnings('checkstyle:FieldDocComment')
 typedef LevelParse = {
 	var title:String;
 	var songs:Array<String>;

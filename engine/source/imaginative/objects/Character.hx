@@ -2,7 +2,6 @@ package imaginative.objects;
 
 import imaginative.backend.scripting.events.PointEvent;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
 typedef CharacterParse = {
 	@:default({x: 0, y: 0}) var camera:Position;
 	var ?color:String;

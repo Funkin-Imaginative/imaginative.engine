@@ -194,7 +194,6 @@ abstract ModPath(String) {
 	 * States if the path is invalid.
 	 */
 	public var valid(get, never):Bool;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_valid():Bool
 		return isDirectory || Paths.fileExists(format(), false) || Paths.fileExists(path, false);
 
@@ -202,27 +201,22 @@ abstract ModPath(String) {
 	 * The mod path.
 	 */
 	public var path(get, set):String;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_path():String
 		return this.split(':')[1];
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_path(value:String):String
 		return this = '${this.split(':')[0]}:$value';
 	/**
 	 * If true, the path is a folder and not a file.
 	 */
 	public var isDirectory(get, never):Bool;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isDirectory():Bool
 		return Paths.folderExists(format(), false) || Paths.folderExists(path, false);
 	/**
 	 * This variable holds the name of the file extension.
 	 */
 	public var extension(get, set):String;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_extension():String
 		return FilePath.extension(path);
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_extension(value:String):String
 		return path = '${FilePath.withoutExtension(path)}${value.trim() == '' ? '' : '.$value'}';
 
@@ -230,10 +224,8 @@ abstract ModPath(String) {
 	 * The path type.
 	 */
 	public var type(get, set):ModType;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_type():ModType
 		return ModType.fromString(this.split(':')[0]) ?? ANY;
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_type(value:ModType):ModType
 		// `I swear to god I almost murdered this abstract.`
 		return this = '${value ?? ANY}:${this.split(':')[1]}';

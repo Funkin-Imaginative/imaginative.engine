@@ -1,6 +1,5 @@
 package imaginative.backend.music;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
 typedef BPMChange = {
 	var stepTime:Float;
 	var songTime:Float;
@@ -51,7 +50,6 @@ typedef AudioData = {
 }
 
 // MAYBE: Add documentation.
-@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract SongTimeType(String) from String to String {
 	var IsStep = 'Step';
 	var IsBeat = 'Beat';
@@ -692,8 +690,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
 	}
 
-	@:dox(hide)
-	@SuppressWarnings('checkstyle:FieldDocComment')
 	public function update():Void {
 		if (!playing)
 			return;

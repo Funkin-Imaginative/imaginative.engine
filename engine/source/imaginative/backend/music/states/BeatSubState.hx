@@ -146,7 +146,6 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		this.scriptName = scriptName;
 	}
 
-	@SuppressWarnings('checkstyle:CodeSimilarity')
 	function loadScript():Void {
 		if (stateScripts == null) stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {

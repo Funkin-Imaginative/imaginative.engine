@@ -57,7 +57,6 @@ class Main extends Sprite {
 	public static final initialWidth:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialWidth'));
 	public static final initialHeight:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialHeight'));
 
-	@SuppressWarnings('checkstyle:CommentedOutCode')
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	inline public function new():Void {
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);

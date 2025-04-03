@@ -29,7 +29,7 @@ enum abstract ScriptType(String) from String to String {
 	 * If true, this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
-	@SuppressWarnings('checkstyle:FieldDocComment') inline function get_dummy():Bool
+	inline function get_dummy():Bool
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
