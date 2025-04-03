@@ -84,20 +84,29 @@ class FreeplayMenu extends BeatState {
 
 		var loadedDiffs:Array<String> = [];
 		songs = new FlxTypedGroup<SongHolder>();
-		for (list in [
-			// FunkinUtil.getSongFolderNames(LEAD),
-			// FunkinUtil.getSongFolderNames(MOD),
-			FunkinUtil.getSongFolderNames()
-		]) {
+		var songList:Array<Array<ModPath>> = [
+			FunkinUtil.getSongFolderNames(LEAD),
+			FunkinUtil.getSongFolderNames(MOD),
+		];
+		if (Settings.setup.debugMode)
+			songList.insert(0, [Paths.file('main:Test')]);
+		trace(songList);
+		for (list in songList) {
 			for (i => name in list) {
-				var song:SongHolder = new SongHolder(10 * (i + 1) - 10 - (FlxG.width / 2), 150 * (i + 1), name, true);
-				songs.add(song);
-
-				for (diff in song.data.difficulties)
-					if (!loadedDiffs.contains(diff))
-						loadedDiffs.push(diff);
+				var song:SongHolder = new SongHolder(name, true);
+				var theCall:Dynamic = song.scripts.call('shouldHide');
+				if (theCall is Bool ? theCall : false)
+					song.destroy();
+				else {
+					songs.add(song);
+					for (diff in song.data.difficulties)
+						if (!loadedDiffs.contains(diff))
+							loadedDiffs.push(diff);
+				}
 			}
 		}
+		for (i => song in songs.members)
+			song.setPosition(10 * (i + 1) - 10 - (FlxG.width / 2), 150 * (i + 1));
 		if (songs.length < 1) {
 			emptyList = true;
 			log('There are no items in the listing.', WarningMessage);

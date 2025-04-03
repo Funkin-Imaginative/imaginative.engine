@@ -46,6 +46,8 @@ typedef SongData = {
 }
 
 class SongHolder extends BeatSpriteGroup {
+	public var pathType:ModType;
+
 	/**
 	 * The song data.
 	 */
@@ -78,9 +80,10 @@ class SongHolder extends BeatSpriteGroup {
 		return result;
 	}
 
-	override public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
-		super(x, y);
+	override public function new(name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
+		super();
 
+		pathType = name.type;
 		data = ParseUtil.song(name);
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {

@@ -69,24 +69,33 @@ class StoryMenu extends BeatState {
 		var loadedDiffs:Array<String> = [];
 		var loadedObjects:Array<Array<ObjectTyping>> = [];
 		levels = new FlxTypedGroup<LevelHolder>();
-		for (list in [
-			// Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
-			// Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
-			Paths.readFolderOrderTxt('content/levels', 'json', false)
-		]) {
+		var levelList:Array<Array<ModPath>> = [
+			Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
+			Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
+		];
+		if (Settings.setup.debugMode)
+			levelList.insert(0, [Paths.file('main:debug/Test')]);
+		for (list in levelList) {
 			for (i => name in list) {
-				var level:LevelHolder = new LevelHolder(0, 150 * (i + 1), name, true);
-				level.screenCenter(X);
-				levels.add(level);
-
-				for (diff in level.data.difficulties)
-					if (!loadedDiffs.contains(diff))
-						loadedDiffs.push(diff);
-				var temp:Array<ObjectTyping> = [];
-				for (data in level.data.objects)
-					temp.push(data);
-				loadedObjects.push(temp);
+				var level:LevelHolder = new LevelHolder(name, true);
+				var theCall:Dynamic = level.scripts.call('shouldHide');
+				if (theCall is Bool ? theCall : false)
+					level.destroy();
+				else {
+					levels.add(level);
+					for (diff in level.data.difficulties)
+						if (!loadedDiffs.contains(diff))
+							loadedDiffs.push(diff);
+					var temp:Array<ObjectTyping> = [];
+					for (data in level.data.objects)
+						temp.push(data);
+					loadedObjects.push(temp);
+				}
 			}
+		}
+		for (i => level in levels.members) {
+			level.screenCenter(X);
+			level.y = 150 * (i + 1);
 		}
 		if (levels.length < 1) {
 			emptyList = true;

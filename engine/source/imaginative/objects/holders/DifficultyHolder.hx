@@ -47,8 +47,8 @@ class DifficultyHolder extends BeatSpriteGroup {
 	 */
 	public var isLocked:Bool = false;
 
-	override public function new(x:Float = 0, y:Float = 0, diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
-		super(x, y);
+	override public function new(diff:String, loadSprites:Bool = false, allowScripts:Bool = true) {
+		super();
 
 		data = ParseUtil.difficulty(name = diff.toLowerCase());
 		scripts = new ScriptGroup(this);

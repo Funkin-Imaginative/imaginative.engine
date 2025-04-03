@@ -104,12 +104,25 @@ enum abstract ModType(String) {
 	/**
 	 * Helper for ModPath `@:from` stuff.
 	 * @param string The path type as a string.
-	 * @return ModType
+	 * @return `ModType`
 	 */
 	inline public static function modPathHelper(string:String):ModType {
 		var type:String = string.split(':')[0];
 		var result:ModType = (type.trim() == '' || type == null) ? ANY : fromString(type);
 		return result;
+	}
+
+	/**
+	 * Returns path type based on a mod paths formatted path.
+	 * @param path The mod path.
+	 * @param doTypeCheck If false, it starts the check from the engine root.
+	 * @return `ModType` ~ The simplify path type.
+	 */
+	inline public static function simplifyType(path:ModPath, doTypeCheck:Bool = true):ModType {
+		var ogType:ModType = path.type;
+		var newType:ModType = path.simplifyPathType().type;
+		path.type = ogType;
+		return newType;
 	}
 
 	/**
@@ -249,10 +262,10 @@ abstract ModPath(String) {
 		return result.trim() == '' ? path : result;
 	}
 
-	inline public function simplifyPathType():ModPath {
+	inline public function simplifyPathType(?folderHelp:String):ModPath {
 		switch (type) {
 			case ANY | LEAD | MODDED | NORM:
-				type = ModType.typeFromPath(format());
+				type = ModType.typeFromPath(Paths.file('$type:${folderHelp == null || folderHelp.trim() == '' ? '' : FilePath.addTrailingSlash(folderHelp)}$path').format());
 			default:
 				// already simplified
 		}
@@ -607,6 +620,8 @@ class Paths {
 					files.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 				else if (FilePath.extension(file) == setExt)
 					files.push(FilePath.withoutExtension(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file'));
+		for (file in files)
+			file.simplifyPathType(prependDir ? '' : folder.path);
 		return files;
 	}
 	/**
@@ -633,6 +648,8 @@ class Paths {
 		for (file in files)
 			if (!results.contains(file))
 				results.push(file);
+		for (file in results)
+			file.simplifyPathType(prependDir ? '' : folder.path);
 		return results;
 	}
 

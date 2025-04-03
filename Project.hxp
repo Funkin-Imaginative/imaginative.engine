@@ -256,8 +256,6 @@ class EngineAsset {
 			addAssetPath('engine/modding/upfront', 'solo', ['*'], mergeArrays([excludeList, repoItems]));
 			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays([excludeList, repoItems]));
 		}
-		if (isDebug())
-			addAssetPath('extras/debug/', finalPath, true, ['*'], mergeArrays([excludeList, repoItems]));
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 		/* Path Settings */

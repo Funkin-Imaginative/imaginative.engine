@@ -78,6 +78,8 @@ typedef LevelData = {
  * This is mostly used for the story menu.
  */
 class LevelHolder extends BeatSpriteGroup {
+	public var pathType:ModType;
+
 	/**
 	 * The level data.
 	 */
@@ -111,9 +113,10 @@ class LevelHolder extends BeatSpriteGroup {
 	 */
 	public var weekObjects:Array<BeatSprite> = [];
 
-	override public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
-		super(x, y);
+	override public function new(name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
+		super();
 
+		pathType = name.type;
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
