@@ -73,18 +73,31 @@ class FunkinUtil {
 	 * @return `Array<ModPath>`
 	 */
 	@:noUsing public static function getSongFolderNames(sortOrderByLevel:Bool = true, pathType:ModType = ANY):Array<ModPath> {
-		var results:Array<ModPath> = [];
+		// Level Grab
+		var levels:Array<ModPath> = [];
 		try {
 			if (sortOrderByLevel)
 				for (name in Paths.readFolderOrderTxt('$pathType:content/levels', 'json', false))
 					for (song in ParseUtil.level(name).songs)
-						results.push('$pathType:${song.folder}');
+						levels.push('${name.type}:${song.folder}');
 		} catch(error:haxe.Exception)
 			log('Missing level json.', WarningMessage);
+		for (file in levels)
+			file.type = ModType.simplifyType(file, 'content/levels');
+
+		// Song Grab
+		var songs:Array<ModPath> = [];
 		for (folder in Paths.readFolder('$pathType:content/songs', false))
 			if (FilePath.extension(folder) == '')
-				if (!results.contains(folder))
-					results.push(folder);
+				songs.push(folder);
+		for (file in songs)
+			file.type = ModType.simplifyType(file, 'content/songs');
+
+		// Results
+		var results:Array<ModPath> = levels ?? []; // jic
+		for (file in songs)
+			if (!results.contains(file))
+				results.push(file);
 		return results;
 	}
 

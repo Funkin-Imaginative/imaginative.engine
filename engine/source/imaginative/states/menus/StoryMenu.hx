@@ -73,24 +73,20 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
 			Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
 		];
-		if (Settings.setup.debugMode)
-			levelList.insert(0, [Paths.file('main:debug/Test')]);
+		if (Settings.setup.debugMode && ![for (list in levelList) for (name in list) name].contains('main:debug/Test'))
+			levelList.insert(0, ['main:debug/Test']);
 		for (list in levelList) {
 			for (i => name in list) {
 				var level:LevelHolder = new LevelHolder(name, true);
-				var theCall:Dynamic = level.scripts.call('shouldHide');
-				if (theCall is Bool ? theCall : false)
-					level.destroy();
-				else {
-					levels.add(level);
-					for (diff in level.data.difficulties)
-						if (!loadedDiffs.contains(diff))
-							loadedDiffs.push(diff);
-					var temp:Array<ObjectTyping> = [];
-					for (data in level.data.objects)
-						temp.push(data);
-					loadedObjects.push(temp);
-				}
+				levels.add(level);
+
+				for (diff in level.data.difficulties)
+					if (!loadedDiffs.contains(diff))
+						loadedDiffs.push(diff);
+				var temp:Array<ObjectTyping> = [];
+				for (data in level.data.objects)
+					temp.push(data);
+				loadedObjects.push(temp);
 			}
 		}
 		for (i => level in levels.members) {

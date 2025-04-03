@@ -78,6 +78,9 @@ typedef LevelData = {
  * This is mostly used for the story menu.
  */
 class LevelHolder extends BeatSpriteGroup {
+	/**
+	 * The holder's path type.
+	 */
 	public var pathType:ModType;
 
 	/**
@@ -108,6 +111,15 @@ class LevelHolder extends BeatSpriteGroup {
 		return result;
 	}
 	/**
+	 * Is the holder be hidden?
+	 */
+	public var isHidden(get, never):Bool;
+	inline function get_isHidden():Bool {
+		var theCall:Dynamic = scripts.call('shouldHide');
+		var result:Bool = theCall is Bool ? theCall : false;
+		return result;
+	}
+	/**
 	 * The week character for that week.
 	 * This is mostly used for the story menu.
 	 */
@@ -128,7 +140,7 @@ class LevelHolder extends BeatSpriteGroup {
 		scripts.load();
 
 		if (loadSprites) {
-			sprite = new BaseSprite('${name.type}:menus/story/levels/${name.path}');
+			sprite = new BaseSprite('$pathType:menus/story/levels/${name.path}');
 			add(sprite);
 
 			if (isLocked) {

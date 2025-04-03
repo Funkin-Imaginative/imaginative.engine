@@ -115,14 +115,17 @@ enum abstract ModType(String) {
 	/**
 	 * Returns path type based on a mod paths formatted path.
 	 * @param path The mod path.
+	 * @param pathingHelp Get's prepended onto the mod paths path when not null.
 	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `ModType` ~ The simplify path type.
 	 */
-	inline public static function simplifyType(path:ModPath, doTypeCheck:Bool = true):ModType {
-		var ogType:ModType = path.type;
-		var newType:ModType = path.simplifyPathType().type;
-		path.type = ogType;
-		return newType;
+	inline public static function simplifyType(path:ModPath, ?pathingHelp:String, doTypeCheck:Bool = true):ModType {
+		return switch (path.type) {
+			case ANY | LEAD | MODDED | NORM:
+				ModType.typeFromPath(Paths.file('${path.type}:${pathingHelp == null || pathingHelp.trim() == '' ? '' : FilePath.addTrailingSlash(pathingHelp)}${path.path}').format());
+			default:
+				path.type; // already simplified
+		}
 	}
 
 	/**
@@ -260,16 +263,6 @@ abstract ModPath(String) {
 	inline public function format():String {
 		var result:String = Paths.applyRoot(path, type);
 		return result.trim() == '' ? path : result;
-	}
-
-	inline public function simplifyPathType(?folderHelp:String):ModPath {
-		switch (type) {
-			case ANY | LEAD | MODDED | NORM:
-				type = ModType.typeFromPath(Paths.file('$type:${folderHelp == null || folderHelp.trim() == '' ? '' : FilePath.addTrailingSlash(folderHelp)}$path').format());
-			default:
-				// already simplified
-		}
-		return '$type:$path';
 	}
 
 	/**
@@ -621,7 +614,7 @@ class Paths {
 				else if (FilePath.extension(file) == setExt)
 					files.push(FilePath.withoutExtension(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file'));
 		for (file in files)
-			file.simplifyPathType(prependDir ? '' : folder.path);
+			file.type = ModType.simplifyType(file, prependDir ? null : folder.path);
 		return files;
 	}
 	/**
@@ -649,7 +642,7 @@ class Paths {
 			if (!results.contains(file))
 				results.push(file);
 		for (file in results)
-			file.simplifyPathType(prependDir ? '' : folder.path);
+			file.type = ModType.simplifyType(file, prependDir ? null : folder.path);
 		return results;
 	}
 

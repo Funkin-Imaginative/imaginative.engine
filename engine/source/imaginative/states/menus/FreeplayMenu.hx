@@ -88,21 +88,17 @@ class FreeplayMenu extends BeatState {
 			FunkinUtil.getSongFolderNames(LEAD),
 			FunkinUtil.getSongFolderNames(MOD),
 		];
-		if (Settings.setup.debugMode)
-			songList.insert(0, [Paths.file('main:Test')]);
+		if (Settings.setup.debugMode && ![for (list in songList) for (name in list) name].contains('main:Test'))
+			songList.insert(0, ['main:Test']);
 		trace(songList);
 		for (list in songList) {
 			for (i => name in list) {
 				var song:SongHolder = new SongHolder(name, true);
-				var theCall:Dynamic = song.scripts.call('shouldHide');
-				if (theCall is Bool ? theCall : false)
-					song.destroy();
-				else {
-					songs.add(song);
-					for (diff in song.data.difficulties)
-						if (!loadedDiffs.contains(diff))
-							loadedDiffs.push(diff);
-				}
+				songs.add(song);
+
+				for (diff in song.data.difficulties)
+					if (!loadedDiffs.contains(diff))
+						loadedDiffs.push(diff);
 			}
 		}
 		for (i => song in songs.members)

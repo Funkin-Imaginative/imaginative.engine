@@ -20,11 +20,11 @@ class Modding {
 	/**
 	 * Current up front mod.
 	 */
-	public static var curSolo(default, null):String = 'example';
+	public static var curSolo(default, null):String = '';
 	/**
 	 * Current lower end mod.
 	 */
-	public static var curMod(default, null):String = 'example';
+	public static var curMod(default, null):String = '';
 	/**
 	 * List of active global, lower end mods.
 	 */
@@ -44,12 +44,11 @@ class Modding {
 	 * @return `String` ~ The root path of the item your looking for.
 	 */
 	public static function getModsRoot(modPath:String):String {
-		if (curMod != null && curMod.trim() != '') {
-			var asset:String = 'mods/$curMod/$modPath';
-			if (Paths.fileExists(asset, false))
-				return asset;
-		}
-		for (mod in globalMods) {
+		var mods:Array<String> = globalMods.copy();
+		if (curMod != null && curMod.trim() != '')
+			mods.push(curMod);
+
+		for (mod in mods) {
 			var asset:String = 'mods/$mod/$modPath';
 			if (Paths.fileExists(asset, false))
 				return asset;
@@ -87,14 +86,12 @@ class Modding {
 		}
 
 		if (ModType.pathCheck(MOD, pathType)) {
-			for (mod in globalMods) {
-				var asset:String = 'mods/$mod/$file';
-				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
-					potentialPaths.push(asset);
-			}
+			var mods:Array<String> = globalMods.copy();
+			if (curMod != null && curMod.trim() != '')
+				mods.push(curMod);
 
-			if (curMod != null && curMod.trim() != '') {
-				var asset:String = 'mods/$curMod/$file';
+			for (mod in mods) {
+				var asset:String = 'mods/$mod/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 					potentialPaths.push(asset);
 			}

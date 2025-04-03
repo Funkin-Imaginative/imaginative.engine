@@ -46,6 +46,9 @@ typedef SongData = {
 }
 
 class SongHolder extends BeatSpriteGroup {
+	/**
+	 * The holder's path type.
+	 */
 	public var pathType:ModType;
 
 	/**
@@ -79,6 +82,15 @@ class SongHolder extends BeatSpriteGroup {
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
+	/**
+	 * Is the holder be hidden?
+	 */
+	public var isHidden(get, never):Bool;
+	inline function get_isHidden():Bool {
+		var theCall:Dynamic = scripts.call('shouldHide');
+		var result:Bool = theCall is Bool ? theCall : false;
+		return result;
+	}
 
 	override public function new(name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
@@ -90,7 +102,7 @@ class SongHolder extends BeatSpriteGroup {
 			var bruh:Array<ModPath> = ['lead:global', name];
 			log([for (file in bruh) file.format()], DebugMessage);
 			for (song in bruh)
-				for (script in Script.create('${name.type}:content/scripts/songs/${name.path}'))
+				for (script in Script.create('$pathType:content/scripts/songs/${name.path}'))
 					scripts.add(script);
 		}
 		scripts.load();
@@ -101,7 +113,7 @@ class SongHolder extends BeatSpriteGroup {
 			text.borderSize = 3.5;
 			add(text);
 
-			icon = new HealthIcon(text.width + 30, text.height / 2, data.icon/* '${name.type}:${data.icon}' */);
+			icon = new HealthIcon(text.width + 30, text.height / 2, data.icon/* '$pathType:${data.icon}' */);
 			icon.preventScaleBop = true;
 			icon.y -= icon.height / 2;
 			add(icon);
