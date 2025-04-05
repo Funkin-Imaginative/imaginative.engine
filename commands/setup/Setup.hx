@@ -38,9 +38,9 @@ class Setup {
 		questDesc.set('global', 'install the libraries globally');
 
 		// json parse
-		Sys.println('Getting libraries from "setup/data.json"');
-		if (FileSystem.exists('setup/data.json')) {
-			data = Json.parse(File.getContent('setup/data.json'));
+		Sys.println('Getting libraries from "commands/setup/data.json"');
+		if (FileSystem.exists('commands/setup/data.json')) {
+			data = Json.parse(File.getContent('commands/setup/data.json'));
 		} else {
 			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify([
 				{
