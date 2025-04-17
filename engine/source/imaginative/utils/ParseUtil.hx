@@ -158,7 +158,7 @@ class ParseUtil {
 
 		data.asset = typeData.asset;
 		if (Reflect.hasField(typeData.asset, 'dimensions'))
-			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x'), Reflect.getProperty(typeData.asset.dimensions, 'y'));
+			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x') ?? 0, Reflect.getProperty(typeData.asset.dimensions, 'y') ?? 0);
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}

@@ -177,7 +177,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			modPath = inputData.asset.image;
 			try {
 				if (inputData.asset.type == IsGraphic)
-					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+					loadImage(modPath, inputData.asset.dimensions.x == 0 && inputData.asset.dimensions.y == 0 ? false : true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
 				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
@@ -304,7 +304,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push(file);
 
-		// log([for (file in bruh) file.format()], DebugMessage);
+		log([for (file in bruh) file.format()], DebugMessage);
 
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
@@ -315,14 +315,20 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
 		super(x, y);
-
-		if (sprite is String) {
+		if (sprite == null) {
+			trace('"Hello," said balloon boy.');
+		}
+		if (sprite is String || Reflect.fields(sprite).contains('type')) {
 			var file:ModPath = ModPath.fromString(sprite);
+			trace('"$sprite"');
 			if (Paths.fileExists(Paths.object(file))) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
-		} else renderData(sprite, applyStartValues);
+		} else {
+			trace(sprite);
+			renderData(sprite, applyStartValues);
+		}
 
 		if (scripts == null)
 			loadScript(script);

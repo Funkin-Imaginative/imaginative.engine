@@ -2,6 +2,7 @@ package imaginative.states;
 
 import imaginative.objects.gameplay.hud.*;
 import imaginative.states.editors.ChartEditor.ChartData;
+import imaginative.states.menus.*;
 
 typedef CountdownAssets = {
 	/**
@@ -665,7 +666,17 @@ class PlayState extends BeatState {
 	}
 
 	function endSong():Void {
-
+		if (storyMode) {
+			if (storyIndex == songList.length-1)
+				BeatState.switchState(new StoryMenu());
+			else {
+				storyIndex++;
+				renderChart(songList[storyIndex], difficulty, variant);
+				BeatState.resetState();
+			}
+		} else {
+			BeatState.switchState(new FreeplayMenu());
+		}
 	}
 
 	override public function stepHit(curStep:Int):Void {
