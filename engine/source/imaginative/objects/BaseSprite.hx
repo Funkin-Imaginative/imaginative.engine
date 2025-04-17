@@ -315,20 +315,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
 		super(x, y);
-		if (sprite == null) {
-			trace('"Hello," said balloon boy.');
-		}
-		if (sprite is String || Reflect.fields(sprite).contains('type')) {
+		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
-			trace('"$sprite"');
 			if (Paths.fileExists(Paths.object(file))) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
-		} else {
-			trace(sprite);
-			renderData(sprite, applyStartValues);
-		}
+		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
 			loadScript(script);
