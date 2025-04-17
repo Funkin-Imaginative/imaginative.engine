@@ -1,5 +1,6 @@
 package imaginative.backend.converters;
 
+import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor;
 
 typedef FNFCodenameFormat = {
@@ -55,14 +56,14 @@ typedef FNFCodenameMeta = {
 class ChartConverter {
 	// Global
 	public function convertAudio(audioData:String):SongData {
-		var audio = haxe.Json.parse(audioData)
+		var audio = haxe.Json.parse(audioData);
 		if (Reflect.hasField(audio, 'customValues')) {
 			var data:FNFCodenameMeta = new JsonParser<FNFCodenameMeta>().fromJson(metaData, 'Codename Meta (Audio)');
 			return fromCodenameMeta(data, true);
 		} else return audio;
 	}
 	public function convertMeta(metaData:String):SongData {
-		var meta = haxe.Json.parse(metaData)
+		var meta = haxe.Json.parse(metaData);
 		if (Reflect.hasField(meta, 'customValues')) {
 			var data:FNFCodenameMeta = new JsonParser<FNFCodenameMeta>().fromJson(metaData, 'Codename Meta');
 			return fromCodenameMeta(data);
@@ -121,7 +122,7 @@ class ChartConverter {
 			});
 		}
 		return {
-			speed: chart.scrollSpeed
+			speed: chart.scrollSpeed,
 			stage: chart.stage,
 			fields: fields,
 			characters: characters,
@@ -129,7 +130,7 @@ class ChartConverter {
 				order: [for (field in fields) field.tag],
 				enemy: [for (field in fields) field.tag][0],
 				player: [for (field in fields) field.tag][1]
-			}
+			},
 			hud: 'funkin',
 			events: []
 		}
