@@ -90,7 +90,7 @@ typedef ChartEvent = {
 	/**
 	 * The event parameters.
 	 */
-	var params:Array<OneOfFour<Int, Float, Bool, String>>;
+	var params:Array<JsonDynamic>;
 	/**
 	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.

@@ -1,7 +1,10 @@
 package imaginative.utils;
 
 import json2object.JsonParser;
+import imaginative.backend.converters.*;
 import imaginative.states.editors.ChartEditor.ChartData;
+
+typedef JsonDynamic = OneOfFour<Int, Float, Bool, String>;
 
 typedef AllowedModesTyping = {
 	/**
@@ -22,7 +25,7 @@ typedef ExtraData = {
 	/**
 	 * The data contents.
 	 */
-	var data:OneOfFour<Int, Float, Bool, String>;
+	var data:JsonDynamic;
 }
 
 /**
@@ -203,7 +206,7 @@ class ParseUtil {
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
-		return new json2object.JsonParser<ChartData>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		return ChartConverter.convertChart(new json2object.JsonParser<ChartData>().fromJson(Assets.text(jsonPath), jsonPath.format()));
 	}
 
 	/**
