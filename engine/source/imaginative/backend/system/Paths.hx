@@ -513,7 +513,7 @@ class Paths {
 	/**
 	 * All possible sound extension types.
 	 */
-	public static final soundExts:Array<String> = [#if (windows || android) 'wav', 'ogg', #end 'mp3'];
+	public static final soundExts:Array<String> = ['wav', 'ogg', 'mp3'];
 	/**
 	 * Get's the path of an audio file.
 	 * @param file The mod path.

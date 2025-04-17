@@ -22,7 +22,7 @@ class Assets {
 	/**
 	 * Paths that the game shouldn't dump their data for when dumping data.
 	 */
-	public static var dumpExclusions(default, null):Array<String> = [/* 'flixel/sounds/beep.${#if (windows || android) 'ogg' #else 'mp3' #end}' */];
+	public static var dumpExclusions(default, null):Array<String> = [/* 'flixel/assets/sounds/beep.ogg' */];
 	/**
 	 * An asset to exclude from dumpping.
 	 * @param file The mod path.
@@ -283,7 +283,7 @@ class Assets {
 					result = OpenFLAssets.getSound(path);
 				if (result == null) {
 					FlxG.log.error('No sound data from path "$path".');
-					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep.${#if (windows || android) 'ogg' #else 'mp3' #end}') : null;
+					return beepWhenNull ? FlxAssets.getSound('flixel/assets/sounds/beep.ogg') : null;
 				}
 			}
 		}
