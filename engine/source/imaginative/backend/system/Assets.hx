@@ -211,7 +211,6 @@ class Assets {
 	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromAseprite(image(file), Paths.json('${file.type}:images/${file.path}'));
 
-	// BUG: Exists check doesn't check if its embedded or not since it does ||.
 	/**
 	 * Get's the content of a file containing text.
 	 * @param file The mod path.
