@@ -106,7 +106,7 @@ class Assets {
 	 * @return `FlxGraphic` ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
-		var path:String = Paths.image(file, false).format();
+		var path:String = Paths.image(file).format();
 		if (loadedGraphics.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -122,7 +122,7 @@ class Assets {
 	 * @return `Sound` ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
-		var path:String = Paths.audio(file, false).format();
+		var path:String = Paths.audio(file).format();
 		if (loadedSounds.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -138,7 +138,7 @@ class Assets {
 	 * @return `Sound` ~ The sound data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):Sound
-		return audio(Paths.inst(song, variant, false), false);
+		return audio(Paths.inst(song, variant), false);
 	/**
 	 * Get's the data of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
@@ -148,7 +148,7 @@ class Assets {
 	 * @return `ModPath` ~ The sound data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):Sound
-		return audio(Paths.vocal(song, suffix, variant, false), false);
+		return audio(Paths.vocal(song, suffix, variant), false);
 	/**
 	 * Get's the data of a song.
 	 * From `../music/`.
@@ -156,7 +156,7 @@ class Assets {
 	 * @return `ModPath` ~ The sound data.
 	 */
 	inline public static function music(file:ModPath):Sound
-		return audio(Paths.music(file, false));
+		return audio(Paths.music(file));
 	/**
 	 * Get's the data of a sound.
 	 * From `../sounds/`.
@@ -164,7 +164,7 @@ class Assets {
 	 * @return `ModPath` ~ The sound data.
 	 */
 	inline public static function sound(file:ModPath):Sound
-		return audio(Paths.sound(file, false));
+		return audio(Paths.sound(file));
 
 	/**
 	 * Get's a spritesheet's data file.

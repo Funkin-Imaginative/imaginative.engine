@@ -501,12 +501,10 @@ class Paths {
 	 * Get's the path of an image file.
 	 * From `../images/`.
 	 * @param file The mod path.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function image(file:ModPath, cache:Bool = true):ModPath {
+	inline public static function image(file:ModPath):ModPath {
 		var path:ModPath = '${file.type}:images/${file.path}'; path.pushExt('png');
-		if (cache) Assets.image(file);
 		return path;
 	}
 
@@ -517,12 +515,10 @@ class Paths {
 	/**
 	 * Get's the path of an audio file.
 	 * @param file The mod path.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function audio(file:ModPath, cache:Bool = true):ModPath {
+	inline public static function audio(file:ModPath):ModPath {
 		var path:ModPath = multExt(file, soundExts);
-		if (cache) Assets.audio(file);
 		return path;
 	}
 	/**
@@ -530,40 +526,36 @@ class Paths {
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param variant The variant key.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function inst(song:String, variant:String = 'normal', cache:Bool = true):ModPath
-		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Inst', cache);
+	inline public static function inst(song:String, variant:String = 'normal'):ModPath
+		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Inst');
 	/**
 	 * Get's the path of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param suffix The suffix tag.
 	 * @param variant The variant key.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function vocal(song:String, suffix:String, variant:String = 'normal', cache:Bool = true):ModPath
-		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}', cache);
+	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):ModPath
+		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
 	/**
 	 * Get's the path of a song.
 	 * From `../music/`.
 	 * @param file The mod path.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function music(file:ModPath, cache:Bool = true):ModPath
-		return audio('${file.type}:music/${file.path}', cache);
+	inline public static function music(file:ModPath):ModPath
+		return audio('${file.type}:music/${file.path}');
 	/**
 	 * Get's the path of a sound.
 	 * From `../sounds/`.
 	 * @param file The mod path.
-	 * @param cache If true, the image data will cache when the function is called.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function sound(file:ModPath, cache:Bool = true):ModPath
-		return audio('${file.type}:sounds/${file.path}', cache);
+	inline public static function sound(file:ModPath):ModPath
+		return audio('${file.type}:sounds/${file.path}');
 
 	/**
 	 * All possible video extension types.
@@ -676,7 +668,7 @@ class Paths {
 	 * @return `Bool` ~ If true, it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
-		return fileExists(image(file, false)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
+		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
 }
 
 enum abstract AssetTypeHelper(String) from String to String {
