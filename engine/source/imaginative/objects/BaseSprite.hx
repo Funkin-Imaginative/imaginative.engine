@@ -121,7 +121,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				loadGraphic(Assets.image(newTexture), animated, width, height);
+				loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
 				resetTextures(Paths.image(newTexture), IsGraphic);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
@@ -177,7 +177,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			modPath = inputData.asset.image;
 			try {
 				if (inputData.asset.type == IsGraphic)
-					loadImage(modPath, inputData.asset.dimensions.x == 0 && inputData.asset.dimensions.y == 0 ? false : true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
 				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
