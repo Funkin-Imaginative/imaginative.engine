@@ -3,17 +3,17 @@ package imaginative.backend.converters;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor;
 
-typedef FNFCodenameFormat = {
-	strumLines:Array<FNFCodenameStrumline>,
-	events:Array<FNFCodenameEvent>,
-	meta:FNFCodenameMeta,
+typedef CNE_ChartData = {
+	strumLines:Array<CNE_ChartStrumLine>,
+	events:Array<CNE_ChartEvent>,
+	meta:CNE_SongMeta,
 	codenameChart:Bool,
 	stage:String,
 	scrollSpeed:Float,
 	noteTypes:Array<String>
 }
 
-typedef FNFCodenameStrumline = {
+typedef CNE_ChartStrumLine = {
 	position:String,
 	strumScale:Float,
 	visible:Bool,
@@ -22,23 +22,23 @@ typedef FNFCodenameStrumline = {
 	strumPos:Array<Float>,
 	strumLinePos:Float,
 	vocalsSuffix:String,
-	notes:Array<FNFCodenameNote>
+	notes:Array<CNE_ChartNote>
 }
 
-typedef FNFCodenameNote = {
+typedef CNE_ChartNote = {
 	time:Float,
 	id:Int,
 	sLen:Float,
 	type:Int
 }
 
-typedef FNFCodenameEvent = {
+typedef CNE_ChartEvent = {
 	time:Float,
 	name:String,
 	params:Array<Dynamic>
 }
 
-typedef FNFCodenameMeta = {
+typedef CNE_SongMeta = {
 	name:String,
 	?bpm:Float,
 	?displayName:String,
@@ -56,36 +56,42 @@ typedef FNFCodenameMeta = {
 class ChartConverter {
 	// Global
 	public function convertAudio(audioData:String):SongData {
-		var audio = haxe.Json.parse(audioData);
+		var audio = Assets.json(audioData);
 		if (Reflect.hasField(audio, 'customValues')) {
-			var data:FNFCodenameMeta = new JsonParser<FNFCodenameMeta>().fromJson(metaData, 'Codename Meta (Audio)');
+			var data:CNE_SongMeta = new JsonParser<CNE_SongMeta>().fromJson(metaData, 'Codename Meta (Audio)');
 			return fromCodenameMeta(data, true);
 		} else return audio;
 	}
 	public function convertMeta(metaData:String):SongData {
-		var meta = haxe.Json.parse(metaData);
+		var meta = Assets.json(metaData);
 		if (Reflect.hasField(meta, 'customValues')) {
-			var data:FNFCodenameMeta = new JsonParser<FNFCodenameMeta>().fromJson(metaData, 'Codename Meta');
+			var data:CNE_SongMeta = new JsonParser<CNE_SongMeta>().fromJson(metaData, 'Codename Meta');
 			return fromCodenameMeta(data);
 		} else return meta;
 	}
 	public function convertChart(chartData:String):ChartData {
-		var chart = haxe.Json.parse(chartData);
+		var chart = Assets.json(chartData);
 		if (Reflect.hasField(chart, 'codenameChart')) {
-			var data:FNFCodenameFormat = new JsonParser<FNFCodenameFormat>().fromJson(chartData, 'Codename Chart');
+			var data:CNE_ChartData = new JsonParser<CNE_ChartData>().fromJson(chartData, 'Codename Chart');
 			return fromCodenameChart(data);
 		} else return chart;
 	}
 
 	// Codename
-	public function fromCodenameMeta(meta:FNFCodenameMeta, isAudio:Bool = false):SongData {
+	public function fromCodenameMeta(meta:CNE_SongMeta, isAudio:Bool = false):SongData {
+		var diffs:Array<String> = [
+			for (difficulty in meta.difficulties)
+				difficulty.toLowerCase()
+		];
 		return {
 			name: meta.displayName,
 			folder: meta.name,
 			icon: meta.icon,
-			difficulties: [
-				for (difficulty in meta.difficulties)
-					difficulty.toLowerCase()
+			startingDiff: Math.floor(meta.difficulties.length / 2) - 1,
+			difficulties: diffs,
+			variants: [
+				for (difficulty in diffs)
+					FunkinUtil.getDifficultyVariant(difficulty)
 			],
 			color: meta.color,
 			allowedModes: {
@@ -94,7 +100,7 @@ class ChartConverter {
 			}
 		}
 	}
-	public function fromCodenameChart(chart:FNFCodenameFormat):ChartData {
+	public function fromCodenameChart(chart:CNE_ChartData):ChartData {
 		var characters:Array<ChartCharacter> = [];
 		var fields:Array<ChartField> = [];
 		for (strumLine in chart.strumLines) {
