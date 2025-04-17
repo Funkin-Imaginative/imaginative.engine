@@ -441,7 +441,7 @@ class ArrowField extends BeatGroup {
 			if (event.field.isPlayer)
 				event.field.stats.score += 30;
 			if (!event.stopStrumConfirm)
-				event.sustain.setStrum.playAnim(event.sustain.setStrum.doesAnimExist('confirm-hold') ? 'confirm-hold' : 'confirm', true);
+				event.sustain.setStrum.playAnim('confirm', true);
 			event.field.updateStatsText();
 		}
 	}

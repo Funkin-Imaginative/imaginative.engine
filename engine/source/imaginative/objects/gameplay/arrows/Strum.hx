@@ -77,7 +77,12 @@ class Strum extends FlxSprite {
 		animation.addByPrefix('static', '$dir strum static', 24, false);
 		animation.addByPrefix('press', '$dir strum press', 24, false);
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
-		animation.addByPrefix('confirm-hold', '$dir strum hold confirm', 24);
+		animation.addByPrefix('confirm-loop', '$dir strum hold confirm', 24);
+
+		animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop'))
+				playAnim('$name-loop');
+		});
 
 		playAnim('static');
 		scale.scale(0.7);
