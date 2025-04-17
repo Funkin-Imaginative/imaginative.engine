@@ -3,15 +3,39 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
-abstract JsonDynamic(Dynamic) from Int from Float from Bool from String {
-	@:to inline public function toInt():Int
-		return cast this;
-	@:to inline public function toFloat():Float
-		return cast this;
-	@:to inline public function toBool():Bool
-		return cast this;
+@:runtimeValue abstract JsonDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
+	@:to inline public function toInt():Int {
+		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
+		return switch (Type.getClass(target)) {
+			case Int: target;
+			case Float: Math.round(target);
+			case Bool: target ? 1 : 0;
+			case String: Std.parseInt(target);
+			default: cast target;
+		}
+	}
+	@:to inline public function toFloat():Float {
+		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
+		return switch (Type.getClass(target)) {
+			case Int: target;
+			case Float: target;
+			case Bool: target ? 1 : 0;
+			case String: Std.parseFloat(target);
+			default: cast target;
+		}
+	}
+	@:to inline public function toBool():Bool {
+		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
+		return switch (Type.getClass(target)) {
+			case Int: target > 0;
+			case Float: target > 0;
+			case Bool: target;
+			case String: target == 'true';
+			default: cast target;
+		}
+	}
 	@:to inline public function toString():String
-		return cast this;
+		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
 }
 
 typedef AllowedModesTyping = {
@@ -25,15 +49,20 @@ typedef AllowedModesTyping = {
 	@:default(false) var p2AsEnemy:Bool;
 }
 
-typedef ExtraData = {
+@:structInit class ExtraData {
 	/**
 	 * Name of the data.
 	 */
-	var name:String;
+	public var name:String;
 	/**
 	 * The data contents.
 	 */
-	var data:JsonDynamic;
+	public var data:JsonDynamic;
+
+	public function new(name:String, ?data:JsonDynamic) {
+		this.name = name;
+		this.data = data;
+	}
 }
 
 /**
