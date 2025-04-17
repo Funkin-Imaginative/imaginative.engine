@@ -195,7 +195,7 @@ class EngineAsset {
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
-		consoleFancyPrint.softEnable();
+		//consoleFancyPrint.softEnable();
 		/* Define Setup */
 
 		/* App Setup */

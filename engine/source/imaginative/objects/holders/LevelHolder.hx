@@ -93,7 +93,7 @@ class LevelHolder extends BeatSpriteGroup {
 	/**
 	 * The lock sprite.
 	 */
-	public var lock:BaseSprite;
+	public var lock:FlxSprite;//BaseSprite;
 
 	/**
 	 * The scripts attached to this holder.
@@ -107,7 +107,7 @@ class LevelHolder extends BeatSpriteGroup {
 	inline function get_isLocked():Bool {
 		var theCall:Dynamic = scripts.call('shouldLock');
 		var result:Bool = theCall is Bool ? theCall : false;
-		return result;
+		return false;//result;
 	}
 	/**
 	 * Is the holder be hidden?
@@ -146,7 +146,7 @@ class LevelHolder extends BeatSpriteGroup {
 				sprite.color -= 0xFF646464;
 
 				var mid:Position = Position.getObjMidpoint(sprite);
-				lock = new BaseSprite(mid.x, mid.y, 'ui/lock');
+				lock = new FlxSprite(mid.x, mid.y, Assets.image('ui/lock'));//new BaseSprite(mid.x, mid.y, 'lol/lol');
 				lock.x -= lock.width / 2;
 				lock.y -= lock.height / 2;
 				add(lock);
