@@ -44,7 +44,7 @@ class EngineInfoText extends Sprite {
 			times.shift();
 
 		if (memoryPeakUsage < memoryUsage)
-		   memoryPeakUsage = memoryUsage;
+			memoryPeakUsage = memoryUsage;
 
 		// TODO: Have it say the script file path.
 		text.text = [
