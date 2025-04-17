@@ -3,7 +3,16 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
-typedef JsonDynamic = OneOfFour<Int, Float, Bool, String>;
+abstract JsonDynamic(Dynamic) from Int from Float from Bool from String {
+	@:to inline public function toInt():Int
+		return cast this;
+	@:to inline public function toFloat():Float
+		return cast this;
+	@:to inline public function toBool():Bool
+		return cast this;
+	@:to inline public function toString():String
+		return cast this;
+}
 
 typedef AllowedModesTyping = {
 	/**
