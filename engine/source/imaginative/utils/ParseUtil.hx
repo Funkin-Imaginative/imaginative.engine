@@ -46,13 +46,8 @@ class ParseUtil {
 	 * @return `Dynamic` ~ The parsed json.
 	 */
 	inline public static function json(file:ModPath):Dynamic {
-		var content:Dynamic = {}
-		try {
-			var jsonPath:ModPath = Paths.json(file);
-			content = haxe.Json.parse(Assets.text(jsonPath));
-		} catch(error:haxe.Exception)
-			log('${file.format()}: ${error.message}', ErrorMessage);
-		return content;
+		var jsonPath:ModPath = Paths.json(file);
+		return Assets.json(Assets.text(jsonPath), jsonPath);
 	}
 
 	/**

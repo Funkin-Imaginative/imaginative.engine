@@ -224,6 +224,24 @@ class Assets {
 		var limeContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : null;
 		return sysContent ?? limeContent ?? '';
 	}
+	/**
+	 * Parse's json data.
+	 * @param data The stringified json data.
+	 * @param file A mod path, for just in case reasons.
+	 *             Mostly for showing the path when it errors.
+	 * @return `Dynamic` ~ The parsed data.
+	 */
+	inline public static function json(data:String, ?file:ModPath):Dynamic {
+		var content:Dynamic = {}
+		try {
+			content = haxe.Json.parse(data);
+		} catch(error:haxe.Exception)
+			if (file != null)
+				log('${file.format()}: ${error.message}', ErrorMessage);
+			else
+				log('Json Parse: ${error.message}', ErrorMessage);
+		return content;
+	}
 
 	static function cacheBitmap(path:String):FlxGraphic {
 		var bitmap:BitmapData = null;
