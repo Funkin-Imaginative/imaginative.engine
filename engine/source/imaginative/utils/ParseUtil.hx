@@ -214,7 +214,7 @@ class ParseUtil {
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
-		return new json2object.JsonParser<ChartData>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		return new JsonParser<ChartData>().fromJson(Assets.text(jsonPath), jsonPath.format());
 	}
 
 	/**
