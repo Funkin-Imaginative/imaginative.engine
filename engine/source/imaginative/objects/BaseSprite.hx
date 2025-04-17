@@ -330,6 +330,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			var animInfo:AnimationMapping = getAnimInfo(name);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 		});
+		/* animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop'))
+				playAnim('$name-loop');
+		}); */
 
 		scripts.call('create');
 		if (this is BaseSprite || this is BeatSprite)
@@ -425,14 +429,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
 	 */
-	inline public function isAnimFinished():Bool {
-		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	}
+	inline public function isAnimFinished():Bool
+		return animation.finished;
 	/**
 	 * When run, it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		animation.finish();
+		animation.finished = true;
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.
