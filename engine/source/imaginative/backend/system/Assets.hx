@@ -41,11 +41,11 @@ class Assets {
 			graphic.destroyOnNoUse = true;
 			graphic.dump();
 
-            if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
-            if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
-            if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
-
 			loadedGraphics.remove(tag);
+
+			if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
+			if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
+			if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
@@ -251,7 +251,7 @@ class Assets {
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return FlxGraphic.fromBitmapData(FlxAssets.getBitmapData('flixel/images/logo.png'));
+			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), 'flixel/images/logo.png');
 		}
 
 		if (Settings.setup.gpuCaching && bitmap.image != null) {
@@ -267,11 +267,11 @@ class Assets {
 			bitmap.readable = true;
 		}
 
-		var graphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap, path);
+		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
 		graphic.persist = true;
 		graphic.destroyOnNoUse = false;
 
-		return listGraphic(path, graphic);
+		return listGraphic(path, FlxG.bitmap.addGraphic(graphic));
 	}
 	static function cacheSound(path:String, beepWhenNull:Bool = true):Sound {
 		var result:Sound = null;
