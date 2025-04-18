@@ -304,7 +304,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push(file);
 
-		log([for (file in bruh) file.format()], DebugMessage);
+		// log([for (file in bruh) file.format()], DebugMessage);
 
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
