@@ -139,15 +139,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	function loadScript():Void {
-		if (stateScripts == null) stateScripts = new ScriptGroup(this);
+		stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			if (stateScripts.length < 1) {
-				for (script in Script.create('content/states/${scriptName ?? this.getClassName()}')) {
-					if (!script.type.dummy) scriptName = script.name;
-					stateScripts.add(script);
-				}
-				stateScripts.load();
-			} else stateScripts.reload();
+			for (script in Script.create('content/states/${scriptName ?? this.getClassName()}'))
+				stateScripts.add(script);
+			stateScripts.load();
 		}
 	}
 	/**
