@@ -151,7 +151,7 @@ class PlayerSettings {
 	/**
 	 * The timing window percent for the killer rating window.
 	 */
-	public var killerWindow:Float = 0.0543478260869565;
+	public var killerWindow:Float = 0.0869565217391304;
 	/**
 	 * The timing window percent for the sick rating window.
 	 */

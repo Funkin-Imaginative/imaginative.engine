@@ -108,7 +108,7 @@ class Main extends Sprite {
 		// Was testing rating window caps.
 		/* // variables
 		var cap:Float = 230;
-		var killer:Float = 12.5;
+		var killer:Float = 20;
 		var sick:Float = 45;
 		var good:Float = 90;
 		var bad:Float = 135;
