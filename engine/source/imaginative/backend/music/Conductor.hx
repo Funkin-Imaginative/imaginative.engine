@@ -762,13 +762,18 @@ class Conductor implements IFlxDestroyable implements IBeat {
 
 	var _wasPlaying(null, null):Bool = false;
 	inline function onFocus():Void {
-		if (FlxG.autoPause)
+		if (FlxG.autoPause) {
 			_wasPlaying = playing;
+			soundGroup.pause();
+		}
 		resyncVocals();
 	}
 	inline function onFocusLost():Void {
-		if (FlxG.autoPause)
+		if (FlxG.autoPause) {
 			playing = _wasPlaying;
+			if (_wasPlaying)
+				soundGroup.resume();
+		}
 		resyncVocals();
 	}
 
