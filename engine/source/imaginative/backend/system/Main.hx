@@ -105,23 +105,6 @@ class Main extends Sprite {
 		erect.screenCenter();
 		overlay.add(erect); */
 
-		// Was testing Path functions.
-		/* trace(Paths.txt('images/menus/main/order').format());
-		trace(Paths.xml('images/ui/arrows').format());
-		trace(Paths.json('content/difficulties/erect').format());
-		trace(Paths.object('characters/boyfriend').format());
-		trace(Paths.script('content/global').format());
-		trace([for (file in Paths.readFolder('content/states', false)) file.format()]);
-		trace([for (file in Paths.readFolderOrderTxt('content/levels', 'json', false)) file.format()]);
-		trace(Paths.sound('soundTest').format());
-		trace(Paths.music('breakfast').format());
-		trace(Paths.video('videos/just here I guess lmao/toyCommercial').format());
-		trace(Paths.cutscene('2hotCutscene').format());
-		trace(Paths.inst('Pico', 'erect').format());
-		trace(Paths.vocal('High', 'Player').format());
-		trace(Paths.font('vcr').format());
-		trace(Paths.image('ui/arrows').format()); */
-
 		// Was testing rating window caps.
 		/* // variables
 		var cap:Float = 230;
