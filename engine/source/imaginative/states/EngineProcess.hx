@@ -11,6 +11,7 @@ class EngineProcess extends BeatState {
 		Assets.init();
 		Conductor.init();
 		GlobalScript.init();
+		Settings.init();
 
 		super.create();
 

@@ -195,6 +195,11 @@ class PlayerSettings {
  * The class that handles all your settings.
  */
 class Settings {
+	@:allow(imaginative.states.EngineProcess)
+	inline static function init():Void {
+		//
+	}
+
 	/**
 	 * The current settings.
 	 */
