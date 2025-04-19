@@ -85,13 +85,27 @@ class MainSettings {
 	 * The fps cap you wish to go for.
 	 */
 	public var fpsCap(default, set):Int = 60;
-	inline function set_fpsCap(value:Int):Int
-		return fpsCap = Std.int(FlxMath.bound(value, 0, 300));
+	inline function set_fpsCap(value:Int):Int {
+		fpsCap = Std.int(FlxMath.bound(value, 30, 300));
+		return FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+	}
 	/**
 	 * The type of fps rendering you wish to use.
 	 * Your choices are Custom, Unlimited and Vsync.
 	 */
-	public var fpsType:FpsType = Custom;
+	public var fpsType(default, set):FpsType = Custom;
+	inline function set_fpsType(value:FpsType):FpsType {
+		fpsType = value;
+		FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		return fpsType;
+	}
+	public function getFPS():Int {
+		return switch (fpsType) {
+			case Custom: fpsCap;
+			case Unlimited: 1000; // make better... somehow?
+			case Vsync: 60; // for now
+		}
+	}
 
 	#if CHECK_FOR_UPDATES
 	/**
