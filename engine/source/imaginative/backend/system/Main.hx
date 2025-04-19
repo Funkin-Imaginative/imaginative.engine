@@ -75,7 +75,6 @@ class Main extends Sprite {
 		latestVersion = engineVersion;
 		#end
 
-
 		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
 		addChild(_inputContainer = new Sprite());
 		addChild(new EngineInfoText());
