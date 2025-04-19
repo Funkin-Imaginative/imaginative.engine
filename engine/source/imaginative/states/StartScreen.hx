@@ -40,8 +40,8 @@ class StartScreen extends BeatState {
 		]);
 		warnText.borderSize = 3;
 		warnText.applyMarkup(warnText.text, [
-			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLACK, true, false, FlxColor.RED, false), '[FUCK]'),
-			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLACK, false, true, FlxColor.WHITE, false), '[YOU]'),
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLACK, FlxColor.RED), '[FUCK]'),
+			new FlxTextFormatMarkerPair(new FlxTextFormat(FlxColor.BLACK, FlxColor.WHITE), '[YOU]'),
 		]);
 
 		add(simpleBg);
