@@ -1,5 +1,6 @@
 package imaginative.backend.system;
 
+import haxe.macro.Compiler;
 import flixel.FlxGame;
 import openfl.display.Sprite;
 import imaginative.backend.system.frontEnds.OverlayCameraFrontEnd;
@@ -35,7 +36,7 @@ class Main extends Sprite {
 	 * This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
-	inline public static final mainMod:String = haxe.macro.Compiler.getDefine('GeneralAssetFolder');
+	inline public static final mainMod:String = Compiler.getDefine('GeneralAssetFolder');
 
 	#if KNOWS_VERSION_ID
 	/**
@@ -54,8 +55,8 @@ class Main extends Sprite {
 	public static var updateAvailable(default, null):Bool = false;
 	#end
 
-	public static final initialWidth:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialWidth'));
-	public static final initialHeight:Int = Std.parseInt(haxe.macro.Compiler.getDefine('InitialHeight'));
+	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
+	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	inline public function new():Void {
