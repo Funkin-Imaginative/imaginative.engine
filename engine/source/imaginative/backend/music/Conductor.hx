@@ -882,48 +882,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		}
 	}
 
-	// TODO: Figure out this.
-	public function getTimeForStep(step:Float):Float {
-		var bpmChange:BPMChange = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: bpm,
-			beatsPM: beatsPerMeasure,
-			stepsPB: stepsPerBeat
-		}
-
-		for (change in bpmChanges)
-			if (change.stepTime < step && change.stepTime >= bpmChange.stepTime)
-				bpmChange = change;
-
-		return bpmChange.songTime + ((step - bpmChange.stepTime) * ((60 / bpmChange.bpm) * (1000 / stepsPerBeat)));
-	}
-
-	public function getStepForTime(time:Float):Float {
-		var bpmChange:BPMChange = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: bpm,
-			beatsPM: beatsPerMeasure,
-			stepsPB: stepsPerBeat
-		}
-
-		for (change in bpmChanges)
-			if (change.songTime < time && change.songTime >= bpmChange.songTime)
-				bpmChange = change;
-
-		return bpmChange.stepTime + ((time - bpmChange.songTime) / ((60 / bpmChange.bpm) * (1000 / stepsPerBeat)));
-	}
-
-	inline public function getMeasureLength():Float
-		return stepsPerBeat * beatsPerMeasure;
-
-	inline public function getMeasuresLength():Float {
-		if (audio == null)
-			return 0;
-		return getStepForTime(audio.length) / getMeasureLength();
-	}
-
 	/**
 	 * When called it destroys the Conductor.
 	 * Unless it's a main one, then don't destroy it please.
