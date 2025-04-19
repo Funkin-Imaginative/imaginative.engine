@@ -330,10 +330,12 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			var animInfo:AnimationMapping = getAnimInfo(name);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
 		});
-		/* animation.onFinish.add((name:String) -> {
-			if (doesAnimExist('$name-loop'))
+		animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop', true))
 				playAnim('$name-loop');
-		}); */
+			if (doesAnimExist('$name-end', true))
+				playAnim('$name-end');
+		});
 
 		scripts.call('create');
 		if (this is BaseSprite || this is BeatSprite)
