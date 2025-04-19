@@ -93,7 +93,7 @@ class StoryMenu extends BeatState {
 			level.screenCenter(X);
 			level.y = 150 * (i + 1);
 		}
-		if (levels.length < 1) {
+		if (levels.members.empty()) {
 			emptyList = true;
 			log('There are no items in the listing.', WarningMessage);
 		}
@@ -111,7 +111,7 @@ class StoryMenu extends BeatState {
 			diff.alpha = 0.0001;
 			diffMap.set(name, diffs.add(diff));
 		}
-		if (diffs.length < 1) {
+		if (diffs.members.empty()) {
 			emptyDiffList = true;
 			log('There are no difficulties in the listing.', WarningMessage);
 		}

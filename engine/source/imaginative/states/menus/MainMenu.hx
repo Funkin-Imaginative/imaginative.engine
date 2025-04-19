@@ -67,7 +67,7 @@ class MainMenu extends BeatState {
 		bg.screenCenter();
 		add(bg);
 
-		if (itemLineUp == null || itemLineUp.length < 1)
+		if (itemLineUp == null || itemLineUp.empty())
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
 		menuItems = new FlxTypedGroup<BaseSprite>(); // menu items
@@ -83,7 +83,7 @@ class MainMenu extends BeatState {
 			item.screenCenter(X);
 			menuItems.add(item);
 		}
-		if (menuItems.length < 1) {
+		if (menuItems.members.empty()) {
 			emptyList = true;
 			log('There are no items in the listing.', WarningMessage);
 		}

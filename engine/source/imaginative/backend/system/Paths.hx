@@ -281,7 +281,7 @@ abstract ModPath(String) {
 	 * @return `ModPath`
 	 */
 	@:from inline public static function fromArray(from:Array<Dynamic>):ModPath {
-		var hasType:Bool = from.length > 1;
+		var hasType:Bool = !from.empty();
 		return new ModPath(from[hasType ? 1 : 0], hasType ? from[0] : ANY);
 	}
 	/**

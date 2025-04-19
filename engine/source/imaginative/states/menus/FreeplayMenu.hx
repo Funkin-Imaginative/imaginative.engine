@@ -103,7 +103,7 @@ class FreeplayMenu extends BeatState {
 		}
 		for (i => song in songs.members)
 			song.setPosition(10 * (i + 1) - 10 - (FlxG.width / 2), 150 * (i + 1));
-		if (songs.length < 1) {
+		if (songs.members.empty()) {
 			emptyList = true;
 			log('There are no items in the listing.', WarningMessage);
 		}
@@ -115,7 +115,7 @@ class FreeplayMenu extends BeatState {
 			var diff:DifficultyHolder = new DifficultyHolder(name);
 			diffMap.set(name, diffs.add(diff));
 		}
-		if (diffs.length < 1) {
+		if (diffs.members.empty()) {
 			emptyDiffList = true;
 			log('There are no difficulties in the listing.', WarningMessage);
 		}
@@ -342,7 +342,7 @@ class FreeplayMenu extends BeatState {
 		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[curSelected].data.variants[curDiff])}';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
 		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
-		sideArrowsText.visible = curDiffList.length > 1;
+		sideArrowsText.visible = !curDiffList.empty();
 	}
 
 	var songShake:FlxTween;

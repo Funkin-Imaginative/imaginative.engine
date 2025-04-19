@@ -324,10 +324,10 @@ class ArrowField extends BeatGroup {
 		// note hits
 		if (hasHit) {
 			var activeNotes:Array<Note> = Note.filterNotes(notes.members, i);
-			if (activeNotes.length != 0) {
+			if (!activeNotes.empty()) {
 				for (note in activeNotes) {
 					var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
-					if (activeNotes.length > 1) {
+					if (activeNotes.length > 2) {
 						var backNote:Note = activeNotes[1];
 						if (backNote.id == frontNote.id) {
 							if (Math.abs(backNote.time - frontNote.time) < 1.0) {
