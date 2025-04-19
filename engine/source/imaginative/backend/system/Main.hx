@@ -80,13 +80,14 @@ class Main extends Sprite {
 		addChild(_inputContainer = new Sprite());
 		addChild(new EngineInfoText());
 
+		cameras.reset(camera);
+
 		#if FLX_DEBUG
 		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
 		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);
 		#end
 
-		cameras.reset();
 		overlay.cameras = [camera];
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
