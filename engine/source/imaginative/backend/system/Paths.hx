@@ -712,7 +712,7 @@ enum abstract AssetTypeHelper(String) from String to String {
 		var ext:String = FilePath.extension(id).toLowerCase();
 		var exts:Map<String, LimeAssetType> = lime.tools.AssetHelper.knownExtensions;
 
-		return exts.exists(ext) ? exts.get(ext) : switch(ext) {
+		return exts.exists(ext) ? exts.get(ext) : switch (ext) {
 			default: TEXT;
 		}
 	}

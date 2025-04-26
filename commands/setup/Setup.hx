@@ -166,7 +166,7 @@ class Setup {
 	}
 
 	static function getBuildTarget():String {
-		return switch(Sys.systemName()) {
+		return switch (Sys.systemName()) {
 			case 'Windows':
 				'windows';
 			case 'Mac':

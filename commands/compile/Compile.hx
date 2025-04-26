@@ -142,7 +142,7 @@ class Compile {
 				default: platform;
 			}
 		}
-		return switch(Sys.systemName()) {
+		return switch (Sys.systemName()) {
 			case 'Windows':
 				'windows';
 			case 'Mac':
