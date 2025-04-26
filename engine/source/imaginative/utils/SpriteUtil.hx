@@ -148,6 +148,7 @@ enum abstract SpriteType(String) from String to String {
 	 * States that this is the a sprite that can bop to the beat. Even when not set as the `IsBeatSprite` type.
 	 */
 	public var isBeatType(get, never):Bool;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isBeatType():Bool
 		return this == IsBeatSprite || this == IsCharacterSprite || this == IsHealthIcon;
 }
@@ -225,8 +226,8 @@ class SpriteUtil {
 	 * @param sprite Sprite to apply the new graphic size to
 	 * @param width Width
 	 * @param height Height
-	 * @param fill Whenever the sprite should fill instead of shrinking (true)
-	 * @param maxScale Maximum scale (0 / none)
+	 * @param fill Whenever the sprite should fill instead of shrinking (true).
+	 * @param maxScale Maximum scale (0 / none).
 	 * @author @CodenameCrew
 	 */
 	inline public static function setUnstretchedGraphicSize(sprite:FlxSprite, width:Int = 0, height:Int = 0, fill:Bool = true, maxScale:Float = 0):Void {

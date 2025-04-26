@@ -36,6 +36,9 @@ final class LevelSelectionEvent extends MenuSFXEvent {
 	 */
 	public var variantKey:String;
 
+	/**
+	 * If true, the level is locked.
+	 */
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool
 		return holder.isLocked || diffHolder.isLocked;

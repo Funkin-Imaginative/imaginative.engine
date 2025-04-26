@@ -26,12 +26,17 @@ class Assets {
 	/**
 	 * An asset to exclude from dumpping.
 	 * @param file The mod path.
+	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 */
 	inline public static function excludeAsset(file:ModPath, doTypeCheck:Bool = true):Void {
 		var path:String = doTypeCheck ? file.format() : file.path;
 		if (!dumpExclusions.contains(path))
 			dumpExclusions.push(path);
 	}
+	/**
+	 * When called it clears all graphics.
+	 * @param clearUnused If true, it clears any unused graphics.
+	 */
 	inline public static function clearGraphics(clearUnused:Bool = false):Void {
 		for (tag => graphic in loadedGraphics) {
 			if (graphic == null) continue;
@@ -51,6 +56,10 @@ class Assets {
 			FlxG.bitmap.clearUnused();
 		openfl.system.System.gc();
 	}
+	/**
+	 * When called it clears all sounds.
+	 * @param clearUnused If true, it clears any unused sounds.
+	 */
 	inline public static function clearSounds(clearUnused:Bool = false):Void {
 		for (tag => sound in loadedSounds) {
 			if (sound == null) continue;
@@ -61,6 +70,10 @@ class Assets {
 			loadedSounds.remove(tag);
 		}
 	}
+	/**
+	 * When called it clears all.
+	 * @param clearUnused If true, it clears any unused things.
+	 */
 	inline public static function clearCache(clearUnused:Bool = false):Void {
 		clearSounds(clearUnused);
 		clearGraphics(clearUnused);

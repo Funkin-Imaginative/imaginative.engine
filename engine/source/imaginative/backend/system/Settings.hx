@@ -99,6 +99,10 @@ class MainSettings {
 		FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
 		return fpsType;
 	}
+	/**
+	 * Returns the fps value based on your settings.
+	 * @return `Int` ~ Wanted fps.
+	 */
 	public function getFPS():Int {
 		return switch (fpsType) {
 			case Custom: fpsCap;

@@ -2,6 +2,7 @@ package imaginative.objects.ui;
 
 import flixel.ui.FlxBar;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract BarFillDirection(String) from String to String {
 	var LEFT_RIGHT = 'left to right';
 	var RIGHT_LEFT = 'right to left';
@@ -42,12 +43,18 @@ enum abstract BarFillDirection(String) from String to String {
 
 class BarColors {
 	var parent(null, null):Bar;
+	/**
+	 * The enemy bar color.
+	 */
 	public var enemy(default, set):Null<FlxColor>;
 	inline function set_enemy(value:Null<FlxColor>):Null<FlxColor> {
 		var result:Null<FlxColor> = value ?? (isBlank ? FlxColor.RED : parent.blankColors.enemy);
 		parent.createColoredEmptyBar(result); parent.updateBar();
 		return enemy = result;
 	}
+	/**
+	 * The player bar color.
+	 */
 	public var player(default, set):FlxColor;
 	inline function set_player(value:Null<FlxColor>):Null<FlxColor> {
 		var result:Null<FlxColor> = value ?? (isBlank ? FlxColor.YELLOW : parent.blankColors.player);
@@ -64,6 +71,12 @@ class BarColors {
 		player = FlxColor.YELLOW;
 	}
 
+	/**
+	 * Sets the bar colors.
+	 * @param enemy The enemy bar color.
+	 * @param player The player bar color.
+	 * @return `BarColors`
+	 */
 	inline public function set(?enemy:FlxColor, ?player:FlxColor):BarColors {
 		this.enemy = enemy;
 		this.player = player;
@@ -125,11 +138,23 @@ class Bar extends FlxBar {
 		onBarUpdate.dispatch(FlxG.elapsed);
 	}
 
+	/**
+	 * Sets the bar colors.
+	 * @param enemy The enemy bar color.
+	 * @param player The player bar color.
+	 * @param isBlank If true, it sets the default colors of the bar.
+	 * @return `Bar`
+	 */
 	inline public function setColors(?enemy:FlxColor, ?player:FlxColor, isBlank:Bool = false):Bar {
 		(isBlank ? blankColors : colors).set(enemy, player);
 		return this;
 	}
 
+	/**
+	 * Sets the fill direction of the bar.
+	 * @param newFillDirection The new fill direction.
+	 * @return `Bar`
+	 */
 	inline public function setFillDirection(newFillDirection:BarFillDirection):Bar {
 		fillDirection = newFillDirection;
 		return this;

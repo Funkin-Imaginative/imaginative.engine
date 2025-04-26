@@ -1,5 +1,6 @@
 package imaginative.objects.gameplay.arrows;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract ArrowModFollowType(String) from String to String {
 	var FIELD;
 	var STRUM;

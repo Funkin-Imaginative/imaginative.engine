@@ -194,6 +194,7 @@ abstract ModPath(String) {
 	 * States if the path is invalid.
 	 */
 	public var valid(get, never):Bool;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_valid():Bool
 		return isDirectory || Paths.fileExists(format(), false) || Paths.fileExists(path, false);
 
@@ -201,22 +202,27 @@ abstract ModPath(String) {
 	 * The mod path.
 	 */
 	public var path(get, set):String;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_path():String
 		return this.split(':')[1];
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_path(value:String):String
 		return this = '${this.split(':')[0]}:$value';
 	/**
 	 * If true, the path is a folder and not a file.
 	 */
 	public var isDirectory(get, never):Bool;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isDirectory():Bool
 		return Paths.folderExists(format(), false) || Paths.folderExists(path, false);
 	/**
 	 * This variable holds the name of the file extension.
 	 */
 	public var extension(get, set):String;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_extension():String
 		return FilePath.extension(path);
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_extension(value:String):String
 		return path = '${FilePath.withoutExtension(path)}${value.trim() == '' ? '' : '.$value'}';
 
@@ -224,8 +230,10 @@ abstract ModPath(String) {
 	 * The path type.
 	 */
 	public var type(get, set):ModType;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_type():ModType
 		return ModType.fromString(this.split(':')[0]) ?? ANY;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_type(value:ModType):ModType
 		// `I swear to god I almost murdered this abstract.`
 		return this = '${value ?? ANY}:${this.split(':')[1]}';
@@ -298,7 +306,7 @@ abstract ModPath(String) {
 	 * @return `FlxGraphicAsset`
 	 */
 	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset {
-		return cast(format(), String); // Assets.image('$type:$path');
+		return cast(format(), String);
 	}
 	/**
 	 * Converts a ModPath to an FlxSoundAsset.
@@ -306,7 +314,7 @@ abstract ModPath(String) {
 	 * @return `FlxSoundAsset`
 	 */
 	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset {
-		return cast(format(), String); // Assets.audio('$type:$path');
+		return cast(format(), String);
 	}
 	/**
 	 * Converts a ModPath to an FlxXmlAsset.
@@ -676,6 +684,7 @@ enum abstract AssetTypeHelper(String) from String to String {
 	 * Binary asset, data that is not readable as text.
 	 */
 	var BINARY;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	var BUNDLE;
 	/**
 	 * Font asset, such as ttf or otf file.
@@ -685,6 +694,7 @@ enum abstract AssetTypeHelper(String) from String to String {
 	 * Image asset, such as png or jpg file.
 	 */
 	var IMAGE;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	var MANIFEST;
 	/**
 	 * MovieClip asset, such as from a swf file.
@@ -707,6 +717,11 @@ enum abstract AssetTypeHelper(String) from String to String {
 	 */
 	var TEXT;
 
+	/**
+	 * Gets the type from file extension.
+	 * @param id File path.
+	 * @return `AssetTypeHelper`
+	 */
 	@:access(lime.tools.AssetHelper.knownExtensions)
 	inline public static function getFromExt(id:String):AssetTypeHelper {
 		var ext:String = FilePath.extension(id).toLowerCase();

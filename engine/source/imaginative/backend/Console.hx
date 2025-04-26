@@ -5,6 +5,7 @@ import haxe.PosInfos;
 import flixel.system.debug.log.LogStyle;
 import flixel.system.frontEnds.LogFrontEnd;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
 	var ErrorMessage = 'error';
 	var WarningMessage = 'warning';
@@ -102,7 +103,6 @@ class Console {
 			var l:String = i == 0 ? ' /' : (i == (split.length - 1) ? ' \\' : '| ');
 			var r:String = i == 0 ? '\\ ' : (i == (split.length - 1) ? '/ ' : ' |');
 			var lineLen:Int = item.length;
-			var edge:Bool = i == 0 || i == (split.length - 1);
 			split[i] = '$l $item${[for (_ in 0...length - lineLen) ' '].join('')} $r';
 		}
 		split.insert(0, '   * ${[for (_ in 0...length - 4) '-'].join('')} *');

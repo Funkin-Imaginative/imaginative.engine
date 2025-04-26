@@ -55,6 +55,7 @@ class Main extends Sprite {
 	public static var updateAvailable(default, null):Bool = false;
 	#end
 
+	// TODO: Figure out how to do this without creating these variables.
 	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 

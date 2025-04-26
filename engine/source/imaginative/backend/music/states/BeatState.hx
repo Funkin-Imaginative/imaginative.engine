@@ -265,6 +265,9 @@ class BeatState extends FlxState /* implements IBeat */ {
 		}
 	}
 
+	/**
+	 * Runs when reseting the state.
+	 */
 	public function onReset():Void {
 		scriptCall('resetingState');
 	}

@@ -3,6 +3,9 @@ package imaginative.objects.gameplay.hud;
 import imaginative.objects.ui.Bar;
 
 class HUDTemplate extends BeatGroup {
+	/**
+	 * The HUD type.
+	 */
 	public var type(get, never):HUDType;
 	function get_type():HUDType
 		return Template;
@@ -261,7 +264,7 @@ class HUDTemplate extends BeatGroup {
 		FlxCamera._defaultCameras = oldDefaultCameras;
 	}
 
-	override public function destroy() {
+	override public function destroy():Void {
 		scripts.end();
 		if (HUDType.direct == this)
 			HUDType.direct = null;

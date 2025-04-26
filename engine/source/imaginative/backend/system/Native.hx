@@ -57,6 +57,7 @@ void getHandle() {
  * https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
  * https://github.com/ShadowMario/FNF-PsychEngine/commit/ecdb1a037a20bd16275981f0afd0b37aea79c53c
  */
+@SuppressWarnings('checkstyle:FieldDocComment')
 class Native {
 	public static function __init__():Void
 		registerDPIAware();
@@ -81,7 +82,7 @@ class Native {
 		#end
 	}
 
-	private static var fixedScaling:Bool = false;
+	static var fixedScaling:Bool = false;
 	public static function fixScaling():Void {
 		if (fixedScaling) return;
 		fixedScaling = true;

@@ -1,5 +1,6 @@
 package imaginative.backend.music;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef BPMChange = {
 	var stepTime:Float;
 	var songTime:Float;
@@ -50,6 +51,7 @@ typedef AudioData = {
 }
 
 // MAYBE: Add documentation.
+@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract SongTimeType(String) from String to String {
 	var IsStep = 'Step';
 	var IsBeat = 'Beat';
@@ -580,6 +582,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param difficulty The difficulty of to chart load from.
 	 * @param variant The variant of the song to play.
 	 * @param afterLoad Function that runs after the audio has loaded.
+	 * @return `ChartData`
 	 */
 	public function loadFullSong(song:String, difficulty:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Null<imaginative.states.editors.ChartEditor.ChartData> {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
@@ -690,6 +693,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
 	}
 
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	public function update():Void {
 		if (!playing)
 			return;

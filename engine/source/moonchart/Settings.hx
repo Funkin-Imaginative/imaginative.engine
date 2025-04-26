@@ -1,5 +1,7 @@
 package moonchart;
 
+@SuppressWarnings('checkstyle:ConstantName')
+@SuppressWarnings('checkstyle:FieldDocComment')
 class Settings {
 	public static var CASE_SENSITIVE_DIFFS:Bool = true;
 	public static var SPACE_SENSITIVE_DIFFS:Bool = false;

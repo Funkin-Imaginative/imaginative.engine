@@ -27,6 +27,11 @@ class ArrowField extends BeatGroup {
 	 */
 	public static var player:ArrowField;
 
+	/**
+	 * Sets up position for an array of fields.
+	 * @param fields Array of fields.
+	 * @return `Array<ArrowField>`
+	 */
 	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
 		if (camera == null)
 			camera = FlxG.camera;
@@ -62,6 +67,7 @@ class ArrowField extends BeatGroup {
 	 */
 	public static var enableP2:Bool = false;
 
+	// MAYBE: Figure out how to do this better.
 	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
 		for (char in actors.filter((char:Character) -> return char != null)) {
 			char.controls = field.isPlayer ? field.controls : null;
@@ -133,7 +139,7 @@ class ArrowField extends BeatGroup {
 	 * The field stats instance.
 	 */
 	public var stats(get, never):PlayerStats;
-	private function get_stats():PlayerStats
+	inline function get_stats():PlayerStats
 		if (status == null) return Scoring.unregisteredStats;
 		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
 

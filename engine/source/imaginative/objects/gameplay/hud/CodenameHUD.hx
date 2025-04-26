@@ -6,7 +6,13 @@ class CodenameHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Codename;
 
+	/**
+	 * The text that shows you the amount of misses.
+	 */
 	public var missesText:FlxText;
+	/**
+	 * The text that shows you the accuracy percent.
+	 */
 	public var accuracyText:FlxText;
 
 	override function initHealthBar():Bar {
@@ -36,6 +42,11 @@ class CodenameHUD extends HUDTemplate {
 		return new FlxText('', 0); // to prevent crashes
 	}
 
+	/**
+	 * Applies CNE's y level system thing to a sprite.
+	 * @param spr The sprite to effect.
+	 * @return `FlxSprite`
+	 */
 	public static function cneYLevel<Sprite:FlxObject>(spr:Sprite):Sprite {
 		spr.y = FlxG.camera.height - spr.y - spr.height;
 		return spr;
@@ -59,7 +70,7 @@ class CodenameHUD extends HUDTemplate {
 		accuracyText.text = 'Accuracy:${accuracy < 0 ? '-' : Std.string(Math.fround(accuracy * 100 * 100) / 100)}% - [N/A]';
 		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
 	}
-	override public function updateStatsP2Text() {
+	override public function updateStatsP2Text():Void {
 		updateStatsText();
 		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
 	}

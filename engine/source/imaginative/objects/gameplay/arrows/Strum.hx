@@ -28,6 +28,9 @@ class Strum extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
+	/**
+	 * The scroll speed of this strum.
+	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
 		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
@@ -61,6 +64,9 @@ class Strum extends FlxSprite {
 	 */
 	public var willReset:Bool = false;
 
+	/**
+	 * The strums modifiers.
+	 */
 	public var mods:ArrowModifier;
 
 	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)

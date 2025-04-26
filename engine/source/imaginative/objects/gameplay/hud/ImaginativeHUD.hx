@@ -6,7 +6,13 @@ class ImaginativeHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Imaginative;
 
+	/**
+	 * The text that shows you the amount of misses or plus combo breaks.
+	 */
 	public var breakInfo:FlxText;
+	/**
+	 * The text that shows you the accuracy percent.
+	 */
 	public var accuracyInfo:FlxText;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
@@ -106,7 +112,7 @@ class ImaginativeHUD extends HUDTemplate {
 		statsText.text = 'Score: ${(ArrowField.enemyPlay ? 0 : Scoring.statsP1.score) + (ArrowField.enemyPlay ? Scoring.statsP2.score : 0)}';
 		call('onUpdateStats', [Settings.setupP1, Scoring.statsP1]);
 	}
-	override public function updateStatsP2Text() {
+	override public function updateStatsP2Text():Void {
 		updateStatsText();
 		call('onUpdateStatsP2', [Settings.setupP2, Scoring.statsP2]);
 	}

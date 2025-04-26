@@ -14,9 +14,13 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	override public function loadSheet(newTexture:ModPath):HealthIcon
 		return cast super.loadSheet(newTexture);
 
+	// TODO: Write this better.
+	/**
+	 * The icon name.
+	 */
 	public var tagName:String;
 
-	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false) {
+	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
 		var modPath:ModPath = null;
 		try {
 			modPath = inputData.asset.image;
@@ -37,8 +41,6 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		var bruh:Array<ModPath> = ['lead:global', 'lead:icons/global'];
 		if (file != null && file.path != null && file.path.trim() != '')
 			bruh.push(file);
-
-		// log([for (file in bruh) file.format()], DebugMessage);
 
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
@@ -86,13 +88,18 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	 * The scale multiplier for scale bopping.
 	 */
 	public var bopScaleMult:Position = new Position(1.1, 1.1);
-	override public function beatHit(curBeat:Int) {
+	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 		if (!preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
 			scale.set(spriteOffsets.scale.x * bopScaleMult.x, spriteOffsets.scale.y * bopScaleMult.y);
 		scripts.call('beatHit', [curBeat]);
 	}
 
+	/**
+	 * Changes the icon.
+	 * @param newTag The new icon tag.
+	 * @param pathType The mod path type.
+	 */
 	public function changeIcon(newTag:String, pathType:ModType = ANY):Void {
 		if (tagName != newTag) {
 			try {

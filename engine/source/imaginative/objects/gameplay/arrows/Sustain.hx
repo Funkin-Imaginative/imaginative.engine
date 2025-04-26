@@ -63,6 +63,9 @@ class Sustain extends FlxSprite {
 	 */
 	public var isEnd(default, null):Bool;
 
+	/**
+	 * The scroll speed of this sustain.
+	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
 		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
@@ -77,22 +80,44 @@ class Sustain extends FlxSprite {
 		return setHead.assignedActors;
 	inline function set_assignedActors(value:Array<Character>):Array<Character>
 		return setHead.assignedActors = value;
+	/**
+	 * Returns which characters will sing.
+	 * @return `Array<Character>`
+	 */
 	inline public function renderActors():Array<Character>
 		return setHead.renderActors();
 
+	/**
+	 * If true, the note can be hit.
+	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
+	/**
+	 * If true, it's too late to hit the note.
+	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
+	/**
+	 * If true, this note has been hit.
+	 */
 	public var wasHit:Bool = false;
+	/**
+	 * If true, this note has been missed.
+	 */
 	public var wasMissed:Bool = false;
 
+	/**
+	 * If true, along with the tail, this note and it's tail will be destroyed.
+	 */
 	public var canDie:Bool = false;
 
+	/**
+	 * The sustains modifiers.
+	 */
 	public var mods:ArrowModifier;
 
 	override public function new(parent:Note, time:Float, end:Bool = false) {

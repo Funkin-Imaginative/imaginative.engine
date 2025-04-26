@@ -416,7 +416,7 @@ class PlayState extends BeatState {
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
-								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4 , {
+								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4, {
 									startDelay: (event.field.conductor.stepTime / 1000) * 1.5,
 									ease: FlxEase.expoOut
 								});
@@ -667,7 +667,7 @@ class PlayState extends BeatState {
 
 	function endSong():Void {
 		if (storyMode) {
-			if (storyIndex == songList.length-1)
+			if (storyIndex == songList.length - 1)
 				BeatState.switchState(new StoryMenu());
 			else {
 				storyIndex++;

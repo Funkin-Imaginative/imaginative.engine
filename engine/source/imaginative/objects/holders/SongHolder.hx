@@ -1,5 +1,6 @@
 package imaginative.objects.holders;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef SongParse = {
 	var folder:String;
 	var icon:String;

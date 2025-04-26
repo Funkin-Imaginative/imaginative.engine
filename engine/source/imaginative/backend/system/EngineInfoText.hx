@@ -1,6 +1,5 @@
 package imaginative.backend.system;
 
-import flixel.util.FlxStringUtil.formatBytes;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.Sprite;
@@ -49,7 +48,7 @@ class EngineInfoText extends Sprite {
 		// TODO: Have it say the script file path.
 		text.text = [
 			'Framerate: ${framesPerSecond = times.length} / ${FlxG.drawFramerate}',
-			'Memory: ${formatBytes(memoryUsage)} / ${formatBytes(memoryPeakUsage)}',
+			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',
 			'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 		].join('\n');
 		text.textColor = framesPerSecond < FlxG.drawFramerate * 0.5 ? FlxColor.RED : FlxColor.WHITE;

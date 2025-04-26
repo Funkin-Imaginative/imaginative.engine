@@ -6,6 +6,9 @@ class ScriptedHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Custom;
 
+	/**
+	 * Name of the scripted HUD instance.
+	 */
 	public var name(default, null):String;
 	override function loadScript():Void
 		for (script in Script.create('lead:content/huds/$name'))

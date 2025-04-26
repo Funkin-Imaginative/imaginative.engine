@@ -8,6 +8,7 @@ typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
 /**
  * This class is just `FlxTypedSpriteGroup` but with `IBeat` implementation.
  */
+@SuppressWarnings('checkstyle:CodeSimilarity')
 class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {
 	/**
 	 * The current step.

@@ -29,6 +29,7 @@ enum abstract ScriptType(String) from String to String {
 	 * If true, this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_dummy():Bool
 		return this == TypeUnregistered || this == TypeInvalid;
 }
@@ -96,12 +97,6 @@ class Script extends FlxBasic implements IScript {
 		#else
 		var paths:Array<String> = [Paths.script(file).format()];
 		#end
-
-		/* log([
-			for (path in paths)
-				if (path != null && path.trim() != '')
-					path
-		], DebugMessage); */
 
 		var scripts:Array<Script> = [];
 		for (path in paths) {

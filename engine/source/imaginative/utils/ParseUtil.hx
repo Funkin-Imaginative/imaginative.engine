@@ -3,6 +3,7 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 @:runtimeValue abstract JsonDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
 	@:to inline public function toInt():Int {
 		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;

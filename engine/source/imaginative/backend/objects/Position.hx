@@ -8,12 +8,14 @@ package imaginative.backend.objects;
 	 * The X position.
 	 */
 	public var x(default, set):Float = 0;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	public dynamic function set_x(value:Float):Float
 		return x = value;
 	/**
 	 * The Y position.
 	 */
 	public var y(default, set):Float = 0;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	public dynamic function set_y(value:Float):Float
 		return y = value;
 
