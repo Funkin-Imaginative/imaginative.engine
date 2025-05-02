@@ -54,7 +54,7 @@ class EngineAsset {
 	/**
 	 * The directory path**s** to the source code.
 	 */
-	static final sourceCodeDirectories:Array<String> = ['engine/source'];
+	static final sourceCodeDirectories:Array<String> = ['./engine/source', './engine/overshadowing'];
 	/**
 	 * The class path to the preloader class.
 	 */
