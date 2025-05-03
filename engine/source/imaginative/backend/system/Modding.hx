@@ -49,7 +49,7 @@ class Modding {
 			mods.push(curMod);
 
 		for (mod in mods) {
-			var asset:String = 'mods/$mod/$modPath';
+			var asset:String = './mods/$mod/$modPath';
 			if (Paths.fileExists(asset, false))
 				return asset;
 		}
@@ -72,14 +72,14 @@ class Modding {
 		var potentialPaths:Array<String> = [];
 
 		if (ModType.pathCheck(MAIN, pathType)) {
-			var asset:String = 'solo/${Main.mainMod}/$file';
+			var asset:String = './solo/${Main.mainMod}/$file';
 			if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 				potentialPaths.push(asset);
 		}
 
 		if (ModType.pathCheck(SOLO, pathType)) {
 			if (curSolo != null && curSolo.trim() != '') {
-				var asset:String = 'solo/$curSolo/$file';
+				var asset:String = './solo/$curSolo/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 					potentialPaths.push(asset);
 			}
@@ -91,7 +91,7 @@ class Modding {
 				mods.push(curMod);
 
 			for (mod in mods) {
-				var asset:String = 'mods/$mod/$file';
+				var asset:String = './mods/$mod/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 					potentialPaths.push(asset);
 			}

@@ -47,9 +47,9 @@ enum abstract ModType(String) {
 	inline public function returnRootPath():String {
 		#if MOD_SUPPORT
 		return switch (fromString(this)) {
-			case MAIN: 'solo/${Main.mainMod}';
-			case SOLO: 'solo/${Modding.curSolo}';
-			case MOD: 'mods/${Modding.curMod}';
+			case MAIN: './solo/${Main.mainMod}';
+			case SOLO: './solo/${Modding.curSolo}';
+			case MOD: './mods/${Modding.curMod}';
 			default: '';
 		}
 		#else
@@ -352,16 +352,16 @@ class Paths {
 
 		#if MOD_SUPPORT
 		if (result == '' && ModType.pathCheck(MOD, type))
-			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : 'mods/$name/$file'), false))
+			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './mods/$name/$file'), false))
 				result = check;
 		if (result == '' && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = 'solo/${name ?? Modding.curSolo}/$file', false))
+			if (itemExists(check = './solo/${name ?? Modding.curSolo}/$file', false))
 				result = check;
 		if (result == '' && ModType.pathCheck(MAIN, type))
-			if (itemExists(check = 'solo/${Main.mainMod}/$file', false))
+			if (itemExists(check = './solo/${Main.mainMod}/$file', false))
 				result = check;
 		#else
-		if (itemExists(check = '${Main.mainMod}/$file', false))
+		if (itemExists(check = './${Main.mainMod}/$file', false))
 			result = check;
 		#end
 
@@ -376,6 +376,21 @@ class Paths {
 	 */
 	inline public static function getRootPath(type:ModType):String
 		return type.returnRootPath();
+
+	/**
+	 * A shortcut function for removing "./" at the beginning of paths.
+	 * As path functions that for hardcoding assets error when it is used.
+	 * @param path A root path.
+	 * @return `String`
+	 */
+	inline public static function removeBeginningSlash(path:String):String {
+		if (path.startsWith('./')) {
+			var split:Array<String> = path.split('/');
+			split.shift();
+			return split.join('/');
+		}
+		return path;
+	}
 
 	/**
 	 * Easy and quick ModPath instance.
@@ -646,7 +661,7 @@ class Paths {
 	 */
 	inline public static function fileExists(file:ModPath, doTypeCheck:Bool = true):Bool {
 		var finalPath:String = doTypeCheck ? file.format() : file.path;
-		return FileSystem.exists(finalPath) || OpenFLAssets.exists(finalPath, AssetTypeHelper.getFromExt(finalPath));
+		return FileSystem.exists(finalPath) || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath));
 	}
 	/**
 	 * Check's if a folder exists.

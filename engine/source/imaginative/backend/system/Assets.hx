@@ -100,6 +100,7 @@ class Assets {
 	 */
 	public static var loadedSounds:Map<String, Sound> = new Map<String, Sound>();
 	inline static function listSound(path:String, sound:Sound):Sound {
+		path = Paths.removeBeginningSlash(path);
 		loadedSounds.set(path, sound);
 		if (!assetsInUse.contains(path))
 			assetsInUse.push(path);
@@ -119,7 +120,7 @@ class Assets {
 	 * @return `FlxGraphic` ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
-		var path:String = Paths.image(file).format();
+		var path:String = Paths.removeBeginningSlash(Paths.image(file).format());
 		if (loadedGraphics.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -135,7 +136,7 @@ class Assets {
 	 * @return `Sound` ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
-		var path:String = Paths.audio(file).format();
+		var path:String = Paths.removeBeginningSlash(Paths.audio(file).format());
 		if (loadedSounds.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -231,7 +232,7 @@ class Assets {
 	 * @return `String` ~ The file contents.
 	 */
 	inline public static function text(file:ModPath, doTypeCheck:Bool = true):String {
-		var finalPath:String = doTypeCheck ? file.format() : file.path;
+		var finalPath:String = doTypeCheck ? Paths.removeBeginningSlash(file.format()) : file.path;
 		var sysContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
 		var limeContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : null;
 		return sysContent ?? limeContent ?? '';
@@ -260,7 +261,7 @@ class Assets {
 		if (Paths.fileExists(path, false)) {
 			bitmap = BitmapData.fromFile(path);
 			if (bitmap == null)
-				bitmap = OpenFLAssets.getBitmapData(path);
+				bitmap = FlxAssets.getBitmapData(path);
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
@@ -292,10 +293,10 @@ class Assets {
 			if (Paths.fileExists(path, false)) {
 				result = Sound.fromFile(path);
 				if (result == null)
-					result = OpenFLAssets.getSound(path);
+					result = FlxAssets.getSound(path);
 				if (result == null) {
 					FlxG.log.error('No sound data from path "$path".');
-					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep.ogg') : null;
+					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
 				}
 			}
 		}

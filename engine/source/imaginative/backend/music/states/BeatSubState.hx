@@ -4,6 +4,7 @@ package imaginative.backend.music.states;
  * It's just `FlxSubState` but with IBeat implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
+@SuppressWarnings('checkstyle:CodeSimilarity')
 class BeatSubState extends FlxSubState /* implements IBeat */ {
 	/**
 	 * The states conductor instance.

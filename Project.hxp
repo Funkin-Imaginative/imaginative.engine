@@ -137,8 +137,8 @@ class EngineAsset {
 
 		CompilerFlag.init(this);
 
-		if (FileSystem.exists('commands/compile/platform.txt')) {
-			if (sys.io.File.getContent('commands/compile/platform.txt').trim() == 'cpp') {
+		if (FileSystem.exists('./commands/compile/platform.txt')) {
+			if (sys.io.File.getContent('./commands/compile/platform.txt').trim() == 'cpp') {
 				Sys.println('...');
 				Sys.sleep(2);
 				Sys.println('Thought you could get away with it huh?');
@@ -165,7 +165,7 @@ class EngineAsset {
 
 		setDefine('official'); // idk how I'm gonna handle this atm
 
-		addIcon('extras/art/logo.png');
+		addIcon('./extras/art/logo.png');
 
 		/* Define Setup */
 		knowsVersionID.enable();
@@ -195,7 +195,6 @@ class EngineAsset {
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
-		//consoleFancyPrint.softEnable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -227,22 +226,22 @@ class EngineAsset {
 
 		/* Path Settings */
 		if (isDesktop())
-			addAsset('extras/alsoft.txt', '${isMac() ? 'Resources/' : ''}plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
+			addAsset('./extras/alsoft.txt', './${isMac() ? 'Resources/' : ''}plugins/alsoft.${isWindows() ? 'ini' : 'conf'}');
 
 		var buildFolder:String = 'build';
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		this.app.path = 'export/$buildFolder${is32Bit() ? '-32bit' : ''}';
+		this.app.path = './export/$buildFolder${is32Bit() ? '-32bit' : ''}';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
-		var finalPath:String = '${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
+		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		for (path in sourceCodeDirectories)
 			this.sources.push(path);
 
-		inline function mergeArrays(arrays:Array<Array<String>>):Array<String> {
-			var result:Array<String> = [];
+		inline function mergeArrays<T>(arrays:Array<Array<T>>):Array<T> {
+			var result:Array<T> = [];
 			for (a in arrays)
 				for (v in a)
 					result.push(v);
@@ -250,11 +249,11 @@ class EngineAsset {
 		}
 		var repoItems:Array<String> = ['.git*', '.prettier*', '.editorconfig', 'checkstyle.json', '.vscode']; // Should certain things stay?
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('engine/', '', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'readme.md']]));
-		addAssetPath('engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
+		addAssetPath('./engine/', './', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'overshadowing']]));
+		addAssetPath('./engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
 		if (modSupport.exists()) {
-			addAssetPath('engine/modding/upfront', 'solo', ['*'], mergeArrays([excludeList, repoItems]));
-			addAssetPath('engine/modding/lowerend', 'mods', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('./engine/modding/upfront', './solo', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('./engine/modding/lowerend', './mods', ['*'], mergeArrays([excludeList, repoItems]));
 		}
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
@@ -301,8 +300,10 @@ class EngineAsset {
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
-		if (allowVideos.exists())
+		if (allowVideos.exists()) {
 			setHaxedef('HXVLC_NO_SHARE_DIRECTORY');
+			setenv('HAXEPATH', './');
+		}
 		if (canHaxeScript.exists())
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
