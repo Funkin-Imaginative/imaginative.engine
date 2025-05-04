@@ -3,11 +3,46 @@ package imaginative.backend.system;
 import haxe.macro.Compiler;
 import flixel.FlxGame;
 import openfl.display.Sprite;
+import imaginative.backend.system.frontEnds.OverlayCameraFrontEnd;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
 
 class Main extends Sprite {
+	/**
+	 * Direct access to stuff in the Main class.
+	 */
+	public static var direct:Main;
+
+	// might get rid of these till I figure out how to resize the shit properly
+	/**
+	 * Overlay Camera.
+	 */
+	public static var camera(default, set):FlxCamera;
+	inline static function set_camera(value:FlxCamera):FlxCamera {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('topCamera', value);
+		#end
+		return camera = value;
+	}
+	/**
+	 * Overlay camera manager.
+	 */
+	public static var cameras(default, null):OverlayCameraFrontEnd = new OverlayCameraFrontEnd();
+	/**
+	 * The group where overlay sprites will be loaded in.
+	 */
+	public static var overlay(default, set):FlxGroup;
+	inline static function set_overlay(value:FlxGroup):FlxGroup {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('overlayGroup', value);
+		#end
+		return overlay = value;
+	}
+
+	@:allow(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
+	static var _inputContainer:Sprite;
+
 	/**
 	 * The main mod that the engine will rely on. Think of it as a fallback.
 	 * This is usually stated as "funkin", aka base game.
@@ -36,10 +71,12 @@ class Main extends Sprite {
 	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
+	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	inline public function new():Void {
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 
 		super();
+		direct = this;
 
 		FlxWindow.init();
 		Script.init();
@@ -54,6 +91,36 @@ class Main extends Sprite {
 
 		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1);
+		FlxG.addChildBelowMouse(_inputContainer = new Sprite(), 1);
+
+		cameras.reset();
+
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
+		#end
+
+		FlxG.signals.preGameReset.add(() -> {
+			if (overlay != null)
+				overlay.destroy();
+			beingReset = true;
+		});
+		FlxG.signals.postGameReset.add(() -> overlayCameraInit);
+		overlayCameraInit();
+
+		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
+		FlxG.signals.postUpdate.add(() -> {
+			if (overlay != null)
+				overlay.update(FlxG.elapsed);
+			cameras.update(FlxG.elapsed);
+		});
+		FlxG.signals.preDraw.add(() -> cameras.lock);
+		FlxG.signals.postDraw.add(() -> {
+			if (overlay != null)
+				overlay.draw();
+			if (FlxG.renderTile)
+				cameras.render();
+			cameras.unlock();
+		});
 
 		// Was testing rating window caps.
 		/* // variables
@@ -82,6 +149,22 @@ class Main extends Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
+	}
+
+	static var beingReset:Bool = true;
+	static function overlayCameraInit():Void {
+		if (beingReset)
+			beingReset = false;
+		else return;
+
+		overlay = new FlxGroup();
+		overlay.cameras = [camera];
+
+		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
+		erect.screenCenter();
+		overlay.add(erect); */
+
+		GlobalScript.call('onOverlayCameraInit');
 	}
 }
 
