@@ -17,6 +17,7 @@ class Assets {
 		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
 		excludeAsset(Paths.music('main:freakyMenu'));
 		excludeAsset(Paths.music('main:breakfast'));
+		FlxG.signals.preGameReset.add(() -> clearCache(true, true));
 	}
 
 	/**
@@ -36,11 +37,14 @@ class Assets {
 	/**
 	 * When called it clears all graphics.
 	 * @param clearUnused If true, it clears any unused graphics.
+	 * @param ignoreExclusions If true, it ignores excluded graphics.
+	 *                         Used for resetGame shenanigans.
 	 */
-	inline public static function clearGraphics(clearUnused:Bool = false):Void {
+	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
 		for (tag => graphic in loadedGraphics) {
 			if (graphic == null) continue;
-			if (dumpExclusions.contains(tag) && clearUnused && !assetsInUse.contains(tag)) continue;
+			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
+			if (clearUnused && !assetsInUse.contains(tag)) continue;
 
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
@@ -59,11 +63,14 @@ class Assets {
 	/**
 	 * When called it clears all sounds.
 	 * @param clearUnused If true, it clears any unused sounds.
+	 * @param ignoreExclusions If true, it ignores excluded sounds.
+	 *                         Used for resetGame shenanigans.
 	 */
-	inline public static function clearSounds(clearUnused:Bool = false):Void {
+	inline public static function clearSounds(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
 		for (tag => sound in loadedSounds) {
 			if (sound == null) continue;
-			if (dumpExclusions.contains(tag) && clearUnused && !assetsInUse.contains(tag)) continue;
+			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
+			if (clearUnused && !assetsInUse.contains(tag)) continue;
 
 			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
 
@@ -73,10 +80,12 @@ class Assets {
 	/**
 	 * When called it clears all.
 	 * @param clearUnused If true, it clears any unused things.
+	 * @param ignoreExclusions If true, it ignores excluded things.
+	 *                         Used for resetGame shenanigans.
 	 */
-	inline public static function clearCache(clearUnused:Bool = false):Void {
-		clearSounds(clearUnused);
-		clearGraphics(clearUnused);
+	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
+		clearSounds(clearUnused, ignoreExclusions);
+		clearGraphics(clearUnused, ignoreExclusions);
 	}
 
 	/**
