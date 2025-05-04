@@ -33,7 +33,7 @@ class EngineInfoText extends Sprite {
 		text.x = text.y = boxDistanceOffset;
 		text.autoSize = LEFT;
 		text.selectable = text.mouseEnabled = false;
-		text.defaultTextFormat = new TextFormat('VCR OSD Mono', 20, FlxColor.WHITE); // Paths.font('lead:vcr.ttf')
+		text.defaultTextFormat = new TextFormat(Paths.font('lead:vcr.ttf').format(), 20, FlxColor.WHITE);
 	}
 
 	override function __enterFrame(elapsed:Float):Void {
