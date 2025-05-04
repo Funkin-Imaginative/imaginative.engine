@@ -104,13 +104,7 @@ class Main extends Sprite {
 				overlay.destroy();
 			beingReset = true;
 		});
-		FlxG.signals.postGameReset.add(() -> {
-			overlay = new FlxGroup();
-			overlay.cameras = [camera];
-			overlayCameraInit();
-		});
-		overlay = new FlxGroup();
-		overlay.cameras = [camera];
+		FlxG.signals.postGameReset.add(() -> overlayCameraInit);
 		overlayCameraInit();
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
@@ -163,15 +157,14 @@ class Main extends Sprite {
 			beingReset = false;
 		else return;
 
-		/* overlay = new FlxGroup();
-		overlay.cameras = [camera]; */
+		overlay = new FlxGroup();
+		overlay.cameras = [camera];
 
 		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
 		erect.screenCenter();
 		overlay.add(erect); */
 
 		GlobalScript.call('onOverlayCameraInit');
-		_log('Init');
 	}
 }
 
