@@ -84,7 +84,7 @@ class MainSettings {
 	/**
 	 * The fps cap you wish to go for.
 	 */
-	public var fpsCap(default, set):Int = 60;
+	public var fpsCap(default, set):Int = 120;
 	inline function set_fpsCap(value:Int):Int {
 		if (fpsCap != value) {
 			fpsCap = Std.int(FlxMath.bound(value, 30, 300));
@@ -96,7 +96,7 @@ class MainSettings {
 	 * The type of fps rendering you wish to use.
 	 * Your choices are Custom, Unlimited and Vsync.
 	 */
-	public var fpsType(default, set):FpsType = Custom;
+	public var fpsType(default, set):FpsType = Vsync;
 	inline function set_fpsType(value:FpsType):FpsType {
 		if (fpsType != value) {
 			fpsType = value;
