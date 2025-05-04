@@ -110,7 +110,7 @@ class Console {
 		split.push('   * ${[for (_ in 0...length - 4) '-'].join('')} *');
 		return split.join('\n');
 		#else
-		if (info.trim() != '')
+		if (!info.isNullOrEmpty())
 			info = '"$info" ~ ';
 		if (extra != null)
 			for (value in extra)

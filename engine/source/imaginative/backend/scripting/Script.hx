@@ -144,7 +144,7 @@ class Script extends FlxBasic implements IScript {
 	function renderScript(file:ModPath, ?code:String):Void {
 		try {
 			var content:String = Assets.text(file);
-			this.code = content.trim() == '' ? code : content;
+			this.code = content.isNullOrEmpty() ? code : content;
 		} catch(error:haxe.Exception) {
 			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
 			this.code = '';

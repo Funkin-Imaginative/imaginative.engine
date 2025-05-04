@@ -58,7 +58,7 @@ class TitleParts {
 		var result:Array<String> = [];
 		for (i in 0...2) {
 			var part:String = [prefix, main, suffix][i] ?? '';
-			if (part.trim() != '')
+			if (!part.isNullOrEmpty())
 				result.push(part);
 		}
 		return result.join(partJoiner);

@@ -88,7 +88,7 @@ class PlayState extends BeatState {
 			root = 'gameplay/countdown/';
 		return [
 			for (part in parts)
-				part == null ? null : '${root.type}:${FilePath.addTrailingSlash(root.path)}$part${suffix.trim() == '' ? '' : '-$suffix'}'
+				part == null ? null : '${root.type}:${FilePath.addTrailingSlash(root.path)}$part${suffix.isNullOrEmpty() ? '' : '-$suffix'}'
 		];
 	}
 

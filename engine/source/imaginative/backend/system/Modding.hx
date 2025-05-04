@@ -45,7 +45,7 @@ class Modding {
 	 */
 	public static function getModsRoot(modPath:String):String {
 		var mods:Array<String> = globalMods.copy();
-		if (curMod != null && curMod.trim() != '')
+		if (!curMod.isNullOrEmpty())
 			mods.push(curMod);
 
 		for (mod in mods) {
@@ -78,7 +78,7 @@ class Modding {
 		}
 
 		if (ModType.pathCheck(SOLO, pathType)) {
-			if (curSolo != null && curSolo.trim() != '') {
+			if (!curSolo.isNullOrEmpty()) {
 				var asset:String = './solo/$curSolo/$file';
 				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
 					potentialPaths.push(asset);
@@ -87,7 +87,7 @@ class Modding {
 
 		if (ModType.pathCheck(MOD, pathType)) {
 			var mods:Array<String> = globalMods.copy();
-			if (curMod != null && curMod.trim() != '')
+			if (!curMod.isNullOrEmpty())
 				mods.push(curMod);
 
 			for (mod in mods) {

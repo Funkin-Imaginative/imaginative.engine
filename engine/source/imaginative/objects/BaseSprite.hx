@@ -301,7 +301,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global'];
-		if (file != null && file.path != null && file.path.trim() != '')
+		if (file != null && !file.path.isNullOrEmpty())
 			bruh.push(file);
 
 		for (sprite in bruh)
@@ -402,8 +402,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
 			var targetAnim:String = animation.name;
-			if (!ignoreSwap) targetAnim = ((swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName == '' ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
-			if (!ignoreFlip) targetAnim = (flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName == '' ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
+			if (!ignoreSwap) targetAnim = ((swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName.isNullOrEmpty() ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
+			if (!ignoreFlip) targetAnim = (flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName.isNullOrEmpty() ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
 			return targetAnim;
 		}
 		return null;

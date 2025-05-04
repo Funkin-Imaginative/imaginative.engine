@@ -169,7 +169,7 @@ class StoryMenu extends BeatState {
 				var modPath:ModPath = data.path;
 				var objectData:SpriteData = data.object;
 
-				if (data.path.trim() != '' || data.path != null) {
+				if (!data.path.isNullOrEmpty()) {
 					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
 						log('Object "${Paths.object(modPath).path}" doesn\'t exist.', WarningMessage);
 						cantFindList.push(modPath.path);

@@ -108,7 +108,7 @@ enum abstract ModType(String) {
 	 */
 	inline public static function modPathHelper(string:String):ModType {
 		var type:String = string.split(':')[0];
-		var result:ModType = (type.trim() == '' || type == null) ? ANY : fromString(type);
+		var result:ModType = type.isNullOrEmpty() ? ANY : fromString(type);
 		return result;
 	}
 
@@ -122,7 +122,7 @@ enum abstract ModType(String) {
 	inline public static function simplifyType(path:ModPath, ?pathingHelp:String, doTypeCheck:Bool = true):ModType {
 		return switch (path.type) {
 			case ANY | LEAD | MODDED | NORM:
-				ModType.typeFromPath(Paths.file('${path.type}:${pathingHelp == null || pathingHelp.trim() == '' ? '' : FilePath.addTrailingSlash(pathingHelp)}${path.path}').format());
+				ModType.typeFromPath(Paths.file('${path.type}:${pathingHelp == null || pathingHelp.isNullOrEmpty() ? '' : FilePath.addTrailingSlash(pathingHelp)}${path.path}').format());
 			default:
 				path.type; // already simplified
 		}
@@ -224,7 +224,7 @@ abstract ModPath(String) {
 		return FilePath.extension(path);
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_extension(value:String):String
-		return path = '${FilePath.withoutExtension(path)}${value.trim() == '' ? '' : '.$value'}';
+		return path = '${FilePath.withoutExtension(path)}${value.isNullOrEmpty() ? '' : '.$value'}';
 
 	/**
 	 * The path type.
@@ -262,7 +262,7 @@ abstract ModPath(String) {
 	 */
 	inline public function format():String {
 		var result:String = Paths.applyRoot(path, type);
-		return result.trim() == '' ? path : result;
+		return result.isNullOrEmpty() ? path : result;
 	}
 
 	/**
@@ -351,13 +351,13 @@ class Paths {
 		var check:String = '';
 
 		#if MOD_SUPPORT
-		if (result == '' && ModType.pathCheck(MOD, type))
+		if (result.isNullOrEmpty() && ModType.pathCheck(MOD, type))
 			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './mods/$name/$file'), false))
 				result = check;
-		if (result == '' && ModType.pathCheck(SOLO, type))
+		if (result.isNullOrEmpty() && ModType.pathCheck(SOLO, type))
 			if (itemExists(check = './solo/${name ?? Modding.curSolo}/$file', false))
 				result = check;
-		if (result == '' && ModType.pathCheck(MAIN, type))
+		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = './solo/${Main.mainMod}/$file', false))
 				result = check;
 		#else
@@ -562,7 +562,7 @@ class Paths {
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):ModPath
-		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
+		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.isNullOrEmpty() ? '' : '-$suffix'}');
 	/**
 	 * Get's the path of a song.
 	 * From `../music/`.
@@ -691,7 +691,7 @@ class Paths {
 	 * @return `Bool` ~ If true, it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
-		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
+		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts).valid;
 }
 
 enum abstract AssetTypeHelper(String) from String to String {

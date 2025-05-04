@@ -181,7 +181,7 @@ final class HaxeScript extends Script {
 					var content:String = Assets.text(path);
 					var expr:Expr = null;
 					try {
-						if (content != null && content.trim() != '') {
+						if (!content.isNullOrEmpty()) {
 							parser.line = 1;
 							expr = parser.parseString(content, '${importPath.join('/')}.$ext');
 						}
@@ -229,7 +229,7 @@ final class HaxeScript extends Script {
 	}
 	override function loadCodeString(code:String):Void {
 		try {
-			if (code != null && code.trim() != '') {
+			if (!code.isNullOrEmpty()) {
 				expr = parser.parseString(code, pathing.format() ?? 'from string');
 				canRun = true;
 				return;

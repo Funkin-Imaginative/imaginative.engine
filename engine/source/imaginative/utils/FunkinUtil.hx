@@ -88,7 +88,7 @@ class FunkinUtil {
 		// Song Grab
 		var songs:Array<ModPath> = [];
 		for (folder in Paths.readFolder('$pathType:content/songs', false))
-			if (FilePath.extension(folder) == '')
+			if (FilePath.extension(folder).isNullOrEmpty())
 				songs.push(folder);
 		for (file in songs)
 			file.type = ModType.simplifyType(file, 'content/songs');

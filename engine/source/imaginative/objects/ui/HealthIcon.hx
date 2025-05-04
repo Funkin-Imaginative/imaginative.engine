@@ -39,7 +39,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global', 'lead:icons/global'];
-		if (file != null && file.path != null && file.path.trim() != '')
+		if (file != null && !file.path.isNullOrEmpty())
 			bruh.push(file);
 
 		for (sprite in bruh)
