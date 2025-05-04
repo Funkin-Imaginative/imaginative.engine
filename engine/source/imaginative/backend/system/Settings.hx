@@ -86,8 +86,11 @@ class MainSettings {
 	 */
 	public var fpsCap(default, set):Int = 60;
 	inline function set_fpsCap(value:Int):Int {
-		fpsCap = Std.int(FlxMath.bound(value, 30, 300));
-		return FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		if (fpsCap != value) {
+			fpsCap = Std.int(FlxMath.bound(value, 30, 300));
+			if (fpsType == Custom) FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		}
+		return fpsCap;
 	}
 	/**
 	 * The type of fps rendering you wish to use.
@@ -95,8 +98,10 @@ class MainSettings {
 	 */
 	public var fpsType(default, set):FpsType = Custom;
 	inline function set_fpsType(value:FpsType):FpsType {
-		fpsType = value;
-		FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		if (fpsType != value) {
+			fpsType = value;
+			FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		}
 		return fpsType;
 	}
 	/**
@@ -106,8 +111,8 @@ class MainSettings {
 	public function getFPS():Int {
 		return switch (fpsType) {
 			case Custom: fpsCap;
-			case Unlimited: 1000; // make better... somehow?
-			case Vsync: 60; // for now
+			case Unlimited: 1000; // not like you'll ever actually reach this, plus it's
+			case Vsync: FlxWindow.direct.self.displayMode.refreshRate * 2; // Does * 2 because @Rudyrue and @superpowers04 said it's better like this?
 		}
 	}
 
