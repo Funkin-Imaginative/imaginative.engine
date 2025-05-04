@@ -127,11 +127,6 @@ class EngineAsset {
 	 */
 	static final allowVideos:CompilerFlag = 'ALLOW_VIDEOS';
 
-	/**
-	 * States the console print should be fancy.
-	 */
-	static final consoleFancyPrint:CompilerFlag = 'CONSOLE_FANCY_PRINT';
-
 	override public function new() {
 		super();
 
