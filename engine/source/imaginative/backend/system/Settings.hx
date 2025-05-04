@@ -92,7 +92,7 @@ class MainSettings {
 	/**
 	 * The fps cap you wish to go for.
 	 */
-	public var fpsCap(default, set):Int = 120;
+	public var fpsCap(default, set):Int = 60;
 	inline function set_fpsCap(value:Int):Int {
 		if (fpsCap != value) {
 			fpsCap = Std.int(FlxMath.bound(value, 30, 300));
@@ -216,7 +216,6 @@ class Settings {
 	inline static function init():Void {
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
-		setup.gpuCaching = true; // temp
 		FlxG.updateFramerate = FlxG.drawFramerate = setup.getFPS();
 	}
 
