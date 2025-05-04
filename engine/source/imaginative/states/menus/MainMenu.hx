@@ -206,7 +206,7 @@ class MainMenu extends BeatState {
 		}
 
 		var range:Float = FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1);
-		camPoint.y = FunkinUtil.lerp(highestY, lowestY, range);
+		camPoint.y = FlxMath.lerp(highestY, lowestY, range);
 		bg.y = FunkinUtil.lerp(bg.y, FlxMath.lerp(0, FlxG.height - bg.height, range), 0.16);
 	}
 
