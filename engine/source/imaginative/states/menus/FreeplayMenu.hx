@@ -1,7 +1,5 @@
 package imaginative.states.menus;
 
-import imaginative.backend.scripting.events.menus.*;
-
 /**
  * The freeplay menu, where you can pick any song!
  */

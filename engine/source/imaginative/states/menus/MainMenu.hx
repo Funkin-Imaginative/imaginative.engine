@@ -2,7 +2,6 @@ package imaginative.states.menus;
 
 import haxe.macro.Compiler;
 import flixel.effects.FlxFlicker;
-import imaginative.backend.scripting.events.menus.*;
 
 /**
  * This is the main menu... what else were you expecting this to say?

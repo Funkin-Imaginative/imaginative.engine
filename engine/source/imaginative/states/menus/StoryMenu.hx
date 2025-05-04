@@ -1,7 +1,5 @@
 package imaginative.states.menus;
 
-import imaginative.backend.scripting.events.menus.*;
-
 /**
  * It's the story menu, don't know what your expecting to see here.
  */
