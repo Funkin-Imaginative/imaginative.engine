@@ -289,7 +289,7 @@ class FreeplayMenu extends BeatState {
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
 		camera.zoom = FunkinUtil.lerp(camera.zoom, 1, 0.16);
-		bgColor = bg.changeColor(FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
+		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 
 		for (i => song in songs.members)
 			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);

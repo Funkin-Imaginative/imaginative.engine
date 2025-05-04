@@ -292,7 +292,7 @@ class StoryMenu extends BeatState {
 
 		var item:BaseSprite = levels.members[curSelected].sprite;
 		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.camera.height / 3.4);
-		weekBg.color = FlxColor.interpolate(weekBg.color, levels.members[curSelected].data.color, 0.1);
+		weekBg.color = FunkinUtil.colorLerp(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
