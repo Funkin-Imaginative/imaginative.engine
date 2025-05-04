@@ -18,7 +18,13 @@ class Main extends Sprite {
 	/**
 	 * Overlay Camera.
 	 */
-	public static var camera:FlxCamera;
+	public static var camera(default, set):FlxCamera;
+	inline static function set_camera(value:FlxCamera):FlxCamera {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('topCamera', value);
+		#end
+		return camera = value;
+	}
 	/**
 	 * Overlay camera manager.
 	 */
@@ -26,7 +32,13 @@ class Main extends Sprite {
 	/**
 	 * The group where overlay sprites will be loaded in.
 	 */
-	public static var overlay:FlxGroup = new FlxGroup();
+	public static var overlay(default, set):FlxGroup;
+	inline static function set_overlay(value:FlxGroup):FlxGroup {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('overlayGroup', value);
+		#end
+		return overlay = value;
+	}
 
 	@:allow(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	static var _inputContainer:Sprite;
@@ -78,34 +90,43 @@ class Main extends Sprite {
 		#end
 
 		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
-		addChild(_inputContainer = new Sprite());
-		addChild(new EngineInfoText());
+		FlxG.addChildBelowMouse(new EngineInfoText(), 1);
+		FlxG.addChildBelowMouse(_inputContainer = new Sprite(), 1);
 
-		cameras.reset(camera);
+		cameras.reset();
 
 		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerObject('topCamera', camera);
 		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
-		FlxG.game.debugger.console.registerObject('overlayGroup', overlay);
 		#end
 
+		FlxG.signals.preGameReset.add(() -> {
+			if (overlay != null)
+				overlay.destroy();
+			beingReset = true;
+		});
+		FlxG.signals.postGameReset.add(() -> {
+			overlay = new FlxGroup();
+			overlay.cameras = [camera];
+			overlayCameraInit();
+		});
+		overlay = new FlxGroup();
 		overlay.cameras = [camera];
+		overlayCameraInit();
 
 		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
 		FlxG.signals.postUpdate.add(() -> {
-			overlay.update(FlxG.elapsed);
+			if (overlay != null)
+				overlay.update(FlxG.elapsed);
 			cameras.update(FlxG.elapsed);
 		});
-		FlxG.signals.preDraw.add(() -> cameras.lock());
+		FlxG.signals.preDraw.add(() -> cameras.lock);
 		FlxG.signals.postDraw.add(() -> {
-			overlay.draw();
-			cameras.render();
+			if (overlay != null)
+				overlay.draw();
+			if (FlxG.renderTile)
+				cameras.render();
 			cameras.unlock();
 		});
-
-		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
-		erect.screenCenter();
-		overlay.add(erect); */
 
 		// Was testing rating window caps.
 		/* // variables
@@ -134,6 +155,23 @@ class Main extends Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
+	}
+
+	static var beingReset:Bool = true;
+	static function overlayCameraInit():Void {
+		if (beingReset)
+			beingReset = false;
+		else return;
+
+		/* overlay = new FlxGroup();
+		overlay.cameras = [camera]; */
+
+		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
+		erect.screenCenter();
+		overlay.add(erect); */
+
+		GlobalScript.call('onOverlayCameraInit');
+		_log('Init');
 	}
 }
 

@@ -3,13 +3,14 @@ package imaginative.backend.system.frontEnds;
 import flixel.system.frontEnds.CameraFrontEnd;
 
 class OverlayCameraFrontEnd extends CameraFrontEnd {
-	override public function new() {
+	@:allow(imaginative.backend.system.Main)
+	override function new() {
 		super();
 		FlxCamera._defaultCameras = FlxG.cameras.defaults;
 	}
 
-	override function add<T:FlxCamera>(NewCamera:T, DefaultDrawTarget:Bool = true):T {
-		Main.direct.addChildAt(NewCamera.flashSprite, Main.direct.getChildIndex(Main._inputContainer));
+	override public function add<T:FlxCamera>(NewCamera:T, DefaultDrawTarget:Bool = true):T {
+		FlxG.game.addChildAt(NewCamera.flashSprite, FlxG.game.getChildIndex(Main._inputContainer));
 
 		list.push(NewCamera);
 		if (DefaultDrawTarget)
@@ -20,10 +21,10 @@ class OverlayCameraFrontEnd extends CameraFrontEnd {
 		return NewCamera;
 	}
 
-	override function remove(Camera:FlxCamera, Destroy:Bool = true):Void {
+	override public function remove(Camera:FlxCamera, Destroy:Bool = true):Void {
 		var index:Int = list.indexOf(Camera);
 		if (Camera != null && index != -1) {
-			Main.direct.removeChild(Camera.flashSprite);
+			FlxG.game.removeChild(Camera.flashSprite);
 			list.splice(index, 1);
 			defaults.remove(Camera);
 		} else {
@@ -41,7 +42,7 @@ class OverlayCameraFrontEnd extends CameraFrontEnd {
 		cameraRemoved.dispatch(Camera);
 	}
 
-	override function setDefaultDrawTarget(camera:FlxCamera, value:Bool):Void {
+	override public function setDefaultDrawTarget(camera:FlxCamera, value:Bool):Void {
 		if (!list.contains(camera)) {
 			FlxG.log.warn('Main.cameras.setDefaultDrawTarget(): The specified camera is not a part of the game.');
 			return;
