@@ -47,9 +47,9 @@ enum abstract ModType(String) {
 	inline public function returnRootPath():String {
 		#if MOD_SUPPORT
 		return switch (fromString(this)) {
-			case MAIN: './solo/${Main.mainMod}';
-			case SOLO: './solo/${Modding.curSolo}';
-			case MOD: './mods/${Modding.curMod}';
+			case MAIN: './${Main.redirectPathing}solo/${Main.mainMod}';
+			case SOLO: './${Main.redirectPathing}solo/${Modding.curSolo}';
+			case MOD: './${Main.redirectPathing}mods/${Modding.curMod}';
 			default: '';
 		}
 		#else
@@ -64,8 +64,8 @@ enum abstract ModType(String) {
 	 * @return `ModType`
 	 */
 	inline public static function typeFromPath(path:String):Null<ModType> {
-		return switch (path.split('/')[0]) {
-			case 'solo': path.split('/')[1] == Main.mainMod ? MAIN : SOLO;
+		return switch (path.split('/')[Main.redirectIndex()]) {
+			case 'solo': path.split('/')[Main.redirectIndex(1)] == Main.mainMod ? MAIN : SOLO;
 			case 'mods': MOD;
 			default: null;
 		}
@@ -76,7 +76,7 @@ enum abstract ModType(String) {
 	 * @return `String` ~ Mod folder name.
 	 */
 	inline public static function modNameFromPath(path:String):String
-		return path.split('/')[1]; // lol
+		return path.split('/')[Main.redirectIndex(1)]; // lol
 
 	/**
 	 * Check's if incoming type is a wanted type.
@@ -352,16 +352,16 @@ class Paths {
 
 		#if MOD_SUPPORT
 		if (result.isNullOrEmpty() && ModType.pathCheck(MOD, type))
-			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './mods/$name/$file'), false))
+			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './${Main.redirectPathing}mods/$name/$file'), false))
 				result = check;
 		if (result.isNullOrEmpty() && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = './solo/${name ?? Modding.curSolo}/$file', false))
+			if (itemExists(check = './${Main.redirectPathing}solo/${name ?? Modding.curSolo}/$file', false))
 				result = check;
 		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
-			if (itemExists(check = './solo/${Main.mainMod}/$file', false))
+			if (itemExists(check = './${Main.redirectPathing}solo/${Main.mainMod}/$file', false))
 				result = check;
 		#else
-		if (itemExists(check = './${Main.mainMod}/$file', false))
+		if (itemExists(check = './${Main.redirectPathing}${Main.mainMod}/$file', false))
 			result = check;
 		#end
 

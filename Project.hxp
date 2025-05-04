@@ -127,6 +127,11 @@ class EngineAsset {
 	 */
 	static final allowVideos:CompilerFlag = 'ALLOW_VIDEOS';
 
+	/**
+	 * When active, the engine will use the `./engine` folder for grabbing assets.
+	 */
+	static final redirectFolders:CompilerFlag = 'REDIRECT_FOLDERS';
+
 	override public function new() {
 		super();
 
@@ -187,6 +192,8 @@ class EngineAsset {
 			if (isDesktop() || isMobile())
 				allowVideos.enable();
 		}
+		if (isDebug() && (isWindows() || isMac()))
+			redirectFolders.enable();
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();

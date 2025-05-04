@@ -36,6 +36,41 @@ class Main extends Sprite {
 	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
+	/**
+	 * Used for when `REDIRECT_FOLDERS` is active.
+	 */
+	inline public static final redirectPathing:String =
+	#if REDIRECT_FOLDERS
+		#if windows
+		'../../../../';
+		#elseif mac
+		'../../../../../../../';
+		#else
+		'';
+		#end
+	#else
+		'';
+	#end
+	/**
+	 * Used for when `REDIRECT_FOLDERS` is active.
+	 * @param add Just used for stuff like `Paths.typeFromPath` and `Paths.modNameFromPath`.
+	 * @return `Int` ~ The resulting index.
+	 */
+	inline public static function redirectIndex(add:Int = 0):Int {
+		return
+		#if REDIRECT_FOLDERS
+			#if windows
+			3
+			#elseif mac
+			6
+			#else
+			0
+			#end
+		#else
+			0
+		#end + add;
+	}
+
 	inline public function new():Void {
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 
@@ -82,6 +117,11 @@ class Main extends Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
+		var ugh = FilePath.normalize('./${Main.redirectPathing}solo/${Main.mainMod}/content/songs/Bopeebo/meta.json');
+		trace([ugh.split('/')[Main.redirectIndex(1)], ugh]);
+		var ugh = FilePath.normalize('./solo/funkin/content/songs/Bopeebo/meta.json');
+		trace([ugh.split('/')[1], ugh]);
+		Sys.exit(0);
 	}
 }
 
