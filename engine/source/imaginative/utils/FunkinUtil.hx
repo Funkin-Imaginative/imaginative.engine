@@ -144,7 +144,7 @@ class FunkinUtil {
 	 * @param fpsSensitive If true, the ratio will be checked to run at the same speed, no matter the fps rate.
 	 * @return `Float` ~ The result.
 	 */
-	inline public static function lerp(a:Float, b:Float, ratio:Float, fpsSensitive:Bool = true):Float
+	@:noUsing inline public static function lerp(a:Float, b:Float, ratio:Float, fpsSensitive:Bool = true):Float
 		return FlxMath.lerp(a, b, fpsSensitive ? getElapsedRatio(ratio) : ratio);
 	/**
 	 * Applies a ratio to a number.
@@ -152,7 +152,7 @@ class FunkinUtil {
 	 * @param fps The FPS target to match. This argument is optional and is best left at 60.
 	 * @return `Float` ~ The resulting ratio.
 	 */
-	inline public static function getElapsedRatio(ratio:Float, fps:Float = 60):Float
+	@:noUsing inline public static function getElapsedRatio(ratio:Float, fps:Float = 60):Float
 		return FlxMath.bound(ratio * fps * FlxG.elapsed, 0, 1);
 
 	/**
@@ -162,7 +162,7 @@ class FunkinUtil {
 	 * @param range The format of the percentage. ex: 1
 	 * @return `Float` ~ The percentage. ex: 0.4
 	 */
-	inline public static function toPercent(value:Float, max:Float, range:Float = 1):Float {
+	@:noUsing inline public static function toPercent(value:Float, max:Float, range:Float = 1):Float {
 		return (value / max) * range;
 	}
 	/**
@@ -172,7 +172,7 @@ class FunkinUtil {
 	 * @param range The format of the value. ex: 1
 	 * @return `Float` ~ The value. ex: 4
 	 */
-	inline public static function undoPercent(percent:Float, max:Float, range:Float = 100):Float {
+	@:noUsing inline public static function undoPercent(percent:Float, max:Float, range:Float = 100):Float {
 		return (percent * max) / range;
 	}
 }
