@@ -58,24 +58,32 @@ class MainSettings {
 	/**
 	 * If true, antialiasing can be applied to things.
 	 */
-	public var antialiasing(get, default):Bool = true;
-	inline function get_antialiasing():Bool
-		return qualityLevel > 0.35 ? antialiasing : false;
-
+	public var antialiasing(default, set):Bool = true;
+	inline function set_antialiasing(value:Bool):Bool {
+		antialiasing = value;
+		updateStageQuality();
+		return antialiasing;
+	}
 	/**
 	 * This states the level of quality you want the game to display.
 	 * `Note: Depending on the quality level it will auto set some options but the engine will still remember your choices.`
 	 */
 	public var qualityLevel(default, set):Float = 1;
-	inline function set_qualityLevel(value:Float):Float
+	inline function set_qualityLevel(value:Float):Float {
+		updateStageQuality();
 		return qualityLevel = FlxMath.bound(value, 0, 1);
+	}
+	/**
+	 * Running this function updates the stage quality.
+	 */
+	inline public function updateStageQuality():Void
+		FlxG.game.stage.quality = antialiasing ? (qualityLevel > 5 ? BEST : HIGH) : LOW;
+
 	/**
 	 * If true, bigger shaders will be disabled.
 	 * `Note: In order for this to work you gotta make sure you do if statement stuff.`
 	 */
-	public var canDoShaders(get, default):Bool = false;
-	inline function get_canDoShaders():Bool
-		return qualityLevel > 0.7 ? canDoShaders : false;
+	public var canDoShaders:Bool = false;
 	/**
 	 * If true, your devices gpu will do all the caching.
 	 */
@@ -108,7 +116,7 @@ class MainSettings {
 	 * Returns the fps value based on your settings.
 	 * @return `Int` ~ Wanted fps.
 	 */
-	public function getFPS():Int {
+	inline public function getFPS():Int {
 		return switch (fpsType) {
 			case Custom: fpsCap;
 			case Unlimited: 1000; // not like you'll ever actually reach this, plus it's
@@ -206,7 +214,10 @@ class PlayerSettings {
 class Settings {
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
-		//
+		FlxG.autoPause = setup.autoPause;
+		setup.antialiasing = setup.antialiasing;
+		setup.gpuCaching = true; // temp
+		FlxG.updateFramerate = FlxG.drawFramerate = setup.getFPS();
 	}
 
 	/**
