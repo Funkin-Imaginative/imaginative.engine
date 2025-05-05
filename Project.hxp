@@ -200,29 +200,29 @@ class EngineAsset {
 		/* Define Setup */
 
 		/* App Setup */
-		this.meta.title = windowTitle;
-		this.meta.version = engineVersion;
-		this.meta.packageName = packageName;
-		this.meta.company = companyName;
-		this.app.main = mainClassPath;
-		this.app.file = exeFileName;
-		this.app.preloader = preloaderClassPath;
+		meta.title = windowTitle;
+		meta.version = engineVersion;
+		meta.packageName = packageName;
+		meta.company = companyName;
+		app.main = mainClassPath;
+		app.file = exeFileName;
+		app.preloader = preloaderClassPath;
 		/* App Setup */
 
 		/* Window Settings */
-		this.window.fps = 60;
-		setDefine('InitialWidth', '${this.window.width = 1280}');
-		setDefine('InitialHeight', '${this.window.height = 720}');
-		this.window.background = 0xFF000000;
-		this.window.allowHighDPI = this.window.hardware = this.window.resizable = true;
-		this.window.vsync = this.window.fullscreen = false;
-		this.window.allowShaders = allowShaders.exists();
+		window.fps = 60;
+		setDefine('InitialWidth', '${window.width = 1280}');
+		setDefine('InitialHeight', '${window.height = 720}');
+		window.background = 0xFF000000;
+		window.allowHighDPI = window.hardware = window.resizable = true;
+		window.vsync = window.fullscreen = false;
+		window.allowShaders = allowShaders.exists();
 
-		this.window.orientation = Orientation.LANDSCAPE;
+		window.orientation = Orientation.LANDSCAPE;
 
 		if (isMobile()) {
-			this.window.fullscreen = true;
-			this.window.resizable = false;
+			window.fullscreen = true;
+			window.resizable = false;
 		}
 		/* Window Settings */
 
@@ -234,7 +234,7 @@ class EngineAsset {
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		this.app.path = './export/$buildFolder${is32Bit() ? '-32bit' : ''}';
+		this.app.path = './export/$buildFolder';
 		if (useTracy.exists())
 			this.app.path += 'tracy';
 
@@ -242,7 +242,7 @@ class EngineAsset {
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		for (path in sourceCodeDirectories)
-			this.sources.push(path);
+			sources.push(path);
 
 		inline function mergeArrays<T>(arrays:Array<Array<T>>):Array<T> {
 			var result:Array<T> = [];
@@ -329,7 +329,7 @@ class EngineAsset {
 		for (setAsset in EngineAsset.mapping) {
 			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, /* isDebug() ? false : */ setAsset.embed);
 			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
-			this.assets.push(asset);
+			assets.push(asset);
 		}
 	}
 
@@ -348,12 +348,12 @@ class EngineAsset {
 	 * If true, your compiling on a 32 bit system.
 	 */
 	inline public function is32Bit():Bool
-		return this.architectures.contains(Architecture.X86);
+		return architectures.contains(Architecture.X86);
 	/**
 	 * If true, your compiling on a 64 bit system.
 	 */
 	inline public function is64Bit():Bool
-		return this.architectures.contains(Architecture.X64);
+		return architectures.contains(Architecture.X64);
 
 
 	/**
@@ -376,12 +376,12 @@ class EngineAsset {
 	 * If true, your compiling on android.
 	 */
 	inline public function isAndroid():Bool
-		return this.targetFlags.exists('android');
+		return targetFlags.exists('android');
 	/**
 	 * If true, your compiling on ios.
 	 */
 	inline public function isIOS():Bool
-		return this.targetFlags.exists('ios');
+		return targetFlags.exists('ios');
 
 	/**
 	 * If true, your compiling on a release build.
@@ -399,9 +399,9 @@ class EngineAsset {
 	 * @param name The haxedef key.
 	 * @param value The value of the haxedef.
 	 */
-	inline public function setHaxedef(name:String, value:String = ''):Void {
+	inline public function setHaxedef(name:String, ?value:String):Void {
 		info('Set haxedef "$name"${value == null ? '' : ' value of "$value"'}.');
-		this.haxedefs.set(name, value);
+		haxedefs.set(name, value ?? '');
 	}
 	/**
 	 * Get's information from a haxedef.
@@ -409,7 +409,7 @@ class EngineAsset {
 	 * @return The value of the haxedef.
 	 */
 	inline public function getHaxedef(name:String):Null<Dynamic>
-		return this.haxedefs.get(name);
+		return haxedefs.get(name);
 	/**
 	 * Unset's a haxedef.
 	 * @param name The haxedef key.
@@ -417,7 +417,7 @@ class EngineAsset {
 	inline public function unsetHaxedef(name:String):Void
 		if (hasHaxedef(name)) {
 			info('Unset haxedef "$name".');
-			this.haxedefs.remove(name);
+			haxedefs.remove(name);
 		}
 	/**
 	 * Check's if a haxedef exists.
@@ -425,18 +425,18 @@ class EngineAsset {
 	 * @return If true, the define exists.
 	 */
 	inline public function hasHaxedef(name:String):Bool
-		return this.haxedefs.exists(name);
+		return haxedefs.exists(name);
 
 	/**
 	 * Set's a define.
 	 * @param name The define key.
 	 * @param value The value of the define.
 	 */
-	inline public function setDefine(name:String, value:String = ''):Void {
+	inline public function setDefine(name:String, ?value:String):Void {
 		info('Set define "$name"${value == null ? '' : ' value of "$value"'}.');
-		this.defines.set(name, value);
-		this.haxedefs.set(name, value);
-		this.environment.set(name, value);
+		defines.set(name, value ?? '');
+		haxedefs.set(name, value ?? '');
+		environment.set(name, value ?? '');
 	}
 	/**
 	 * Get's information from a define.
@@ -444,7 +444,7 @@ class EngineAsset {
 	 * @return The value of the define.
 	 */
 	inline public function getDefine(name:String):Null<Dynamic>
-		return this.defines.get(name);
+		return defines.get(name);
 	/**
 	 * Unset's a define.
 	 * @param name The define key.
@@ -452,9 +452,9 @@ class EngineAsset {
 	inline public function unsetDefine(name:String):Void
 		if (hasDefine(name)) {
 			info('Unset define "$name".');
-			this.defines.remove(name);
-			this.haxedefs.remove(name);
-			this.environment.remove(name);
+			defines.remove(name);
+			haxedefs.remove(name);
+			environment.remove(name);
 		}
 	/**
 	 * Check's if a define exists.
@@ -462,7 +462,7 @@ class EngineAsset {
 	 * @return If true, the define exists.
 	 */
 	inline public function hasDefine(name:String):Bool
-		return this.defines.exists(name);
+		return defines.exists(name);
 
 	/**
 	 * Add a library to the list of dependencies for the project.
@@ -470,14 +470,14 @@ class EngineAsset {
 	 * @param version The version of the library to add. Optional.
 	 */
 	inline public function addHaxelib(name:String, version:String = ''):Void
-		this.haxelibs.push(new Haxelib(name, version));
+		haxelibs.push(new Haxelib(name, version));
 
 	/**
 	 * Add a `haxeflag` to the project.
 	 * @param value The flag.
 	 */
 	inline public function addHaxeFlag(value:String):Void
-		this.haxeflags.push(value);
+		haxeflags.push(value);
 	/**
 	 * Call a Haxe build macro.
 	 * @param value The macro.
@@ -491,7 +491,7 @@ class EngineAsset {
 	 * @param size The size of the icon, optional.
 	 */
 	inline public function addIcon(icon:String, ?size:Int):Void
-		this.icons.push(new Icon(icon, size));
+		icons.push(new Icon(icon, size));
 	/**
 	 * Add an asset to the game build.
 	 * @param path The path the asset is located at.
@@ -542,7 +542,7 @@ class EngineAsset {
 			for (file in FileSystem.readDirectory(path)) {
 				if (FileSystem.isDirectory('$path/$file')) {
 					// Attempt to recursively add all assets in the directory.
-					if (this.filter(file, ['*'], exclude)) {
+					if (filter(file, ['*'], exclude)) {
 						var renamedFolder:String = file;
 						var willEmbed:Bool = file == 'embed';
 
@@ -556,7 +556,7 @@ class EngineAsset {
 						addAssetPath('$path/$file', '${Path.addTrailingSlash(targetPath)}$renamedFolder', force, library, include, exclude, willEmbed);
 					}
 				} else if (FileSystem.exists('$path/$file'))
-					if (this.filter(file, include, exclude)) {
+					if (filter(file, include, exclude)) {
 						var folderEmbedded:Bool = false;
 						var renamedFile:String = file;
 						var willEmbed:Bool = Path.extension(Path.withoutExtension(file)) == 'embed';
@@ -582,7 +582,7 @@ class EngineAsset {
 	 * @param preload
 	 */
 	inline public function addAssetLibrary(name:String, embed:Bool = false, preload:Bool = false):Void
-		this.libraries.push(new Library('', name, null, embed, preload, false, ''));
+		libraries.push(new Library('', name, null, embed, preload, false, ''));
 
 	/**
 	 * Display an error message. This should stop the build process.
@@ -593,13 +593,9 @@ class EngineAsset {
 	/**
 	 * Display an info message. This should not interfere with the build process.
 	 */
-	inline public function info(message:String):Void {
-		// CURSED: We have to disable info() log calls because of a bug.
-		// https://github.com/haxelime/lime-vscode-extension/issues/88
-
-		// The bug they talk about is a thing, but unlike them it doesn't effect compiling for me lmfao.
-		// Log.info('[INFO] $message');
-	}
+	inline public function info(message:String):Void
+		if (command != 'display')
+			Log.info('[INFO] $message');
 }
 
 /**
@@ -622,14 +618,14 @@ abstract CompilerFlag(String) {
 	 * Enable this feature flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
-	inline public function enable(value:String = ''):Void
+	inline public function enable(?value:String):Void
 		if (!exists())
 			parentProject.setDefine(this, value);
 	/**
 	 * Enable this feature flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
-	inline public function softEnable(value:String = ''):Void
+	inline public function softEnable(?value:String):Void
 		if (!exists())
 			parentProject.setHaxedef(this, value);
 	/**
