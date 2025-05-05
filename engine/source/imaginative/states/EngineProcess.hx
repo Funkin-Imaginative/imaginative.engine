@@ -34,8 +34,6 @@ class EngineProcess extends BeatState {
 		}
 		#end
 
-		FlxG.mouse.useSystemCursor = true; // we use custom object lol
-
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
 		FlxG.game.debugger.console.registerClass(FlxWindow);
