@@ -143,6 +143,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	}
 
 	override public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
+		#if TRACY_DEBUGGER
+		if (this.getClassName() == 'Character')
+			TracyProfiler.zoneScoped('new Character($x, $y, $name, $faceLeft)');
+		#end
+
 		super(x, y, 'characters/${theirName = (Paths.fileExists(Paths.character(name)) ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');

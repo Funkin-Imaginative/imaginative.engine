@@ -77,6 +77,14 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		super.renderData(inputData, applyStartValues);
 	}
 
+	#if TRACY_DEBUGGER
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+		if (this.getClassName() == 'BeatSprite')
+			TracyProfiler.zoneScoped('new BeatSprite($x, $y, $sprite, $script, $applyStartValues)');
+		super(x, y, sprite, script, applyStartValues);
+	}
+	#end
+
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {

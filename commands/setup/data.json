@@ -39,7 +39,12 @@
 		{
 			"name": "hxvlc", "version": "git",
 			"url": "https://github.com/MAJigsaw77/hxvlc",
-			"dependencies": [{"name": "hxcpp"}]
+			"dependencies": [
+				{
+					"name": "hxcpp", "version": "git", "branch": "v4.3.75",
+					"url": "https://github.com/HaxeFoundation/hxcpp"
+				}
+			]
 		},
 		{"name": "thx.semver"}
 	],

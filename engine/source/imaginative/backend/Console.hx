@@ -93,8 +93,11 @@ class Console {
 		var message:String = formatValueInfo(value);
 		if (extra != null && !extra.empty())
 			message += extra.formatArray();
-
-		return '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		#if TRACY_DEBUGGER
+		TracyProfiler.message(traceMessage, FlxColor.WHITE);
+		#end
+		return traceMessage;
 	}
 
 	/**

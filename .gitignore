@@ -7,5 +7,6 @@ commands/compile/platform.txt
 
 # unnecessary folders
 .haxelib/
+.tracy/
 export/
 dump/

@@ -1,5 +1,9 @@
 package;
 
+#if TRACY_DEBUGGER
+import cpp.vm.tracy.TracyProfiler;
+#end
+
 /* Haxe */
 import haxe.io.Path as FilePath;
 import sys.FileSystem;

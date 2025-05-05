@@ -312,6 +312,11 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+		#if TRACY_DEBUGGER
+		if (this.getClassName() == 'BaseSprite')
+			TracyProfiler.zoneScoped('new BaseSprite($x, $y, $sprite, $script, $applyStartValues)');
+		#end
+
 		super(x, y);
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
