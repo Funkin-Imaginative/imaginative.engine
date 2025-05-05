@@ -604,12 +604,26 @@ class EngineAsset {
  */
 abstract CompilerFlag(String) {
 	static var parentProject(default, null):Project;
+	static var list:Array<String> = [];
 
-	public static function init(project:Project):Void
+	public static function init(project:Project):Void {
 		parentProject = project;
 
+		for (tag in list) {
+			var flag:CompilerFlag = tag;
+			if (parentProject.hasDefine(tag) && !flag.exists())
+				flag.enable();
+		}
+
+		if (parentProject.hasDefine('tracy')) {
+			new CompilerFlag('TRACY_DEBUGGER').enable();
+			parentProject.unsetDefine('tracy');
+		}
+	}
+
 	inline public function new(input:String)
-		this = input;
+		if (!list.contains(this = input))
+			list.push(this);
 
 	@:from inline public static function fromString(input:String):CompilerFlag
 		return new CompilerFlag(input);
