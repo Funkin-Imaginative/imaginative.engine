@@ -277,17 +277,16 @@ class Assets {
 			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), 'flixel/images/logo.png');
 		}
 
-		if (Settings.setup.gpuCaching && bitmap.image != null) {
-			bitmap.lock();
-			if (bitmap.__texture == null) {
-				bitmap.image.premultiplied = true;
+		if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
+			bitmap.image.format = BGRA32;
+			bitmap.image.premultiplied = bitmap.__isValid = bitmap.readable = true;
+			if (FlxG.stage.context3D != null) {
+				bitmap.lock();
 				bitmap.getTexture(FlxG.stage.context3D);
+				bitmap.readable = true;
+				bitmap.getSurface();
+				bitmap.image = null;
 			}
-			bitmap.getSurface();
-			bitmap.disposeImage();
-			bitmap.image.data = null;
-			bitmap.image = null;
-			bitmap.readable = true;
 		}
 
 		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
