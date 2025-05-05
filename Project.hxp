@@ -168,8 +168,7 @@ class EngineAsset {
 		addIcon('./extras/art/logo.png');
 
 		/* Define Setup */
-		if (isDebug())
-			useTracy.enable();
+		// useTracy.enable();
 
 		knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
@@ -236,6 +235,8 @@ class EngineAsset {
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
 		this.app.path = './export/$buildFolder${is32Bit() ? '-32bit' : ''}';
+		if (useTracy.exists())
+			this.app.path += 'tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
