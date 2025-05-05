@@ -21,7 +21,7 @@
 		},
 		{
 			"props": {
-				"severity": "INFO"
+				"severity": "IGNORE"
 			},
 			"type": "AvoidStarImport"
 		},

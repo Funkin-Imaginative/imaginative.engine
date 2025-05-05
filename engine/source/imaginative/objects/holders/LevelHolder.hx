@@ -77,9 +77,14 @@ typedef LevelData = {
  * The level sprite name.
  * This is mostly used for the story menu.
  */
-class LevelHolder extends FlxBasic {
+class LevelHolder extends BeatSpriteGroup {
 	/**
-	 * The difficulty data.
+	 * The holder's path type.
+	 */
+	public var pathType:ModType;
+
+	/**
+	 * The level data.
 	 */
 	public var data:LevelData;
 	/**
@@ -89,7 +94,7 @@ class LevelHolder extends FlxBasic {
 	/**
 	 * The lock sprite.
 	 */
-	public var lock:BaseSprite;
+	public var lock:FlxSprite;//BaseSprite;
 
 	/**
 	 * The scripts attached to this holder.
@@ -103,6 +108,15 @@ class LevelHolder extends FlxBasic {
 	inline function get_isLocked():Bool {
 		var theCall:Dynamic = scripts.call('shouldLock');
 		var result:Bool = theCall is Bool ? theCall : false;
+		return false;//result;
+	}
+	/**
+	 * Is the holder be hidden?
+	 */
+	public var isHidden(get, never):Bool;
+	inline function get_isHidden():Bool {
+		var theCall:Dynamic = scripts.call('shouldHide');
+		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
 	/**
@@ -111,9 +125,10 @@ class LevelHolder extends FlxBasic {
 	 */
 	public var weekObjects:Array<BeatSprite> = [];
 
-	public function new(x:Float = 0, y:Float = 0, name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
+	override public function new(name:ModPath, loadSprites:Bool = false, allowScripts:Bool = true) {
 		super();
 
+		pathType = name.type;
 		data = ParseUtil.level(name);
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
@@ -125,40 +140,20 @@ class LevelHolder extends FlxBasic {
 		scripts.load();
 
 		if (loadSprites) {
-			sprite = new BaseSprite(x, y, '${name.type}:menus/story/levels/${name.path}');
-			sprite.screenCenter(X);
+			sprite = new BaseSprite('$pathType:menus/story/levels/${name.path}');
+			add(sprite);
 
-			if (isLocked)
+			if (isLocked) {
 				sprite.color -= 0xFF646464;
 
-			lock = new BaseSprite('ui/lock');
-			updateLock();
+				var mid:Position = Position.getObjMidpoint(sprite);
+				lock = new FlxSprite(mid.x, mid.y, Assets.image('ui/lock'));//new BaseSprite(mid.x, mid.y, 'lol/lol');
+				lock.x -= lock.width / 2;
+				lock.y -= lock.height / 2;
+				add(lock);
+			}
 		}
 	}
-
-	/**
-	 * Updates the lock position.
-	 */
-	public function updateLock():Void {
-		if (sprite == null || lock == null) return;
-		var mid:Position = Position.getObjMidpoint(sprite);
-		lock.setPosition(mid.x, mid.y);
-		lock.x -= lock.width / 2;
-		lock.y -= lock.height / 2;
-	}
-
-	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-		if (sprite != null) sprite.update(elapsed);
-		if (isLocked && lock != null) lock.update(elapsed);
-	}
-
-	override public function draw():Void {
-		super.draw();
-		if (sprite != null) sprite.draw();
-		if (isLocked && lock != null) lock.draw();
-	}
-
 	override public function destroy():Void {
 		scripts.end();
 		super.destroy();

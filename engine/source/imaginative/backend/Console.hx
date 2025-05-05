@@ -5,6 +5,7 @@ import haxe.PosInfos;
 import flixel.system.debug.log.LogStyle;
 import flixel.system.frontEnds.LogFrontEnd;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
 	var ErrorMessage = 'error';
 	var WarningMessage = 'warning';
@@ -26,7 +27,7 @@ enum LogFrom {
 class Console {
 	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
 
-	@:allow(imaginative.backend.system.Main.new)
+	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
 		if (Log.trace != ogTrace) {
 			_log('You can\'t run this again!');
@@ -46,15 +47,16 @@ class Console {
 			_log(data, level);
 		}
 
-		var initMessage = 'Initialized Custom Trace System';
-		#if CONSOLE_FANCY_PRINT
-		var officialMessage:String = #if official 'Fancy print enabled.' #else 'Thank you for using fancy print, hope you like it!' #end;
-		_log('$officialMessage\n\t$initMessage');
-		#else
-		_log(initMessage);
-		#end
+		_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 	}
 
+	static function formatValueInfo(value:Dynamic):String {
+		return switch (Type.getClass(value)) {
+			case String: cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
+			case Array: '[${[for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol)].formatArray()}]';
+			default: Std.string(value);
+		}
+	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		var log:String = switch (level) {
 			case ErrorMessage:      'Error';
@@ -64,21 +66,7 @@ class Console {
 			case LogMessage:      'Message';
 		}
 
-		var info:String = '${file ?? 'Unknown'}';
-		info += line == null ? '' : ':$line';
-		if (info.trim() != '')
-			info += '\n';
-
-		var message:String = Std.string(value).replace('\t', '    ').replace('	', '    '); // keep consistant length
-
-		#if CONSOLE_FANCY_PRINT
-		var who:String = switch (from) {
-			case FromSource: 'Source';
-			case FromHaxe: 'Haxe Script';
-			case FromLua: 'Lua Script';
-			default: 'Unknown';
-		}
-		var description:String = switch (level) {
+		var description:Null<String> = switch (level) {
 			case ErrorMessage:
 				'It seems an error has ourred!';
 			case WarningMessage:
@@ -90,33 +78,23 @@ class Console {
 			case LogMessage:
 				null;
 		}
-		if (description != null)
-			description = ' $description';
-		var split:Array<String> = '$log ~${description ?? ''}\n$info$message\nThrown from $who.'.split('\n');
-		var length:Int = 0;
-		for (i => _ in split) {
-			if (length < split[i].length)
-				length = split[i].length;
+
+		var info:String = file ?? 'Unknown';
+		if (line != null)
+			info += ':$line';
+
+		var who:String = switch (from) {
+			case FromSource: 'Source';
+			case FromHaxe: 'Haxe Script';
+			case FromLua: 'Lua Script';
+			default: 'Unknown';
 		}
-		for (i => item in split) {
-			var l:String = i == 0 ? ' /' : (i == (split.length - 1) ? ' \\' : '| ');
-			var r:String = i == 0 ? '\\ ' : (i == (split.length - 1) ? '/ ' : ' |');
-			var lineLen:Int = item.length;
-			var edge:Bool = i == 0 || i == (split.length - 1);
-			split[i] = '$l $item${[for (_ in 0...length - lineLen) ' '].join('')} $r';
-		}
-		split.insert(0, '   * ${[for (_ in 0...length - 4) '-'].join('')} *');
-		split.insert(0, '');
-		split.push('   * ${[for (_ in 0...length - 4) '-'].join('')} *');
-		return split.join('\n');
-		#else
-		if (info.trim() != '')
-			info = '"$info" ~ ';
-		if (extra != null)
-			for (value in extra)
-				message += ', ${Std.string(value)}';
-		return '$log ~ $info$message';
-		#end
+
+		var message:String = formatValueInfo(value);
+		if (extra != null && !extra.empty())
+			message += extra.formatArray();
+
+		return '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 	}
 
 	/**
@@ -134,7 +112,7 @@ class Console {
 		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
 			return;
 		#end
-		Sys.println(formatLogInfo(value, level, infos.fileName, infos.lineNumber, from));
+		Sys.println(formatLogInfo(value, level, infos.fileName, infos.lineNumber, infos.customParams, from));
 	}
 
 	/**

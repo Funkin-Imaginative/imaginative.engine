@@ -19,9 +19,9 @@ enum abstract FpsType(String) from String to String {
 }
 
 /**
-   This class at first was jokingly named "PullingAPsychEngine".
-   While coding this file I realized how much I was pulling a psych engine.
-**/
+ * This class at first was jokingly named "PullingAPsychEngine".
+ * While coding this file I realized how much I was pulling a psych engine.
+ **/
 /**
  * The main settings for the engine.
  */
@@ -50,28 +50,40 @@ class MainSettings {
 	 * If true, the gameover screen will hard cut to the confirm animation.
 	 */
 	public var instantRespawn:Bool = false;
+	/**
+	 * The hud you wish to pick for the default.
+	 */
+	public var HUDSelection:imaginative.objects.gameplay.hud.HUDType = Imaginative;
 
 	/**
 	 * If true, antialiasing can be applied to things.
 	 */
-	public var antialiasing(get, default):Bool = true;
-	inline function get_antialiasing():Bool
-		return qualityLevel > 0.35 ? antialiasing : false;
-
+	public var antialiasing(default, set):Bool = true;
+	inline function set_antialiasing(value:Bool):Bool {
+		antialiasing = value;
+		updateStageQuality();
+		return antialiasing;
+	}
 	/**
 	 * This states the level of quality you want the game to display.
 	 * `Note: Depending on the quality level it will auto set some options but the engine will still remember your choices.`
 	 */
 	public var qualityLevel(default, set):Float = 1;
-	inline function set_qualityLevel(value:Float):Float
+	inline function set_qualityLevel(value:Float):Float {
+		updateStageQuality();
 		return qualityLevel = FlxMath.bound(value, 0, 1);
+	}
+	/**
+	 * Running this function updates the stage quality.
+	 */
+	inline public function updateStageQuality():Void
+		FlxG.game.stage.quality = antialiasing ? (qualityLevel > 5 ? BEST : HIGH) : LOW;
+
 	/**
 	 * If true, bigger shaders will be disabled.
 	 * `Note: In order for this to work you gotta make sure you do if statement stuff.`
 	 */
-	public var canDoShaders(get, default):Bool = false;
-	inline function get_canDoShaders():Bool
-		return qualityLevel > 0.7 ? canDoShaders : false;
+	public var canDoShaders:Bool = false;
 	/**
 	 * If true, your devices gpu will do all the caching.
 	 */
@@ -81,13 +93,36 @@ class MainSettings {
 	 * The fps cap you wish to go for.
 	 */
 	public var fpsCap(default, set):Int = 60;
-	inline function set_fpsCap(value:Int):Int
-		return fpsCap = Std.int(FlxMath.bound(value, 0, 300));
+	inline function set_fpsCap(value:Int):Int {
+		if (fpsCap != value) {
+			fpsCap = Std.int(FlxMath.bound(value, 30, 300));
+			if (fpsType == Custom) FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		}
+		return fpsCap;
+	}
 	/**
 	 * The type of fps rendering you wish to use.
 	 * Your choices are Custom, Unlimited and Vsync.
 	 */
-	public var fpsType:FpsType = Custom;
+	public var fpsType(default, set):FpsType = Vsync;
+	inline function set_fpsType(value:FpsType):FpsType {
+		if (fpsType != value) {
+			fpsType = value;
+			FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+		}
+		return fpsType;
+	}
+	/**
+	 * Returns the fps value based on your settings.
+	 * @return `Int` ~ Wanted fps.
+	 */
+	inline public function getFPS():Int {
+		return switch (fpsType) {
+			case Custom: fpsCap;
+			case Unlimited: 1000; // not like you'll ever actually reach this, plus it's
+			case Vsync: FlxWindow.direct.self.displayMode.refreshRate * 2; // Does * 2 because @Rudyrue and @superpowers04 said it's better like this?
+		}
+	}
 
 	#if CHECK_FOR_UPDATES
 	/**
@@ -147,7 +182,7 @@ class PlayerSettings {
 	/**
 	 * The timing window percent for the killer rating window.
 	 */
-	public var killerWindow:Float = 0.0543478260869565;
+	public var killerWindow:Float = 0.0869565217391304;
 	/**
 	 * The timing window percent for the sick rating window.
 	 */
@@ -177,6 +212,13 @@ class PlayerSettings {
  * The class that handles all your settings.
  */
 class Settings {
+	@:allow(imaginative.states.EngineProcess)
+	inline static function init():Void {
+		FlxG.autoPause = setup.autoPause;
+		setup.antialiasing = setup.antialiasing;
+		FlxG.updateFramerate = FlxG.drawFramerate = setup.getFPS();
+	}
+
 	/**
 	 * The current settings.
 	 */

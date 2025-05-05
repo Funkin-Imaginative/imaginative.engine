@@ -59,7 +59,8 @@ import imaginative.backend.Controls;
 #if DISCORD_RICH_PRESENCE
 import imaginative.backend.RichPresence;
 #end
-import imaginative.backend.configs.PlayConfig;
+import imaginative.backend.gameplay.Judging;
+import imaginative.backend.gameplay.Scoring;
 import imaginative.backend.interfaces.ITexture;
 import imaginative.backend.music.Conductor;
 import imaginative.backend.music.group.BeatGroup;
@@ -74,6 +75,7 @@ import imaginative.backend.scripting.events.ScriptEvent;
 import imaginative.backend.scripting.group.ScriptGroup;
 import imaginative.backend.scripting.interfaces.IScript;
 import imaginative.backend.scripting.types.GlobalScript;
+import imaginative.backend.system.Assets;
 import imaginative.backend.system.Main;
 #if MOD_SUPPORT
 import imaginative.backend.system.Modding;
@@ -89,6 +91,7 @@ import imaginative.objects.gameplay.arrows.Strum;
 import imaginative.objects.gameplay.arrows.Sustain;
 import imaginative.objects.holders.DifficultyHolder;
 import imaginative.objects.holders.LevelHolder;
+import imaginative.objects.holders.SongHolder;
 import imaginative.objects.ui.HealthIcon;
 import imaginative.objects.ui.SpriteText;
 import imaginative.states.PlayState;

@@ -15,15 +15,15 @@ class TitleScreen extends BeatState {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
 			if (!conductor.playing)
-				conductor.loadMusic('freakyMenu', 0, (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
+				conductor.loadMusic('freakyMenu', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
 			add(logo);
 
-			menuDancer = new BeatSprite(FlxG.width * 0.4, FlxG.height * 0.07, 'menus/title/menuDancer');
+			menuDancer = new BeatSprite(FlxG.camera.width * 0.4, FlxG.camera.height * 0.07, 'menus/title/menuDancer');
 			add(menuDancer);
 
-			titleText = new BaseSprite(100, FlxG.height * 0.8, 'menus/title/titleEnter');
+			titleText = new BaseSprite(100, FlxG.camera.height * 0.8, 'menus/title/titleEnter');
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
 			titleText.playAnim('idle');

@@ -139,15 +139,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	function loadScript():Void {
-		if (stateScripts == null) stateScripts = new ScriptGroup(this);
+		stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			if (stateScripts.length < 1) {
-				for (script in Script.create('content/states/${scriptName ?? this.getClassName()}')) {
-					if (!script.type.dummy) scriptName = script.name;
-					stateScripts.add(script);
-				}
-				stateScripts.load();
-			} else stateScripts.reload();
+			for (script in Script.create('content/states/${scriptName ?? this.getClassName()}'))
+				stateScripts.add(script);
+			stateScripts.load();
 		}
 	}
 	/**
@@ -157,7 +153,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param def If it's null then return this.
 	 * @return `Dynamic` ~ Whatever is in the functions return statement.
 	 */
-	inline public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
 			return stateScripts.call(func, args, def);
 		return def;
@@ -168,7 +164,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
-	inline public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
 			return stateScripts.event(func, event);
 		return event;
@@ -193,45 +189,43 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * It's just FlxG.resetState.
 	 */
 	public static function resetState():Void {
-		if (FlxG.state is BeatState)
-			cast(FlxG.state, BeatState).conductor.reset();
+		if (FlxG.state is BeatState) {
+			var state:BeatState = cast FlxG.state;
+			state.onReset();
+			state.conductor.reset();
+		}
 		FlxG.resetState();
 	}
 
 	override public function create():Void {
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Conductor', FUNCTION(() ->
-			if (conductor == Conductor.menu) return 'Menu';
-			else if (conductor == Conductor.song) return 'Song';
-			else if (conductor == Conductor.charter) return 'Charter';
-			else return 'Unknown'
-		));
-		FlxG.game.debugger.watch.add('Artist',       FUNCTION(() -> return                conductor.data.artist));
-		FlxG.game.debugger.watch.add('Song',         FUNCTION(() -> return                  conductor.data.name));
-		FlxG.game.debugger.watch.add('Time',         FUNCTION(() -> return                                 time));
-		FlxG.game.debugger.watch.add('Bpm',          FUNCTION(() -> return                                  bpm));
-		FlxG.game.debugger.watch.add('Signature',    FUNCTION(() -> return     '$beatsPerMeasure/$stepsPerBeat'));
-		FlxG.game.debugger.watch.add('Step',         FUNCTION(() -> return                         curStepFloat));
-		FlxG.game.debugger.watch.add('Beat',         FUNCTION(() -> return                         curBeatFloat));
-		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                      curMeasureFloat));
+		FlxG.game.debugger.watch.add('Conductor',    FUNCTION(() -> return                        conductor.id));
+		FlxG.game.debugger.watch.add('Artist',       FUNCTION(() -> return               conductor.data.artist));
+		FlxG.game.debugger.watch.add('Song',         FUNCTION(() -> return                 conductor.data.name));
+		FlxG.game.debugger.watch.add('Time',         FUNCTION(() -> return                                time));
+		FlxG.game.debugger.watch.add('Bpm',          FUNCTION(() -> return                                 bpm));
+		FlxG.game.debugger.watch.add('Signature',    FUNCTION(() -> return    '$beatsPerMeasure/$stepsPerBeat'));
+		FlxG.game.debugger.watch.add('Step',         FUNCTION(() -> return                        curStepFloat));
+		FlxG.game.debugger.watch.add('Beat',         FUNCTION(() -> return                        curBeatFloat));
+		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                     curMeasureFloat));
 		#end
 
 		Conductor.beatStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
-		call('create');
+		scriptCall('create');
 	}
 	override public function createPost():Void {
 		super.createPost();
-		call('createPost');
+		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
-			call('preUpdate', [elapsed]);
+			scriptCall('preUpdate', [elapsed]);
 			update(elapsed);
-			call('updatePost', [elapsed]);
+			scriptCall('updatePost', [elapsed]);
 		}
 		if (_requestSubStateReset) {
 			_requestSubStateReset = false;
@@ -241,33 +235,50 @@ class BeatState extends FlxState /* implements IBeat */ {
 			subState.tryUpdate(elapsed);
 	}
 	override public function update(elapsed:Float):Void {
-		call('update', [elapsed]);
+		scriptCall('update', [elapsed]);
 		super.update(elapsed);
 	}
 
+	override public function draw():Void {
+		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
+		if (!event.prevented) {
+			super.draw();
+			scriptCall('onDrawPost');
+		}
+	}
+
 	override public function openSubState(SubState:FlxSubState):Void {
-		call('openingSubState', [SubState]);
+		scriptCall('openingSubState', [SubState]);
 		super.openSubState(SubState);
 	}
 	override public function closeSubState():Void {
-		call('closingSubState', [subState]);
+		scriptCall('closingSubState', [subState]);
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
+		scriptCall('resetingSubState');
 		super.resetSubState();
-		if (subState != null && subState is BeatSubState) {
-			cast(subState, BeatSubState).parent = this;
-			cast(subState, BeatSubState).onSubstateOpen();
+		if (subState is BeatSubState) {
+			var subState:BeatSubState = cast subState;
+			subState.parent = this;
+			subState.onSubstateOpen();
 		}
+	}
+
+	/**
+	 * Runs when reseting the state.
+	 */
+	public function onReset():Void {
+		scriptCall('resetingState');
 	}
 
 	override public function onFocus():Void {
 		super.onFocus();
-		call('onFocus');
+		scriptCall('onFocus');
 	}
 	override public function onFocusLost():Void {
 		super.onFocusLost();
-		call('onFocusLost');
+		scriptCall('onFocusLost');
 	}
 
 	/**
@@ -276,9 +287,8 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).stepHit(curStep);
-		call('stepHit', [curStep]);
+			IBeatHelper.iBeatCheck(member, curStep, IsStep);
+		scriptCall('stepHit', [curStep]);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -286,9 +296,8 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).beatHit(curBeat);
-		call('beatHit', [curBeat]);
+			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
+		scriptCall('beatHit', [curBeat]);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -296,9 +305,8 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).measureHit(curMeasure);
-		call('measureHit', [curMeasure]);
+			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
+		scriptCall('measureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {

@@ -87,7 +87,7 @@ class SpriteText extends FlxTypedSpriteGroup<SpriteTextLine> {
 			member.set_id(-1);
 		}
 
-		if (value.trim() != '')
+		if (!value.isNullOrEmpty())
 			for (i => line in value.split('\n')) {
 				var instance:SpriteTextLine = recycle(SpriteTextLine, () -> return new SpriteTextLine(this, line, fieldSize.y, fieldSize.x, font));
 				instance.set_id(i);
@@ -150,7 +150,7 @@ class SpriteTextLine extends FlxTypedSpriteGroup<SpriteTextCharacter> {
 			member.set_id(-1);
 		}
 
-		if (value.trim() != '') {
+		if (!value.isNullOrEmpty()) {
 			var start:Array<String> = value.split('');
 
 			var result:Array<String> = [];

@@ -1,7 +1,6 @@
 package imaginative.objects;
 
-import imaginative.backend.scripting.events.objects.BopEvent;
-import imaginative.backend.scripting.events.objects.PlaySpecialAnimEvent;
+import imaginative.backend.scripting.events.objects.*;
 
 typedef BeatData = {
 	/**
@@ -78,25 +77,16 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		super.renderData(inputData, applyStartValues);
 	}
 
-	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {
-			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop'));
-				if (!event.prevented) {
-					var prevAnimContext:AnimationContext = animContext;
-					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
-					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed)
-						animContext = prevAnimContext; // for `tryDance()` checks
-					scripts.call('playingSpecialAnimPost', [event]);
-				}
-			}
-
 			if (animContext != IsDancing)
 				tryDance();
 		}
-		super.update(elapsed);
+		super_update(elapsed);
+		if (_update != null)
+			_update(elapsed);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	/**
@@ -131,18 +121,8 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public function dance():Void {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
-		if (!debugMode || !event.prevented) {
-			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end'));
-				if (event.prevented) return;
-				playAnim('$animB4Loop-end', event.force, event.context, event.reverse, event.frame);
-				scripts.call('playingSpecialAnimPost', [event]);
-			} else if (!preventIdle) {
-				onSway = event.sway;
-				var anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				playAnim('$anim', IsDancing, doesAnimExist('$anim$idleSuffix') ? idleSuffix : '');
-			}
-		}
+		if ((!debugMode || !event.prevented) && !preventIdle)
+			playAnim((onSway = event.sway) ? (hasSway ? 'sway' : 'idle') : 'idle', IsDancing, idleSuffix);
 		scripts.call('dancingPost', [event]);
 	}
 
@@ -182,7 +162,8 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			tryDance();
 			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
-		scripts.call('beatHit', [curBeat]);
+		if (type != IsHealthIcon)
+			scripts.call('beatHit', [curBeat]);
 	}
 
 	/**

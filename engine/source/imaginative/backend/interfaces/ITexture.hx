@@ -9,7 +9,7 @@ interface ITexture<T:FlxSprite> {
 	 * All textures the sprite is using.
 	 */
 	var textures(default, null):Array<TextureData>;
-	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):ModPath;
+	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):Void;
 
 	/**
 	 * Load's a sheet for the sprite to use.
@@ -114,6 +114,11 @@ class TextureData {
 		this.type = type;
 	}
 
-	public function toString():String
-		return '{image => ${image.format()}, type => $type, path => $path}';
+	inline public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('image', image.format()),
+			LabelValuePair.weak('type', type),
+			LabelValuePair.weak('path', path)
+		]);
+	}
 }

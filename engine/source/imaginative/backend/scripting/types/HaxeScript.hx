@@ -79,7 +79,6 @@ final class HaxeScript extends Script {
 
 			// Engine //
 			'Controls' => Controls,
-			'PlayConfig' => PlayConfig,
 			'Conductor' => Conductor,
 			'BeatGroup' => BeatGroup,
 			'BeatSpriteGroup' => BeatSpriteGroup,
@@ -178,7 +177,7 @@ final class HaxeScript extends Script {
 	}
 	override function loadCodeString(code:String):Void {
 		try {
-			if (code != null && code.trim() != '') {
+			if (!code.isNullOrEmpty()) {
 				expr = parser.parse(code);
 				canRun = true;
 				return;

@@ -1,6 +1,5 @@
 package imaginative.backend.system;
 
-import flixel.util.FlxStringUtil.formatBytes;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.Sprite;
@@ -34,7 +33,7 @@ class EngineInfoText extends Sprite {
 		text.x = text.y = boxDistanceOffset;
 		text.autoSize = LEFT;
 		text.selectable = text.mouseEnabled = false;
-		text.defaultTextFormat = new TextFormat('VCR OSD Mono', 20, FlxColor.WHITE); // Paths.font('lead:vcr.ttf')
+		text.defaultTextFormat = new TextFormat(Paths.font('lead:vcr.ttf').format(), 20, FlxColor.WHITE);
 	}
 
 	override function __enterFrame(elapsed:Float):Void {
@@ -44,15 +43,15 @@ class EngineInfoText extends Sprite {
 			times.shift();
 
 		if (memoryPeakUsage < memoryUsage)
-		   memoryPeakUsage = memoryUsage;
+			memoryPeakUsage = memoryUsage;
 
 		// TODO: Have it say the script file path.
 		text.text = [
-			'Framerate: ${framesPerSecond = times.length} / ${FlxG.drawFramerate}',
-			'Memory: ${formatBytes(memoryUsage)} / ${formatBytes(memoryPeakUsage)}',
+			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Settings.setup.getFPS()}'}',
+			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',
 			'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 		].join('\n');
-		text.textColor = framesPerSecond < FlxG.drawFramerate * 0.5 ? FlxColor.RED : FlxColor.WHITE;
+		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.direct.self.displayMode.refreshRate * 2 : Settings.setup.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
 
 		background.x = text.x;
 		background.y = text.y;

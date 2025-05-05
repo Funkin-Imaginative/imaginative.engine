@@ -90,7 +90,7 @@ typedef ChartEvent = {
 	/**
 	 * The event parameters.
 	 */
-	var params:Array<OneOfFour<Int, Float, Bool, String>>;
+	var params:Array<JsonDynamic>;
 	/**
 	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.
@@ -123,6 +123,10 @@ typedef ChartData = {
 	 * Field settings.
 	 */
 	var fieldSettings:FieldSettings;
+	/**
+	 * The song hud.
+	 */
+	@:default('funkin') var ?hud:String;
 	/**
 	 * Chart specific events.
 	 */

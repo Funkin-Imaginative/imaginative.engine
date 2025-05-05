@@ -29,7 +29,8 @@ enum abstract ScriptType(String) from String to String {
 	 * If true, this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
-	@SuppressWarnings('checkstyle:FieldDocComment') inline function get_dummy():Bool
+	@SuppressWarnings('checkstyle:FieldDocComment')
+	inline function get_dummy():Bool
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
@@ -96,12 +97,6 @@ class Script extends FlxBasic implements IScript {
 		var paths:Array<String> = [Paths.script(file).format()];
 		#end
 
-		/* log([
-			for (path in paths)
-				if (path != null && path.trim() != '')
-					path
-		], DebugMessage); */
-
 		var scripts:Array<Script> = [];
 		for (path in paths) {
 			var extension:String = FilePath.extension(path).toLowerCase();
@@ -147,8 +142,8 @@ class Script extends FlxBasic implements IScript {
 	var code:String = '';
 	function renderScript(file:ModPath, ?code:String):Void {
 		try {
-			var content:String = Paths.getFileContent(file);
-			this.code = content.trim() == '' ? code : content;
+			var content:String = Assets.text(file);
+			this.code = content.isNullOrEmpty() ? code : content;
 		} catch(error:haxe.Exception) {
 			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
 			this.code = '';

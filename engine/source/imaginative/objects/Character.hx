@@ -130,13 +130,13 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global', 'lead:characters/global'];
-		if (file != null && file.path != null && file.path.trim() != '')
-			bruh.push('${file.type}:characters/${file.path}');
+		if (file != null && !file.path.isNullOrEmpty())
+			bruh.push(file);
 
-		log([for (file in bruh) file.format()], DebugMessage);
+		// log([for (file in bruh) file.format()], DebugMessage);
 
-		for (char in bruh)
-			for (script in Script.create('${char.type}content/objects/${char.path}'))
+		for (sprite in bruh)
+			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();
@@ -158,7 +158,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	/**
 	 * Only really used for making it so holding a note will prevent idle.
 	 */
-	@:allow(imaginative.backend.configs.PlayConfig.characterSing) var controls:Null<Controls>;
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.characterSing) var controls:Null<Controls>;
 
 	override public function tryDance():Void {
 		switch (animContext) {

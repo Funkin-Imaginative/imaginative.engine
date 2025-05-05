@@ -32,7 +32,13 @@ class Sustain extends FlxSprite {
 	 * The direction the notes will come from.
 	 * This offsets from the parent note speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		mods.update_angle();
+		return value;
+	}
 
 	/**
 	 * The strum lane index.
@@ -57,9 +63,12 @@ class Sustain extends FlxSprite {
 	 */
 	public var isEnd(default, null):Bool;
 
+	/**
+	 * The scroll speed of this sustain.
+	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
 	}
 
 	/**
@@ -71,22 +80,44 @@ class Sustain extends FlxSprite {
 		return setHead.assignedActors;
 	inline function set_assignedActors(value:Array<Character>):Array<Character>
 		return setHead.assignedActors = value;
+	/**
+	 * Returns which characters will sing.
+	 * @return `Array<Character>`
+	 */
 	inline public function renderActors():Array<Character>
 		return setHead.renderActors();
 
+	/**
+	 * If true, the note can be hit.
+	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
-		return (time + setHead.time) >= setField.conductor.time - Settings.setupP1.maxWindow && (time + setHead.time) <= setField.conductor.time + Settings.setupP1.maxWindow;
+		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
+	/**
+	 * If true, it's too late to hit the note.
+	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
+	/**
+	 * If true, this note has been hit.
+	 */
 	public var wasHit:Bool = false;
+	/**
+	 * If true, this note has been missed.
+	 */
 	public var wasMissed:Bool = false;
 
+	/**
+	 * If true, along with the tail, this note and it's tail will be destroyed.
+	 */
 	public var canDie:Bool = false;
 
+	/**
+	 * The sustains modifiers.
+	 */
 	public var mods:ArrowModifier;
 
 	override public function new(parent:Note, time:Float, end:Bool = false) {
@@ -108,7 +139,6 @@ class Sustain extends FlxSprite {
 		updateHitbox();
 
 		mods = new ArrowModifier(this);
-
 		mods.alpha = 0.6;
 	}
 

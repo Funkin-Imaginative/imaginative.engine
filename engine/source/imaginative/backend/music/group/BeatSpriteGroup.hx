@@ -8,6 +8,7 @@ typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
 /**
  * This class is just `FlxTypedSpriteGroup` but with `IBeat` implementation.
  */
+@SuppressWarnings('checkstyle:CodeSimilarity')
 class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {
 	/**
 	 * The current step.
@@ -20,8 +21,7 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).stepHit(curStep);
+			IBeatHelper.iBeatCheck(member, curStep, IsStep);
 	}
 
 	/**
@@ -35,8 +35,7 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).beatHit(curBeat);
+			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
 	}
 
 	/**
@@ -50,7 +49,6 @@ class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implement
 	public function measureHit(curMeasure:Int):Void {
 		this.curMeasure = curMeasure;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).measureHit(curMeasure);
+			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
 	}
 }

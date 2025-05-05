@@ -8,12 +8,14 @@ package imaginative.backend.objects;
 	 * X
 	 */
 	public var x(default, set):T;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	public dynamic function set_x(value:T):T
 		return x = value;
 	/**
 	 * Y
 	 */
 	public var y(default, set):T;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	public dynamic function set_y(value:T):T
 		return y = value;
 

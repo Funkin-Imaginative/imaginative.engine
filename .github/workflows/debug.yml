@@ -37,7 +37,7 @@ jobs:
           restore-keys: windows-debug-cache
 
       - name: Install Libraries
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Compile Engine
         run: haxelib run lime build windows -debug
@@ -108,8 +108,8 @@ jobs:
             export/debug/mac/obj/
           restore-keys: mac-debug-cache
 
-      - name: Installing Libs
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+      - name: Install Libraries
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Building the game
         run: haxelib run lime build mac -debug
@@ -183,8 +183,8 @@ jobs:
       - name: Installing Dependencies
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
 
-      - name: Installing Libs
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+      - name: Install Libraries
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Building the game
         run: haxelib run lime build linux -debug

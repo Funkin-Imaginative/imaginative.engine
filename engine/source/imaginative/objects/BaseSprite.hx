@@ -89,10 +89,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * All textures the sprite is using.
 	 */
 	public var textures(default, null):Array<TextureData> = [];
-	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):ModPath {
+	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):Void {
 		textures = [];
 		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
-		return newTexture;
 	}
 
 	/**
@@ -122,7 +121,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
-				loadGraphic(resetTextures(Paths.image(newTexture), IsGraphic), animated, width, height);
+				loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
+				resetTextures(Paths.image(newTexture), IsGraphic);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "${TextureType.IsGraphic}"', WarningMessage);
 		return this;
@@ -138,7 +138,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		if (Paths.fileExists(Paths.image(newTexture)))
 			if (Paths.spriteSheetExists(newTexture))
 				try {
-					frames = Paths.frames(newTexture, textureType);
+					frames = Assets.frames(newTexture, textureType);
 					resetTextures(Paths.image(newTexture), textureType);
 				} catch(error:haxe.Exception)
 					try {
@@ -176,7 +176,9 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		try {
 			modPath = inputData.asset.image;
 			try {
-				loadTexture(modPath);
+				if (inputData.asset.type == IsGraphic)
+					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
@@ -192,20 +194,18 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 			try {
 				for (i => anim in inputData.animations) {
-					var subModPath:ModPath = null;
 					try {
 						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
-						subModPath = anim.asset.image;
-						switch (anim.asset.type) {
-							case IsUnknown:
-								log('The asset type was unknown! Tip: "${subModPath.format()}"', WarningMessage);
+						switch (inputData.asset.type) {
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
-							default:
+							case IsSparrow | IsPacker | IsAseprite:
 								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							default:
+								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
 						anims.set(anim.name, {
 							offset: new Position(anim.offset.x, anim.offset.y),
@@ -218,7 +218,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${subModPath.format()}", type "${anim.asset.type}".', ErrorMessage);
+						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 				}
 			} catch(error:haxe.Exception)
 				log('Couldn\'t add the animations.', WarningMessage);
@@ -240,7 +240,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 			if (Reflect.hasField(inputData, 'extra') && inputData.extra != null) {
 				try {
-					if (inputData.extra.length > 1)
+					if (!inputData.extra.empty())
 						for (extraData in inputData.extra)
 							extra.set(extraData.name, extraData.data);
 				} catch(error:haxe.Exception)
@@ -272,7 +272,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	/**
 	 * Global offsets
 	 */
-	public var spriteOffsets:ObjectData = {
+	public var spriteOffsets:ObjectSetupData = {
 		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
 		scale: new Position()
@@ -301,10 +301,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		scripts = new ScriptGroup(this);
 
 		var bruh:Array<ModPath> = ['lead:global'];
-		if (file != null && file.path != null && file.path.trim() != '')
+		if (file != null && !file.path.isNullOrEmpty())
 			bruh.push(file);
-
-		log([for (file in bruh) file.format()], DebugMessage);
 
 		for (sprite in bruh)
 			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
@@ -315,7 +313,6 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
 		super(x, y);
-
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
 			if (Paths.fileExists(Paths.object(file))) {
@@ -325,11 +322,17 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		} else renderData(sprite, applyStartValues);
 
 		if (scripts == null)
-			loadScript(script ?? new ModPath('', ANY));
+			loadScript(script);
 
 		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
 			var animInfo:AnimationMapping = getAnimInfo(name);
 			frameOffset.set(animInfo.offset.x, animInfo.offset.y);
+		});
+		animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop', true))
+				playAnim('$name-loop');
+			if (doesAnimExist('$name-end', true))
+				playAnim('$name-end');
 		});
 
 		scripts.call('create');
@@ -337,11 +340,14 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			scripts.call('createPost');
 	}
 
-	override public function update(elapsed:Float):Void {
-		if (!(this is IBeat)) scripts.call('update', [elapsed]);
+	function super_update(elapsed:Float):Void
 		super.update(elapsed);
+	override public function update(elapsed:Float):Void {
+		scripts.call('update', [elapsed]);
+		super.update(elapsed);
+		if (_update != null)
+			_update(elapsed);
 		scripts.call('updatePost', [elapsed]);
-		if (_update != null) _update(elapsed);
 	}
 
 	/**
@@ -396,8 +402,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
 			var targetAnim:String = animation.name;
-			if (!ignoreSwap) targetAnim = ((swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName == '' ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
-			if (!ignoreFlip) targetAnim = (flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName == '' ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
+			if (!ignoreSwap) targetAnim = ((swapAnimTriggers && flipX) && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).swapName.isNullOrEmpty() ? targetAnim : getAnimInfo(targetAnim).swapName) : targetAnim;
+			if (!ignoreFlip) targetAnim = (flipAnimTrigger == flipX && doesAnimExist(targetAnim, true)) ? (getAnimInfo(targetAnim).flipName.isNullOrEmpty() ? targetAnim : getAnimInfo(targetAnim).flipName) : targetAnim;
 			return targetAnim;
 		}
 		return null;
@@ -423,14 +429,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
 	 */
-	inline public function isAnimFinished():Bool {
-		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	}
+	inline public function isAnimFinished():Bool
+		return animation.finished;
 	/**
 	 * When run, it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		animation.finish();
+		animation.finished = true;
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.

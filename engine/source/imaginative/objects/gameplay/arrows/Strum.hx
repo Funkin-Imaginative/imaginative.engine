@@ -28,16 +28,26 @@ class Strum extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
+	/**
+	 * The scroll speed of this strum.
+	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
 	}
 
 	/**
 	 * The direction the notes will come from.
 	 * This offsets from the field speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		for (sustain in setField.sustains.members.copy().filter((sustain:Sustain) -> return sustain.id == id))
+			sustain.mods.update_angle();
+		return value;
+	}
 
 	/**
 	 * Used to help `glowLength`.
@@ -54,6 +64,9 @@ class Strum extends FlxSprite {
 	 */
 	public var willReset:Bool = false;
 
+	/**
+	 * The strums modifiers.
+	 */
 	public var mods:ArrowModifier;
 
 	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)
@@ -70,7 +83,18 @@ class Strum extends FlxSprite {
 		animation.addByPrefix('static', '$dir strum static', 24, false);
 		animation.addByPrefix('press', '$dir strum press', 24, false);
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
-		animation.addByPrefix('confirm-hold', '$dir strum hold confirm', 24);
+		animation.addByPrefix('confirm-end', '$dir strum hold confirm', 24, false);
+
+		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
+			centerOffsets();
+			centerOrigin();
+		});
+		animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop'))
+				playAnim('$name-loop');
+			if (doesAnimExist('$name-end'))
+				playAnim('$name-end');
+		});
 
 		playAnim('static');
 		scale.scale(0.7);
@@ -101,8 +125,6 @@ class Strum extends FlxSprite {
 	public function playAnim(name:String, reset:Bool = false, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {
 			animation.play(name, force, reverse, frame);
-			centerOffsets();
-			centerOrigin();
 			if (reset)
 				lastHit = setField.conductor.time;
 			willReset = reset;
@@ -123,15 +145,13 @@ class Strum extends FlxSprite {
 	 * Tells you if the animation has finished playing.
 	 * @return `Bool`
 	 */
-	inline public function isAnimFinished():Bool {
-		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	}
+	inline public function isAnimFinished():Bool
+		return animation.finished;
 	/**
 	 * When run, it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		if (animation.curAnim != null)
-			animation.curAnim.finish();
+		animation.finished = true;
 	/**
 	 * Check's if the animation exists.
 	 * @param name The animation name to check.

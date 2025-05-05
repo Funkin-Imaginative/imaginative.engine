@@ -1,11 +1,8 @@
 package imaginative.backend.system;
 
-import flixel.graphics.frames.FlxAtlasFrames;
-#if CONTAINS_EMBEDDED_FILES
 import lime.tools.AssetType as LimeAssetType;
 import openfl.utils.AssetType as OpenFLAssetType;
-import openfl.utils.Assets;
-#end
+import openfl.utils.Assets as OpenFLAssets;
 
 /**
  * Used to help ModPath abstract.
@@ -50,9 +47,9 @@ import openfl.utils.Assets;
 	inline public function returnRootPath():String {
 		#if MOD_SUPPORT
 		return switch (fromString(this)) {
-			case MAIN: 'solo/${Main.mainMod}';
-			case SOLO: 'solo/${Modding.curSolo}';
-			case MOD: 'mods/${Modding.curMod}';
+			case MAIN: './solo/${Main.mainMod}';
+			case SOLO: './solo/${Modding.curSolo}';
+			case MOD: './mods/${Modding.curMod}';
 			default: '';
 		}
 		#else
@@ -107,12 +104,28 @@ import openfl.utils.Assets;
 	/**
 	 * Helper for ModPath `@:from` stuff.
 	 * @param string The path type as a string.
-	 * @return ModType
+	 * @return `ModType`
 	 */
 	inline public static function modPathHelper(string:String):ModType {
 		var type:String = string.split(':')[0];
-		var result:ModType = (type.trim() == '' || type == null) ? ANY : fromString(type);
+		var result:ModType = type.isNullOrEmpty() ? ANY : fromString(type);
 		return result;
+	}
+
+	/**
+	 * Returns path type based on a mod paths formatted path.
+	 * @param path The mod path.
+	 * @param pathingHelp Get's prepended onto the mod paths path when not null.
+	 * @param doTypeCheck If false, it starts the check from the engine root.
+	 * @return `ModType` ~ The simplify path type.
+	 */
+	inline public static function simplifyType(path:ModPath, ?pathingHelp:String, doTypeCheck:Bool = true):ModType {
+		return switch (path.type) {
+			case ANY | LEAD | MODDED | NORM:
+				ModType.typeFromPath(Paths.file('${path.type}:${pathingHelp == null || pathingHelp.isNullOrEmpty() ? '' : FilePath.addTrailingSlash(pathingHelp)}${path.path}').format());
+			default:
+				path.type; // already simplified
+		}
 	}
 
 	/**
@@ -211,7 +224,7 @@ import openfl.utils.Assets;
 		return FilePath.extension(path);
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_extension(value:String):String
-		return path = '${FilePath.withoutExtension(path)}${value.trim() == '' ? '' : '.$value'}';
+		return path = '${FilePath.withoutExtension(path)}${value.isNullOrEmpty() ? '' : '.$value'}';
 
 	/**
 	 * The path type.
@@ -249,7 +262,7 @@ import openfl.utils.Assets;
 	 */
 	inline public function format():String {
 		var result:String = Paths.applyRoot(path, type);
-		return result.trim() == '' ? path : result;
+		return result.isNullOrEmpty() ? path : result;
 	}
 
 	/**
@@ -276,7 +289,7 @@ import openfl.utils.Assets;
 	 * @return `ModPath`
 	 */
 	@:from inline public static function fromArray(from:Array<Dynamic>):ModPath {
-		var hasType:Bool = from.length > 1;
+		var hasType:Bool = !from.empty();
 		return new ModPath(from[hasType ? 1 : 0], hasType ? from[0] : ANY);
 	}
 	/**
@@ -292,33 +305,38 @@ import openfl.utils.Assets;
 	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxGraphicAsset`
 	 */
-	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset
-		return cast format();
+	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset {
+		return cast(format(), String);
+	}
 	/**
 	 * Converts a ModPath to an FlxSoundAsset.
 	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxSoundAsset`
 	 */
-	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset
-		return cast format();
+	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset {
+		return cast(format(), String);
+	}
 	/**
 	 * Converts a ModPath to an FlxXmlAsset.
 	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxXmlAsset`
 	 */
-	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset
-		return cast format();
+	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset {
+		return cast(format(), String);
+	}
 	/**
 	 * Converts a ModPath to an FlxAsepriteJsonAsset.
 	 * `Fixes issues with having to run the format function.`
 	 * @return `FlxAsepriteJsonAsset`
 	 */
-	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset
-		return cast format();
+	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset {
+		return cast(format(), String);
+	}
 }
 
 /**
  * Path helper functions.
+ * TODO: Change/clean up documentation.
  */
 class Paths {
 	/**
@@ -333,17 +351,17 @@ class Paths {
 		var check:String = '';
 
 		#if MOD_SUPPORT
-		if (result == '' && ModType.pathCheck(MOD, type))
-			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : 'mods/$name/$file'), false))
+		if (result.isNullOrEmpty() && ModType.pathCheck(MOD, type))
+			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './mods/$name/$file'), false))
 				result = check;
-		if (result == '' && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = 'solo/${name ?? Modding.curSolo}/$file', false))
+		if (result.isNullOrEmpty() && ModType.pathCheck(SOLO, type))
+			if (itemExists(check = './solo/${name ?? Modding.curSolo}/$file', false))
 				result = check;
-		if (result == '' && ModType.pathCheck(MAIN, type))
-			if (itemExists(check = 'solo/${Main.mainMod}/$file', false))
+		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
+			if (itemExists(check = './solo/${Main.mainMod}/$file', false))
 				result = check;
 		#else
-		if (itemExists(check = '${Main.mainMod}/$file', false))
+		if (itemExists(check = './${Main.mainMod}/$file', false))
 			result = check;
 		#end
 
@@ -358,6 +376,21 @@ class Paths {
 	 */
 	inline public static function getRootPath(type:ModType):String
 		return type.returnRootPath();
+
+	/**
+	 * A shortcut function for removing "./" at the beginning of paths.
+	 * As path functions that for hardcoding assets error when it is used.
+	 * @param path A root path.
+	 * @return `String`
+	 */
+	inline public static function removeBeginningSlash(path:String):String {
+		if (path.startsWith('./')) {
+			var split:Array<String> = path.split('/');
+			split.shift();
+			return split.join('/');
+		}
+		return path;
+	}
 
 	/**
 	 * Easy and quick ModPath instance.
@@ -494,58 +527,9 @@ class Paths {
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function image(file:ModPath):ModPath {
-		var ugh:ModPath = '${file.type}:images/${file.path}';
-		return ugh.pushExt('png');
+		var path:ModPath = '${file.type}:images/${file.path}'; path.pushExt('png');
+		return path;
 	}
-
-	/**
-	 * All possible spritesheet data extension types.
-	 */
-	public static final spritesheetExts:Array<String> = ['xml', 'txt', 'json'];
-	/**
-	 * Get's a spritesheet's data file.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @param type The texture type.
-	 * @return `FlxAtlasFrames`
-	 */
-	public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
-		if (type == IsUnknown) {
-			if (fileExists(xml('${file.type}:images/${file.path}'))) type = IsSparrow;
-			if (fileExists(txt('${file.type}:images/${file.path}'))) type = IsPacker;
-			if (fileExists(json('${file.type}:images/${file.path}'))) type = IsAseprite;
-		}
-		return switch (type) {
-			case IsSparrow: getSparrowFrames(file);
-			case IsPacker: getPackerFrames(file);
-			case IsAseprite: getAsepriteFrames(file);
-			default: getSparrowFrames(file);
-		}
-	}
-	/**
-	 * Get's sparrow sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Sparrow frame collection.
-	 */
-	inline public static function getSparrowFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromSparrow(image(file), xml('${file.type}:images/${file.path}'));
-	/**
-	 * Get's packer sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Packer frame collection.
-	 */
-	inline public static function getPackerFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromSpriteSheetPacker(image(file), txt('${file.type}:images/${file.path}'));
-	/**
-	 * Get's aseprite sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Aseprite frame collection.
-	 */
-	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
-		return FlxAtlasFrames.fromAseprite(image(file), json('${file.type}:images/${file.path}'));
 
 	/**
 	 * All possible sound extension types.
@@ -556,8 +540,10 @@ class Paths {
 	 * @param file The mod path.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function audio(file:ModPath):ModPath
-		return multExt(file, soundExts);
+	inline public static function audio(file:ModPath):ModPath {
+		var path:ModPath = multExt(file, soundExts);
+		return path;
+	}
 	/**
 	 * Get's the path of a songs instrumental file.
 	 * From `../content/songs/[song]/audio/`.
@@ -576,7 +562,7 @@ class Paths {
 	 * @return `ModPath` ~ The path data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):ModPath
-		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.trim() == '' ? '' : '-$suffix'}');
+		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.isNullOrEmpty() ? '' : '-$suffix'}');
 	/**
 	 * Get's the path of a song.
 	 * From `../music/`.
@@ -593,16 +579,6 @@ class Paths {
 	 */
 	inline public static function sound(file:ModPath):ModPath
 		return audio('${file.type}:sounds/${file.path}');
-	/**
-	 * Same as the sound function but gets a variantion of it based on a number suffix.
-	 * `May remove.`
-	 * @param file The mod path.
-	 * @param min The minimum number.
-	 * @param max The maximum number.
-	 * @return `ModPath` ~ The path data.
-	 */
-	inline public static function soundRandom(file:ModPath, min:Int, max:Int):ModPath
-		return sound('$file${FlxG.random.int(min, max)}');
 
 	/**
 	 * All possible video extension types.
@@ -641,9 +617,11 @@ class Paths {
 		if (folderExists(folder, doTypeCheck))
 			for (file in FileSystem.readDirectory(doTypeCheck ? folder.format() : folder.path))
 				if (setExt == null)
-					files.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
+					files.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 				else if (FilePath.extension(file) == setExt)
-					files.push(FilePath.withoutExtension(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file'));
+					files.push(FilePath.withoutExtension(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file'));
+		for (file in files)
+			file.type = ModType.simplifyType(file, prependDir ? null : folder.path);
 		return files;
 	}
 	/**
@@ -658,18 +636,20 @@ class Paths {
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
 	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
-		var orderText:Array<String> = getFileContent(txt('${FilePath.addTrailingSlash(folder)}order')).trimSplit('\n');
+		var orderText:Array<String> = Assets.text(txt('${folder.type}:${FilePath.addTrailingSlash(folder.path)}order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
 		if (addNonListed)
 			for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
 				files.push(file);
 		for (file in orderText)
-			if (fileExists('${FilePath.addTrailingSlash(folder)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
-				results.push(prependDir ? '${FilePath.addTrailingSlash(folder)}$file' : '${folder.type}:$file');
+			if (fileExists('${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
+				results.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 		for (file in files)
 			if (!results.contains(file))
 				results.push(file);
+		for (file in results)
+			file.type = ModType.simplifyType(file, prependDir ? null : folder.path);
 		return results;
 	}
 
@@ -681,7 +661,7 @@ class Paths {
 	 */
 	inline public static function fileExists(file:ModPath, doTypeCheck:Bool = true):Bool {
 		var finalPath:String = doTypeCheck ? file.format() : file.path;
-		return FileSystem.exists(finalPath) #if CONTAINS_EMBEDDED_FILES || Assets.exists(finalPath, AssetType.getFromExt(finalPath)) #end;
+		return FileSystem.exists(finalPath) || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath));
 	}
 	/**
 	 * Check's if a folder exists.
@@ -699,6 +679,11 @@ class Paths {
 	 */
 	inline public static function itemExists(file:ModPath, doTypeCheck:Bool = true):Bool
 		return folderExists(file, doTypeCheck) || fileExists(file, doTypeCheck);
+
+	/**
+	 * All possible spritesheet data extension types.
+	 */
+	public static final spritesheetExts:Array<String> = ['xml', 'txt', 'json'];
 	/**
 	 * Check's if a spritesheet exists.
 	 * @param file The mod path.
@@ -706,29 +691,15 @@ class Paths {
 	 * @return `Bool` ~ If true, it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
-		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts) != '';
-
-	// BUG: Exists check doesn't check if its embedded or not since it does ||.
-	/**
-	 * Get's the content of a file containing text.
-	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
-	 * @return `String` ~ The file contents.
-	 */
-	inline public static function getFileContent(file:ModPath, doTypeCheck:Bool = true):String {
-		var finalPath:String = doTypeCheck ? file.format() : file.path;
-		var sysContent:Null<String> = fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
-		var limeContent:Null<String> = #if CONTAINS_EMBEDDED_FILES fileExists(file, doTypeCheck) ? Assets.getText(finalPath) : #end null;
-		return sysContent ?? limeContent ?? '';
-	}
+		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts).valid;
 }
 
-#if CONTAINS_EMBEDDED_FILES
-enum abstract AssetType(String) from String to String {
+enum abstract AssetTypeHelper(String) from String to String {
 	/**
 	 * Binary asset, data that is not readable as text.
 	 */
 	var BINARY;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	var BUNDLE;
 	/**
 	 * Font asset, such as ttf or otf file.
@@ -738,6 +709,7 @@ enum abstract AssetType(String) from String to String {
 	 * Image asset, such as png or jpg file.
 	 */
 	var IMAGE;
+	@SuppressWarnings('checkstyle:FieldDocComment')
 	var MANIFEST;
 	/**
 	 * MovieClip asset, such as from a swf file.
@@ -760,12 +732,17 @@ enum abstract AssetType(String) from String to String {
 	 */
 	var TEXT;
 
+	/**
+	 * Gets the type from file extension.
+	 * @param id File path.
+	 * @return `AssetTypeHelper`
+	 */
 	@:access(lime.tools.AssetHelper.knownExtensions)
-	inline public static function getFromExt(id:String):AssetType {
+	inline public static function getFromExt(id:String):AssetTypeHelper {
 		var ext:String = FilePath.extension(id).toLowerCase();
 		var exts:Map<String, LimeAssetType> = lime.tools.AssetHelper.knownExtensions;
 
-		return exts.exists(ext) ? exts.get(ext) : switch(ext) {
+		return exts.exists(ext) ? exts.get(ext) : switch (ext) {
 			default: TEXT;
 		}
 	}
@@ -773,9 +750,9 @@ enum abstract AssetType(String) from String to String {
 	/**
 	 * Coverts Lime's AssetType to mine.
 	 * @param from Lime's AssetType.
-	 * @return `AssetType` ~ My AssetType.
+	 * @return `AssetTypeHelper`.
 	 */
-	@:from inline public static function fromLimeVersion(from:LimeAssetType):AssetType {
+	@:from inline public static function fromLimeVersion(from:LimeAssetType):AssetTypeHelper {
 		return switch (from) {
 			case LimeAssetType.BINARY: BINARY;
 			case LimeAssetType.BUNDLE: BUNDLE;
@@ -790,12 +767,12 @@ enum abstract AssetType(String) from String to String {
 		}
 	}
 	/**
-	 * Coverts my AssetType to Lime's.
-	 * @param from My AssetType.
+	 * Coverts AssetTypeHelper to Lime's.
+	 * @param from AssetTypeHelper.
 	 * @return `AssetType` ~ Lime's AssetType.
 	 */
 	@:to inline public function toLimeVersion():LimeAssetType {
-		var self:AssetType = this;
+		var self:AssetTypeHelper = this;
 		return switch (self) {
 			case BINARY: LimeAssetType.BINARY;
 			case BUNDLE: LimeAssetType.BUNDLE;
@@ -813,9 +790,9 @@ enum abstract AssetType(String) from String to String {
 	/**
 	 * Coverts OpenFL's AssetType to mine.
 	 * @param from OpenFL's AssetType.
-	 * @return `AssetType` ~ My AssetType.
+	 * @return `AssetTypeHelper`.
 	 */
-	@:from inline public static function fromOpenFLVersion(from:OpenFLAssetType):AssetType {
+	@:from inline public static function fromOpenFLVersion(from:OpenFLAssetType):AssetTypeHelper {
 		return switch (from) {
 			case OpenFLAssetType.BINARY: BINARY;
 			case OpenFLAssetType.FONT: FONT;
@@ -828,12 +805,12 @@ enum abstract AssetType(String) from String to String {
 		}
 	}
 	/**
-	 * Coverts my AssetType to OpenFL's.
-	 * @param from My AssetType.
+	 * Coverts AssetTypeHelper to OpenFL's.
+	 * @param from AssetTypeHelper.
 	 * @return `AssetType` ~ OpenFL's AssetType.
 	 */
 	@:to inline public function toOpenFLVersion():OpenFLAssetType {
-		var self:AssetType = this;
+		var self:AssetTypeHelper = this;
 		return switch (self) {
 			case BINARY: OpenFLAssetType.BINARY;
 			case FONT: OpenFLAssetType.FONT;
@@ -847,4 +824,3 @@ enum abstract AssetType(String) from String to String {
 		}
 	}
 }
-#end
