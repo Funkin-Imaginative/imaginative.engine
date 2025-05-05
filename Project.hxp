@@ -581,8 +581,8 @@ class EngineAsset {
 }
 
 /**
- * An object representing a feature flag, which can be enabled or disabled.
- * Includes features such as automatic generation of compile defines and inversion.
+ * An object representing a compiler flag, which can be enabled or disabled.
+ * Includes features such as automatic generation of compile defines.
  */
 abstract CompilerFlag(String) {
 	static var parentProject(default, null):Project;
@@ -597,30 +597,30 @@ abstract CompilerFlag(String) {
 		return new CompilerFlag(input);
 
 	/**
-	 * Enable this feature flag by setting the appropriate compile define.
+	 * Enable this compiler flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
 	inline public function enable(?value:String):Void
 		if (!exists())
 			parentProject.setDefine(this, value);
 	/**
-	 * Enable this feature flag by setting the appropriate compile define.
+	 * Enable this compiler flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
 	inline public function softEnable(?value:String):Void
 		if (!exists())
 			parentProject.setHaxedef(this, value);
 	/**
-	 * Disable this feature flag by removing the appropriate compile define.
+	 * Disable this compiler flag by removing the appropriate compile define.
 	 */
 	inline public function disable():Void
-		if (exists())
+		if (parentProject.hasDefine(this))
 			parentProject.unsetDefine(this);
-		else if (parentProject.hasHaxedef(this))
+		else if (exists()) // looks gross but makes sense
 			parentProject.unsetHaxedef(this);
 
 	/**
-	 * Query if this feature flag is enabled.
+	 * Query if this compiler flag exists.
 	 */
 	inline public function exists():Bool
 		return parentProject.hasHaxedef(this);
