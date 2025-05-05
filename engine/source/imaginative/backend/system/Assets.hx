@@ -41,10 +41,11 @@ class Assets {
 	 *                         Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
+		FlxG.bitmapLog.clear();
 		for (tag => graphic in loadedGraphics) {
 			if (graphic == null) continue;
+			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
-			if (clearUnused && !assetsInUse.contains(tag)) continue;
 
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
@@ -55,6 +56,7 @@ class Assets {
 			if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
 			if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
 			if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
+			assetsInUse.remove(tag);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
@@ -69,12 +71,13 @@ class Assets {
 	inline public static function clearSounds(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
 		for (tag => sound in loadedSounds) {
 			if (sound == null) continue;
+			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
-			if (clearUnused && !assetsInUse.contains(tag)) continue;
-
-			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
 
 			loadedSounds.remove(tag);
+
+			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
+			assetsInUse.remove(tag);
 		}
 	}
 	/**
