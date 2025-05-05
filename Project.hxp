@@ -236,7 +236,7 @@ class EngineAsset {
 		else if (isRelease() && isDebug()) buildFolder = 'test';
 		this.app.path = './export/$buildFolder';
 		if (useTracy.exists())
-			this.app.path += 'tracy';
+			this.app.path += '-tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
