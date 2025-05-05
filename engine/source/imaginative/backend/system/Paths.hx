@@ -159,17 +159,17 @@ enum abstract ModType(String) {
 	 * @param from The Array to get the type from.
 	 * @return `ModType`
 	 */
-	@:from inline public static function fromArray(from:Array<String>):ModType {
-		return switch ([
-			for (t in from)
-				fromString(t)
-		]) {
-			case [MAIN, SOLO, MOD]: ANY;
-			case [MAIN, SOLO]: LEAD;
-			case [SOLO, MOD]: MODDED;
-			case [MAIN, MOD]: NORM;
-			default: from[0];
-		}
+	@:from inline public static function fromArray(from:Array<ModType>):ModType {
+		var check:Array<ModType> = from;
+		if (FlxArrayUtil.equals(check, [MAIN, SOLO, MOD]))
+			return ANY;
+		if (FlxArrayUtil.equals(check, [MAIN, SOLO]))
+			return LEAD;
+		if (FlxArrayUtil.equals(check, [SOLO, MOD]))
+			return MODDED;
+		if (FlxArrayUtil.equals(check, [MAIN, MOD]))
+			return NORM;
+		return from[0];
 	}
 	/**
 	 * Converts a ModType to an Array.
