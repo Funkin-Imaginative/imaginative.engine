@@ -220,35 +220,30 @@ class Settings {
 	}
 
 	/**
+	 * Default settings.
+	 */
+	public static var mainDefault(default, null):MainSettings = new MainSettings();
+	/**
 	 * The current settings.
 	 */
 	public static var setup(default, set):MainSettings = new MainSettings();
 	inline static function set_setup(value:MainSettings):MainSettings
 		return setup = value;
-	/**
-	 * Default settings.
-	 */
-	public static var defaults(default, null):MainSettings = new MainSettings();
 
 	/**
-	 * Player 1's settings!
+	 * Default player settings.
+	 */
+	public static var playerDefault(default, null):PlayerSettings = new PlayerSettings();
+	/**
+	 * Player 1's settings.
 	 */
 	public static var setupP1(default, set):PlayerSettings = new PlayerSettings();
 	inline static function set_setupP1(value:PlayerSettings):PlayerSettings
 		return setupP1 = value;
 	/**
-	 * Default player 1 settings.
-	 */
-	public static var defaultsP1(default, null):PlayerSettings = new PlayerSettings();
-
-	/**
-	 * Player 2's settings!
+	 * Player 2's settings.
 	 */
 	public static var setupP2(default, set):PlayerSettings = new PlayerSettings();
 	inline static function set_setupP2(value:PlayerSettings):PlayerSettings
 		return setupP2 = value;
-	/**
-	 * Default player settings.
-	 */
-	public static var defaultsP2(default, null):PlayerSettings = new PlayerSettings();
 }
