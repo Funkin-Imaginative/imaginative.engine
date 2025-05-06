@@ -49,9 +49,9 @@ class Modding {
 			mods.push(curMod);
 
 		for (mod in mods) {
-			var asset:String = './mods/$mod/$modPath';
-			if (Paths.fileExists(asset, false))
-				return asset;
+			var asset:ModPath = 'root:./mods/$mod/$modPath';
+			if (Paths.fileExists(asset))
+				return asset.path;
 		}
 		return '';
 	}
@@ -72,16 +72,16 @@ class Modding {
 		var potentialPaths:Array<String> = [];
 
 		if (ModType.pathCheck(MAIN, pathType)) {
-			var asset:String = './solo/${Main.mainMod}/$file';
-			if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
-				potentialPaths.push(asset);
+			var asset:ModPath = 'root:./solo/${Main.mainMod}/$file';
+			if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+				potentialPaths.push(asset.path);
 		}
 
 		if (ModType.pathCheck(SOLO, pathType)) {
 			if (!curSolo.isNullOrEmpty()) {
-				var asset:String = './solo/$curSolo/$file';
-				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
-					potentialPaths.push(asset);
+				var asset:ModPath = 'root:./solo/$curSolo/$file';
+				if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+					potentialPaths.push(asset.path);
 			}
 		}
 
@@ -91,9 +91,9 @@ class Modding {
 				mods.push(curMod);
 
 			for (mod in mods) {
-				var asset:String = './mods/$mod/$file';
-				if (Paths.fileExists(asset, false) && !potentialPaths.contains(asset))
-					potentialPaths.push(asset);
+				var asset:ModPath = 'root:./mods/$mod/$file';
+				if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+					potentialPaths.push(asset.path);
 			}
 		}
 
@@ -106,11 +106,12 @@ class Modding {
 	 * @return `Array<String>` ~ Mod folder names.
 	 */
 	public static function getModList(type:ModType):Array<String> {
-		var folders:Array<ModPath> = Paths.readFolderOrderTxt(switch (type) {
+		var result:String = switch (type) {
 			case SOLO: 'solo';
 			case MOD: 'mods';
 			default: '';
-		}, false, true, false);
+		}
+		var folders:Array<ModPath> = Paths.readFolderOrderTxt('root:./$result', false, true);
 		return [
 			for (folder in folders)
 				ModType.modNameFromPath(folder.path)
