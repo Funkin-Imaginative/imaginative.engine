@@ -12,11 +12,11 @@ class ScriptedState extends BeatState {
 	/**
 	 * Previous state name.
 	 */
-	public static var prevName:String = null;
+	public static var prevName:String;
 	/**
 	 * Previous conductor instance.
 	 */
-	public static var lastConductor:Conductor = null;
+	public static var lastConductor:Conductor;
 
 	override public function new(stateName:String, ?conductorInst:Conductor) {
 		prevName = stateName ?? 'NullState';

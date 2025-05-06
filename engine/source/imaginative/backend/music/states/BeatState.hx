@@ -126,7 +126,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	/**
 	 * The name of the script to have access to the state.
 	 */
-	public var scriptName:String = null;
+	public var scriptName:String;
 
 	/**
 	 * @param scriptsAllowed If true, scripts are allowed.
@@ -135,13 +135,13 @@ class BeatState extends FlxState /* implements IBeat */ {
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
 		this.scriptsAllowed = #if SCRIPTED_STATES scriptsAllowed #else false #end;
-		this.scriptName = scriptName;
+		this.scriptName = scriptName ?? this.getClassName();
 	}
 
 	function loadScript():Void {
 		stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/${scriptName ?? this.getClassName()}'))
+			for (script in Script.create('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}

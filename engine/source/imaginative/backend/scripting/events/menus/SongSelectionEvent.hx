@@ -1,5 +1,6 @@
 package imaginative.backend.scripting.events.menus;
 
+@SuppressWarnings('checkstyle:CodeSimilarity')
 final class SongSelectionEvent extends MenuSFXEvent {
 	/**
 	 * The song data.
