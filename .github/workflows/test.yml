@@ -40,7 +40,7 @@ jobs:
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Compile Engine
-        run: haxelib run lime build windows -final
+        run: haxelib run lime build windows -final --always
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -112,7 +112,7 @@ jobs:
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Building the game
-        run: haxelib run lime build mac -final
+        run: haxelib run lime build mac -final --always
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -187,7 +187,7 @@ jobs:
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
       - name: Building the game
-        run: haxelib run lime build linux -final
+        run: haxelib run lime build linux -final --always
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
