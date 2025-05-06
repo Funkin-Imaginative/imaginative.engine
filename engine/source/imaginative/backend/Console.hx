@@ -25,29 +25,29 @@ enum LogFrom {
 }
 
 class Console {
-	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
+	static var ogTrace(default, null):(Dynamic, ?PosInfos) -> Void;
 
+	static var initialized(default, null):Bool = false;
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
-		if (Log.trace != ogTrace) {
-			_log('You can\'t run this again!');
-			return;
+		if (!initialized) {
+			initialized = true;
+			ogTrace = Log.trace;
+			Log.trace = (value:Dynamic, ?infos:PosInfos) ->
+				log(value, infos);
+
+			LogFrontEnd.onLogs = (data:Dynamic, style:LogStyle, fireOnce:Bool) -> {
+				var level:LogLevel = LogMessage;
+				if (style == LogStyle.CONSOLE) level = SystemMessage;
+				else if (style == LogStyle.ERROR) level = ErrorMessage;
+				else if (style == LogStyle.NORMAL) level = SystemMessage;
+				else if (style == LogStyle.NOTICE) level = SystemMessage;
+				else if (style == LogStyle.WARNING) level = WarningMessage;
+				_log(data, level);
+			}
+
+			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 		}
-
-		Log.trace = (value:Dynamic, ?infos:PosInfos) ->
-			log(value, infos);
-
-		LogFrontEnd.onLogs = (data:Dynamic, style:LogStyle, fireOnce:Bool) -> {
-			var level:LogLevel = LogMessage;
-			if (style == LogStyle.CONSOLE) level = SystemMessage;
-			else if (style == LogStyle.ERROR) level = ErrorMessage;
-			else if (style == LogStyle.NORMAL) level = SystemMessage;
-			else if (style == LogStyle.NOTICE) level = SystemMessage;
-			else if (style == LogStyle.WARNING) level = WarningMessage;
-			_log(data, level);
-		}
-
-		_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 	}
 
 	static function formatValueInfo(value:Dynamic):String {

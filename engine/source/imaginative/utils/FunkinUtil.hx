@@ -48,7 +48,7 @@ class FunkinUtil {
 			'videos',
 		];
 		for (folder in folders)
-			if (!Paths.folderExists(folder, false))
+			if (!Paths.folderExists('root:$path/$folder'))
 				FileSystem.createDirectory('$path/$folder');
 	}
 
