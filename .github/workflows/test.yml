@@ -37,10 +37,12 @@ jobs:
           restore-keys: windows-build-cache
 
       - name: Install Libraries
-        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+        run: |
+          haxe -cp commands -D analyzer-optimize --run Main setup --always
+          haxelib install hxcpp
 
       - name: Compile Engine
-        run: haxelib run lime build windows -final --always
+        run: haxelib run lime build windows -final
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -109,10 +111,12 @@ jobs:
           restore-keys: mac-build-cache
 
       - name: Install Libraries
-        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+        run: |
+          haxe -cp commands -D analyzer-optimize --run Main setup --always
+          haxelib install hxcpp
 
       - name: Building the game
-        run: haxelib run lime build mac -final --always
+        run: haxelib run lime build mac -final
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
@@ -184,10 +188,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
 
       - name: Install Libraries
-        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+        run: |
+          haxe -cp commands -D analyzer-optimize --run Main setup --always
+          haxelib install hxcpp
 
       - name: Building the game
-        run: haxelib run lime build linux -final --always
+        run: haxelib run lime build linux -final
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
