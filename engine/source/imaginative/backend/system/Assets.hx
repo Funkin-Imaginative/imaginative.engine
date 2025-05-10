@@ -1,11 +1,26 @@
 package imaginative.backend.system;
 
-import flash.media.Sound;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
 import openfl.display.BitmapData;
+import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
+
+enum abstract AssetType(String) {
+	/**
+	 * Is an image asset.
+	 */
+	var ImageAsset = 'image';
+	/**
+	 * Is a sound asset.
+	 */
+	var SoundAsset = 'sound';
+	/**
+	 * Is an unknown asset.
+	 */
+	var UnknownAsset = null;
+}
 
 /**
  * This is mostly taken from Psych since idk what to actually do.
@@ -17,7 +32,7 @@ class Assets {
 		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
 		excludeAsset(Paths.music('main:freakyMenu'));
 		excludeAsset(Paths.music('main:breakfast'));
-		FlxG.signals.preGameReset.add(() -> clearCache(true, true));
+		FlxG.signals.preGameReset.add(() -> clearCache(false, true));
 	}
 
 	/**
@@ -40,7 +55,6 @@ class Assets {
 	 *                         Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		FlxG.bitmapLog.clear();
 		for (tag => graphic in loadedGraphics) {
 			if (graphic == null) continue;
 			if (assetsInUse.contains(tag)) continue;
@@ -51,15 +65,25 @@ class Assets {
 			graphic.dump();
 
 			loadedGraphics.remove(tag);
+			if (assetsInUse.contains(tag))
+				assetsInUse.remove(tag);
 
-			if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
-			if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
-			if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
-			assetsInUse.remove(tag);
+			if (graphic.bitmap != null && graphic.bitmap.__texture != null)
+				graphic.bitmap.__texture.dispose();
+			if (OpenFLAssets.cache.hasBitmapData(tag))
+				OpenFLAssets.cache.removeBitmapData(tag);
+			FlxG.bitmap.remove(graphic);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
+		FlxG.bitmapLog.clear();
+
+		#if cpp
+		cpp.vm.Gc.run(false);
+		cpp.vm.Gc.compact();
+		#else
 		openfl.system.System.gc();
+		#end
 	}
 	/**
 	 * When called it clears all sounds.
@@ -74,9 +98,13 @@ class Assets {
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
 
 			loadedSounds.remove(tag);
+			if (assetsInUse.contains(tag))
+				assetsInUse.remove(tag);
 
-			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
-			assetsInUse.remove(tag);
+			if (OpenFLAssets.cache.hasSound(tag))
+				OpenFLAssets.cache.removeSound(tag);
+
+			sound.close();
 		}
 	}
 	/**
