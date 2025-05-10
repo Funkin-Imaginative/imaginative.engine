@@ -7,21 +7,6 @@ import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
 
-enum abstract AssetType(String) {
-	/**
-	 * Is an image asset.
-	 */
-	var ImageAsset = 'image';
-	/**
-	 * Is a sound asset.
-	 */
-	var SoundAsset = 'sound';
-	/**
-	 * Is an unknown asset.
-	 */
-	var UnknownAsset = null;
-}
-
 /**
  * This is mostly taken from Psych since idk what to actually do.
  */
@@ -142,12 +127,6 @@ class Assets {
 		if (!assetsInUse.contains(path))
 			assetsInUse.push(path);
 		return sound;
-	}
-
-	@:using inline static function destroyGraphic(graphic:FlxGraphic):Void {
-		if (graphic != null && graphic.bitmap != null && graphic.bitmap.__texture != null)
-			graphic.bitmap.__texture.dispose();
-		FlxG.bitmap.remove(graphic);
 	}
 
 	/**
