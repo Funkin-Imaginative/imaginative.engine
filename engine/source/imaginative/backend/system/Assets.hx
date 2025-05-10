@@ -32,7 +32,6 @@ class Assets {
 		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
 		excludeAsset(Paths.music('main:freakyMenu'));
 		excludeAsset(Paths.music('main:breakfast'));
-		FlxG.signals.preGameReset.add(() -> clearCache(false, true));
 	}
 
 	/**
