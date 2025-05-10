@@ -90,13 +90,13 @@ class MainSettings {
 	public var gpuCaching:Bool = false;
 
 	/**
-	 * The fps cap you wish to go for.
+	 * The framerate cap you wish to go for.
 	 */
 	public var fpsCap(default, set):Int = 60;
 	inline function set_fpsCap(value:Int):Int {
 		if (fpsCap != value) {
 			fpsCap = Std.int(FlxMath.bound(value, 30, 300));
-			if (fpsType == Custom) FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+			if (fpsType == Custom) setFPS(getFPS());
 		}
 		return fpsCap;
 	}
@@ -108,13 +108,14 @@ class MainSettings {
 	inline function set_fpsType(value:FpsType):FpsType {
 		if (fpsType != value) {
 			fpsType = value;
-			FlxG.updateFramerate = FlxG.drawFramerate = getFPS();
+			setFPS(getFPS());
 		}
 		return fpsType;
 	}
+
 	/**
-	 * Returns the fps value based on your settings.
-	 * @return `Int` ~ Wanted fps.
+	 * Returns the framerate value based on your settings.
+	 * @return `Int` ~ Wanted framerate.
 	 */
 	inline public function getFPS():Int {
 		return switch (fpsType) {
@@ -122,6 +123,21 @@ class MainSettings {
 			case Unlimited: 1000; // not like you'll ever actually reach this, plus it's
 			case Vsync: FlxWindow.direct.self.displayMode.refreshRate * 2; // Does * 2 because @Rudyrue and @superpowers04 said it's better like this?
 		}
+	}
+	/**
+	 * Sets the current framerate.
+	 * @param value The desired framerate.
+	 * @return `Int` ~ Desired framerate.
+	 */
+	inline public function setFPS(value:Int):Int {
+		if (value > FlxG.drawFramerate) {
+			FlxG.updateFramerate = value;
+			FlxG.drawFramerate = value;
+		} else {
+			FlxG.drawFramerate = value;
+			FlxG.updateFramerate = value;
+		}
+		return value;
 	}
 
 	#if CHECK_FOR_UPDATES
@@ -216,7 +232,7 @@ class Settings {
 	inline static function init():Void {
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
-		FlxG.updateFramerate = FlxG.drawFramerate = setup.getFPS();
+		setup.setFPS(setup.getFPS());
 	}
 
 	/**
