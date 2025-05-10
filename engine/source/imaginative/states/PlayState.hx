@@ -156,11 +156,11 @@ class PlayState extends BeatState {
 	/**
 	 * The difficulty key of the current song.
 	 */
-	public static var difficulty(default, null):String = 'normal';
+	public static var curDifficulty(default, null):String = 'normal';
 	/**
 	 * The variant key of the current song.
 	 */
-	public static var variant(default, null):String = 'normal';
+	public static var curVariant(default, null):String = 'normal';
 
 	/**
 	 * If true, the player character can die upon losing all their health.
@@ -550,13 +550,13 @@ class PlayState extends BeatState {
 
 		// hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
-		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
+		conductor.loadSong(setSong, curVariant, (_:FlxSound) -> {
 			/**
 			 * K: Suffix, V: The Track.
 			 */
 			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
 			for (suffix in vocalSuffixes) {
-				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, variant);
+				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, curVariant);
 				if (track != null)
 					tracks.set(suffix, track);
 			}
@@ -569,18 +569,18 @@ class PlayState extends BeatState {
 
 			// loads main suffixes
 			if (tracks.empty()) {
-				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', variant);
+				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', curVariant);
 				if (enemyTrack != null)
 					enemy.assignedTracks.push(enemyTrack);
 
-				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', variant);
+				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', curVariant);
 				if (playerTrack != null)
 					player.assignedTracks.push(playerTrack);
 			}
 
 			// loads general track
 			if (tracks.empty()) {
-				var generalTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, '', variant);
+				var generalTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, '', curVariant);
 				if (generalTrack != null)
 					generalVocals = generalTrack;
 			}
@@ -671,7 +671,7 @@ class PlayState extends BeatState {
 				BeatState.switchState(new StoryMenu());
 			else {
 				storyIndex++;
-				renderChart(songList[storyIndex], difficulty, variant);
+				renderChart(songList[storyIndex], curDifficulty, curVariant);
 				BeatState.resetState();
 			}
 		} else {
@@ -792,7 +792,7 @@ class PlayState extends BeatState {
 			hud: 'funkin'
 		}
 		log('Song "$loadedChart" loaded.', DebugMessage);
-		PlayState.difficulty = diff;
-		PlayState.variant = varia;
+		PlayState.curDifficulty = diff;
+		PlayState.curVariant = varia;
 	}
 }
