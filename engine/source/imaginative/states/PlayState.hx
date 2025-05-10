@@ -51,10 +51,10 @@ class SongEvent {
  */
 class PlayState extends BeatState {
 	override public function get_conductor():Conductor {
-		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
+		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.cutscene;
 	}
 	override public function set_conductor(value:Conductor):Conductor {
-		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
+		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.cutscene;
 	}
 
 	/**

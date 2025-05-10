@@ -67,6 +67,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	static function init():Void {
 		menu = new Conductor('Menu', true);
 		song = new Conductor('Song');
+		cutscene = new Conductor('Cutscene', true);
 		charter = new Conductor('Charter');
 	}
 
@@ -127,6 +128,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * The conductor for songs in PlayState.
 	 */
 	public static var song(default, null):Conductor;
+	/**
+	 * The conductor for cutscene audio.
+	 */
+	public static var cutscene(default, null):Conductor;
 	/**
 	 * The conductor for the chart editor.
 	 */
