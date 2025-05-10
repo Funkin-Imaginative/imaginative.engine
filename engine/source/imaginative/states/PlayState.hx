@@ -83,7 +83,7 @@ class PlayState extends BeatState {
 	 * @param suffix Adds a suffix to each item of the parts array.
 	 * @return `Array<ModPath>` ~ The mod paths of the items.
 	 */
-	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, suffix:String = ''):Array<ModPath> {
+	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, ?suffix:String):Array<ModPath> {
 		if (root == null)
 			root = 'gameplay/countdown/';
 		return [
