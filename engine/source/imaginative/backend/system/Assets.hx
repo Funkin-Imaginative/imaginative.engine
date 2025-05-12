@@ -283,17 +283,17 @@ class Assets {
 			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), './flixel/images/logo.png');
 		}
 
-		if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
+		/* if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
 			bitmap.image.format = BGRA32;
 			bitmap.image.premultiplied = bitmap.__isValid = bitmap.readable = true;
 			if (FlxG.stage.context3D != null) {
 				bitmap.lock();
 				bitmap.getTexture(FlxG.stage.context3D);
-				bitmap.readable = true;
 				bitmap.getSurface();
+				bitmap.readable = true;
 				bitmap.image = null;
 			}
-		}
+		} */
 
 		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
 		graphic.persist = true;
