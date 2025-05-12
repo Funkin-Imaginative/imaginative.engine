@@ -276,7 +276,7 @@ class SpriteUtil {
 	 * @return `FlxTypedGroup<Dynamic>`
 	 */
 	@:access(flixel.group.FlxTypedGroup.resolveGroup)
-	inline public static function getGroup<T:FlxBasic>(obj:T):FlxTypedGroup<Dynamic> {
+	inline public static function getGroup(obj:FlxBasic):FlxTypedGroup<Dynamic> {
 		return FlxTypedGroup.resolveGroup(obj) ?? (FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState ?? cast FlxG.state);
 	}
 
@@ -285,9 +285,9 @@ class SpriteUtil {
 	 * @param obj The object to insert.
 	 * @param from The object to be placed in front of.
 	 * @param into Specified group.
-	 * @return `T` ~ Current instance for chaining.
+	 * @return `FlxBasic` ~ Current instance for chaining.
 	 */
-	inline public static function addInfrontOf<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addInfrontOf(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>):FlxBasic {
 		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from) + 1, obj);
 	}
@@ -296,9 +296,9 @@ class SpriteUtil {
 	 * @param obj The object to insert.
 	 * @param from The object to be placed behind of.
 	 * @param into Specified group.
-	 * @return `T` ~ Current instance for chaining.
+	 * @return `FlxBasic` ~ Current instance for chaining.
 	 */
-	inline public static function addBehind<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addBehind(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>):FlxBasic {
 		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from), obj);
 	}
