@@ -3279,7 +3279,7 @@ class BitmapData implements IBitmapDrawable
 			__isValid = true;
 
 			// https://github.com/CodenameCrew/CodenameEngine/blob/main/source/funkin/backend/system/OptimizedBitmapData.hx#L9L46
-			if (flixel.FlxG.stage.context3D != null) {
+			if (imaginative.backend.system.Settings.setup.gpuCaching && flixel.FlxG.stage.context3D != null) {
 				lock();
 				getTexture(flixel.FlxG.stage.context3D);
 				getSurface();
