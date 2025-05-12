@@ -39,6 +39,12 @@ jobs:
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
+
       - name: Compile Engine
         run: haxelib run lime build windows -debug
 
@@ -110,6 +116,12 @@ jobs:
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build mac -debug
@@ -185,6 +197,12 @@ jobs:
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build linux -debug
