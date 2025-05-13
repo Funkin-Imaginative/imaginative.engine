@@ -291,6 +291,8 @@ class PlayState extends BeatState {
 	var rating:BaseSprite;
 
 	override public function create():Void {
+		Assets.clearCache();
+
 		scripts = new ScriptGroup(direct = this);
 
 		bgColor = 0xFFBDBDBD;
