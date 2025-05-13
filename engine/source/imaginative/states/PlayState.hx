@@ -50,12 +50,28 @@ class SongEvent {
  * Where all the funny beep boops happen!
  */
 class PlayState extends BeatState {
+	/**
+	 * The variable that handles the song audio.
+	 */
+	public var songAudio(get, never):Conductor;
+	inline function get_songAudio():Conductor
+		return Conductor.song;
+	/**
+	 * The variable that handles the cutscene audio.
+	 */
+	public var cutsceneAudio(get, never):Conductor;
+	inline function get_cutsceneAudio():Conductor
+		return Conductor.cutscene;
+
 	override public function get_conductor():Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.cutscene;
+		if (songEnded)
+			return cutsceneAudio;
+		if (!countdownStarted)
+			return cutsceneAudio;
+		return songAudio;
 	}
-	override public function set_conductor(value:Conductor):Conductor {
-		return (countdownStarted || !songEnded) ? Conductor.song : Conductor.cutscene;
-	}
+	override public function set_conductor(value:Conductor):Conductor
+		return get_conductor();
 
 	/**
 	 * Direct access to the state instance.
@@ -359,6 +375,7 @@ class PlayState extends BeatState {
 					if (base.characters.contains(tag))
 						char
 			]);
+			field.conductor = songAudio;
 			field.parse(base);
 			arrowFieldMapping.set(base.tag, field);
 			loadedFields.push(base.tag);
@@ -550,13 +567,13 @@ class PlayState extends BeatState {
 
 		// hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
-		conductor.loadSong(setSong, curVariant, (_:FlxSound) -> {
+		songAudio.loadSong(setSong, curVariant, (_:FlxSound) -> {
 			/**
 			 * K: Suffix, V: The Track.
 			 */
 			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
 			for (suffix in vocalSuffixes) {
-				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, curVariant);
+				var track:Null<FlxSound> = songAudio.addVocalTrack(setSong, suffix, curVariant);
 				if (track != null)
 					tracks.set(suffix, track);
 			}
@@ -569,23 +586,23 @@ class PlayState extends BeatState {
 
 			// loads main suffixes
 			if (tracks.empty()) {
-				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', curVariant);
+				var enemyTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, 'Enemy', curVariant);
 				if (enemyTrack != null)
 					enemy.assignedTracks.push(enemyTrack);
 
-				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', curVariant);
+				var playerTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, 'Player', curVariant);
 				if (playerTrack != null)
 					player.assignedTracks.push(playerTrack);
 			}
 
 			// loads general track
 			if (tracks.empty()) {
-				var generalTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, '', curVariant);
+				var generalTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, '', curVariant);
 				if (generalTrack != null)
 					generalVocals = generalTrack;
 			}
 
-			conductor._onComplete = (event) -> {
+			songAudio._onComplete = (event) -> {
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
 						char.dance();
@@ -662,7 +679,7 @@ class PlayState extends BeatState {
 					songStarted = true;
 			}, countdownLength + 1);
 		}
-		conductor.playFromTime(-beatTime * (countdownLength + 1));
+		songAudio.playFromTime(-beatTime * (countdownLength + 1));
 	}
 
 	function endSong():Void {
