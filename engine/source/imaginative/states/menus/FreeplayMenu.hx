@@ -68,6 +68,7 @@ class FreeplayMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
+		FlxG.cameras.reset(new BeatCamera().setupViaConductor(conductor));
 		camPoint = new FlxObject(0, 0, 1, 1);
 		camera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
@@ -300,11 +301,11 @@ class FreeplayMenu extends BeatState {
 					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
 	}
 
-	override public function beatHit(curBeat:Int):Void {
+	/* override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
 		if (curBeat % beatsPerMeasure == 0 && currentSongAudio != ':MENU:')
 			camera.zoom += 0.02;
-	}
+	} */
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;

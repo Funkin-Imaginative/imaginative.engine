@@ -281,11 +281,17 @@ class BeatState extends FlxState /* implements IBeat */ {
 		scriptCall('onFocusLost');
 	}
 
+	@:unreflective inline function beatCamLoop(func:BeatCamera->Void):Void
+		for (camera in FlxG.cameras.list)
+			if (camera is BeatCamera)
+				func(cast camera);
+
 	/**
 	 * Runs when the next step happens.
 	 * @param curStep The current step.
 	 */
 	public function stepHit(curStep:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.stepHit(curStep));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
 		scriptCall('stepHit', [curStep]);
@@ -295,6 +301,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param curBeat The current beat.
 	 */
 	public function beatHit(curBeat:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.beatHit(curBeat));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
 		scriptCall('beatHit', [curBeat]);
@@ -304,6 +311,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param curMeasure The current measure.
 	 */
 	public function measureHit(curMeasure:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.measureHit(curMeasure));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
 		scriptCall('measureHit', [curMeasure]);

@@ -98,6 +98,8 @@ import imaginative.objects.holders.LevelHolder;
 import imaginative.objects.holders.SongHolder;
 import imaginative.objects.ui.HealthIcon;
 import imaginative.objects.ui.SpriteText;
+import imaginative.objects.ui.cameras.BaseCamera;
+import imaginative.objects.ui.cameras.BeatCamera;
 import imaginative.states.PlayState;
 import imaginative.utils.ParseUtil;
 import imaginative.utils.PlatformUtil;
