@@ -31,8 +31,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	public var bopRate(get, set):Int;
 	inline function get_bopRate():Int
 		return Math.round(beatInterval * bopSpeed);
-	inline function set_bopRate(value:Int):Int
+	inline function set_bopRate(value:Int):Int {
+		bopSpeed = 1;
 		return beatInterval = value;
+	}
 	/**
 	 * The multiplier for the `beatInterval`.
 	 */
