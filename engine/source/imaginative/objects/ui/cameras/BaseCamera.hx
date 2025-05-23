@@ -38,8 +38,10 @@ class BaseCamera extends FlxCamera {
 	 */
 	public var defaultZoom:Float = 1;
 
-	override public function new(x:Float = 0, y:Float = 0, width:Int = 0, height:Int = 0, zoom:Float = 0)
-		super(x, y, width, height, defaultZoom = zoom);
+	override public function new(x:Float = 0, y:Float = 0, width:Int = 0, height:Int = 0, zoom:Float = 0) {
+		super(x, y, width, height, zoom);
+		defaultZoom = this.zoom;
+	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
