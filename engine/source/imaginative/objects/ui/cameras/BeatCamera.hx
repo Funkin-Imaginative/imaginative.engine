@@ -47,7 +47,6 @@ class BeatCamera extends BaseCamera implements IBeat {
 	 * @return `BeatCamera` ~ Current instance for chaining.
 	 */
 	public function beatSetup(thing:OneOfThree<BeatState, BeatSubState, Conductor>):BeatCamera {
-
 		if (thing is BeatState) {
 			conductor = cast(thing, BeatState).conductor;
 			bopRate = conductor.beatsPerMeasure;
@@ -87,7 +86,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 4 : bopRate) == 0)
-			zoom += 0.020;
+			zoom += 0.02;
 	}
 
 	/**
