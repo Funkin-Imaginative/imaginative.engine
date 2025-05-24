@@ -2,6 +2,13 @@ package imaginative.objects.ui.cameras;
 
 class BeatCamera extends BaseCamera implements IBeat {
 	/**
+	 * The conductor the arrow field follows.
+	 */
+	public var conductor(get, default):Conductor;
+	inline function get_conductor():Conductor
+		return conductor ?? Conductor.direct;
+
+	/**
 	 * The amount of beats it takes to trigger the zoom bop.
 	 */
 	public var bopRate(get, set):Int;
@@ -36,11 +43,24 @@ class BeatCamera extends BaseCamera implements IBeat {
 
 	/**
 	 * Set's up certain variables and data via a conductor.
-	 * @param conductor The conductor to setup from.
+	 * @param thing The thing to setup from. Your choices are `BeatState`, `BeatSubState` and `Conductor`.
 	 * @return `BeatCamera` ~ Current instance for chaining.
 	 */
-	public function setupViaConductor(conductor:Conductor):BeatCamera {
-		bopRate = conductor.beatsPerMeasure;
+	public function beatSetup(thing:OneOfThree<BeatState, BeatSubState, Conductor>):BeatCamera {
+
+		if (thing is BeatState) {
+			conductor = cast(thing, BeatState).conductor;
+			bopRate = conductor.beatsPerMeasure;
+		} else if (thing is BeatSubState) {
+			conductor = cast(thing, BeatSubState).conductor;
+			bopRate = conductor.beatsPerMeasure;
+		} else if (thing is Conductor) {
+			conductor = cast thing;
+			bopRate = conductor.beatsPerMeasure;
+		} else {
+			conductor = Conductor.direct;
+			bopRate = conductor.beatsPerMeasure;
+		}
 		return this;
 	}
 
@@ -67,7 +87,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 4 : bopRate) == 0)
-			zoom += 0.02;
+			zoom += 0.020;
 	}
 
 	/**

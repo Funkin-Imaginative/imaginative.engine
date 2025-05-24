@@ -44,9 +44,9 @@ class BaseCamera extends FlxCamera {
 	}
 
 	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
-		if (zoomEnabled)
+		if (zoomEnabled && !paused)
 			updateZoom(elapsed);
+		super.update(elapsed);
 	}
 
 	override public function updateFollow():Void {
@@ -95,7 +95,7 @@ class BaseCamera extends FlxCamera {
 				_lastTargetPosition.y = target.y;
 			}
 
-			if (followLerp == Math.POSITIVE_INFINITY)
+			if ((followLerp * followSpeed) == Math.POSITIVE_INFINITY)
 				scroll.copyFrom(_scrollTarget);
 			else {
 				scroll.x = FunkinUtil.lerp(scroll.x, _scrollTarget.x, followLerp * followSpeed);
@@ -110,6 +110,9 @@ class BaseCamera extends FlxCamera {
 	 */
 	public function updateZoom(elapsed:Float):Void
 		zoom = FunkinUtil.lerp(zoom, defaultZoom, zoomLerp * zoomSpeed);
+
+	override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
+		super.follow(target, style, lerp ?? 60);
 
 	inline override function set_followLerp(value:Float):Float
 		return followLerp = value;
