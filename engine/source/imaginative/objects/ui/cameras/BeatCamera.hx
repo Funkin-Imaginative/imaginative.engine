@@ -42,7 +42,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 	public var preventZoomBop:Bool = false;
 
 	/**
-	 * Set's up certain variables and data.
+	 * Sets up certain variables and data.
 	 * @param thing The thing to setup from. Your choices are `BeatState`, `BeatSubState` and `Conductor`.
 	 * @return `BeatCamera` ~ Current instance for chaining.
 	 */

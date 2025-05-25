@@ -1,6 +1,7 @@
 package imaginative.objects.ui.cameras;
 
 class BaseCamera extends FlxCamera {
+	// TODO: Rework this part.
 	/**
 	 * Offsets for the camera target.
 	 */
@@ -85,7 +86,16 @@ class BaseCamera extends FlxCamera {
 					_scrollTarget.y = edge;
 			}
 
-			if (target is FlxSprite) {
+			if (target is Character) {
+				var camPos:Position = cast(target, Character).getCamPos();
+				_lastTargetPosition ??= FlxPoint.get(camPos.x, camPos.y);
+
+				_scrollTarget.x += (camPos.x - _lastTargetPosition.x) * followLead.x;
+				_scrollTarget.y += (camPos.y - _lastTargetPosition.y) * followLead.y;
+
+				_lastTargetPosition.x = camPos.x;
+				_lastTargetPosition.y = camPos.y;
+			} else if (target is FlxSprite) {
 				_lastTargetPosition ??= FlxPoint.get(target.x, target.y);
 
 				_scrollTarget.x += (target.x - _lastTargetPosition.x) * followLead.x;
@@ -108,11 +118,59 @@ class BaseCamera extends FlxCamera {
 	 * Updates the camera zoom.
 	 * @param elapsed The elapsed time between frames.
 	 */
-	public function updateZoom(elapsed:Float):Void
+	inline public function updateZoom(elapsed:Float):Void
 		zoom = FunkinUtil.lerp(zoom, defaultZoom, zoomLerp * zoomSpeed);
 
-	override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
+	@:deprecated('Use setFollow instead.') // override used just for this lol
+	inline override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
+		super.follow(target, style, lerp);
+
+	/**
+	 * Sets the main follow data.
+	 * @param target The main target object to follow.
+	 * @param lerp The lerp amount.
+	 * @param speed The lerp multiplier.
+	 * @param style The camera follow style.
+	 * @param resetOffsets If true, it will clear all offsets.
+	 */
+	inline public function setFollow(target:FlxObject, lerp:Float = 0.2, speed:Float = 1, style:FlxCameraFollowStyle = LOCKON, resetOffsets:Bool = false):Void {
 		super.follow(target, style, lerp ?? 60);
+		followSpeed = speed;
+		if (resetOffsets)
+			targetOffsets = [];
+	}
+	/**
+	 * Adds extra follow data.
+	 * @param target The extra target object to follow.
+	 * @param lerp The lerp amount.
+	 * @param speed The lerp multiplier.
+	 */
+	inline public function addFollow(target:FlxObject, lerp:Float = 0.2, speed:Float = 1):Void {
+		//
+	}
+
+	/**
+	 * Sets the main zooming data.
+	 * @param target The target zoom to follow.
+	 * @param lerp The lerp amount.
+	 * @param speed The lerp multiplier.
+	 * @param resetOffsets If true, it will clear all offsets.
+	 */
+	inline public function setZooming(target:Float, lerp:Float = 0.16, speed:Float = 1, resetOffsets:Bool = false):Void {
+		defaultZoom = target;
+		zoomLerp = lerp;
+		zoomSpeed = speed;
+		// if (resetOffsets)
+	}
+	/**
+	 * Adds extra zooming data.
+	 * @param target A multiplier for target zoom.
+	 * @param lerp The lerp amount.
+	 * @param speed The lerp multiplier.
+	 */
+	inline public function addZooming(target:Float, lerp:Float = 0.16, speed:Float = 1):Void {
+		//
+	}
 
 	inline override function set_followLerp(value:Float):Float
 		return followLerp = value;

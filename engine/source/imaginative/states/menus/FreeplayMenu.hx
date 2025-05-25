@@ -70,9 +70,8 @@ class FreeplayMenu extends BeatState {
 
 		// Camera position.
 		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor));
-		camPoint = new FlxObject(0, 0, 1, 1);
-		mainCamera.follow(camPoint, 0.2);
-		mainCamera.zoomLerp = 0.16;
+		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
+		mainCamera.setZooming(1, 0.16);
 		add(camPoint);
 
 		// Menu elements.

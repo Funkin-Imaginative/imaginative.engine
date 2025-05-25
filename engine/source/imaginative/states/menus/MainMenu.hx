@@ -39,6 +39,7 @@ class MainMenu extends BeatState {
 
 	// Camera management.
 	var camPoint:FlxObject;
+	var mainCamera:BeatCamera;
 	var highestY:Float = 0;
 	var lowestY:Float = 0;
 
@@ -53,8 +54,9 @@ class MainMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camera.follow(camPoint, LOCKON, 0.2);
+		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor));
+		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
+		mainCamera.setZooming(1, 0.16);
 		add(camPoint);
 
 		// Menu elements.
