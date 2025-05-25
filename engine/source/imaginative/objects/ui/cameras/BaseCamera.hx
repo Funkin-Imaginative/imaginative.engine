@@ -122,8 +122,14 @@ class BaseCamera extends FlxCamera {
 		zoom = FunkinUtil.lerp(zoom, defaultZoom, zoomLerp * zoomSpeed);
 
 	@:deprecated('Use setFollow instead.') // override used just for this lol
-	inline override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
+	override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
 		super.follow(target, style, lerp);
+
+	/**
+	 * Snaps the camera to the default zoom target.
+	 */
+	inline public function snapZoom():Void
+		zoom = defaultZoom; // will eventually include offsets
 
 	/**
 	 * Sets the main follow data.
@@ -134,7 +140,7 @@ class BaseCamera extends FlxCamera {
 	 * @param resetOffsets If true, it will clear all offsets.
 	 */
 	inline public function setFollow(target:FlxObject, lerp:Float = 0.2, speed:Float = 1, style:FlxCameraFollowStyle = LOCKON, resetOffsets:Bool = false):Void {
-		super.follow(target, style, lerp ?? 60);
+		follow(target, style, lerp ?? 60);
 		followSpeed = speed;
 		if (resetOffsets)
 			targetOffsets = [];
