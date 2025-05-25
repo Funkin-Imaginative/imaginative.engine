@@ -281,7 +281,7 @@ class SpriteUtil {
 	}
 
 	/**
-	 * Add's an object in front of another.
+	 * Adds an object in front of another.
 	 * @param obj The object to insert.
 	 * @param from The object to be placed in front of.
 	 * @param into Specified group.
@@ -292,7 +292,7 @@ class SpriteUtil {
 		return group.insert(group.members.indexOf(from) + 1, obj);
 	}
 	/**
-	 * Add's an object behind of another.
+	 * Adds an object behind of another.
 	 * @param obj The object to insert.
 	 * @param from The object to be placed behind of.
 	 * @param into Specified group.

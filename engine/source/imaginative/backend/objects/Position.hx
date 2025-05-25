@@ -23,7 +23,7 @@ package imaginative.backend.objects;
 		set(x, y);
 
 	/**
-	 * Set's the X and Y.
+	 * Sets the X and Y.
 	 * @param x The new X position.
 	 * @param y The new Y position.
 	 * @return `Position` ~ Current instance for chaining.

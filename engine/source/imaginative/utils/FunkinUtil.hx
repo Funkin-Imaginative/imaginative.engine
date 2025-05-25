@@ -23,7 +23,7 @@ enum abstract MenuSFX(String) from String to String {
  */
 class FunkinUtil {
 	/**
-	 * Add's missing folders to your mod.
+	 * Adds missing folders to your mod.
 	 * If you realize certain folders don't show up, please tell me.
 	 * @param path The path to the mod folder.
 	 */

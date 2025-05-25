@@ -550,7 +550,7 @@ class ArrowField extends BeatGroup {
 		return strums.y = value;
 
 	/**
-	 * Set's the center position of the field.
+	 * Sets the center position of the field.
 	 * @param x The center x position.
 	 * @param y The center y position.
 	 */

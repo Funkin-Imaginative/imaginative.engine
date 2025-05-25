@@ -87,7 +87,7 @@ class ScriptGroup extends FlxBasic {
 				script.reload();
 
 	/**
-	 * Set's a variable to the script.
+	 * Sets a variable to the script.
 	 * @param variable The variable to apply.
 	 * @param value The value the variable will hold.
 	 */
