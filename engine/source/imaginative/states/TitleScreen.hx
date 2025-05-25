@@ -11,11 +11,16 @@ class TitleScreen extends BeatState {
 	var titleText:BaseSprite;
 	var ngLogo:BaseSprite;
 
+	var mainCamera:BeatCamera;
+
 	override public function create():Void {
 		super.create();
 		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
 			if (!conductor.playing)
 				conductor.loadMusic('freakyMenu', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
+
+			FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor, 0.5));
+			mainCamera.setZooming(1, 0.16);
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
 			add(logo);
@@ -93,6 +98,7 @@ class TitleScreen extends BeatState {
 				if (l != null)
 					l.visible = true;
 			camera.flash(FlxColor.WHITE, 4);
+			mainCamera.zoomEnabled = true;
 			skipped = true;
 		}
 	}
