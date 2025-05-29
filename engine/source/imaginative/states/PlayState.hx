@@ -1,6 +1,7 @@
 package imaginative.states;
 
 import imaginative.objects.gameplay.hud.*;
+import imaginative.objects.ui.cameras.PlayCamera;
 import imaginative.states.editors.ChartEditor.ChartData;
 import imaginative.states.menus.*;
 
@@ -199,11 +200,11 @@ class PlayState extends BeatState {
 	/**
 	 * The main camera, all characters and stage elements will be shown here.
 	 */
-	public var camGame:FlxCamera;
+	public var camGame:PlayCamera;
 	/**
 	 * The HUD camera, all ui elements will be shown here.
 	 */
-	public var camHUD:FlxCamera;
+	public var camHUD:BeatCamera;
 
 	/**
 	 * The current camera position.
@@ -295,8 +296,8 @@ class PlayState extends BeatState {
 
 		bgColor = 0xFFBDBDBD;
 
-		camGame = camera; // may make a separate camera class for shiz
-		FlxG.cameras.add(camHUD = new FlxCamera(), false);
+		FlxG.cameras.reset(camGame = camera = new PlayCamera().beatSetup(songAudio));
+		FlxG.cameras.add(camHUD = new BeatCamera().beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
 		hud = switch (chartData.hud ??= 'funkin') {
@@ -550,8 +551,7 @@ class PlayState extends BeatState {
 			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
 
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camGame.follow(camPoint, LOCKON, 0.05);
+		camGame.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05);
 		add(camPoint);
 
 		super.create();
@@ -621,9 +621,10 @@ class PlayState extends BeatState {
 			startSong();
 		});
 
-		camPoint.setPosition(characterMapping.get(cameraTarget).getCamPos().x, characterMapping.get(cameraTarget).getCamPos().y);
+		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
+		camPoint.setPosition(startPosition.x, startPosition.y);
 		camGame.snapToTarget();
-		camGame.zoom = 0.9;
+		camGame.snapZoom();
 	}
 
 	override public function createPost():Void {
