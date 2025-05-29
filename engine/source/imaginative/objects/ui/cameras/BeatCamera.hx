@@ -43,23 +43,23 @@ class BeatCamera extends BaseCamera implements IBeat {
 
 	/**
 	 * Sets up certain variables and data.
-	 * @param thing The thing to setup from. Your choices are `BeatState`, `BeatSubState` and `Conductor`.
+	 * @param thing The thing to setup from. Your choices are a `BeatState`, `BeatSubState` or a `Conductor`.
 	 * @param speed Shortcut for the setting the bop speed.
 	 * @return `BeatCamera` ~ Current instance for chaining.
 	 */
 	public function beatSetup(thing:OneOfThree<BeatState, BeatSubState, Conductor>, speed:Float = 1):BeatCamera {
 		if (thing is BeatState) {
 			conductor = cast(thing, BeatState).conductor;
-			bopRate = conductor.beatsPerMeasure;
+			beatInterval = conductor.beatsPerMeasure;
 		} else if (thing is BeatSubState) {
 			conductor = cast(thing, BeatSubState).conductor;
-			bopRate = conductor.beatsPerMeasure;
+			beatInterval = conductor.beatsPerMeasure;
 		} else if (thing is Conductor) {
 			conductor = cast thing;
-			bopRate = conductor.beatsPerMeasure;
+			beatInterval = conductor.beatsPerMeasure;
 		} else {
 			conductor = Conductor.direct;
-			bopRate = conductor.beatsPerMeasure;
+			beatInterval = conductor.beatsPerMeasure;
 		}
 		bopSpeed = speed;
 		return this;
