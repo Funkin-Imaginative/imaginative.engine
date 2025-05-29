@@ -1,20 +1,45 @@
 package imaginative.objects.ui.cameras;
 
+typedef TargetOffset = Void->Position;
+
 class BaseCamera extends FlxCamera {
-	// TODO: Rework this part.
 	/**
-	 * Offsets for the camera target.
+	 * .
 	 */
-	public var targetOffsets:Array<Void->Array<Float>> = [];
-	function getTargetOffsets():Position {
+	public var targetOffsets:Array<TargetOffset> = [];
+	/**
+	 * .
+	 */
+	public var namedTargetOffsets:Map<String, TargetOffset> = [];
+	/**
+	 * Returns the position that adds all the offsets together.
+	 * @param includeMainTarget If false, this won't include the main target point in the math.
+	 * @return `Position` ~ The final position.
+	 */
+	public function getTargetPosition(includeMainTarget:Bool = true):Position {
 		var result:Position = new Position();
-		for (offset in targetOffsets) {
-			var data:Array<Float> = offset();
-			result.x += data[0];
-			result.y += data[1];
+
+		if (includeMainTarget) {
+			result.x += target?.x ?? 0;
+			result.y += target?.y ?? 0;
 		}
-		return result;
+		result.x += targetOffset?.x ?? 0;
+		result.y += targetOffset?.y ?? 0;
+
+		for (offset in targetOffsets) {
+			var data:Position = offset();
+			result.x += data?.x ?? 0;
+			result.y += data?.y ?? 0;
+		}
+		for (offset in namedTargetOffsets) {
+			var data:Position = offset();
+			result.x += data?.x ?? 0;
+			result.y += data?.y ?? 0;
+		}
+
+		return targetPosition = result;
 	}
+	var targetPosition:Position;
 
 	/**
 	 * The camera follow multiplier.
@@ -53,12 +78,13 @@ class BaseCamera extends FlxCamera {
 	override public function updateFollow():Void {
 		if (deadzone == null) {
 			target.getMidpoint(_point);
-			_point.addPoint(targetOffset);
+			_point.addPoint(getTargetPosition(false).toFlxPoint());
 			focusOn(_point);
 		} else {
 			var edge:Float;
-			var targetX:Float = target.x + targetOffset.x + getTargetOffsets().x;
-			var targetY:Float = target.y + targetOffset.y + getTargetOffsets().y;
+			getTargetPosition();
+			var targetX:Float = targetPosition.x;
+			var targetY:Float = targetPosition.y;
 
 			if (style == SCREEN_BY_SCREEN) {
 				if (targetX >= (scroll.x + width))
