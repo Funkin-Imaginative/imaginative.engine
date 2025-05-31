@@ -22,7 +22,10 @@ class Assets {
 	/**
 	 * Paths that the game shouldn't dump their data for when dumping data.
 	 */
-	public static var dumpExclusions(default, null):Array<String> = [/* './flixel/sounds/beep.ogg' */];
+	public static var dumpExclusions(default, null):Array<String> = [
+		'./flixel/images/logo/logo.png',
+		'./flixel/sounds/beep.ogg'
+	];
 	/**
 	 * An asset to exclude from dumpping.
 	 * @param file The mod path.
@@ -280,7 +283,7 @@ class Assets {
 			bitmap = BitmapData.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), './flixel/images/logo.png');
+			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
 		}
 
 		/* if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
