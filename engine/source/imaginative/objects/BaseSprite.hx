@@ -519,10 +519,19 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		_matrix.translate(-getAnimationOffset().x, -getAnimationOffset().y);
 		_matrix.scale(scale.x, scale.y);
 
-		if (bakedRotationAngle <= 0) {
-			updateTrig();
-			if (angle != 0)
-				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+		if (matrixExposed)
+
+			_matrix.concat(transformMatrix);
+
+		else {
+			if (bakedRotationAngle <= 0) {
+				updateTrig();
+				if (angle != 0)
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+
+			updateSkewMatrix();
+			_matrix.concat(_skewMatrix);
 		}
 
 		getScreenPosition(_point, camera).subtractPoint(offset);
@@ -536,10 +545,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 		doAdditionalMatrixStuff(_matrix, camera);
 
-		if (layer != null)
-			layer.drawPixels(this, camera, _frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
-		else
-			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
 	}
 
 	override public function destroy():Void {
