@@ -41,26 +41,35 @@ class BaseCamera extends FlxCamera {
 	}
 	var targetPosition:Position;
 
+	inline override function set_followLerp(value:Float):Float
+		return followLerp = FlxMath.bound(value, 0, value);
+
 	/**
 	 * The camera follow multiplier.
 	 */
-	public var followSpeed:Float = 1;
+	public var followSpeed(default, set):Float = 1;
+	inline function set_followSpeed(value:Float):Float
+		return followSpeed = FlxMath.bound(value, 0, value);
 
 	/**
 	 * Used to smoothly zoom the camera.
 	 */
-	public var zoomLerp:Float = 1;
+	public var zoomLerp(default, set):Float = 1;
+	inline function set_zoomLerp(value:Float):Float
+		return zoomLerp = FlxMath.bound(value, 0, value);
 	/**
 	 * The camera zoom multiplier.
 	 */
-	public var zoomSpeed:Float = 1;
+	public var zoomSpeed(default, set):Float = 1;
+	inline function set_zoomSpeed(value:Float):Float
+		return zoomSpeed = FlxMath.bound(value, 0, value);
 	/**
 	 * Whenever target zooming is enabled. Defaults to `false`.
 	 */
 	public var zoomEnabled:Bool = false;
 
 	/**
-	 * The default zoom to update to.
+	 * The default zoom to lerp to when **zoomEnabled** is true.
 	 */
 	public var defaultZoom:Float = 1;
 
@@ -177,8 +186,11 @@ class BaseCamera extends FlxCamera {
 	 * @param lerp The lerp amount.
 	 * @param speed The lerp multiplier.
 	 */
-	inline public function addFollow(target:FlxObject, lerp:Float = 0.2, speed:Float = 1):Void {
-		//
+	inline public function addFollow(target:OneOfThree<FlxObject, FlxPoint, Position>, lerp:Float = 0.2, speed:Float = 1):Void {
+		if (target == targetOffset) {
+			log('The cameras "targetOffset" variable is already in use, you don\'t need to add it again.');
+			return;
+		}
 	}
 
 	/**
@@ -203,7 +215,4 @@ class BaseCamera extends FlxCamera {
 	inline public function addZooming(target:Float, lerp:Float = 0.16, speed:Float = 1):Void {
 		//
 	}
-
-	inline override function set_followLerp(value:Float):Float
-		return followLerp = value;
 }
