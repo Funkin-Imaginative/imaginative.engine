@@ -296,7 +296,7 @@ class PlayState extends BeatState {
 
 		bgColor = 0xFFBDBDBD;
 
-		FlxG.cameras.reset(camGame = camera = new PlayCamera().beatSetup(songAudio));
+		FlxG.cameras.reset(camera = camGame = new PlayCamera().beatSetup(songAudio));
 		FlxG.cameras.add(camHUD = new BeatCamera().beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
