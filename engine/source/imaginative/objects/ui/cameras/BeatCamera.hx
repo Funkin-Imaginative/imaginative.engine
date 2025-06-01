@@ -87,8 +87,8 @@ class BeatCamera extends BaseCamera implements IBeat {
 	 */
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
-		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 4 : bopRate) == 0)
-			zoom += 0.02;
+		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
+			zoom += 0.02; // TODO: Make this value customizable.
 	}
 
 	/**
