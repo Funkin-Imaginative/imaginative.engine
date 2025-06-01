@@ -86,12 +86,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 * @return `Position` ~ The camera position.
 	 */
 	public function getCamPos(?point:Position):Position {
-		var midpoint:FlxPoint = getMidpoint();
+		var midpoint:Position = Position.getObjMidpoint(this);
 		var event:PointEvent = new PointEvent(
 			midpoint.x + spriteOffsets.position.x + cameraOffset.x,
 			midpoint.y + spriteOffsets.position.y + cameraOffset.y
 		);
-		midpoint.put();
 		scripts.call('onGetCamPos', [event]);
 
 		event.x *= scrollFactor.x;

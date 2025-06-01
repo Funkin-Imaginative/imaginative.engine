@@ -47,7 +47,7 @@ package imaginative.backend.objects;
 	 * @param obj The object to get a midpoint from.
 	 * @return `Position` ~ Current instance for chaining.
 	 */
-	inline public static function getObjMidpoint<T:FlxObject>(obj:T):Position {
+	inline public static function getObjMidpoint(obj:FlxObject):Position {
 		return new Position(obj.x + obj.width * 0.5, obj.y + obj.height * 0.5);
 	}
 
