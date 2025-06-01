@@ -94,7 +94,7 @@ class PlayState extends BeatState {
 	 */
 	public var countdownAssets:CountdownAssets;
 	/**
-	 * Set's up the listings for the countdownAssets variable.
+	 * Sets up the listings for the countdownAssets variable.
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
@@ -292,6 +292,8 @@ class PlayState extends BeatState {
 	var rating:BaseSprite;
 
 	override public function create():Void {
+		Assets.clearCache();
+
 		scripts = new ScriptGroup(direct = this);
 
 		bgColor = 0xFFBDBDBD;

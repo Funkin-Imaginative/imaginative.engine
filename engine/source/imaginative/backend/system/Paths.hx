@@ -246,7 +246,7 @@ abstract ModPath(String) {
 		return this = '${value ?? ANY}:${this.split(':')[1]}';
 
 	/**
-	 * Set's up the mod path.
+	 * Sets up the mod path.
 	 * @param path The mod path.
 	 * @param type The path type.
 	 */

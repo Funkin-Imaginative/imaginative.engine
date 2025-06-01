@@ -530,7 +530,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Add's an extra music track to run.
+	 * Adds an extra music track to run.
 	 * @param music The name of the audio file.
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added audio track.
@@ -555,7 +555,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Add's a vocal track to run, used for songs.
+	 * Adds a vocal track to run, used for songs.
 	 * @param song The name of the song.
 	 * @param suffix The vocal suffix.
 	 * @param variant The variant of the vocals to play.
