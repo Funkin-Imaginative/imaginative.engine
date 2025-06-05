@@ -247,7 +247,7 @@
 		},
 		{
 			"props": {
-				"newFunctionTypePolicy": "none",
+				"newFunctionTypePolicy": "around",
 				"ternaryOpPolicy": "around",
 				"unaryOpPolicy": "none",
 				"oldFunctionTypePolicy": "none",
