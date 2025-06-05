@@ -89,7 +89,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param beatsPM The number of beats per measure.
 	 * @param stepsPB The number of steps per beat.
 	 */
-	public var onBPMChange(default, null):FlxTypedSignal<(Float, Int, Int)->Void> = new FlxTypedSignal<(Float, Int, Int)->Void>();
+	public var onBPMChange(default, null):FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
 	/**
 	 * Dispatches when the next step happens.
 	 * @param curStep The current step.
