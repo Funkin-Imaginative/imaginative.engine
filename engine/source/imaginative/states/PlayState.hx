@@ -289,7 +289,7 @@ class PlayState extends BeatState {
 		return ArrowField.player = value;
 
 	//temp
-	var rating:BaseSprite;
+	var ratings:FlxTypedGroup<BaseSprite>;
 
 	override public function create():Void {
 		Assets.clearCache();
@@ -318,17 +318,9 @@ class PlayState extends BeatState {
 		hud.cameras = [camHUD];
 		add(hud);
 
-		rating = new BaseSprite(500, 300, 'gameplay/combo/combo');
-		rating.cameras = [camHUD];
-		rating.alpha = 0.0001;
-		hud.elements.add(rating);
-
-		/* rating.y = camPoint.y - camHUD.height * 0.1 - 60;
-		rating.x = FlxMath.bound(
-			camHUD.width * 0.55 - 40,
-			camPoint.x - camHUD.width / 2 + rating.width,
-			camPoint.x + camHUD.width / 2 - rating.width
-		); */
+		ratings = new FlxTypedGroup<BaseSprite>();
+		ratings.cameras = [camHUD];
+		hud.elements.add(ratings);
 
 		// character creation.
 		var vocalSuffixes:Array<String> = [];
@@ -430,14 +422,22 @@ class PlayState extends BeatState {
 						hud.health += 0.02 * (event.field.status ? 1 : -1);
 					if (event.field.isPlayer) {
 						// doing it here for now
+						var rating:BaseSprite = ratings.recycle(BaseSprite, () -> return new BaseSprite('gameplay/combo/combo'));
+						rating.acceleration.y = rating.velocity.y = rating.velocity.x = 0;
+						rating.setPosition(500, 300);
+
 						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.settings)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
+								rating.acceleration.y = 550;
+								rating.velocity.x -= FlxG.random.float(0, 10);
+								rating.velocity.y -= FlxG.random.float(140, 175);
 								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4, {
 									startDelay: (event.field.conductor.stepTime / 1000) * 1.5,
+									onComplete: (_:FlxTween) -> new FlxTimer().start(1, (_:FlxTimer) -> rating.kill()),
 									ease: FlxEase.expoOut
 								});
 							}
@@ -811,7 +811,7 @@ class PlayState extends BeatState {
 			},
 			hud: 'funkin'
 		}
-		log('Song "$loadedChart" loaded.', DebugMessage);
+		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;
 	}
