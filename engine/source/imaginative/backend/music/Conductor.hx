@@ -594,9 +594,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
-				var tracks:Array<FlxSound> = [];
-				var vocalSuffixes:Array<String> = [];
 				chart = ParseUtil.chart(song, difficulty, variant);
+				var vocalSuffixes:Array<String> = [];
 				for (base in chart.characters) {
 					var charVocals:String = null;
 					try {
@@ -606,8 +605,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					if (!vocalSuffixes.contains(suffix))
 						vocalSuffixes.push(suffix);
 				}
-				for (suffix in vocalSuffixes)
-					tracks.push(addVocalTrack(song, suffix, variant));
+				var tracks:Array<FlxSound> = [];
+				for (suffix in vocalSuffixes) {
+					var track:Null<FlxSound> = addVocalTrack(song, suffix, variant);
+					if (track != null)
+						tracks.push(track);
+				}
 				// loads main suffixes
 				if (tracks.empty()) {
 					var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
