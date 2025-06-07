@@ -126,7 +126,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	/**
 	 * The name of the script to have access to the state.
 	 */
-	public var scriptName:String = null;
+	public var scriptName:String;
 
 	/**
 	 * @param scriptsAllowed If true, scripts are allowed.
@@ -135,13 +135,13 @@ class BeatState extends FlxState /* implements IBeat */ {
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
 		this.scriptsAllowed = #if SCRIPTED_STATES scriptsAllowed #else false #end;
-		this.scriptName = scriptName;
+		this.scriptName = scriptName ?? this.getClassName();
 	}
 
 	function loadScript():Void {
 		stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/${scriptName ?? this.getClassName()}'))
+			for (script in Script.create('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}
@@ -281,11 +281,17 @@ class BeatState extends FlxState /* implements IBeat */ {
 		scriptCall('onFocusLost');
 	}
 
+	@:unreflective inline function beatCamLoop(func:BeatCamera->Void):Void
+		for (camera in FlxG.cameras.list)
+			if (camera is BeatCamera)
+				func(cast camera);
+
 	/**
 	 * Runs when the next step happens.
 	 * @param curStep The current step.
 	 */
 	public function stepHit(curStep:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.stepHit(curStep));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
 		scriptCall('stepHit', [curStep]);
@@ -295,6 +301,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param curBeat The current beat.
 	 */
 	public function beatHit(curBeat:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.beatHit(curBeat));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
 		scriptCall('beatHit', [curBeat]);
@@ -304,6 +311,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param curMeasure The current measure.
 	 */
 	public function measureHit(curMeasure:Int):Void {
+		beatCamLoop((camera:BeatCamera) -> camera.measureHit(curMeasure));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
 		scriptCall('measureHit', [curMeasure]);

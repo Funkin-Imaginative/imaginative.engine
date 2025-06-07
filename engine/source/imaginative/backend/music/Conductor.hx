@@ -67,6 +67,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	static function init():Void {
 		menu = new Conductor('Menu', true);
 		song = new Conductor('Song');
+		cutscene = new Conductor('Cutscene', true);
 		charter = new Conductor('Charter');
 	}
 
@@ -127,6 +128,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * The conductor for songs in PlayState.
 	 */
 	public static var song(default, null):Conductor;
+	/**
+	 * The conductor for cutscene audio.
+	 */
+	public static var cutscene(default, null):Conductor;
 	/**
 	 * The conductor for the chart editor.
 	 */
@@ -225,8 +230,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		return audio == null ? 1 : audio.pitch;
 	inline function set_pitch(value:Float):Float {
 		if (audio == null) return 1;
-		audio.pitch = value;
-		for (sound in extra)
+		for (sound in soundGroup.sounds)
 			sound.pitch = audio.pitch;
 		return value;
 	}
@@ -382,6 +386,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			for (sound in soundGroup.sounds)
 				sound.play(time);
 		playing = true;
+		resyncVocals();
 	}
 	/**
 	 * Play's the conductor audio from a specified time of your choosing.
@@ -416,6 +421,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (!autoSetTime)
 			soundGroup.resume();
 		playing = true;
+		resyncVocals(true);
 	}
 
 	/**
@@ -525,7 +531,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Add's an extra music track to run.
+	 * Adds an extra music track to run.
 	 * @param music The name of the audio file.
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return `FlxSound` ~ Added audio track.
@@ -550,7 +556,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	}
 
 	/**
-	 * Add's a vocal track to run, used for songs.
+	 * Adds a vocal track to run, used for songs.
 	 * @param song The name of the song.
 	 * @param suffix The vocal suffix.
 	 * @param variant The variant of the vocals to play.
@@ -588,9 +594,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
-				var tracks:Array<FlxSound> = [];
-				var vocalSuffixes:Array<String> = [];
 				chart = ParseUtil.chart(song, difficulty, variant);
+				var vocalSuffixes:Array<String> = [];
 				for (base in chart.characters) {
 					var charVocals:String = null;
 					try {
@@ -600,8 +605,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 					if (!vocalSuffixes.contains(suffix))
 						vocalSuffixes.push(suffix);
 				}
-				for (suffix in vocalSuffixes)
-					tracks.push(addVocalTrack(song, suffix, variant));
+				var tracks:Array<FlxSound> = [];
+				for (suffix in vocalSuffixes) {
+					var track:Null<FlxSound> = addVocalTrack(song, suffix, variant);
+					if (track != null)
+						tracks.push(track);
+				}
 				// loads main suffixes
 				if (tracks.empty()) {
 					var enemyTrack:FlxSound = addVocalTrack(song, 'Enemy', variant);
@@ -673,16 +682,17 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	var _printResyncMessage(null, null):Bool = false;
 	/**
 	 * Resync's the extra tracks to the inst time when called.
+	 * @param force If true, it will force the vocals to resync.
 	 */
-	inline public function resyncVocals():Void {
-		if (!playing && !autoSetTime) return;
+	inline public function resyncVocals(force:Bool = false):Void {
+		if ((force || !playing) && !autoSetTime) return;
 		_printResyncMessage = false;
-		for (sound in extra) {
+		for (sound in soundGroup.sounds) {
 			// idea from psych
 			if (audio.time < sound.length) {
-				if (Math.abs(time - audio.time) > 25) {
+				if (force || Math.abs(time - sound.time) > 25) {
 					sound.pause();
-					sound.time = audio.time;
+					sound.time = time;
 					sound.play();
 					_printResyncMessage = true;
 				}
@@ -690,7 +700,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				sound.pause();
 		}
 		if (_printResyncMessage)
-			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
+			_log(force ? 'Manually resynced Conductor "$id".' : 'Conductor "$id" resynced all tracks to it\'s time.', SystemMessage);
 	}
 
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -771,14 +781,12 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (_wasPlaying)
 				soundGroup.resume();
 		}
-		resyncVocals();
 	}
 	inline function onFocusLost():Void {
 		if (FlxG.autoPause) {
 			_wasPlaying = playing;
 			soundGroup.pause();
 		}
-		resyncVocals();
 	}
 
 	@:allow(imaginative.backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];

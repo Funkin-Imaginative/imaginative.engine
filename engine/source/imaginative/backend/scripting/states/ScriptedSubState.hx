@@ -12,14 +12,14 @@ class ScriptedSubState extends BeatSubState {
 	/**
 	 * Previous subState name.
 	 */
-	public static var prevName:String = null;
+	public static var prevName:String;
 	/**
 	 * Previous conductor instance.
 	 */
-	public static var lastConductor:Conductor = null;
+	public static var lastConductor:Conductor;
 
 	override public function new(subStateName:String, ?conductorInst:Conductor) {
-		prevName = subStateName ?? 'NullState';
+		prevName = subStateName ?? 'NullSubState';
 		conductor = conductorInst ?? (lastConductor ??= Conductor.menu);
 		super(true, prevName);
 	}

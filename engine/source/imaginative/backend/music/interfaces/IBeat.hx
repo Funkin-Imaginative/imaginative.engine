@@ -36,6 +36,12 @@ interface IBeat {
 }
 
 class IBeatHelper {
+	/**
+	 * Function for calling beat functions on an object.
+	 * @param member The object to effect.
+	 * @param curTime The current time value of the `timeType`.
+	 * @param timeType The time type.
+	 */
 	public static function iBeatCheck(member:FlxBasic, curTime:Int, timeType:SongTimeType):Void {
 		if (member != null) {
 			if (member is IBeat) {
@@ -53,12 +59,12 @@ class IBeatHelper {
 		}
 	}
 
-	static function reflectCheck(member:Dynamic, curTime:Int, timeType:SongTimeType):Void {
+	static function reflectCheck(member:FlxBasic, curTime:Int, timeType:SongTimeType):Void {
 		if (member is IBeat)
 			iBeatCheck(cast member, curTime, timeType);
 		else {
 			if (member is FlxTypedGroup) {
-				var group:FlxTypedGroup<Dynamic> = cast member;
+				var group:FlxTypedGroup<FlxBasic> = cast member;
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
@@ -70,7 +76,7 @@ class IBeatHelper {
 						}, [curTime]);
 				}
 			} else if (member is FlxTypedSpriteGroup) {
-				var group:FlxTypedSpriteGroup<Dynamic> = cast member;
+				var group:FlxTypedSpriteGroup<FlxSprite> = cast member;
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
@@ -90,7 +96,7 @@ class IBeatHelper {
 		}
 	}
 
-	static function functionReflect(member:Dynamic, funcName:String, args:Array<Dynamic>):Void {
+	static function functionReflect(member:FlxBasic, funcName:String, args:Array<Dynamic>):Void {
 		var func = Reflect.getProperty(member, funcName);
 		if (Reflect.isFunction(func))
 			Reflect.callMethod(null, func, args);

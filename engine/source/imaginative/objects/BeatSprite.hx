@@ -31,8 +31,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	public var bopRate(get, set):Int;
 	inline function get_bopRate():Int
 		return Math.round(beatInterval * bopSpeed);
-	inline function set_bopRate(value:Int):Int
+	inline function set_bopRate(value:Int):Int {
+		bopSpeed = 1;
 		return beatInterval = value;
+	}
 	/**
 	 * The multiplier for the `beatInterval`.
 	 */
@@ -76,6 +78,14 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
 		super.renderData(inputData, applyStartValues);
 	}
+
+	#if TRACY_DEBUGGER
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+		if (this.getClassName() == 'BeatSprite')
+			TracyProfiler.zoneScoped('new BeatSprite($x, $y, $sprite, $script, $applyStartValues)');
+		super(x, y, sprite, script, applyStartValues);
+	}
+	#end
 
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);

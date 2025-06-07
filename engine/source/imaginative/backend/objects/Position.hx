@@ -23,7 +23,7 @@ package imaginative.backend.objects;
 		set(x, y);
 
 	/**
-	 * Set's the X and Y.
+	 * Sets the X and Y.
 	 * @param x The new X position.
 	 * @param y The new Y position.
 	 * @return `Position` ~ Current instance for chaining.
@@ -47,20 +47,19 @@ package imaginative.backend.objects;
 	 * @param obj The object to get a midpoint from.
 	 * @return `Position` ~ Current instance for chaining.
 	 */
-	inline public static function getObjMidpoint<T:FlxObject>(obj:T):Position {
+	inline public static function getObjMidpoint(obj:FlxObject):Position {
 		return new Position(obj.x + obj.width * 0.5, obj.y + obj.height * 0.5);
 	}
 
 	/**
 	 * Creates a Position instance from the x, y of this FlxPoint instance.
-	 * @param x The X position.
-	 * @param y The Y position.
-	 * @param point An optional Position to apply it to.
-	 *              If you put a Position it won't create a new one.
+	 * @param point The FlxPoint to get the position of.
+	 * @param position An optional Position to apply it to.
+	 *                 If you put a Position it won't create a new one.
 	 * @return `Position` ~ The created Position instance.
 	 */
-	inline public static function fromFlxPoint(x:Float = 0, y:Float = 0, ?point:Position):Position
-		return point == null ? new Position(x, y) : point.set(x, y);
+	inline public static function fromFlxPoint(point:FlxPoint, ?position:Position):Position
+		return position == null ? new Position(point.x, point.y) : position.set(point.x, point.y);
 	/**
 	 * Creates a FlxPoint instance from the x, y of this Position instance.
 	 * @param point An optional FlxPoint to apply it to.

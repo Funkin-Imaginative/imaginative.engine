@@ -86,12 +86,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 * @return `Position` ~ The camera position.
 	 */
 	public function getCamPos(?point:Position):Position {
-		var midpoint:FlxPoint = getMidpoint();
+		var midpoint:Position = Position.getObjMidpoint(this);
 		var event:PointEvent = new PointEvent(
 			midpoint.x + spriteOffsets.position.x + cameraOffset.x,
 			midpoint.y + spriteOffsets.position.y + cameraOffset.y
 		);
-		midpoint.put();
 		scripts.call('onGetCamPos', [event]);
 
 		event.x *= scrollFactor.x;
@@ -143,6 +142,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	}
 
 	override public function new(x:Float = 0, y:Float = 0, name:String = 'boyfriend', faceLeft:Bool = false) {
+		#if TRACY_DEBUGGER
+		if (this.getClassName() == 'Character')
+			TracyProfiler.zoneScoped('new Character($x, $y, $name, $faceLeft)');
+		#end
+
 		super(x, y, 'characters/${theirName = (Paths.fileExists(Paths.character(name)) ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');

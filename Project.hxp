@@ -74,6 +74,11 @@ class EngineAsset {
 
 	// Compiler flags.
 	/**
+	 * States if Tracy can be used.
+	 */
+	static final useTracy:CompilerFlag = 'TRACY_DEBUGGER';
+
+	/**
 	 * States if the engine has a version ID.
 	 */
 	static final knowsVersionID:CompilerFlag = 'KNOWS_VERSION_ID';
@@ -163,6 +168,8 @@ class EngineAsset {
 		addIcon('./extras/art/logo.png');
 
 		/* Define Setup */
+		// useTracy.enable();
+
 		knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
@@ -227,7 +234,9 @@ class EngineAsset {
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		app.path = './export/$buildFolder';
+		this.app.path = './export/$buildFolder';
+		if (useTracy.exists())
+			this.app.path += '-tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
@@ -303,6 +312,15 @@ class EngineAsset {
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
 			setHaxedef('analyzer-optimize');
+
+		if (useTracy.exists()) { // mostly just copied from base funkin
+			setHaxedef('HXCPP_TELEMETRY'); // Enable telemetry
+			setHaxedef('HXCPP_TRACY'); // Enable Tracy telemetry
+			setHaxedef('HXCPP_TRACY_MEMORY'); // Track memory allocations
+			setHaxedef('HXCPP_TRACY_ON_DEMAND'); // Only collect telemetry when Tracy is open and reachable
+			// setHaxedef('HXCPP_TRACY_INCLUDE_CALLSTACKS'); // Inspect callstacks per zone, inflating telemetry data
+			setHaxedef('absolute-paths'); // Fix source locations so Tracy can see them
+		}
 
 		// related to flixel cne fork
 		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
@@ -586,12 +604,26 @@ class EngineAsset {
  */
 abstract CompilerFlag(String) {
 	static var parentProject(default, null):Project;
+	static var list:Array<String> = [];
 
-	public static function init(project:Project):Void
+	public static function init(project:Project):Void {
 		parentProject = project;
 
+		for (tag in list) {
+			var flag:CompilerFlag = tag;
+			if (parentProject.hasDefine(tag) && !flag.exists())
+				flag.enable();
+		}
+
+		if (parentProject.hasDefine('tracy')) {
+			new CompilerFlag('TRACY_DEBUGGER').enable();
+			parentProject.unsetDefine('tracy');
+		}
+	}
+
 	inline public function new(input:String)
-		this = input;
+		if (!list.contains(this = input))
+			list.push(this);
 
 	@:from inline public static function fromString(input:String):CompilerFlag
 		return new CompilerFlag(input);

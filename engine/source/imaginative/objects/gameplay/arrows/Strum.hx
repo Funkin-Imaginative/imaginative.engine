@@ -92,7 +92,9 @@ class Strum extends FlxSprite {
 		animation.onFinish.add((name:String) -> {
 			if (doesAnimExist('$name-loop'))
 				playAnim('$name-loop');
-			if (doesAnimExist('$name-end'))
+			if (!setField.isPlayer && name.endsWith('-end'))
+				playAnim('static'); // simple fix for now possibly?
+			else if (doesAnimExist('$name-end'))
 				playAnim('$name-end');
 		});
 

@@ -1,6 +1,7 @@
 package imaginative.states;
 
 import imaginative.objects.gameplay.hud.*;
+import imaginative.objects.ui.cameras.PlayCamera;
 import imaginative.states.editors.ChartEditor.ChartData;
 import imaginative.states.menus.*;
 
@@ -50,12 +51,28 @@ class SongEvent {
  * Where all the funny beep boops happen!
  */
 class PlayState extends BeatState {
+	/**
+	 * The variable that handles the song audio.
+	 */
+	public var songAudio(get, never):Conductor;
+	inline function get_songAudio():Conductor
+		return Conductor.song;
+	/**
+	 * The variable that handles the cutscene audio.
+	 */
+	public var cutsceneAudio(get, never):Conductor;
+	inline function get_cutsceneAudio():Conductor
+		return Conductor.cutscene;
+
 	override public function get_conductor():Conductor {
-		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
+		if (songEnded)
+			return cutsceneAudio;
+		if (!countdownStarted)
+			return cutsceneAudio;
+		return songAudio;
 	}
-	override public function set_conductor(value:Conductor):Conductor {
-		return /* (countdownStarted || !songEnded) ? */ Conductor.song /* : Conductor.menu */;
-	}
+	override public function set_conductor(value:Conductor):Conductor
+		return get_conductor();
 
 	/**
 	 * Direct access to the state instance.
@@ -77,13 +94,13 @@ class PlayState extends BeatState {
 	 */
 	public var countdownAssets:CountdownAssets;
 	/**
-	 * Set's up the listings for the countdownAssets variable.
+	 * Sets up the listings for the countdownAssets variable.
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
 	 * @return `Array<ModPath>` ~ The mod paths of the items.
 	 */
-	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, suffix:String = ''):Array<ModPath> {
+	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, ?suffix:String):Array<ModPath> {
 		if (root == null)
 			root = 'gameplay/countdown/';
 		return [
@@ -156,11 +173,11 @@ class PlayState extends BeatState {
 	/**
 	 * The difficulty key of the current song.
 	 */
-	public static var difficulty(default, null):String = 'normal';
+	public static var curDifficulty(default, null):String = 'normal';
 	/**
 	 * The variant key of the current song.
 	 */
-	public static var variant(default, null):String = 'normal';
+	public static var curVariant(default, null):String = 'normal';
 
 	/**
 	 * If true, the player character can die upon losing all their health.
@@ -183,11 +200,11 @@ class PlayState extends BeatState {
 	/**
 	 * The main camera, all characters and stage elements will be shown here.
 	 */
-	public var camGame:FlxCamera;
+	public var camGame:PlayCamera;
 	/**
 	 * The HUD camera, all ui elements will be shown here.
 	 */
-	public var camHUD:FlxCamera;
+	public var camHUD:BeatCamera;
 
 	/**
 	 * The current camera position.
@@ -272,15 +289,17 @@ class PlayState extends BeatState {
 		return ArrowField.player = value;
 
 	//temp
-	var rating:BaseSprite;
+	var ratings:FlxTypedGroup<BaseSprite>;
 
 	override public function create():Void {
+		Assets.clearCache();
+
 		scripts = new ScriptGroup(direct = this);
 
 		bgColor = 0xFFBDBDBD;
 
-		camGame = camera; // may make a separate camera class for shiz
-		FlxG.cameras.add(camHUD = new FlxCamera(), false);
+		FlxG.cameras.reset(camera = camGame = new PlayCamera().beatSetup(songAudio));
+		FlxG.cameras.add(camHUD = new BeatCamera().beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
 		hud = switch (chartData.hud ??= 'funkin') {
@@ -299,17 +318,9 @@ class PlayState extends BeatState {
 		hud.cameras = [camHUD];
 		add(hud);
 
-		rating = new BaseSprite(500, 300, 'gameplay/combo/combo');
-		rating.cameras = [camHUD];
-		rating.alpha = 0.0001;
-		hud.elements.add(rating);
-
-		/* rating.y = camPoint.y - camHUD.height * 0.1 - 60;
-		rating.x = FlxMath.bound(
-			camHUD.width * 0.55 - 40,
-			camPoint.x - camHUD.width / 2 + rating.width,
-			camPoint.x + camHUD.width / 2 - rating.width
-		); */
+		ratings = new FlxTypedGroup<BaseSprite>();
+		ratings.cameras = [camHUD];
+		hud.elements.add(ratings);
 
 		// character creation.
 		var vocalSuffixes:Array<String> = [];
@@ -359,6 +370,7 @@ class PlayState extends BeatState {
 					if (base.characters.contains(tag))
 						char
 			]);
+			field.conductor = songAudio;
 			field.parse(base);
 			arrowFieldMapping.set(base.tag, field);
 			loadedFields.push(base.tag);
@@ -410,14 +422,22 @@ class PlayState extends BeatState {
 						hud.health += 0.02 * (event.field.status ? 1 : -1);
 					if (event.field.isPlayer) {
 						// doing it here for now
+						var rating:BaseSprite = ratings.recycle(BaseSprite, () -> return new BaseSprite('gameplay/combo/combo'));
+						rating.acceleration.y = rating.velocity.y = rating.velocity.x = 0;
+						rating.setPosition(500, 300);
+
 						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.settings)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {
 							ease: FlxEase.quadIn,
 							onComplete: (_:FlxTween) -> {
+								rating.acceleration.y = 550;
+								rating.velocity.x -= FlxG.random.float(0, 10);
+								rating.velocity.y -= FlxG.random.float(140, 175);
 								FlxTween.tween(rating, {alpha: 0.0001}, (event.field.conductor.stepTime / 1000) * 2.4, {
 									startDelay: (event.field.conductor.stepTime / 1000) * 1.5,
+									onComplete: (_:FlxTween) -> new FlxTimer().start(1, (_:FlxTimer) -> rating.kill()),
 									ease: FlxEase.expoOut
 								});
 							}
@@ -533,8 +553,7 @@ class PlayState extends BeatState {
 			sounds: getCountdownAssetList(null, ['three', 'two', 'one', 'go'], 'gf')
 		}
 
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camGame.follow(camPoint, LOCKON, 0.05);
+		camGame.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05);
 		add(camPoint);
 
 		super.create();
@@ -550,13 +569,13 @@ class PlayState extends BeatState {
 
 		// hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
-		conductor.loadSong(setSong, variant, (_:FlxSound) -> {
+		songAudio.loadSong(setSong, curVariant, (_:FlxSound) -> {
 			/**
 			 * K: Suffix, V: The Track.
 			 */
 			var tracks:Map<String, FlxSound> = new Map<String, FlxSound>();
 			for (suffix in vocalSuffixes) {
-				var track:Null<FlxSound> = conductor.addVocalTrack(setSong, suffix, variant);
+				var track:Null<FlxSound> = songAudio.addVocalTrack(setSong, suffix, curVariant);
 				if (track != null)
 					tracks.set(suffix, track);
 			}
@@ -569,23 +588,23 @@ class PlayState extends BeatState {
 
 			// loads main suffixes
 			if (tracks.empty()) {
-				var enemyTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Enemy', variant);
+				var enemyTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, 'Enemy', curVariant);
 				if (enemyTrack != null)
 					enemy.assignedTracks.push(enemyTrack);
 
-				var playerTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, 'Player', variant);
+				var playerTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, 'Player', curVariant);
 				if (playerTrack != null)
 					player.assignedTracks.push(playerTrack);
 			}
 
 			// loads general track
 			if (tracks.empty()) {
-				var generalTrack:Null<FlxSound> = conductor.addVocalTrack(setSong, '', variant);
+				var generalTrack:Null<FlxSound> = songAudio.addVocalTrack(setSong, '', curVariant);
 				if (generalTrack != null)
 					generalVocals = generalTrack;
 			}
 
-			conductor._onComplete = (event) -> {
+			songAudio._onComplete = (event) -> {
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
 						char.dance();
@@ -604,9 +623,10 @@ class PlayState extends BeatState {
 			startSong();
 		});
 
-		camPoint.setPosition(characterMapping.get(cameraTarget).getCamPos().x, characterMapping.get(cameraTarget).getCamPos().y);
+		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
+		camPoint.setPosition(startPosition.x, startPosition.y);
 		camGame.snapToTarget();
-		camGame.zoom = 0.9;
+		camGame.snapZoom();
 	}
 
 	override public function createPost():Void {
@@ -662,7 +682,7 @@ class PlayState extends BeatState {
 					songStarted = true;
 			}, countdownLength + 1);
 		}
-		conductor.playFromTime(-beatTime * (countdownLength + 1));
+		songAudio.playFromTime(-beatTime * (countdownLength + 1));
 	}
 
 	function endSong():Void {
@@ -671,7 +691,7 @@ class PlayState extends BeatState {
 				BeatState.switchState(new StoryMenu());
 			else {
 				storyIndex++;
-				renderChart(songList[storyIndex], difficulty, variant);
+				renderChart(songList[storyIndex], curDifficulty, curVariant);
 				BeatState.resetState();
 			}
 		} else {
@@ -791,8 +811,8 @@ class PlayState extends BeatState {
 			},
 			hud: 'funkin'
 		}
-		log('Song "$loadedChart" loaded.', DebugMessage);
-		PlayState.difficulty = diff;
-		PlayState.variant = varia;
+		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
+		PlayState.curDifficulty = diff;
+		PlayState.curVariant = varia;
 	}
 }

@@ -20,7 +20,7 @@ class Sustain extends FlxSprite {
 	/**
 	 * The parent strum of this note.
 	 */
-	public var setStrum(get, null):Strum;
+	public var setStrum(get, never):Strum;
 	inline function get_setStrum():Strum
 		return setHead.setStrum;
 	/**

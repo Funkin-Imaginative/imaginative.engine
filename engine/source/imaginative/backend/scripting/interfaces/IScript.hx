@@ -59,13 +59,13 @@ interface IScript {
 	var parent(get, set):Dynamic;
 
 	/**
-	 * Set's the public map for getting global variables.
+	 * Sets the public map for getting global variables.
 	 * @param map The map itself.
 	 */
 	function setPublicMap(map:Map<String, Dynamic>):Void;
 
 	/**
-	 * Set's a variable to the script.
+	 * Sets a variable to the script.
 	 * @param variable The variable to apply.
 	 * @param value The value the variable will hold.
 	 */

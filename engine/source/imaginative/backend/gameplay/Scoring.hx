@@ -35,7 +35,7 @@ class PlayerStats {
 	public function new() {}
 
 	/**
-	 * Add's on the stats information from this field to another.
+	 * Adds on the stats information from this field to another.
 	 * @param stats The stats to add to.
 	 */
 	inline public function addTo(stats:PlayerStats):Void {
@@ -47,7 +47,7 @@ class PlayerStats {
 		stats.breaks += breaks;
 	}
 	/**
-	 * Add's from the stats information from another field to this one.
+	 * Adds from the stats information from another field to this one.
 	 * @param stats The stats to add from.
 	 */
 	inline public function addFrom(stats:PlayerStats):Void {

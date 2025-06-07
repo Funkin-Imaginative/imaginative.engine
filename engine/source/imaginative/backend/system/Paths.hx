@@ -10,6 +10,10 @@ import openfl.utils.Assets as OpenFLAssets;
 @:runtimeValue enum abstract ModType(String) {
 	// Base Paths
 	/**
+	 * No Mod.
+	 */
+	var ROOT;
+	/**
 	 * Main Mod.
 	 */
 	var MAIN;
@@ -47,6 +51,7 @@ import openfl.utils.Assets as OpenFLAssets;
 	inline public function returnRootPath():String {
 		#if MOD_SUPPORT
 		return switch (fromString(this)) {
+			case ROOT: './';
 			case MAIN: './solo/${Main.mainMod}';
 			case SOLO: './solo/${Modding.curSolo}';
 			case MOD: './mods/${Modding.curMod}';
@@ -86,6 +91,7 @@ import openfl.utils.Assets as OpenFLAssets;
 	 */
 	inline public static function pathCheck(wanted:ModType, incoming:ModType):Bool {
 		return switch (wanted) {
+			case ROOT: incoming == ROOT;
 			case MAIN: incoming == null || incoming == MAIN || incoming == LEAD || incoming == NORM || incoming == ANY;
 			case SOLO: !Modding.soloIsMain && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
 			case MOD: !Modding.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
@@ -136,6 +142,7 @@ import openfl.utils.Assets as OpenFLAssets;
 	@:from inline public static function fromString(from:String):ModType {
 		return switch (from.toLowerCase()) {
 			// Base Paths
+			case 'root': ROOT;
 			case 'main': MAIN;
 			case 'solo' | 'upfront': SOLO;
 			case 'mod' | 'lowerend': MOD;
@@ -159,17 +166,17 @@ import openfl.utils.Assets as OpenFLAssets;
 	 * @param from The Array to get the type from.
 	 * @return `ModType`
 	 */
-	@:from inline public static function fromArray(from:Array<String>):ModType {
-		return switch ([
-			for (t in from)
-				fromString(t)
-		]) {
-			case [MAIN, SOLO, MOD]: ANY;
-			case [MAIN, SOLO]: LEAD;
-			case [SOLO, MOD]: MODDED;
-			case [MAIN, MOD]: NORM;
-			default: from[0];
-		}
+	@:from inline public static function fromArray(from:Array<ModType>):ModType {
+		var check:Array<ModType> = from;
+		if (FlxArrayUtil.equals(check, [MAIN, SOLO, MOD]))
+			return ANY;
+		if (FlxArrayUtil.equals(check, [MAIN, SOLO]))
+			return LEAD;
+		if (FlxArrayUtil.equals(check, [SOLO, MOD]))
+			return MODDED;
+		if (FlxArrayUtil.equals(check, [MAIN, MOD]))
+			return NORM;
+		return from[0];
 	}
 	/**
 	 * Converts a ModType to an Array.
@@ -196,7 +203,7 @@ import openfl.utils.Assets as OpenFLAssets;
 	public var valid(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_valid():Bool
-		return isDirectory || Paths.fileExists(format(), false) || Paths.fileExists(path, false);
+		return isDirectory || Paths.fileExists(this);
 
 	/**
 	 * The mod path.
@@ -214,7 +221,7 @@ import openfl.utils.Assets as OpenFLAssets;
 	public var isDirectory(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_isDirectory():Bool
-		return Paths.folderExists(format(), false) || Paths.folderExists(path, false);
+		return Paths.folderExists(this);
 	/**
 	 * This variable holds the name of the file extension.
 	 */
@@ -239,7 +246,7 @@ import openfl.utils.Assets as OpenFLAssets;
 		return this = '${value ?? ANY}:${this.split(':')[1]}';
 
 	/**
-	 * Set's up the mod path.
+	 * Sets up the mod path.
 	 * @param path The mod path.
 	 * @param type The path type.
 	 */
@@ -258,11 +265,13 @@ import openfl.utils.Assets as OpenFLAssets;
 
 	/**
 	 * Format's the info in the class into the final path.
+	 * @param removeBeginningSlash If true, it removes "./" at the beginning of the path. ***If one exists.***
 	 * @return `String` ~ The full path.
 	 */
-	inline public function format():String {
+	inline public function format(removeBeginningSlash:Bool = false):String {
 		var result:String = Paths.applyRoot(path, type);
-		return result.isNullOrEmpty() ? path : result;
+		var finalPath:String = result.isNullOrEmpty() ? path : result;
+		return removeBeginningSlash ? Paths.removeBeginningSlash(finalPath) : finalPath;
 	}
 
 	/**
@@ -348,21 +357,28 @@ class Paths {
 	 */
 	public static function applyRoot(file:String, type:ModType = ANY, ?name:String):String {
 		var result:String = '';
-		var check:String = '';
+		var check:ModPath = '';
 
 		#if MOD_SUPPORT
 		if (result.isNullOrEmpty() && ModType.pathCheck(MOD, type))
-			if (itemExists(check = (name == null ? Modding.getModsRoot(file) : './mods/$name/$file'), false))
-				result = check;
+			if (itemExists(check = (name == null ? 'root:${Modding.getModsRoot(file)}' : 'root:./mods/$name/$file')))
+				result = check.path;
 		if (result.isNullOrEmpty() && ModType.pathCheck(SOLO, type))
-			if (itemExists(check = './solo/${name ?? Modding.curSolo}/$file', false))
-				result = check;
+			if (itemExists(check = 'root:./solo/${name ?? Modding.curSolo}/$file'))
+				result = check.path;
 		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
-			if (itemExists(check = './solo/${Main.mainMod}/$file', false))
-				result = check;
+			if (itemExists(check = 'root:./solo/${Main.mainMod}/$file'))
+				result = check.path;
+		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
+			if (itemExists(check = 'root:./$file'))
+				result = check.path;
 		#else
-		if (itemExists(check = './${Main.mainMod}/$file', false))
-			result = check;
+		if (result.isNullOrEmpty())
+			if (itemExists(check = 'root:./${Main.mainMod}/$file'))
+				result = check.path;
+		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
+			if (itemExists(check = 'root:./$file'))
+				result = check.path;
 		#end
 
 		return FilePath.normalize(result);
@@ -378,16 +394,28 @@ class Paths {
 		return type.returnRootPath();
 
 	/**
+	 * A shortcut function for adding "./" at the beginning of paths.
+	 * Used to make sure the assetsInUse array in Assets has consistency.
+	 * @param path A root path.
+	 * @return `String`
+	 */
+	inline public static function addBeginningSlash(path:String):String {
+		path = removeBeginningSlash(path);
+		if (!path.startsWith('./'))
+			return './$path';
+		return path;
+	}
+	/**
 	 * A shortcut function for removing "./" at the beginning of paths.
 	 * As path functions that for hardcoding assets error when it is used.
 	 * @param path A root path.
 	 * @return `String`
 	 */
 	inline public static function removeBeginningSlash(path:String):String {
-		if (path.startsWith('./')) {
+		while (path.startsWith('./')) {
 			var split:Array<String> = path.split('/');
 			split.shift();
-			return split.join('/');
+			path = split.join('/');
 		}
 		return path;
 	}
@@ -609,13 +637,12 @@ class Paths {
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
 	 * @param prependDir Prepend's the file directory.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
-	public static function readFolder(folder:ModPath, ?setExt:String, prependDir:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
+	public static function readFolder(folder:ModPath, ?setExt:String, prependDir:Bool = true):Array<ModPath> {
 		var files:Array<ModPath> = [];
-		if (folderExists(folder, doTypeCheck))
-			for (file in FileSystem.readDirectory(doTypeCheck ? folder.format() : folder.path))
+		if (folderExists(folder))
+			for (file in FileSystem.readDirectory(folder.format()))
 				if (setExt == null)
 					files.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 				else if (FilePath.extension(file) == setExt)
@@ -632,18 +659,17 @@ class Paths {
 	 * @param setExt Specified extension, optional.
 	 * @param prependDir Prepend's the file directory.
 	 * @param addNonListed If true, anything that wasn't listed in the txt file will still be added.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
 	 */
-	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true, doTypeCheck:Bool = true):Array<ModPath> {
+	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true):Array<ModPath> {
 		var orderText:Array<String> = Assets.text(txt('${folder.type}:${FilePath.addTrailingSlash(folder.path)}order')).trimSplit('\n');
 		var files:Array<ModPath> = [];
 		var results:Array<ModPath> = [];
 		if (addNonListed)
-			for (file in readFolder(folder, setExt, prependDir, doTypeCheck))
+			for (file in readFolder(folder, setExt, prependDir))
 				files.push(file);
 		for (file in orderText)
-			if (fileExists('${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file${setExt == null ? '' : '.$setExt'}', doTypeCheck))
+			if (fileExists('${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file${setExt == null ? '' : '.$setExt'}'))
 				results.push(prependDir ? '${folder.type}:${FilePath.addTrailingSlash(folder.path)}$file' : '${folder.type}:$file');
 		for (file in files)
 			if (!results.contains(file))
@@ -656,29 +682,26 @@ class Paths {
 	/**
 	 * Check's if a file exists.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Bool` ~ If true, it exists.
 	 */
-	inline public static function fileExists(file:ModPath, doTypeCheck:Bool = true):Bool {
-		var finalPath:String = doTypeCheck ? file.format() : file.path;
+	inline public static function fileExists(file:ModPath):Bool {
+		var finalPath:String = file.type == ROOT ? file.path : file.format();
 		return FileSystem.exists(finalPath) || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath));
 	}
 	/**
 	 * Check's if a folder exists.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Bool` ~ If true, it exists.
 	 */
-	inline public static function folderExists(file:ModPath, doTypeCheck:Bool = true):Bool
-		return FileSystem.isDirectory(FilePath.removeTrailingSlashes(doTypeCheck ? file.format() : file.path));
+	inline public static function folderExists(file:ModPath):Bool
+		return FileSystem.isDirectory(FilePath.removeTrailingSlashes(file.type == ROOT ? file.path : file.format()));
 	/**
 	 * Check's if an item exists, file or folder!
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `Bool` ~ If true, it exists.
 	 */
-	inline public static function itemExists(file:ModPath, doTypeCheck:Bool = true):Bool
-		return folderExists(file, doTypeCheck) || fileExists(file, doTypeCheck);
+	inline public static function itemExists(file:ModPath):Bool
+		return folderExists(file) || fileExists(file);
 
 	/**
 	 * All possible spritesheet data extension types.

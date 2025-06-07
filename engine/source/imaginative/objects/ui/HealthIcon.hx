@@ -50,6 +50,11 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	}
 
 	override public function new(x:Float, y:Float, name:String = 'face', faceLeft:Bool = false) {
+		#if TRACY_DEBUGGER
+		if (this.getClassName() == 'HealthIcon')
+			TracyProfiler.zoneScoped('new HealthIcon($x, $y, $name, $faceLeft)');
+		#end
+
 		super(x, y, 'icons/${tagName = (Paths.fileExists(Paths.icon(name)) ? name : 'face')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');

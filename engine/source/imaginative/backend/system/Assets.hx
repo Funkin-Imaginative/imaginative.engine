@@ -1,10 +1,10 @@
 package imaginative.backend.system;
 
-import flash.media.Sound;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
 import openfl.display.BitmapData;
+import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
 
 /**
@@ -17,20 +17,21 @@ class Assets {
 		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
 		excludeAsset(Paths.music('main:freakyMenu'));
 		excludeAsset(Paths.music('main:breakfast'));
-		FlxG.signals.preGameReset.add(() -> clearCache(true, true));
 	}
 
 	/**
 	 * Paths that the game shouldn't dump their data for when dumping data.
 	 */
-	public static var dumpExclusions(default, null):Array<String> = [/* 'flixel/sounds/beep.ogg' */];
+	public static var dumpExclusions(default, null):Array<String> = [
+		'./flixel/images/logo/logo.png',
+		'./flixel/sounds/beep.ogg'
+	];
 	/**
 	 * An asset to exclude from dumpping.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 */
-	inline public static function excludeAsset(file:ModPath, doTypeCheck:Bool = true):Void {
-		var path:String = doTypeCheck ? file.format() : file.path;
+	inline public static function excludeAsset(file:ModPath):Void {
+		var path:String = file.format();
 		if (!dumpExclusions.contains(path))
 			dumpExclusions.push(path);
 	}
@@ -41,7 +42,6 @@ class Assets {
 	 *                         Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		FlxG.bitmapLog.clear();
 		for (tag => graphic in loadedGraphics) {
 			if (graphic == null) continue;
 			if (assetsInUse.contains(tag)) continue;
@@ -52,15 +52,25 @@ class Assets {
 			graphic.dump();
 
 			loadedGraphics.remove(tag);
+			if (assetsInUse.contains(tag))
+				assetsInUse.remove(tag);
 
-			if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
-			if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
-			if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
-			assetsInUse.remove(tag);
+			if (graphic.bitmap != null && graphic.bitmap.__texture != null)
+				graphic.bitmap.__texture.dispose();
+			if (OpenFLAssets.cache.hasBitmapData(tag))
+				OpenFLAssets.cache.removeBitmapData(tag);
+			FlxG.bitmap.remove(graphic);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
+		FlxG.bitmapLog.clear();
+
+		#if cpp
+		cpp.vm.Gc.run(false);
+		cpp.vm.Gc.compact();
+		#else
 		openfl.system.System.gc();
+		#end
 	}
 	/**
 	 * When called it clears all sounds.
@@ -75,9 +85,13 @@ class Assets {
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
 
 			loadedSounds.remove(tag);
+			if (assetsInUse.contains(tag))
+				assetsInUse.remove(tag);
 
-			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
-			assetsInUse.remove(tag);
+			if (OpenFLAssets.cache.hasSound(tag))
+				OpenFLAssets.cache.removeSound(tag);
+
+			sound.close();
 		}
 	}
 	/**
@@ -112,17 +126,10 @@ class Assets {
 	 */
 	public static var loadedSounds:Map<String, Sound> = new Map<String, Sound>();
 	inline static function listSound(path:String, sound:Sound):Sound {
-		path = Paths.removeBeginningSlash(path);
 		loadedSounds.set(path, sound);
 		if (!assetsInUse.contains(path))
 			assetsInUse.push(path);
 		return sound;
-	}
-
-	@:using inline static function destroyGraphic(graphic:FlxGraphic):Void {
-		if (graphic != null && graphic.bitmap != null && graphic.bitmap.__texture != null)
-			graphic.bitmap.__texture.dispose();
-		FlxG.bitmap.remove(graphic);
 	}
 
 	/**
@@ -132,7 +139,7 @@ class Assets {
 	 * @return `FlxGraphic` ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
-		var path:String = Paths.removeBeginningSlash(Paths.image(file).format());
+		var path:String = Paths.image(file).format();
 		if (loadedGraphics.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -144,11 +151,11 @@ class Assets {
 	/**
 	 * Get's the data of an audio file.
 	 * @param file The mod path.
-	 * @param beepWhenNull If true, the flixel beep sound when play when the wanted sound doesn't exist.
+	 * @param beepWhenNull If true, the flixel beep sound will be retrieved when the wanted sound doesn't exist.
 	 * @return `Sound` ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
-		var path:String = Paths.removeBeginningSlash(Paths.audio(file).format());
+		var path:String = Paths.audio(file).format();
 		if (loadedSounds.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -240,13 +247,12 @@ class Assets {
 	/**
 	 * Get's the content of a file containing text.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 * @return `String` ~ The file contents.
 	 */
-	inline public static function text(file:ModPath, doTypeCheck:Bool = true):String {
-		var finalPath:String = doTypeCheck ? Paths.removeBeginningSlash(file.format()) : file.path;
-		var sysContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
-		var limeContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : null;
+	inline public static function text(file:ModPath):String {
+		var finalPath:String = file.format();
+		var sysContent:Null<String> = Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : null;
+		var limeContent:Null<String> = Paths.fileExists(file) ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
 		return sysContent ?? limeContent ?? '';
 	}
 	/**
@@ -269,28 +275,28 @@ class Assets {
 	}
 
 	static function cacheBitmap(path:String):FlxGraphic {
+		if (loadedGraphics.exists(path))
+			return loadedGraphics.get(path);
+
 		var bitmap:BitmapData = null;
-		if (Paths.fileExists(path, false)) {
-			bitmap = BitmapData.fromFile(path);
-			if (bitmap == null)
-				bitmap = FlxAssets.getBitmapData(path);
-		}
+		if (Paths.fileExists('root:$path'))
+			bitmap = BitmapData.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), 'flixel/images/logo.png');
+			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
 		}
 
-		if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
+		/* if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
 			bitmap.image.format = BGRA32;
 			bitmap.image.premultiplied = bitmap.__isValid = bitmap.readable = true;
 			if (FlxG.stage.context3D != null) {
 				bitmap.lock();
 				bitmap.getTexture(FlxG.stage.context3D);
-				bitmap.readable = true;
 				bitmap.getSurface();
+				bitmap.readable = true;
 				bitmap.image = null;
 			}
-		}
+		} */
 
 		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
 		graphic.persist = true;
@@ -299,18 +305,17 @@ class Assets {
 		return listGraphic(path, FlxG.bitmap.addGraphic(graphic));
 	}
 	static function cacheSound(path:String, beepWhenNull:Bool = true):Sound {
-		var result:Sound = null;
-		if (!loadedSounds.exists(path)) {
-			if (Paths.fileExists(path, false)) {
-				result = Sound.fromFile(path);
-				if (result == null)
-					result = FlxAssets.getSound(path);
-				if (result == null) {
-					FlxG.log.error('No sound data from path "$path".');
-					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
-				}
-			}
+		if (loadedSounds.exists(path))
+			return loadedSounds.get(path);
+
+		var sound:Sound = null;
+		if (Paths.fileExists('root:$path'))
+			sound = Sound.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getSound(Paths.removeBeginningSlash(path));
+		if (sound == null) {
+			FlxG.log.error('No sound data from path "$path".');
+			return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
 		}
-		return listSound(path, result);
+
+		return listSound(path, sound);
 	}
 }

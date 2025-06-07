@@ -55,6 +55,7 @@ class FreeplayMenu extends BeatState {
 
 	// Camera management.
 	var camPoint:FlxObject;
+	var mainCamera:BeatCamera;
 
 	override public function create():Void {
 		super.create();
@@ -68,8 +69,9 @@ class FreeplayMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camera.follow(camPoint, LOCKON, 0.2);
+		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor));
+		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
+		mainCamera.setZooming(1, 0.16);
 		add(camPoint);
 
 		// Menu elements.
@@ -174,7 +176,7 @@ class FreeplayMenu extends BeatState {
 			10 * (curSelected + 1) + 50,
 			Position.getObjMidpoint(songs.members[curSelected].text).y
 		);
-		camera.snapToTarget();
+		mainCamera.snapToTarget();
 		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
@@ -239,6 +241,7 @@ class FreeplayMenu extends BeatState {
 							winningIcon.preventScaleBop = true;
 						}
 						currentSongAudio = currentSongVariant = ':MENU:';
+						mainCamera.zoomEnabled = false;
 						conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
 							conductor.playFromTime(menuTimePosition, 0);
 							conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
@@ -269,6 +272,7 @@ class FreeplayMenu extends BeatState {
 							(winningIcon = song.icon).playAnim('winning');
 							winningIcon.preventScaleBop = false;
 
+							mainCamera.zoomEnabled = true;
 							event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 							musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
 							artistText.text = 'By: ${conductor.data.artist}';
@@ -288,7 +292,6 @@ class FreeplayMenu extends BeatState {
 			10 * (visualSelected + 1) - 50,
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
-		camera.zoom = FunkinUtil.lerp(camera.zoom, 1, 0.16);
 		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 
 		for (i => song in songs.members)
@@ -298,12 +301,6 @@ class FreeplayMenu extends BeatState {
 			for (i => item in songs.members)
 				if (FlxG.mouse.overlaps(item.icon))
 					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
-	}
-
-	override public function beatHit(curBeat:Int):Void {
-		super.beatHit(curBeat);
-		if (curBeat % beatsPerMeasure == 0 && currentSongAudio != ':MENU:')
-			camera.zoom += 0.02;
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {

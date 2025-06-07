@@ -38,6 +38,17 @@
 			"type": "shell"
 		},
 		{
+			"command": "haxe -cp commands -D analyzer-optimize --run Main compile test -debug -Dtracy",
+			"label": "Run Debug with Tracy",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"type": "shell"
+		},
+		{
 			"command": "haxe -cp commands -D analyzer-optimize --run Main compile test -final",
 			"label": "Run Test",
 			"problemMatcher": [

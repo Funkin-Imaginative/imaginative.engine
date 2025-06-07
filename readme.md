@@ -1,11 +1,9 @@
 # Welcome to Imaginative Engine!
-This engine is still work in progress!
-Be weary of any issues you may encounter.
+This engine is still a work in progress!
+Be wary of any issues you may encounter.
 # Credits
 ### Members
 [Rodney](https://github.com/rodney528): Main programmer and director.
-
-[Atlas](https://github.com/AtlasGamer27): Underrated programmer and great friend.
 
 [Zyflx](https://github.com/Zyflx): Programmer and helped with scripting.
 
