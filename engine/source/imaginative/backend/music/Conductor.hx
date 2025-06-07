@@ -387,6 +387,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			for (sound in soundGroup.sounds)
 				sound.play(time);
 		playing = true;
+		resyncVocals(true);
 	}
 	/**
 	 * Play's the conductor audio from a specified time of your choosing.
@@ -421,6 +422,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (!autoSetTime)
 			soundGroup.resume();
 		playing = true;
+		resyncVocals(true);
 	}
 
 	/**
@@ -678,16 +680,17 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	var _printResyncMessage(null, null):Bool = false;
 	/**
 	 * Resync's the extra tracks to the inst time when called.
+	 * @param force If true, it will force the vocals to resync.
 	 */
-	inline public function resyncVocals():Void {
-		if (!playing && !autoSetTime) return;
+	inline public function resyncVocals(force:Bool = false):Void {
+		if ((force || !playing) && !autoSetTime) return;
 		_printResyncMessage = false;
 		for (sound in extra) {
 			// idea from psych
 			if (audio.time < sound.length) {
-				if (Math.abs(time - audio.time) > 25) {
+				if (force || Math.abs(time - sound.time) > 25) {
 					sound.pause();
-					sound.time = audio.time;
+					sound.time = time;
 					sound.play();
 					_printResyncMessage = true;
 				}
@@ -695,7 +698,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 				sound.pause();
 		}
 		if (_printResyncMessage)
-			_log('Conductor "$id" resynced extra tracks to inst time.', ErrorMessage);
+			_log(force ? 'Manually resynced Conductor "$id".' : 'Conductor "$id" resynced all tracks to it\'s time.', SystemMessage);
 	}
 
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -776,14 +779,13 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (_wasPlaying)
 				soundGroup.resume();
 		}
-		resyncVocals();
+		resyncVocals(FlxG.autoPause);
 	}
 	inline function onFocusLost():Void {
 		if (FlxG.autoPause) {
 			_wasPlaying = playing;
 			soundGroup.pause();
 		}
-		resyncVocals();
 	}
 
 	@:allow(imaginative.backend.music.states.BeatState) static var beatStates:Array<BeatState> = [];
