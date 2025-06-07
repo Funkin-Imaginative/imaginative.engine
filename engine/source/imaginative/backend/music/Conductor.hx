@@ -230,8 +230,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		return audio == null ? 1 : audio.pitch;
 	inline function set_pitch(value:Float):Float {
 		if (audio == null) return 1;
-		audio.pitch = value;
-		for (sound in extra)
+		for (sound in soundGroup.sounds)
 			sound.pitch = audio.pitch;
 		return value;
 	}
@@ -387,7 +386,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			for (sound in soundGroup.sounds)
 				sound.play(time);
 		playing = true;
-		resyncVocals(true);
+		resyncVocals();
 	}
 	/**
 	 * Play's the conductor audio from a specified time of your choosing.
@@ -685,7 +684,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	inline public function resyncVocals(force:Bool = false):Void {
 		if ((force || !playing) && !autoSetTime) return;
 		_printResyncMessage = false;
-		for (sound in extra) {
+		for (sound in soundGroup.sounds) {
 			// idea from psych
 			if (audio.time < sound.length) {
 				if (force || Math.abs(time - sound.time) > 25) {
@@ -779,7 +778,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			if (_wasPlaying)
 				soundGroup.resume();
 		}
-		resyncVocals(FlxG.autoPause);
 	}
 	inline function onFocusLost():Void {
 		if (FlxG.autoPause) {
