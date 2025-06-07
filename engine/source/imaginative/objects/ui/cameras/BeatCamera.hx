@@ -42,6 +42,35 @@ class BeatCamera extends BaseCamera implements IBeat {
 	public var preventZoomBop:Bool = false;
 
 	/**
+	 * The amount of zoom applied when the camera bops on beat.
+	 */
+	public var beatZoom:Float = 0;
+	/**
+	 * Makes the camera bop zooms go in the other direction.
+	 */
+	public var inverseBeatZoom:Bool = false;
+
+	override function initVars():Void {
+		followTargets = new FollowTargetSetup(
+			(includeMain:Bool) -> {
+				var pos:Position = new Position();
+				if (includeMain && target != null) {
+					pos.x += target.x;
+					pos.y += target.y;
+				}
+				pos.x += targetOffset.x;
+				pos.y += targetOffset.y;
+				return new TargetSetup<CameraTarget>(pos, followLerp, followSpeed);
+			}
+		);
+		zoomTargets = new ZoomTargetSetup(
+			(includeMain:Bool) -> {
+				return new TargetSetup<Float>((includeMain ? 1 : defaultZoom) + beatZoom, zoomLerp, zoomSpeed);
+			}
+		);
+	}
+
+	/**
 	 * Sets up certain variables and data.
 	 * @param thing The thing to setup from. Your choices are a `BeatState`, `BeatSubState` or a `Conductor`.
 	 * @param speed Shortcut for the setting the bop speed.
@@ -87,8 +116,9 @@ class BeatCamera extends BaseCamera implements IBeat {
 	 */
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
-		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 4 : bopRate) == 0)
+		if (zoomEnabled && !preventZoomBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 4 : bopRate) == 0) {
 			zoom += 0.02; // TODO: Make this value customizable.
+		}
 	}
 
 	/**
