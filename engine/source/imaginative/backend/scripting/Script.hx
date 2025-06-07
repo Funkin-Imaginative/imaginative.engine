@@ -64,7 +64,7 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public var name(get, never):String;
 	inline function get_name():String
-		return FilePath.withoutDirectory(pathing.path);
+		return FilePath.withoutDirectory(pathing?.path) ?? 'none';
 	/**
 	 * Contains the mod path information.
 	 */
@@ -74,7 +74,7 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public var extension(get, never):String;
 	inline function get_extension():String
-		return pathing.extension;
+		return pathing?.extension ?? 'none';
 
 	/**
 	 * Creates a script instance(s).
@@ -97,16 +97,17 @@ class Script extends FlxBasic implements IScript {
 		#else
 		var paths:Array<String> = [Paths.script(file).format()];
 		#end
+		// trace(paths);
 
 		var scripts:Array<Script> = [];
 		for (path in paths) {
 			var extension:String = FilePath.extension(path).toLowerCase();
 			if (exts.contains(extension)) {
 				if (HaxeScript.exts.contains(extension))
-					scripts.push(new HaxeScript(path));
+					scripts.push(new HaxeScript('root:$path'));
 				if (LuaScript.exts.contains(extension))
-					scripts.push(new LuaScript(path));
-			} else scripts.push(new InvalidScript(path));
+					scripts.push(new LuaScript('root:$path'));
+			} else scripts.push(new InvalidScript('root:$path'));
 		}
 		return scripts;
 	}

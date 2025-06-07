@@ -159,7 +159,8 @@ final class HaxeScript extends Script {
 
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function renderNecessities():Void {
-		__importedPaths.push(pathing.format());
+		if (pathing != null)
+			__importedPaths.push(pathing.format());
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
@@ -189,7 +190,7 @@ final class HaxeScript extends Script {
 						try {
 							interp.errorHandler(error);
 						} catch(error:Error)
-							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
 					if (expr != null) {
 						@:privateAccess
 							interp.exprReturn(expr);
@@ -230,7 +231,7 @@ final class HaxeScript extends Script {
 	override function loadCodeString(code:String):Void {
 		try {
 			if (!code.isNullOrEmpty()) {
-				expr = parser.parseString(code, pathing.format() ?? 'from string');
+				expr = parser.parseString(code, pathing?.format() ?? 'from string');
 				canRun = true;
 				return;
 			}
@@ -238,7 +239,7 @@ final class HaxeScript extends Script {
 			try {
 				interp.errorHandler(error);
 			} catch(error:Error)
-				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
 		canRun = false;
 	}
 
