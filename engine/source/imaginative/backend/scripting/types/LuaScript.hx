@@ -17,9 +17,9 @@ final class LuaScript extends Script {
 	static function getScriptImports(script:LuaScript):Map<String, Dynamic> {
 		return [
 			'print' => (value:Dynamic) ->
-				_log(Console.formatLogInfo(value, LogMessage, script.pathing.format(), FromLua)),
+				_log(Console.formatLogInfo(value, LogMessage, script.scriptPath.format(), FromLua)),
 			'log' => (value:Dynamic, level:String = LogMessage) ->
-				_log(Console.formatLogInfo(value, level, script.pathing.format(), FromLua)),
+				_log(Console.formatLogInfo(value, level, script.scriptPath.format(), FromLua)),
 
 			'disableScript' => () ->
 				script.active = false

@@ -422,7 +422,7 @@ class Paths {
 
 	/**
 	 * Easy and quick ModPath instance.
-	 * Mostly useless but for scripting it may be useful.
+	 * Mostly useless, but for scripting it may be useful.
 	 * @param file The mod path.
 	 * @return `ModPath` ~ The path data.
 	 */
@@ -445,10 +445,16 @@ class Paths {
 	/**
 	 * Get's the path of a script file.
 	 * @param file The mod path.
+	 * @param type Specify which script type.
 	 * @return `ModPath` ~ The path data.
 	 */
-	inline public static function script(file:ModPath):ModPath
-		return multExt(file, Script.exts);
+	inline public static function script(file:ModPath, type:ScriptType = TypeInvalid):ModPath {
+		return multExt(file, switch (type) {
+			case TypeHaxe: imaginative.backend.scripting.types.HaxeScript.exts;
+			case TypeLua: imaginative.backend.scripting.types.LuaScript.exts;
+			default: Script.exts;
+		});
+	}
 
 	/**
 	 * All possible font extension types.

@@ -155,8 +155,8 @@ final class HaxeScript extends Script {
 		super(file, code);
 
 	@:access(imaginative.backend.Console.formatLogInfo)
-	override function renderNecessities():Void {
-		rulescript.scriptName = pathing == null ? 'from string' : pathing.format();
+	override function loadNecessities():Void {
+		rulescript.scriptName = scriptPath == null ? 'from string' : scriptPath.format();
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
 		#if (neko || eval || display)
@@ -224,7 +224,7 @@ final class HaxeScript extends Script {
 			if (!Reflect.isFunction(thing))
 				savedVariables[name] = thing;
 		var oldParent:Dynamic = rulescript.superInstance;
-		renderScript(pathing);
+		renderScript(scriptPath);
 
 		for (name => thing in getScriptImports(this))
 			set(name, thing);

@@ -179,7 +179,7 @@ class EngineAsset {
 		// script related
 		if (scriptSupport.exists()) {
 			canHaxeScript.enable();
-			canLuaScript.enable();
+			// canLuaScript.enable();
 
 			disableDCE.enable();
 			scriptedStates.enable();
