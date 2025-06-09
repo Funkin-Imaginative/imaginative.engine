@@ -27,10 +27,7 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{
-			"name": "rulescript", "version": "git",
-			"url": "https://github.com/Kriptel/RuleScript"
-		},
+		{"name": "rulescript"},
 		{
 			"name": "linc_luajit", "version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"

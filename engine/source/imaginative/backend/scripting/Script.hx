@@ -235,7 +235,7 @@ class Script implements IFlxDestroyable implements IScript {
 	/**
 	 * Destroys the script instance when called.
 	 */
-	inline public function destroy():Void {
+	public function destroy():Void {
 		GlobalScript.call('scriptDestroyed', [this, type]);
 		if (scripts.contains(this))
 			scripts.remove(this);

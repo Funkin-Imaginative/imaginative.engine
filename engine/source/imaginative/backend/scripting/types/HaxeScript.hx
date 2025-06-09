@@ -246,10 +246,10 @@ final class HaxeScript extends Script {
 
 	override public function set(variable:String, value:Dynamic):Void
 		rulescript.variables.set(variable, value);
-	override public function get(variable:String, ?def:Dynamic):Dynamic
+	override public function get<T>(variable:String, ?def:T):T
 		return rulescript.variables.get(variable) ?? def;
 
-	override public function call(func:String, ?args:Array<Dynamic>):Dynamic {
+	override public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
 		if (interp == null || !rulescript.variables.exists(func))
 			return null;
 
