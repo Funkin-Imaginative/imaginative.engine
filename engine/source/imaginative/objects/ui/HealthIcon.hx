@@ -114,7 +114,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 
 				// remove previous icon scripts
 				scripts.call('onIconChange');
-				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.pathing.path.contains('global'));
+				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.scriptPath.path.contains('global'));
 				for (script in oldScripts)
 					if (scripts.members.contains(script)) {
 						scripts.remove(script);

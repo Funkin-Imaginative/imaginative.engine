@@ -3,7 +3,7 @@ package imaginative.backend.scripting.group;
 /**
  * This class is to utilize several scripts in a single place.
  */
-class ScriptGroup extends FlxBasic {
+class ScriptGroup implements IFlxDestroyable {
 	/**
 	 * `Array` of all the members in this group.
 	 */
@@ -22,10 +22,6 @@ class ScriptGroup extends FlxBasic {
 	inline function get_length():Int
 		return members.length;
 
-	/**
-	 * Public variables throughout the group.
-	 */
-	public var publicVars:Map<String, Dynamic> = new Map<String, Dynamic>();
 	/**
 	 * Shared variables throughout the group.
 	 */
@@ -61,7 +57,6 @@ class ScriptGroup extends FlxBasic {
 	}
 
 	public function new(?parent:Dynamic) {
-		super();
 		extraVars['importScript'] = importScript;
 		this.parent = parent;
 	}
@@ -163,7 +158,7 @@ class ScriptGroup extends FlxBasic {
 		members.remove(script);
 
 	function isDuplicate(script:Script):Bool {
-		var check:Script = getByPath(script.pathing.path);
+		var check:Script = getByPath(script.scriptPath.path);
 		var isDup:Bool = check != null;
 		if (isDup) script.end('onDuplicate');
 		return isDup;
@@ -171,7 +166,7 @@ class ScriptGroup extends FlxBasic {
 
 	function setupScript(script:Script):Void {
 		if (parent != null) script.parent = parent;
-		script.setPublicMap(publicVars);
+		// script.setPublicMap(publicVars);
 		for (name => thing in extraVars)
 			script.set(name, thing);
 	}
@@ -197,11 +192,10 @@ class ScriptGroup extends FlxBasic {
 		destroy();
 	}
 
-	override public function destroy():Void {
+	public function destroy():Void {
 		for (script in members)
 			if (script != null)
 				script.destroy();
-		super.destroy();
 	}
 
 	/**
@@ -212,7 +206,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByPath(path:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.pathing.path == path) {
+			if (script != null && script.scriptPath.path == path) {
 				result = script;
 				break;
 			}
@@ -226,7 +220,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByName(name:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.name == name) {
+			if (script != null && script.fileName == name) {
 				result = script;
 				break;
 			}
