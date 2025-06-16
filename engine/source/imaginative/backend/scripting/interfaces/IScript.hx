@@ -45,11 +45,6 @@ interface IScript {
 	 * Loads the script, pretty self-explanatory.
 	 */
 	function load():Void;
-	/**
-	 * Reloads the script, pretty self-explanatory.
-	 * Only if it's possible for that script type.
-	 */
-	function reload():Void;
 
 	/**
 	 * The parent object that the script is tied to.

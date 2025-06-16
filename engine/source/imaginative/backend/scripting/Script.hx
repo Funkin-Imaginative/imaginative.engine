@@ -127,7 +127,7 @@ class Script implements IFlxDestroyable implements IScript {
 	function new(file:ModPath, ?code:String):Void {
 		if (code == null)
 			scriptPath = file;
-		renderScript(scriptPath, code);
+		loadScriptCode(scriptPath, code);
 		loadNecessities();
 		if (code == null) {
 			scripts.push(this);
@@ -136,7 +136,7 @@ class Script implements IFlxDestroyable implements IScript {
 	}
 
 	var scriptCode(null, null):String = '';
-	function renderScript(file:ModPath, ?code:String):Void {
+	function loadScriptCode(file:ModPath, ?code:String):Void {
 		try {
 			scriptCode = code == null ? Assets.text(file) : code;
 		} catch(error:haxe.Exception) {
@@ -147,7 +147,7 @@ class Script implements IFlxDestroyable implements IScript {
 
 	function loadNecessities():Void {}
 
-	function loadCodeString(code:String):Void {}
+	function launchScript(code:String):Void {}
 
 	// /**
 	//  * Loads code from string.
@@ -173,14 +173,9 @@ class Script implements IFlxDestroyable implements IScript {
 	/**
 	 * Loads the script, pretty self-explanatory.
 	 */
-	public function load():Void
-		if (!loaded)
-			loadCodeString(scriptCode);
-	/**
-	 * Reloads the script, pretty self-explanatory.
-	 * Only if it's possible for that script type.
-	 */
-	public function reload():Void {}
+	inline public function load():Void
+		if (!loaded && canRun)
+			launchScript(scriptCode);
 
 	/**
 	 * The parent object that the script is tied to.
@@ -189,7 +184,7 @@ class Script implements IFlxDestroyable implements IScript {
 	function get_parent():Dynamic
 		return null;
 	function set_parent(value:Dynamic):Dynamic
-		return value = null;
+		return null;
 
 	/**
 	 * Sets a variable to the script.

@@ -1,9 +1,7 @@
 package imaginative.backend.scripting.types;
 
 #if CAN_HAXE_SCRIPT
-import hscript.Expr;
 import rulescript.RuleScript;
-import rulescript.RuleScriptInterp;
 import rulescript.parsers.HxParser;
 #end
 
@@ -17,14 +15,10 @@ final class HaxeScript extends Script {
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
-	var rulescript(default, null):RuleScript = new RuleScript();
-	var expr(default, null):Expr;
-	var interp(get, never):RuleScriptInterp;
-	inline function get_interp():RuleScriptInterp
-		return rulescript.interp;
-	var parser(get, never):HxParser;
-	inline function get_parser():HxParser
-		return rulescript.getParser(HxParser);
+	var internalScript(default, null):RuleScript;
+	var _parser(get, never):HxParser;
+	inline function get__parser():HxParser
+		return internalScript.getParser(HxParser);
 
 	static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
 		return [
@@ -138,9 +132,9 @@ final class HaxeScript extends Script {
 				return SpriteUtil.addBehind(obj, from, into),
 
 			'trace' => (value:Dynamic) ->
-				log(value, FromHaxe, script.interp.posInfos()),
+				log(value, FromHaxe, script.internalScript.interp.posInfos()),
 			'log' => (value:Dynamic, level:LogLevel = LogMessage) ->
-				log(value, level, FromHaxe, script.interp.posInfos()),
+				log(value, level, FromHaxe, script.internalScript.interp.posInfos()),
 
 			'disableScript' => () ->
 				script.active = false,
@@ -151,40 +145,43 @@ final class HaxeScript extends Script {
 	}
 
 	@:allow(imaginative.backend.scripting.Script.create)
-	override function new(file:ModPath, ?code:String)
+	override function new(file:ModPath, ?code:String) {
+		internalScript = new RuleScript();
 		super(file, code);
+	}
+
+	override function loadScriptCode(file:ModPath, ?code:String):Void {
+		super.loadScriptCode(file, code);
+		_parser.allowAll();
+	}
 
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadNecessities():Void {
-		rulescript.scriptName = scriptPath == null ? 'from string' : scriptPath.format();
+		internalScript.scriptName = scriptPath == null ? 'from string' : scriptPath.format();
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
 		#if (neko || eval || display)
 		for (tag => value in haxe.macro.Context.getDefines())
-			if (!rulescript.preprocesorValues.exists(tag))
-				rulescript.preprocesorValues.set(tag, value);
+			if (!_parser.preprocesorValues.exists(tag))
+				_parser.preprocesorValues.set(tag, value);
 		#end
-		rulescript.errorHandler = (error:haxe.Exception) -> {
-			_log(Console.formatLogInfo(error.message, ErrorMessage, rulescript.scriptName, parser.parser.line), ErrorMessage);
+		internalScript.errorHandler = (error:haxe.Exception) -> {
+			_log(Console.formatLogInfo(error.message, ErrorMessage, internalScript.scriptName, _parser.parser.line), ErrorMessage);
 			return error;
 		}
+		canRun = true;
 	}
 
-	override function renderScript(file:ModPath, ?code:String):Void {
-		parser.allowAll();
-
-		super.renderScript(file, code);
-	}
-	override function loadCodeString(code:String):Void {
+	override function launchScript(code:String):Void {
 		try {
 			if (!code.isNullOrEmpty()) {
-				expr = parser.parse(code);
-				canRun = true;
+				internalScript.tryExecute(code, internalScript.errorHandler);
+				loaded = true;
 				return;
-			}
+			} else _log('Script "${internalScript.scriptName}" is either null or empty.');
 		} catch(error:haxe.Exception)
-			rulescript.errorHandler(error);
-		canRun = false;
+			internalScript.errorHandler(error);
+		loaded = false;
 	}
 
 	/**
@@ -200,67 +197,32 @@ final class HaxeScript extends Script {
 		for (name => thing in vars)
 			script.set(name, thing);
 		script.load();
-		script.call(funcToRun, funcArgs ?? []);
+		script.call(funcToRun, funcArgs);
 		return script;
 	}
 
-	override public function load() {
-		super.load();
-		if (!loaded && canRun) {
-			try {
-				if (expr != null) {
-					rulescript.tryExecute(expr, rulescript.errorHandler);
-					loaded = true;
-					call('new');
-				}
-			} catch(error:haxe.Exception)
-				log('Error while trying to execute script: ${error.message}', ErrorMessage);
-		}
-	}
-	override public function reload():Void {
-		// save variables
-		var savedVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
-		for (name => thing in rulescript.variables)
-			if (!Reflect.isFunction(thing))
-				savedVariables[name] = thing;
-		var oldParent:Dynamic = rulescript.superInstance;
-		renderScript(scriptPath);
-
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
-
-		load();
-		parent = oldParent;
-
-		for (name => thing in savedVariables)
-			set(name, thing);
-	}
-
 	override function get_parent():Dynamic
-		return rulescript.superInstance;
+		return internalScript.superInstance;
 	override function set_parent(value:Dynamic):Dynamic
-		return rulescript.superInstance = value;
-
-	// override public function setPublicMap(map:Map<String, Dynamic>):Void
-	// 	interp.publicVariables = map;
+		return internalScript.superInstance = value;
 
 	override public function set(variable:String, value:Dynamic):Void
-		rulescript.variables.set(variable, value);
+		internalScript.variables.set(variable, value);
 	override public function get<T>(variable:String, ?def:T):T
-		return rulescript.variables.get(variable) ?? def;
+		return internalScript.variables.get(variable) ?? def;
 
 	override public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
-		if (interp == null || !rulescript.variables.exists(func))
-			return null;
+		if (!active && internalScript.interp == null || !internalScript.variables.exists(func))
+			return def;
 
 		var func = get(func);
 		if (func != null && Reflect.isFunction(func))
 			try {
-				return Reflect.callMethod(null, func, args ?? []);
+				return Reflect.callMethod(null, func, args ?? []) ?? def;
 			} catch(error:haxe.Exception)
 				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
 
-		return null;
+		return def;
 	}
 	override public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		event.returnCall = call(func, [event]);
@@ -268,7 +230,7 @@ final class HaxeScript extends Script {
 	}
 
 	override public function destroy():Void {
-		rulescript = null;
+		internalScript = null;
 		super.destroy();
 	}
 	#else
