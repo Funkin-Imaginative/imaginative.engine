@@ -27,10 +27,7 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{
-			"name": "hscript-improved", "version": "git", "branch": "custom-classes",
-			"url": "https://github.com/CodenameCrew/hscript-improved"
-		},
+		{"name": "rulescript"},
 		{
 			"name": "linc_luajit", "version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"
@@ -50,7 +47,7 @@
 	],
 	"questions": [
 		{
-			"name": "hscript-improved",
+			"name": "rulescript",
 			"description": "include haxe scripting support"
 		},
 		{

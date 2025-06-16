@@ -3,7 +3,7 @@ package imaginative.backend.scripting.group;
 /**
  * This class is to utilize several scripts in a single place.
  */
-class ScriptGroup extends FlxBasic {
+class ScriptGroup implements IFlxDestroyable {
 	/**
 	 * `Array` of all the members in this group.
 	 */
@@ -22,10 +22,6 @@ class ScriptGroup extends FlxBasic {
 	inline function get_length():Int
 		return members.length;
 
-	/**
-	 * Public variables throughout the group.
-	 */
-	public var publicVars:Map<String, Dynamic> = new Map<String, Dynamic>();
 	/**
 	 * Shared variables throughout the group.
 	 */
@@ -61,7 +57,6 @@ class ScriptGroup extends FlxBasic {
 	}
 
 	public function new(?parent:Dynamic) {
-		super();
 		extraVars['importScript'] = importScript;
 		this.parent = parent;
 	}
@@ -77,14 +72,6 @@ class ScriptGroup extends FlxBasic {
 			if (script != null)
 				script.load();
 	}
-	/**
-	 * Reload's the scripts in the group, pretty self-explanatory.
-	 * Only if it's possible for that script type.
-	 */
-	public function reload():Void
-		for (script in members)
-			if (script != null)
-				script.reload();
 
 	/**
 	 * Sets a variable to the script.
@@ -92,43 +79,52 @@ class ScriptGroup extends FlxBasic {
 	 * @param value The value the variable will hold.
 	 */
 	public function set(variable:String, value:Dynamic):Void
-		for (script in members)
-			if (script != null)
-				script.set(variable, value);
+		for (script in members) {
+			if (script == null) continue;
+			script.set(variable, value);
+		}
 	/**
-	 * Get's a variable from the script.
+	 * Gets a variable from the script.
 	 * @param variable The variable to receive.
 	 * @param def If it's null then return this.
-	 * @return `Dynamic` ~ The value the variable will hold.
+	 * @return `T` ~ The value the variable will hold.
 	 */
-	public function get(variable:String, ?def:Dynamic):Dynamic {
-		for (script in members)
-			if (script != null)
-				return script.get(variable);
-		return def;
+	public function get<T>(variable:String, ?def:T):T {
+		var returnCall:T = null;
+		for (script in members) {
+			if (script == null) continue;
+			var returned:T = script.get(variable, def);
+			if (returned != null) returnCall = returned;
+		}
+		return returnCall ?? def;
 	}
 	/**
-	 * Call's a function in the script instance.
+	 * Calls a function in the script instance.
 	 * @param func Name of the function to call.
 	 * @param args Arguments of said function.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * @param def If your using this to return something, then this would be if it returns null.
+	 * @return `T` ~ Whatever is in the functions return statement.
 	 */
-	public function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		for (script in members)
-			if (script != null)
-				return script.call(func, args);
-		return def;
+	public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
+		var returnCall:T = null;
+		for (script in members) {
+			if (script == null) continue;
+			var returned:T = script.call(func, args);
+			if (returned != null) returnCall = returned;
+		}
+		return returnCall ?? def;
 	}
 	/**
-	 * Call's a function in the script instance and triggers an event.
+	 * Calls a function in the script instance and triggers an event.
 	 * @param func Name of the function to call.
 	 * @param event The event class.
 	 * @return `ScriptEvent`
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		for (script in members) {
-			if (!script.active) continue;
-			event.returnCall = call(func, [event]);
+			if (script == null) continue;
+			var returned:Dynamic = call(func, [event]);
+			if (returned != null) event.returnCall = returned;
 			if (event.prevented && !event.continueLoop) break;
 		}
 		return event;
@@ -163,7 +159,7 @@ class ScriptGroup extends FlxBasic {
 		members.remove(script);
 
 	function isDuplicate(script:Script):Bool {
-		var check:Script = getByPath(script.pathing.path);
+		var check:Script = getByPath(script.scriptPath.path);
 		var isDup:Bool = check != null;
 		if (isDup) script.end('onDuplicate');
 		return isDup;
@@ -171,7 +167,6 @@ class ScriptGroup extends FlxBasic {
 
 	function setupScript(script:Script):Void {
 		if (parent != null) script.parent = parent;
-		script.setPublicMap(publicVars);
 		for (name => thing in extraVars)
 			script.set(name, thing);
 	}
@@ -197,11 +192,13 @@ class ScriptGroup extends FlxBasic {
 		destroy();
 	}
 
-	override public function destroy():Void {
+	/**
+	 * Destroys the script group when called.
+	 */
+	public function destroy():Void {
 		for (script in members)
 			if (script != null)
 				script.destroy();
-		super.destroy();
 	}
 
 	/**
@@ -212,7 +209,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByPath(path:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.pathing.path == path) {
+			if (script != null && script.scriptPath.path == path) {
 				result = script;
 				break;
 			}
@@ -226,7 +223,7 @@ class ScriptGroup extends FlxBasic {
 	public function getByName(name:String):Script {
 		var result:Script = null;
 		for (script in members)
-			if (script != null && script.name == name) {
+			if (script != null && script.fileName == name) {
 				result = script;
 				break;
 			}
