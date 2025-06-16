@@ -331,22 +331,18 @@ class ArrowField extends BeatGroup {
 		if (hasHit) {
 			var activeNotes:Array<Note> = Note.filterNotes(notes.members, i);
 			if (!activeNotes.empty()) {
-				for (note in activeNotes) {
-					var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
-					if (activeNotes.length > 2) {
-						var backNote:Note = activeNotes[1];
-						if (backNote.id == frontNote.id) {
-							if (Math.abs(backNote.time - frontNote.time) < 1.0) {
-								var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
-								var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
-								deadNote.canDie = true;
-								frontNote = liveNote;
-							} else if (backNote.time < frontNote.time)
-								frontNote = backNote;
-						}
-					}
-					_onNoteHit(frontNote, i);
+				var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
+				if (activeNotes.length > 2) {
+					var backNote:Note = activeNotes[1];
+					if (Math.abs(backNote.time - frontNote.time) < 1.0) {
+						var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
+						var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
+						deadNote.canDie = true;
+						frontNote = liveNote;
+					} else if (backNote.time < frontNote.time)
+						frontNote = backNote;
 				}
+				_onNoteHit(frontNote, i);
 			} else {
 				// void hits (random key presses / ghost tapping)
 				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
