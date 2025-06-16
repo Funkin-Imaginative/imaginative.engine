@@ -251,9 +251,13 @@ class Assets {
 	 */
 	inline public static function text(file:ModPath):String {
 		var finalPath:String = file.format();
-		var sysContent:Null<String> = Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : null;
-		var limeContent:Null<String> = Paths.fileExists(file) ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
-		return sysContent ?? limeContent ?? '';
+		try {
+			var sysContent:Null<String> = Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : null;
+			var limeContent:Null<String> = Paths.fileExists(file) ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
+			return sysContent ?? limeContent ?? '';
+		} catch(error:haxe.Exception) {
+			return Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : '';
+		}
 	}
 	/**
 	 * Parse's json data.
