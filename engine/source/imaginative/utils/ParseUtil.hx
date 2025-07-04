@@ -4,7 +4,7 @@ import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
-@:runtimeValue abstract JsonDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
+abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
 	@:to inline public function toInt():Int {
 		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
 		return switch (Type.getClass(target)) {
@@ -39,7 +39,63 @@ import imaginative.states.editors.ChartEditor.ChartData;
 		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
 }
 
-typedef AllowedModesTyping = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+abstract ParseColor(String) {
+	public var red(get, set):Int;
+	inline function get_red():Int
+		return toFlxColor().red;
+	inline function set_red(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.red = value;
+		this = fromFlxColor(color);
+		return color.red;
+	}
+	public var green(get, set):Int;
+	inline function get_green():Int
+		return toFlxColor().green;
+	inline function set_green(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.green = value;
+		this = fromFlxColor(color);
+		return color.green;
+	}
+	public var blue(get, set):Int;
+	inline function get_blue():Int
+		return toFlxColor().blue;
+	inline function set_blue(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.blue = value;
+		this = fromFlxColor(color);
+		return color.blue;
+	}
+
+	inline public function nullCheck(nullColor:ParseColor):ParseColor
+		return this ??= nullColor;
+
+	@:from inline public static function fromString(from:String):ParseColor
+		return cast FlxColor.fromString(from ?? 'white').toWebString();
+	@:to inline public function toString():String
+		return this ?? '#FFFFFF';
+
+	@:from inline public static function fromInt(from:Int):ParseColor
+		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
+	@:to inline public function toInt():Int
+		return FlxColor.fromString(this ?? 'white');
+
+	@:from inline public static function fromFlxColor(from:FlxColor):ParseColor
+		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
+	@:to inline public function toFlxColor():FlxColor
+		return FlxColor.fromString(this ?? 'white');
+
+	@:from inline public static function fromArray(from:Array<Int>):ParseColor
+		return fromInt(FlxColor.fromRGB(from[0] ?? 255, from[1] ?? 255, from[2] ?? 255));
+	@:to inline public function toArray():Array<Int> {
+		var color:FlxColor = toFlxColor();
+		return [color.red ?? 255, color.green ?? 255, color.blue ?? 255];
+	}
+}
+
+typedef GamemodesTyping = {
 	/**
 	 * If true, this song allows you to play as the enemy.
 	 */
@@ -58,9 +114,9 @@ typedef AllowedModesTyping = {
 	/**
 	 * The data contents.
 	 */
-	public var data:JsonDynamic;
+	public var data:ParseDynamic;
 
-	public function new(name:String, ?data:JsonDynamic) {
+	public function new(name:String, ?data:ParseDynamic) {
 		this.name = name;
 		this.data = data;
 	}
@@ -101,17 +157,15 @@ class ParseUtil {
 		var jsonPath:ModPath = Paths.level(name);
 		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
-			data.flip = data.flip ?? ((i + 1) > Math.floor(contents.objects.length / 2));
-			if (data.offsets == null) data.offsets = new Position();
-			data.size = data.size ?? 1;
-			data.willHey = data.willHey ?? (i == Math.floor(contents.objects.length / 2));
+			data.flip ??= ((i + 1) > Math.floor(contents.objects.length / 2));
+			data.willHey ??= (i == Math.floor(contents.objects.length / 2));
 		}
 		var songs:Array<SongData> = [
 			for (song in contents.songs)
 				ParseUtil.song(song)
 		];
 		for (song in songs)
-			song.color = song.color == null ? FlxColor.fromString(contents.color) : song.color;
+			song.color = song.color == null ? contents.color : song.color;
 		return {
 			name: name.path,
 			title: contents.title,
@@ -129,7 +183,7 @@ class ParseUtil {
 					variant.toLowerCase()
 			],
 			objects: contents.objects,
-			color: FlxColor.fromString(contents.color)
+			color: contents.color.nullCheck('#F9CF51')
 		}
 	}
 
@@ -146,7 +200,7 @@ class ParseUtil {
 
 		var charData:CharacterData = null;
 		if (type == IsCharacterSprite && Reflect.hasField(tempData, 'character')) {
-			var gottenData:CharacterParse = null;
+			var gottenData:CharacterData = null;
 			var typeData:SpriteData = typeData;
 			try {
 				gottenData = json(jsonPath).character;
@@ -262,7 +316,7 @@ class ParseUtil {
 		var contents:SongParse = new JsonParser<SongParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,
-			folder: contents.folder,
+			folder: name.path,
 			icon: contents.icon,
 			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
@@ -276,7 +330,7 @@ class ParseUtil {
 				])
 					variant.toLowerCase()
 			],
-			color: contents.color != null ? FlxColor.fromString(contents.color) : null,
+			color: contents.color,
 			allowedModes: contents.allowedModes
 		}
 	}

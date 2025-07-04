@@ -6,6 +6,7 @@ class EngineProcess extends BeatState {
 	}
 
 	override public function create():Void {
+		FlxG.fixedTimestep = false;
 		FlxSprite.defaultAntialiasing = true;
 		Console.init();
 		Assets.init();

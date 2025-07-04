@@ -2,13 +2,12 @@ package imaginative.objects.holders;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef SongParse = {
-	var folder:String;
 	var icon:String;
 	var ?startingDiff:Int;
 	var difficulties:Array<String>;
 	var ?variants:Array<String>;
-	var ?color:String;
-	var allowedModes:AllowedModesTyping;
+	var ?color:ParseColor;
+	var allowedModes:GamemodesTyping;
 }
 typedef SongData = {
 	/**
@@ -38,11 +37,11 @@ typedef SongData = {
 	/**
 	 * The song color.
 	 */
-	var ?color:FlxColor;
+	var ?color:ParseColor;
 	/**
 	 * Allowed modes for the song.
 	 */
-	var allowedModes:AllowedModesTyping;
+	var allowedModes:GamemodesTyping;
 }
 
 class SongHolder extends BeatSpriteGroup {

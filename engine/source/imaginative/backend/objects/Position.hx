@@ -3,7 +3,7 @@ package imaginative.backend.objects;
 /**
  * Basically TypeXY but forced to be a Float.
  */
-@:structInit class Position {
+class Position {
 	/**
 	 * The X position.
 	 */

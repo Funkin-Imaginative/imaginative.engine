@@ -159,7 +159,7 @@ class EngineAsset {
 				setDefine('macos');
 			}
 		} else {
-			error('Hey this engine only works on desktop and android devices!');
+			error('Hey this engine only works on desktop and mobile devices!');
 			return;
 		}
 
@@ -299,8 +299,6 @@ class EngineAsset {
 
 		if (disableDCE.exists())
 			addHaxeFlag('-dce no');
-
-		setHaxedef('no-deprecation-warnings'); // May remove?
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');

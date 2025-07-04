@@ -12,11 +12,11 @@ typedef ObjectTyping = {
 	/**
 	 * Should the object be flipped?
 	 */
-	@:default(false) var flip:Bool;
+	var ?flip:Bool;
 	/**
 	 * Position offsets.
 	 */
-	@:default({x: 0, y: 0}) var offsets:Position;
+	@:default(new imaginative.backend.objects.Position()) var offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
@@ -24,18 +24,18 @@ typedef ObjectTyping = {
 	/**
 	 * Will is play a cheer animation when entering the week?
 	 */
-	@:default(false) var willHey:Bool;
+	var ?willHey:Bool;
 }
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef LevelParse = {
-	var title:String;
+	@:default('No Title Value') var title:String;
 	var songs:Array<String>;
 	var ?startingDiff:Int;
 	var difficulties:Array<String>;
 	var ?variants:Array<String>;
 	var objects:Array<ObjectTyping>;
-	@:default('#F9CF51') var color:String;
+	@:default('#F9CF51') var color:ParseColor;
 }
 typedef LevelData = {
 	/**
@@ -53,7 +53,7 @@ typedef LevelData = {
 	/**
 	 * Starting difficulty index.
 	 */
-	public var startingDiff:Int;
+	var startingDiff:Int;
 	/**
 	 * Difficulty listing.
 	 */
@@ -70,7 +70,7 @@ typedef LevelData = {
 	/**
 	 * Associated color.
 	 */
-	var color:FlxColor;
+	var color:ParseColor;
 }
 
 /**

@@ -3,7 +3,7 @@ package imaginative.backend.objects;
 /**
  * This class is adaptable since it utilizes <T> to change it's type definition.
  */
-@:structInit class TypeXY<T> {
+class TypeXY<T> {
 	/**
 	 * X
 	 */

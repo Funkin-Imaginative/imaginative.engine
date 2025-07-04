@@ -44,6 +44,7 @@ abstract CameraTarget(Position) from Position to Position {
 	}
 }
 
+@SuppressWarnings('checkstyle:CodeSimilarity')
 class FollowTargetSetup {
 	/**
 	 * The targets used for calculations.
@@ -218,7 +219,6 @@ class ZoomTargetSetup {
 	}
 }
 
-@SuppressWarnings('checkstyle:CodeSimilarity')
 class BaseCamera extends FlxCamera {
 	/**
 	 * The camera **id**, used for debugging purposes.
@@ -374,7 +374,7 @@ class BaseCamera extends FlxCamera {
 		zoom = FunkinUtil.lerp(zoom, finalValue.target, finalValue.lerp * finalValue.mult);
 	}
 
-	@:deprecated('Use setFollow instead.') // override used just for this lol
+	// @:deprecated('Use setFollow instead.') // override used just for this lol
 	@:noCompletion override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
 		super.follow(target, style, lerp);
 

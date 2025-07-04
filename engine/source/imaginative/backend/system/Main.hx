@@ -33,7 +33,13 @@ class Main extends Sprite {
 	#end
 
 	// TODO: Figure out how to do this without creating these variables.
+	/**
+	 * The initial window width.
+	 */
 	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
+	/**
+	 * The initial window height.
+	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
 	inline public function new():Void {

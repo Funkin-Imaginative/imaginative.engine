@@ -2,32 +2,24 @@ package imaginative.objects;
 
 import imaginative.backend.scripting.events.PointEvent;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef CharacterParse = {
-	@:default({x: 0, y: 0}) var camera:Position;
-	var ?color:String;
-	@:default('face') var icon:String;
-	@:default(4) var singlength:Float;
-	var ?vocals:Float;
-}
 typedef CharacterData = {
 	/**
 	 * The camera offset position.
 	 */
-	var camera:Position;
+	@:default(new imaginative.backend.objects.Position()) var camera:Position;
 	/**
 	 * The character's health bar color.
 	 */
-	var ?color:FlxColor;
+	var ?color:ParseColor;
 	/**
 	 * The character's icon.
 	 */
-	var icon:String;
+	@:default('face') var icon:String;
 	/**
 	 * The amount of time in seconds the animation can be forced to last.
 	 * If set to 0, the animation that is played, plays out normally.
 	 */
-	var singlength:Float;
+	@:default(4) var singlength:Float;
 	/**
 	 * The character's vocal suffix.
 	 * Leave blank to use their file name.
