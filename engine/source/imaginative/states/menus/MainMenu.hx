@@ -198,7 +198,7 @@ class MainMenu extends BeatState {
 
 			if (Controls.back) {
 				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
-				BeatState.switchState(new TitleScreen());
+				BeatState.switchState(() -> new TitleScreen());
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
@@ -238,9 +238,9 @@ class MainMenu extends BeatState {
 			if (!event.prevented)
 			switch (event.choice) {
 				case 'storymode':
-					BeatState.switchState(new StoryMenu());
+					BeatState.switchState(() -> new StoryMenu());
 				case 'freeplay':
-					BeatState.switchState(new FreeplayMenu());
+					BeatState.switchState(() -> new FreeplayMenu());
 				case 'donate':
 					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
 				case 'kickstarter':
@@ -249,9 +249,9 @@ class MainMenu extends BeatState {
 					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
 				case 'options':
 					selectionCooldown(0.4); // extend cooldown
-					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(new OptionsMenu()));
+					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
 				case 'credits':
-					BeatState.switchState(new CreditsMenu());
+					BeatState.switchState(() -> new CreditsMenu());
 			}
 			bgColor = bg.changeColor();
 		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));

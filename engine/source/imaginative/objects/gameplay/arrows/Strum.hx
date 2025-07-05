@@ -85,10 +85,6 @@ class Strum extends FlxSprite {
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
 		animation.addByPrefix('confirm-end', '$dir strum hold confirm', 24, false);
 
-		animation.onPlay.add((name:String, forced:Bool, reversed:Bool, frame:Int) -> {
-			centerOffsets();
-			centerOrigin();
-		});
 		animation.onFinish.add((name:String) -> {
 			if (doesAnimExist('$name-loop'))
 				playAnim('$name-loop');
@@ -127,6 +123,8 @@ class Strum extends FlxSprite {
 	public function playAnim(name:String, reset:Bool = false, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {
 			animation.play(name, force, reverse, frame);
+			centerOffsets();
+			centerOrigin();
 			if (reset)
 				lastHit = setField.conductor.time;
 			willReset = reset;

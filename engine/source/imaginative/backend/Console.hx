@@ -33,18 +33,18 @@ class Console {
 		if (!initialized) {
 			initialized = true;
 			ogTrace = Log.trace;
-			Log.trace = (value:Dynamic, ?infos:PosInfos) ->
+			@:privateAccess FlxG.log._standardTraceFunction = Log.trace = (value:Dynamic, ?infos:PosInfos) ->
 				log(value, infos);
 
-			LogFrontEnd.onLogs = (data:Dynamic, style:LogStyle, fireOnce:Bool) -> {
-				var level:LogLevel = LogMessage;
-				if (style == LogStyle.CONSOLE) level = SystemMessage;
-				else if (style == LogStyle.ERROR) level = ErrorMessage;
-				else if (style == LogStyle.NORMAL) level = SystemMessage;
-				else if (style == LogStyle.NOTICE) level = SystemMessage;
-				else if (style == LogStyle.WARNING) level = WarningMessage;
-				_log(data, level);
-			}
+			// FlxG.log.style.onLog = (data:Any, ?pos:PosInfos) -> {
+			// 	var level:LogLevel = LogMessage;
+			// 	if (style == LogStyle.CONSOLE) level = SystemMessage;
+			// 	else if (style == LogStyle.ERROR) level = ErrorMessage;
+			// 	else if (style == LogStyle.NORMAL) level = SystemMessage;
+			// 	else if (style == LogStyle.NOTICE) level = SystemMessage;
+			// 	else if (style == LogStyle.WARNING) level = WarningMessage;
+			// 	_log(data, level);
+			// }
 
 			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 		}

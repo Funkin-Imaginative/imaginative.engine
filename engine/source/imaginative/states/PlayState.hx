@@ -627,10 +627,7 @@ class PlayState extends BeatState {
 		camPoint.setPosition(startPosition.x, startPosition.y);
 		camGame.snapToTarget();
 		camGame.snapZoom();
-	}
 
-	override public function createPost():Void {
-		super.createPost();
 		scripts.call('createPost');
 	}
 
@@ -688,14 +685,14 @@ class PlayState extends BeatState {
 	function endSong():Void {
 		if (storyMode) {
 			if (storyIndex == songList.length - 1)
-				BeatState.switchState(new StoryMenu());
+				BeatState.switchState(() -> new StoryMenu());
 			else {
 				storyIndex++;
 				renderChart(songList[storyIndex], curDifficulty, curVariant);
 				BeatState.resetState();
 			}
 		} else {
-			BeatState.switchState(new FreeplayMenu());
+			BeatState.switchState(() -> new FreeplayMenu());
 		}
 	}
 

@@ -147,9 +147,6 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		return this;
 	}
 
-	override public function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
-		return cast super.makeSolid(width, height, color, unique, key);
-
 	// Where the BaseSprite class really begins.
 	/**
 	 * States the type of sprite this is.
@@ -334,7 +331,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 	override function initVars():Void {
 		super.initVars();
-		// _scaledFrameOffset = new FlxPoint();
+		_scaledFrameOffset = new FlxPoint();
 		animation = new BetterAnimationController(this);
 	}
 
@@ -487,21 +484,21 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	// for animation offsets
-	// var _scaledFrameOffset:FlxPoint;
+	var _scaledFrameOffset:FlxPoint;
 	function _getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
-		newRect ??= FlxRect.get();
+		var betterRect:BetterRect = cast newRect ??= FlxRect.get();
 		camera ??= FlxG.camera;
-		newRect.setPosition(x, y);
-		if (pixelPerfectPosition) newRect.floor();
+		betterRect.setPosition(x, y);
+		if (pixelPerfectPosition) betterRect.floor();
 
 		_scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
 		_scaledFrameOffset.set(getAnimationOffset().x * scale.x, getAnimationOffset().y * scale.y);
-		newRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
-		newRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
+		betterRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
+		betterRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
 
-		if (isPixelPerfectRender(camera)) newRect.floor();
-		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
-		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect, _scaledFrameOffset);
+		if (isPixelPerfectRender(camera)) betterRect.floor();
+		betterRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
+		return betterRect.newGetRotatedBounds(angle, _scaledOrigin, betterRect, _scaledFrameOffset);
 	}
 	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		if (__offsetFlip) {
@@ -514,7 +511,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	override function drawComplex(camera:FlxCamera):Void {
-		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
+		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
 		_matrix.translate(-origin.x, -origin.y);
 		_matrix.translate(-getAnimationOffset().x, -getAnimationOffset().y);
 		_matrix.scale(scale.x, scale.y);
@@ -543,14 +540,61 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
 
-		doAdditionalMatrixStuff(_matrix, camera);
-
-		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
 
 	override public function destroy():Void {
 		scripts.end();
-		// _scaledFrameOffset.put();
+		_scaledFrameOffset.put();
 		super.destroy();
+	}
+}
+
+class BetterRect extends FlxRect {
+	public function newGetRotatedBounds(degrees:Float, ?origin:FlxPoint, ?newRect:FlxRect, ?innerOffset:FlxPoint):FlxRect {
+		origin ??= FlxPoint.weak();
+		newRect ??= FlxRect.get();
+		innerOffset ??= FlxPoint.weak();
+
+		degrees = degrees % 360;
+		if (degrees == 0) {
+			newRect.set(x - innerOffset.x, y - innerOffset.y, width, height);
+			origin.putWeak();
+			innerOffset.putWeak();
+			return newRect;
+		}
+
+		if (degrees < 0)
+			degrees += 360;
+
+		var radians = FlxAngle.TO_RAD * degrees;
+		var cos = Math.cos(radians);
+		var sin = Math.sin(radians);
+
+		var left = -origin.x - innerOffset.x;
+		var top = -origin.y - innerOffset.y;
+		var right = -origin.x + width - innerOffset.x;
+		var bottom = -origin.y + height - innerOffset.y;
+		if (degrees < 90) {
+			newRect.x = x + origin.x + cos * left - sin * bottom;
+			newRect.y = y + origin.y + sin * left + cos * top;
+		} else if (degrees < 180) {
+			newRect.x = x + origin.x + cos * right - sin * bottom;
+			newRect.y = y + origin.y + sin * left + cos * bottom;
+		} else if (degrees < 270) {
+			newRect.x = x + origin.x + cos * right - sin * top;
+			newRect.y = y + origin.y + sin * right + cos * bottom;
+		} else {
+			newRect.x = x + origin.x + cos * left - sin * top;
+			newRect.y = y + origin.y + sin * right + cos * top;
+		}
+		// temp var, in case input rect is the output rect
+		var newHeight = Math.abs(cos * height) + Math.abs(sin * width);
+		newRect.width = Math.abs(cos * width) + Math.abs(sin * height);
+		newRect.height = newHeight;
+
+		origin.putWeak();
+		innerOffset.putWeak();
+		return newRect;
 	}
 }

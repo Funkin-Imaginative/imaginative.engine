@@ -62,7 +62,7 @@ class EngineProcess extends BeatState {
 
 				if (Controls.shortcutState) {
 					log('Heading to the MainMenu...', SystemMessage);
-					BeatState.switchState(new imaginative.states.menus.MainMenu());
+					BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
 					log('Successfully entered the MainMenu!', SystemMessage);
 				}
 
@@ -78,6 +78,6 @@ class EngineProcess extends BeatState {
 			}
 		});
 
-		BeatState.switchState(new StartScreen());
+		BeatState.switchState(() -> new StartScreen());
 	}
 }

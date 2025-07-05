@@ -49,7 +49,6 @@ class Assets {
 
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
-			graphic.dump();
 
 			loadedGraphics.remove(tag);
 			if (assetsInUse.contains(tag))
@@ -314,10 +313,10 @@ class Assets {
 
 		var sound:Sound = null;
 		if (Paths.fileExists('root:$path'))
-			sound = Sound.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getSound(Paths.removeBeginningSlash(path));
+			sound = Sound.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getSoundAddExtension(Paths.removeBeginningSlash(path));
 		if (sound == null) {
 			FlxG.log.error('No sound data from path "$path".');
-			return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
+			return beepWhenNull ? FlxAssets.getSoundAddExtension('flixel/sounds/beep') : null;
 		}
 
 		return listSound(path, sound);

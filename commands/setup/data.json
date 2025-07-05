@@ -3,13 +3,14 @@
 		{"name": "hxp"},
 
 		{
-			"name": "flixel-addons", "version": "git",
-			"url": "https://github.com/CodenameCrew/cne-flixel-addons",
+			"name": "flixel-addons",
 			"dependencies": [
 				{
-					"name": "flixel", "version": "git",
-					"url": "https://github.com/CodenameCrew/cne-flixel",
-					"dependencies": [{"name": "openfl"}, {"name": "lime"}]
+					"name": "flixel",
+					"dependencies": [
+						{"name": "openfl"},
+						{"name": "lime"}
+					]
 				}
 			]
 		},

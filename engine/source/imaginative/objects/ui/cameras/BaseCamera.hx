@@ -234,9 +234,6 @@ class BaseCamera extends FlxCamera {
 	 */
 	public var zoomTargets(default, null):ZoomTargetSetup;
 
-	inline override function set_followLerp(value:Float):Float
-		return followLerp = FlxMath.bound(value, 0, value);
-
 	/**
 	 * The camera follow multiplier.
 	 */
@@ -294,33 +291,34 @@ class BaseCamera extends FlxCamera {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (zoomEnabled && !paused)
+		if (zoomEnabled)
 			updateZoom(elapsed);
 		super.update(elapsed);
 	}
 
-	override public function updateFollow():Void {
+	override function updateFollow():Void {
 		if (deadzone == null) {
 			target.getMidpoint(_point);
 			_point.addPoint(followTargets.getFinalValue(false).target.toFlxPoint());
-			focusOn(_point);
+			_scrollTarget.set(_point.x - width * 0.5, _point.y - height * 0.5);
 		} else {
 			var edge:Float;
-			var finalValue:TargetSetup<CameraTarget> = followTargets.getFinalValue();
-			var targetPosition:Position = finalValue.target;
+			var targetPosition:Position = followTargets.getFinalValue().target;
 			var targetX:Float = targetPosition.x;
 			var targetY:Float = targetPosition.y;
 
 			if (style == SCREEN_BY_SCREEN) {
-				if (targetX >= (scroll.x + width))
-					_scrollTarget.x += width;
-				else if (targetX < scroll.x)
-					_scrollTarget.x -= width;
+				if (targetX >= viewRight)
+					_scrollTarget.x += viewWidth;
+				else if (targetX + target.width < viewLeft)
+					_scrollTarget.x -= viewWidth;
 
-				if (targetY >= (scroll.y + height))
-					_scrollTarget.y += height;
-				else if (targetY < scroll.y)
-					_scrollTarget.y -= height;
+				if (targetY >= viewBottom)
+					_scrollTarget.y += viewHeight;
+				else if (targetY + target.height < viewTop)
+					_scrollTarget.y -= viewHeight;
+				// without this we see weird behavior when switching to SCREEN_BY_SCREEN at arbitrary scroll positions
+				bindScrollPos(_scrollTarget);
 			} else {
 				edge = targetX - deadzone.x;
 				if (_scrollTarget.x > edge)
@@ -347,7 +345,7 @@ class BaseCamera extends FlxCamera {
 				_lastTargetPosition.x = camPos.x;
 				_lastTargetPosition.y = camPos.y;
 			} else */ if (target is FlxSprite) {
-				_lastTargetPosition ??= FlxPoint.get(target.x, target.y);
+				_lastTargetPosition ??= FlxPoint.get(target.x, target.y); // Creates this point.
 
 				_scrollTarget.x += (target.x - _lastTargetPosition.x) * followLead.x;
 				_scrollTarget.y += (target.y - _lastTargetPosition.y) * followLead.y;
@@ -355,13 +353,21 @@ class BaseCamera extends FlxCamera {
 				_lastTargetPosition.x = target.x;
 				_lastTargetPosition.y = target.y;
 			}
+		}
+	}
 
-			if ((followLerp * followSpeed) == Math.POSITIVE_INFINITY)
-				scroll.copyFrom(_scrollTarget);
-			else {
-				scroll.x = FunkinUtil.lerp(scroll.x, _scrollTarget.x, finalValue.lerp * finalValue.mult);
-				scroll.y = FunkinUtil.lerp(scroll.y, _scrollTarget.y, finalValue.lerp * finalValue.mult);
-			}
+	override function updateLerp(elapsed:Float):Void {
+		if ((followLerp * followSpeed) >= 1)
+			scroll.copyFrom(_scrollTarget); // no easing
+		else if ((followLerp * followSpeed) > 0.0) {
+			/* // Adjust lerp based on the current frame rate so lerp is less framerate dependant
+			final adjustedLerp = 1.0 - Math.pow(1.0 - followLerp, elapsed * 60);
+			scroll.x += (_scrollTarget.x - scroll.x) * adjustedLerp;
+			scroll.y += (_scrollTarget.y - scroll.y) * adjustedLerp; */
+
+			var finalValue:TargetSetup<CameraTarget> = followTargets.getFinalValue();
+			scroll.x = FunkinUtil.lerp(scroll.x, _scrollTarget.x, finalValue.lerp * finalValue.mult);
+			scroll.y = FunkinUtil.lerp(scroll.y, _scrollTarget.y, finalValue.lerp * finalValue.mult);
 		}
 	}
 
@@ -373,10 +379,6 @@ class BaseCamera extends FlxCamera {
 		var finalValue:TargetSetup<Float> = zoomTargets.getFinalValue();
 		zoom = FunkinUtil.lerp(zoom, finalValue.target, finalValue.lerp * finalValue.mult);
 	}
-
-	// @:deprecated('Use setFollow instead.') // override used just for this lol
-	@:noCompletion override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
-		super.follow(target, style, lerp);
 
 	/**
 	 * Snaps the camera to the default zoom.

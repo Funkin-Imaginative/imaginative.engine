@@ -129,14 +129,14 @@ class StoryMenu extends BeatState {
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
 
-			arrow.animation.finishCallback = (name:String) -> {
+			arrow.animation.onFinish.add((name:String) -> {
 				switch (name) {
 					case 'confirm':
 						arrow.playAnim('idle');
 						arrow.centerOffsets();
 						arrow.centerOrigin();
 				}
-			}
+			});
 
 			arrow.scale.scale(0.85);
 			arrow.updateHitbox();
@@ -286,7 +286,7 @@ class StoryMenu extends BeatState {
 				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
 					event.playMenuSFX(CancelSFX);
-					BeatState.switchState(new MainMenu());
+					BeatState.switchState(() -> new MainMenu());
 				}
 			}
 			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
@@ -390,7 +390,7 @@ class StoryMenu extends BeatState {
 
 			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
-				BeatState.switchState(new PlayState());
+				BeatState.switchState(() -> new PlayState());
 			});
 		}
 	}

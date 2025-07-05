@@ -251,7 +251,7 @@ class FreeplayMenu extends BeatState {
 						scriptCall('onStopSongPreview');
 					} else {
 						event.playMenuSFX(CancelSFX);
-						BeatState.switchState(new MainMenu());
+						BeatState.switchState(() -> new MainMenu());
 					}
 				}
 			}
@@ -369,7 +369,7 @@ class FreeplayMenu extends BeatState {
 		} else {
 			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
-				BeatState.switchState(new PlayState());
+				BeatState.switchState(() -> new PlayState());
 			});
 		}
 	}

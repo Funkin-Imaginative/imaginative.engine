@@ -171,31 +171,44 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	/**
-	 * It's just FlxG.switchState.
+	 * It's just FlxG.switchState, but with stuff to accommodate for BeatState instances.
 	 * @param nextState The state to switch to.
 	 */
-	public static function switchState(nextState:FlxState):Void {
-		if (FlxG.state is BeatState && nextState is BeatState) {
-			var oldConductor:Conductor = cast(FlxG.state, BeatState).conductor;
-			var newConductor:Conductor = cast(nextState, BeatState).conductor;
-			if (oldConductor == Conductor.song)
-				oldConductor.pause();
-			else if (oldConductor != newConductor)
-				oldConductor.stop();
+	public static function switchState(nextState:Void->BeatState):Void {
+		inline function stateCheck(oldState:FlxState, newState:FlxState):FlxState {
+			if (oldState is BeatState && newState is BeatState) {
+				var oldConductor:Conductor = cast(oldState, BeatState).conductor;
+				if (oldConductor == Conductor.song || oldConductor == Conductor.charter)
+					oldConductor.pause();
+				else if (oldConductor != cast(newState, BeatState).conductor)
+					oldConductor.stop();
+			} else if (oldState is BeatState && !(newState is BeatState)) {
+				var oldConductor:Conductor = cast(oldState, BeatState).conductor;
+				if (oldConductor == Conductor.song || oldConductor == Conductor.charter)
+					oldConductor.pause();
+			}
+
+			return newState;
 		}
-		FlxG.switchState(nextState);
+
+		FlxG.switchState(() -> stateCheck(FlxG.state, nextState()));
 	}
 	/**
-	 * It's just FlxG.resetState.
+	 * It's just FlxG.resetState, but with stuff to accommodate for BeatState instances.
 	 */
-	public static function resetState():Void {
+	inline public static function resetState():Void {
 		if (FlxG.state is BeatState) {
 			var state:BeatState = cast FlxG.state;
 			state.onReset();
 			state.conductor.reset();
 		}
+		// switchState(resetConstructor());
 		FlxG.resetState();
 	}
+
+	// function resetConstructor():Void->FlxState {
+	// 	return Type.createInstance(Type.getClass(this), []);
+	// }
 
 	override public function create():Void {
 		#if FLX_DEBUG
@@ -215,10 +228,6 @@ class BeatState extends FlxState /* implements IBeat */ {
 		loadScript();
 		super.create();
 		scriptCall('create');
-	}
-	override public function createPost():Void {
-		super.createPost();
-		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {

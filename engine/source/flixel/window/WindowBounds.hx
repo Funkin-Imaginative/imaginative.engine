@@ -36,7 +36,7 @@ class WindowBounds extends FlxSprite {
 	override function new(parent:FlxWindow) {
 		this.parent = parent;
 		super(parent.x, parent.y);
-		makeSolid(Math.ceil(parent.width), Math.ceil(parent.height));
+		this.makeSolid(parent.width, parent.height);
 		FlxG.signals.postUpdate.add(() -> boundUpdate(FlxG.elapsed));
 	}
 

@@ -27,7 +27,7 @@ class PlatformUtil {
 	@:access(flixel.input.mouse.FlxMouse)
 	inline public static function mouseJustMoved(relativeToScreen:Bool = true):Bool {
 		if (relativeToScreen)
-			return FlxG.mouse._prevScreenX != FlxG.mouse.screenX || FlxG.mouse._prevScreenY != FlxG.mouse.screenY;
+			return FlxG.mouse._prevViewX != FlxG.mouse.viewX || FlxG.mouse._prevViewY != FlxG.mouse.viewY;
 		else
 			return FlxG.mouse.justMoved;
 	}

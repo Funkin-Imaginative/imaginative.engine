@@ -186,10 +186,6 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		super.create();
 		scriptCall('create');
 	}
-	override public function createPost():Void {
-		super.createPost();
-		scriptCall('createPost');
-	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {

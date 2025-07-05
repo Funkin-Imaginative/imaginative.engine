@@ -58,7 +58,7 @@ class StartScreen extends BeatState {
 				if (conductor.fadeTween != null)
 					if (conductor.fadeTween.active)
 						conductor.reset();
-			BeatState.switchState(new TitleScreen());
+			BeatState.switchState(() -> new TitleScreen());
 		}
 
 		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
@@ -66,7 +66,7 @@ class StartScreen extends BeatState {
 			canSelect = false;
 			FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);
 			conductor.fadeOut(3, (_:FlxTween) -> conductor.reset());
-			camera.fade(3.5, () -> BeatState.switchState(new TitleScreen()), true);
+			camera.fade(3.5, () -> BeatState.switchState(() -> new TitleScreen()), true);
 			FlxTween.completeTweensOf(camera); // skips the entry transition
 			FlxTween.tween(camera, {
 				'scroll.x': tweenAxes.x ? ((camera.scroll.x + camera.width) * (swapAxes.x ? -1 : 1)) : 0,

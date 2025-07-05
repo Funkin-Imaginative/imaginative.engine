@@ -239,6 +239,25 @@ class SpriteUtil {
 	}
 
 	/**
+	 * It's makeGraphic, but sets the scale to size the graphic.
+	 * @param sprite THe sprite to do this too.
+	 * @param width The wanted width.
+	 * @param height The wanted height.
+	 * @param color The wanted color.
+	 * @param unique If it should be unique.
+	 * @param key Custom key.
+	 * @return `T` ~ Current instance for chaining.
+	 */
+	inline public static function makeSolid<T:FlxSprite>(sprite:T, width:Float, height:Float, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T {
+		sprite.makeGraphic(1, 1, color, unique, key);
+		sprite.scale.set(width, height);
+		#if FLX_TRACK_GRAPHICS
+		sprite.graphic.trackingInfo = '${sprite.ID}.makeSolid($width, $height, ${color.toHexString()}, $unique, $key)';
+		#end
+		return sprite;
+	}
+
+	/**
 	 * Get's the dominant color of a sprite.
 	 * @param sprite The sprite to check.
 	 * @return `FlxColor` ~ The dominant color.
