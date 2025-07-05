@@ -15,6 +15,10 @@ enum abstract ScriptType(String) from String to String {
 	/**
 	 * States that this script instance is a haxe language script.
 	 */
+	var TypeSource = 'Source';
+	/**
+	 * States that this script instance is a haxe language script.
+	 */
 	var TypeHaxe = 'Haxe';
 	/**
 	 * States that this script instance is a lua language script.
@@ -120,6 +124,7 @@ class Script extends FlxBasic implements IScript {
 	inline function get_type():ScriptType {
 		return switch (this.getClassName()) {
 			case 'Script':        	TypeUnregistered;
+			case 'SourceScript':  	TypeSource;
 			case 'HaxeScript':    	TypeHaxe;
 			case 'LuaScript':     	TypeLua;
 			case 'InvalidScript': 	TypeInvalid;
