@@ -23,7 +23,7 @@ class Position {
 		set(x, y);
 
 	/**
-	 * Sets the X and Y.
+	 * Sets the X and Y position.
 	 * @param x The new X position.
 	 * @param y The new Y position.
 	 * @return `Position` ~ Current instance for chaining.
@@ -68,6 +68,22 @@ class Position {
 	 */
 	inline public function toFlxPoint(?point:FlxPoint):FlxPoint
 		return point == null ? FlxPoint.get(x, y) : point.set(x, y);
+
+	/**
+	 * Creates a Position instance from the x, y of an array.
+	 * @param array The array to get the position of.
+	 * @param position An optional Position to apply it to.
+	 *                 If you put a Position it won't create a new one.
+	 * @return `Position` ~ The created Position instance.
+	 */
+	inline public static function fromArray(array:Array<Float>, ?position:Position):Position
+		return position == null ? new Position(array[0], array[1]) : position.set(array[0], array[1]);
+	/**
+	 * Creates an array from the x, y of this Position instance.
+	 * @return `Array<Float>` ~ The created array.
+	 */
+	inline public function toArray():Array<Float>
+		return [x, y];
 
 	inline public function toString():String
 		return '{x: $x, y: $y}';
