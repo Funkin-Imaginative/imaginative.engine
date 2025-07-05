@@ -91,6 +91,10 @@ class EngineAsset {
 	 * States if the engine has modding support.
 	 */
 	static final modSupport:CompilerFlag = 'MOD_SUPPORT';
+	/**
+	 * States if the engine has animate atlas support.
+	 */
+	static final hasAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
 
 	/**
 	 * States if the engine has scripting support.
@@ -175,6 +179,8 @@ class EngineAsset {
 			checkForUpdates.enable();
 		modSupport.enable();
 		scriptSupport.enable();
+
+		// hasAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
@@ -272,6 +278,9 @@ class EngineAsset {
 		// the game engine
 		addHaxelib('flixel');
 		addHaxelib('flixel-addons');
+
+		if (hasAnimateAtlas.exists())
+			addHaxelib('flixel-animate');
 
 		// json parsing
 		addHaxelib('json2object', 'git');

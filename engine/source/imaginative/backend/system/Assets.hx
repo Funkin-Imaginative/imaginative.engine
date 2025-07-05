@@ -3,9 +3,13 @@ package imaginative.backend.system;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
+import moonchart.backend.Util as MoonUtil;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
+#if ANIMATE_SUPPORT
+import animate.FlxAnimateFrames;
+#end
 
 /**
  * This is mostly taken from Psych since idk what to actually do.
@@ -17,6 +21,19 @@ class Assets {
 		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
 		excludeAsset(Paths.music('main:freakyMenu'));
 		excludeAsset(Paths.music('main:breakfast'));
+
+		#if ANIMATE_SUPPORT
+		@:privateAccess {
+			FlxAnimateFrames.getTextFromPath = (path:String) -> return text('root:$path').replace(String.fromCharCode(0xFEFF), '');
+			FlxAnimateFrames.existsFile = (path:String, type:openfl.utils.AssetType) -> return Paths.fileExists('root:$path');
+			FlxAnimateFrames.listWithFilter = (path:String, filter:String->Bool) -> return [for (file in Paths.readFolder('root:$path')) file.format()].filter(filter);
+			FlxAnimateFrames.getGraphic = (path:String) -> return image('root:$path');
+		}
+		#end
+
+		MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
+		MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
+		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
 	}
 
 	/**
@@ -207,14 +224,20 @@ class Assets {
 	 */
 	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
-			if (Paths.fileExists(Paths.xml('${file.type}:images/${file.path}'))) type = IsSparrow;
-			if (Paths.fileExists(Paths.txt('${file.type}:images/${file.path}'))) type = IsPacker;
-			if (Paths.fileExists(Paths.json('${file.type}:images/${file.path}'))) type = IsAseprite;
+			if (Paths.fileExists(Paths.image(Paths.xml(file)))) type = IsSparrow;
+			if (Paths.fileExists(Paths.image(Paths.txt(file)))) type = IsPacker;
+			if (Paths.fileExists(Paths.image(Paths.json(file)))) type = IsAseprite;
+			#if ANIMATE_SUPPORT
+			if (Paths.fileExists(Paths.image(Paths.json('${file.type}:${file.path}/Animation')))) type = IsAnimateAtlas;
+			#end
 		}
 		return switch (type) {
 			case IsSparrow: getSparrowFrames(file);
 			case IsPacker: getPackerFrames(file);
 			case IsAseprite: getAsepriteFrames(file);
+			#if ANIMATE_SUPPORT
+			case IsAnimateAtlas: getAnimateAtlas(file);
+			#end
 			default: getSparrowFrames(file);
 		}
 	}
@@ -242,6 +265,18 @@ class Assets {
 	 */
 	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromAseprite(image(file), Paths.json('${file.type}:images/${file.path}'));
+	#if ANIMATE_SUPPORT
+	/**
+	 * Get's animate atlas data.
+	 * @param file The mod path.
+	 *             From `../images/`.
+	 * @return `FlxAnimateFrames` ~ The Atlas frame collection.
+	 */
+	inline public static function getAnimateAtlas(file:ModPath):FlxAnimateFrames {
+		var path:ModPath = Paths.image(file); path.pushExt(null);
+		return FlxAnimateFrames.fromAnimate(path.format());
+	}
+	#end
 
 	/**
 	 * Get's the content of a file containing text.

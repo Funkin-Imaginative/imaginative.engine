@@ -54,6 +54,12 @@ enum abstract TextureType(String) from String to String {
 	 * States that this sprite uses an sheet made in the aseprite pixel art software.
 	 */
 	var IsAseprite = 'Aseprite';
+	#if ANIMATE_SUPPORT
+	/**
+	 * States that this sprite uses an animate atlas.
+	 */
+	var IsAnimateAtlas = 'AnimateAtlas';
+	#end
 	/**
 	 * States that this sprite method is unknown.
 	 */
@@ -70,6 +76,9 @@ enum abstract TextureType(String) from String to String {
 			case IsPacker: 'txt';
 			case IsAseprite: 'json';
 			case IsGraphic: 'png';
+			#if ANIMATE_SUPPORT
+			case IsAnimateAtlas: '';
+			#end
 			default: IsUnknown;
 		}
 	}
@@ -85,6 +94,9 @@ enum abstract TextureType(String) from String to String {
 			case 'txt': IsPacker;
 			case 'json': IsAseprite;
 			case 'png': IsGraphic;
+			#if ANIMATE_SUPPORT
+			case '': IsAnimateAtlas;
+			#end
 			default: defaultIsUnknown ? IsUnknown : IsGraphic;
 		}
 	}

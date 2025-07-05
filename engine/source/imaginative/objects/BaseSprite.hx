@@ -1,6 +1,5 @@
 package imaginative.objects;
 
-import flixel.addons.effects.FlxSkewedSprite;
 import imaginative.animation.BetterAnimation;
 import imaginative.animation.BetterAnimationController;
 
@@ -58,9 +57,9 @@ typedef AnimationMapping = {
 }
 
 /**
- * This class is a version of FlxSkewedSprite but with animation support among other things.
+ * This is the base sprite you will use for most other sprites within the engine.
  */
-class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
+class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.addons.effects.FlxSkewedSprite #end implements ITexture<BaseSprite> {
 	// Cool variables.
 	/**
 	 * Custom update function.
