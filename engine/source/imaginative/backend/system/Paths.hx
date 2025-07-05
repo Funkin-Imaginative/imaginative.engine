@@ -62,7 +62,6 @@ enum abstract ModType(String) {
 		#end
 	}
 
-	#if MOD_SUPPORT
 	/**
 	 * `Excludes grouped types.`
 	 * @param path The root path.
@@ -92,13 +91,16 @@ enum abstract ModType(String) {
 	inline public static function pathCheck(wanted:ModType, incoming:ModType):Bool {
 		return switch (wanted) {
 			case ROOT: incoming == ROOT;
+			#if MOD_SUPPORT
 			case MAIN: incoming == null || incoming == MAIN || incoming == LEAD || incoming == NORM || incoming == ANY;
 			case SOLO: !Modding.soloIsMain && (incoming == SOLO || incoming == LEAD || incoming == MODDED || incoming == ANY);
 			case MOD: !Modding.isSoloOnly && (incoming == MOD || incoming == MODDED || incoming == NORM || incoming == ANY);
+			#end
 			default: false;
 		}
 	}
 
+	#if MOD_SUPPORT
 	/**
 	 * This function tells if the main mod is the current solo mod and judges appropriately.
 	 * @return `ModType`

@@ -476,8 +476,18 @@ class EngineAsset {
 	 * @param name The name of the library to add.
 	 * @param version The version of the library to add. Optional.
 	 */
-	inline public function addHaxelib(name:String, version:String = ''):Void
-		haxelibs.push(new Haxelib(name, version));
+	inline public function addHaxelib(name:String, ?version:LibraryVersion):Void {
+		var addLib:Bool = !FileSystem.exists('./.haxelib');
+		if (!addLib)
+			if (name != null && version != null)
+				addLib = FileSystem.exists('./.haxelib/$name/$version');
+			else if (name != null && version == null)
+				addLib = FileSystem.exists('./.haxelib/$name');
+		if (addLib) {
+			info('Added library "$name"${version == null ? '' : ' version "$version"'}.');
+			haxelibs.push(new Haxelib(name, version));
+		}
+	}
 
 	/**
 	 * Add a `haxeflag` to the project.
@@ -603,6 +613,11 @@ class EngineAsset {
 	inline public function info(message:String):Void
 		if (command != 'display')
 			Log.info('[INFO] $message');
+}
+
+abstract LibraryVersion(String) from String to String {
+	@:from inline public static function fromArray(from:Array<Int>):LibraryVersion
+		return from.join(',');
 }
 
 /**
