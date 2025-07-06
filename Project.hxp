@@ -94,7 +94,7 @@ class EngineAsset {
 	/**
 	 * States if the engine has animate atlas support.
 	 */
-	static final hasAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
+	static final usesAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
 
 	/**
 	 * States if the engine has scripting support.
@@ -174,13 +174,13 @@ class EngineAsset {
 		/* Define Setup */
 		// useTracy.enable();
 
-		knowsVersionID.enable();
+		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
-		modSupport.enable();
-		scriptSupport.enable();
+		// modSupport.enable();
+		// scriptSupport.enable();
 
-		// hasAnimateAtlas.enable();
+		// usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
@@ -279,7 +279,7 @@ class EngineAsset {
 		addHaxelib('flixel');
 		addHaxelib('flixel-addons');
 
-		if (hasAnimateAtlas.exists())
+		if (usesAnimateAtlas.exists())
 			addHaxelib('flixel-animate');
 
 		// json parsing
