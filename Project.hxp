@@ -177,7 +177,7 @@ class EngineAsset {
 		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
-		// modSupport.enable();
+		modSupport.enable();
 		// scriptSupport.enable();
 
 		// usesAnimateAtlas.enable();
@@ -196,7 +196,8 @@ class EngineAsset {
 		}
 		if (hasDefine('cpp')) {
 			// something was changed in latest and broke the system
-			// if (isDesktop()) discordRPC.enable();
+			// if (isDesktop())
+			// 	discordRPC.enable();
 			if (isDesktop() || isMobile())
 				allowVideos.enable();
 		}
@@ -311,10 +312,8 @@ class EngineAsset {
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
-		if (allowVideos.exists()) {
+		if (allowVideos.exists())
 			setHaxedef('HXVLC_NO_SHARE_DIRECTORY');
-			setenv('HAXEPATH', './');
-		}
 		if (canHaxeScript.exists())
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
@@ -329,8 +328,7 @@ class EngineAsset {
 			setHaxedef('absolute-paths'); // Fix source locations so Tracy can see them
 		}
 
-		// related to flixel cne fork
-		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
+		setenv('HAXEPATH', './');
 
 		// truly push assets
 		for (setAsset in EngineAsset.mapping) {
