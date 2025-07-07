@@ -167,6 +167,9 @@ class EngineAsset {
 			return;
 		}
 
+		if (FileSystem.exists('./.haxelib'))
+			setenv('HAXEPATH', './');
+
 		setDefine('official'); // idk how I'm gonna handle this atm
 
 		addIcon('./extras/art/logo.png');
@@ -178,9 +181,9 @@ class EngineAsset {
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
 		modSupport.enable();
-		// scriptSupport.enable();
+		scriptSupport.enable();
 
-		// usesAnimateAtlas.enable();
+		usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
@@ -327,8 +330,6 @@ class EngineAsset {
 			// setHaxedef('HXCPP_TRACY_INCLUDE_CALLSTACKS'); // Inspect callstacks per zone, inflating telemetry data
 			setHaxedef('absolute-paths'); // Fix source locations so Tracy can see them
 		}
-
-		setenv('HAXEPATH', './');
 
 		// truly push assets
 		for (setAsset in EngineAsset.mapping) {

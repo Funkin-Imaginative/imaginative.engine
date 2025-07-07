@@ -55,7 +55,7 @@ class ImaginativeHUD extends HUDTemplate {
 		return texts[2];
 	}
 	override function initStatsP2Text():FlxText {
-		return new FlxText('', 0); // to prevent crashes
+		return new FlxText(); // to prevent crashes
 	}
 
 	var range = {

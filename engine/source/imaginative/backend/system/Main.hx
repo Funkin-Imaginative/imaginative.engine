@@ -43,7 +43,6 @@ class Main extends Sprite {
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
 	public function new():Void {
-		trace('?????');
 		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
 		#if TRACY_DEBUGGER
 		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (_:openfl.events.Event) -> TracyProfiler.frameMark());

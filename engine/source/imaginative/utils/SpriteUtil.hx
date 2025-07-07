@@ -251,6 +251,7 @@ class SpriteUtil {
 	inline public static function makeSolid<T:FlxSprite>(sprite:T, width:Float, height:Float, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T {
 		sprite.makeGraphic(1, 1, color, unique, key);
 		sprite.scale.set(width, height);
+		sprite.updateHitbox();
 		#if FLX_TRACK_GRAPHICS
 		sprite.graphic.trackingInfo = '${sprite.ID}.makeSolid($width, $height, ${color.toHexString()}, $unique, $key)';
 		#end

@@ -485,19 +485,19 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 	// for animation offsets
 	var _scaledFrameOffset:FlxPoint;
 	function _getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
-		var betterRect:BetterRect = cast newRect ??= FlxRect.get();
-		camera ??= FlxG.camera;
-		betterRect.setPosition(x, y);
-		if (pixelPerfectPosition) betterRect.floor();
+		newRect ??= FlxRect.get();
+		camera ??= getDefaultCamera();
+		newRect.setPosition(x, y);
+		if (pixelPerfectPosition) newRect.floor();
 
 		_scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
 		_scaledFrameOffset.set(getAnimationOffset().x * scale.x, getAnimationOffset().y * scale.y);
-		betterRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
-		betterRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
+		newRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
+		newRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
 
-		if (isPixelPerfectRender(camera)) betterRect.floor();
-		betterRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
-		return betterRect.newGetRotatedBounds(angle, _scaledOrigin, betterRect, _scaledFrameOffset);
+		if (isPixelPerfectRender(camera)) newRect.floor();
+		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
+		return BetterRect.newGetRotatedBounds(newRect, angle, _scaledOrigin, newRect, _scaledFrameOffset);
 	}
 	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		if (__offsetFlip) {
@@ -550,14 +550,14 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 }
 
 class BetterRect extends FlxRect {
-	public function newGetRotatedBounds(degrees:Float, ?origin:FlxPoint, ?newRect:FlxRect, ?innerOffset:FlxPoint):FlxRect {
+	public static function newGetRotatedBounds(parent:FlxRect, degrees:Float, ?origin:FlxPoint, ?newRect:FlxRect, ?innerOffset:FlxPoint):FlxRect {
 		origin ??= FlxPoint.weak();
 		newRect ??= FlxRect.get();
 		innerOffset ??= FlxPoint.weak();
 
 		degrees = degrees % 360;
 		if (degrees == 0) {
-			newRect.set(x - innerOffset.x, y - innerOffset.y, width, height);
+			newRect.set(parent.x - innerOffset.x, parent.y - innerOffset.y, parent.width, parent.height);
 			origin.putWeak();
 			innerOffset.putWeak();
 			return newRect;
@@ -572,24 +572,24 @@ class BetterRect extends FlxRect {
 
 		var left = -origin.x - innerOffset.x;
 		var top = -origin.y - innerOffset.y;
-		var right = -origin.x + width - innerOffset.x;
-		var bottom = -origin.y + height - innerOffset.y;
+		var right = -origin.x + parent.width - innerOffset.x;
+		var bottom = -origin.y + parent.height - innerOffset.y;
 		if (degrees < 90) {
-			newRect.x = x + origin.x + cos * left - sin * bottom;
-			newRect.y = y + origin.y + sin * left + cos * top;
+			newRect.x = parent.x + origin.x + cos * left - sin * bottom;
+			newRect.y = parent.y + origin.y + sin * left + cos * top;
 		} else if (degrees < 180) {
-			newRect.x = x + origin.x + cos * right - sin * bottom;
-			newRect.y = y + origin.y + sin * left + cos * bottom;
+			newRect.x = parent.x + origin.x + cos * right - sin * bottom;
+			newRect.y = parent.y + origin.y + sin * left + cos * bottom;
 		} else if (degrees < 270) {
-			newRect.x = x + origin.x + cos * right - sin * top;
-			newRect.y = y + origin.y + sin * right + cos * bottom;
+			newRect.x = parent.x + origin.x + cos * right - sin * top;
+			newRect.y = parent.y + origin.y + sin * right + cos * bottom;
 		} else {
-			newRect.x = x + origin.x + cos * left - sin * top;
-			newRect.y = y + origin.y + sin * right + cos * top;
+			newRect.x = parent.x + origin.x + cos * left - sin * top;
+			newRect.y = parent.y + origin.y + sin * right + cos * top;
 		}
 		// temp var, in case input rect is the output rect
-		var newHeight = Math.abs(cos * height) + Math.abs(sin * width);
-		newRect.width = Math.abs(cos * width) + Math.abs(sin * height);
+		var newHeight = Math.abs(cos * parent.height) + Math.abs(sin * parent.width);
+		newRect.width = Math.abs(cos * parent.width) + Math.abs(sin * parent.height);
 		newRect.height = newHeight;
 
 		origin.putWeak();
