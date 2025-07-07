@@ -1,54 +1,62 @@
 {
 	"dependencies": [
-		{"name": "hxp"},
+		{ "name": "checkstyle", "version": "2.9.0" },
 
 		{
 			"name": "flixel-addons",
+			"version": "3.3.2",
 			"dependencies": [
 				{
 					"name": "flixel",
-					"dependencies": [
-						{"name": "openfl"},
-						{"name": "lime"}
-					]
+					"version": "6.1.0",
+					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
 				}
 			]
 		},
-		{"name": "flixel-animate", "dependencies": []},
+
+		{ "name": "flixel-animate", "version": "1.1.0", "dependencies": [] },
 
 		{
-			"name": "json2object", "version": "git",
-			"url": "https://github.com/FunkinCrew/json2object"
-		},
-		{"name": "checkstyle"},
-
-		{"name": "hxcpp-debug-server"},
-
-		{
-			"name": "moonchart", "version": "git", "branch": "imaginative",
-			"url": "https://github.com/Funkin-Imaginative/moonchart"
-		},
-
-		{
-			"name": "hscript-improved", "version": "git", "branch": "custom-classes",
+			"name": "hscript-improved",
+			"version": "git",
+			"branch": "custom-classes",
 			"url": "https://github.com/CodenameCrew/hscript-improved"
 		},
 		{
-			"name": "linc_luajit", "version": "git",
+			"name": "hxcpp",
+			"version": "git",
+			"branch": "v4.3.75",
+			"url": "https://github.com/HaxeFoundation/hxcpp"
+		},
+
+		{ "name": "hxcpp-debug-server", "version": "1.2.4" },
+		{ "name": "hxdiscord_rpc", "version": "1.3.0" },
+		{ "name": "hxp", "version": "1.3.0" },
+
+		{
+			"name": "hxvlc",
+			"version": "git",
+			"url": "https://github.com/MAJigsaw77/hxvlc",
+			"dependencies": []
+		},
+		{
+			"name": "json2object",
+			"version": "git",
+			"url": "https://github.com/FunkinCrew/json2object"
+		},
+		{
+			"name": "linc_luajit",
+			"version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"
 		},
-		{"name": "hxdiscord_rpc"},
 		{
-			"name": "hxvlc", "version": "git",
-			"url": "https://github.com/MAJigsaw77/hxvlc",
-			"dependencies": [
-				{
-					"name": "hxcpp", "version": "git", "branch": "v4.3.75",
-					"url": "https://github.com/HaxeFoundation/hxcpp"
-				}
-			]
+			"name": "moonchart",
+			"version": "git",
+			"branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
-		{"name": "thx.semver"}
+
+		{"name": "thx.semver", "version": "0.2.2" }
 	],
 	"questions": [
 		{

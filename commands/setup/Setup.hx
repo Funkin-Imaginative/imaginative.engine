@@ -109,7 +109,7 @@ class Setup {
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
 		var haxeVer:String = proc.stdout.readLine().toLowerCase().trim();
-		if (haxeVer != '4.3.6') {
+		if (haxeVer != '4.3.7') {
 			// check for outdated haxe
 			var curHaxeVer:Array<Int> = [
 				for (v in haxeVer.split('.'))
@@ -119,9 +119,9 @@ class Setup {
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
 					Sys.println('Your current Haxe version is outdated.');
-					Sys.println('You\'re using $haxeVer, while the required version is 4.3.6.');
+					Sys.println('You\'re using $haxeVer, while the required version is 4.3.7.');
 					Sys.println('The engine may or may not compile with your current version of Haxe.');
-					Sys.println('We recommend upgrading to 4.3.6!');
+					Sys.println('We recommend upgrading to 4.3.7!');
 					break;
 				}
 			}
