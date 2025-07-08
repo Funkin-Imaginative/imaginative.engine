@@ -94,6 +94,34 @@ class Main extends Sprite {
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
 	}
+
+	/**
+	 * Returns the framerate value based on your settings.
+	 * @return `Int` ~ Wanted framerate.
+	 */
+	inline public static function getFPS():Int {
+		return switch (Settings.setup.fpsType) {
+			case Custom: Settings.setup.fpsCap;
+			case Unlimited: 950; // not like you'll ever actually reach this
+			case Vsync: #if linux 60 #else FlxWindow.direct.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
+		}
+	}
+
+	/**
+	 * Sets the current framerate.
+	 * @param value The desired framerate.
+	 * @return `Int` ~ Desired framerate.
+	 */
+	inline public static function setFPS(value:Int):Int {
+		if (value > FlxG.drawFramerate) {
+			FlxG.updateFramerate = value;
+			FlxG.drawFramerate = value;
+		} else {
+			FlxG.drawFramerate = value;
+			FlxG.updateFramerate = value;
+		}
+		return value;
+	}
 }
 
 // TODO: Use these more later on.

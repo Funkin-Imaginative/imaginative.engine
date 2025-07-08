@@ -47,11 +47,11 @@ class EngineInfoText extends Sprite {
 
 		// TODO: Have it say the script file path.
 		text.text = [
-			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Settings.setup.getFPS()}'}',
+			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
 			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',
 			'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 		].join('\n');
-		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.direct.self.displayMode.refreshRate * 2 : Settings.setup.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
+		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.direct.self.displayMode.refreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
 
 		background.x = text.x;
 		background.y = text.y;
