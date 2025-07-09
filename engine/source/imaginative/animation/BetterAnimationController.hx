@@ -1,17 +1,17 @@
 package imaginative.animation;
 
+import flixel.animation.FlxAnimation;
 #if ANIMATE_SUPPORT
 import animate.FlxAnimateController as Controller;
-import animate.FlxAnimateController.FlxAnimateAnimation as Animation;
+import animate.internal.Timeline;
 #else
-import flixel.animation.FlxAnimation as Animation;
 import flixel.animation.FlxAnimationController as Controller;
 #end
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 private typedef Anim = {
 	var name:String;
-	var anim:Animation;
+	var anim:FlxAnimation;
 }
 
 class BetterAnimationController extends Controller {
@@ -26,7 +26,10 @@ class BetterAnimationController extends Controller {
 		for (anim in anims) {
 			_animations.remove(anim.name);
 			var newAnim:BetterAnimation = new BetterAnimation(this, anim.anim.name, anim.anim.frames, anim.anim.frameRate, anim.anim.looped, anim.anim.flipX, anim.anim.flipY);
-			#if ANIMATE_SUPPORT newAnim.timeline = anim.anim.timeline; #end
+			#if ANIMATE_SUPPORT
+			var flxAnim:animate.FlxAnimateController.FlxAnimateAnimation = cast anim.anim;
+			newAnim.timeline = flxAnim.timeline;
+			#end
 			_animations.set(anim.name, newAnim);
 			anim.anim.destroy();
 		}

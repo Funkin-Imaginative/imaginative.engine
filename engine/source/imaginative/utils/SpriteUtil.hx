@@ -160,7 +160,7 @@ class SpriteUtil {
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+	public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadTexture(newTexture);
 		else if (sprite is FlxSprite) {
@@ -184,7 +184,7 @@ class SpriteUtil {
 	 * @param height Grid height.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T {
+	public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadImage(newTexture, animated, width, height);
 		else if (sprite is FlxSprite)
@@ -201,7 +201,7 @@ class SpriteUtil {
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
-	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+	public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadSheet(newTexture);
 		else if (sprite is FlxSprite) {
@@ -220,6 +220,22 @@ class SpriteUtil {
 		}
 		return sprite;
 	}
+	#if ANIMATE_SUPPORT
+	/**
+	 * Load's an animate atlas for thr sprite to use.
+	 * @param sprite The sprite to affect.
+	 * @param newTexture The mod path.
+	 * @return `FlxAnimate` ~ Current instance for chaining.
+	 */
+	public static function loadAtlas<T:FlxAnimate>(sprite:T, newTexture:ModPath):T {
+		if (sprite is ITexture)
+			cast(sprite, ITexture<Dynamic>).loadAtlas(newTexture);
+		else if (sprite is FlxAnimate) {
+			//
+		}
+		return sprite;
+	}
+	#end
 
 	/**
 	 * Allows you to set a graphic size (ex: 150x150), with proper hitbox without a stretched sprite.

@@ -32,6 +32,14 @@ interface ITexture<T:FlxSprite> {
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	function loadSheet(newTexture:ModPath):T;
+	#if ANIMATE_SUPPORT
+	/**
+	 * Load's an animate atlas for thr sprite to use.
+	 * @param newTexture The mod path.
+	 * @return `FlxAnimate` ~ Current instance for chaining.
+	 */
+	function loadAtlas(newTexture:ModPath):T;
+	#end
 }
 
 /**

@@ -273,8 +273,10 @@ class Assets {
 	 * @return `FlxAnimateFrames` ~ The Atlas frame collection.
 	 */
 	inline public static function getAnimateAtlas(file:ModPath):FlxAnimateFrames {
-		var path:ModPath = Paths.image(file); path.pushExt(null);
-		return FlxAnimateFrames.fromAnimate(path.format());
+		var path:ModPath = Paths.image(Paths.json('${file.type}:${file.path}/Animation')); path.pushExt('png');
+		var finalPath = path.format();
+		trace(finalPath);
+		return FlxAnimateFrames.fromAnimate(finalPath);
 	}
 	#end
 

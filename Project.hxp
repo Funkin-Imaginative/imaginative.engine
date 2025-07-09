@@ -181,9 +181,9 @@ class EngineAsset {
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
 		modSupport.enable();
-		scriptSupport.enable();
+		// scriptSupport.enable();
 
-		usesAnimateAtlas.enable();
+		// usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {

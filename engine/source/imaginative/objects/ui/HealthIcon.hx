@@ -13,6 +13,10 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):HealthIcon
 		return cast super.loadSheet(newTexture);
+	#if ANIMATE_SUPPORT
+	override public function loadAtlas(newTexture:ModPath):HealthIcon
+		return cast super.loadAtlas(newTexture);
+	#end
 
 	// TODO: Write this better.
 	/**

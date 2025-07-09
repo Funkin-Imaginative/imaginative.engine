@@ -59,7 +59,7 @@ typedef AnimationMapping = {
 /**
  * This is the base sprite you will use for most other sprites within the engine.
  */
-class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.addons.effects.FlxSkewedSprite #end implements ITexture<BaseSprite> {
+class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite #end implements ITexture<BaseSprite> {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -92,6 +92,11 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 	}
 
 	/**
+	 * This is a shortcut the animation controller.
+	 */
+	public var animController(default, null):BetterAnimationController;
+
+	/**
 	 * Load's a sheet for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
@@ -102,6 +107,10 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 		if (Paths.fileExists(Paths.image(newTexture)))
 			try {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
+				#if ANIMATE_SUPPORT
+				else if (Paths.fileExists(Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation'))))
+					return loadAtlas(newTexture);
+				#end
 				else return loadImage(newTexture);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
@@ -145,6 +154,30 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 			else return loadImage(newTexture);
 		return this;
 	}
+	#if ANIMATE_SUPPORT
+	/**
+	 * Load's an animate atlas for thr sprite to use.
+	 * @param newTexture The mod path.
+	 * @return `BaseSprite` ~ Current instance for chaining.
+	 */
+	public function loadAtlas(newTexture:ModPath):BaseSprite {
+		var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
+		var jsonPath:ModPath = '${atlasPath.type}:${atlasPath.path}/Animation';
+		var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
+		if (Paths.fileExists(jsonPath)) {
+			try {
+				frames = Assets.frames(atlasPath, textureType);
+				resetTextures(atlasPath, textureType);
+			} catch(error:haxe.Exception)
+				try {
+					loadImage('${newTexture.type}:${newTexture.path}/spritemap1');
+				} catch(error:haxe.Exception)
+					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+
+		}
+		return this;
+	}
+	#end
 
 	// Where the BaseSprite class really begins.
 	/**
@@ -172,6 +205,10 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 			try {
 				if (inputData.asset.type == IsGraphic)
 					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+				#if ANIMATE_SUPPORT
+				else if (inputData.asset.type == IsAnimateAtlas)
+					loadAtlas(modPath);
+				#end
 				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
@@ -198,6 +235,11 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 							case IsSparrow | IsPacker | IsAseprite:
 								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							#if ANIMATE_SUPPORT
+							case IsAnimateAtlas:
+								if ((anim.indices ?? []).length > 0) anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
+								anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							#end
 							default:
 								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
@@ -331,7 +373,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 	override function initVars():Void {
 		super.initVars();
 		_scaledFrameOffset = new FlxPoint();
-		animation = new BetterAnimationController(this);
+		animation = #if ANIMATE_SUPPORT anim = #end animController = new BetterAnimationController(this);
 	}
 
 	function super_update(elapsed:Float):Void
@@ -515,22 +557,13 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else flixel.add
 		_matrix.translate(-getAnimationOffset().x, -getAnimationOffset().y);
 		_matrix.scale(scale.x, scale.y);
 
-		if (matrixExposed)
-
-			_matrix.concat(transformMatrix);
-
-		else {
-			if (bakedRotationAngle <= 0) {
-				updateTrig();
-				if (angle != 0)
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-			}
-
-			updateSkewMatrix();
-			_matrix.concat(_skewMatrix);
+		if (bakedRotationAngle <= 0) {
+			updateTrig();
+			if (angle != 0)
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 		}
 
-		getScreenPosition(_point, camera).subtractPoint(offset);
+		getScreenPosition(_point, camera).subtract(offset);
 		_point.add(origin.x, origin.y);
 		_matrix.translate(_point.x, _point.y);
 

@@ -24,6 +24,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):BeatSprite
 		return cast super.loadSheet(newTexture);
+	#if ANIMATE_SUPPORT
+	override public function loadAtlas(newTexture:ModPath):BeatSprite
+		return cast super.loadAtlas(newTexture);
+	#end
 
 	/**
 	 * The amount of beats it takes to trigger the dance.
