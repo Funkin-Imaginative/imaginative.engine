@@ -155,7 +155,7 @@ enum abstract SpriteType(String) from String to String {
 
 class SpriteUtil {
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
@@ -168,8 +168,12 @@ class SpriteUtil {
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
 			if (Paths.fileExists(Paths.image(newTexture)))
 				try {
-					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
-					else loadImage(sprite, newTexture);
+					if (Paths.spriteSheetExists(newTexture)) return loadSheet(sprite, newTexture);
+					/* #if ANIMATE_SUPPORT
+					else if (sprite is FlxAnimate && Paths.fileExists(Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation'))))
+						return loadAtlas(cast(sprite, FlxAnimate), newTexture);
+					#end */
+					else return loadImage(sprite, newTexture);
 				} catch(error:haxe.Exception)
 					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 		}
@@ -196,7 +200,7 @@ class SpriteUtil {
 		return sprite;
 	}
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Load's a sheet for the sprite to use.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
@@ -213,16 +217,16 @@ class SpriteUtil {
 						sprite.frames = Assets.frames(newTexture, textureType);
 					} catch(error:haxe.Exception)
 						try {
-							loadImage(sprite, newTexture);
+							loadImage(sprite, newTexture); // failsafe for if the pack data ins't found
 						} catch(error:haxe.Exception)
 							log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
-				else loadImage(sprite, newTexture);
+				else return loadImage(sprite, newTexture);
 		}
 		return sprite;
 	}
 	#if ANIMATE_SUPPORT
 	/**
-	 * Load's an animate atlas for thr sprite to use.
+	 * Load's an animate atlas for the sprite to use.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
 	 * @return `FlxAnimate` ~ Current instance for chaining.
@@ -231,7 +235,18 @@ class SpriteUtil {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadAtlas(newTexture);
 		else if (sprite is FlxAnimate) {
-			//
+			var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
+			var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
+			var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
+			if (Paths.fileExists(jsonPath)) {
+				try {
+					sprite.frames = Assets.frames(atlasPath, textureType);
+				} catch(error:haxe.Exception)
+					try {
+						loadImage(sprite, '${newTexture.type}:${newTexture.path}/spritemap1'); // failsafe for if the pack data ins't found
+					} catch(error:haxe.Exception)
+						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+			}
 		}
 		return sprite;
 	}

@@ -97,7 +97,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public var animController(default, null):BetterAnimationController;
 
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
@@ -134,7 +134,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		return this;
 	}
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Load's a sheet for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
@@ -148,7 +148,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 					resetTextures(Paths.image(newTexture), textureType);
 				} catch(error:haxe.Exception)
 					try {
-						loadImage(newTexture);
+						loadImage(newTexture); // failsafe for if the pack data ins't found
 					} catch(error:haxe.Exception)
 						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 			else return loadImage(newTexture);
@@ -156,13 +156,13 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 	#if ANIMATE_SUPPORT
 	/**
-	 * Load's an animate atlas for thr sprite to use.
+	 * Load's an animate atlas for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `BaseSprite` ~ Current instance for chaining.
 	 */
 	public function loadAtlas(newTexture:ModPath):BaseSprite {
 		var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
-		var jsonPath:ModPath = '${atlasPath.type}:${atlasPath.path}/Animation';
+		var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
 		var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
 		if (Paths.fileExists(jsonPath)) {
 			try {
@@ -170,10 +170,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 				resetTextures(atlasPath, textureType);
 			} catch(error:haxe.Exception)
 				try {
-					loadImage('${newTexture.type}:${newTexture.path}/spritemap1');
+					loadImage('${newTexture.type}:${newTexture.path}/spritemap1'); // failsafe for if the pack data ins't found
 				} catch(error:haxe.Exception)
 					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
-
 		}
 		return this;
 	}
@@ -237,8 +236,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 							#if ANIMATE_SUPPORT
 							case IsAnimateAtlas:
-								if ((anim.indices ?? []).length > 0) anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
-								anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								if ((anim.indices ?? []).length > 0) this.anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
+								this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 							#end
 							default:
 								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);

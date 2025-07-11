@@ -109,6 +109,9 @@ using imaginative.utils.FunkinUtil;
 using imaginative.utils.SpriteUtil;
 
 /* Libs */
+#if ANIMATE_SUPPORT
+import animate.FlxAnimate;
+#end
 #if ALLOW_VIDEOS
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;

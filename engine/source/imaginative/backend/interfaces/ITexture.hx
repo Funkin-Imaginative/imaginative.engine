@@ -12,7 +12,7 @@ interface ITexture<T:FlxSprite> {
 	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):Void;
 
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Load's a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
@@ -27,14 +27,14 @@ interface ITexture<T:FlxSprite> {
 	 */
 	function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T;
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Load's a sheet for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `FlxSprite` ~ Current instance for chaining.
 	 */
 	function loadSheet(newTexture:ModPath):T;
 	#if ANIMATE_SUPPORT
 	/**
-	 * Load's an animate atlas for thr sprite to use.
+	 * Load's an animate atlas for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @return `FlxAnimate` ~ Current instance for chaining.
 	 */
