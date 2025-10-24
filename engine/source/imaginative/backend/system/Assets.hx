@@ -35,6 +35,7 @@ class Assets {
 		MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
 		MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
 		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
+		cpp.vm.Gc.run(false);
 	}
 
 	/**
@@ -63,10 +64,13 @@ class Assets {
 	 *                         Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		for (tag => graphic in loadedGraphics) {
+		for (tag in loadedGraphics.keys()) {
+			var graphic:FlxGraphic = loadedGraphics.get(tag);
+
 			if (graphic == null) continue;
 			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
+			loadedGraphics.remove(tag);
 
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
@@ -76,7 +80,6 @@ class Assets {
 
 			if (OpenFLAssets.cache.hasBitmapData(tag))
 				OpenFLAssets.cache.removeBitmapData(tag);
-			loadedGraphics.remove(tag);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
@@ -92,16 +95,18 @@ class Assets {
 	 *                         Used for resetGame shenanigans.
 	 */
 	inline public static function clearSounds(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		for (tag => sound in loadedSounds) {
+		for (tag in loadedSounds.keys()) {
+			var sound:Sound = loadedSounds.get(tag);
+
 			if (sound == null) continue;
 			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
+			loadedSounds.remove(tag);
 
 			sound.close();
 
 			if (OpenFLAssets.cache.hasSound(tag))
 				OpenFLAssets.cache.removeSound(tag);
-			loadedSounds.remove(tag);
 		}
 	}
 	/**
@@ -332,8 +337,8 @@ class Assets {
 			return createGraphic(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
 		}
 		var graphic:FlxGraphic = createGraphic(bitmap, path);
-		// graphic.persist = true;
-		// graphic.destroyOnNoUse = false;
+		graphic.persist = true;
+		graphic.destroyOnNoUse = false;
 
 		return listGraphic(path, graphic);
 	}
