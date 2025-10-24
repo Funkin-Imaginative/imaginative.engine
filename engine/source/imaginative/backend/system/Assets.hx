@@ -7,6 +7,7 @@ import moonchart.backend.Util as MoonUtil;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
+import imaginative.display.BetterBitmapData;
 #if ANIMATE_SUPPORT
 import animate.FlxAnimateFrames;
 #end
@@ -48,9 +49,12 @@ class Assets {
 	 * @param file The mod path.
 	 */
 	inline public static function excludeAsset(file:ModPath):Void {
-		var path:String = file.format();
-		if (!dumpExclusions.contains(path))
-			dumpExclusions.push(path);
+		var path:String = Paths.addBeginningSlash(file.format());
+		if (Paths.fileExists('root:$path')) {
+			_log('Excluded asset "$path" from future dumps.', DebugMessage);
+			if (!dumpExclusions.contains(path))
+				dumpExclusions.push(path);
+		} // else _log('Couldn\'t exclude asset "$path" since it doesn\'t exist.', DebugMessage);
 	}
 	/**
 	 * When called it clears all graphics.
@@ -67,26 +71,19 @@ class Assets {
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
 
-			loadedGraphics.remove(tag);
-			if (assetsInUse.contains(tag))
-				assetsInUse.remove(tag);
-
 			if (graphic.bitmap != null && graphic.bitmap.__texture != null)
 				graphic.bitmap.__texture.dispose();
+
 			if (OpenFLAssets.cache.hasBitmapData(tag))
 				OpenFLAssets.cache.removeBitmapData(tag);
-			FlxG.bitmap.remove(graphic);
+			loadedGraphics.remove(tag);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
 		FlxG.bitmapLog.clear();
 
-		#if cpp
 		cpp.vm.Gc.run(false);
 		cpp.vm.Gc.compact();
-		#else
-		openfl.system.System.gc();
-		#end
 	}
 	/**
 	 * When called it clears all sounds.
@@ -100,14 +97,11 @@ class Assets {
 			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
 
-			loadedSounds.remove(tag);
-			if (assetsInUse.contains(tag))
-				assetsInUse.remove(tag);
+			sound.close();
 
 			if (OpenFLAssets.cache.hasSound(tag))
 				OpenFLAssets.cache.removeSound(tag);
-
-			sound.close();
+			loadedSounds.remove(tag);
 		}
 	}
 	/**
@@ -315,30 +309,33 @@ class Assets {
 			return loadedGraphics.get(path);
 
 		var bitmap:BitmapData = null;
-		if (Paths.fileExists('root:$path'))
-			bitmap = BitmapData.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
+		if (Paths.fileExists('root:$path')) {
+			function fromFile(path:String):BitmapData {
+				#if (js && html5)
+				return null;
+				#else
+				var bitmapData = new BetterBitmapData(0, 0, true, 0);
+				bitmapData.__fromFile(path);
+				return bitmapData.image != null ? bitmapData : null;
+				#end
+			}
+			bitmap = fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
+		}
+		@:privateAccess function createGraphic(Bitmap:BitmapData, Key:String, Unique:Bool = false):FlxGraphic {
+			Bitmap = FlxGraphic.getBitmap(Bitmap, Unique);
+			var graphic:FlxGraphic = new FlxGraphic(Key, Bitmap);
+			graphic.unique = Unique;
+			return graphic;
+		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
+			return createGraphic(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
 		}
+		var graphic:FlxGraphic = createGraphic(bitmap, path);
+		// graphic.persist = true;
+		// graphic.destroyOnNoUse = false;
 
-		/* if (Settings.setup.gpuCaching && bitmap.image != null && bitmap.image.buffer != null) {
-			bitmap.image.format = BGRA32;
-			bitmap.image.premultiplied = bitmap.__isValid = bitmap.readable = true;
-			if (FlxG.stage.context3D != null) {
-				bitmap.lock();
-				bitmap.getTexture(FlxG.stage.context3D);
-				bitmap.getSurface();
-				bitmap.readable = true;
-				bitmap.image = null;
-			}
-		} */
-
-		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
-		graphic.persist = true;
-		graphic.destroyOnNoUse = false;
-
-		return listGraphic(path, FlxG.bitmap.addGraphic(graphic));
+		return listGraphic(path, graphic);
 	}
 	static function cacheSound(path:String, beepWhenNull:Bool = true):Sound {
 		if (loadedSounds.exists(path))
