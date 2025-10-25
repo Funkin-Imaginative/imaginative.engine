@@ -175,7 +175,9 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 * @param nextState The state to switch to.
 	 */
 	public static function switchState(nextState:Void->BeatState):Void {
-		inline function stateCheck(oldState:FlxState, newState:FlxState):FlxState {
+		inline function stateCheck(oldState:FlxState, nextState:Void->BeatState):FlxState {
+			var newState:FlxState = nextState();
+
 			if (oldState is BeatState && newState is BeatState) {
 				var oldConductor:Conductor = cast(oldState, BeatState).conductor;
 				if (oldConductor == Conductor.song || oldConductor == Conductor.charter)
@@ -188,10 +190,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 					oldConductor.pause();
 			}
 
+			newState._constructor = nextState;
 			return newState;
 		}
 
-		FlxG.switchState(() -> stateCheck(FlxG.state, nextState()));
+		FlxG.switchState(() -> stateCheck(FlxG.state, nextState));
 	}
 	/**
 	 * It's just FlxG.resetState, but with stuff to accommodate for BeatState instances.
