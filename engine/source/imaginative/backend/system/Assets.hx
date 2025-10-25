@@ -35,7 +35,8 @@ class Assets {
 		MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
 		MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
 		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
-		cpp.vm.Gc.run(false);
+
+		clearCache(false, false, true);
 	}
 
 	/**
@@ -84,9 +85,6 @@ class Assets {
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
 		FlxG.bitmapLog.clear();
-
-		cpp.vm.Gc.run(false);
-		cpp.vm.Gc.compact();
 	}
 	/**
 	 * When called it clears all sounds.
@@ -111,13 +109,19 @@ class Assets {
 	}
 	/**
 	 * When called it clears all.
-	 * @param clearUnused If true, it clears any unused things.
+	 * @param clearUnused If true it clears any unused things.
 	 * @param ignoreExclusions If true, it ignores excluded things.
 	 *                         Used for resetGame shenanigans.
+	 * @param runGarbageCollector if true this function will run the garbage collector.
+	 * @param isMajor If true it's major or something?
 	 */
-	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		clearSounds(clearUnused, ignoreExclusions);
+	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
 		clearGraphics(clearUnused, ignoreExclusions);
+		clearSounds(clearUnused, ignoreExclusions);
+		if (runGarbageCollector) {
+			cpp.vm.Gc.run(isMajor);
+			cpp.vm.Gc.compact();
+		}
 	}
 
 	/**
