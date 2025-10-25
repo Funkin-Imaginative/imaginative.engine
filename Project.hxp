@@ -168,7 +168,7 @@ class EngineAsset {
 		}
 
 		if (FileSystem.exists('./.haxelib'))
-			setenv('HAXEPATH', './');
+			setenv('HAXEPATH', './.haxelib');
 
 		setDefine('official'); // idk how I'm gonna handle this atm
 
@@ -180,7 +180,7 @@ class EngineAsset {
 		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
-		modSupport.enable();
+		// modSupport.enable();
 		// scriptSupport.enable();
 
 		// usesAnimateAtlas.enable();
@@ -201,8 +201,8 @@ class EngineAsset {
 			// something was changed in latest and broke the system
 			// if (isDesktop())
 			// 	discordRPC.enable();
-			if (isDesktop() || isMobile())
-				allowVideos.enable();
+			// if (isDesktop() || isMobile())
+			// 	allowVideos.enable();
 		}
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
@@ -254,20 +254,13 @@ class EngineAsset {
 		for (path in sourceCodeDirectories)
 			sources.push(path);
 
-		inline function mergeArrays<T>(arrays:Array<Array<T>>):Array<T> {
-			var result:Array<T> = [];
-			for (a in arrays)
-				for (v in a)
-					result.push(v);
-			return result;
-		}
 		var repoItems:Array<String> = ['.git*', '.prettier*', '.editorconfig', 'checkstyle.json', '.vscode']; // Should certain things stay?
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('./engine/', './', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'overshadowing']]));
-		addAssetPath('./engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
+		addAssetPath('./engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'source', 'overshadowing']));
+		addAssetPath('./engine/assets', finalPath, ['*'], excludeList.concat(repoItems));
 		if (modSupport.exists()) {
-			addAssetPath('./engine/modding/upfront', './solo', ['*'], mergeArrays([excludeList, repoItems]));
-			addAssetPath('./engine/modding/lowerend', './mods', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('./engine/modding/upfront', './solo', ['*'], excludeList.concat(repoItems));
+			addAssetPath('./engine/modding/lowerend', './mods', ['*'], excludeList.concat(repoItems));
 		}
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
@@ -552,7 +545,6 @@ class EngineAsset {
 			return;
 		} /* else
 			info('Found asset path "$path".'); */
-
 
 		if (FileSystem.isDirectory(path) || FileSystem.exists(path))
 			for (file in FileSystem.readDirectory(path)) {
