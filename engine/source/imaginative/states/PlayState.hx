@@ -77,7 +77,7 @@ class PlayState extends BeatState {
 	/**
 	 * Direct access to the state instance.
 	 */
-	public static var direct:PlayState;
+	public static var instance:PlayState;
 
 	/**
 	 * The amount of beats the countdown lasts for.
@@ -294,7 +294,7 @@ class PlayState extends BeatState {
 	override public function create():Void {
 		Assets.clearCache();
 
-		scripts = new ScriptGroup(direct = this);
+		scripts = new ScriptGroup(instance = this);
 
 		bgColor = 0xFFBDBDBD;
 
@@ -728,7 +728,7 @@ class PlayState extends BeatState {
 
 	override public function destroy():Void {
 		scripts.end();
-		direct = null;
+		instance = null;
 		super.destroy();
 	}
 

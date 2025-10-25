@@ -409,9 +409,9 @@ class ArrowField extends BeatGroup {
 	 * Shortcut function to update the stats text of the hud.
 	 */
 	inline public function updateStatsText():Void
-		if (status != null && HUDType.direct != null)
-			if (status == enemyPlay) HUDType.direct.updateStatsP2Text();
-			else HUDType.direct.updateStatsText();
+		if (status != null && HUDType.instance != null)
+			if (status == enemyPlay) HUDType.instance.updateStatsP2Text();
+			else HUDType.instance.updateStatsText();
 
 	inline function _onNoteHit(note:Note, ?i:Int):Void {
 		if (note.wasHit) return;
@@ -583,8 +583,8 @@ class ArrowField extends BeatGroup {
 			var note:Note = new Note(this, strums.members[base.id], base.id, base.time);
 			Note.generateTail(note, base.length);
 			var lol:Array<String> = base.characters ??= [];
-			note.assignedActors = PlayState.direct == null ? [] : [
-				for (tag => char in PlayState.direct.characterMapping)
+			note.assignedActors = PlayState.instance == null ? [] : [
+				for (tag => char in PlayState.instance.characterMapping)
 					if (lol.contains(tag))
 						char
 			];

@@ -6,7 +6,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 	 */
 	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
-		return conductor ?? Conductor.direct;
+		return conductor ?? Conductor.instance;
 
 	/**
 	 * The amount of beats it takes to trigger the zoom bop.
@@ -87,7 +87,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 			conductor = cast thing;
 			beatInterval = conductor.beatsPerMeasure;
 		} else {
-			conductor = Conductor.direct;
+			conductor = Conductor.instance;
 			beatInterval = conductor.beatsPerMeasure;
 		}
 		bopSpeed = speed;

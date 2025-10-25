@@ -59,7 +59,7 @@ class Main extends Sprite {
 		#end
 
 		#if KNOWS_VERSION_ID
-		engineVersion = FlxWindow.direct.self.application.meta.get('version');
+		engineVersion = FlxWindow.instance.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
 
@@ -103,7 +103,7 @@ class Main extends Sprite {
 		return switch (Settings.setup.fpsType) {
 			case Custom: Settings.setup.fpsCap;
 			case Unlimited: 950; // not like you'll ever actually reach this
-			case Vsync: #if linux 60 #else FlxWindow.direct.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
+			case Vsync: #if linux 60 #else FlxWindow.instance.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
 		}
 	}
 

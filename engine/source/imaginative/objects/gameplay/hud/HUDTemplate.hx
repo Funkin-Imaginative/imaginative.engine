@@ -96,8 +96,8 @@ class HUDTemplate extends BeatGroup {
 		var _scripts:Array<Script> = [];
 		// adds song scripts
 		if (!hudOnly || hudOnly == null)
-			if (PlayState.direct != null && PlayState.direct.scripts != null)
-				for (script in PlayState.direct.scripts)
+			if (PlayState.instance != null && PlayState.instance.scripts != null)
+				for (script in PlayState.instance.scripts)
 					_scripts.push(script);
 		// adds hud scripts
 		if (hudOnly || hudOnly == null)
@@ -184,8 +184,8 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function new() {
-		if (HUDType.direct == null)
-			HUDType.direct = this;
+		if (HUDType.instance == null)
+			HUDType.instance = this;
 		else {
 			_log('A HUD already exists, killing new one.');
 			destroy();
@@ -266,8 +266,8 @@ class HUDTemplate extends BeatGroup {
 
 	override public function destroy():Void {
 		scripts.end();
-		if (HUDType.direct == this)
-			HUDType.direct = null;
+		if (HUDType.instance == this)
+			HUDType.instance = null;
 		super.destroy();
 	}
 }

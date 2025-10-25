@@ -199,7 +199,7 @@ class FlxWindow implements IFlxDestroyable {
 	/**
 	 * The main window.
 	 */
-	public static var direct(default, null):FlxWindow;
+	public static var instance(default, null):FlxWindow;
 	/**
 	 * The lime window the class is attached to.
 	 */
@@ -212,7 +212,7 @@ class FlxWindow implements IFlxDestroyable {
 
 	@:allow(imaginative.backend.system.Main)
 	inline static function init():Void {
-		FlxWindow.direct = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
+		FlxWindow.instance = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
 		imaginative.backend.system.Native.fixScaling();
 	}
 

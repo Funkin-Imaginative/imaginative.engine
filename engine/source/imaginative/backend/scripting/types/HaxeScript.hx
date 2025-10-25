@@ -108,7 +108,7 @@ final class HaxeScript extends Script {
 			'DifficultyHolder' => DifficultyHolder,
 			'LevelHolder' => LevelHolder,
 			'FlxWindow' => FlxWindow,
-			'mainWindow' => FlxWindow.direct,
+			'mainWindow' => FlxWindow.instance,
 			'ArrowField' => ArrowField,
 			'Note' => Note,
 			'Strum' => Strum,

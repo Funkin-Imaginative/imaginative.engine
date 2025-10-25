@@ -36,7 +36,7 @@ class CrashHandler {
 		_log(errMsg, ErrorMessage);
 		_log('Crash dump saved in ${FilePath.normalize(path)}', ErrorMessage);
 
-		FlxWindow.direct.self.alert(errMsg, 'Error!');
+		FlxWindow.instance.self.alert(errMsg, 'Error!');
 		BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
 	}
 }

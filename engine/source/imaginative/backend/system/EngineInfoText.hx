@@ -51,7 +51,7 @@ class EngineInfoText extends Sprite {
 			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',
 			'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 		].join('\n');
-		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.direct.self.displayMode.refreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
+		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.instance.self.displayMode.refreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
 
 		background.x = text.x;
 		background.y = text.y;

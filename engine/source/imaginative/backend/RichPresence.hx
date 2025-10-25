@@ -25,7 +25,7 @@ class RichPresence {
 	/**
 	 * The current rich presence instance.
 	 */
-	public static var direct:DiscordRichPresence = DiscordRichPresence.create();
+	public static var instance:DiscordRichPresence = DiscordRichPresence.create();
 
 	/**
 	 * Initializes the rich presence.
@@ -51,7 +51,7 @@ class RichPresence {
 			}
 		});
 
-		FlxWindow.direct.self.onClose.add(shutdown);
+		FlxWindow.instance.self.onClose.add(shutdown);
 
 		initialized = true;
 	}
@@ -62,13 +62,13 @@ class RichPresence {
 	public static function changePresence(details:String, ?state:String, ?smallImage:String, largeImage:String = 'engine-logo'):Void {
 		var time:Float = Date.now().getTime();
 
-		direct.type = DiscordActivityType_Playing;
-		direct.details = details ?? 'In Menus';
-		direct.state = state;
-		direct.smallImageKey = smallImage;
-		direct.largeImageKey = largeImage;
-		direct.largeImageText = 'Version ${Main.engineVersion}';
-		direct.startTimestamp = Std.int(time * 0.001);
+		instance.type = DiscordActivityType_Playing;
+		instance.details = details ?? 'In Menus';
+		instance.state = state;
+		instance.smallImageKey = smallImage;
+		instance.largeImageKey = largeImage;
+		instance.largeImageText = 'Version ${Main.engineVersion}';
+		instance.startTimestamp = Std.int(time * 0.001);
 
 		updatePresence();
 	}
@@ -101,6 +101,6 @@ class RichPresence {
 	}
 
 	inline static function updatePresence():Void
-		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(direct));
+		Discord.UpdatePresence(cpp.RawConstPointer.addressOf(instance));
 }
 #end

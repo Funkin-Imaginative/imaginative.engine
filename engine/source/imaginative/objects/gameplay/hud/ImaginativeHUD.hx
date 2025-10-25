@@ -97,7 +97,7 @@ class ImaginativeHUD extends HUDTemplate {
 			if (true && (curBeat % spedCalc == 0 || accuracyInfo.text.contains('(...)'))) {
 				FlxTween.cancelTweensOf(accuracyInfo, ['scale.x', 'scale.y']);
 				accuracyInfo.scale.set(1.2, 1.2);
-				var beatCalc:Float = Conductor.direct.beatTime / 1000 / 2.3;
+				var beatCalc:Float = Conductor.instance.beatTime / 1000 / 2.3;
 				FlxTween.tween(accuracyInfo, {'scale.x': 1}, beatCalc, {ease: FlxEase.bounceOut});
 				FlxTween.tween(accuracyInfo, {'scale.y': 1}, beatCalc, {ease: FlxEase.smootherStepInOut});
 			}
