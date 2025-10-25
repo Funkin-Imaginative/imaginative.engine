@@ -222,9 +222,12 @@ class MainMenu extends BeatState {
 		event.playMenuSFX(ScrollSFX);
 
 		for (i => item in menuItems.members) {
-			item.playAnim(i == curSelected ? 'selected' : 'idle');
-			item.centerOffsets();
-			item.centerOrigin();
+			var newAnim:String = i == curSelected ? 'selected' : 'idle';
+			if (item.getAnimName() != newAnim) {
+				item.playAnim(newAnim);
+				item.centerOffsets();
+				item.centerOrigin();
+			}
 		}
 	}
 
