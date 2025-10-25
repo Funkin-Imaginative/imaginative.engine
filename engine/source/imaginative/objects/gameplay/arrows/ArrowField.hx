@@ -15,7 +15,7 @@ class ArrowField extends BeatGroup {
 	 */
 	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
-		return conductor ?? Conductor.mainDirect;
+		return conductor ?? Conductor.mainInstance;
 
 	// Even though you can have a but ton of ArrowField's you can ***ONLY*** play as one!
 	/**

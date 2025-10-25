@@ -143,7 +143,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * The current state or substate conductor instance.
 	 */
 	public static var instance(get, never):Conductor;
-	static function get_direct():Conductor {
+	static function get_instance():Conductor {
 		var stopWhile:Bool = false;
 		var state:FlxState = FlxG.state;
 		isSub = false;
@@ -158,17 +158,17 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * The current state conductor instance.
 	 */
-	public static var mainDirect(get, never):Conductor;
-	inline static function get_mainDirect():Conductor {
-		var lol:Conductor = get_direct(); // doing it like this so isSub gets set properly
+	public static var mainInstance(get, never):Conductor;
+	inline static function get_mainInstance():Conductor {
+		var lol:Conductor = get_instance(); // doing it like this so isSub gets set properly
 		return isSub ? null : lol;
 	}
 	/**
 	 * The current substate conductor instance.
 	 */
-	public static var subDirect(get, never):Conductor;
-	inline static function get_subDirect():Conductor {
-		var lol:Conductor = get_direct(); // doing it like this so isSub gets set properly
+	public static var subInstance(get, never):Conductor;
+	inline static function get_subInstance():Conductor {
+		var lol:Conductor = get_instance(); // doing it like this so isSub gets set properly
 		return isSub ? lol : null;
 	}
 
