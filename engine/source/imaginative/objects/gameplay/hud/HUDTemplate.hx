@@ -76,9 +76,8 @@ class HUDTemplate extends BeatGroup {
 	/**
 	 * Returns the field y level for the hud.
 	 * @param downscroll If the position should be downscroll.
-	 * @param field Is used for some of the huds.
-	 *              Forced to be required to avoid `Null Object Reference`'s.
-	 * @return `Float` ~ The field y level.
+	 * @param field Is used for some of the huds. Forced to be required to avoid "Null Object Reference"s.
+	 * @return Float ~ The field y level.
 	 */
 	public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = 50;
@@ -106,12 +105,12 @@ class HUDTemplate extends BeatGroup {
 		return _scripts;
 	}
 	/**
-	 * Call's a function in the script instance.
-	 * @param hudOnly If true, it only calls this for hud scripts.
-	 * @param func Name of the function to call.
+	 * Calls a function in the script instance.
+	 * @param hudOnly If true it only calls this for hud scripts.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
 	 * @param def If it's null, then return this.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	public function call(?hudOnly:Bool, func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		for (script in getScripts(hudOnly))
@@ -120,11 +119,11 @@ class HUDTemplate extends BeatGroup {
 		return def;
 	}
 	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param hudOnly If true, it only calls this for hud scripts.
-	 * @param func Name of the function to call.
+	 * Calls an event in the script instance.
+	 * @param hudOnly If true it only calls this for hud scripts.
+	 * @param func The name of the function to call.
 	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * @return ScriptEvent
 	 */
 	@:access(imaginative.backend.scripting.events.ScriptEvent.continueLoop)
 	public function event<SC:ScriptEvent>(?hudOnly:Bool, func:String, event:SC):SC {
@@ -237,6 +236,7 @@ class HUDTemplate extends BeatGroup {
 		if (cameras != null)
 			FlxCamera._defaultCameras = cameras;
 
+		// MAYBE: Rework this.
 		while (i < length) {
 			basic = members[i++];
 			if (basic != null && basic.exists && basic.visible)

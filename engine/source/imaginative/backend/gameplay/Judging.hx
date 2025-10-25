@@ -1,5 +1,6 @@
 package imaginative.backend.gameplay;
 
+// TODO: I believe this class either needs some rethinking or doesn't need to exist.
 class Judging {
 	public var maxScore:Int = 350;
 	// Math.floor(maxScore - (time - con_time));
@@ -8,7 +9,7 @@ class Judging {
 	 * Turns a millisecond rating hit window into a percentage.
 	 * @param value The rating's hit window in milliseconds.
 	 * @param cap The max hit window in milliseconds.
-	 * @return `Float` ~ The rating window as a percentage.
+	 * @return Float ~ The rating window as a percentage.
 	 */
 	inline public static function makeRatingPercent(value:Float, cap:Float):Float
 		return FunkinUtil.toPercent(value, cap, 1);
@@ -16,7 +17,7 @@ class Judging {
 	 * Turns a percent rating hit window into a milliseconds.
 	 * @param value The rating's hit window as a percentage.
 	 * @param cap The max hit window in milliseconds.
-	 * @return `Float` ~ The rating window in milliseconds.
+	 * @return Float ~ The rating window in milliseconds.
 	 */
 	inline public static function undoRatingPercent(value:Float, cap:Float):Float
 		return FunkinUtil.undoPercent(value, cap, 1);
@@ -25,7 +26,7 @@ class Judging {
 	 * Calculates what rating was just obtained
 	 * @param diff The rating time.
 	 * @param settings Player settings instance.
-	 * @return `String` ~ The rating key name.
+	 * @return String ~ The rating key name.
 	 */
 	public static function calculateRating(diff:Float, settings:PlayerSettings):String {
 		var data:Array<String> = ['killer', 'sick', 'good', 'bad', 'shit'];

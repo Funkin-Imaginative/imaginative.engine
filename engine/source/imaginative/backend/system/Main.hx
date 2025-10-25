@@ -9,8 +9,7 @@ import thx.semver.Version;
 
 class Main extends Sprite {
 	/**
-	 * The main mod that the engine will rely on. Think of it as a fallback.
-	 * This is usually stated as "funkin", aka base game.
+	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
 	inline public static final mainMod:String = Compiler.getDefine('GeneralAssetFolder');
@@ -27,7 +26,7 @@ class Main extends Sprite {
 	#end
 	#if CHECK_FOR_UPDATES
 	/**
-	 * If true, a new update was released for the engine!
+	 * If true a new update was released for the engine!
 	 */
 	public static var updateAvailable(default, null):Bool = false;
 	#end
@@ -64,7 +63,7 @@ class Main extends Sprite {
 		#end
 
 		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
-		FlxG.addChildBelowMouse(new EngineInfoText(), 1);
+		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 
 		// Was testing rating window caps.
 		/* // variables
@@ -97,7 +96,7 @@ class Main extends Sprite {
 
 	/**
 	 * Returns the framerate value based on your settings.
-	 * @return `Int` ~ Wanted framerate.
+	 * @return Int ~ Wanted framerate.
 	 */
 	inline public static function getFPS():Int {
 		return switch (Settings.setup.fpsType) {
@@ -110,7 +109,7 @@ class Main extends Sprite {
 	/**
 	 * Sets the current framerate.
 	 * @param value The desired framerate.
-	 * @return `Int` ~ Desired framerate.
+	 * @return Int ~ Desired framerate.
 	 */
 	inline public static function setFPS(value:Int):Int {
 		if (value > FlxG.drawFramerate) {

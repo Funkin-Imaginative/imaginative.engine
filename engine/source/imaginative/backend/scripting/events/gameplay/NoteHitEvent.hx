@@ -26,15 +26,15 @@ final class NoteHitEvent extends PlayAnimEvent {
 		return id % field.strumCount;
 
 	/**
-	 * If true, it creates a splash instance.
+	 * If true it creates a splash instance.
 	 */
 	public var createSplash:Bool = true;
 	/**
-	 * If true, it creates a hold cover instance.
+	 * If true it creates a hold cover instance.
 	 */
 	public var createHoldCover:Bool;
 	/**
-	 * If true, it prevents the comfirm animation from playing on the target strum.
+	 * If true it prevents the comfirm animation from playing on the target strum.
 	 */
 	public var stopStrumConfirm:Bool = false;
 

@@ -1,5 +1,6 @@
 package imaginative.objects.holders;
 
+// TODO: This a little dumb, definitely reworking this.
 typedef DifficultyData = {
 	/**
 	 * The difficulty display name.

@@ -7,7 +7,7 @@ class ScriptedHUD extends HUDTemplate {
 		return Custom;
 
 	/**
-	 * Name of the scripted HUD instance.
+	 * The name of the scripted HUD instance.
 	 */
 	public var name(default, null):String;
 	override function loadScript():Void

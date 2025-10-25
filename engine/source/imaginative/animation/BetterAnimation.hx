@@ -7,6 +7,7 @@ import animate.FlxAnimateController.FlxAnimateAnimation as Animation;
 import flixel.animation.FlxAnimation as Animation;
 #end
 
+// TODO: This class in unneeded, revert the usage of this class.
 class BetterAnimation extends Animation {
 	/**
 	 * The offset position for the animation.

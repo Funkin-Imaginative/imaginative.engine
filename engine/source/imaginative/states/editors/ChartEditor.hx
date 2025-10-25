@@ -5,13 +5,13 @@ typedef ChartNote = {
 	 * The note direction id.
 	 */
 	var id:Int;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The length of a sustain in steps.
 	 */
 	@:default(0) var length:Float;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	var time:Float;
@@ -91,8 +91,8 @@ typedef ChartEvent = {
 	 * The event parameters.
 	 */
 	var params:Array<ParseDynamic>;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.
 	 */
 	var time:Float;

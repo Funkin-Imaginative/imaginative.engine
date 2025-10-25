@@ -50,17 +50,17 @@ class Strum extends FlxSprite {
 	}
 
 	/**
-	 * Used to help `glowLength`.
+	 * Used to help "glowLength".
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
 	 * The amount of time in steps the animation can be forced to last.
-	 * If set to 0, the animation that is played, plays out normally.
+	 * If set to 0 the animation that is played plays out normally.
 	 */
 	public var glowLength:Float = 4;
 
 	/**
-	 * If true, after the glowlength is reached the animation will go back to "static".
+	 * If true after the "glowlength" is reached the animation will go back to "static".
 	 */
 	public var willReset:Bool = false;
 
@@ -112,13 +112,12 @@ class Strum extends FlxSprite {
 	}
 
 	/**
-	 * Play's an animation.
+	 * Plays an animation.
 	 * @param name The animation name.
-	 * @param reset If true, after the glowlength is reached the animation will go back to "static".
-	 * @param force If true, the game won't care if another one is already playing.
-	 * @param reverse If true, the animation will play backwards.
-	 * @param frame The starting frame. By default it's 0.
-	 *              Although if reversed it will use the last frame instead.
+	 * @param reset If true after the glowlength is reached the animation will go back to "static".
+	 * @param force If true the game won't care if another one is already playing.
+	 * @param reverse If true the animation will play backwards.
+	 * @param frame The starting frame. By default it's 0, although if reversed it will use the last frame instead.
 	 */
 	public function playAnim(name:String, reset:Bool = false, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {
@@ -132,9 +131,9 @@ class Strum extends FlxSprite {
 	}
 
 	/**
-	 * Get's the name of the currently playing animation.
+	 * Gets the name of the currently playing animation.
 	 * The arguments are to reverse the name.
-	 * @return `Null<String>` ~ The animation name.
+	 * @return Null<String> ~ The animation name.
 	 */
 	inline public function getAnimName():Null<String> {
 		if (animation.name != null)
@@ -143,19 +142,19 @@ class Strum extends FlxSprite {
 	}
 	/**
 	 * Tells you if the animation has finished playing.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function isAnimFinished():Bool
 		return animation.finished;
 	/**
-	 * When run, it forces the animation to finish.
+	 * When ran it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
 		animation.finished = true;
 	/**
-	 * Check's if the animation exists.
+	 * Checks if the animation exists.
 	 * @param name The animation name to check.
-	 * @return `Bool` ~ If true, the animation exists.
+	 * @return Bool ~ If true the animation exists.
 	 */
 	inline public function doesAnimExist(name:String/* , inGeneral:Bool */):Bool {
 		return /* inGeneral ? */ animation.exists(name) /* : (animation.exists(name) && anims.exists(name)) */;

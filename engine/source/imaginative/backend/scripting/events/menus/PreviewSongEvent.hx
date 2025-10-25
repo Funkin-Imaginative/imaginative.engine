@@ -2,7 +2,7 @@ package imaginative.backend.scripting.events.menus;
 
 final class PreviewSongEvent extends ScriptEvent {
 	/**
-	 * If true, it plays the song preview.
+	 * If true it plays the song preview.
 	 */
 	public var playPreview:Bool;
 

@@ -53,6 +53,7 @@ typedef CNE_SongMeta = {
 	?customValues:Dynamic
 }
 
+// TODO: Use Moonchart dammit.
 class ChartConverter {
 	// Global
 	public function convertAudio(audioData:String):SongData {

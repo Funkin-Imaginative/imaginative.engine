@@ -15,7 +15,7 @@ class ArrowModHandler {
 
 	/**
 	 * States what object to follow.
-	 * By default, Strum follows field, note follows strum and sustain follows note.
+	 * By default, strum follows field, note follows strum and sustain follows note.
 	 * Note that this system doesn't always apply. Also it can't go backwards, that would be a pain in the ass to deal with.
 	 * EFFCTS: Strum, Note, Sustain
 	 */
@@ -68,8 +68,8 @@ class ArrowModHandler {
 	}
 
 	/**
-	 * If true, the speed var becomes a multiplier.
-	 * If false, it is the direct speed.
+	 * If true the speed var becomes a multiplier.
+	 * If false it is the direct speed.
 	 */
 	public var speedIsMult:Bool = true;
 	inline function set_speedIsMult(value:Bool):Bool {

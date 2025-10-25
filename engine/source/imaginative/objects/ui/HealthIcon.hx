@@ -18,7 +18,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		return cast super.loadAtlas(newTexture);
 	#end
 
-	// TODO: Write this better.
+	// TODO: Rename to "id".
 	/**
 	 * The icon name.
 	 */
@@ -90,7 +90,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	}
 
 	/**
-	 * If true, it prevents the scale bopping from occurring.
+	 * If true it prevents the scale bopping from occurring.
 	 */
 	public var preventScaleBop:Bool = false;
 	/**

@@ -3,6 +3,10 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
+// MAYBE: Might end up not using.
+/**
+ * Used for parsing extra data from json files.
+ */
 @SuppressWarnings('checkstyle:FieldDocComment')
 abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
 	@:to inline public function toInt():Int {
@@ -39,6 +43,9 @@ abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from
 		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
 }
 
+/**
+ * Used for parsing colors from json files.
+ */
 @SuppressWarnings('checkstyle:FieldDocComment')
 abstract ParseColor(String) {
 	public var red(get, set):Int;
@@ -97,11 +104,11 @@ abstract ParseColor(String) {
 
 typedef GamemodesTyping = {
 	/**
-	 * If true, this song allows you to play as the enemy.
+	 * If true this song allows you to play as the enemy.
 	 */
 	@:default(false) var playAsEnemy:Bool;
 	/**
-	 * If true, this song allows you to go against another player.
+	 * If true this song allows you to go against another player.
 	 */
 	@:default(false) var p2AsEnemy:Bool;
 }
@@ -127,9 +134,9 @@ typedef GamemodesTyping = {
  */
 class ParseUtil {
 	/**
-	 * Parse's a json file.
+	 * Parses a json file.
 	 * @param file The mod path.
-	 * @return `Dynamic` ~ The parsed json.
+	 * @return Dynamic ~ The parsed json.
 	 */
 	inline public static function json(file:ModPath):Dynamic {
 		var jsonPath:ModPath = Paths.json(file);
@@ -137,9 +144,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a difficulty json.
+	 * Parses a difficulty json.
 	 * @param key The difficulty key.
-	 * @return `DifficultyData` ~ The parsed difficulty json.
+	 * @return DifficultyData ~ The parsed difficulty json.
 	 */
 	inline public static function difficulty(key:String):DifficultyData {
 		var jsonPath:ModPath = Paths.difficulty(key);
@@ -149,9 +156,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a level json.
+	 * Parses a level json.
 	 * @param name The level json name.
-	 * @return `LevelData` ~ The parsed level json.
+	 * @return LevelData ~ The parsed level json.
 	 */
 	public static function level(name:ModPath):LevelData {
 		var jsonPath:ModPath = Paths.level(name);
@@ -188,10 +195,10 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's an object json.
+	 * Parses an object json.
 	 * @param file The object json name.
 	 * @param type The sprite type.
-	 * @return `SpriteData` ~ The parsed object json.
+	 * @return SpriteData ~ The parsed object json.
 	 */
 	public static function object(file:ModPath, type:SpriteType):SpriteData {
 		var jsonPath:ModPath = Paths.object(file);
@@ -285,11 +292,11 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a chart json.
+	 * Parses a chart json.
 	 * @param song The song folder name.
 	 * @param difficulty The difficulty key.
 	 * @param variant The variant key.
-	 * @return `ChartData` ~ The parsed chart json.
+	 * @return ChartData ~ The parsed chart json.
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
@@ -297,9 +304,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a SpriteText json.
+	 * Parses a SpriteText json.
 	 * @param font The font json file name.
-	 * @return `SpriteTextSetup` ~ The parsed font json.
+	 * @return SpriteTextSetup ~ The parsed font json.
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
 		var jsonPath:ModPath = Paths.spriteFont(font);
@@ -307,9 +314,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a songs meta json.
+	 * Parses a songs meta json.
 	 * @param name The song folder name.
-	 * @return `SongData` ~ The parsed meta json.
+	 * @return SongData ~ The parsed meta json.
 	 */
 	public static function song(name:ModPath):SongData {
 		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');

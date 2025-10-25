@@ -22,8 +22,8 @@ class SongEvent {
 	 */
 	public var fromChart:Bool;
 
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.
 	 */
 	public var time:Float;
@@ -40,7 +40,7 @@ class SongEvent {
 	}
 
 	/**
-	 * Execute's the event code.
+	 * Executes the event code.
 	 */
 	inline public function execute():Void
 		if (code != null)
@@ -98,7 +98,7 @@ class PlayState extends BeatState {
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
-	 * @return `Array<ModPath>` ~ The mod paths of the items.
+	 * @return Array<ModPath> ~ The mod paths of the items.
 	 */
 	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, ?suffix:String):Array<ModPath> {
 		if (root == null)
@@ -128,7 +128,7 @@ class PlayState extends BeatState {
 	public var generalVocals:Null<FlxSound>;
 
 	/**
-	 * It true, your score will save.
+	 * If true your score will save.
 	 */
 	public var saveScore:Bool = true;
 
@@ -152,12 +152,12 @@ class PlayState extends BeatState {
 		return val;
 	}
 	/**
-	 * If true, your in story mode.
-	 * If false, your playing the song by choice.
+	 * If true your in story mode.
+	 * If false your playing the song by choice.
 	 */
 	public static var storyMode(default, null):Bool = false;
 	/**
-	 * List of songs that will play in story mode.
+	 * List of songs that will play out.
 	 */
 	public static var songList(default, null):Array<String> = ['Test'];
 
@@ -180,11 +180,11 @@ class PlayState extends BeatState {
 	public static var curVariant(default, null):String = 'normal';
 
 	/**
-	 * If true, the player character can die upon losing all their health.
+	 * If true the player character can die upon losing all their health.
 	 */
 	public var canPlayerDie:Bool = !ArrowField.enemyPlay && !ArrowField.enableP2;
 	/**
-	 * If true, the enemy character can die upon losing all their health.
+	 * If true the enemy character can die upon losing all their health.
 	 */
 	public var canEnemyDie:Bool = ArrowField.enemyPlay && !ArrowField.enableP2;
 
@@ -238,7 +238,7 @@ class PlayState extends BeatState {
 	inline function get_enemy():Character
 		return enemies[0];
 	inline function set_enemy(value:Character):Character
-		return enemies[1] = value;
+		return enemies[0] = value;
 	/**
 	 * What would be known as the Boyfriend.
 	 */
@@ -265,7 +265,7 @@ class PlayState extends BeatState {
 	inline function set_players(value:Array<Character>):Array<Character>
 		return playerField.assignedActors = value;
 
-	// ArrowField variables.
+	// 'ArrowField' variables.
 	/**
 	 * Contains all existing arrow fields.
 	 */

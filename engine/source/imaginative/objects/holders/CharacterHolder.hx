@@ -11,7 +11,7 @@ class CharacterHolder extends BeatGroup {
 	 */
 	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
-		return conductor ?? Conductor.mainDirect;
+		return conductor ?? Conductor.mainInstance;
 
 	public var tagName(default, null):String;
 

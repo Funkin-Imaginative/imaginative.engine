@@ -8,11 +8,11 @@ import flixel.input.keyboard.FlxKey;
  */
 class Controls implements IFlxDestroyable {
 	/**
-	 * Player One's controls.
+	 * Player 1's controls.
 	 */
 	public static var p1(default, null):Controls = new Controls();
 	/**
-	 * Player Two's controls.
+	 * Player 2's controls.
 	 */
 	public static var p2(default, null):Controls = new Controls();
 
@@ -21,7 +21,7 @@ class Controls implements IFlxDestroyable {
 	 */
 	public static var blank(default, null):Controls = new Controls();
 
-	// UI //
+	// UI
 	/**
 	 * When you press left to move through ui elements
 	 */
@@ -97,7 +97,7 @@ class Controls implements IFlxDestroyable {
 	inline static function get_uiRightReleased():Bool
 		return globalReleased('uiRight');
 
-	// Controls //
+	// Controls
 	/**
 	 * Left note press.
 	 */
@@ -173,7 +173,7 @@ class Controls implements IFlxDestroyable {
 	inline function get_noteRightReleased():Bool
 		return released('noteRight');
 
-	// Actions //
+	// Actions
 	/**
 	 * When accept is pressed.
 	 */
@@ -199,7 +199,7 @@ class Controls implements IFlxDestroyable {
 	inline static function get_reset():Bool
 		return globalPressed('reset');
 
-	// Extras //
+	// Extras
 	/**
 	 * When fullscreen is pressed.
 	 */
@@ -207,7 +207,7 @@ class Controls implements IFlxDestroyable {
 	inline static function get_fullscreen():Bool
 		return globalPressed('fullscreen');
 
-	// Debug //
+	// Debug
 	/**
 	 * When botplay is pressed.
 	 */
@@ -233,7 +233,7 @@ class Controls implements IFlxDestroyable {
 	inline static function get_reloadGlobalScripts():Bool
 		return globalPressed('reloadGlobalScripts');
 
-	// The Main Powerhouses //
+	// The Main Powerhouses
 	/**
 	 * The global binds, mostly for stuff like menus so more like shared binds.
 	 */
@@ -267,21 +267,21 @@ class Controls implements IFlxDestroyable {
 	/**
 	 * Global pressed input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public static function globalPressed(key:String):Bool
 		return FlxG.keys.anyJustPressed(globalBinds[key]);
 	/**
 	 * Global held input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public static function globalHeld(key:String):Bool
 		return FlxG.keys.anyPressed(globalBinds[key]);
 	/**
 	 * Global released input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public static function globalReleased(key:String):Bool
 		return FlxG.keys.anyJustReleased(globalBinds[key]);
@@ -293,21 +293,21 @@ class Controls implements IFlxDestroyable {
 	/**
 	 * Pressed input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function pressed(key:String):Bool
 		return FlxG.keys.anyJustPressed(setBinds[key]);
 	/**
 	 * Held input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function held(key:String):Bool
 		return FlxG.keys.anyPressed(setBinds[key]);
 	/**
 	 * Released input.
 	 * @param key The key name.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function released(key:String):Bool
 		return FlxG.keys.anyJustReleased(setBinds[key]);

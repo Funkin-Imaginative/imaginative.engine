@@ -7,7 +7,7 @@ class EngineProcess extends BeatState {
 
 	override public function create():Void {
 		FlxG.fixedTimestep = false;
-		FlxSprite.defaultAntialiasing = true;
+		FlxSprite.defaultAntialiasing = true; // this ain't a pixel game... yeah ik week 6 exists!
 		Console.init();
 		Assets.init();
 		Conductor.init();

@@ -4,6 +4,7 @@ import haxe.CallStack;
 import sys.io.File;
 import openfl.events.UncaughtErrorEvent;
 
+// TODO: Figure out if this is working.
 class CrashHandler {
 	@:allow(imaginative.backend.system.Main)
 	inline static function onCrash(e:UncaughtErrorEvent):Void {

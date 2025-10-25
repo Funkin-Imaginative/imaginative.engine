@@ -5,7 +5,7 @@ import openfl.utils.AssetType as OpenFLAssetType;
 import openfl.utils.Assets as OpenFLAssets;
 
 /**
- * Used to help ModPath abstract.
+ * Used to help 'ModPath' abstract.
  */
 enum abstract ModType(String) {
 	// Base Paths
@@ -46,7 +46,7 @@ enum abstract ModType(String) {
 
 	/**
 	 * Returns the current mod folder root path of said type.
-	 * @return `String`
+	 * @return String
 	 */
 	inline public function returnRootPath():String {
 		#if MOD_SUPPORT
@@ -63,9 +63,9 @@ enum abstract ModType(String) {
 	}
 
 	/**
-	 * `Excludes grouped types.`
+	 * ***Excludes grouped types.***
 	 * @param path The root path.
-	 * @return `ModType`
+	 * @return ModType
 	 */
 	inline public static function typeFromPath(path:String):Null<ModType> {
 		return switch (path.split('/')[0]) {
@@ -75,18 +75,18 @@ enum abstract ModType(String) {
 		}
 	}
 	/**
-	 * Get's the mod folder name from a path that contains it's root directory.
+	 * Gets the mod folder name from a path that contains it's root directory.
 	 * @param path The root path.
-	 * @return `String` ~ Mod folder name.
+	 * @return String ~ Mod folder name.
 	 */
 	inline public static function modNameFromPath(path:String):String
 		return path.split('/')[1]; // lol
 
 	/**
-	 * Check's if incoming type is a wanted type.
+	 * Checks if incoming type is a wanted type.
 	 * @param wanted The wanted type.
 	 * @param incoming The incoming type.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public static function pathCheck(wanted:ModType, incoming:ModType):Bool {
 		return switch (wanted) {
@@ -103,16 +103,16 @@ enum abstract ModType(String) {
 	#if MOD_SUPPORT
 	/**
 	 * This function tells if the main mod is the current solo mod and judges appropriately.
-	 * @return `ModType`
+	 * @return ModType
 	 */
 	inline public static function getMain():ModType
 		return Modding.soloIsMain ? MAIN : SOLO;
 	#end
 
 	/**
-	 * Helper for ModPath `@:from` stuff.
+	 * Helper for 'ModPath "@:from" stuff.
 	 * @param string The path type as a string.
-	 * @return `ModType`
+	 * @return ModType
 	 */
 	inline public static function modPathHelper(string:String):ModType {
 		var type:String = string.split(':')[0];
@@ -124,8 +124,8 @@ enum abstract ModType(String) {
 	 * Returns path type based on a mod paths formatted path.
 	 * @param path The mod path.
 	 * @param pathingHelp Get's prepended onto the mod paths path when not null.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
-	 * @return `ModType` ~ The simplify path type.
+	 * @param doTypeCheck If false it starts the check from the engine root.
+	 * @return ModType ~ The simplify path type.
 	 */
 	inline public static function simplifyType(path:ModPath, ?pathingHelp:String, doTypeCheck:Bool = true):ModType {
 		return switch (path.type) {
@@ -137,9 +137,9 @@ enum abstract ModType(String) {
 	}
 
 	/**
-	 * Converts a String to a ModType.
-	 * @param from The String to get the type from.
-	 * @return `ModType`
+	 * Converts a 'String' to a 'ModType'.
+	 * @param from The 'String' to get the type from.
+	 * @return ModType
 	 */
 	@:from inline public static function fromString(from:String):ModType {
 		return switch (from.toLowerCase()) {
@@ -157,16 +157,16 @@ enum abstract ModType(String) {
 		}
 	}
 	/**
-	 * Converts a ModType to a String.
-	 * @return `String`
+	 * Converts a 'ModType' to a 'String'.
+	 * @return String
 	 */
 	@:to inline public function toString():String
 		return this.toLowerCase();
 
 	/**
-	 * Converts an Array to a ModType.
+	 * Converts an Array to a 'ModType'.
 	 * @param from The Array to get the type from.
-	 * @return `ModType`
+	 * @return ModType
 	 */
 	@:from inline public static function fromArray(from:Array<ModType>):ModType {
 		var check:Array<ModType> = from;
@@ -181,8 +181,8 @@ enum abstract ModType(String) {
 		return from[0];
 	}
 	/**
-	 * Converts a ModType to an Array.
-	 * @return `Array<String>`
+	 * Converts a 'ModType' to an Array.
+	 * @return Array<String>
 	 */
 	@:to inline public function toArray():Array<String> {
 		return switch (fromString(this)) {
@@ -218,7 +218,7 @@ abstract ModPath(String) {
 	inline function set_path(value:String):String
 		return this = '${this.split(':')[0]}:$value';
 	/**
-	 * If true, the path is a folder and not a file.
+	 * If true the path is a folder and not a file.
 	 */
 	public var isDirectory(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -244,7 +244,7 @@ abstract ModPath(String) {
 		return ModType.fromString(this.split(':')[0]) ?? ANY;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_type(value:ModType):ModType
-		// `I swear to god I almost murdered this abstract.`
+		// I swear to god I almost murdered this abstract.
 		return this = '${value ?? ANY}:${this.split(':')[1]}';
 
 	/**
@@ -256,9 +256,9 @@ abstract ModPath(String) {
 		this = '$type:$path';
 
 	/**
-	 * Pushes an extension onto the ModPath instance.
+	 * Pushes an extension onto the 'ModPath' instance.
 	 * @param ext The wanted extension.
-	 * @return `ModPath` ~ Current instance for chaining.
+	 * @return ModPath ~ Current instance for chaining.
 	 */
 	inline public function pushExt(ext:String):ModPath {
 		extension = ext;
@@ -266,9 +266,9 @@ abstract ModPath(String) {
 	}
 
 	/**
-	 * Format's the info in the class into the final path.
-	 * @param removeBeginningSlash If true, it removes "./" at the beginning of the path. ***If one exists.***
-	 * @return `String` ~ The full path.
+	 * Formats the info in the class into the final path.
+	 * @param removeBeginningSlash If true it removes "./" at the beginning of the path. ***If one exists.***
+	 * @return String ~ The full path.
 	 */
 	inline public function format(removeBeginningSlash:Bool = false):String {
 		var result:String = Paths.applyRoot(path, type);
@@ -277,9 +277,9 @@ abstract ModPath(String) {
 	}
 
 	/**
-	 * Converts a String to a ModPath.
-	 * @param from `path type`:`mod path`
-	 * @return `ModPath`
+	 * Converts a 'String' to a 'ModPath'.
+	 * @param from `path type : mod path`
+	 * @return ModPath
 	 */
 	@:from inline public static function fromString(from:String):ModPath {
 		var split:Array<String> = (from.contains(':') ? from : 'any:$from').trimSplit(':');
@@ -288,74 +288,74 @@ abstract ModPath(String) {
 		return new ModPath(path, ModType.modPathHelper(type));
 	}
 	/**
-	 * Converts a ModPath to a String.
-	 * @return `String` ~ `path type`:`mod path`
+	 * Converts a 'ModPath' to a 'String'.
+	 * @return String ~ `path type : mod path`
 	 */
 	@:to inline public function toString():String
 		return '$type:$path';
 
 	/**
-	 * Converts an Array to a ModPath.
-	 * @param from [path type, mod path]
-	 * @return `ModPath`
+	 * Converts an 'Array' to a 'ModPath'.
+	 * @param from `[path type, mod path]`
+	 * @return ModPath
 	 */
 	@:from inline public static function fromArray(from:Array<Dynamic>):ModPath {
 		var hasType:Bool = !from.empty();
 		return new ModPath(from[hasType ? 1 : 0], hasType ? from[0] : ANY);
 	}
 	/**
-	 * Converts a ModPath to an Array.
-	 * @return `Array<Dynamic>` ~ [path type, mod path]
+	 * Converts a 'ModPath' to an 'Array'.
+	 * @return Array<Dynamic> ~ `[path type, mod path]`
 	 */
 	@:to inline public function toArray():Array<Dynamic>
 		return [type, path];
 
 	// FlxAssets fix
 	/**
-	 * Converts a ModPath to an FlxGraphicAsset.
+	 * Converts a 'ModPath' to an 'FlxGraphicAsset'.
 	 * `Fixes issues with having to run the format function.`
-	 * @return `FlxGraphicAsset`
+	 * @return FlxGraphicAsset
 	 */
 	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset {
 		return cast(format(), String);
 	}
 	/**
-	 * Converts a ModPath to an FlxSoundAsset.
+	 * Converts a 'ModPath' to an 'FlxSoundAsset'.
 	 * `Fixes issues with having to run the format function.`
-	 * @return `FlxSoundAsset`
+	 * @return FlxSoundAsset
 	 */
 	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset {
 		return cast(format(), String);
 	}
 	/**
-	 * Converts a ModPath to an FlxXmlAsset.
+	 * Converts a 'ModPath' to an 'FlxXmlAsset'.
 	 * `Fixes issues with having to run the format function.`
-	 * @return `FlxXmlAsset`
+	 * @return FlxXmlAsset
 	 */
 	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset {
 		return cast(format(), String);
 	}
 	/**
-	 * Converts a ModPath to an FlxAsepriteJsonAsset.
+	 * Converts a 'ModPath' to an 'FlxAsepriteJsonAsset'.
 	 * `Fixes issues with having to run the format function.`
-	 * @return `FlxAsepriteJsonAsset`
+	 * @return FlxAsepriteJsonAsset
 	 */
 	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset {
 		return cast(format(), String);
 	}
 }
 
+// TODO: Change/clean up documentation.
 /**
  * Path helper functions.
- * TODO: Change/clean up documentation.
  */
 class Paths {
 	/**
-	 * Prepend's the root folder path.
+	 * Prepends the root folder path.
 	 * @param file The mod path.
 	 * @param type The path type.
 	 * @param name If something is input, it forces what mod folder get an asset from.
-	 * @return `String` ~ The full path.
+	 * @return String ~ The full path.
 	 */
 	public static function applyRoot(file:String, type:ModType = ANY, ?name:String):String {
 		var result:String = '';
@@ -386,20 +386,20 @@ class Paths {
 		return FilePath.normalize(result);
 	}
 	/**
-	 * It's like `applyRoot` but it just gets the path without asking for a file.
-	 * It's just the root folder path. `Excludes grouped types.`
+	 * It's like 'applyRoot' but it just gets the path without asking for a file.
+	 * It's just the root folder path. ***Excludes grouped types.***
 	 * This function is mostly for script usage.
 	 * @param type The path type.
-	 * @return `String` ~ The root folder path.
+	 * @return String ~ The root folder path.
 	 */
 	inline public static function getRootPath(type:ModType):String
 		return type.returnRootPath();
 
 	/**
 	 * A shortcut function for adding "./" at the beginning of paths.
-	 * Used to make sure the assetsInUse array in Assets has consistency.
+	 * Used to make sure the "assetsInUse" array in 'Assets' has consistency.
 	 * @param path A root path.
-	 * @return `String`
+	 * @return String
 	 */
 	inline public static function addBeginningSlash(path:String):String {
 		path = removeBeginningSlash(path);
@@ -411,7 +411,7 @@ class Paths {
 	 * A shortcut function for removing "./" at the beginning of paths.
 	 * As path functions that for hardcoding assets error when it is used.
 	 * @param path A root path.
-	 * @return `String`
+	 * @return String
 	 */
 	inline public static function removeBeginningSlash(path:String):String {
 		while (path.startsWith('./')) {
@@ -423,19 +423,19 @@ class Paths {
 	}
 
 	/**
-	 * Easy and quick ModPath instance.
+	 * Easy and quick 'ModPath' instance.
 	 * Mostly useless but for scripting it may be useful.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function file(file:ModPath):ModPath
 		return file;
 
 	/**
-	 * Get's a file from several possible extension types.
+	 * Gets a file from several possible extension types.
 	 * @param file The mod path.
 	 * @param exts The extension listing.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	public static function multExt(file:ModPath, exts:Array<String>):ModPath {
 		var result:ModPath = '';
@@ -445,9 +445,9 @@ class Paths {
 		return result;
 	}
 	/**
-	 * Get's the path of a script file.
+	 * Prepends the extention of a script file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function script(file:ModPath):ModPath
 		return multExt(file, Script.exts);
@@ -457,10 +457,10 @@ class Paths {
 	 */
 	public static final fontExts:Array<String> = ['ttf', 'otf'];
 	/**
-	 * Get's the path of a font file.
-	 * From `../fonts/`.
+	 * Gets the path of a font file from "../fonts/".
+	 * **Can automatically prepend the extention.**
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function font(file:ModPath):ModPath {
 		var path:ModPath = multExt('${file.type}:fonts/${file.path}', fontExts);
@@ -470,91 +470,85 @@ class Paths {
 	}
 
 	/**
-	 * Get's the path of a txt file.
+	 * Prepends the extention of a txt file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function txt(file:ModPath):ModPath
 		return file.pushExt('txt');
 
 	/**
-	 * Get's the path of a xml file.
+	 * Prepends the extention of a xml file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function xml(file:ModPath):ModPath
 		return file.pushExt('xml');
 
 	/**
-	 * Get's the path of a json file.
+	 * Prepends the extention of a json file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function json(file:ModPath):ModPath
 		return file.pushExt('json');
+	// TODO: Rework difficulty json usage.
 	/**
-	 * Get's the path of a difficulty json.
-	 * From `../content/difficulties/`.
+	 * Gets the path of a difficulty json from "../content/difficulties/".
 	 * @param key The difficulty key.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function difficulty(key:String):ModPath
 		return json('content/difficulties/$key');
 	/**
-	 * Get's the path of a level json.
-	 * From `../content/levels/`.
-	 * @param name The level json name.
-	 *             Has path typing abilities.
-	 * @return `ModPath` ~ The path data.
+	 * Gets the path of a level json from "../content/levels/".
+	 * @param name The level json name (has path typing abilities).
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function level(name:ModPath):ModPath
 		return json('${name.type}:content/levels/${name.path}');
 	/**
-	 * Get's the path of an object json.
-	 * From `../content/objects/`.
+	 * Gets the path of an object json from "../content/objects/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function object(file:ModPath):ModPath
 		return json('${file.type}:content/objects/${file.path}');
 	/**
-	 * Get's the path of a chart json.
+	 * Gets the path of a chart json.
 	 * @param song The song folder name.
 	 * @param difficulty The difficulty key.
 	 * @param variant The variant key.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ModPath
 		return json('content/songs/$song/charts/${variant == 'normal' ? '' : '$variant/'}$difficulty');
 	/**
-	 * Get's the path of a character json.
-	 * From `../content/objects/characters/`.
+	 * Gets the path of a character json from "../content/objects/characters/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function character(file:ModPath):ModPath
 		return object('${file.type}:characters/${file.path}');
 	/**
-	 * Get's the path of a icon json.
-	 * From `../content/objects/icons/`.
+	 * Gets the path of a icon json from "../content/objects/icons/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function icon(file:ModPath):ModPath
 		return object('${file.type}:icons/${file.path}');
 	/**
-	 * Get's the path of a SpriteText font.
+	 * Gets the path of a SpriteText font.
 	 * @param font The font json file name.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function spriteFont(font:ModPath):ModPath
 		return json('${font.type}:images/ui/fonts/${font.path}');
 
 	/**
-	 * Get's the path of an image file.
-	 * From `../images/`.
+	 * Gets the path of an image file from "../images/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function image(file:ModPath):ModPath {
 		var path:ModPath = '${file.type}:images/${file.path}'; path.pushExt('png');
@@ -566,46 +560,42 @@ class Paths {
 	 */
 	public static final soundExts:Array<String> = ['wav', 'ogg', 'mp3'];
 	/**
-	 * Get's the path of an audio file.
+	 * Prepends the extention of an audio file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function audio(file:ModPath):ModPath {
 		var path:ModPath = multExt(file, soundExts);
 		return path;
 	}
 	/**
-	 * Get's the path of a songs instrumental file.
-	 * From `../content/songs/[song]/audio/`.
+	 * Gets the path of a songs instrumental file from "../content/songs/{song}/audio/".
 	 * @param song The song folder name.
-	 * @param variant The variant key.
-	 * @return `ModPath` ~ The path data.
+	 * @param variant The variation key.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):ModPath
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Inst');
 	/**
-	 * Get's the path of a songs vocal track.
-	 * From `../content/songs/[song]/audio/`.
+	 * Gets the path of a songs vocal track from "../content/songs/{song}/audio/".
 	 * @param song The song folder name.
 	 * @param suffix The suffix tag.
-	 * @param variant The variant key.
-	 * @return `ModPath` ~ The path data.
+	 * @param variant The variation key.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):ModPath
 		return audio('content/songs/$song/audio/${variant == 'normal' ? '' : '$variant/'}Voices${suffix.isNullOrEmpty() ? '' : '-$suffix'}');
 	/**
-	 * Get's the path of a song.
-	 * From `../music/`.
+	 * Gets the path of a song from "../music/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function music(file:ModPath):ModPath
 		return audio('${file.type}:music/${file.path}');
 	/**
-	 * Get's the path of a sound.
-	 * From `../sounds/`.
+	 * Gets the path of a sound from "../sounds/".
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function sound(file:ModPath):ModPath
 		return audio('${file.type}:sounds/${file.path}');
@@ -615,17 +605,16 @@ class Paths {
 	 */
 	public static final videoExts:Array<String> = ['mp4', 'mov', 'webm'];
 	/**
-	 * Get's the path of a video file.
+	 * Prepends the extention of a video file.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function video(file:ModPath):ModPath
 		return multExt(file, videoExts);
 	/**
-	 * Get's the path of a cutscene.
-	 * From either `../content/songs/[PlayState.setSong]/` or `../videos`.
+	 * Gets the path of a cutscene from either "../content/songs/{PlayState.setSong}/" or "../videos"
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The path data.
+	 * @return ModPath ~ The path data.
 	 */
 	inline public static function cutscene(file:ModPath):ModPath {
 		var path:ModPath = video('content/songs/${PlayState.setSong}/${file.path}');
@@ -635,11 +624,11 @@ class Paths {
 	}
 
 	/**
-	 * Read's a folder and returns the paths.
+	 * Reads a folder and returns the paths.
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
-	 * @param prependDir Prepend's the file directory.
-	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
+	 * @param prependDir Prepends the file directory.
+	 * @return Array<ModPath> ~ The path data obtained from the folder.
 	 */
 	public static function readFolder(folder:ModPath, ?setExt:String, prependDir:Bool = true):Array<ModPath> {
 		var files:Array<ModPath> = [];
@@ -654,14 +643,14 @@ class Paths {
 		return files;
 	}
 	/**
-	 * Read's a folder and returns the paths.
-	 * The order is specified by a `order.txt` file, if one exists.
+	 * Reads a folder and returns the paths.
+	 * The order is specified by a "order.txt" file, if one exists.
 	 * This txt would be in the folder you specified.
 	 * @param folder The mod path of the folder.
 	 * @param setExt Specified extension, optional.
-	 * @param prependDir Prepend's the file directory.
-	 * @param addNonListed If true, anything that wasn't listed in the txt file will still be added.
-	 * @return `Array<ModPath>` ~ The path data obtained from the folder.
+	 * @param prependDir Prepends the file directory.
+	 * @param addNonListed If true anything that wasn't listed in the txt file will still be added.
+	 * @return Array<ModPath> ~ The path data obtained from the folder.
 	 */
 	public static function readFolderOrderTxt(folder:ModPath, ?setExt:String, prependDir:Bool = true, addNonListed:Bool = true):Array<ModPath> {
 		var orderText:Array<String> = Assets.text(txt('${folder.type}:${FilePath.addTrailingSlash(folder.path)}order')).trimSplit('\n');
@@ -682,25 +671,25 @@ class Paths {
 	}
 
 	/**
-	 * Check's if a file exists.
+	 * Checks if a file exists.
 	 * @param file The mod path.
-	 * @return `Bool` ~ If true, it exists.
+	 * @return Bool ~ If true it exists.
 	 */
 	inline public static function fileExists(file:ModPath):Bool {
 		var finalPath:String = file.type == ROOT ? file.path : file.format();
 		return FileSystem.exists(finalPath) || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath));
 	}
 	/**
-	 * Check's if a folder exists.
+	 * Checks if a folder exists.
 	 * @param file The mod path.
-	 * @return `Bool` ~ If true, it exists.
+	 * @return Bool ~ If true it exists.
 	 */
 	inline public static function folderExists(file:ModPath):Bool
 		return FileSystem.isDirectory(FilePath.removeTrailingSlashes(file.type == ROOT ? file.path : file.format()));
 	/**
-	 * Check's if an item exists, file or folder!
+	 * Checks if an item exists (file or folder).
 	 * @param file The mod path.
-	 * @return `Bool` ~ If true, it exists.
+	 * @return Bool ~ If true it exists.
 	 */
 	inline public static function itemExists(file:ModPath):Bool
 		return folderExists(file) || fileExists(file);
@@ -710,10 +699,9 @@ class Paths {
 	 */
 	public static final spritesheetExts:Array<String> = ['xml', 'txt', 'json'];
 	/**
-	 * Check's if a spritesheet exists.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `Bool` ~ If true, it exists.
+	 * Checks if a spritesheet exists.
+	 * @param file The mod path from "../images/".
+	 * @return Bool ~ If true it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
 		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts).valid;
@@ -760,7 +748,7 @@ enum abstract AssetTypeHelper(String) from String to String {
 	/**
 	 * Gets the type from file extension.
 	 * @param id File path.
-	 * @return `AssetTypeHelper`
+	 * @return AssetTypeHelper
 	 */
 	@:access(lime.tools.AssetHelper.knownExtensions)
 	inline public static function getFromExt(id:String):AssetTypeHelper {
@@ -773,9 +761,9 @@ enum abstract AssetTypeHelper(String) from String to String {
 	}
 
 	/**
-	 * Coverts Lime's AssetType to mine.
-	 * @param from Lime's AssetType.
-	 * @return `AssetTypeHelper`.
+	 * Coverts Lime's 'AssetType' to mine.
+	 * @param from Lime's 'AssetType'.
+	 * @return AssetTypeHelper.
 	 */
 	@:from inline public static function fromLimeVersion(from:LimeAssetType):AssetTypeHelper {
 		return switch (from) {
@@ -792,9 +780,9 @@ enum abstract AssetTypeHelper(String) from String to String {
 		}
 	}
 	/**
-	 * Coverts AssetTypeHelper to Lime's.
+	 * Coverts 'AssetTypeHelper' to Lime's.
 	 * @param from AssetTypeHelper.
-	 * @return `AssetType` ~ Lime's AssetType.
+	 * @return AssetType ~ Lime's 'AssetType'.
 	 */
 	@:to inline public function toLimeVersion():LimeAssetType {
 		var self:AssetTypeHelper = this;
@@ -813,9 +801,9 @@ enum abstract AssetTypeHelper(String) from String to String {
 	}
 
 	/**
-	 * Coverts OpenFL's AssetType to mine.
-	 * @param from OpenFL's AssetType.
-	 * @return `AssetTypeHelper`.
+	 * Coverts OpenFL's 'AssetType' to mine.
+	 * @param from OpenFL's 'AssetType'.
+	 * @return AssetTypeHelper
 	 */
 	@:from inline public static function fromOpenFLVersion(from:OpenFLAssetType):AssetTypeHelper {
 		return switch (from) {
@@ -830,9 +818,9 @@ enum abstract AssetTypeHelper(String) from String to String {
 		}
 	}
 	/**
-	 * Coverts AssetTypeHelper to OpenFL's.
+	 * Coverts 'AssetTypeHelper' to OpenFL's.
 	 * @param from AssetTypeHelper.
-	 * @return `AssetType` ~ OpenFL's AssetType.
+	 * @return AssetType ~ OpenFL's 'AssetType'.
 	 */
 	@:to inline public function toOpenFLVersion():OpenFLAssetType {
 		var self:AssetTypeHelper = this;

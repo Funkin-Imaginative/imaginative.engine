@@ -26,7 +26,7 @@ enum abstract ScriptType(String) from String to String {
 	var TypeInvalid = 'Invalid';
 
 	/**
-	 * If true, this script can't actually be used for anything.
+	 * If true this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -34,6 +34,7 @@ enum abstract ScriptType(String) from String to String {
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
+// TODO: Rework how this is coded.
 /**
  * All your scripting needs are right here!
  * @author Class started by @Zyflx. Expanded on by @rodney528.

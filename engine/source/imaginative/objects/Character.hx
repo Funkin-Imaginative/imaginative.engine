@@ -8,16 +8,16 @@ typedef CharacterData = {
 	 */
 	@:default(new imaginative.backend.objects.Position()) var camera:Position;
 	/**
-	 * The character's health bar color.
+	 * The characters health bar color.
 	 */
 	var ?color:ParseColor;
 	/**
-	 * The character's icon.
+	 * The characters icon.
 	 */
 	@:default('face') var icon:String;
 	/**
 	 * The amount of time in seconds the animation can be forced to last.
-	 * If set to 0, the animation that is played, plays out normally.
+	 * If set to 0 the animation that is played plays out normally.
 	 */
 	@:default(4) var singlength:Float;
 	/**
@@ -28,7 +28,7 @@ typedef CharacterData = {
 }
 
 /**
- * This is the character class, used for the funny beep boop guys!
+ * This is the character class, used for the funny beep boop guy!
  */
 final class Character extends BeatSprite implements ITexture<Character> {
 	// Texture related stuff.
@@ -43,17 +43,19 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		return cast super.loadAtlas(newTexture);
 	#end
 
+	// TODO: Rename to "id".
 	/**
 	 * The character key name.
 	 */
 	public var theirName(default, null):String;
+	// TODO: Rename to "iconId".
 	/**
 	 * The character icon.
 	 */
 	public var theirIcon(default, null):String = 'face';
 
 	/**
-	 * The character's vocal suffix.
+	 * The characters vocal suffix.
 	 */
 	public var vocalSuffix(default, null):String;
 	/**
@@ -62,7 +64,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var assignedTracks:Array<FlxSound> = [];
 
 	/**
-	 * Used to help `singLength`.
+	 * Used to help "singLength".
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
@@ -76,10 +78,9 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 */
 	public var cameraOffset(default, null):Position = new Position();
 	/**
-	 * Get's the characters camera position.
-	 * @param point An optional Position to apply it to.
-	 *              If you put a Position it won't create a new one.
-	 * @return `Position` ~ The camera position.
+	 * Gets the characters camera position.
+	 * @param point An optional Position to apply it to. If you put a Position it won't create a new one.
+	 * @return Position ~ The camera position.
 	 */
 	public function getCamPos(?point:Position):Position {
 		var midpoint:Position = Position.getObjMidpoint(this);
@@ -95,7 +96,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	}
 
 	/**
-	 * The character's health bar color.
+	 * The characters health bar color.
 	 */
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 

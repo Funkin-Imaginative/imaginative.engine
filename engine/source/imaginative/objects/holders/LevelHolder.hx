@@ -79,7 +79,7 @@ typedef LevelData = {
  */
 class LevelHolder extends BeatSpriteGroup {
 	/**
-	 * The holder's path type.
+	 * The holders path type.
 	 */
 	public var pathType:ModType;
 

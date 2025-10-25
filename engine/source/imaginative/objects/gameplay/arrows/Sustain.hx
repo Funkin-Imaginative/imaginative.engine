@@ -53,8 +53,8 @@ class Sustain extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The sustain position in steps, is an offset of the parent's time.
 	 */
 	public var time:Float;
@@ -82,36 +82,36 @@ class Sustain extends FlxSprite {
 		return setHead.assignedActors = value;
 	/**
 	 * Returns which characters will sing.
-	 * @return `Array<Character>`
+	 * @return Array<Character>
 	 */
 	inline public function renderActors():Array<Character>
 		return setHead.renderActors();
 
 	/**
-	 * If true, the note can be hit.
+	 * If true the note can be hit.
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
 	/**
-	 * If true, it's too late to hit the note.
+	 * If true it's too late to hit the note.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
-	 * If true, this note has been hit.
+	 * If true this note has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true, this note has been missed.
+	 * If true this note has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true, along with the tail, this note and it's tail will be destroyed.
+	 * If true along with the tail, this note and it's tail will be destroyed.
 	 */
 	public var canDie:Bool = false;
 
@@ -148,8 +148,7 @@ class Sustain extends FlxSprite {
 	 * It is the perfect one btw, I tested with makeGraphic.
 	 * Though for some skins it may look off.
 	 * @param sustain The sustain to apply it to.
-	 * @param mult The scale multiplier.
-	 *             You'd most likely put the scroll speed here.
+	 * @param mult The scale multiplier, you'd most likely put the scroll speed here.
 	 */
 	inline public static function applyBaseScaleY(sustain:Sustain, mult:Float = 1):Void {
 		// prevent scaling on sustain end

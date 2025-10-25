@@ -1,6 +1,7 @@
 #if desktop
 package imaginative.backend.system;
 
+// TODO: Figure out if this actually works.
 /**
  * A class that simply points OpenALSoft to a custom configuration file when the game starts up.
  * The config overrides a few global OpenALSoft settings with the aim of improving audio quality on desktop targets.

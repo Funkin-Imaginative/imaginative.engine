@@ -43,9 +43,9 @@ class CodenameHUD extends HUDTemplate {
 	}
 
 	/**
-	 * Applies CNE's y level system thing to a sprite.
+	 * Applies CNEs y level system thing to a sprite.
 	 * @param spr The sprite to effect.
-	 * @return `FlxSprite`
+	 * @return FlxSprite
 	 */
 	public static function cneYLevel<Sprite:FlxObject>(spr:Sprite):Sprite {
 		spr.y = FlxG.camera.height - spr.y - spr.height;

@@ -3,8 +3,15 @@ package flixel.window;
 import lime.app.Application;
 import lime.ui.Window;
 
+/**
+ * Used for automatically updating the window title.
+ */
 class TitleParts {
+	/**
+	 * Self explanatory.
+	 */
 	var parentWindow:FlxWindow;
+
 	/**
 	 * Dispatches when a title part is updated.
 	 */
@@ -71,7 +78,7 @@ class TitleParts {
 @:access(lime.ui.Window)
 class FlxWindow implements IFlxDestroyable {
 	/**
-	 * If true, the window can close.
+	 * If true the window can close.
 	 */
 	public var allowClose:Bool = true;
 	/**
@@ -79,7 +86,7 @@ class FlxWindow implements IFlxDestroyable {
 	 */
 	public var onPreClose:FlxTypedSignal<(FlxWindow, ScriptEvent) -> Void> = new FlxTypedSignal<(FlxWindow, ScriptEvent) -> Void>();
 	/**
-	 * What happens as the window closes.
+	 * What happens when the window closes.
 	 */
 	public var onClose:FlxTypedSignal<(FlxWindow, ScriptEvent) -> Void> = new FlxTypedSignal<(FlxWindow, ScriptEvent) -> Void>();
 
@@ -92,11 +99,17 @@ class FlxWindow implements IFlxDestroyable {
 	public var relPos(default, null):FlxCallbackPoint;
 
 	/**
-	 * The width of the monitor resolution.
+	 * The width of the monitor resolution the window resides in.
 	 */
 	public var monitorWidth(get, never):Float;
 	inline function get_monitorWidth():Float
 		return self.display.bounds.width;
+	/**
+	 * The height of the monitor resolution the window resides in.
+	 */
+	public var monitorHeight(get, never):Float;
+	inline function get_monitorHeight():Float
+		return self.display.bounds.height;
 
 	/**
 	 * The x position of the window.
@@ -106,14 +119,6 @@ class FlxWindow implements IFlxDestroyable {
 		return self.x;
 	inline function set_x(value:Float):Float
 		return self.x = Math.ceil(value);
-
-	/**
-	 * The height of the monitor resolution.
-	 */
-	public var monitorHeight(get, never):Float;
-	inline function get_monitorHeight():Float
-		return self.display.bounds.height;
-
 	/**
 	 * The y position of the window.
 	 */
@@ -127,6 +132,10 @@ class FlxWindow implements IFlxDestroyable {
 	 * Used for the bounds.
 	 */
 	public var __width(default, null):Float;
+	/**
+	 * Used for the bounds.
+	 */
+	public var __height(default, null):Float;
 
 	/**
 	 * How wide the window is.
@@ -136,12 +145,6 @@ class FlxWindow implements IFlxDestroyable {
 		return self.width;
 	inline function set_width(value:Float):Float
 		return self.width = Math.ceil(value);
-
-	/**
-	 * Used for the bounds.
-	 */
-	public var __height(default, null):Float;
-
 	/**
 	 * How tall the window is.
 	 */
@@ -152,7 +155,7 @@ class FlxWindow implements IFlxDestroyable {
 		return self.height = Math.ceil(value);
 
 	/**
-	 * How much the window is visible.
+	 * The window opacity.
 	 */
 	public var alpha(get, set):Float;
 	inline function get_alpha():Float
@@ -161,7 +164,7 @@ class FlxWindow implements IFlxDestroyable {
 		return self.opacity = value;
 
 	/**
-	 * If false, the window can't be seen.
+	 * If false the window can't be seen.
 	 */
 	public var hidden(get, set):Bool;
 	inline function get_hidden():Bool
@@ -169,14 +172,15 @@ class FlxWindow implements IFlxDestroyable {
 	inline function set_hidden(value:Bool):Bool
 		return self.__hidden = value;
 
+	// TODO: Code this in!
 	/**
-	 * If true, the window will fullscreen using borderless instead.
+	 * If true the window will fullscreen using borderless instead.
 	 */
 	public var borderlessFullscreen:Bool = false;
 
 	var _fullscreen:Bool = false;
 	/**
-	 * If true, the window will fullscreen.
+	 * If true the window will fullscreen.
 	 */
 	public var fullscreen(get, set):Bool;
 	inline function get_fullscreen():Bool
@@ -188,7 +192,7 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * If true, the window won't have a border.
+	 * If true the window won't have a border.
 	 */
 	public var borderless(get, set):Bool;
 	inline function get_borderless():Bool
@@ -197,11 +201,11 @@ class FlxWindow implements IFlxDestroyable {
 		return self.borderless = value;
 
 	/**
-	 * The main window.
+	 * The main window instance.
 	 */
 	public static var instance(default, null):FlxWindow;
 	/**
-	 * The lime window the class is attached to.
+	 * The "lime" window the 'FlxWindow' instance is attached to.
 	 */
 	public var self(default, null):Window;
 
@@ -217,9 +221,9 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * Attaches a lime window to this custom flx window.
-	 * @param window If you have a window already, just attach your lime window to this flx one!
-	 * @param startTitle Set the starting title!
+	 * Attaches a "lime" window to this 'FlxWindow' instance.
+	 * @param window If you have a window already just attach your "lime" window to this 'FlxWindow'!
+	 * @param startTitle The starting title.
 	 */
 	public function new(window:Window, ?startTitle:String):Void {
 		self = window;
@@ -230,7 +234,7 @@ class FlxWindow implements IFlxDestroyable {
 			(point:FlxPoint) -> {}
 		);
 
-		title = new TitleParts(this, startTitle ?? self.title);
+		title = new TitleParts(this, startTitle ?? self.title ?? 'No Title Entered');
 		__width = width;
 		__height = height;
 
@@ -249,9 +253,9 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * Centers this `FlxWindow` on the screen, either by the x axis, y axis, or both.
-	 * @param axes On what axes to center the object (e.g. `X`, `Y`, `XY`) - default is both.
-	 * @return `FlxWindow` ~ For chaining.
+	 * Centers this 'FlxWindow' on the screen, either by the x axis, y axis, or both.
+	 * @param axes On what axes to center the object (e.g. "X", "Y", "XY"), default is both.
+	 * @return FlxWindow ~ Current instance for chaining.
 	 */
 	inline public function screenCenter(axes:FlxAxes = XY):FlxWindow {
 		if (axes.x) x = (monitorWidth - width) / 2;
@@ -260,7 +264,7 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * Helper function to set the coordinates of this object.
+	 * Helper function to set the coordinates of this window.
 	 * Handy since it only requires one line of code.
 	 * @param x The new x position.
 	 * @param y The new y position.
@@ -271,9 +275,9 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * Shortcut for setting both width and Height.
-	 * @param width The new hitbox width.
-	 * @param height The new hitbox height.
+	 * Shortcut for setting both the window width and Height.
+	 * @param width The new window width.
+	 * @param height The new window height.
 	 */
 	inline public function setSize(width:Float, height:Float):Void {
 		this.width = width;
@@ -281,7 +285,8 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	/**
-	 * Tries to close this window instance.
+	 * Attempts to close this window instance.
+	 * I say attempts of the "allowClose" shenanigans.
 	 */
 	inline public function close():Void
 		self.close();
@@ -295,7 +300,7 @@ class FlxWindow implements IFlxDestroyable {
 
 	inline public function toString():String {
 		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('title', self.title)
+			LabelValuePair.weak('title', title)
 		]);
 	}
 }

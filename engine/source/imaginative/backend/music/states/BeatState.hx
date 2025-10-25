@@ -1,7 +1,7 @@
 package imaginative.backend.music.states;
 
 /**
- * It's just `FlxState` but with IBeat implementation. Or it would if it wasn't for this.
+ * It's just 'FlxState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
 class BeatState extends FlxState /* implements IBeat */ {
@@ -13,9 +13,9 @@ class BeatState extends FlxState /* implements IBeat */ {
 		return Conductor.menu;
 	function set_conductor(value:Conductor):Conductor
 		return Conductor.menu;
-	// this to for overriding when it comes to game play
+	// this to for overriding when it comes to game play ^^
 
-	// BPM's.
+	// BPM
 	/**
 	 * Starting BPM.
 	 */
@@ -23,7 +23,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	inline function get_startBpm():Float
 		return conductor.startBpm;
 	/**
-	 * Previous BPM. (is the start bpm on start)
+	 * Previous BPM. (is the "startBpm" on start)
 	 */
 	public var prevBpm(get, never):Float;
 	inline function get_prevBpm():Float
@@ -55,25 +55,25 @@ class BeatState extends FlxState /* implements IBeat */ {
 		return conductor.curMeasure;
 
 	/**
-	 * The current step, as a float instead.
+	 * The current step, as a float percent.
 	 */
 	public var curStepFloat(get, never):Float;
 	inline function get_curStepFloat():Float
 		return conductor.curStepFloat;
 	/**
-	 * The current beat, as a float instead.
+	 * The current beat, as a float percent.
 	 */
 	public var curBeatFloat(get, never):Float;
 	inline function get_curBeatFloat():Float
 		return conductor.curBeatFloat;
 	/**
-	 * The current measure, as a float instead.
+	 * The current measure, as a float percent.
 	 */
 	public var curMeasureFloat(get, never):Float;
 	inline function get_curMeasureFloat():Float
 		return conductor.curMeasureFloat;
 
-	// time signature
+	// Time Signature
 	/**
 	 * The number of beats per measure.
 	 */
@@ -113,10 +113,10 @@ class BeatState extends FlxState /* implements IBeat */ {
 	inline function get_time():Float
 		return conductor.time;
 
-	// Actual state stuff below.
+	// Actual state stuff below. vv
 
 	/**
-	 * The scripts that have access to the state itself.
+	 * The scripts that have access to the state instance.
 	 */
 	public var stateScripts:ScriptGroup;
 	/**
@@ -124,13 +124,13 @@ class BeatState extends FlxState /* implements IBeat */ {
 	 */
 	public var scriptsAllowed:Bool = true;
 	/**
-	 * The name of the script to have access to the state.
+	 * The name of the state script (will default to the class name if a custom one isn't entered).
 	 */
 	public var scriptName:String;
 
 	/**
-	 * @param scriptsAllowed If true, scripts are allowed.
-	 * @param scriptName The name of the script to access the state.
+	 * @param scriptsAllowed If true scripts are allowed.
+	 * @param scriptName The name of the state script.
 	 */
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
@@ -147,11 +147,11 @@ class BeatState extends FlxState /* implements IBeat */ {
 		}
 	}
 	/**
-	 * Call's a function in the script instance.
-	 * @param func Name of the function to call.
+	 * Calls a function in the script group.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
 	 * @param def If it's null then return this.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
@@ -159,10 +159,10 @@ class BeatState extends FlxState /* implements IBeat */ {
 		return def;
 	}
 	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
-	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * Calls an event in the script group.
+	 * @param func The name of the function to call.
+	 * @param event The event instance.
+	 * @return ScriptEvent
 	 */
 	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
@@ -171,7 +171,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 	}
 
 	/**
-	 * It's just FlxG.switchState, but with stuff to accommodate for BeatState instances.
+	 * It's just 'FlxG.switchState', but with stuff to accommodate for 'BeatState' instances.
 	 * @param nextState The state to switch to.
 	 */
 	public static function switchState(nextState:Void->BeatState):Void {
@@ -197,7 +197,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 		FlxG.switchState(() -> stateCheck(FlxG.state, nextState));
 	}
 	/**
-	 * It's just FlxG.resetState, but with stuff to accommodate for BeatState instances.
+	 * It's just 'FlxG.resetState', but with stuff to accommodate for 'BeatState' instances.
 	 */
 	inline public static function resetState():Void {
 		if (FlxG.state is BeatState) {
@@ -208,6 +208,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 		// switchState(resetConstructor());
 		FlxG.resetState();
 	}
+	// TODO: Rethink how tf this would even work.
 
 	// function resetConstructor():Void->FlxState {
 	// 	return Type.createInstance(Type.getClass(this), []);
@@ -293,6 +294,7 @@ class BeatState extends FlxState /* implements IBeat */ {
 		scriptCall('onFocusLost');
 	}
 
+	// TODO: Rethink how to effect cameras.
 	@:unreflective inline function beatCamLoop(func:BeatCamera->Void):Void
 		for (camera in FlxG.cameras.list)
 			if (camera is BeatCamera)

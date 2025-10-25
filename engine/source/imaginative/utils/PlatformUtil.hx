@@ -7,7 +7,7 @@ class PlatformUtil {
 	/**
 	 * Opens a URL in your browser.
 	 * @param url The url.
-	 * @return `Bool` ~ If it opened, this returns true.
+	 * @return Bool ~ If it opened this returns true.
 	 */
 	public static function openURL(url:String):Bool {
 		try {
@@ -21,8 +21,8 @@ class PlatformUtil {
 
 	/**
 	 * Detects if your mouse moved.
-	 * @param relativeToScreen If true, this function does it's specialty!
-	 * @return `Bool`
+	 * @param relativeToScreen If true this function does it's specialty!
+	 * @return Bool
 	 */
 	@:access(flixel.input.mouse.FlxMouse)
 	inline public static function mouseJustMoved(relativeToScreen:Bool = true):Bool {

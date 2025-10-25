@@ -2,6 +2,7 @@ package imaginative.objects.gameplay.hud;
 
 import imaginative.objects.ui.Bar;
 
+// TODO: Optimize this shit.
 class KadeHUD extends HUDTemplate {
 	override function get_type():HUDType
 		return Kade;

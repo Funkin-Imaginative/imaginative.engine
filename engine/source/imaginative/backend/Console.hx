@@ -2,8 +2,9 @@ package imaginative.backend;
 
 import haxe.Log;
 import haxe.PosInfos;
-import flixel.system.debug.log.LogStyle;
-import flixel.system.frontEnds.LogFrontEnd;
+
+// import flixel.system.debug.log.LogStyle;
+// import flixel.system.frontEnds.LogFrontEnd;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
@@ -15,7 +16,7 @@ enum abstract LogLevel(String) from String to String {
 }
 
 /**
- * Just an enum, since, you wont need to use it. When scripting anyway.
+ * An internal enum used for stating where a trace came from.
  */
 enum LogFrom {
 	FromSource;
@@ -101,7 +102,7 @@ class Console {
 	}
 
 	/**
-	 * The engine's special trace function.
+	 * The engines special trace function.
 	 * @param value The information you want to pop on to the console.
 	 * @param level The level status of the message.
 	 * @param from States if script or source logged this.

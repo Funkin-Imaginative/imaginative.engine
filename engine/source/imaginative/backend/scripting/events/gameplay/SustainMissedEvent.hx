@@ -30,7 +30,7 @@ final class SustainMissedEvent extends PlayAnimEvent {
 		return id % field.strumCount;
 
 	/**
-	 * If true, it prevents the press animation from playing on the target strum.
+	 * If true it prevents the press animation from playing on the target strum.
 	 */
 	public var stopStrumPress:Bool;
 

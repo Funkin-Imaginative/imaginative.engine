@@ -1,7 +1,8 @@
 package imaginative.backend.music.interfaces;
 
+// TODO: Rework a LOT of beat related shit.
 /**
- * Implementing this interface will allow the object to detect when a song is playing.
+ * Implementing this interface will allow the object to detect when a conductor is active.
  */
 interface IBeat {
 	/**
@@ -35,11 +36,12 @@ interface IBeat {
 	function measureHit(curMeasure:Int):Void;
 }
 
+// TODO: Rethink this classes use.
 class IBeatHelper {
 	/**
 	 * Function for calling beat functions on an object.
 	 * @param member The object to effect.
-	 * @param curTime The current time value of the `timeType`.
+	 * @param curTime The current time value of the 'timeType'.
 	 * @param timeType The time type.
 	 */
 	public static function iBeatCheck(member:FlxBasic, curTime:Int, timeType:SongTimeType):Void {

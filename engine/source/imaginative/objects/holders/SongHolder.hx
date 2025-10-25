@@ -46,7 +46,7 @@ typedef SongData = {
 
 class SongHolder extends BeatSpriteGroup {
 	/**
-	 * The holder's path type.
+	 * The holders path type.
 	 */
 	public var pathType:ModType;
 

@@ -14,6 +14,7 @@ private typedef Anim = {
 	var anim:FlxAnimation;
 }
 
+// TODO: This class in unneeded, I believe this overcomplicates "flixel-animate".
 class BetterAnimationController extends Controller {
 	function checkAnims(?specificAnim:String):Void {
 		var anims:Array<Anim> = [];

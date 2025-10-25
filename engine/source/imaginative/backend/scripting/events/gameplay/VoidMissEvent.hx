@@ -25,15 +25,15 @@ final class VoidMissEvent extends PlayAnimEvent {
 		return id % field.strumCount;
 
 	/**
-	 * If true, the player will have consequences for pressing a key for no reason.
+	 * If true the player will have consequences for pressing a key for no reason.
 	 */
 	public var triggerMiss:Bool;
 	/**
-	 * If true, it prevents the press animation from playing on the target strum.
+	 * If true it prevents the press animation from playing on the target strum.
 	 */
 	public var stopStrumPress:Bool = false;
 	/**
-	 * If true, it prevents the miss animation from playing on the assigned characters.
+	 * If true it prevents the miss animation from playing on the assigned characters.
 	 */
 	public var stopMissAnimation:Bool = false;
 

@@ -45,7 +45,6 @@ class EngineInfoText extends Sprite {
 		if (memoryPeakUsage < memoryUsage)
 			memoryPeakUsage = memoryUsage;
 
-		// TODO: Have it say the script file path.
 		text.text = [
 			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
 			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',

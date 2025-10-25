@@ -17,7 +17,7 @@ class ArrowField extends BeatGroup {
 	inline function get_conductor():Conductor
 		return conductor ?? Conductor.mainInstance;
 
-	// Even though you can have a but ton of ArrowField's you can ***ONLY*** play as one!
+	// Even though you can have a but ton of 'ArrowField's you can ***ONLY*** play as one!
 	/**
 	 * The main enemy field.
 	 */
@@ -30,7 +30,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * Sets up position for an array of fields.
 	 * @param fields Array of fields.
-	 * @return `Array<ArrowField>`
+	 * @return Array<ArrowField>
 	 */
 	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
 		if (camera == null)
@@ -54,20 +54,20 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * If enabled, botplay will be active when entering a song.
+	 * If enabled botplay will be activate when entering a song.
 	 */
 	public static var botplay:Bool = false;
 	/**
-	 * If enabled, you play as the enemy instead of the player.
+	 * If enabled you play as the enemy instead of the player.
 	 */
 	public static var enemyPlay:Bool = false;
 	/**
-	 * If enabled, the enemy will be controlled by a second player.
+	 * If enabled the enemy will be controlled by a second player.
 	 * But with enemyPlay your swapped around, making P1 the enemy and P2 the player.
 	 */
 	public static var enableP2:Bool = false;
 
-	// MAYBE: Figure out how to do this better.
+	// TODO: Figure out how to do this better.
 	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
 		for (char in actors.filter((char:Character) -> return char != null)) {
 			char.controls = field.isPlayer ? field.controls : null;
@@ -78,7 +78,7 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * States if it's the main enemy or player field.
+	 * States if its the main enemy or player field.
 	 * False is the enemy, true is the player, and null is neither.
 	 */
 	public var status(get, set):Null<Bool>;
@@ -114,7 +114,7 @@ class ArrowField extends BeatGroup {
 		player = prevEnemy;
 	}
 	/**
-	 * If true, this field is maintained by a player.
+	 * If true this field is maintained by a player.
 	 */
 	public var isPlayer(get, never):Bool;
 	inline function get_isPlayer():Bool {
@@ -143,7 +143,7 @@ class ArrowField extends BeatGroup {
 		if (status == null) return Scoring.unregisteredStats;
 		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
 
-	// signals
+	// FlxSignals
 	/**
 	 * Dispatches when user input happens at all.
 	 */
@@ -192,12 +192,12 @@ class ArrowField extends BeatGroup {
 	 * How far out until a note is killed.
 	 */
 	public var noteKillRange:Float = 350;
+	// TODO: Make it so strum skins will have their own spacing!
+	// TODO: REWORK THIS COMPLETELY
 	/**
 	 * The distance between the each strum.
-	 * TODO: Make it so strum skins will have their own spacing!
-	 * TODO: REWORK THIS COMPLETELY
 	 */
-	public var strumSpacing:Float = 0;
+	public var strumSpacing:Float = 8;
 
 	/**
 	 * This function is used to get the scroll speed but also check for the personal speed!
@@ -209,14 +209,14 @@ class ArrowField extends BeatGroup {
 	 * scrollSpeed = personalScrollSpeed + 2;
 	 * // that wouldn't be fun
 	 * ```
-	 * @return `Float` ~ Target scroll speed.
+	 * @return Float ~ Target scroll speed.
 	 */
 	inline public function getScrollSpeed():Float
 		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : scrollSpeed;
 	/**
 	 * The scroll speed of the field.
 	 * This overrides the base chart speed.
-	 * When null is returns the base chart speed.
+	 * When "null" is returns the base chart speed.
 	 */
 	public var scrollSpeed(default, set):Null<Float>;
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
@@ -242,7 +242,7 @@ class ArrowField extends BeatGroup {
 
 	/**
 	 * The amount of strums in the field.
-	 * Forced to 4 for now.
+	 * Forced to 4 *for now*.
 	 */
 	public var strumCount(default, set):Int;
 	inline function set_strumCount(value:Int):Int
@@ -314,13 +314,14 @@ class ArrowField extends BeatGroup {
 			);
 	}
 
+	// TODO: Rework this.
 	/**
 	 * Where input stuff really begins.
 	 * @param i The strum lane index.
 	 * @param strum The strum object instance.
-	 * @param hasHit If true, a bind was pressed.
-	 * @param beingHeld If true, a bind is being held.
-	 * @param wasReleased If true, a bind was released.
+	 * @param hasHit If true a bind was pressed.
+	 * @param beingHeld If true a bind is being held.
+	 * @param wasReleased If true a bind was released.
 	 */
 	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
 		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased);
@@ -411,8 +412,9 @@ class ArrowField extends BeatGroup {
 	inline public function updateStatsText():Void
 		if (status != null && HUDType.instance != null)
 			if (status == enemyPlay) HUDType.instance.updateStatsP2Text();
-			else HUDType.instance.updateStatsText();
+	 		else HUDType.instance.updateStatsText();
 
+	// TODO: Figure out how to do this better.
 	inline function _onNoteHit(note:Note, ?i:Int):Void {
 		if (note.wasHit) return;
 		i ??= note.id;
@@ -493,7 +495,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The base arrow size.
 	 */
-	public static var arrowSize(default, null):Float = 160 * 0.7;
+	public static var arrowSize(default, null):Float = 104;
 
 	/**
 	 * The average width you'll get from this field.
@@ -508,7 +510,7 @@ class ArrowField extends BeatGroup {
 	public var totalWidth(default, null):Float;
 
 	/**
-	 * Reset's the internal positions of the strums.
+	 * Resets the internal positions of the strums.
 	 */
 	public function resetInternalPositions():Void {
 		for (strum in strums)
@@ -575,8 +577,8 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Parse's ChartField information.
-	 * @param data The ChartField data.
+	 * Parses 'ChartField' information.
+	 * @param data The 'ChartField' data.
 	 */
 	public function parse(data:ChartField):Void {
 		for (base in data.notes) {

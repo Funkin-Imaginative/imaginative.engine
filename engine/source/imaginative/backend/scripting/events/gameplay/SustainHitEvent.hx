@@ -30,7 +30,7 @@ final class SustainHitEvent extends PlayAnimEvent {
 		return id % field.strumCount;
 
 	/**
-	 * If true, it prevents the comfirm animation from playing on the target strum.
+	 * If true it prevents the comfirm animation from playing on the target strum.
 	 */
 	public var stopStrumConfirm:Bool = false;
 

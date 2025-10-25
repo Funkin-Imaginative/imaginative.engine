@@ -5,6 +5,7 @@ import cpp.Function;
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
 
+// TODO: Get this class to work.
 /**
  * Class for applying rich presence onto the users discord profile.
  * @author Zylfx
@@ -58,6 +59,10 @@ class RichPresence {
 
 	/**
 	 * Updates the rich presence.
+	 * @param details .
+	 * @param state .
+	 * @param smallImage .
+	 * @param largeImage .
 	 */
 	public static function changePresence(details:String, ?state:String, ?smallImage:String, largeImage:String = 'engine-logo'):Void {
 		var time:Float = Date.now().getTime();

@@ -44,8 +44,8 @@ class Note extends FlxSprite {
 	inline function get_idMod():Int
 		return id % setField.strumCount;
 
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	public var time:Float;
@@ -72,7 +72,7 @@ class Note extends FlxSprite {
 	}
 
 	/**
-	 * If true, this note will have less priority in the input system and in most cases be detected last.
+	 * If true this note will have less priority in the input system and in most cases be detected last.
 	 */
 	public var lowPriority:Bool = false;
 
@@ -83,42 +83,42 @@ class Note extends FlxSprite {
 	public var assignedActors:Array<Character> = [];
 	/**
 	 * Returns which characters will sing.
-	 * @return `Array<Character>`
+	 * @return Array<Character>
 	 */
 	inline public function renderActors():Array<Character>
 		return assignedActors.empty() ? setField.assignedActors : assignedActors;
 
-	// important
+	// Important
 	/**
-	 * If true, the note can be hit.
+	 * If true the note can be hit.
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool
 		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
 	/**
-	 * If true, it's too late to hit the note.
+	 * If true it's too late to hit the note.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
-	 * If true, the note has pasted the strum.
+	 * If true the note has pasted the strum.
 	 */
 	public var pastedStrum(get, never):Bool;
 	inline function get_pastedStrum():Bool
 		return setField.conductor.time < time;
 	/**
-	 * If true, this note has been hit.
+	 * If true this note has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true, this note has been missed.
+	 * If true this note has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true, along with the tail, this note and it's tail will be destroyed.
+	 * If true along with the tail, this note and it's tail will be destroyed.
 	 */
 	public var canDie:Bool = false;
 
@@ -156,7 +156,7 @@ class Note extends FlxSprite {
 	}
 
 	/**
-	 * Makes the note follow this strum's position.
+	 * Makes the note follow this strums position.
 	 * @param strum
 	 */
 	public function followStrum(?strum:Strum):Void {
@@ -224,7 +224,7 @@ class Note extends FlxSprite {
 	 * Filters an array of notes.
 	 * @param notes An array of notes.
 	 * @param i Specified note id. This is optional.
-	 * @return `Array<Note>` ~ Resulting filter.
+	 * @return Array<Note> ~ Resulting filter.
 	 */
 	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
 		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id) && !note.canDie);
@@ -234,9 +234,9 @@ class Note extends FlxSprite {
 	/**
 	 * Filters an array of sustains.
 	 * @param sustains An array of sustains.
-	 * @param isMiss If true, then this filters out sustains that can't be hit.
+	 * @param isMiss If true then this filters out sustains that can't be hit.
 	 * @param i Specified sustain id. This is optional.
-	 * @return `Array<Sustain>` ~ Resulting filter.
+	 * @return Array<Sustain> ~ Resulting filter.
 	 */
 	inline public static function filterTail(sustains:Array<Sustain>, isMiss:Bool = false, ?i:Int):Array<Sustain> {
 		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id) && !sustain.canDie);
@@ -248,7 +248,7 @@ class Note extends FlxSprite {
 	 * Helper function for sorting an array of notes.
 	 * @param a Note a.
 	 * @param b Note b.
-	 * @return `Int`
+	 * @return Int
 	 */
 	inline public static function sortNotes(a:Note, b:Note):Int {
 		if (a.lowPriority && !b.lowPriority) return 1;
@@ -259,7 +259,7 @@ class Note extends FlxSprite {
 	 * Helper function for sorting an array of sustains.
 	 * @param a Note a.
 	 * @param b Note b.
-	 * @return `Int`
+	 * @return Int
 	 */
 	inline public static function sortTail(a:Sustain, b:Sustain):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);

@@ -38,6 +38,7 @@ enum abstract AnimationContext(String) from String to String {
 	var Unclear;
 }
 
+// TODO: Readd animation offsets to this.
 typedef AnimationMapping = {
 	/**
 	 * Swapped name for that set animation.
@@ -97,9 +98,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public var animController(default, null):BetterAnimationController;
 
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Loads a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadTexture(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
@@ -117,12 +118,12 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		return this;
 	}
 	/**
-	 * Load's a graphic texture for the sprite to use.
+	 * Loads a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @param animated Whether the graphic should be the sprite cut into a grid.
 	 * @param width Grid width.
 	 * @param height Grid height.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
 		if (Paths.fileExists(Paths.image(newTexture)))
@@ -134,9 +135,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		return this;
 	}
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Loads a sheet for the sprite to use.
 	 * @param newTexture The mod path.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadSheet(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
@@ -156,9 +157,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 	#if ANIMATE_SUPPORT
 	/**
-	 * Load's an animate atlas for the sprite to use.
+	 * Loads an animate atlas for the sprite to use.
 	 * @param newTexture The mod path.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadAtlas(newTexture:ModPath):BaseSprite {
 		var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
@@ -306,7 +307,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		scale: new Position()
 	}
 	/**
-	 * If true, the swap anim var can go off.
+	 * If true the swap anim var can go off.
 	 * For characters and icons it always on.
 	 */
 	public var swapAnimTriggers(get, null):Bool = false;
@@ -404,14 +405,13 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 
 	/**
-	 * Play's an animation.
+	 * Plays an animation.
 	 * @param name The animation name.
-	 * @param force If true, the game won't care if another one is already playing.
+	 * @param force If true the game won't care if another one is already playing.
 	 * @param context The context for the upcoming animation.
 	 * @param suffix The animation suffix.
-	 * @param reverse If true, the animation will play backwards.
-	 * @param frame The starting frame. By default it's 0.
-	 *              Although if reversed it will use the last frame instead.
+	 * @param reverse If true the animation will play backwards.
+	 * @param frame The starting frame. By default it's 0. although if reversed it will use the last frame instead.
 	 */
 	public function playAnim(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;
@@ -428,11 +428,11 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		}
 	}
 	/**
-	 * Get's the name of the currently playing animation.
+	 * Gets the name of the currently playing animation.
 	 * The arguments are to reverse the name.
-	 * @param ignoreSwap If true, it won't use the swap name.
-	 * @param ignoreFlip If true, it won't use the flip name.
-	 * @return `Null<String>` ~ The animation name.
+	 * @param ignoreSwap If true it won't use the swap name.
+	 * @param ignoreFlip If true it won't use the flip name.
+	 * @return Null<String> ~ The animation name.
 	 */
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
@@ -444,10 +444,10 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		return null;
 	}
 	/**
-	 * Get's information on a set animation of your choosing.
+	 * Gets information on a set animation of your choosing.
 	 * This way you won't have to worry about certain things.
 	 * @param name The animation name.
-	 * @return `AnimationMapping` ~ The animation information.
+	 * @return AnimationMapping ~ The animation information.
 	 */
 	inline public function getAnimInfo(name:String):AnimationMapping {
 		var data:AnimationMapping;
@@ -462,7 +462,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 	/**
 	 * Tells you if the animation has finished playing.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function isAnimFinished():Bool
 		return animation.finished;
@@ -472,10 +472,10 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	inline public function finishAnim():Void
 		animation.finished = true;
 	/**
-	 * Check's if the animation exists.
+	 * Checks if the animation exists.
 	 * @param name The animation name to check.
-	 * @param inGeneral If false, it only checks if the animation is listed in the map.
-	 * @return `Bool` ~ If true, the animation exists.
+	 * @param inGeneral If false it only checks if the animation is listed in the map.
+	 * @return Bool ~ If true the animation exists.
 	 */
 	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool {
 		return inGeneral ? animation.exists(name) : (animation.exists(name) && anims.exists(name));
@@ -515,7 +515,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	/**
 	 * Gets the offsets for an animation.
 	 * @param name The animation name.
-	 * @return `Position` ~ The animation offset.
+	 * @return Position ~ The animation offset.
 	 */
 	public function getAnimationOffset(?name:String):Position {
 		var anim:BetterAnimation = cast animation.getByName(name ?? getAnimName(false));

@@ -1,5 +1,6 @@
 package imaginative.backend.gameplay;
 
+// TODO: I believe this class needs some rethinking.
 class PlayerStats {
 	/**
 	 * The accuracy percent.

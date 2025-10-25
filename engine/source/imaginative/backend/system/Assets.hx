@@ -12,6 +12,7 @@ import imaginative.backend.display.BetterBitmapData;
 import animate.FlxAnimateFrames;
 #end
 
+// TODO: Rework into something simliar to VSlice's registries.
 /**
  * This is mostly taken from Psych since idk what to actually do.
  */
@@ -87,9 +88,8 @@ class Assets {
 	}
 	/**
 	 * When called it clears all graphics.
-	 * @param clearUnused If true, it clears any unused graphics.
-	 * @param ignoreExclusions If true, it ignores excluded graphics.
-	 *                         Used for resetGame shenanigans.
+	 * @param clearUnused If true it clears any unused graphics.
+	 * @param ignoreExclusions If true it ignores excluded graphics. Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
 		for (tag in loadedGraphics.keys()) {
@@ -115,9 +115,8 @@ class Assets {
 	}
 	/**
 	 * When called it clears all sounds.
-	 * @param clearUnused If true, it clears any unused sounds.
-	 * @param ignoreExclusions If true, it ignores excluded sounds.
-	 *                         Used for resetGame shenanigans.
+	 * @param clearUnused If true it clears any unused sounds.
+	 * @param ignoreExclusions If true it ignores excluded sounds. Used for resetGame shenanigans.
 	 */
 	inline public static function clearSounds(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
 		for (tag in loadedSounds.keys()) {
@@ -137,10 +136,9 @@ class Assets {
 	/**
 	 * When called it clears all.
 	 * @param clearUnused If true it clears any unused things.
-	 * @param ignoreExclusions If true, it ignores excluded things.
-	 *                         Used for resetGame shenanigans.
+	 * @param ignoreExclusions If true it ignores excluded things. Used for resetGame shenanigans.
 	 * @param runGarbageCollector if true this function will run the garbage collector.
-	 * @param isMajor If true it's major or something?
+	 * @param isMajor If true it cleans out bigger data.
 	 */
 	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
 		clearGraphics(clearUnused, ignoreExclusions);
@@ -179,10 +177,10 @@ class Assets {
 	}
 
 	/**
-	 * Get's the data of an image file.
+	 * Gets the data of an image file.
 	 * From `../images/`.
 	 * @param file The mod path.
-	 * @return `FlxGraphic` ~ The graphic data.
+	 * @return FlxGraphic ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
 		var path:String = Paths.image(file).format();
@@ -195,10 +193,10 @@ class Assets {
 	}
 
 	/**
-	 * Get's the data of an audio file.
+	 * Gets the data of an audio file.
 	 * @param file The mod path.
-	 * @param beepWhenNull If true, the flixel beep sound will be retrieved when the wanted sound doesn't exist.
-	 * @return `Sound` ~ The sound data.
+	 * @param beepWhenNull If true the flixel beep sound will be retrieved when the wanted sound doesn't exist.
+	 * @return Sound ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
 		var path:String = Paths.audio(file).format();
@@ -210,47 +208,46 @@ class Assets {
 		return cacheSound(path, beepWhenNull);
 	}
 	/**
-	 * Get's the data of a songs instrumental file.
+	 * Gets the data of a songs instrumental file.
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param variant The variant key.
-	 * @return `Sound` ~ The sound data.
+	 * @return Sound ~ The sound data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):Sound
 		return audio(Paths.inst(song, variant), false);
 	/**
-	 * Get's the data of a songs vocal track.
+	 * Gets the data of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param suffix The suffix tag.
 	 * @param variant The variant key.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):Sound
 		return audio(Paths.vocal(song, suffix, variant), false);
 	/**
-	 * Get's the data of a song.
+	 * Gets the data of a song.
 	 * From `../music/`.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function music(file:ModPath):Sound
 		return audio(Paths.music(file));
 	/**
-	 * Get's the data of a sound.
+	 * Gets the data of a sound.
 	 * From `../sounds/`.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function sound(file:ModPath):Sound
 		return audio(Paths.sound(file));
 
 	/**
-	 * Get's a spritesheet's data file.
-	 * @param file The mod path.
-	 *             From `../images/`.
+	 * Gets a spritesheet's data file.
+	 * @param file The mod path. From `../images/`.
 	 * @param type The texture type.
-	 * @return `FlxAtlasFrames`
+	 * @return FlxAtlasFrames
 	 */
 	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
@@ -272,44 +269,40 @@ class Assets {
 		}
 	}
 	/**
-	 * Get's sparrow sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Sparrow frame collection.
+	 * Gets sparrow sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Sparrow frame collection.
 	 */
 	inline public static function getSparrowFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromSparrow(image(file), Paths.xml('${file.type}:images/${file.path}'));
 	/**
-	 * Get's packer sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Packer frame collection.
+	 * Gets packer sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Packer frame collection.
 	 */
 	inline public static function getPackerFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file), Paths.txt('${file.type}:images/${file.path}'));
 	/**
-	 * Get's aseprite sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Aseprite frame collection.
+	 * Gets aseprite sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Aseprite frame collection.
 	 */
 	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromAseprite(image(file), Paths.json('${file.type}:images/${file.path}'));
 	#if ANIMATE_SUPPORT
 	/**
-	 * Get's animate atlas data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAnimateFrames` ~ The Atlas frame collection.
+	 * Gets animate atlas data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAnimateFrames ~ The Atlas frame collection.
 	 */
 	inline public static function getAnimateAtlas(file:ModPath):FlxAnimateFrames
 		return FlxAnimateFrames.fromAnimate(Paths.image(Paths.json('${file.type}:${file.path}/Animation')));
 	#end
 
 	/**
-	 * Get's the content of a file containing text.
+	 * Gets the content of a file containing text.
 	 * @param file The mod path.
-	 * @return `String` ~ The file contents.
+	 * @return String ~ The file contents.
 	 */
 	inline public static function text(file:ModPath):String {
 		var finalPath:String = file.format();
@@ -322,11 +315,10 @@ class Assets {
 		}
 	}
 	/**
-	 * Parse's json data.
+	 * Parses json data.
 	 * @param data The stringified json data.
-	 * @param file A mod path, for just in case reasons.
-	 *             Mostly for showing the path when it errors.
-	 * @return `Dynamic` ~ The parsed data.
+	 * @param file A mod path, for just in case reasons. Used for showing the path when it errors.
+	 * @return Dynamic ~ The parsed data.
 	 */
 	inline public static function json(data:String, ?file:ModPath):Dynamic {
 		var content:Dynamic = {}

@@ -1,7 +1,7 @@
 package imaginative.states.menus;
 
 /**
- * The freeplay menu, where you can pick any song!
+ * The freeplay menu where you can pick any song!
  */
 class FreeplayMenu extends BeatState {
 	// Menu related vars.
