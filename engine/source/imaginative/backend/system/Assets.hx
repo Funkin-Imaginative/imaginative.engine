@@ -7,7 +7,7 @@ import moonchart.backend.Util as MoonUtil;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
-import imaginative.display.BetterBitmapData;
+import imaginative.backend.display.BetterBitmapData;
 #if ANIMATE_SUPPORT
 import animate.FlxAnimateFrames;
 #end
@@ -19,9 +19,36 @@ import animate.FlxAnimateFrames;
 class Assets {
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
-		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
-		excludeAsset(Paths.music('main:freakyMenu'));
-		excludeAsset(Paths.music('main:breakfast'));
+		var cacheExclusions:Array<String> = [];
+		function excludeCache(file:ModPath):Void {
+			var path:String = Paths.addBeginningSlash(file.format());
+			if (Paths.fileExists('root:$path')) {
+				if (!cacheExclusions.contains(path))
+					cacheExclusions.push(path);
+			}
+		}
+		for (file in Paths.readFolder('main:images/lol', 'png')) {
+			file.pushExt('png');
+			excludeCache(file);
+		}
+
+		function readFolderLoop(path:ModPath, ?setExt:String) {
+			for (item in Paths.readFolder(path)) {
+				if (item.extension == setExt || item.extension == '') {} else continue;
+				if (Paths.folderExists(item)) {
+					readFolderLoop(item, setExt);
+				} else {
+					trace(item.format());
+					if (Paths.fileExists(item) && !cacheExclusions.contains(item.format()))
+						excludeAsset(item);
+				}
+			}
+		}
+		readFolderLoop('main:images', 'png');
+		for (ext in Paths.soundExts) {
+			readFolderLoop('main:music', ext);
+			readFolderLoop('main:sounds', ext);
+		}
 
 		#if ANIMATE_SUPPORT
 		@:privateAccess {

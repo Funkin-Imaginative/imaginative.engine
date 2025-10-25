@@ -1,4 +1,4 @@
-package imaginative.display;
+package imaginative.backend.display;
 
 import lime.graphics.Image;
 import lime.graphics.cairo.CairoImageSurface;
