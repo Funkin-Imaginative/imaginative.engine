@@ -198,9 +198,8 @@ class EngineAsset {
 			info('Scripting was enabled.');
 		}
 		if (hasDefine('cpp')) {
-			// something was changed in latest and broke the system
-			// if (isDesktop())
-			// 	discordRPC.enable();
+			if (isDesktop())
+				discordRPC.enable();
 			// if (isDesktop() || isMobile())
 			// 	allowVideos.enable();
 		}
