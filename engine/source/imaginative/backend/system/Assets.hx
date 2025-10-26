@@ -20,7 +20,7 @@ import animate.FlxAnimateFrames;
 class Assets {
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
-		var cacheExclusions:Array<String> = [];
+		/* var cacheExclusions:Array<String> = [];
 		function excludeCache(file:ModPath):Void {
 			var path:String = Paths.addBeginningSlash(file.format());
 			if (Paths.fileExists('root:$path')) {
@@ -49,7 +49,7 @@ class Assets {
 		for (ext in Paths.soundExts) {
 			readFolderLoop('main:music', ext);
 			readFolderLoop('main:sounds', ext);
-		}
+		} */
 
 		#if ANIMATE_SUPPORT
 		@:privateAccess {
