@@ -40,7 +40,7 @@ enum abstract ScriptType(String) from String to String {
  * @author Class started by @Zyflx. Expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
-	@:allow(imaginative.backend.system.Main)
+	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		exts = [
 			for (exts in [HaxeScript.exts, LuaScript.exts])

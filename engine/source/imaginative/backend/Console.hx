@@ -120,7 +120,7 @@ class Console {
 	}
 
 	/**
-	 * It's just log, but without the file and line in the print.
+	 * It's just log but without the file and line in the print.
 	 * @param value The information you want to pop on to the console.
 	 * @param level The level status of the message.
 	 * @param from States if script or source logged this.
