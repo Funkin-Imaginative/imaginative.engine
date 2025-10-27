@@ -7,6 +7,10 @@ import openfl.events.UncaughtErrorEvent;
 // TODO: Figure out if this is working.
 class CrashHandler {
 	@:allow(imaginative.backend.system.Main.new)
+	static function init():Void {
+		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+	}
+
 	inline static function onCrash(e:UncaughtErrorEvent):Void {
 		var errMsg:String = '';
 		var path:String;
