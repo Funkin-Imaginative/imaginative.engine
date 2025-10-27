@@ -12,13 +12,35 @@ class PauseMenu extends BeatSubState {
 	 */
 	public var script:Script;
 
-	@:allow(states.PlayState)
-	override function new() {
+	var stateConductor:Conductor;
+
+	override public function new(?conductor:Conductor) {
+		stateConductor = conductor;
 		super();
 	}
 
 	override public function create():Void {
 		script = Script.create(scriptPath, false)[0];
 		super.create();
+
+		FlxG.cameras.add(camera = new FlxCamera(), false);
+		camera.bgColor = 0xb3000000;
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+
+		if (Controls.accept) {
+			close();
+			parent.persistentUpdate = true;
+			stateConductor?.resume();
+		}
+		if (Controls.back) BeatState.switchState(() -> PlayState.storyMode ? new StoryMenu() : new FreeplayMenu());
+	}
+
+	override public function destroy():Void {
+		if (FlxG.cameras.list.contains(camera))
+			FlxG.cameras.remove(camera, true);
+		super.destroy();
 	}
 }

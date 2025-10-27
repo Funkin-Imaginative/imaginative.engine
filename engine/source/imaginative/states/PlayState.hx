@@ -641,6 +641,12 @@ class PlayState extends BeatState {
 				poppedEvent.execute();
 		}
 
+		if (Controls.pause) {
+			conductor.pause();
+			persistentUpdate = false;
+			openSubState(new PauseMenu(conductor));
+		}
+
 		scripts.call('updatePost', [elapsed]);
 	}
 
