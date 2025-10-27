@@ -36,14 +36,21 @@ class EngineInfoText extends Sprite {
 		text.defaultTextFormat = new TextFormat(Paths.font('lead:vcr.ttf').format(), 20, FlxColor.WHITE);
 	}
 
+	var deltaTimeout:Float;
 	override function __enterFrame(elapsed:Float):Void {
 		var time:Float = haxe.Timer.stamp() * 1000;
 		times.push(time);
+
 		while (times[0] < time - 1000)
 			times.shift();
 
-		if (memoryPeakUsage < memoryUsage)
-			memoryPeakUsage = memoryUsage;
+		if (deltaTimeout < 100) {
+			deltaTimeout += elapsed;
+			return;
+		}
+
+		var memoryUsage = openfl.system.System.totalMemoryNumber;
+		if (memoryUsage > memoryPeakUsage) memoryPeakUsage = memoryUsage;
 
 		text.text = [
 			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
