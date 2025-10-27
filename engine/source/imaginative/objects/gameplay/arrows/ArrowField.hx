@@ -1,6 +1,8 @@
 package imaginative.objects.gameplay.arrows;
 
 import imaginative.backend.scripting.events.gameplay.*;
+import imaginative.objects.gameplay.arrows.group.NoteGroup;
+import imaginative.objects.gameplay.arrows.group.SustainGroup;
 import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
 
@@ -176,17 +178,22 @@ class ArrowField extends BeatGroup {
 	public var assignedActors:Array<Character>;
 
 	/**
+	 * If true then the note rendering process is active.
+	 */
+	public var activateNoteRendering:Bool = true;
+
+	/**
 	 * The strums of the field.
 	 */
 	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
 	/**
 	 * The notes of the field.
 	 */
-	public var notes(default, null):BeatTypedGroup<Note> = new BeatTypedGroup<Note>();
+	public var notes(default, null):NoteGroup;
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
+	public var sustains(default, null):SustainGroup;
 
 	/**
 	 * How far out until a note is killed.
@@ -251,6 +258,8 @@ class ArrowField extends BeatGroup {
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, mania:Int = 4) {
 		strumCount = mania;
+		notes = new NoteGroup(this);
+		sustains = new SustainGroup(notes);
 		super();
 
 		for (i in 0...strumCount)
@@ -273,12 +282,6 @@ class ArrowField extends BeatGroup {
 		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
 
 		assignedActors = singers ?? [];
-
-		notes.memberAdded.add((_:Note) -> notes.members.sort(Note.sortNotes));
-		notes.memberRemoved.add((_:Note) -> notes.members.sort(Note.sortNotes));
-
-		sustains.memberAdded.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
-		sustains.memberRemoved.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
 
 		add(strums);
 		add(notes);
@@ -338,7 +341,7 @@ class ArrowField extends BeatGroup {
 					if (Math.abs(backNote.time - frontNote.time) < 1.0) {
 						var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
 						var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
-						deadNote.canDie = true;
+						deadNote.destroy(); // shouldn't need to keep existing
 						frontNote = liveNote;
 					} else if (backNote.time < frontNote.time)
 						frontNote = backNote;
@@ -372,36 +375,31 @@ class ArrowField extends BeatGroup {
 		if (isPlayer)
 			_input();
 
-		for (note in notes) {
-			// lol
-			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / note.__scrollSpeed)) {
+		// lol
+		notes.forEachExists((note:Note) -> {
+			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / Math.abs(note.__scrollSpeed)))
 				if (!note.wasHit && !note.wasMissed)
 					_onNoteMissed(note);
-				note.canDie = true;
-			}
-			if (!isPlayer) {
+			if (!isPlayer)
 				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
-			}
-			var shouldKill:Bool = note.canDie;
-			for (sustain in note.tail)
-				if (!(shouldKill = sustain.canDie))
-					break;
-			if (shouldKill)
-				note.kill();
-		}
-		for (sustain in sustains) {
-			// lol
-			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.__scrollSpeed)) {
+
+		});
+		// lol
+		sustains.forEachExists((sustain:Sustain) -> {
+			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / Math.abs(sustain.__scrollSpeed)))
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
-				sustain.canDie = true;
-			}
-			if (!isPlayer) {
+			if (!isPlayer)
 				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
+		});
+		// lol
+		for (note in notes)
+			if (Note.canKillLineage(note)) {
+				note.kill();
+				_log('Lineage Killed: $note', DebugMessage);
 			}
-		}
 
 		super.update(elapsed);
 	}
@@ -412,7 +410,7 @@ class ArrowField extends BeatGroup {
 	inline public function updateStatsText():Void
 		if (status != null && HUDType.instance != null)
 			if (status == enemyPlay) HUDType.instance.updateStatsP2Text();
-	 		else HUDType.instance.updateStatsText();
+			else HUDType.instance.updateStatsText();
 
 	// TODO: Figure out how to do this better.
 	inline function _onNoteHit(note:Note, ?i:Int):Void {

@@ -30,7 +30,7 @@ class Note extends FlxSprite {
 	 */
 	public var length(get, never):Float;
 	inline function get_length():Float
-		return tail.length != 0 ? tail[tail.length - 1].time : 0;
+		return tail.empty() ? 0 : tail[tail.length - 1].time;
 
 	// Note specific variables.
 	/**
@@ -103,12 +103,6 @@ class Note extends FlxSprite {
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
-	 * If true the note has pasted the strum.
-	 */
-	public var pastedStrum(get, never):Bool;
-	inline function get_pastedStrum():Bool
-		return setField.conductor.time < time;
-	/**
 	 * If true this note has been hit.
 	 */
 	public var wasHit:Bool = false;
@@ -118,9 +112,14 @@ class Note extends FlxSprite {
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true along with the tail, this note and it's tail will be destroyed.
+	 * If true then this note is being rendered and can be seen in song.
 	 */
-	public var canDie:Bool = false;
+	public var isBeingRendered(get, default):Bool = false;
+	inline function get_isBeingRendered():Bool {
+		if (!setField.activateNoteRendering || !exists || !visible)
+			isBeingRendered = false;
+		return isBeingRendered;
+	}
 
 	/**
 	 * The notes modifiers.
@@ -227,7 +226,7 @@ class Note extends FlxSprite {
 	 * @return Array<Note> ~ Resulting filter.
 	 */
 	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
-		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id) && !note.canDie);
+		var result:Array<Note> = notes.filter((note:Note) -> return note.exists && note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id));
 		result.sort(sortNotes);
 		return result;
 	}
@@ -239,7 +238,7 @@ class Note extends FlxSprite {
 	 * @return Array<Sustain> ~ Resulting filter.
 	 */
 	inline public static function filterTail(sustains:Array<Sustain>, isMiss:Bool = false, ?i:Int):Array<Sustain> {
-		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id) && !sustain.canDie);
+		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return sustain.exists && (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id));
 		result.sort(sortTail);
 		return result;
 	}
@@ -264,6 +263,19 @@ class Note extends FlxSprite {
 	inline public static function sortTail(a:Sustain, b:Sustain):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
 
+	/**
+	 * If true then the note and its tail can be ended safely.
+	 * @param note The note to check.
+	 * @return Bool ~ If the note and its tail can be ended safely.
+	 */
+	public static function canKillLineage(note:Note):Bool {
+		var canKill:Bool = (note.wasHit || note.wasMissed) && note.tooLate;
+		for (sustain in note.tail)
+			if (!(canKill = ((sustain.wasHit || sustain.wasMissed) && sustain.tooLate)))
+				return false;
+		return canKill;
+	}
+
 	override public function kill():Void {
 		for (sustain in tail)
 			sustain.kill();
@@ -278,5 +290,17 @@ class Note extends FlxSprite {
 		for (sustain in tail)
 			sustain.destroy();
 		super.destroy();
+	}
+
+	override public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('Time', time),
+			LabelValuePair.weak('ID', id),
+			LabelValuePair.weak('Was Hit', wasHit),
+			LabelValuePair.weak('Was Missed', wasMissed),
+			LabelValuePair.weak('Too Late', tooLate),
+			LabelValuePair.weak('Tail Length', length),
+			LabelValuePair.weak('Tail Count', tail.length)
+		]);
 	}
 }

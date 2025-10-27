@@ -2,10 +2,10 @@ package imaginative.objects.gameplay.arrows;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract ArrowModFollowType(String) from String to String {
-	var FIELD;
-	var STRUM;
-	var NOTE;
-	// var SUSTAIN; // useless, as the system can't go backwards
+	var FIELD = 'field';
+	var STRUM = 'strum';
+	var NOTE = 'note';
+	// var SUSTAIN = 'sustain'; // useless, as the system can't go backwards
 	var NONE = null;
 }
 
@@ -128,7 +128,7 @@ class ArrowModifier {
 	}
 	/**
 	 * This is an scroll speed variable.
-	 * EFFCTS: Strum, Note, Sustain
+	 * EFFCTS: Strum, Note
 	 */
 	public var speed(default, set):Float = 1;
 	inline function set_speed(value:Float):Float {

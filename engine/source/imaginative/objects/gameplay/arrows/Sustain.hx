@@ -18,7 +18,7 @@ class Sustain extends FlxSprite {
 	inline function get_setField():ArrowField
 		return setHead.setField;
 	/**
-	 * The parent strum of this note.
+	 * The parent strum of this sustain.
 	 */
 	public var setStrum(get, never):Strum;
 	inline function get_setStrum():Strum
@@ -29,7 +29,7 @@ class Sustain extends FlxSprite {
 	public var setHead(default, null):Note;
 
 	/**
-	 * The direction the notes will come from.
+	 * The direction the sustains will come from.
 	 * This offsets from the parent note speed.
 	 */
 	public var scrollAngle(default, set):Float = 0;
@@ -67,9 +67,8 @@ class Sustain extends FlxSprite {
 	 * The scroll speed of this sustain.
 	 */
 	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setHead.__scrollSpeed * mods.speed : mods.speed);
-	}
+	inline function get___scrollSpeed():Float
+		return setHead.__scrollSpeed;
 
 	/**
 	 * Any characters in this array will overwrite the sustains parent field array.
@@ -88,32 +87,36 @@ class Sustain extends FlxSprite {
 		return setHead.renderActors();
 
 	/**
-	 * If true the note can be hit.
+	 * If true the sustain can be hit.
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
 	/**
-	 * If true it's too late to hit the note.
+	 * If true it's too late to hit the sustain.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
-	 * If true this note has been hit.
+	 * If true this sustain has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true this note has been missed.
+	 * If true this sustain has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true along with the tail, this note and it's tail will be destroyed.
+	 * If true then this sustain is being rendered and can be seen in song.
 	 */
-	public var canDie:Bool = false;
+	public var isBeingRendered(get, never):Bool;
+	inline function get_isBeingRendered():Bool {
+		if (!setField.activateNoteRendering || !exists || !visible) return false;
+		return setHead.isBeingRendered;
+	}
 
 	/**
 	 * The sustains modifiers.
@@ -163,5 +166,17 @@ class Sustain extends FlxSprite {
 
 		// centerOrigin
 		sustain.origin.y = sustain.frameHeight * 0.5;
+	}
+
+	override public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('Time', setHead.time + time),
+			LabelValuePair.weak('ID', id),
+			LabelValuePair.weak('Was Hit', wasHit),
+			LabelValuePair.weak('Was Missed', wasMissed),
+			LabelValuePair.weak('Too Late', tooLate),
+			LabelValuePair.weak('Tail Length', setHead.length),
+			LabelValuePair.weak('Tail Count', setHead.tail.length)
+		]);
 	}
 }
