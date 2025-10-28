@@ -116,8 +116,8 @@ class Note extends FlxSprite {
 	 */
 	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {
-		if (!setField.activateNoteRendering || !exists || !visible)
-			isBeingRendered = false;
+		if (!setField.activateNoteRendering)
+			return false;
 		return isBeingRendered;
 	}
 
@@ -262,19 +262,6 @@ class Note extends FlxSprite {
 	 */
 	inline public static function sortTail(a:Sustain, b:Sustain):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
-
-	/**
-	 * If true then the note and its tail can be ended safely.
-	 * @param note The note to check.
-	 * @return Bool ~ If the note and its tail can be ended safely.
-	 */
-	public static function canKillLineage(note:Note):Bool {
-		var canKill:Bool = (note.wasHit || note.wasMissed) && note.tooLate;
-		for (sustain in note.tail)
-			if (!(canKill = ((sustain.wasHit || sustain.wasMissed) && sustain.tooLate)))
-				return false;
-		return canKill;
-	}
 
 	override public function kill():Void {
 		for (sustain in tail)

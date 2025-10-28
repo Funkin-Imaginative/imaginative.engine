@@ -34,6 +34,7 @@ class NoteGroup extends BeatTypedGroup<Note> {
 	 * @param func A function that modifies one note at a time.
 	 */
 	public function forEachRendered(func:Note->Void):Void {
+		var renderedNotes:Array<Note> = [];
 		forEachExists((note:Note) -> {
 			note.isBeingRendered = false;
 			if (!setField.activateNoteRendering) return;
@@ -44,13 +45,22 @@ class NoteGroup extends BeatTypedGroup<Note> {
 
 			if (shouldRender) {
 				note.isBeingRendered = true;
-				func(note);
+				renderedNotes.push(note);
 			}
 		});
+		renderedNotes.sort(Note.sortNotes);
+		for (note in renderedNotes)
+			if (note.isBeingRendered)
+				func(note);
+		renderedNotes.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {
-		forEachRendered((note:Note) -> note.update(elapsed));
+		forEachRendered(
+			(note:Note) ->
+				if (note.visible)
+					note.update(elapsed)
+		);
 	}
 
 	@:access(flixel.FlxCamera)
@@ -58,7 +68,11 @@ class NoteGroup extends BeatTypedGroup<Note> {
 		final oldDefaultCameras = FlxCamera._defaultCameras;
 		if (_cameras != null)
 			FlxCamera._defaultCameras = _cameras;
-		forEachRendered((note:Note) -> note.draw());
+		forEachRendered(
+			(note:Note) ->
+				if (note.visible)
+					note.draw()
+		);
 		FlxCamera._defaultCameras = oldDefaultCameras;
 	}
 }

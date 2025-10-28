@@ -25,14 +25,33 @@ class SustainGroup extends BeatTypedGroup<Sustain> {
 	 * @param func A function that modifies one sustain at a time.
 	 */
 	public function forEachRendered(func:Sustain->Void):Void {
+		var renderedSustains:Array<Sustain> = [];
 		forEachExists((sustain:Sustain) -> {
+			sustain.isBeingRendered = false;
+			if (!setField.activateNoteRendering) return;
+
+			var shouldRender:Bool = true;
+			if ((sustain.setHead.time + sustain.time) < sustain.setField.conductor.time - sustain.setField.settings.maxWindow) shouldRender = false;
+			if ((sustain.setHead.time + sustain.time) > sustain.setField.conductor.time + parentNoteGroup.getRenderDistanceSteps(sustain.setHead)) shouldRender = false;
+
+			if (shouldRender) {
+				sustain.isBeingRendered = true;
+				renderedSustains.push(sustain);
+			}
+		});
+		renderedSustains.sort(Note.sortTail);
+		for (sustain in renderedSustains)
 			if (sustain.isBeingRendered)
 				func(sustain);
-		});
+		renderedSustains.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {
-		forEachRendered((sustain:Sustain) -> sustain.update(elapsed));
+		forEachRendered(
+			(sustain:Sustain) ->
+				if (sustain.visible)
+					sustain.update(elapsed)
+		);
 	}
 
 	@:access(flixel.FlxCamera)
@@ -40,7 +59,11 @@ class SustainGroup extends BeatTypedGroup<Sustain> {
 		final oldDefaultCameras = FlxCamera._defaultCameras;
 		if (_cameras != null)
 			FlxCamera._defaultCameras = _cameras;
-		forEachRendered((sustain:Sustain) -> sustain.draw());
+		forEachRendered(
+			(sustain:Sustain) ->
+				if (sustain.visible)
+					sustain.draw()
+		);
 		FlxCamera._defaultCameras = oldDefaultCameras;
 	}
 }

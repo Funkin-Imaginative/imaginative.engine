@@ -112,10 +112,11 @@ class Sustain extends FlxSprite {
 	/**
 	 * If true then this sustain is being rendered and can be seen in song.
 	 */
-	public var isBeingRendered(get, never):Bool;
+	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {
-		if (!setField.activateNoteRendering || !exists || !visible) return false;
-		return setHead.isBeingRendered;
+		if (!setField.activateNoteRendering)
+			return false;
+		return isBeingRendered;
 	}
 
 	/**

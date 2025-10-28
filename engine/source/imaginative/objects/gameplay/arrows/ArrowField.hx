@@ -375,7 +375,7 @@ class ArrowField extends BeatGroup {
 		if (isPlayer)
 			_input();
 
-		// lol
+		// auto hit and note miss
 		notes.forEachExists((note:Note) -> {
 			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / Math.abs(note.__scrollSpeed)))
 				if (!note.wasHit && !note.wasMissed)
@@ -385,7 +385,7 @@ class ArrowField extends BeatGroup {
 					_onNoteHit(note);
 
 		});
-		// lol
+		// auto hit and sustain miss
 		sustains.forEachExists((sustain:Sustain) -> {
 			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / Math.abs(sustain.__scrollSpeed)))
 				if (!sustain.wasHit && !sustain.wasMissed)
@@ -394,12 +394,17 @@ class ArrowField extends BeatGroup {
 				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 		});
-		// lol
-		for (note in notes)
-			if (Note.canKillLineage(note)) {
+		// checks when a note and its tail can be killed
+		notes.forEachExists((note:Note) -> {
+			var canKill:Array<Bool> = [(note.wasHit || note.wasMissed) && note.tooLate];
+			for (sustain in note.tail)
+				canKill.push((sustain.wasHit || sustain.wasMissed) && sustain.tooLate);
+			if (!canKill.contains(false)) {
+				_log('[ArrowField] Lineage Killed: $note', DebugMessage);
 				note.kill();
-				_log('Lineage Killed: $note', DebugMessage);
 			}
+			canKill.clearArray();
+		});
 
 		super.update(elapsed);
 	}
