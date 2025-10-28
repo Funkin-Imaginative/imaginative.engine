@@ -102,6 +102,15 @@ class FunkinUtil {
 	}
 
 	/**
+	 * Returns a clean displayed list for quickly tracing a list.
+	 * @param list The list to convert.
+	 * @return String ~ "a", "b" and "c"
+	 */
+	inline public static function cleanDisplayList(list:Array<String>):String {
+		return '${[for (i => item in list) (i == (list.length - 2) && !list.empty()) ? '"$item" and' : '"$item"'].join(', ').replace('and,', 'and')}';
+	}
+
+	/**
 	 * Returns the song display name.
 	 * @param name The song folder name.
 	 * @return String ~ The songs display name.

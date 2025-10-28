@@ -168,12 +168,9 @@ class StoryMenu extends BeatState {
 				var modPath:ModPath = data.path;
 				var objectData:SpriteData = data.object;
 
-				if (!data.path.isNullOrEmpty()) {
-					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
-						log('Object "${Paths.object(modPath).path}" doesn\'t exist.', WarningMessage);
+				if (!data.path.isNullOrEmpty())
+					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path))
 						cantFindList.push(modPath.path);
-					}
-				}
 
 				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
 				if (data.flip) sprite.flipX = !sprite.flipX;
@@ -191,6 +188,8 @@ class StoryMenu extends BeatState {
 				levels.members[i].weekObjects.push(sprite);
 				weekObjects.add(sprite);
 			}
+		if (!cantFindList.empty())
+			log('Object(s) ${cantFindList.cleanDisplayList()} doesn\'t exist.', WarningMessage);
 
 		for (level in levels)
 			for (i => sprite in level.weekObjects) {

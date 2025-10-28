@@ -356,7 +356,7 @@ class PlayState extends BeatState {
 				vocalTargeting.set(base.tag, []);
 			vocalTargeting.get(base.tag).push(suffix);
 		}
-		log('Character${loadedCharacters.empty() ? '' : "'s"} ${[for (i => char in loadedCharacters) (i == (loadedCharacters.length - 2) && !loadedCharacters.empty()) ? '"$char" and' : '"$char"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
+		log('Character(s) ${loadedCharacters.cleanDisplayList()} loaded.', DebugMessage);
 
 		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
 			cameraTarget = chartData.fieldSettings.cameraTarget;
@@ -751,7 +751,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		log('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && !levelData.songs.empty()) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		log('Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
