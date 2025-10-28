@@ -766,7 +766,7 @@ class PlayState extends BeatState {
 		storyMode = false;
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
-		renderChart(song, difficulty, variant);
+		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
 		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
