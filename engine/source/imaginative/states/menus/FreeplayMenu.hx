@@ -85,8 +85,12 @@ class FreeplayMenu extends BeatState {
 		var loadedDiffs:Array<String> = [];
 		songs = new FlxTypedGroup<SongHolder>();
 		var songList:Array<Array<ModPath>> = [
+			#if MOD_SUPPORT
 			FunkinUtil.getSongFolderNames(LEAD),
 			FunkinUtil.getSongFolderNames(MOD),
+			#else
+			FunkinUtil.getSongFolderNames()
+			#end
 		];
 		trace(songList);
 		for (list in songList) {
