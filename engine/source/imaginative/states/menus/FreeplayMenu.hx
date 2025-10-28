@@ -296,7 +296,7 @@ class FreeplayMenu extends BeatState {
 			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
 
 		if (FlxG.mouse.pressed)
-			for (i => item in songs.members)
+			for (item in songs.members)
 				if (FlxG.mouse.overlaps(item.icon))
 					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
 	}

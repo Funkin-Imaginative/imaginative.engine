@@ -35,7 +35,8 @@ class PauseMenu extends BeatSubState {
 			parent.persistentUpdate = true;
 			stateConductor?.resume();
 		}
-		if (Controls.back) BeatState.switchState(() -> PlayState.storyMode ? new StoryMenu() : new FreeplayMenu());
+		if (Controls.back)
+			BeatState.switchState(() -> PlayState.storyMode ? new StoryMenu() : new FreeplayMenu());
 	}
 
 	override public function destroy():Void {

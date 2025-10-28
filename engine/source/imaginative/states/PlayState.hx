@@ -292,7 +292,7 @@ class PlayState extends BeatState {
 	var ratings:FlxTypedGroup<BaseSprite>;
 
 	override public function create():Void {
-		Assets.clearCache();
+		Assets.clearCache(true, false, true);
 
 		scripts = new ScriptGroup(instance = this);
 
@@ -625,6 +625,7 @@ class PlayState extends BeatState {
 
 		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
 		camPoint.setPosition(startPosition.x, startPosition.y);
+		camPoint.setPosition(FlxG.width / 2, FlxG.height / 2 - 70);
 		camGame.snapToTarget();
 		camGame.snapZoom();
 
