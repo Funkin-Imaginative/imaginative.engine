@@ -74,8 +74,6 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
 			Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
 		];
-		if (Settings.setup.debugMode && ![for (list in levelList) for (name in list) name].contains('main:debug/Test'))
-			levelList.insert(0, ['main:debug/Test']);
 		for (list in levelList) {
 			for (i => name in list) {
 				var level:LevelHolder = new LevelHolder(name, true);

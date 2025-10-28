@@ -88,8 +88,6 @@ class FreeplayMenu extends BeatState {
 			FunkinUtil.getSongFolderNames(LEAD),
 			FunkinUtil.getSongFolderNames(MOD),
 		];
-		if (Settings.setup.debugMode && ![for (list in songList) for (name in list) name].contains('main:Test'))
-			songList.insert(0, ['main:Test']);
 		trace(songList);
 		for (list in songList) {
 			for (i => name in list) {
