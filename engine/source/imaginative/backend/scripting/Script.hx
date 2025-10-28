@@ -1,8 +1,11 @@
 package imaginative.backend.scripting;
 
 import imaginative.backend.scripting.types.HaxeScript;
-import imaginative.backend.scripting.types.InvalidScript;
 import imaginative.backend.scripting.types.LuaScript;
+// stops formatter from removing the import
+#if SCRIPT_SUPPORT
+import imaginative.backend.scripting.types.InvalidScript;
+#end
 
 /**
  * Help's clarify a script language instance.
@@ -84,6 +87,7 @@ class Script extends FlxBasic implements IScript {
 	 * @return `Array<Script>`
 	 */
 	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+		#if SCRIPT_SUPPORT
 		#if MOD_SUPPORT
 		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
 			if (getAllInstances) {
@@ -98,7 +102,6 @@ class Script extends FlxBasic implements IScript {
 		#else
 		var paths:Array<String> = [Paths.script(file).format()];
 		#end
-		// trace(paths);
 
 		var scripts:Array<Script> = [];
 		for (path in paths) {
@@ -111,6 +114,9 @@ class Script extends FlxBasic implements IScript {
 			} else scripts.push(new InvalidScript('root:$path'));
 		}
 		return scripts;
+		#else
+		return [];
+		#end
 	}
 
 	var canRun:Bool = false;
