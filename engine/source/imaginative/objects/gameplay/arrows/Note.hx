@@ -30,7 +30,7 @@ class Note extends FlxSprite {
 	 */
 	public var length(get, never):Float;
 	inline function get_length():Float
-		return tail.empty() ? 0 : tail[tail.length - 1].time;
+		return tail.empty() ? 0 : tail.last().time;
 
 	// Note specific variables.
 	/**

@@ -366,7 +366,7 @@ class SpriteUtil {
 			return Type.getClassName(Type.getClass(instance));
 		else {
 			var path:Array<String> = Type.getClassName(Type.getClass(instance)).split('.');
-			return path[path.length - 1];
+			return path.last();
 		}
 	}
 }

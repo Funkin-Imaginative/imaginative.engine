@@ -33,6 +33,6 @@ class Judging {
 		for (i in 0...data.length)
 			if (diff <= undoRatingPercent(Reflect.getProperty(settings, '${data[i]}Window'), settings.maxWindow))
 				return data[i];
-		return data[data.length - 1];
+		return data.last();
 	}
 }

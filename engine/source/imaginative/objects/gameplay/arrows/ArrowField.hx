@@ -527,8 +527,7 @@ class ArrowField extends BeatGroup {
 			strum.y = -arrowSize / 2;
 			helper(strum, strums.members[i + 1]);
 		}
-
-		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
+		totalWidth = (strums.members.last().x + strums.members.last().width) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
 	}

@@ -82,7 +82,7 @@ class ImaginativeHUD extends HUDTemplate {
 				[30, 4],
 				[0, 0]
 			];
-			var value:Array<Int> = spedLevel[spedLevel.length - 1];
+			var value:Array<Int> = spedLevel.last();
 			for (i in 0...spedLevel.length) {
 				value = spedLevel[i];
 				if (100 >= value[0])
