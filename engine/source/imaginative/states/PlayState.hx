@@ -618,7 +618,7 @@ class PlayState extends BeatState {
 					endSong();
 			}
 
-			startSong();
+			startCountdown(countdownAssets);
 		});
 
 		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
@@ -644,10 +644,10 @@ class PlayState extends BeatState {
 		scripts.call('updatePost', [elapsed]);
 	}
 
-	function startSong():Void {
+	function startCountdown(saidAssets:CountdownAssets):Void {
 		var assets:CountdownAssets = {
-			images: countdownAssets.images.copy(),
-			sounds: countdownAssets.sounds.copy()
+			images: saidAssets.images.copy(),
+			sounds: saidAssets.sounds.copy()
 		}
 		assets.images.reverse();
 		assets.sounds.reverse();
@@ -679,11 +679,16 @@ class PlayState extends BeatState {
 					});
 				}
 
-				if (timer.loopsLeft == 0)
-					songStarted = true;
+				if (!songStarted)
+					startSong(countdownLength);
 			}, countdownLength + 1);
 		}
-		songAudio.playFromTime(-beatTime * (countdownLength + 1));
+	}
+
+	function startSong(startDelay:Int = 0):Void {
+		songStarted = true;
+		songAudio.playFromTime(-beatTime * Math.abs(startDelay));
+		_log('[PlayState] Song started with a delay of ${Math.abs(startDelay)} beats.', DebugMessage);
 	}
 
 	function endSong():Void {
