@@ -51,7 +51,7 @@ class Modding {
 
 		for (mod in mods) {
 			var asset:ModPath = 'root:./mods/$mod/$modPath';
-			if (Paths.fileExists(asset))
+			if (asset.isFile)
 				return asset.path;
 		}
 		return '';
@@ -76,14 +76,14 @@ class Modding {
 
 		if (ModType.pathCheck(MAIN, pathType)) {
 			var asset:ModPath = 'root:./solo/${Main.mainMod}/$file';
-			if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+			if (asset.isFile && !potentialPaths.contains(asset.path))
 				potentialPaths.push(asset.path);
 		}
 
 		if (ModType.pathCheck(SOLO, pathType)) {
 			if (!curSolo.isNullOrEmpty()) {
 				var asset:ModPath = 'root:./solo/$curSolo/$file';
-				if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+				if (asset.isFile && !potentialPaths.contains(asset.path))
 					potentialPaths.push(asset.path);
 			}
 		}
@@ -95,7 +95,7 @@ class Modding {
 
 			for (mod in mods) {
 				var asset:ModPath = 'root:./mods/$mod/$file';
-				if (Paths.fileExists(asset) && !potentialPaths.contains(asset.path))
+				if (asset.isFile && !potentialPaths.contains(asset.path))
 					potentialPaths.push(asset.path);
 			}
 		}

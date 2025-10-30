@@ -665,11 +665,11 @@ class PlayState extends BeatState {
 				var assetIndex:Int = timer.loopsLeft - 1;
 
 				var soundAsset:ModPath = assets.sounds[assetIndex];
-				if (Paths.fileExists(Paths.sound(soundAsset)))
+				if (Paths.sound(soundAsset).isFile) {
 					FlxG.sound.play(Assets.sound(soundAsset));
 
 				var imageAsset:ModPath = assets.images[assetIndex];
-				if (Paths.fileExists(Paths.image(imageAsset))) {
+				if (Paths.image(imageAsset).isFile) {
 					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();

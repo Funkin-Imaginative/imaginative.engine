@@ -166,11 +166,11 @@ class SpriteUtil {
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				try {
 					if (Paths.spriteSheetExists(newTexture)) return loadSheet(sprite, newTexture);
 					/* #if ANIMATE_SUPPORT
-					else if (sprite is FlxAnimate && Paths.fileExists(Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation'))))
+					else if (sprite is FlxAnimate && Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation')).isFile)
 						return loadAtlas(cast(sprite, FlxAnimate), newTexture);
 					#end */
 					else return loadImage(sprite, newTexture);
@@ -192,7 +192,7 @@ class SpriteUtil {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadImage(newTexture, animated, width, height);
 		else if (sprite is FlxSprite)
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				try {
 					sprite.loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
 				} catch(error:haxe.Exception)
@@ -211,7 +211,7 @@ class SpriteUtil {
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				if (Paths.spriteSheetExists(newTexture))
 					try {
 						sprite.frames = Assets.frames(newTexture, textureType);
@@ -238,7 +238,7 @@ class SpriteUtil {
 			var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
 			var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
 			var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
-			if (Paths.fileExists(jsonPath)) {
+			if (jsonPath.isFile) {
 				try {
 					sprite.frames = Assets.frames(atlasPath, textureType);
 				} catch(error:haxe.Exception)

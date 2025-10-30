@@ -107,7 +107,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
-				theirIcon = (Paths.fileExists(Paths.icon(inputData.character.icon)) ? inputData.character.icon : 'face');
+				theirIcon = (Paths.icon(inputData.character.icon).isFile ? inputData.character.icon : 'face');
 				singLength = inputData.character.singlength;
 				vocalSuffix = inputData.character.vocals ?? theirName;
 			}
@@ -144,7 +144,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			TracyProfiler.zoneScoped('new Character($x, $y, $name, $faceLeft)');
 		#end
 
-		super(x, y, 'characters/${theirName = (Paths.fileExists(Paths.character(name)) ? name : 'boyfriend')}');
+		super(x, y, 'characters/${theirName = (Paths.character(name).isFile ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
 	}

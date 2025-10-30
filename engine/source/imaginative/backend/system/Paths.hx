@@ -205,7 +205,7 @@ abstract ModPath(String) {
 	public var valid(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function get_valid():Bool
-		return isDirectory || Paths.fileExists(this);
+		return isDirectory || isFile;
 
 	/**
 	 * The mod path.
@@ -217,6 +217,14 @@ abstract ModPath(String) {
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	inline function set_path(value:String):String
 		return this = '${this.split(':')[0]}:$value';
+
+	/**
+	 * If true the path is a file.
+	 */
+	public var isFile(get, never):Bool;
+	@SuppressWarnings('checkstyle:FieldDocComment')
+	inline function get_isFile():Bool
+		return Paths.fileExists(this);
 	/**
 	 * If true the path is a folder and not a file.
 	 */
@@ -704,7 +712,7 @@ class Paths {
 	 * @return Bool ~ If true it exists.
 	 */
 	inline public static function spriteSheetExists(file:ModPath):Bool
-		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts).valid;
+		return fileExists(image(file)) && multExt('${file.type}:images/${file.path}', spritesheetExts).isFile;
 }
 
 enum abstract AssetTypeHelper(String) from String to String {

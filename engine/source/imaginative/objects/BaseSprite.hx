@@ -105,11 +105,11 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public function loadTexture(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			try {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
 				#if ANIMATE_SUPPORT
-				else if (Paths.fileExists(Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation'))))
+				else if (Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation')).isFile)
 					return loadAtlas(newTexture);
 				#end
 				else return loadImage(newTexture);
@@ -126,7 +126,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			try {
 				loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
 				resetTextures(Paths.image(newTexture), IsGraphic);
@@ -142,7 +142,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public function loadSheet(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			if (Paths.spriteSheetExists(newTexture))
 				try {
 					frames = Assets.frames(newTexture, textureType);
@@ -165,7 +165,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
 		var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
 		var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
-		if (Paths.fileExists(jsonPath)) {
+		if (jsonPath.isFile) {
 			try {
 				frames = Assets.frames(atlasPath, textureType);
 				resetTextures(atlasPath, textureType);
@@ -349,7 +349,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		super(x, y);
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
-			if (Paths.fileExists(Paths.object(file))) {
+			if (Paths.object(file).isFile) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);

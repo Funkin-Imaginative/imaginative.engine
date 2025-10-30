@@ -59,7 +59,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 			TracyProfiler.zoneScoped('new HealthIcon($x, $y, $name, $faceLeft)');
 		#end
 
-		super(x, y, 'icons/${tagName = (Paths.fileExists(Paths.icon(name)) ? name : 'face')}');
+		super(x, y, 'icons/${tagName = (Paths.icon(name).isFile ? name : 'face')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
 	}
@@ -114,7 +114,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 			try {
 				var prevAnim:String = getAnimName();
 				// double check tag
-				var tag:ModPath = (Paths.fileExists(Paths.icon('$pathType:$newTag')) ? '$pathType:$newTag' : 'face');
+				var tag:ModPath = (Paths.icon('$pathType:$newTag').isFile ? '$pathType:$newTag' : 'face');
 
 				// remove previous icon scripts
 				scripts.call('onIconChange');

@@ -174,7 +174,7 @@ class StoryMenu extends BeatState {
 				var objectData:SpriteData = data.object;
 
 				if (!data.path.isNullOrEmpty())
-					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path))
+					if (!Paths.object(modPath).isFile && !cantFindList.contains(modPath.path))
 						cantFindList.push(modPath.path);
 
 				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);

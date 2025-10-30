@@ -549,7 +549,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function addExtraAudio(music:ModPath, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.music(music);
-		if (!Paths.fileExists(file)) {
+		if (!file.isFile) {
 			log('Failed to find audio "${music.format()}".', WarningMessage);
 			return null;
 		}
@@ -576,7 +576,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 */
 	public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.vocal(song, suffix, variant);
-		if (!Paths.fileExists(file)) {
+		if (!file.isFile) {
 			log('Failed to find ${suffix.isNullOrEmpty() ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.isNullOrEmpty() ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
 			return null;
 		}

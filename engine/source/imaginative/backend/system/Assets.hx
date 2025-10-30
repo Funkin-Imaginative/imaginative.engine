@@ -251,11 +251,11 @@ class Assets {
 	 */
 	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
-			if (Paths.fileExists(Paths.image(Paths.xml(file)))) type = IsSparrow;
-			if (Paths.fileExists(Paths.image(Paths.txt(file)))) type = IsPacker;
-			if (Paths.fileExists(Paths.image(Paths.json(file)))) type = IsAseprite;
+			if (Paths.image(Paths.xml(file)).isFile) type = IsSparrow;
+			if (Paths.image(Paths.txt(file)).isFile) type = IsPacker;
+			if (Paths.image(Paths.json(file)).isFile) type = IsAseprite;
 			#if ANIMATE_SUPPORT
-			if (Paths.fileExists(Paths.image(Paths.json('${file.type}:${file.path}/Animation')))) type = IsAnimateAtlas;
+			if (Paths.image(Paths.json('${file.type}:${file.path}/Animation')).isFile) type = IsAnimateAtlas;
 			#end
 		}
 		return switch (type) {
@@ -307,11 +307,11 @@ class Assets {
 	inline public static function text(file:ModPath):String {
 		var finalPath:String = file.format();
 		try {
-			var sysContent:Null<String> = Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : null;
-			var limeContent:Null<String> = Paths.fileExists(file) ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
+			var sysContent:Null<String> = file.isFile ? sys.io.File.getContent(finalPath) : null;
+			var limeContent:Null<String> = file.isFile ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
 			return sysContent ?? limeContent ?? '';
 		} catch(error:haxe.Exception) {
-			return Paths.fileExists(file) ? sys.io.File.getContent(finalPath) : '';
+			return file.isFile ? sys.io.File.getContent(finalPath) : '';
 		}
 	}
 	/**
