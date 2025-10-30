@@ -32,27 +32,25 @@ class ArrowField extends BeatGroup {
 	/**
 	 * Sets up position for an array of fields.
 	 * @param fields Array of fields.
-	 * @return Array<ArrowField>
 	 */
-	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
-		if (camera == null)
-			camera = FlxG.camera;
+	public static function setupFieldXPositions(fields:Array<ArrowField>):Void {
+		if (fields.empty()) return;
 		for (i => field in fields) {
-			if (field.length < 3)
-				field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
-			field.visible = true;
+			var camera = field.camera ?? FlxG.camera;
+			field.x = camera.width * i / fields.length;
+			field.x += camera.width / fields.length / 2;
 		}
-		var hatred:Array<FlxObject> = [
-			for (field in fields)
-				new FlxObject(field.x, field.y, field.totalWidth, arrowSize)
-		];
-		hatred.space((camera.width / 2) - (camera.width / 4), 0, (camera.width / 2) + (camera.width / 4) - (camera.width / 2) - (camera.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
-			var field:ArrowField = fields[hatred.indexOf(object)];
-			field.x = /* field.totalWidth / 2 + */ x;
-		});
-		for (obj in hatred)
-			obj.destroy();
-		return fields;
+	}
+	/**
+	 * Sets up scaling for an array of fields.
+	 * @param fields Array of fields.
+	 */
+	public static function setupFieldScaling(fields:Array<ArrowField>):Void {
+		if (fields.empty()) return;
+		for (i => field in fields) {
+			var camera = field.camera ?? FlxG.camera;
+			// field.resetInternalPositions();
+		}
 	}
 
 	/**
@@ -202,7 +200,11 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The distance between the each strum.
 	 */
-	public var strumSpacing:Float = 8;
+	public var strumSpacing:Float = 7;
+	/**
+	 * Used for psych "middlescroll" type shit.
+	 */
+	public var centerSpacing:Null<Float> = null;
 
 	/**
 	 * This function is used to get the scroll speed but also check for the personal speed!
@@ -510,12 +512,46 @@ class ArrowField extends BeatGroup {
 	 */
 	public var averageWidth(get, never):Float;
 	inline function get_averageWidth():Float {
-		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 1));
+		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 2)) + (centerSpacing ?? strumSpacing);
 	}
 	/**
 	 * The total calculated width of the strums.
+	 * Would use an automatic method like 'FlxSpriteGroup's shit but doesn't work right for some reason.
 	 */
-	public var totalWidth(default, null):Float;
+	public var totalWidth:Float = 0;
+	/* inline function get_totalWidth():Float {
+		if (strums.members.empty()) return 0;
+		return findMaxStrumsX() - findMinStrumsX();
+	}
+	// these were taken from 'FlxSpriteGroup'
+	function findMinStrumsX():Float {
+		var value = Math.POSITIVE_INFINITY;
+		for (member in strums) {
+			if (member == null) continue;
+
+			var minX:Float;
+			if (member.flixelType == SPRITEGROUP) minX = (cast member:FlxSpriteGroup).findMinX();
+			else minX = member.x;
+
+			if (minX < value)
+				value = minX;
+		}
+		return value;
+	}
+	function findMaxStrumsX():Float {
+		var value = Math.NEGATIVE_INFINITY;
+		for (member in strums) {
+			if (member == null) continue;
+
+			var maxX:Float;
+			if (member.flixelType == SPRITEGROUP) maxX = (cast member:FlxSpriteGroup).findMaxX();
+			else maxX = member.x + member.width;
+
+			if (maxX > value)
+				value = maxX;
+		}
+		return value;
+	} */
 
 	/**
 	 * Resets the internal positions of the strums.
@@ -524,13 +560,14 @@ class ArrowField extends BeatGroup {
 		for (strum in strums)
 			strum.x = 0;
 
-		inline function helper(a:Strum, b:Strum):Void
+		inline function helper(a:Strum, b:Strum, isMiddle:Bool = false):Void {
 			if (a != null && b != null)
-				b.x = a.x + arrowSize + strumSpacing;
+				b.x = a.x + arrowSize + (isMiddle ? centerSpacing ?? strumSpacing : strumSpacing);
+		}
 
 		for (i => strum in strums.members) {
 			strum.y = -arrowSize / 2;
-			helper(strum, strums.members[i + 1]);
+			helper(strum, strums.members[i + 1], i == Math.floor(strums.length / 2) - 1);
 		}
 		totalWidth = (strums.members.last().x + strums.members.last().width) - strums.members[0].x;
 		for (strum in strums)

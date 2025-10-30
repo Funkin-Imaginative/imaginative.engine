@@ -286,6 +286,11 @@ class PlayState extends BeatState {
 	inline function set_playerField(value:ArrowField):ArrowField
 		return ArrowField.player = value;
 
+	/**
+	 * The fields that will be positioned and visible on screen.
+	 */
+	public var activeFields:Array<ArrowField> = [];
+
 	//temp
 	var ratings:FlxTypedGroup<BaseSprite>;
 
@@ -527,24 +532,23 @@ class PlayState extends BeatState {
 		log('Field(s) ${loadedFields.cleanDisplayList()} loaded.', DebugMessage);
 
 		// arrow field setup
-		var fields:Array<ArrowField> = [
+		activeFields = [
 			for (tag in chartData.fieldSettings.order)
-				if (arrowFieldMapping.exists(tag))
-					arrowFieldMapping.get(tag)
-		];
-		// ArrowField.setupFieldXPositions(fields, camHUD);
-		for (field in fields)
+				if (arrowFieldMapping.exists(tag)) {
+					var field:ArrowField = arrowFieldMapping.get(tag);
+					field.visible = true;
+					field;
+				}
+		].filter((field:ArrowField) -> return field != null);
+		ArrowField.setupFieldXPositions(activeFields);
+		for (field in activeFields)
 			field.y = hud.getFieldYLevel(Settings.setupP1.downscroll, field);
+		ArrowField.setupFieldScaling(activeFields);
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
 			ArrowField.enemy = arrowFieldMapping.get(chartData.fieldSettings.enemy);
 		if (arrowFieldMapping.exists(chartData.fieldSettings.player))
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
-
-		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.x = (camHUD.width / 2) - (camHUD.width / 4);
-		playerField.x = (camHUD.width / 2) + (camHUD.width / 4);
-		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
 			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),
