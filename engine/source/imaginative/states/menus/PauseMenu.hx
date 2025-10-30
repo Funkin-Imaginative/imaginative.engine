@@ -12,11 +12,8 @@ class PauseMenu extends BeatSubState {
 	 */
 	public var script:Script;
 
-	var stateConductor:Conductor;
-
-	override public function new(?conductor:Conductor) {
-		stateConductor = conductor;
-		super();
+	override public function new() {
+		super(true, true);
 	}
 
 	override public function create():Void {
@@ -29,12 +26,8 @@ class PauseMenu extends BeatSubState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-
-		if (Controls.accept) {
+		if (Controls.accept)
 			close();
-			parent.persistentUpdate = true;
-			stateConductor?.resume();
-		}
 		if (Controls.back)
 			BeatState.switchState(() -> PlayState.storyMode ? new StoryMenu() : new FreeplayMenu());
 	}

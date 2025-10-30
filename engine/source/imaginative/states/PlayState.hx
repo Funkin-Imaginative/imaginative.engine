@@ -640,12 +640,7 @@ class PlayState extends BeatState {
 				poppedEvent.execute();
 		}
 
-		if (Controls.pause) {
-			conductor.pause();
-			persistentUpdate = false;
-			openSubState(new PauseMenu(conductor));
-		}
-
+		if (Controls.pause) initPause();
 		scripts.call('updatePost', [elapsed]);
 	}
 
@@ -703,6 +698,10 @@ class PlayState extends BeatState {
 		} else {
 			BeatState.switchState(() -> new FreeplayMenu());
 		}
+	}
+
+	function initPause(?subState:FlxSubState):Void {
+		openSubState(subState ?? new PauseMenu());
 	}
 
 	override public function stepHit(curStep:Int):Void {

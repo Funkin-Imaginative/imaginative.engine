@@ -1,11 +1,13 @@
 package imaginative.backend.music.states;
 
+import imaginative.backend.objects.ParentDisabler;
+
 /**
  * It's just 'FlxSubState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
 @SuppressWarnings('checkstyle:CodeSimilarity')
-class BeatSubState extends FlxSubState /* implements IBeat */ {
+class BeatSubState extends FlxSubState implements IBeatState {
 	/**
 	 * The states conductor instance.
 	 */
@@ -117,6 +119,10 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	// Actual state stuff below. vv
 
 	/**
+	 * If true then opening and closing this state pauses and resumes the parent.
+	 */
+	public var isAPauseState(default, null):Bool;
+	/**
 	 * If false this sub state is the current state.
 	 * Since 'FlxSubState' extends 'FlxState', this variable can be useful!
 	 */
@@ -140,11 +146,13 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	/**
 	 * @param scriptsAllowed If true scripts are allowed.
 	 * @param scriptName The name of the state script.
+	 * @param pausesGame If true then this subState pauses and resumes the game when opened and closed.
 	 */
-	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+	override public function new(scriptsAllowed:Bool = true, ?scriptName:String, pausesGame:Bool = false) {
 		super();
 		this.scriptsAllowed = #if SCRIPTED_STATES scriptsAllowed #else false #end;
 		this.scriptName = scriptName ?? this.getClassName();
+		isAPauseState = pausesGame;
 	}
 
 	function loadScript():Void {
@@ -179,11 +187,17 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return event;
 	}
 
+	var parentDisabler:ParentDisabler;
+	function initParentDisabler():Void
+		add(parentDisabler = new ParentDisabler());
+
 	override public function create():Void {
 		Conductor.beatSubStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
+		if (isAPauseState)
+			initParentDisabler();
 		scriptCall('create');
 	}
 
@@ -214,9 +228,9 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	/**
-	 * The state that the subState is attached to.
+	 * The state or subState that this subState is attached to.
 	 */
-	public var parent:FlxState;
+	public var parent:IBeatState;
 	/**
 	 * When the subState is opened.
 	 */
@@ -224,14 +238,26 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function close():Void {
 		var event:ScriptEvent = eventCall('onClose', new ScriptEvent());
 		if (!event.prevented) {
+			if (isAPauseState) {
+				parent.persistentUpdate = true;
+				parent.conductor.resume();
+			}
 			super.close();
 			scriptCall('onClosePost');
 		}
 	}
 
-	override public function openSubState(SubState:FlxSubState):Void {
-		scriptCall('openingSubState', [SubState]);
-		super.openSubState(SubState);
+	override public function openSubState(sub:FlxSubState):Void {
+		scriptCall('openingSubState', [sub]);
+		if (sub is BeatSubState) {
+			var state:BeatSubState = cast sub;
+			state.parent = this;
+			if (state.isAPauseState) {
+				state.parent.conductor.pause();
+				state.parent.persistentUpdate = false;
+			}
+		}
+		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
 		scriptCall('closingSubState', [subState]);
@@ -240,10 +266,10 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function resetSubState():Void {
 		scriptCall('resetingSubState');
 		if (subState is BeatSubState) {
-			var subState:BeatSubState = cast subState;
-			subState.parent = this;
+			var state:BeatSubState = cast subState;
+			state.parent = this;
 			super.resetSubState();
-			subState.onSubstateOpen();
+			state.onSubstateOpen();
 			return;
 		}
 		super.resetSubState();
@@ -287,6 +313,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	override public function destroy():Void {
+		parent = null;
 		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
 		super.destroy();

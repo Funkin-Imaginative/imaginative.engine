@@ -4,7 +4,7 @@ package imaginative.backend.music.states;
  * It's just 'FlxState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
-class BeatState extends FlxState /* implements IBeat */ {
+class BeatState extends FlxState implements IBeatState {
 	/**
 	 * The states conductor instance.
 	 */
@@ -260,9 +260,17 @@ class BeatState extends FlxState /* implements IBeat */ {
 		}
 	}
 
-	override public function openSubState(SubState:FlxSubState):Void {
-		scriptCall('openingSubState', [SubState]);
-		super.openSubState(SubState);
+	override public function openSubState(sub:FlxSubState):Void {
+		scriptCall('openingSubState', [sub]);
+		if (sub is BeatSubState) {
+			var state:BeatSubState = cast sub;
+			state.parent = this;
+			if (state.isAPauseState) {
+				state.parent.conductor.pause();
+				state.parent.persistentUpdate = false;
+			}
+		}
+		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
 		scriptCall('closingSubState', [subState]);
@@ -272,9 +280,9 @@ class BeatState extends FlxState /* implements IBeat */ {
 		scriptCall('resetingSubState');
 		super.resetSubState();
 		if (subState is BeatSubState) {
-			var subState:BeatSubState = cast subState;
-			subState.parent = this;
-			subState.onSubstateOpen();
+			var state:BeatSubState = cast subState;
+			state.parent = this;
+			state.onSubstateOpen();
 		}
 	}
 
