@@ -95,7 +95,7 @@ class Strum extends FlxSprite {
 		});
 
 		playAnim('static');
-		scale.scale(0.7);
+		scale.scale(ArrowField.arrowScale);
 		updateHitbox();
 		playAnim('static');
 		updateHitbox();

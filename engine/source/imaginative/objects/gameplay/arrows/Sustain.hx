@@ -137,7 +137,7 @@ class Sustain extends FlxSprite {
 		animation.addByPrefix(name, '$dir note $name', 24, false);
 
 		animation.play(name, true);
-		scale.scale(0.7);
+		scale.scale(ArrowField.arrowScale);
 		updateHitbox();
 		animation.play(name, true);
 		updateHitbox();

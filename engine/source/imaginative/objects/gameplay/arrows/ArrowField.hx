@@ -495,9 +495,15 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * The base arrow size.
+	 * The base arrow scale.
+	 * Scale being the objects scale variable.
 	 */
-	public static var arrowSize(default, null):Float = 104;
+	public static var arrowScale:Float = 0.7;
+	/**
+	 * The base arrow size.
+	 * Size being the objects width and height.
+	 */
+	public static var arrowSize(default, null):Float = 150 * arrowScale; // 150 being the average width and height of the base note textures
 
 	/**
 	 * The average width you'll get from this field.

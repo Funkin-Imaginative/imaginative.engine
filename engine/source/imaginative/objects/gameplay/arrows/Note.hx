@@ -141,7 +141,7 @@ class Note extends FlxSprite {
 		animation.addByPrefix('head', '$dir note head', 24, false);
 
 		animation.play('head', true);
-		scale.scale(0.7);
+		scale.scale(ArrowField.arrowScale);
 		updateHitbox();
 		animation.play('head', true);
 		updateHitbox();

@@ -170,18 +170,18 @@ class ArrowModifier {
 					case FIELD: [strum.setField.scale.x, strum.setField.scale.y];
 					default: [1, 1];
 				}
-				strum.scale.set( // 0.7 being base scale, which might be given a variable at some point
-					0.7 * followScale[0] * scale.x,
-					0.7 * followScale[1] * scale.y
+				strum.scale.set(
+					ArrowField.arrowScale * followScale[0] * scale.x,
+					ArrowField.arrowScale * followScale[1] * scale.y
 				);
 				for (note in strum.setField.notes.members.copy().filter((note:Note) -> return note.id == strum.id))
 					note.mods.update_scale();
 			}
 			if (note != null) {
 				var followScale:Array<Float> = switch (handler.followType) {
-					case FIELD: [0.7 * note.setField.scale.x, 0.7 * note.setField.scale.y];
+					case FIELD: [ArrowField.arrowScale * note.setField.scale.x, ArrowField.arrowScale * note.setField.scale.y];
 					case STRUM: [note.setStrum.scale.x, note.setStrum.scale.y];
-					default: [0.7, 0.7];
+					default: [ArrowField.arrowScale, ArrowField.arrowScale];
 				}
 				note.scale.set(
 					followScale[0] * scale.x,
@@ -192,10 +192,10 @@ class ArrowModifier {
 			}
 			if (sustain != null) {
 				var followScale:Array<Float> = switch (handler.followType) {
-					case FIELD: [0.7 * sustain.setField.scale.x, 0.7 * sustain.setField.scale.y];
+					case FIELD: [ArrowField.arrowScale * sustain.setField.scale.x, ArrowField.arrowScale * sustain.setField.scale.y];
 					case STRUM: [sustain.setStrum.scale.x, sustain.setStrum.scale.y];
 					case NOTE: [sustain.setHead.scale.x, sustain.setHead.scale.y];
-					default: [0.7, 0.7];
+					default: [ArrowField.arrowScale, ArrowField.arrowScale];
 				}
 				sustain.scale.set(
 					followScale[0] * scale.x,
