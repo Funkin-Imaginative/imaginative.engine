@@ -199,8 +199,6 @@ class ArrowField extends BeatGroup {
 	 * How far out until a note is killed.
 	 */
 	public var noteKillRange:Float = 350;
-	// TODO: Make it so strum skins will have their own spacing!
-	// TODO: REWORK THIS COMPLETELY
 	/**
 	 * The distance between the each strum.
 	 */
@@ -240,8 +238,7 @@ class ArrowField extends BeatGroup {
 	public var scrollAngle(default, set):Null<Float>;
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
 	inline function set_scrollAngle(?value:Float):Null<Float> {
-		value ??= (settings.downscroll ? 90 : 270);
-		scrollAngle = value;
+		scrollAngle = value ?? (settings.downscroll ? 90 : 270);
 		for (sustain in sustains)
 			sustain.mods.update_angle();
 		return value;
@@ -265,7 +262,9 @@ class ArrowField extends BeatGroup {
 		for (i in 0...strumCount)
 			strums.add(new Strum(this, i));
 
-		scrollSpeed = scrollAngle = null; // runs the "set_" function
+		// runs the "set_" function
+		scrollSpeed = null;
+		scrollAngle = null;
 
 		scale = new FlxCallbackPoint(
 			(point:FlxPoint) -> {
@@ -503,7 +502,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The average width you'll get from this field.
 	 */
-	public var averageWidth(get, null):Float;
+	public var averageWidth(get, never):Float;
 	inline function get_averageWidth():Float {
 		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 1));
 	}
@@ -597,7 +596,7 @@ class ArrowField extends BeatGroup {
 		}
 	}
 
-	override function destroy():Void {
+	override public function destroy():Void {
 		if (enemy == this) enemy = null;
 		if (player == this) player = null;
 		onNoteHit.destroy();

@@ -64,14 +64,12 @@ class PlayState extends BeatState {
 	inline function get_cutsceneAudio():Conductor
 		return Conductor.cutscene;
 
-	override public function get_conductor():Conductor {
-		if (songEnded)
-			return cutsceneAudio;
-		if (!countdownStarted)
+	override function get_conductor():Conductor {
+		if (songEnded || !(songStarted || countdownStarted))
 			return cutsceneAudio;
 		return songAudio;
 	}
-	override public function set_conductor(value:Conductor):Conductor
+	inline override function set_conductor(value:Conductor):Conductor
 		return get_conductor();
 
 	/**
@@ -84,7 +82,7 @@ class PlayState extends BeatState {
 	 */
 	public var countdownLength(default, set):Int = 4;
 	inline function set_countdownLength(value:Int):Int
-		return countdownLength = value < 1 ? 1 : value;
+		return countdownLength = Std.int(Math.max(value, 1));
 	/**
 	 * The variable that tracks the countdown.
 	 */
@@ -112,15 +110,15 @@ class PlayState extends BeatState {
 	/**
 	 * States if the countdown has started.
 	 */
-	public var countdownStarted:Bool = false;
+	public var countdownStarted(default, null):Bool = false;
 	/**
 	 * States if the song has started.
 	 */
-	public var songStarted:Bool = false;
+	public var songStarted(default, null):Bool = false;
 	/**
 	 * States if the song has ended.
 	 */
-	public var songEnded:Bool = false;
+	public var songEnded(default, null):Bool = false;
 
 	/**
 	 * The general vocal track instance.
@@ -526,7 +524,7 @@ class PlayState extends BeatState {
 				scripts.event('fieldInputPost', event);
 			});
 		}
-		log('Field${loadedFields.empty() ? '' : "'s"} ${[for (i => field in loadedFields) (i == (loadedFields.length - 2) && !loadedFields.empty()) ? '"$field" and' : '"$field"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
+		log('Field(s) ${loadedFields.cleanDisplayList()} loaded.', DebugMessage);
 
 		// arrow field setup
 		var fields:Array<ArrowField> = [
@@ -663,13 +661,17 @@ class PlayState extends BeatState {
 		if (countdownLength >= 1) {
 			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
 				var assetIndex:Int = timer.loopsLeft - 1;
+				_log('[PlayState] Countdown step $assetIndex.', DebugMessage);
 
 				var soundAsset:ModPath = assets.sounds[assetIndex];
 				if (Paths.sound(soundAsset).isFile) {
+					_log('[PlayState] Played countdown sound $assetIndex.', DebugMessage);
 					FlxG.sound.play(Assets.sound(soundAsset));
+				}
 
 				var imageAsset:ModPath = assets.images[assetIndex];
 				if (Paths.image(imageAsset).isFile) {
+					_log('[PlayState] Spawned countdown image $assetIndex.', DebugMessage);
 					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();
