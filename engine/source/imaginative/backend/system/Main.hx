@@ -63,6 +63,7 @@ class Main extends Sprite {
 		#end
 
 		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
+		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 
 		// Was testing rating window caps.
