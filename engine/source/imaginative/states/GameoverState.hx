@@ -7,11 +7,25 @@ class GameoverState extends BeatSubState {
 
 	var character:Character;
 	var camDead:BeatCamera;
+	var camPoint:FlxObject;
 
+	var musicSuffix:String = '';
+	var deathSuffix:String = '';
+	var retrySuffix:String = '';
+
+	var deathSound:FlxSound;
+	var retrySound:FlxSound;
+
+	inline function temp(suffix:String):String return suffix.isNullOrEmpty() ? '' : '-$suffix';
 	override public function new(targetChar:Character) {
 		super(true, true);
 		character = new Character(targetChar.x, targetChar.y, '${targetChar.theirName}-dead', targetChar.flipX);
 		bgColor = FlxColor.BLACK;
+
+		// cache
+		Assets.music('gameover/gameOver${temp(musicSuffix)}');
+		deathSound = FlxG.sound.load(Assets.sound('gameover/death${temp(deathSuffix)}'));
+		retrySound = FlxG.sound.load(Assets.sound('gameover/retry${temp(retrySuffix)}'));
 	}
 
 	override public function create():Void {
@@ -19,27 +33,42 @@ class GameoverState extends BeatSubState {
 		parent.persistentDraw = false;
 		add(character);
 
-		conductor.loadMusic('gameover/gameOver');
-		if (game == null)
+		conductor.loadMusic('gameover/gameOver${temp(musicSuffix)}');
+		if (game == null) {
+			for (i in FlxG.cameras.list) i.visible = false;
 			FlxG.cameras.add(camDead = new BeatCamera('Dead Camera').beatSetup(conductor), false);
-		else camDead = game.camGame.beatSetup(conductor);
+			camDead.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05); add(camPoint);
+			camDead.visible = true;
+		} else {
+			camDead = game.camGame.beatSetup(conductor);
+			camPoint = game.camPoint;
+		}
 
 		var camPos = character.getCamPos();
-		FlxTween.tween(camDead, {x: camPos.x, y: camPos.y}, 2, {
+		character.playAnim('dies', NoDancing);
+		deathSound.play();
+		FlxTween.tween(camPoint, {x: camPos.x, y: camPos.y}, 2, {
+			startDelay: 2,
 			ease: FlxEase.smootherStepInOut,
-			onComplete: (_) -> conductor.play()
+			onUpdate: (_) -> camDead.snapToTarget(),
+			onComplete: (_) -> {
+				conductor.play();
+				character.dance(); // forces the dance
+			}
 		});
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 		if (Controls.accept || Settings.setup.instantRespawn) {
-			BeatState.resetState();
 			conductor.stop();
+			character.playAnim('retry', NoDancing);
+			retrySound.play();
+			camDead.fade(20, () -> BeatState.resetState());
 		}
 		if (Controls.back) {
-			BeatState.switchState(() -> PlayState.storyMode ? new imaginative.states.menus.StoryMenu() : new imaginative.states.menus.FreeplayMenu());
 			conductor.stop();
+			BeatState.switchState(() -> PlayState.storyMode ? new imaginative.states.menus.StoryMenu() : new imaginative.states.menus.FreeplayMenu());
 		}
 	}
 }

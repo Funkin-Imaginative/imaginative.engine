@@ -655,7 +655,7 @@ class PlayState extends BeatState {
 
 		if (Controls.pause) initPause();
 		if (Controls.reset && !Settings.setup.disableDeathBind)
-			initGameover(ArrowField.enemyPlay ? enemyField?.previousInteractedActors ?? [] : playerField?.previousInteractedActors ?? []);
+			initGameover([ArrowField.enemyPlay ? enemy : player]);
 		scripts.call('updatePost', [elapsed]);
 	}
 
