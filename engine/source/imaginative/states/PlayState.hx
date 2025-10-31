@@ -318,6 +318,14 @@ class PlayState extends BeatState {
 			default:
 				new ScriptedHUD(chartData.hud);
 		}
+		hud.healthBar.setCallbacks(
+			() ->
+				if (canPlayerDie)
+					initGameover(playerField?.previousInteractedActors ?? []),
+			() ->
+				if (canEnemyDie)
+					initGameover(enemyField?.previousInteractedActors ?? [])
+		);
 		hud.cameras = [camHUD];
 		add(hud);
 
@@ -645,6 +653,8 @@ class PlayState extends BeatState {
 		}
 
 		if (Controls.pause) initPause();
+		if (Controls.reset && !Settings.setup.disableDeathBind)
+			initGameover([ArrowField.enemyPlay ? enemyField?.previousInteractedActors ?? [] : playerField?.previousInteractedActors ?? []]);
 		scripts.call('updatePost', [elapsed]);
 	}
 
@@ -711,6 +721,11 @@ class PlayState extends BeatState {
 
 	function initPause(?subState:FlxSubState):Void {
 		openSubState(subState ?? new PauseMenu());
+	}
+
+	function initGameover(?potentialChars:Array<Character>):Void {
+		_log('[PlayState] Triggered Gameover.', DebugMessage);
+		openSubState(new GameoverState(potentialChars[0]));
 	}
 
 	override public function stepHit(curStep:Int):Void {

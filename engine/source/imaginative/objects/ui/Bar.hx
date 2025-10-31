@@ -58,7 +58,7 @@ class BarColors {
 	public var player(default, set):FlxColor;
 	inline function set_player(value:Null<FlxColor>):Null<FlxColor> {
 		var result:Null<FlxColor> = value ?? (isBlank ? FlxColor.YELLOW : parent.blankColors.player);
-		parent.createColoredFilledBar(result);
+		parent.createColoredFilledBar(result); parent.updateBar();
 		return player = result;
 	}
 
@@ -136,6 +136,22 @@ class Bar extends FlxBar {
 			default: centerPoint.set(x + (width / 2), y + (height / 2));
 		}
 		onBarUpdate.dispatch(FlxG.elapsed);
+	}
+
+	override function set_value(newValue:Float):Float {
+		value = FlxMath.bound(newValue, min, max);
+
+		if (value <= min && emptyCallback != null)
+			emptyCallback();
+
+		if (value >= max && filledCallback != null)
+			filledCallback();
+
+		if (value <= min && killOnEmpty)
+			kill();
+
+		updateBar();
+		return newValue;
 	}
 
 	/**

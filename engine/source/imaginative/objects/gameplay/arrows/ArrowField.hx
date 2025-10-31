@@ -69,10 +69,10 @@ class ArrowField extends BeatGroup {
 
 	// TODO: Figure out how to do this better.
 	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
-		for (char in actors.filter((char:Character) -> return char != null)) {
+		for (char in field.previousInteractedActors = actors.filter((char:Character) -> return char != null)) {
 			char.controls = field.isPlayer ? field.controls : null;
 			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][id];
-			char.playAnim('sing$temp', context, suffix);
+			char.playAnim('sing$temp', force, context, suffix);
 			char.lastHit = field.conductor.time;
 		}
 	}
@@ -174,6 +174,11 @@ class ArrowField extends BeatGroup {
 	 * `May make it contain string instead.`
 	 */
 	public var assignedActors:Array<Character>;
+	/**
+	 * States what characters last sang for this field.
+	 * Used for tracking you should be the target character for gameovers.
+	 */
+	public var previousInteractedActors:Array<Character> = [];
 
 	/**
 	 * If true then the note rendering process is active.
