@@ -262,7 +262,7 @@ class FreeplayMenu extends BeatState {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else {
-					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]));
+					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff])));
 					if (!event.prevented) {
 						if (event.playPreview) {
 							var song:SongHolder = songs.members[curSelected];
