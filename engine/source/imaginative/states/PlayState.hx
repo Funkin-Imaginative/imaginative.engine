@@ -295,14 +295,14 @@ class PlayState extends BeatState {
 	var ratings:FlxTypedGroup<BaseSprite>;
 
 	override public function create():Void {
-		Assets.clearCache(true, false, true);
+		Assets.clearCache(true, false, true, true);
 
 		scripts = new ScriptGroup(instance = this);
 
 		bgColor = 0xFFBDBDBD;
 
-		FlxG.cameras.reset(camera = camGame = new PlayCamera().beatSetup(songAudio));
-		FlxG.cameras.add(camHUD = new BeatCamera().beatSetup(songAudio), false);
+		FlxG.cameras.reset(camera = camGame = new PlayCamera('World Camera').beatSetup(songAudio));
+		FlxG.cameras.add(camHUD = new BeatCamera('Hud Camera').beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
 		hud = switch (chartData.hud ??= 'funkin') {
@@ -615,6 +615,7 @@ class PlayState extends BeatState {
 			}
 
 			songAudio._onComplete = (event) -> {
+				_log('[PlayState] Song Ended.', DebugMessage);
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
 						char.dance();

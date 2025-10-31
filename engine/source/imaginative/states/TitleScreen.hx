@@ -19,7 +19,7 @@ class TitleScreen extends BeatState {
 			if (!conductor.playing)
 				conductor.loadMusic('freakyMenu', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 
-			FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor, 0.5));
+			FlxG.cameras.reset(mainCamera = new BeatCamera('Main Camera').beatSetup(conductor, 0.5));
 			mainCamera.setZooming(1, 0.16);
 
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');

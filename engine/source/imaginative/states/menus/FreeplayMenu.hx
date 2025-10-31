@@ -69,7 +69,7 @@ class FreeplayMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor));
+		FlxG.cameras.reset(mainCamera = new BeatCamera('Main Camera').beatSetup(conductor));
 		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
 		mainCamera.setZooming(1, 0.16);
 		add(camPoint);
