@@ -1,5 +1,6 @@
 package imaginative.objects;
 
+import imaginative.backend.gameplay.CameraDebugCrosshair;
 import imaginative.backend.scripting.events.PointEvent;
 
 typedef CharacterData = {
@@ -85,15 +86,19 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public function getCamPos(?point:Position):Position {
 		var midpoint:Position = Position.getObjMidpoint(this);
 		var event:PointEvent = new PointEvent(
-			midpoint.x + spriteOffsets.position.x + cameraOffset.x,
-			midpoint.y + spriteOffsets.position.y + cameraOffset.y
+			midpoint.x + (cameraOffset.x * (flipX ? -1 : 1)),
+			midpoint.y + cameraOffset.y
 		);
-		scripts.call('onGetCamPos', [event]);
-
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
+
+		scripts.call('onGetCamPos', [event]);
 		return point == null ? new Position(event.x, event.y) : point.set(event.x, event.y);
 	}
+	/**
+	 * Simple group used for rendering the camera position debug visuals.
+	 */
+	public var cameraDebugVisuals(default, null):CameraDebugCrosshair;
 
 	/**
 	 * The characters health bar color.
@@ -147,6 +152,23 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		super(x, y, 'characters/${theirName = (Paths.character(name).isFile ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
+
+		// Camera Position Crosshair System
+		cameraDebugVisuals = new CameraDebugCrosshair(() -> getCamPos().toArray());
+		cameraDebugVisuals.crosshair.color = cameraDebugVisuals.offScreenArrow.color = healthColor; // indicator of who's crosshair it is
+		#if !debug cameraDebugVisuals.visible = debugMode; #end // make certain it always appears when compiling a debug build
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		if (cameraDebugVisuals != null && cameraDebugVisuals.visible)
+			cameraDebugVisuals.update(elapsed);
+	}
+
+	override public function draw():Void {
+		super.draw();
+		if (cameraDebugVisuals != null && cameraDebugVisuals.visible)
+			cameraDebugVisuals.draw();
 	}
 
 	/**
@@ -186,6 +208,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	}
 
 	override public function destroy():Void {
+		cameraDebugVisuals.destroy();
 		super.destroy();
 	}
 }

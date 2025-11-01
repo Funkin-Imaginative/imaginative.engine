@@ -636,7 +636,6 @@ class PlayState extends BeatState {
 
 		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
 		camPoint.setPosition(startPosition.x, startPosition.y);
-		camPoint.setPosition(FlxG.width / 2, FlxG.height / 2 - 70);
 		camGame.snapToTarget();
 		camGame.snapZoom();
 

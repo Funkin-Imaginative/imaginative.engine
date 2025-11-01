@@ -50,6 +50,11 @@ class EngineProcess extends BeatState {
 		FlxG.game.debugger.console.registerClass(Controls);
 		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerFunction('resetState', () -> BeatState.resetState());
+		FlxG.game.debugger.console.registerFunction('setCameraToCharacter', (camera:FlxCamera, char:Character) -> {
+			var camPos = char.getCamPos();
+			camera.target.setPosition(camPos.x, camPos.y);
+			camera.snapToTarget();
+		});
 		#end
 
 		FlxG.signals.preUpdate.add(() -> {
