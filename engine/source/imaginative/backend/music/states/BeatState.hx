@@ -204,6 +204,11 @@ class BeatState extends FlxState implements IBeatState {
 			var state:BeatState = cast FlxG.state;
 			state.onReset();
 			state.conductor.reset();
+			var sub:BeatSubState = state.subState is BeatSubState ? cast state.subState : null;
+			if (sub != null) {
+				sub.conductor.reset();
+				sub = sub.subState is BeatSubState ? cast sub.subState : null;
+			}
 		}
 		// switchState(resetConstructor());
 		FlxG.resetState();
