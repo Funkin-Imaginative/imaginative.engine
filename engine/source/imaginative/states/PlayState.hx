@@ -675,13 +675,13 @@ class PlayState extends BeatState {
 
 				var soundAsset:ModPath = assets.sounds[assetIndex];
 				if (Paths.sound(soundAsset).isFile) {
-					_log('[PlayState] Played countdown sound $assetIndex.', DebugMessage);
+					_log('[PlayState] Played countdown sound "$soundAsset".', DebugMessage);
 					FlxG.sound.play(Assets.sound(soundAsset));
 				}
 
 				var imageAsset:ModPath = assets.images[assetIndex];
 				if (Paths.image(imageAsset).isFile) {
-					_log('[PlayState] Spawned countdown image $assetIndex.', DebugMessage);
+					_log('[PlayState] Spawned countdown image "$imageAsset".', DebugMessage);
 					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();
