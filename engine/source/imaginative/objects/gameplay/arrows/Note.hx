@@ -150,8 +150,11 @@ class Note extends FlxSprite {
 	}
 
 	override public function update(elapsed:Float):Void {
-		super.update(elapsed);
+		if (visible)
+			super.update(elapsed);
 		followStrum();
+		if (_update != null)
+			_update(elapsed);
 	}
 
 	/**

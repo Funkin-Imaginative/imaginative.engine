@@ -49,8 +49,7 @@ class SustainGroup extends BeatTypedGroup<Sustain> {
 	override public function update(elapsed:Float):Void {
 		forEachRendered(
 			(sustain:Sustain) ->
-				if (sustain.visible)
-					sustain.update(elapsed)
+				sustain.update(elapsed)
 		);
 	}
 

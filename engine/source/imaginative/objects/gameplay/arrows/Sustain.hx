@@ -146,6 +146,13 @@ class Sustain extends FlxSprite {
 		mods.alpha = 0.6;
 	}
 
+	override public function update(elapsed:Float):Void {
+		if (visible)
+			super.update(elapsed);
+		if (_update != null)
+			_update(elapsed);
+	}
+
 	/**
 	 * This function applies the base Y scaling to a sustain.
 	 * `97 * 0.7 = 67.9` The math to get the perfect sustain scale.
