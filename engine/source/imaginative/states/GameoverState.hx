@@ -16,11 +16,14 @@ class GameoverState extends BeatSubState {
 	var deathSound:FlxSound;
 	var retrySound:FlxSound;
 
+	// TODO: Make this function it's own thing.
 	inline function temp(suffix:String):String return suffix.isNullOrEmpty() ? '' : '-$suffix';
 	override public function new(targetChar:Character) {
 		super(true, true);
+		targetChar.visible = false;
 		character = new Character(targetChar.x, targetChar.y, '${targetChar.theirName}-dead', targetChar.flipX);
-		bgColor = FlxColor.BLACK;
+		// bgColor = FlxColor.BLACK;
+		bgColor = 0xE9000000;
 
 		// cache
 		Assets.music('gameover/gameOver${temp(musicSuffix)}');
@@ -30,16 +33,15 @@ class GameoverState extends BeatSubState {
 
 	override public function create():Void {
 		super.create();
-		parent.persistentDraw = false;
+		// parent.persistentDraw = false;
 		add(character);
 
 		conductor.loadMusic('gameover/gameOver${temp(musicSuffix)}');
 		if (game == null) {
-			for (i in FlxG.cameras.list) i.visible = false;
 			FlxG.cameras.add(camDead = new BeatCamera('Dead Camera').beatSetup(conductor), false);
 			camDead.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05); add(camPoint);
-			camDead.visible = true;
 		} else {
+			game.camHUD.visible = false; // would be wierd if you could see the hud huh?
 			camDead = game.camGame.beatSetup(conductor);
 			camPoint = game.camPoint;
 		}
@@ -48,7 +50,7 @@ class GameoverState extends BeatSubState {
 		character.playAnim('dies', NoDancing);
 		deathSound.play();
 		FlxTween.tween(camPoint, {x: camPos.x, y: camPos.y}, 2, {
-			startDelay: 2,
+			startDelay: 0.7,
 			ease: FlxEase.smootherStepInOut,
 			onUpdate: (_) -> camDead.snapToTarget(),
 			onComplete: (_) -> {
@@ -64,7 +66,17 @@ class GameoverState extends BeatSubState {
 			conductor.stop();
 			character.playAnim('retry', NoDancing);
 			retrySound.play();
-			camDead.fade(20, () -> BeatState.resetState());
+			var lol:Int = 0; // works thankfully lol, might change tho
+			retrySound.onComplete = () -> {
+				lol++;
+				if (lol == 2)
+					BeatState.resetState();
+			}
+			camDead.fade(FlxColor.BLACK, 3, () -> {
+				lol++;
+				if (lol == 2)
+					BeatState.resetState();
+			});
 		}
 		if (Controls.back) {
 			conductor.stop();
