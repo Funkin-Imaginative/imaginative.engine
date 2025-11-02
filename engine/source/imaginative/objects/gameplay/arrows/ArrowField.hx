@@ -424,7 +424,7 @@ class ArrowField extends BeatGroup {
 			else HUDType.instance.updateStatsText();
 
 	// TODO: Figure out how to do this better.
-	inline function _onNoteHit(note:Note, ?i:Int):Void {
+	function _onNoteHit(note:Note, ?i:Int):Void {
 		if (note.wasHit) return;
 		i ??= note.id;
 		note.wasHit = true;
@@ -443,7 +443,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onSustainHit(sustain:Sustain, ?i:Int):Void {
+	function _onSustainHit(sustain:Sustain, ?i:Int):Void {
 		if (sustain.wasHit) return;
 		i ??= sustain.id;
 		sustain.wasHit = true;
@@ -458,7 +458,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onNoteMissed(note:Note, ?i:Int):Void {
+	function _onNoteMissed(note:Note, ?i:Int):Void {
 		if (note.wasMissed) return;
 		i ??= note.id;
 		note.wasMissed = true;
@@ -479,7 +479,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
+	function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
 		if (sustain.wasMissed) return;
 		i ??= sustain.id;
 		sustain.wasMissed = true;
