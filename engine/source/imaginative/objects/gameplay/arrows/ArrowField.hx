@@ -469,8 +469,10 @@ class ArrowField extends BeatGroup {
 		if (!event.prevented) {
 			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
-				for (sustain in Note.filterTail(event.note.tail, true))
+				for (sustain in Note.filterTail(event.note.tail, true)) {
 					sustain.wasMissed = true;
+					sustain.mods.alpha *= 0.86;
+				}
 			if (event.field.isPlayer) {
 				event.field.stats.score -= 50;
 				event.field.stats.combo = 0;
@@ -491,8 +493,10 @@ class ArrowField extends BeatGroup {
 		if (!event.prevented) {
 			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
-				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
+				for (sustain in Note.filterTail(event.sustain.setHead.tail, true)) {
 					sustain.wasMissed = true;
+					sustain.mods.alpha *= 0.86;
+				}
 			if (event.field.isPlayer) {
 				event.field.stats.score -= 20;
 				event.field.stats.combo = 0;

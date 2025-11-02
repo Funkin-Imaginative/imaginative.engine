@@ -14,7 +14,7 @@ class Strum extends FlxSprite {
 	/**
 	 * The field the strum is assigned to.
 	 */
-	public var setField(default, null):ArrowField;
+	public final setField:ArrowField;
 
 	// Strum specific variables.
 	/**
