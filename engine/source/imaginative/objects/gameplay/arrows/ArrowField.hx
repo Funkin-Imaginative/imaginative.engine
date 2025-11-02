@@ -253,16 +253,16 @@ class ArrowField extends BeatGroup {
 
 	/**
 	 * The amount of strums in the field.
-	 * Forced to 4 *for now*.
+	 * Forced to 4 *for now*... maybe.
 	 */
 	public var strumCount(default, set):Int;
 	inline function set_strumCount(value:Int):Int
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
-	override public function new(?singers:Array<Character>, mania:Int = 4) {
-		strumCount = mania;
 		notes = new NoteGroup(this);
+	override public function new(?singers:Array<Character>, startCount:Int = 4) {
+		strumCount = startCount;
 		sustains = new SustainGroup(notes);
 		super();
 
@@ -360,6 +360,8 @@ class ArrowField extends BeatGroup {
 				if (!event.prevented) {
 					if (!event.stopStrumPress)
 						event.strum.playAnim('press', !event.triggerMiss);
+					if (event.triggerMiss)
+						FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 					event.field.updateStatsText();
 				}
 			}
@@ -465,6 +467,7 @@ class ArrowField extends BeatGroup {
 		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
+			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.note.tail, true))
 					sustain.wasMissed = true;
@@ -486,6 +489,7 @@ class ArrowField extends BeatGroup {
 		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
+			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
 				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
 					sustain.wasMissed = true;

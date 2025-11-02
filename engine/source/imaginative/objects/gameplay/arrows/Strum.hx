@@ -69,8 +69,7 @@ class Strum extends FlxSprite {
 	 */
 	public var mods:ArrowModifier;
 
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)
-	override function new(field:ArrowField, id:Int) {
+	override public function new(field:ArrowField, id:Int) {
 		setField = field;
 		this.id = id;
 

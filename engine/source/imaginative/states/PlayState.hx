@@ -296,6 +296,9 @@ class PlayState extends BeatState {
 
 	override public function create():Void {
 		Assets.clearCache(true, false, true, true);
+		// precache them here for now
+		for (i in [1, 2, 3]) // lazy
+			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
 
 		scripts = new ScriptGroup(instance = this);
 

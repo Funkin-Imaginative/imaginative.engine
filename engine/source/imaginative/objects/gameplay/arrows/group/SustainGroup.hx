@@ -12,7 +12,7 @@ class SustainGroup extends FlxTypedGroup<Sustain> {
 	 */
 	public var parentNoteGroup(default, null):NoteGroup;
 
-	public function new(notes:NoteGroup) {
+	override public function new(notes:NoteGroup) {
 		parentNoteGroup = notes;
 		super();
 
