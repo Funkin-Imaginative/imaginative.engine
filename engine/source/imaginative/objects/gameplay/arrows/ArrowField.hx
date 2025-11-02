@@ -634,16 +634,13 @@ class ArrowField extends BeatGroup {
 	 */
 	public function parse(data:ChartField):Void {
 		for (base in data.notes) {
-			var note:Note = new Note(this, strums.members[base.id], base.id, base.time);
-			Note.generateTail(note, base.length);
+			var note:Note = new Note(this, base.id, base.time, base.length);
 			var lol:Array<String> = base.characters ??= [];
 			note.assignedActors = PlayState.instance == null ? [] : [
 				for (tag => char in PlayState.instance.characterMapping)
 					if (lol.contains(tag))
 						char
 			];
-			for (sustain in notes.add(note).tail)
-				sustains.add(sustain);
 		}
 	}
 

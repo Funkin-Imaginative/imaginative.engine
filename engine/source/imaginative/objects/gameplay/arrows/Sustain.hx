@@ -14,9 +14,11 @@ class Sustain extends FlxSprite {
 	/**
 	 * The field the sustain is assigned to.
 	 */
-	public var setField(get, never):ArrowField;
+	public var setField(get, set):ArrowField;
 	inline function get_setField():ArrowField
 		return setHead.setField;
+	inline function set_setField(value:ArrowField):ArrowField
+		return setHead.setField = value;
 	/**
 	 * The parent strum of this sustain.
 	 */
@@ -85,6 +87,7 @@ class Sustain extends FlxSprite {
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
+		if (setField == null) return false;
 		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
 	}
 	/**
@@ -92,6 +95,7 @@ class Sustain extends FlxSprite {
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
+		if (setField == null) return false;
 		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
@@ -108,6 +112,7 @@ class Sustain extends FlxSprite {
 	 */
 	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {
+		if (setField == null) return false;
 		if (!setField.activateNoteRendering)
 			return false;
 		return isBeingRendered;
@@ -123,7 +128,7 @@ class Sustain extends FlxSprite {
 		this.time = time;
 		isEnd = end;
 
-		super(setHead.x, setHead.y);
+		super(-10000, -10000);
 
 		this.loadTexture('gameplay/arrows/funkin');
 		var name:String = isEnd ? 'end' : 'hold';

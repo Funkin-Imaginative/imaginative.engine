@@ -163,6 +163,15 @@ class ArrowModifier {
 		handler = new ArrowModHandler(this, startType);
 	}
 
+	/**
+	 * A manually update to all of these properties.
+	 */
+	inline public function update():Void {
+		update_scale();
+		update_angle();
+		update_alpha();
+	}
+
 	function update_scale():Void {
 		if (handler.scale) {
 			if (strum != null) {

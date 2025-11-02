@@ -14,7 +14,27 @@ class Note extends FlxSprite {
 	/**
 	 * The field the note is assigned to.
 	 */
-	public var setField(default, null):ArrowField;
+	public var setField(default, set):ArrowField;
+	function set_setField(value:ArrowField):ArrowField {
+		if (setField != value) {
+			if (setField != null) {
+				if (setField.notes.members.contains(this))
+					setField.notes.remove(this, true);
+				for (sustain in tail)
+					if (setField.sustains.members.contains(sustain))
+						setField.sustains.remove(sustain, true);
+			}
+			setField = value;
+			if (setField != null) {
+				if (!setField.notes.members.contains(this))
+					setField.notes.add(this);
+				for (sustain in tail)
+					if (!setField.sustains.members.contains(sustain))
+						setField.sustains.add(sustain);
+			}
+		}
+		return setField;
+	}
 	/**
 	 * The parent strum of this note.
 	 */
@@ -49,7 +69,8 @@ class Note extends FlxSprite {
 	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+		var settings:PlayerSettings = setField == null ? Settings.setupP1 : setField.settings;
+		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
 	}
 
 	/**
@@ -80,20 +101,23 @@ class Note extends FlxSprite {
 	 * @return Array<Character>
 	 */
 	inline public function renderActors():Array<Character>
-		return assignedActors.empty() ? setField.assignedActors : assignedActors;
+		return assignedActors.empty() ? (setField == null ? [] : setField.assignedActors) : assignedActors;
 
 	// Important
 	/**
 	 * If true the note can be hit.
 	 */
 	public var canHit(get, never):Bool;
-	inline function get_canHit():Bool
+	inline function get_canHit():Bool {
+		if (setField == null) return false;
 		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
+	}
 	/**
 	 * If true it's too late to hit the note.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
+		if (setField == null) return false;
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
@@ -110,6 +134,7 @@ class Note extends FlxSprite {
 	 */
 	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {
+		if (setField == null) return false;
 		if (!setField.activateNoteRendering)
 			return false;
 		return isBeingRendered;
@@ -120,13 +145,18 @@ class Note extends FlxSprite {
 	 */
 	public var mods:ArrowModifier;
 
-	override public function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
-		setField = field;
-		setStrum = parent;
+	override public function new(field:ArrowField, id:Int, time:Float, tailLength:Float) {
 		this.id = id;
 		this.time = time;
 
-		super(-10000, -10000);
+		var roundedLength:Int = Math.ceil(tailLength / field.conductor.stepTime);
+		if (roundedLength > 1) {
+			for (susNote in 0...roundedLength) {
+				var sustain:Sustain = new Sustain(this, (field.conductor.stepTime * susNote), susNote == (roundedLength - 1));
+				tail.push(sustain);
+			}
+			tail.sort(sortTail);
+		}
 
 		setField = field;
 		super(-10000, -10000);
@@ -142,6 +172,7 @@ class Note extends FlxSprite {
 		updateHitbox();
 
 		mods = new ArrowModifier(this);
+		for (s in tail) s.mods.update();
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -155,6 +186,7 @@ class Note extends FlxSprite {
 	 * @param strum
 	 */
 	public function followStrum(?strum:Strum):Void {
+		if (setField == null) return;
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
@@ -203,18 +235,6 @@ class Note extends FlxSprite {
 				sustain.mods.handler.position.x ? pos.x : sustain.x,
 				sustain.mods.handler.position.y ? pos.y : sustain.y
 			);
-		}
-	}
-
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.parse)
-	inline static function generateTail(note:Note, length:Float):Void {
-		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
-		if (roundedLength > 1) {
-			for (susNote in 0...roundedLength) {
-				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
-				note.tail.push(sustain);
-			}
-			note.tail.sort(sortTail);
 		}
 	}
 
