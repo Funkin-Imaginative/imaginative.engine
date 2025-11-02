@@ -58,7 +58,8 @@ class NoteGroup extends BeatTypedGroup<Note> {
 	override public function update(elapsed:Float):Void {
 		forEachRendered(
 			(note:Note) ->
-				note.update(elapsed)
+				if (note.visible)
+					note.update(elapsed)
 		);
 	}
 

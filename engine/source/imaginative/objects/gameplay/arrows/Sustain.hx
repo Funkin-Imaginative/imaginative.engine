@@ -147,8 +147,7 @@ class Sustain extends FlxSprite {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (visible)
-			super.update(elapsed);
+		super.update(elapsed);
 		if (_update != null)
 			_update(elapsed);
 	}

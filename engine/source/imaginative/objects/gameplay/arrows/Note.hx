@@ -150,9 +150,7 @@ class Note extends FlxSprite {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (visible)
-			super.update(elapsed);
-		followStrum();
+		super.update(elapsed);
 		if (_update != null)
 			_update(elapsed);
 	}
@@ -165,35 +163,38 @@ class Note extends FlxSprite {
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
-		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle;
+		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle; // "setField.strums.angle" at some point maybe?
 		if (__scrollSpeed < 0) resultAngle += 180;
-		resultAngle += setField.strums.angle;
+		var angleDir:Float = resultAngle * (Math.PI / 180);
 
-		var angleDir:Float = Math.PI / 180;
-		angleDir = resultAngle * angleDir;
-		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
+		if (isBeingRendered) {
+			var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
 
-		pos.x += Math.cos(angleDir) * distance.position;
-		pos.x -= width / 2;
-		pos.x += strum.width / 2;
+			pos.x += Math.cos(angleDir) * distance.position;
+			// TODO: Figure out how to do this better, especially for sustains.
+			pos.x -= width / 2;
+			pos.x += strum.width / 2;
 
-		pos.y += Math.sin(angleDir) * distance.position;
-		pos.y -= height / 2;
-		pos.y += strum.height / 2;
+			pos.y += Math.sin(angleDir) * distance.position;
+			pos.y -= height / 2;
+			pos.y += strum.height / 2;
 
-		setPosition(
-			mods.handler.position.x ? pos.x : x,
-			mods.handler.position.y ? pos.y : y
-		);
+			setPosition(
+				mods.handler.position.x ? pos.x : x,
+				mods.handler.position.y ? pos.y : y
+			);
+		}
 
 		for (sustain in tail) {
-			var resultAngle:Float = resultAngle + sustain.scrollAngle;
+			if (!sustain.isBeingRendered) continue;
+			// commented out for now until I can figure this part out
+			/* var resultAngle:Float = resultAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = resultAngle * angleDir;
+			angleDir = resultAngle * angleDir; */
 
-			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
+			var pos:Position = new Position(strum.x + mods.offset.x + sustain.mods.offset.x, strum.y + mods.offset.y + sustain.mods.offset.y);
 			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
 
 			pos.x += Math.cos(angleDir) * distance.position;
@@ -213,7 +214,7 @@ class Note extends FlxSprite {
 	@:allow(imaginative.objects.gameplay.arrows.ArrowField.parse)
 	inline static function generateTail(note:Note, length:Float):Void {
 		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
-		if (roundedLength > 0) {
+		if (roundedLength > 1) {
 			for (susNote in 0...roundedLength) {
 				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
 				note.tail.push(sustain);

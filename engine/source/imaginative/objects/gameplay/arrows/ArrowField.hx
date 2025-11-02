@@ -291,7 +291,7 @@ class ArrowField extends BeatGroup {
 
 		add(strums);
 		add(notes);
-		insert(members.indexOf(true ? strums : notes), sustains); // behindStrums
+		insert(members.indexOf(false ? strums : notes), sustains); // behindStrums
 	}
 
 	inline function _input():Void {
@@ -389,7 +389,6 @@ class ArrowField extends BeatGroup {
 			if (!isPlayer)
 				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
-
 		});
 		// auto hit and sustain miss
 		sustains.forEachExists((sustain:Sustain) -> {
@@ -408,7 +407,7 @@ class ArrowField extends BeatGroup {
 			if (!canKill.contains(false)) {
 				_log('[ArrowField] Lineage Killed: $note', DebugMessage);
 				note.kill();
-			}
+			} else note.followStrum();
 			canKill.clearArray();
 		});
 
