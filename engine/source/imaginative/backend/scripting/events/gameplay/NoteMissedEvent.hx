@@ -18,12 +18,6 @@ final class NoteMissedEvent extends PlayAnimEvent {
 	 * The strum lane index.
 	 */
 	public var id:Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % field.strumCount;
 
 	/**
 	 * If true it prevents the press animation from playing on the target strum.

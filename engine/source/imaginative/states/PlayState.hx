@@ -424,7 +424,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -467,7 +467,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -484,7 +484,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -504,7 +504,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -522,7 +522,7 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
-							ArrowField.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+							ArrowField.characterSing(event.field, event.field.assignedActors, event.id, HasMissed, event.force, event.suffix);
 
 						for (char in event.field.assignedActors)
 							for (track in char.assignedTracks)

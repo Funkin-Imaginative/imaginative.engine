@@ -46,12 +46,6 @@ class Sustain extends FlxSprite {
 	public var id(get, never):Int;
 	inline function get_id():Int
 		return setHead.id;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % setField.strumCount;
 
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
@@ -131,9 +125,9 @@ class Sustain extends FlxSprite {
 
 		super(setHead.x, setHead.y);
 
-		var name:String = isEnd ? 'end' : 'hold';
-		var dir:String = ['left', 'down', 'up', 'right'][idMod];
 		this.loadTexture('gameplay/arrows/funkin');
+		var name:String = isEnd ? 'end' : 'hold';
+		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix(name, '$dir note $name', 24, false);
 
 		animation.play(name, true);

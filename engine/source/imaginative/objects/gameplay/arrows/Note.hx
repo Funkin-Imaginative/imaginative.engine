@@ -18,9 +18,9 @@ class Note extends FlxSprite {
 	/**
 	 * The parent strum of this note.
 	 */
-	public var setStrum(get, null):Strum;
+	public var setStrum(get, never):Strum;
 	inline function get_setStrum():Strum
-		return setStrum ?? setField.strums.members[id] ?? setField.strums.members[idMod];
+		return setField.strums.members[id];
 	/**
 	 * The sustain pieces this note has.
 	 */
@@ -37,12 +37,6 @@ class Note extends FlxSprite {
 	 * The strum lane index.
 	 */
 	public var id:Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % setField.strumCount;
 
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
@@ -134,10 +128,11 @@ class Note extends FlxSprite {
 
 		super(-10000, -10000);
 
-		var dir:String = ['left', 'down', 'up', 'right'][idMod];
+		setField = field;
+		super(-10000, -10000);
 
 		this.loadTexture('gameplay/arrows/funkin');
-
+		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix('head', '$dir note head', 24, false);
 
 		animation.play('head', true);

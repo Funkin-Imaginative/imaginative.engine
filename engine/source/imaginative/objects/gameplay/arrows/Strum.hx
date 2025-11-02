@@ -21,12 +21,6 @@ class Strum extends FlxSprite {
 	 * The strum lane index.
 	 */
 	public var id(default, null):Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % setField.strumCount;
 
 	/**
 	 * The scroll speed of this strum.
@@ -75,10 +69,8 @@ class Strum extends FlxSprite {
 
 		super();
 
-		var dir:String = ['left', 'down', 'up', 'right'][idMod];
-
 		this.loadTexture('gameplay/arrows/funkin');
-
+		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix('static', '$dir strum static', 24, false);
 		animation.addByPrefix('press', '$dir strum press', 24, false);
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
