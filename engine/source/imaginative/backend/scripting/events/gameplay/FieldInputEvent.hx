@@ -14,12 +14,6 @@ class FieldInputEvent extends ScriptEvent {
 	 * The strum lane index.
 	 */
 	public var i(default, null):Int;
-	/**
-	 * Its just i but with % applied.
-	 */
-	public var iMod(get, never):Int;
-	inline function get_iMod():Int
-		return i % field.strumCount;
 
 	/**
 	 * If true a bind was pressed.
