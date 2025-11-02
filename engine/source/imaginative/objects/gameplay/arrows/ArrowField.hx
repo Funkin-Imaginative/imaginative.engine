@@ -260,8 +260,8 @@ class ArrowField extends BeatGroup {
 		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
 
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
-		notes = new NoteGroup(this);
 	override public function new(?singers:Array<Character>, startCount:Int = 4) {
+		notes = new NoteGroup(this);
 		strumCount = startCount;
 		sustains = new SustainGroup(notes);
 		super();
