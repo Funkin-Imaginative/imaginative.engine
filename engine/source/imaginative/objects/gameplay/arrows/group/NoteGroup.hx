@@ -1,6 +1,6 @@
 package imaginative.objects.gameplay.arrows.group;
 
-class NoteGroup extends BeatTypedGroup<Note> {
+class NoteGroup extends FlxTypedGroup<Note> {
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
 	 * The render distance for how far a note must be in a song to be rendered.

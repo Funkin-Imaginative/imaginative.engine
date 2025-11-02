@@ -188,7 +188,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
+	public var strums(default, null):FlxTypedSpriteGroup<Strum> = new FlxTypedSpriteGroup<Strum>();
 	/**
 	 * The notes of the field.
 	 */

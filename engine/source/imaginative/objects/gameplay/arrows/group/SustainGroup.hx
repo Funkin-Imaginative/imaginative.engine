@@ -1,6 +1,6 @@
 package imaginative.objects.gameplay.arrows.group;
 
-class SustainGroup extends BeatTypedGroup<Sustain> {
+class SustainGroup extends FlxTypedGroup<Sustain> {
 	/**
 	 * The field the sustain group is assigned to.
 	 */
