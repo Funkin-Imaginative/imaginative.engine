@@ -211,4 +211,11 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		cameraDebugVisuals.destroy();
 		super.destroy();
 	}
+
+	override function set_cameras(value:Array<FlxCamera>):Array<FlxCamera> {
+		var output = super.set_cameras(value);
+		if (cameraDebugVisuals != null)
+			cameraDebugVisuals.cameras = output;
+		return output;
+	}
 }
