@@ -12,6 +12,29 @@ class Sustain extends FlxSprite {
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
+	 * Returns the previous sustain in line.
+	 * Unlike notes this goes through tail members, not field members.
+	 */
+	public var previousMember(get, never):Null<Sustain>;
+	function get_previousMember():Null<Sustain> {
+		setHead.tail.sort(Note.sortTail); // jic
+		var index:Int = setHead.tail.indexOf(this) - 1;
+		if (index < 0) return null;
+		return setHead.tail[index];
+	}
+	/**
+	 * Returns the next sustain in line.
+	 * Unlike notes this goes through tail members, not field members.
+	 */
+	public var nextMember(get, never):Null<Sustain>;
+	function get_nextMember():Null<Sustain> {
+		setHead.tail.sort(Note.sortTail); // jic
+		var index:Int = setHead.tail.indexOf(this) + 1;
+		if (index > setHead.tail.length - 1) return null;
+		return setHead.tail[index];
+	}
+
+	/**
 	 * The field the sustain is assigned to.
 	 */
 	public var setField(get, set):ArrowField;

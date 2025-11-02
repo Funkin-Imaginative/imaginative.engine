@@ -12,6 +12,41 @@ class Note extends FlxSprite {
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
+	 * Returns the previous note in line.
+	 */
+	public var previousMember(get, never):Null<Note>;
+	function get_previousMember():Null<Note> {
+		if (setField == null) return null;
+		setField.notes.members.sort(sortNotes); // jic
+		function doublesCheck(note:Note):Note {
+			var index:Int = setField.notes.members.indexOf(note) - 1;
+			if (index < 0) return null;
+			var setNote = setField.notes.members[index];
+			if (setNote.id == note.id)
+				return doublesCheck(setNote);
+			return note;
+		}
+		return doublesCheck(this);
+	}
+	/**
+	 * Returns the next note in line.
+	 */
+	public var nextMember(get, never):Null<Note>;
+	function get_nextMember():Null<Note> {
+		if (setField == null) return null;
+		setField.notes.members.sort(sortNotes); // jic
+		function doublesCheck(note:Note):Note {
+			var index:Int = setField.notes.members.indexOf(note) + 1;
+			if (index > setField.notes.length - 1) return null;
+			var setNote = setField.notes.members[index];
+			if (setNote.id == note.id)
+				return doublesCheck(setNote);
+			return note;
+		}
+		return doublesCheck(this);
+	}
+
+	/**
 	 * The field the note is assigned to.
 	 */
 	public var setField(default, set):ArrowField;
