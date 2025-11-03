@@ -19,10 +19,16 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	/**
 	 * The field the note group is assigned to.
 	 */
-	public var setField(default, null):ArrowField;
+	public var setField(get, never):ArrowField;
+	inline function get_setField():ArrowField
+		return parentStrumGroup.setField;
+	/**
+	 * The parent strum group the notes members come from.
+	 */
+	public var parentStrumGroup(default, null):StrumGroup;
 
-	public function new(field:ArrowField) {
-		setField = field;
+	override public function new(strums:StrumGroup) {
+		parentStrumGroup = strums;
 		super();
 
 		memberAdded.add((_:Note) -> members.sort(Note.sortNotes));

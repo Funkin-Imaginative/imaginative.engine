@@ -20,7 +20,10 @@ class Strum extends FlxSprite {
 	/**
 	 * The lane index.
 	 */
-	public var id(default, null):Int;
+	public var id(default, set):Int;
+	// TODO: Have it update the strum skin on set once added.
+	inline function set_id(value:Int):Int
+		return id = value;
 
 	/**
 	 * The scroll speed of this strum.

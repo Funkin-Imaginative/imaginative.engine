@@ -2,6 +2,7 @@ package imaginative.objects.gameplay.arrows;
 
 import imaginative.backend.scripting.events.gameplay.*;
 import imaginative.objects.gameplay.arrows.group.NoteGroup;
+import imaginative.objects.gameplay.arrows.group.StrumGroup;
 import imaginative.objects.gameplay.arrows.group.SustainGroup;
 import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
@@ -188,7 +189,7 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):FlxTypedSpriteGroup<Strum> = new FlxTypedSpriteGroup<Strum>();
+	public var strums(default, null):StrumGroup;
 	/**
 	 * The notes of the field.
 	 */
@@ -255,19 +256,16 @@ class ArrowField extends BeatGroup {
 	 * The amount of strums in the field.
 	 * Forced to 4 *for now*... maybe.
 	 */
-	public var strumCount(default, set):Int;
-	inline function set_strumCount(value:Int):Int
-		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
+	public var strumCount(get, never):Int;
+	inline function get_strumCount():Int
+		return strums.length;
 
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, startCount:Int = 4) {
-		notes = new NoteGroup(this);
-		strumCount = startCount;
+		strums = new StrumGroup(this);
+		notes = new NoteGroup(strums);
 		sustains = new SustainGroup(notes);
 		super();
-
-		for (i in 0...strumCount)
-			strums.add(new Strum(this, i));
 
 		// runs the "set_" function
 		scrollSpeed = null;
@@ -281,9 +279,8 @@ class ArrowField extends BeatGroup {
 			}
 		);
 
-		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
-		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
-
+		strums.setLineup(4);
+		// strums.setLineup(startCount);
 		resetInternalPositions();
 		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
 

@@ -68,9 +68,12 @@ class Sustain extends FlxSprite {
 	/**
 	 * The lane index.
 	 */
-	public var id(get, never):Int;
+	public var id(get, set):Int;
 	inline function get_id():Int
 		return setHead.id;
+	// TODO: Have it update the sustain skin on set once added.
+	inline function set_id(value:Int):Int
+		return setHead.id = value;
 
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**

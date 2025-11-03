@@ -91,7 +91,10 @@ class Note extends FlxSprite {
 	/**
 	 * The lane index.
 	 */
-	public var id:Int;
+	public var id(default, set):Int;
+	// TODO: Have it update the note skin on set once added.
+	inline function set_id(value:Int):Int
+		return id = value;
 
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
