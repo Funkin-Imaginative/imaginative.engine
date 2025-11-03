@@ -51,6 +51,7 @@ class Main extends Sprite {
 
 		super();
 
+		SaveData.init();
 		FlxWindow.init();
 		Script.init();
 		#if DISCORD_RICH_PRESENCE
