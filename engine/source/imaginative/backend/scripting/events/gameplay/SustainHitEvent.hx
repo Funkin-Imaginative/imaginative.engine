@@ -19,7 +19,7 @@ final class SustainHitEvent extends PlayAnimEvent {
 	public var sustain:Sustain;
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id:Int;
 

@@ -326,7 +326,7 @@ class ArrowField extends BeatGroup {
 	// TODO: Rework this.
 	/**
 	 * Where input stuff really begins.
-	 * @param i The strum lane index.
+	 * @param i The lane index.
 	 * @param strum The strum object instance.
 	 * @param hasHit If true a bind was pressed.
 	 * @param beingHeld If true a bind is being held.

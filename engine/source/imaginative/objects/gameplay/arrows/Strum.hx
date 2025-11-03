@@ -18,7 +18,7 @@ class Strum extends FlxSprite {
 
 	// Strum specific variables.
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id(default, null):Int;
 

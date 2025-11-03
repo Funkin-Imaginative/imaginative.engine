@@ -66,7 +66,7 @@ class Sustain extends FlxSprite {
 	}
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id(get, never):Int;
 	inline function get_id():Int

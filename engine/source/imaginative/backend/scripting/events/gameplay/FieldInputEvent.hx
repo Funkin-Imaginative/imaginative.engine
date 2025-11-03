@@ -11,7 +11,7 @@ class FieldInputEvent extends ScriptEvent {
 	public var strum(default, null):Strum;
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var i(default, null):Int;
 

@@ -14,7 +14,7 @@ final class VoidMissEvent extends PlayAnimEvent {
 		return field.strums.members[id];
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id:Int;
 

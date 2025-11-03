@@ -89,7 +89,7 @@ class Note extends FlxSprite {
 
 	// Note specific variables.
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id:Int;
 

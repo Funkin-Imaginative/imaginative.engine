@@ -15,7 +15,7 @@ final class NoteHitEvent extends PlayAnimEvent {
 	public var note:Note;
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id:Int;
 
