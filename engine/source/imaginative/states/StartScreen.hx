@@ -73,5 +73,23 @@ class StartScreen extends BeatState {
 				'scroll.y': tweenAxes.y ? ((camera.scroll.y + camera.height) * (swapAxes.y ? -1 : 1)) : 0
 			}, 5, {ease: FlxEase.smoothStepIn});
 		}
+
+		// just gonna leave this here for easy vslice conversion
+		if (FlxG.keys.justPressed.TAB) {
+			if (Paths.fileExists('root:chart/chart.json') && Paths.fileExists('root:chart/metadata.json')) {
+				var chartOld = new moonchart.formats.fnf.FNFVSlice().fromFile('chart/chart.json', 'chart/metadata.json', 'normal');
+				var chartNew = new moonchart.formats.fnf.FNFImaginative().fromFormat(chartOld);
+				try {
+					chartNew.save('chart/output/chart', 'chart/output/metadata');
+					_log('converted');
+				} catch(e)
+					try {
+						if (e.message.startsWith('getChartMeta'))
+							chartNew.save('chart/output/chart');
+						else _log('error: $e');
+					} catch(e)
+						_log('error: $e');
+			} else _log('not exist');
+		}
 	}
 }

@@ -187,7 +187,7 @@ class Note extends FlxSprite {
 		this.id = id;
 		this.time = time;
 
-		var roundedLength:Int = Math.ceil(tailLength / field.conductor.stepTime);
+		var roundedLength:Int = Math.round(tailLength / field.conductor.stepTime);
 		if (roundedLength > 1) {
 			for (susNote in 0...roundedLength) {
 				var sustain:Sustain = new Sustain(this, (field.conductor.stepTime * susNote), susNote == (roundedLength - 1));

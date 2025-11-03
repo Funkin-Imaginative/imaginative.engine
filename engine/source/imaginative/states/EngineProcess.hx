@@ -1,11 +1,22 @@
 package imaginative.states;
 
+import moonchart.Moonchart;
+
 class EngineProcess extends BeatState {
 	override public function new() {
 		super(false);
 	}
 
 	override public function create():Void {
+		Moonchart.init();
+		Moonchart.CASE_SENSITIVE_DIFFS = false;
+		Moonchart.SPACE_SENSITIVE_DIFFS = false;
+		Moonchart.DEFAULT_DIFF = 'normal';
+		Moonchart.DEFAULT_ARTIST = 'Unassigned';
+		Moonchart.DEFAULT_ALBUM = 'Unknown';
+		Moonchart.DEFAULT_CHARTER = 'Unassigned';
+		Moonchart.DEFAULT_TITLE = 'Unknown';
+
 		FlxG.fixedTimestep = false;
 		FlxSprite.defaultAntialiasing = true; // this ain't a pixel game... yeah ik week 6 exists!
 		Console.init();
