@@ -575,7 +575,7 @@ class PlayState extends BeatState {
 		else {
 			for (event in chartData.events)
 				for (data in event.data)
-					songEvents.push(new SongEvent(event.time, switch (subject) {
+					songEvents.push(new SongEvent(event.time, switch (data.name) {
 						default:
 							() -> {
 								_log('[Event] Ran "${data.name} at ${event.time} with paramaters of ${data.params}.', DebugMessage);
