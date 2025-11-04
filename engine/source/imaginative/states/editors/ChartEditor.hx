@@ -83,6 +83,17 @@ typedef FieldSettings = {
 }
 
 typedef ChartEvent = {
+	// NOTE: As of rn this is actually in milliseconds!!!!!
+	/**
+	 * The event position in steps.
+	 */
+	var time:Float;
+	/**
+	 * Each event to trigger.
+	 */
+	var data:Array<ChartSubEvent>;
+}
+typedef ChartSubEvent = {
 	/**
 	 * The event name.
 	 */
@@ -91,15 +102,6 @@ typedef ChartEvent = {
 	 * The event parameters.
 	 */
 	var params:Array<ParseDynamic>;
-	// NOTE: As of rn this is actually in milliseconds!!!!!
-	/**
-	 * The event position in steps.
-	 */
-	var time:Float;
-	/**
-	 * This is used for event stacking detection.
-	 */
-	@:default(0) var ?sub:Int;
 }
 
 typedef ChartData = {

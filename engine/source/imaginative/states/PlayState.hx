@@ -131,9 +131,10 @@ class PlayState extends BeatState {
 	public var saveScore:Bool = true;
 
 	/**
-	 * The chart information.
+	 * The chart information that *PlayState* uses.
 	 */
 	public static var chartData:ChartData;
+	// TODO: Code this shit in.
 	public var songEvents:Array<SongEvent> = [];
 
 	/**
@@ -569,6 +570,19 @@ class PlayState extends BeatState {
 		camGame.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05);
 		add(camPoint);
 
+		if (chartData.events.empty())
+			_log('[PlayState] This song has no events.', DebugMessage);
+		else {
+			for (event in chartData.events)
+				for (data in event.data)
+					songEvents.push(new SongEvent(event.time, switch (subject) {
+						default:
+							() -> {
+								_log('[Event] Ran "${data.name} at ${event.time} with paramaters of ${data.params}.', DebugMessage);
+							}
+					}));
+		}
+
 		super.create();
 
 		for (folder in ['content/songs', 'content/songs/$setSong/scripts'])
@@ -843,6 +857,8 @@ class PlayState extends BeatState {
 			},
 			hud: 'funkin'
 		}
+		chartData.events ??= [];
+		chartData.events.concat(ParseUtil.json('content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}'));
 		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;
