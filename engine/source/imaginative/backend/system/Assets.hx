@@ -215,7 +215,7 @@ class Assets {
 	 * @return Sound ~ The sound data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):Sound
-		return audio(Paths.inst(song, variant), false);
+		return audio(Paths.inst(song, variant));
 	/**
 	 * Gets the data of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
