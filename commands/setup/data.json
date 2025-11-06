@@ -1,20 +1,18 @@
 {
 	"dependencies": [
-		{ "name": "checkstyle", "version": "2.9.0" },
+		{ "name": "checkstyle" },
 
 		{
 			"name": "flixel-addons",
-			"version": "3.3.2",
 			"dependencies": [
 				{
 					"name": "flixel",
-					"version": "6.0.0",
 					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
 				}
 			]
 		},
 
-		{ "name": "flixel-animate", "version": "1.1.0", "dependencies": [] },
+		{ "name": "flixel-animate", "dependencies": [] },
 
 		{
 			"name": "hscript-improved",
@@ -29,9 +27,9 @@
 			"url": "https://github.com/HaxeFoundation/hxcpp"
 		},
 
-		{ "name": "hxcpp-debug-server", "version": "1.2.4" },
-		{ "name": "hxdiscord_rpc", "version": "1.3.0" },
-		{ "name": "hxp", "version": "1.3.0" },
+		{ "name": "hxcpp-debug-server" },
+		{ "name": "hxdiscord_rpc" },
+		{ "name": "hxp" },
 
 		{
 			"name": "hxvlc",
@@ -56,7 +54,7 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{"name": "thx.semver", "version": "0.2.2" }
+		{"name": "thx.semver" }
 	],
 	"questions": [
 		{
