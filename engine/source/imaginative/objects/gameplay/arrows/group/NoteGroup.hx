@@ -58,7 +58,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 		for (note in renderedNotes)
 			if (note.isBeingRendered)
 				func(note);
-		renderedNotes.clearArray();
+		renderedNotes = renderedNotes.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {

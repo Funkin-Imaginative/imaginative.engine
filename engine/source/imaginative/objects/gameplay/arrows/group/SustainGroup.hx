@@ -43,7 +43,7 @@ class SustainGroup extends FlxTypedGroup<Sustain> {
 		for (sustain in renderedSustains)
 			if (sustain.isBeingRendered)
 				func(sustain);
-		renderedSustains.clearArray();
+		renderedSustains = renderedSustains.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {

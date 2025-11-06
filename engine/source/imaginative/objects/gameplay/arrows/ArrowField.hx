@@ -407,7 +407,7 @@ class ArrowField extends BeatGroup {
 				_log('[ArrowField] Lineage Killed: $note', DebugMessage);
 				note.kill();
 			} else note.followStrum();
-			canKill.clearArray();
+			canKill = canKill.clearArray();
 		});
 
 		super.update(elapsed);
