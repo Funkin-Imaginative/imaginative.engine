@@ -1,13 +1,11 @@
 package imaginative.backend.system;
 
 import haxe.macro.Compiler;
-import flixel.FlxGame;
-import openfl.display.Sprite;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
 
-class Main extends Sprite {
+class Main extends openfl.display.Sprite {
 	/**
 	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
@@ -63,7 +61,7 @@ class Main extends Sprite {
 		latestVersion = engineVersion;
 		#end
 
-		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
+		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 

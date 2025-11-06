@@ -13,16 +13,7 @@ class CrashHandler {
 
 	inline static function onCrash(e:UncaughtErrorEvent):Void {
 		var errMsg:String = '';
-		var path:String;
-		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Date.now().toString();
-
-		dateNow = dateNow.replace(' ', '_');
-		dateNow = dateNow.replace(':', '\'');
-
-		path = './crash/Imaginative_$dateNow.txt';
-
-		for (stackItem in callStack) {
+		for (stackItem in CallStack.exceptionStack(true)) {
 			switch (stackItem) {
 				case FilePos(_, file, line, _):
 					errMsg += '$file (line $line)\n';
@@ -36,8 +27,8 @@ class CrashHandler {
 		if (!FileSystem.exists('./crash/'))
 			FileSystem.createDirectory('./crash/');
 
+		var path:String = './crash/Imaginative_${Date.now().toString().replace(' ', '_').replace(':', "'")}.txt';
 		File.saveContent(path, errMsg + '\n');
-
 		_log(errMsg, ErrorMessage);
 		_log('Crash dump saved in ${FilePath.normalize(path)}', ErrorMessage);
 
