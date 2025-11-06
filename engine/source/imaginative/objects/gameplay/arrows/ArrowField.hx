@@ -24,11 +24,11 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The main enemy field.
 	 */
-	public static var enemy:ArrowField;
+	public static var enemy:Null<ArrowField>;
 	/**
 	 * The main player field.
 	 */
-	public static var player:ArrowField;
+	public static var player:Null<ArrowField>;
 
 	/**
 	 * Sets up position for an array of fields.

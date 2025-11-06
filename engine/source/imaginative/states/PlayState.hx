@@ -233,36 +233,48 @@ class PlayState extends BeatState {
 	/**
 	 * What would be known as Daddy Dearest.
 	 */
-	public var enemy(get, set):Character;
-	inline function get_enemy():Character
+	public var enemy(get, set):Null<Character>;
+	inline function get_enemy():Null<Character>
 		return enemies[0];
-	inline function set_enemy(value:Character):Character
-		return enemies[0] = value;
+	inline function set_enemy(?value:Character):Null<Character> {
+		if (enemyField == null) return null;
+		return enemies[0] = value; // don't want to be setting an empty field
+	}
 	/**
 	 * What would be known as the Boyfriend.
 	 */
-	public var player(get, set):Character;
-	inline function get_player():Character
+	public var player(get, set):Null<Character>;
+	inline function get_player():Null<Character>
 		return players[0];
-	inline function set_player(value:Character):Character
-		return players[0] = value;
+	inline function set_player(?value:Character):Null<Character> {
+		if (playerField == null) return null;
+		return players[0] = value; // don't want to be setting an empty field
+	}
 
 	/**
 	 * All characters from the enemy field.
 	 */
 	public var enemies(get, set):Array<Character>;
-	inline function get_enemies():Array<Character>
+	inline function get_enemies():Array<Character> {
+		if (enemyField == null) return [];
 		return enemyField.assignedActors;
-	inline function set_enemies(value:Array<Character>):Array<Character>
+	}
+	inline function set_enemies(value:Array<Character>):Array<Character> {
+		if (enemyField == null) return [];
 		return enemyField.assignedActors = value;
+	}
 	/**
 	 * All characters from the player field.
 	 */
 	public var players(get, set):Array<Character>;
-	inline function get_players():Array<Character>
+	inline function get_players():Array<Character> {
+		if (playerField == null) return [];
 		return playerField.assignedActors;
-	inline function set_players(value:Array<Character>):Array<Character>
+	}
+	inline function set_players(value:Array<Character>):Array<Character> {
+		if (playerField == null) return [];
 		return playerField.assignedActors = value;
+	}
 
 	// 'ArrowField' variables.
 	/**
@@ -273,18 +285,18 @@ class PlayState extends BeatState {
 	/**
 	 * The enemy field.
 	 */
-	public var enemyField(get, set):ArrowField;
-	inline function get_enemyField():ArrowField
+	public var enemyField(get, set):Null<ArrowField>;
+	inline function get_enemyField():Null<ArrowField>
 		return ArrowField.enemy;
-	inline function set_enemyField(value:ArrowField):ArrowField
+	inline function set_enemyField(?value:ArrowField):Null<ArrowField>
 		return ArrowField.enemy = value;
 	/**
 	 * The player field.
 	 */
-	public var playerField(get, set):ArrowField;
-	inline function get_playerField():ArrowField
+	public var playerField(get, set):Null<ArrowField>;
+	inline function get_playerField():Null<ArrowField>
 		return ArrowField.player;
-	inline function set_playerField(value:ArrowField):ArrowField
+	inline function set_playerField(?value:ArrowField):Null<ArrowField>
 		return ArrowField.player = value;
 
 	/**
