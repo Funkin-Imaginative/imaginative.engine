@@ -64,7 +64,7 @@ enum abstract SongTimeType(String) from String to String {
  * The main powerhouse of an rhythm game, the Conductor!
  */
 @:access(flixel.system.frontEnds.SoundFrontEnd.loadHelper)
-class Conductor implements IFlxDestroyable implements IBeat {
+class Conductor extends FlxBasic implements IBeat {
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
 		menu = new Conductor('Menu', true);
@@ -77,7 +77,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * The conductor id.
 	 * This is completely optional and is only used in the debug console.
 	 */
-	public var id(default, null):String;
+	public final id:String;
 
 	/**
 	 * If true when the audio ends it will loop.
@@ -91,26 +91,26 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param beatsPM The number of beats per measure.
 	 * @param stepsPB The number of steps per beat.
 	 */
-	public var onBPMChange(default, null):FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
+	public final onBPMChange:FlxTypedSignal<(Float, Int, Int) -> Void> = new FlxTypedSignal<(Float, Int, Int) -> Void>();
 	/**
 	 * Dispatches when the next step happens.
 	 * @param curStep The current step.
 	 */
-	public var onStepHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public final onStepHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next beat happens.
 	 * @param curBeat The current beat.
 	 */
-	public var onBeatHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public final onBeatHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the next measure happens.
 	 * @param curMeasure The current measure.
 	 */
-	public var onMeasureHit(default, null):FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
+	public final onMeasureHit:FlxTypedSignal<Int->Void> = new FlxTypedSignal<Int->Void>();
 	/**
 	 * Dispatches when the audio ends.
 	 */
-	public var onComplete(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
+	public final onComplete:FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
 	/**
 	 * Same as above but this is a one time use.
 	 * As it kills itself after it's called.
@@ -119,7 +119,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * Dispatches when the audio loops.
 	 */
-	public var onLoop(default, null):FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
+	public final onLoop:FlxTypedSignal<ScriptEvent->Void> = new FlxTypedSignal<ScriptEvent->Void>();
 
 	// Main Conductors
 	/**
@@ -189,7 +189,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	/**
 	 * The sound group all conductor audio is tied to.
 	 */
-	public var soundGroup(default, null):FlxSoundGroup;
+	public final soundGroup:FlxSoundGroup;
 	/**
 	 * The main audio for the conductor to play.
 	 */
@@ -343,6 +343,8 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * @param canLoop If true when the audio ends it will loop.
 	 */
 	public function new(id:String = 'Unknown', canLoop:Bool = false) {
+		super();
+
 		this.id = id;
 		this.canLoop = canLoop;
 		soundGroup = new FlxSoundGroup();
@@ -350,10 +352,10 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		audio = FlxG.sound.list.add(new FlxSound());
 		audio.autoDestroy = false; // jic
 
-		// makes sure certain funcions can work
-		FlxG.signals.preUpdate.add(update);
+		// makes sure certain functions can work
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);
+		FlxG.plugins.addPlugin(this);
 	}
 
 	var audioEnded:Bool = false;
@@ -451,7 +453,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		stop();
 		for (sound in extra)
 			destroySound(sound);
-		extra = [];
+		extra = extra.clearArray();
 
 		prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
@@ -715,8 +717,7 @@ class Conductor implements IFlxDestroyable implements IBeat {
 			_log(force ? 'Manually resynced Conductor "$id".' : 'Conductor "$id" resynced all tracks to it\'s time.', SystemMessage);
 	}
 
-	@SuppressWarnings('checkstyle:FieldDocComment')
-	public function update():Void {
+	override public function update(elapsed:Float):Void {
 		if (!playing)
 			return;
 
@@ -736,9 +737,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		if (audio.playing && !audioEnded) {
 			if (prevTime != (prevTime = audio.time))
 				time = prevTime; // update conductor
-			else time += FlxG.elapsed * 1000;
+			else time += elapsed * 1000;
 			resyncVocals();
-		} else time += FlxG.elapsed * 1000;
+		} else time += elapsed * 1000;
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChange = {
@@ -921,8 +922,9 @@ class Conductor implements IFlxDestroyable implements IBeat {
 	 * When called it destroys the Conductor.
 	 * Unless it's a ***main*** one then don't destroy it please! 🥺🙏
 	 */
-	public function destroy():Void {
-		FlxG.signals.preUpdate.remove(update);
+	override public function destroy():Void {
+		FlxG.plugins.remove(this);
+		reset();
 		FlxG.signals.focusGained.remove(onFocus);
 		FlxG.signals.focusLost.remove(onFocusLost);
 
@@ -931,8 +933,6 @@ class Conductor implements IFlxDestroyable implements IBeat {
 		onBeatHit.destroy();
 		onMeasureHit.destroy();
 
-		for (sound in soundGroup.sounds)
-			destroySound(sound);
-		extra = [];
+		audio.destroy();
 	}
 }
