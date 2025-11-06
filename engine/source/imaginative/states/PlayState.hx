@@ -84,7 +84,7 @@ class PlayState extends BeatState {
 	inline function set_countdownLength(value:Int):Int
 		return countdownLength = Std.int(Math.max(value, 1));
 	/**
-	 * The variable that tracks the countdown.
+	 * This timer that tracks the countdown steps.
 	 */
 	public var countdownTimer:FlxTimer = new FlxTimer();
 	/**
@@ -125,10 +125,11 @@ class PlayState extends BeatState {
 	 */
 	public var generalVocals:Null<FlxSound>;
 
+	// TODO: Figure out what to do with this.
 	/**
 	 * If true your score will save.
 	 */
-	public var saveScore:Bool = true;
+	public var saveScore(default, null):Bool = true;
 
 	/**
 	 * The chart information that *PlayState* uses.
@@ -137,6 +138,8 @@ class PlayState extends BeatState {
 	// TODO: Code this shit in.
 	public var songEvents:Array<SongEvent> = [];
 
+	// TODO: Rework these into playlist specific stuff.
+	// MAYBE: Move these into a util class?
 	/**
 	 * Contains the week information.
 	 */
@@ -825,7 +828,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		log('Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -841,7 +844,7 @@ class PlayState extends BeatState {
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
 		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
-		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -889,9 +892,9 @@ class PlayState extends BeatState {
 			hud: 'funkin'
 		}
 		chartData.events ??= [];
-		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		var eventsPath = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
 		if (Paths.fileExists(eventsPath)) chartData.events.concat(ParseUtil.json(eventsPath));
+		_log('[PlayState] Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;
 	}
