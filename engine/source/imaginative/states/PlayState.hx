@@ -889,8 +889,9 @@ class PlayState extends BeatState {
 			hud: 'funkin'
 		}
 		chartData.events ??= [];
-		chartData.events.concat(ParseUtil.json('content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}'));
 		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
+		var eventsPath = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
+		if (Paths.fileExists(eventsPath)) chartData.events.concat(ParseUtil.json(eventsPath));
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;
 	}
