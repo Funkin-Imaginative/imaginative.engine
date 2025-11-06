@@ -1,8 +1,9 @@
 package imaginative.backend.gameplay;
 
 import flixel.graphics.FlxGraphic;
-import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
 
+@:bitmap('assets/images/debugger/cursorCross.png')
+private class GraphicCursorCross extends openfl.display.BitmapData {}
 @:bitmap('assets/images/debugger/buttons/pointer.png')
 private class PointerGraphic extends openfl.display.BitmapData {}
 
@@ -32,11 +33,11 @@ class CameraDebugCrosshair extends FlxGroup {
 		chBox.angle = 45;
 		add(chBox);
 
-		crosshair = new FlxSprite(FlxGraphic.fromClass(GraphicCursorCross));
+		crosshair = new FlxSprite(FlxGraphic.fromClass(GraphicCursorCross, './flixel/images/debugger/cursorCross.png'));
 		crosshair.antialiasing = false;
 		add(crosshair);
 
-		offScreenArrow = new FlxSprite(FlxGraphic.fromClass(PointerGraphic));
+		offScreenArrow = new FlxSprite(FlxGraphic.fromClass(PointerGraphic, './flixel/images/debugger/buttons/pointer.png'));
 		offScreenArrow.antialiasing = false;
 		add(offScreenArrow);
 	}

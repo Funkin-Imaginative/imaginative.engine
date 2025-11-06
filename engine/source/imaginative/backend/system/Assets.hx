@@ -12,6 +12,9 @@ import imaginative.backend.display.BetterBitmapData;
 import animate.FlxAnimateFrames;
 #end
 
+@:bitmap('assets/images/logo/logo.png')
+private class HaxeLogo extends BitmapData {}
+
 // TODO: Rework into something simliar to VSlice's registries.
 /**
  * This is mostly taken from Psych since idk what to actually do.
@@ -357,7 +360,7 @@ class Assets {
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return createGraphic(FlxAssets.getBitmapData('flixel/images/logo/logo.png'), './flixel/images/logo/logo.png');
+			return FlxGraphic.fromClass(HaxeLogo, './flixel/images/logo/logo.png');
 		}
 		var graphic:FlxGraphic = createGraphic(bitmap, path);
 		graphic.persist = true;
