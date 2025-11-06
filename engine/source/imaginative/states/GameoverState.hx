@@ -20,8 +20,12 @@ class GameoverState extends BeatSubState {
 	inline function temp(suffix:String):String return suffix.isNullOrEmpty() ? '' : '-$suffix';
 	override public function new(targetChar:Character) {
 		super(true, true);
-		targetChar.visible = false;
-		character = new Character(targetChar.x, targetChar.y, '${targetChar.theirName}-dead', targetChar.flipX);
+		if (targetChar == null)
+			character = new Character('boyfriend-dead', true);
+		else {
+			targetChar.visible = false;
+			character = new Character(targetChar.x, targetChar.y, Paths.character('${targetChar.theirName}-dead').isFile ? '${targetChar.theirName}-dead' : 'boyfriend-dead', targetChar.flipX);
+		}
 		// bgColor = FlxColor.BLACK;
 		bgColor = 0xE9000000;
 

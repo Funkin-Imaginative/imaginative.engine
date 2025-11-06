@@ -336,11 +336,19 @@ class PlayState extends BeatState {
 		}
 		hud.healthBar.setCallbacks(
 			() ->
-				if (canPlayerDie)
-					initGameover(playerField?.previousInteractedActors ?? []),
+				if (canPlayerDie) {
+					var actors:Array<Character> = [];
+					if (enemyField != null) actors.concat(enemyField.previousInteractedActors);
+					if (enemyField != null) actors.concat(playerField.previousInteractedActors);
+					initGameover(actors);
+				},
 			() ->
-				if (canEnemyDie)
-					initGameover(enemyField?.previousInteractedActors ?? [])
+				if (canEnemyDie) {
+					var actors:Array<Character> = [];
+					if (enemyField != null) actors.concat(enemyField.previousInteractedActors);
+					if (enemyField != null) actors.concat(playerField.previousInteractedActors);
+					initGameover(actors);
+				}
 		);
 		hud.cameras = [camHUD];
 		add(hud);
@@ -683,7 +691,7 @@ class PlayState extends BeatState {
 
 		if (Controls.pause) initPause();
 		if (Controls.reset && !Settings.setup.disableDeathBind)
-			initGameover([ArrowField.enemyPlay ? enemy : player]);
+			initGameover([enemy, player]);
 		scripts.call('updatePost', [elapsed]);
 	}
 
@@ -753,8 +761,19 @@ class PlayState extends BeatState {
 	}
 
 	function initGameover(?potentialChars:Array<Character>):Void {
+		potentialChars = potentialChars.filter((char:Character) -> return char != null);
 		_log('[PlayState] Triggered Gameover.', DebugMessage);
-		openSubState(new GameoverState(potentialChars[0]));
+		var potentialEnemies = potentialChars.filter((char:Character) -> return enemyField == null ? false : enemyField.previousInteractedActors.contains(char));
+		var potentialPlayers = potentialChars.filter((char:Character) -> return playerField == null ? false : playerField.previousInteractedActors.contains(char));
+		var targetChar:Character = null;
+		var enemyHasGameover = potentialEnemies.empty() ? false : Paths.character('${potentialEnemies[0].theirName}-dead').isFile;
+		if (!(potentialEnemies.empty() && potentialPlayers.empty()))
+			targetChar = enemyHasGameover ? potentialEnemies[0] : potentialPlayers[0];
+		else if (!potentialPlayers.empty())
+			targetChar = potentialPlayers[0];
+		else if (!potentialEnemies.empty())
+			targetChar = enemyHasGameover ? potentialEnemies[0] : null;
+		openSubState(new GameoverState(targetChar));
 	}
 
 	override public function stepHit(curStep:Int):Void {
