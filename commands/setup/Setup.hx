@@ -106,6 +106,7 @@ class Setup {
 
 		Sys.command('haxelib fixrepo');
 		dependenciesCheck(data.dependencies);
+		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
@@ -144,6 +145,7 @@ class Setup {
 		}
 	}
 
+	static var libHistory:Array<String> = [];
 	static function dependenciesCheck(dependencies:Array<Library>, doneAgain:Bool = false):Void {
 		for (lib in dependencies) {
 			if (optionalCheck.exists(lib.name) && !optionalCheck.get(lib.name))
@@ -155,9 +157,11 @@ class Setup {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
 				Sys.command('haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
+				libHistory.push('Name: "${lib.name}", Url: "${lib.url ?? 'none'}", Branch: "${lib.branch ?? 'none'}", Skipped Dependencies: ${lib.dependencies == null ? 'Yes' : 'No'}');
 			} else {
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
 				Sys.command('haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
+				libHistory.push('Name: "${lib.name}", Version: "${lib.version ?? 'none'}", Skipped Dependencies: ${lib.dependencies == null ? 'Yes' : 'No'}');
 			}
 			if (lib.dependencies != null)
 				dependenciesCheck(lib.dependencies, true);
