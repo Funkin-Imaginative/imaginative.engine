@@ -57,6 +57,7 @@ class EngineProcess extends BeatState {
 		FlxG.game.debugger.console.registerClass(Modding);
 		#end
 		FlxG.game.debugger.console.registerClass(Paths);
+		FlxG.game.debugger.console.registerClass(SaveData);
 		FlxG.game.debugger.console.registerClass(Settings);
 		FlxG.game.debugger.console.registerClass(Controls);
 		FlxG.game.debugger.console.registerClass(ArrowField);
@@ -66,6 +67,10 @@ class EngineProcess extends BeatState {
 			camera.target.setPosition(camPos.x, camPos.y);
 			camera.snapToTarget();
 		});
+		var QuickSave = {} // for quick access to all saves in the debug console
+		for (name => save in @:privateAccess SaveData.saveInstances)
+			Reflect.setProperty(QuickSave, name, save);
+		FlxG.game.debugger.console.registerObject('QuickSave', QuickSave);
 		#end
 
 		FlxG.signals.preUpdate.add(() -> {

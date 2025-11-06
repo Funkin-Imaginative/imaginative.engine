@@ -209,6 +209,7 @@ class PlayerSettings {
 class Settings {
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
+		// @:privateAccess SaveData.initSave(SETTINGS);
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
 		Main.setFPS(Main.getFPS());

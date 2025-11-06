@@ -49,8 +49,8 @@ class Main extends openfl.display.Sprite {
 
 		super();
 
-		SaveData.init();
 		FlxWindow.init();
+		SaveData.init();
 		Script.init();
 		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();

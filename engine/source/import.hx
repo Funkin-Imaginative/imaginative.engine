@@ -84,6 +84,7 @@ import imaginative.backend.system.Main;
 import imaginative.backend.system.Modding;
 #end
 import imaginative.backend.system.Paths;
+import imaginative.backend.system.SaveData;
 import imaginative.backend.system.Settings;
 import imaginative.objects.BaseSprite;
 import imaginative.objects.BeatSprite;
