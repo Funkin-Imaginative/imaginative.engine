@@ -104,8 +104,8 @@ class Setup {
 
 		Sys.println(Main.dashes);
 
-		dependenciesCheck(data.dependencies);
 		Sys.command('haxelib fixrepo');
+		dependenciesCheck(data.dependencies);
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
