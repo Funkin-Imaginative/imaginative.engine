@@ -97,15 +97,15 @@ class RichPresence {
 		var username:String = request[0].username;
 		var globalName:String = request[0].globalName;
 		var discrim:Int = Std.parseInt(request[0].discriminator);
-		_log('Connected successfully to $username${discrim != 0 ? '$discrim' : ''} ($globalName)');
+		_log('[RichPresence] Connected successfully to $username${discrim != 0 ? '$discrim' : ''} ($globalName)', DebugMessage);
 		changePresence();
 	}
 
 	inline static function onDisconnect(code:Int, message:cpp.ConstCharStar):Void {
-		_log('RichPresence disconnected. | ($code:$message)');
+		_log('[RichPresence] Disconnected. | ($code:$message)', DebugMessage);
 	}
 	inline static function onError(code:Int, message:cpp.ConstCharStar):Void {
-		_log('An error has occurred. | ($code:$message)');
+		_log('[RichPresence] An error has occurred. | ($code:$message)', ErrorMessage);
 	}
 }
 #end
