@@ -24,7 +24,7 @@ enum abstract FpsType(String) from String to String {
  **/
 // TODO: Have more advanced categories for different levels of sensitiveness.
 /**
- * The main settings for the engine.
+ * The main user settings for the engine.
  */
 class MainSettings {
 	#if MOD_SUPPORT
@@ -207,9 +207,21 @@ class PlayerSettings {
  * The class that handles all your settings.
  */
 class Settings {
+	@:access(imaginative.backend.system.SaveData)
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
-		// @:privateAccess SaveData.initSave(SETTINGS);
+		SaveData.initSave(SETTINGS);
+		var isEmpty:Null<Bool> = SaveData.getSave(SETTINGS).isEmpty();
+		if (isEmpty ?? true) {
+			SaveData.settings.main = setup = new MainSettings();
+			SaveData.settings.player1 = setupP1 = new PlayerSettings();
+			SaveData.settings.player2 = setupP2 = new PlayerSettings();
+		} else {
+			setup = SaveData.settings.main ??= new MainSettings();
+			setupP1 = SaveData.settings.player1 ??= new PlayerSettings();
+			setupP2 = SaveData.settings.player2 ??= new PlayerSettings();
+		}
+		_log(SaveData.settings);
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
 		Main.setFPS(Main.getFPS());
@@ -218,28 +230,22 @@ class Settings {
 	/**
 	 * Default settings.
 	 */
-	public static var mainDefault(default, null):MainSettings = new MainSettings();
+	public static final mainDefault:MainSettings = new MainSettings();
 	/**
 	 * The current settings.
 	 */
-	public static var setup(default, set):MainSettings = new MainSettings();
-	inline static function set_setup(value:MainSettings):MainSettings
-		return setup = value;
+	public static var setup(default, null):MainSettings;
 
 	/**
 	 * Default player settings.
 	 */
-	public static var playerDefault(default, null):PlayerSettings = new PlayerSettings();
+	public static final playerDefault:PlayerSettings = new PlayerSettings();
 	/**
 	 * Player 1's settings.
 	 */
-	public static var setupP1(default, set):PlayerSettings = new PlayerSettings();
-	inline static function set_setupP1(value:PlayerSettings):PlayerSettings
-		return setupP1 = value;
+	public static var setupP1(default, null):PlayerSettings;
 	/**
 	 * Player 2's settings.
 	 */
-	public static var setupP2(default, set):PlayerSettings = new PlayerSettings();
-	inline static function set_setupP2(value:PlayerSettings):PlayerSettings
-		return setupP2 = value;
+	public static var setupP2(default, null):PlayerSettings;
 }

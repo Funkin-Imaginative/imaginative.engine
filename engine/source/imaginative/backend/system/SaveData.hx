@@ -2,10 +2,18 @@ package imaginative.backend.system;
 
 import flixel.util.FlxSave;
 
+// PLANNED: SCORE
 /**
  * Forces specification for "saveName"s but since this is a string you can do whatever you want really.
  */
 enum abstract SaveType(String) from String to String {
+	#if debug
+	/**
+	 * For when a debug build is compiled.
+	 * This type is also unable to be erased when ***clearing all***.
+	 */
+	var DEBUG = 'debug';
+	#end
 	/**
 	 * For specific stuff flixel tends to do.
 	 */
@@ -14,13 +22,6 @@ enum abstract SaveType(String) from String to String {
 	 * For engine settings.
 	 */
 	var SETTINGS = 'settings';
-	#if debug
-	/**
-	 * For when a debug build is compiled.
-	 * This type is also unable to be erased.
-	 */
-	var DEBUG = 'debug';
-	#end
 }
 
 /**
@@ -29,9 +30,9 @@ enum abstract SaveType(String) from String to String {
 class SaveDataClass {
 	public function new() {}
 	inline public function toString():String // so it doesn't return the class name
-		return '${this.getClassName()}: [' + [for (field in Reflect.fields(this)) '$field => ${Reflect.getProperty(this, field)}'].join(', ') + ']';
+		return '${this.getClassName()}: [' + [for (field in this._fields()) '$field => ${this._get(field)}'].join(', ') + ']';
 }
-private class DebugSaveData extends SaveDataClass {
+final private class DebugSaveData extends SaveDataClass {
 	/**
 	 * Whether to merge from the save data of non-debug builds.
 	 */
@@ -49,6 +50,20 @@ private class DebugSaveData extends SaveDataClass {
 	 * The last set state of "mute" before save clear.
 	 */
 	public var flixelMute:Bool = false;
+}
+final private class SettingsSaveData extends SaveDataClass {
+	/**
+	 * The main user settings.
+	 */
+	public var main:MainSettings;
+	/**
+	 * The players settings.
+	 */
+	public var player1:PlayerSettings;
+	/**
+	 * The second players settings.
+	 */
+	public var player2:PlayerSettings;
 }
 
 @:access(flixel.util.FlxSave)
@@ -81,6 +96,7 @@ class SaveData {
 		});
 	}
 
+	// There ain't one for flixel because it's literally just "FlxG.save", I'm not making a shortcut for a shortcut.
 	#if debug
 	/**
 	 * The save data for debug builds.
@@ -92,9 +108,9 @@ class SaveData {
 	/**
 	 * The save data for the player settings.
 	 */
-	public static var settings(get, never):FlxSave;
-	inline static function get_settings():FlxSave
-		return getSave(SETTINGS);
+	public static var settings(get, never):SettingsSaveData;
+	inline static function get_settings():SettingsSaveData
+		return getSave(SETTINGS).data;
 
 	/**
 	 * Returns the 'FlxSave' instance if its been pre-initialized.
@@ -141,9 +157,10 @@ class SaveData {
 				 * @return T
 				 */
 				inline function mergeNewClassVars<T:SaveDataClass>(data:Dynamic, template:T):T {
-					for (field in Reflect.fields(template))
-						if (!Reflect.hasField(data, field))
-							Reflect.setField(data, field, Reflect.getProperty(template, field));
+					// if (!(data is Type.getClass(template))) return template;
+					for (field in template._fields())
+						if (!data._has(field) || data._get(field) == null)
+							data._set(field, template._get(field));
 					return data;
 				}
 				switch (saveName) {
@@ -155,10 +172,12 @@ class SaveData {
 						}
 					#end
 					case SETTINGS:
+						if (save.isEmpty()) save._set('data', new SettingsSaveData());
+						save._set('data', mergeNewClassVars(save.data, new SettingsSaveData()));
 					#if debug
 					case DEBUG:
-						if (save.isEmpty()) save.data = new DebugSaveData();
-						save.data = mergeNewClassVars(save.data, new DebugSaveData());
+						if (save.isEmpty()) save._set('data', new DebugSaveData());
+						save._set('data', mergeNewClassVars(save.data, new DebugSaveData()));
 					#end
 					default:
 				}
@@ -184,7 +203,6 @@ class SaveData {
 	 * @param saveName The file name for the save.
 	 */
 	static function clearSave(saveName:SaveType):Void {
-		#if debug if (saveName == SaveType.DEBUG) return; #end
 		if (saveInstances.exists(saveName)) {
 			getSave(saveName).erase();
 			if (!clearingAll) _log('[SaveData] Save path of "$saveName" was erased.');
