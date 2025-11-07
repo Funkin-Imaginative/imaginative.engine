@@ -70,37 +70,31 @@ class IBeatHelper {
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
-					else
-						functionReflect(member, switch (timeType) {
+					/* else
+						member._call(switch (timeType) {
 							case IsStep: 'stepHit';
 							case IsBeat: 'beatHit';
 							case IsMeasure: 'measureHit';
-						}, [curTime]);
+						}, [curTime]); */
 				}
 			} else if (member is FlxTypedSpriteGroup) {
 				var group:FlxTypedSpriteGroup<FlxSprite> = cast member;
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
-					else
-						functionReflect(member, switch (timeType) {
+					/* else
+						member._call(switch (timeType) {
 							case IsStep: 'stepHit';
 							case IsBeat: 'beatHit';
 							case IsMeasure: 'measureHit';
-						}, [curTime]);
+						}, [curTime]); */
 				}
-			} else
-				functionReflect(member, switch (timeType) {
+			} /* else
+				member._call(switch (timeType) {
 					case IsStep: 'stepHit';
 					case IsBeat: 'beatHit';
 					case IsMeasure: 'measureHit';
-				}, [curTime]);
+				}, [curTime]); */
 		}
-	}
-
-	static function functionReflect(member:FlxBasic, funcName:String, args:Array<Dynamic>):Void {
-		var func = Reflect.getProperty(member, funcName);
-		if (Reflect.isFunction(func))
-			Reflect.callMethod(null, func, args);
 	}
 }

@@ -106,6 +106,7 @@ import imaginative.utils.ParseUtil;
 import imaginative.utils.PlatformUtil;
 
 using imaginative.utils.FunkinUtil;
+using imaginative.utils.ReflectUtil;
 using imaginative.utils.SpriteUtil;
 
 /* Libs */

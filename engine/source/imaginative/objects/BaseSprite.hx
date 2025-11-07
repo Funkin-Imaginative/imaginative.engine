@@ -213,7 +213,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
-			if (Reflect.hasField(inputData, 'offsets')) {
+			if (inputData._has('offsets')) {
 				spriteOffsets.position.copyFrom(inputData.offsets.position);
 				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
 				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
@@ -260,7 +260,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 				log('Couldn\'t add the animations.', WarningMessage);
 
 			if (applyStartValues) {
-				if (Reflect.hasField(inputData, 'starting')) {
+				if (inputData._has('starting')) {
 					setPosition(inputData.starting.position.x, inputData.starting.position.y);
 					flipX = inputData.starting.flip.x;
 					flipY = inputData.starting.flip.y;
@@ -274,7 +274,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			flipAnimTrigger = inputData.flipAnimTrigger;
 			antialiasing = inputData.antialiasing;
 
-			if (Reflect.hasField(inputData, 'extra') && inputData.extra != null) {
+			if (inputData._has('extra') && inputData.extra != null) {
 				try {
 					if (!inputData.extra.empty())
 						for (extraData in inputData.extra)

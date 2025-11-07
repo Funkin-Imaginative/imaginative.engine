@@ -69,7 +69,7 @@ class EngineProcess extends BeatState {
 		});
 		var QuickSave = {} // for quick access to all saves in the debug console
 		for (name => save in @:privateAccess SaveData.saveInstances)
-			Reflect.setProperty(QuickSave, name, save);
+			QuickSave._set(name, save);
 		FlxG.game.debugger.console.registerObject('QuickSave', QuickSave);
 		#end
 
