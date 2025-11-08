@@ -2,9 +2,7 @@ package imaginative.backend;
 
 import haxe.Log;
 import haxe.PosInfos;
-
-// import flixel.system.debug.log.LogStyle;
-// import flixel.system.frontEnds.LogFrontEnd;
+import flixel.system.debug.log.LogStyle;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
@@ -34,18 +32,18 @@ class Console {
 		if (!initialized) {
 			initialized = true;
 			ogTrace = Log.trace;
-			@:privateAccess FlxG.log._standardTraceFunction = Log.trace = (value:Dynamic, ?infos:PosInfos) ->
-				log(value, infos);
+			Log.trace = (value:Dynamic, ?infos:PosInfos) -> log(value, infos);
+			@:privateAccess FlxG.log._standardTraceFunction = (value:Dynamic, ?infos:PosInfos) -> {}
 
-			// FlxG.log.style.onLog = (data:Any, ?pos:PosInfos) -> {
-			// 	var level:LogLevel = LogMessage;
-			// 	if (style == LogStyle.CONSOLE) level = SystemMessage;
-			// 	else if (style == LogStyle.ERROR) level = ErrorMessage;
-			// 	else if (style == LogStyle.NORMAL) level = SystemMessage;
-			// 	else if (style == LogStyle.NOTICE) level = SystemMessage;
-			// 	else if (style == LogStyle.WARNING) level = WarningMessage;
-			// 	_log(data, level);
-			// }
+			var styles:Array<LogStyle> = [LogStyle.NORMAL, LogStyle.WARNING, LogStyle.ERROR, LogStyle.NOTICE, LogStyle.CONSOLE];
+			for (style in styles) {
+				style.onLog.add((data:Any, ?pos:PosInfos) -> log(data, switch (style.prefix) {
+					case '[WARNING]': WarningMessage;
+					case '[ERROR]': ErrorMessage;
+					default: SystemMessage;
+				}, pos));
+			}
+			styles = styles.clearArray();
 
 			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 		}
