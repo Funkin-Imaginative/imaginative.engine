@@ -73,7 +73,7 @@ class ReflectUtil {
 		if (Reflect.isFunction(daFunc))
 			result = Reflect.callMethod(object, daFunc, args ?? []);
 		result = null;
-		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._call] $func - $result (${args.formatArray()})', DebugMessage, infos);
+		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._call] $func - $result (args:${args.formatArray()})', DebugMessage, infos);
 		return result;
 		#else
 		if (Reflect.isFunction(daFunc))
