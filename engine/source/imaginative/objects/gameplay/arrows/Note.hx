@@ -209,6 +209,53 @@ class Note extends FlxSprite {
 		animation.play('head', true);
 		updateHitbox();
 
+		// TODO: Eventually do this properly.
+		var quantColors:Array<FlxColor> = [ // Forever Engines cause I like them :3
+			0xFFFF3535, // 4th
+			0xFF536BEF, // 8th
+			0xFFC24B99, // 12th
+			0xFF01E550, // 16th
+			0xFF606789, // 20th
+			0xFFFF7AD7, // 24th
+			0xFFFFE83D, // 32nd
+			0xFFAE36E6, // 48th
+			0xFF10EBFF, // 64th
+			0xFF606789, // 96th
+			0xFF606789, // 192nd
+		];
+		var quantList:Array<Int> = [4, 8, 12, 16, 20, 24, 32, 48, 64, 96, 192];
+		function getNoteBeat(time:Float):Float {
+			inline function bpmFromSecs(time:Float):BPMChange {
+				var lastChange:BPMChange = {
+					stepTime: 0,
+					songTime: 0,
+					bpm: setField.conductor.bpm,
+					beatsPM: 4,
+					stepsPB: 4
+				}
+				for (i in 0...setField.conductor.bpmChanges.length)
+					if (time >= setField.conductor.bpmChanges[i].songTime)
+						lastChange = setField.conductor.bpmChanges[i];
+				return lastChange;
+			}
+			var last = bpmFromSecs(time);
+			return (time - last.songTime) / (setField.conductor.stepTime * 4);
+		}
+		function getNoteQuant(beat:Float):Int {
+			var row:Int = Math.round(beat * 48);
+			var last:Int = quantList[quantList.length - 1];
+			for (i in 0...quantList.length)
+				if (row % (last / quantList[i]) == 0)
+					return quantList[i];
+			return last;
+		}
+		var quant:Int = getNoteQuant(getNoteBeat(time));
+		var quantIndex:Int = quantList.indexOf(quant);
+		var color = quantColors[quantIndex];
+		setColorTransform(0, 0, 0, 1, color.red, color.green, color.blue, 0);
+		for (sustain in tail)
+			sustain.setColorTransform(0, 0, 0, 1, color.red, color.green, color.blue, 0);
+
 		mods = new ArrowModifier(this);
 		for (s in tail) s.mods.update();
 	}
