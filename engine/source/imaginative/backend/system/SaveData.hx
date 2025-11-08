@@ -90,7 +90,9 @@ class SaveData {
 			if (debug.clearOnExit) {
 				debug.flixelVolume = FlxG.save.data.volume;
 				debug.flixelMute = FlxG.save.data.mute;
-				clearAllSaves();
+				for (saveName in saveInstances.keys())
+					if (saveName != SaveType.DEBUG)
+						clearSave(saveName);
 			}
 			#end
 		});
@@ -197,7 +199,6 @@ class SaveData {
 		return false;
 	}
 
-	static var clearingAll:Bool = false;
 	/**
 	 * Clears the save data from the set path.
 	 * @param saveName The file name for the save.
@@ -205,18 +206,7 @@ class SaveData {
 	static function clearSave(saveName:SaveType):Void {
 		if (saveInstances.exists(saveName)) {
 			getSave(saveName).erase();
-			if (!clearingAll) _log('[SaveData] Save path of "$saveName" was erased.');
+			_log('[SaveData] Save path of "$saveName" was erased.');
 		} else _log('[SaveData] Save path of "$saveName" needs to be initialized first before attempting to clear it.');
-	}
-	/**
-	 * Clears all save data of the current slot.
-	 */
-	static function clearAllSaves():Void {
-		clearingAll = true;
-		for (saveName in saveInstances.keys())
-			#if debug if (saveName != SaveType.DEBUG) #end
-				clearSave(saveName);
-		clearingAll = false;
-		_log('[SaveData] All save data of slot "${saveSlot}" was erased.');
 	}
 }
