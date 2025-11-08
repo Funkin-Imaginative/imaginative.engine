@@ -31,7 +31,7 @@ class BetterBitmapData extends BitmapData {
 			__isValid = true;
 
 			// https://github.com/CodenameCrew/CodenameEngine/blob/main/source/funkin/backend/system/OptimizedBitmapData.hx#L9L46
-			if (Settings.setup.gpuCaching && FlxG.stage.context3D != null) {
+			if (FlxG.stage.context3D != null) {
 				lock();
 				getTexture(FlxG.stage.context3D);
 				getSurface();
@@ -48,6 +48,25 @@ class BetterBitmapData extends BitmapData {
 		return __surface ??= CairoImageSurface.fromImage(image);
 		#else
 		return null;
+		#end
+	}
+
+	/**
+	 * Shortcut function for create
+	 * @param path The image path.
+	 * @param pushToGPU Wether it should push to your GPU.
+	 * @return BitmapData ~ The bitmap data.
+	 */
+	public static function fromFile(path:String, pushToGPU:Bool = true):BitmapData {
+		#if (js && html5)
+		return null;
+		#else
+		var data:BitmapData;
+		if (pushToGPU && Settings.setup.gpuCaching)
+			data = new BetterBitmapData(0, 0, true, 0);
+		else data = new BitmapData(0, 0, true, 0);
+		data.__fromFile(path);
+		return data;
 		#end
 	}
 }

@@ -341,16 +341,7 @@ class Assets {
 
 		var bitmap:BitmapData = null;
 		if (Paths.fileExists('root:$path')) {
-			function fromFile(path:String):BitmapData {
-				#if (js && html5)
-				return null;
-				#else
-				var bitmapData = new BetterBitmapData(0, 0, true, 0);
-				bitmapData.__fromFile(path);
-				return bitmapData.image != null ? bitmapData : null;
-				#end
-			}
-			bitmap = fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
+			bitmap = BetterBitmapData.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
 		}
 		@:privateAccess function createGraphic(Bitmap:BitmapData, Key:String, Unique:Bool = false):FlxGraphic {
 			Bitmap = FlxGraphic.getBitmap(Bitmap, Unique);
