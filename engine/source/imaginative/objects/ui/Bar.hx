@@ -140,14 +140,15 @@ class Bar extends FlxBar {
 
 	override function set_value(newValue:Float):Float {
 		value = FlxMath.bound(newValue, min, max);
+		var roundedValue = FlxMath.roundDecimal(value, 2);
 
-		if (value <= min && emptyCallback != null)
+		if (roundedValue <= min && emptyCallback != null)
 			emptyCallback();
 
-		if (value >= max && filledCallback != null)
+		if (roundedValue >= max && filledCallback != null)
 			filledCallback();
 
-		if (value <= min && killOnEmpty)
+		if (roundedValue <= min && killOnEmpty)
 			kill();
 
 		updateBar();
