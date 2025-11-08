@@ -35,15 +35,21 @@ class ReflectUtil {
 	inline public static function _get(object:Dynamic, field:String, bypassAccessor:Bool = false #if TRACE_REFLECT_UTIL_USAGE, ?infos:PosInfos #end):Dynamic {
 		#if TRACE_REFLECT_UTIL_USAGE
 		var result:Dynamic;
-		if (!object._has(field)) result = null;
-		if (bypassAccessor) result = Reflect.field(object, field);
-		result = Reflect.getProperty(object, field);
+		// if (!object._has(field)) result = null;
+		try {
+			if (bypassAccessor) result = Reflect.field(object, field);
+			result = Reflect.getProperty(object, field);
+		} catch(error:haxe.Exception)
+			result = null;
 		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._get] $field - $result (bypass:$bypassAccessor)', DebugMessage, infos);
 		return result;
 		#else
-		if (!object._has(field)) return null;
-		if (bypassAccessor) return Reflect.field(object, field);
-		return Reflect.getProperty(object, field);
+		// if (!object._has(field)) return null;
+		try {
+			if (bypassAccessor) return Reflect.field(object, field);
+			return Reflect.getProperty(object, field);
+		} catch(error:haxe.Exception)
+			return null;
 		#end
 	}
 	/**
@@ -89,12 +95,13 @@ class ReflectUtil {
 	 * @return Bool ~ If the field deletion was successful.
 	 */
 	inline public static function _delete(object:Dynamic, field:String #if TRACE_REFLECT_UTIL_USAGE, ?infos:PosInfos #end):Bool {
+		// doing !object._class() so it only works on dynamic structures
 		#if TRACE_REFLECT_UTIL_USAGE
-		var result = object._has(field) ? Reflect.deleteField(object, field) : false;
+		var result = !object._class() && object._has(field) ? Reflect.deleteField(object, field) : false;
 		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._delete] $field - $result', DebugMessage, infos);
 		return result;
 		#else
-		return object._has(field) ? Reflect.deleteField(object, field) : false;
+		return !object._class() && object._has(field) ? Reflect.deleteField(object, field) : false;
 		#end
 	}
 
