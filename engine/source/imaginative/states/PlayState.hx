@@ -858,39 +858,45 @@ class PlayState extends BeatState {
 		var loadedChart:String = song;
 		var diff:String = difficulty;
 		var varia:String = variant;
-		chartData = ParseUtil.chart(loadedChart, diff, varia) ?? ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal') ?? {
-			speed: 2.6,
-			stage: 'void',
-			fields: [
-				{
-					tag: 'field',
-					characters: ['bf'],
-					notes: [
+		try {
+			chartData = ParseUtil.chart(loadedChart, diff, varia);
+		} catch(error:haxe.Exception)
+			try {
+				chartData = ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
+			} catch(error:haxe.Exception)
+				chartData = {
+					speed: 2.6,
+					stage: 'void',
+					fields: [
 						{
-							id: 0,
-							length: 6000,
-							time: 8000,
+							tag: 'field',
 							characters: ['bf'],
-							type: ''
+							notes: [
+								{
+									id: 0,
+									length: 6000,
+									time: 8000,
+									characters: ['bf'],
+									type: ''
+								}
+							]
 						}
-					]
+					],
+					characters: [
+						{
+							tag: 'bf',
+							name: 'boyfriend',
+							position: ''
+						}
+					],
+					fieldSettings: {
+						cameraTarget: 'bf',
+						order: ['field'],
+						enemy: loadedChart = diff = varia = 'null',
+						player: 'field'
+					},
+					hud: 'funkin'
 				}
-			],
-			characters: [
-				{
-					tag: 'bf',
-					name: 'boyfriend',
-					position: ''
-				}
-			],
-			fieldSettings: {
-				cameraTarget: 'bf',
-				order: ['field'],
-				enemy: loadedChart = diff = varia = 'null',
-				player: 'field'
-			},
-			hud: 'funkin'
-		}
 		chartData.events ??= [];
 		var eventsPath = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
 		if (Paths.fileExists(eventsPath)) chartData.events.concat(ParseUtil.json(eventsPath));
