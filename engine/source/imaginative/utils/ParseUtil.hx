@@ -206,7 +206,7 @@ class ParseUtil {
 		var tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
-		if (type == IsCharacterSprite && Reflect.hasField(tempData, 'character')) {
+		if (type == IsCharacterSprite && tempData._has('character')) {
 			var gottenData:CharacterData = null;
 			var typeData:SpriteData = typeData;
 			try {
@@ -215,7 +215,7 @@ class ParseUtil {
 			} catch(error:haxe.Exception)
 				log(error.message, ErrorMessage);
 			charData = {
-				camera: new Position(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
+				camera: new Position(typeData.character.camera._get('x'), typeData.character.camera._get('y')),
 				color: typeData.character.color,
 				icon: typeData.character.icon,
 				singlength: typeData.character.singlength
@@ -223,7 +223,7 @@ class ParseUtil {
 		}
 
 		var beatData:BeatData = null;
-		if (type.isBeatType && Reflect.hasField(tempData, 'beat')) {
+		if (type.isBeatType && tempData._has('beat')) {
 			var typeData:BeatData = typeData.beat;
 			beatData = {
 				interval: typeData.interval,
@@ -232,12 +232,12 @@ class ParseUtil {
 		}
 
 		var data:Dynamic = {}
-		if (Reflect.hasField(typeData, 'offsets'))
+		if (typeData._has('offsets'))
 			try {
 				data.offsets = {
-					position: new Position(Reflect.getProperty(typeData.offsets.position, 'x'), Reflect.getProperty(typeData.offsets.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.offsets.flip, 'x'), Reflect.getProperty(typeData.offsets.flip, 'y')),
-					scale: new Position(Reflect.getProperty(typeData.offsets.scale, 'x'), Reflect.getProperty(typeData.offsets.scale, 'y'))
+					position: new Position(typeData.offsets.position._get('x'), typeData.offsets.position._get('y')),
+					flip: new TypeXY<Bool>(typeData.offsets.flip._get('x'), typeData.offsets.flip._get('y')),
+					scale: new Position(typeData.offsets.scale._get('x'), typeData.offsets.scale._get('y'))
 				}
 			} catch(error:haxe.Exception) {
 				data.offsets = {
@@ -254,29 +254,29 @@ class ParseUtil {
 			}
 
 		data.asset = typeData.asset;
-		if (Reflect.hasField(typeData.asset, 'dimensions'))
-			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x') ?? 0, Reflect.getProperty(typeData.asset.dimensions, 'y') ?? 0);
+		if (typeData.asset._has('dimensions'))
+			data.asset.dimensions = new TypeXY<Int>(typeData.asset.dimensions._get('x') ?? 0, typeData.asset.dimensions._get('y') ?? 0);
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
 			slot.name = anim.name;
-			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag ?? slot.name;
-			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey ?? '';
-			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey ?? '';
+			if (anim._has('tag')) slot.tag = anim.tag ?? slot.name;
+			if (anim._has('swapKey')) slot.swapKey = anim.swapKey ?? '';
+			if (anim._has('flipKey')) slot.flipKey = anim.flipKey ?? '';
 			slot.indices = anim.indices ?? [];
-			slot.offset = new Position(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
-			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));
+			slot.offset = new Position(anim.offset._get('x'), anim.offset._get('y'));
+			slot.flip = new TypeXY<Bool>(anim.flip._get('x'), anim.flip._get('y'));
 			slot.loop = anim.loop ?? false;
 			slot.fps = anim.fps ?? 24;
 			data.animations.push(slot);
 		}
 
-		if (Reflect.hasField(typeData, 'starting')) {
+		if (typeData._has('starting')) {
 			try {
 				data.starting = {
-					position: new Position(Reflect.getProperty(typeData.starting.position, 'x'), Reflect.getProperty(typeData.starting.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.starting.flip, 'x'), Reflect.getProperty(typeData.starting.flip, 'y')),
-					scale: new Position(Reflect.getProperty(typeData.starting.scale, 'x'), Reflect.getProperty(typeData.starting.scale, 'y'))
+					position: new Position(typeData.starting.position._get('x'), typeData.starting.position._get('y')),
+					flip: new TypeXY<Bool>(typeData.starting.flip._get('x'), typeData.starting.flip._get('y')),
+					scale: new Position(typeData.starting.scale._get('x'), typeData.starting.scale._get('y'))
 				}
 			} catch(error:haxe.Exception) {}
 		}

@@ -17,11 +17,11 @@ class ReflectUtil {
 	 */
 	inline public static function _has(object:Dynamic, field:String #if TRACE_REFLECT_UTIL_USAGE, ?infos:PosInfos #end):Bool {
 		#if TRACE_REFLECT_UTIL_USAGE
-		var has = Reflect.hasField(object, field) || Type.getInstanceFields(Type.getClass(object) ?? object).contains(field);
+		var has = object._class() ? Type.getInstanceFields(Type.getClass(object) ?? object).contains(field) : Reflect.hasField(object, field);
 		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._has] $field - $has', DebugMessage, infos);
 		return has;
 		#else
-		return Reflect.hasField(object, field) || Type.getInstanceFields(Type.getClass(object) ?? object).contains(field);
+		return object._class() ? Type.getInstanceFields(Type.getClass(object) ?? object).contains(field) : Reflect.hasField(object, field);
 		#end
 	}
 
@@ -110,6 +110,26 @@ class ReflectUtil {
 		return fields;
 		#else
 		return Reflect.fields(object);
+		#end
+	}
+
+	/**
+	 * Returns if an object isn't a dynamic structure.
+	 * @param object The object to check.
+	 * @return Bool ~ If false then this is a dynamic structure.
+	 */
+	inline public static function _class(object:Dynamic #if TRACE_REFLECT_UTIL_USAGE, ?infos:PosInfos #end):Bool {
+		#if TRACE_REFLECT_UTIL_USAGE
+		var result:Dynamic;
+		if (object is Class) result = true;
+		else if (Type.getClass(object) is Class) result = true;
+		else result = false;
+		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._class] $result', DebugMessage, infos);
+		return result;
+		#else
+		if (object is Class) return true;
+		if (Type.getClass(object) is Class) return true;
+		return false;
 		#end
 	}
 }

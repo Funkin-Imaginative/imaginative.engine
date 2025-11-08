@@ -118,11 +118,11 @@ class Bar extends FlxBar {
 	override function updateValueFromParent():Void {
 		if (parent is IScript) { // script support
 			var script:IScript = cast parent;
-			value = FlxMath.bound(script.get(parentVariable, value), min, max);
+			value = script.get(parentVariable, value);
 			script.set(parentVariable, value);
 		} else {
-			value = FlxMath.bound(Reflect.getProperty(parent, parentVariable), min, max);
-			Reflect.setProperty(parent, parentVariable, value);
+			value = parent._get(parentVariable);
+			parent._set(parentVariable, value);
 		}
 	}
 

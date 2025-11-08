@@ -31,7 +31,7 @@ class Judging {
 	public static function calculateRating(diff:Float, settings:PlayerSettings):String {
 		var data:Array<String> = ['killer', 'sick', 'good', 'bad', 'shit'];
 		for (i in 0...data.length)
-			if (diff <= undoRatingPercent(Reflect.getProperty(settings, '${data[i]}Window'), settings.maxWindow))
+			if (diff <= undoRatingPercent(settings._get('${data[i]}Window'), settings.maxWindow))
 				return data[i];
 		return data.last();
 	}
