@@ -176,7 +176,7 @@ class EngineAsset {
 
 		/* Define Setup */
 		// useTracy.enable();
-		if (isDebug()) setDefine('TRACE_REFLECT_UTIL_USAGE');
+		// if (isDebug()) setDefine('TRACE_REFLECT_UTIL_USAGE');
 
 		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
