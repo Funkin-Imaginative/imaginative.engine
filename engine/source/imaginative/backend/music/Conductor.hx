@@ -934,5 +934,6 @@ class Conductor extends FlxBasic implements IBeat {
 		onMeasureHit.destroy();
 
 		audio.destroy();
+		super.destroy();
 	}
 }

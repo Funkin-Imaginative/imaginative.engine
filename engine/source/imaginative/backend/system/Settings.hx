@@ -221,7 +221,7 @@ class Settings {
 			setupP1 = SaveData.settings.player1 ??= new PlayerSettings();
 			setupP2 = SaveData.settings.player2 ??= new PlayerSettings();
 		}
-		_log(SaveData.settings);
+
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
 		Main.setFPS(Main.getFPS());
