@@ -53,7 +53,7 @@ class StartScreen extends BeatState {
 		super.update(elapsed);
 
 		// skips the leave transition
-		if (leaving && (Controls.accept || FlxG.mouse.justPressed)) {
+		if (leaving && (Controls.global.accept || FlxG.mouse.justPressed)) {
 			@:privateAccess
 				if (conductor.fadeTween != null)
 					if (conductor.fadeTween.active)
@@ -61,7 +61,7 @@ class StartScreen extends BeatState {
 			BeatState.switchState(() -> new TitleScreen());
 		}
 
-		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
+		if (canSelect && (Controls.global.accept || FlxG.mouse.justPressed)) {
 			leaving = true;
 			canSelect = false;
 			FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);

@@ -243,9 +243,9 @@ class StoryMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN)
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN)
 				changeSelection(1);
 
 			if (FlxG.mouse.wheel != 0)
@@ -270,13 +270,13 @@ class StoryMenu extends BeatState {
 					playArrowAnim();
 			}
 
-			if (Controls.uiLeft)
+			if (Controls.global.uiLeft)
 				changeDifficulty(-1);
-			else if (Controls.uiLeftPress)
+			else if (Controls.global.uiLeftPress)
 				playArrowAnim(true);
-			if (Controls.uiRight)
+			if (Controls.global.uiRight)
 				changeDifficulty(1);
-			else if (Controls.uiRightPress)
+			else if (Controls.global.uiRightPress)
 				playArrowAnim();
 
 			if (FlxG.keys.justPressed.HOME)
@@ -284,14 +284,14 @@ class StoryMenu extends BeatState {
 			if (FlxG.keys.justPressed.END)
 				changeSelection(levels.length - 1, true);
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
 					event.playMenuSFX(CancelSFX);
 					BeatState.switchState(() -> new MainMenu());
 				}
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
+			if (Controls.global.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
 				selectCurrent();
 		}
 

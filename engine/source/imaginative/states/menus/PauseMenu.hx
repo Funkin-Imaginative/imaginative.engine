@@ -26,9 +26,9 @@ class PauseMenu extends BeatSubState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-		if (Controls.accept)
+		if (Controls.global.accept)
 			close();
-		if (Controls.back)
+		if (Controls.global.back)
 			BeatState.switchState(() -> PlayState.storyMode ? new StoryMenu() : new FreeplayMenu());
 	}
 

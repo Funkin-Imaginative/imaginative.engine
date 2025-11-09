@@ -202,11 +202,11 @@ class FreeplayMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP) {
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -220,9 +220,9 @@ class FreeplayMenu extends BeatState {
 					if (FlxG.mouse.overlaps(item.text))
 						changeSelection(i, true);
 
-			if (Controls.uiLeft)
+			if (Controls.global.uiLeft)
 				changeDifficulty(-1);
-			if (Controls.uiRight)
+			if (Controls.global.uiRight)
 				changeDifficulty(1);
 
 			if (FlxG.keys.justPressed.HOME) {
@@ -234,7 +234,7 @@ class FreeplayMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
@@ -257,7 +257,7 @@ class FreeplayMenu extends BeatState {
 					}
 				}
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
+			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);

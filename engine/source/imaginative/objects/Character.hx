@@ -181,7 +181,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	/**
 	 * Only really used for making it so holding a note will prevent idle.
 	 */
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.characterSing) var controls:Null<Controls>;
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.characterSing) var controls:Null<PlayerControls>;
 
 	override public function tryDance():Void {
 		switch (animContext) {

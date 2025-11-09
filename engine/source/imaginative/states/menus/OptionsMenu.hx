@@ -68,7 +68,7 @@ class OptionsMenu extends BeatState {
 				visualSelected = curSelected;
 			} */
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				FunkinUtil.playMenuSFX(CancelSFX);
 				conductor.fadeOut(0.4, (_:FlxTween) -> {
 					BeatState.switchState(() -> new MainMenu());

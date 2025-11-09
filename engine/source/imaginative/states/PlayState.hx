@@ -692,8 +692,8 @@ class PlayState extends BeatState {
 				poppedEvent.execute();
 		}
 
-		if (Controls.pause) initPause();
-		if (Controls.reset && !Settings.setup.disableDeathBind)
+		if (Controls.global.pause) initPause();
+		if (Controls.global.reset && !Settings.setup.disableDeathBind)
 			initGameover([enemy, player]);
 		scripts.call('updatePost', [elapsed]);
 	}

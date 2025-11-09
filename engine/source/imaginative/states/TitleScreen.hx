@@ -41,7 +41,7 @@ class TitleScreen extends BeatState {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (Controls.accept || FlxG.mouse.justPressed) {
+		if (Controls.global.accept || FlxG.mouse.justPressed) {
 			if (!leaving && skipped) {
 				titleText.playAnim('press');
 				titleText.centerOffsets();

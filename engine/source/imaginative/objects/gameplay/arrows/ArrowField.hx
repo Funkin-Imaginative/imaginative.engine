@@ -125,8 +125,8 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The field controls instance.
 	 */
-	public var controls(get, never):Controls;
-	inline function get_controls():Controls
+	public var controls(get, never):PlayerControls;
+	inline function get_controls():PlayerControls
 		if (status == null) return Controls.blank;
 		else return status == enemyPlay ? Controls.p2 : Controls.p1;
 	/**

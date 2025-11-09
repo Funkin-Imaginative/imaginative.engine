@@ -24,6 +24,7 @@ class EngineProcess extends BeatState {
 		Conductor.init();
 		GlobalScript.init();
 		Settings.init();
+		Controls.init();
 		FileUtil.init();
 
 		super.create();
@@ -75,25 +76,30 @@ class EngineProcess extends BeatState {
 
 		FlxG.signals.preUpdate.add(() -> {
 			if (Settings.setup.debugMode) {
-				if (Controls.resetState) {
-					log('Reseting state...', SystemMessage);
+				if (Controls.global.botplay) {
+					ArrowField.botplay = !ArrowField.botplay;
+					_log('Botplay has been ${ArrowField.botplay ? 'enabled' : 'disabled'}.');
+				}
+
+				if (Controls.global.resetState) {
+					_log('Reseting state...');
 					BeatState.resetState();
-					log('Reset state successfully!', SystemMessage);
+					_log('Reset state successfully!');
 				}
 
-				if (Controls.shortcutState) {
-					log('Heading to the MainMenu...', SystemMessage);
+				if (Controls.global.shortcutState) {
+					_log('Heading to the MainMenu...');
 					BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
-					log('Successfully entered the MainMenu!', SystemMessage);
+					_log('Successfully entered the MainMenu!');
 				}
 
-				if (Controls.reloadGlobalScripts)
+				if (Controls.global.reloadGlobalScripts)
 					if (GlobalScript.scripts.length > 0) {
-						log('Reloading global scripts...', SystemMessage);
+						_log('Reloading global scripts...');
 						GlobalScript.loadScript();
-						log('Global scripts successfully reloaded.', SystemMessage);
+						_log('Global scripts successfully reloaded.');
 					} else {
-						log('Loading global scripts...', SystemMessage);
+						_log('Loading global scripts...');
 						GlobalScript.loadScript();
 					}
 			}

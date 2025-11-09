@@ -2,101 +2,150 @@ package imaginative.backend;
 
 import flixel.input.keyboard.FlxKey;
 
-// TODO: Rewrite variable documentation and names for this class.
 /**
- * This class handles user controls. Without it, how would you do anything?
+ * Player input for menus and other general things.
  */
-class Controls implements IFlxDestroyable {
-	/**
-	 * Player 1's controls.
-	 */
-	public static var p1(default, null):Controls = new Controls();
-	/**
-	 * Player 2's controls.
-	 */
-	public static var p2(default, null):Controls = new Controls();
-
-	/**
-	 * Used for arrow field's when it's not maintained by a player.
-	 */
-	public static var blank(default, null):Controls = new Controls();
-
+class GlobalControls extends Controls {
 	// UI
 	/**
 	 * When you press left to move through ui elements
 	 */
-	public static var uiLeft(get, never):Bool;
-	inline static function get_uiLeft():Bool
-		return globalPressed('uiLeft');
+	public var uiLeft(get, never):Bool;
+	inline function get_uiLeft():Bool
+		return pressed('uiLeft');
 	/**
 	 * When you press down to move through ui elements
 	 */
-	public static var uiDown(get, never):Bool;
-	inline static function get_uiDown():Bool
-		return globalPressed('uiDown');
+	public var uiDown(get, never):Bool;
+	inline function get_uiDown():Bool
+		return pressed('uiDown');
 	/**
 	 * When you press up to move through ui elements
 	 */
-	public static var uiUp(get, never):Bool;
-	inline static function get_uiUp():Bool
-		return globalPressed('uiUp');
+	public var uiUp(get, never):Bool;
+	inline function get_uiUp():Bool
+		return pressed('uiUp');
 	/**
 	 * When you press right to move through ui elements
 	 */
-	public static var uiRight(get, never):Bool;
-	inline static function get_uiRight():Bool
-		return globalPressed('uiRight');
+	public var uiRight(get, never):Bool;
+	inline function get_uiRight():Bool
+		return pressed('uiRight');
 
 	/**
 	 * When you hold left to move through ui elements
 	 */
-	public static var uiLeftPress(get, never):Bool;
-	inline static function get_uiLeftPress():Bool
-		return globalHeld('uiLeft');
+	public var uiLeftPress(get, never):Bool;
+	inline function get_uiLeftPress():Bool
+		return held('uiLeft');
 	/**
 	 * When you hold down to move through ui elements
 	 */
-	public static var uiDownPress(get, never):Bool;
-	inline static function get_uiDownPress():Bool
-		return globalHeld('uiDown');
+	public var uiDownPress(get, never):Bool;
+	inline function get_uiDownPress():Bool
+		return held('uiDown');
 	/**
 	 * When you hold up to move through ui elements
 	 */
-	public static var uiUpPress(get, never):Bool;
-	inline static function get_uiUpPress():Bool
-		return globalHeld('uiUp');
+	public var uiUpPress(get, never):Bool;
+	inline function get_uiUpPress():Bool
+		return held('uiUp');
 	/**
 	 * When you hold up to move through ui elements
 	 */
-	public static var uiRightPress(get, never):Bool;
-	inline static function get_uiRightPress():Bool
-		return globalHeld('uiRight');
+	public var uiRightPress(get, never):Bool;
+	inline function get_uiRightPress():Bool
+		return held('uiRight');
 
 	/**
 	 * When you release left to move through ui elements
 	 */
-	public static var uiLeftReleased(get, never):Bool;
-	inline static function get_uiLeftReleased():Bool
-		return globalReleased('uiLeft');
+	public var uiLeftReleased(get, never):Bool;
+	inline function get_uiLeftReleased():Bool
+		return released('uiLeft');
 	/**
 	 * When you release down to move through ui elements
 	 */
-	public static var uiDownReleased(get, never):Bool;
-	inline static function get_uiDownReleased():Bool
-		return globalReleased('uiDown');
+	public var uiDownReleased(get, never):Bool;
+	inline function get_uiDownReleased():Bool
+		return released('uiDown');
 	/**
 	 * When you release up to move through ui elements
 	 */
-	public static var uiUpReleased(get, never):Bool;
-	inline static function get_uiUpReleased():Bool
-		return globalReleased('uiUp');
+	public var uiUpReleased(get, never):Bool;
+	inline function get_uiUpReleased():Bool
+		return released('uiUp');
 	/**
 	 * When you release right to move through ui elements
 	 */
-	public static var uiRightReleased(get, never):Bool;
-	inline static function get_uiRightReleased():Bool
-		return globalReleased('uiRight');
+	public var uiRightReleased(get, never):Bool;
+	inline function get_uiRightReleased():Bool
+		return released('uiRight');
 
+	// Actions
+	/**
+	 * When accept is pressed.
+	 */
+	public var accept(get, never):Bool;
+	inline function get_accept():Bool
+		return pressed('accept');
+	/**
+	 * When back is pressed.
+	 */
+	public var back(get, never):Bool;
+	inline function get_back():Bool
+		return pressed('back');
+	/**
+	 * When paused is pressed.
+	 */
+	public var pause(get, never):Bool;
+	inline function get_pause():Bool
+		return pressed('pause');
+	/**
+	 * When reset is pressed.
+	 */
+	public var reset(get, never):Bool;
+	inline function get_reset():Bool
+		return pressed('reset');
+
+	// Extras
+	/**
+	 * When fullscreen is pressed.
+	 */
+	public var fullscreen(get, never):Bool;
+	inline function get_fullscreen():Bool
+		return pressed('fullscreen');
+
+	// Debug
+	/**
+	 * When botplay is pressed.
+	 */
+	public var botplay(get, never):Bool;
+	inline function get_botplay():Bool
+		return pressed('botplay');
+	/**
+	 * When resetState is pressed.
+	 */
+	public var resetState(get, never):Bool;
+	inline function get_resetState():Bool
+		return pressed('resetState');
+	/**
+	 * When shortcutState is pressed.
+	 */
+	public var shortcutState(get, never):Bool;
+	inline function get_shortcutState():Bool
+		return pressed('shortcutState');
+	/**
+	 * When reloadGlobalScripts is pressed.
+	 */
+	public var reloadGlobalScripts(get, never):Bool;
+	inline function get_reloadGlobalScripts():Bool
+		return pressed('reloadGlobalScripts');
+}
+/**
+ * Player input for 'ArrowField's.
+ */
+class PlayerControls extends Controls {
 	// Controls
 	/**
 	 * Left note press.
@@ -172,161 +221,86 @@ class Controls implements IFlxDestroyable {
 	public var noteRightReleased(get, never):Bool;
 	inline function get_noteRightReleased():Bool
 		return released('noteRight');
+}
 
-	// Actions
-	/**
-	 * When accept is pressed.
-	 */
-	public static var accept(get, never):Bool;
-	inline static function get_accept():Bool
-		return globalPressed('accept');
-	/**
-	 * When back is pressed.
-	 */
-	public static var back(get, never):Bool;
-	inline static function get_back():Bool
-		return globalPressed('back');
-	/**
-	 * When paused is pressed.
-	 */
-	public static var pause(get, never):Bool;
-	inline static function get_pause():Bool
-		return globalPressed('pause');
-	/**
-	 * When reset is pressed.
-	 */
-	public static var reset(get, never):Bool;
-	inline static function get_reset():Bool
-		return globalPressed('reset');
-
-	// Extras
-	/**
-	 * When fullscreen is pressed.
-	 */
-	public static var fullscreen(get, never):Bool;
-	inline static function get_fullscreen():Bool
-		return globalPressed('fullscreen');
-
-	// Debug
-	/**
-	 * When botplay is pressed.
-	 */
-	public static var botplay(get, never):Bool;
-	inline static function get_botplay():Bool
-		return globalPressed('botplay');
-	/**
-	 * When resetState is pressed.
-	 */
-	public static var resetState(get, never):Bool;
-	inline static function get_resetState():Bool
-		return globalPressed('resetState');
-	/**
-	 * When shortcutState is pressed.
-	 */
-	public static var shortcutState(get, never):Bool;
-	inline static function get_shortcutState():Bool
-		return globalPressed('shortcutState');
-	/**
-	 * When reloadGlobalScripts is pressed.
-	 */
-	public static var reloadGlobalScripts(get, never):Bool;
-	inline static function get_reloadGlobalScripts():Bool
-		return globalPressed('reloadGlobalScripts');
-
-	// The Main Powerhouses
-	/**
-	 * The global binds, mostly for stuff like menus so more like shared binds.
-	 */
-	public static var globalBinds:Map<String, Array<FlxKey>> = [
-		// UI //
-		'uiLeft' => [A, LEFT],
-		'uiDown' => [S, DOWN],
-		'uiUp' => [W, UP],
-		'uiRight' => [D, RIGHT],
-
-		// Actions //
-		'accept' => [ENTER, SPACE],
-		'back' => [BACKSPACE, ESCAPE],
-		'pause' => [ENTER, ESCAPE],
-		'reset' => [R, DELETE],
-
-		// Volume //
-		'volumeUp' => [PLUS, NUMPADPLUS],
-		'volumeDown' => [MINUS, NUMPADMINUS],
-		'volumeMute' => [ZERO, NUMPADZERO],
-
-		// Extras //
-		'fullscreen' => [F11],
-
-		// Debug //
-		'botplay' => [F4],
-		'resetState' => [F5],
-		'shortcutState' => [F6],
-		'reloadGlobalScripts' => [F7]
-	];
-	/**
-	 * Global pressed input.
-	 * @param key The key name.
-	 * @return Bool
-	 */
-	inline public static function globalPressed(key:String):Bool
-		return FlxG.keys.anyJustPressed(globalBinds[key]);
-	/**
-	 * Global held input.
-	 * @param key The key name.
-	 * @return Bool
-	 */
-	inline public static function globalHeld(key:String):Bool
-		return FlxG.keys.anyPressed(globalBinds[key]);
-	/**
-	 * Global released input.
-	 * @param key The key name.
-	 * @return Bool
-	 */
-	inline public static function globalReleased(key:String):Bool
-		return FlxG.keys.anyJustReleased(globalBinds[key]);
+/**
+ * This class handles user controls, without it how would you do anything?
+ */
+class Controls extends FlxBasic {
+	@:access(imaginative.backend.system.SaveData)
+	@:allow(imaginative.states.EngineProcess)
+	inline static function init():Void {
+		SaveData.initSave(CONTROLS);
+		global = new GlobalControls(SaveData.controls.global);
+		p1 = new PlayerControls(SaveData.controls.player1);
+		p2 = new PlayerControls(SaveData.controls.player2);
+	}
 
 	/**
-	 * The binds, these binds are per controls set.
+	 * Menu input amongst other things.
 	 */
-	public var setBinds:Map<String, Array<FlxKey>>;
+	public static var global(default, null):GlobalControls;
+
+	/**
+	 * Used for arrow field's when it's not maintained by a player.
+	 */
+	public static final blank:PlayerControls = new PlayerControls([]);
+	/**
+	 * Player 1's controls.
+	 */
+	public static var p1(default, null):PlayerControls;
+	/**
+	 * Player 2's controls.
+	 */
+	public static var p2(default, null):PlayerControls;
+
+	/**
+	 * The binds that are contained within this controls instance.
+	 */
+	public var bindMap:Map<String, Array<FlxKey>>;
 	/**
 	 * Pressed input.
 	 * @param key The key name.
 	 * @return Bool
 	 */
 	inline public function pressed(key:String):Bool
-		return FlxG.keys.anyJustPressed(setBinds[key]);
+		return FlxG.keys.anyJustPressed(bindCheck(key));
 	/**
 	 * Held input.
 	 * @param key The key name.
 	 * @return Bool
 	 */
 	inline public function held(key:String):Bool
-		return FlxG.keys.anyPressed(setBinds[key]);
+		return FlxG.keys.anyPressed(bindCheck(key));
 	/**
 	 * Released input.
 	 * @param key The key name.
 	 * @return Bool
 	 */
 	inline public function released(key:String):Bool
-		return FlxG.keys.anyJustReleased(setBinds[key]);
+		return FlxG.keys.anyJustReleased(bindCheck(key));
 
-	inline public function new() {
-		setBinds = [
-			// Controls //
-			'noteLeft' => [E, LEFT],
-			'noteDown' => [F, DOWN],
-			'noteUp' => [K, UP],
-			'noteRight' => [O, RIGHT]
-		];
-		if (this == blank)
-			setBinds.clear();
+	inline function bindCheck(key:String):Array<FlxKey>
+		return active && bindMap.exists(key) ? bindMap.get(key) : [];
+
+	public function new(initBinds:Map<String, Array<FlxKey>>) {
+		super();
+		active = true;
+		bindMap = initBinds;
+		// FlxG.plugins.addPlugin(this);
 	}
 
-	/**
-	 * When called it destroys the controls instance.
-	 */
-	inline public function destroy():Void
-		setBinds.clear();
+	override public function destroy():Void {
+		active = false;
+		// FlxG.plugins.remove(this);
+		bindMap.clear();
+		super.destroy();
+	}
+
+	override public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('active', active),
+			LabelValuePair.weak('Key Binds', bindMap)
+		]);
+	}
 }

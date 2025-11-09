@@ -169,11 +169,11 @@ class MainMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP) {
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -196,11 +196,11 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
 				BeatState.switchState(() -> new TitleScreen());
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
+			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);

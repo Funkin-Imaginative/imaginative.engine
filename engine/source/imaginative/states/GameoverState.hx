@@ -66,7 +66,7 @@ class GameoverState extends BeatSubState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-		if (Controls.accept || Settings.setup.instantRespawn) {
+		if (Controls.global.accept || Settings.setup.instantRespawn) {
 			conductor.stop();
 			character.playAnim('retry', NoDancing);
 			retrySound.play();
@@ -82,7 +82,7 @@ class GameoverState extends BeatSubState {
 					BeatState.resetState();
 			});
 		}
-		if (Controls.back) {
+		if (Controls.global.back) {
 			conductor.stop();
 			BeatState.switchState(() -> PlayState.storyMode ? new imaginative.states.menus.StoryMenu() : new imaginative.states.menus.FreeplayMenu());
 		}
