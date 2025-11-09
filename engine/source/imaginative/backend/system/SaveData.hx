@@ -1,8 +1,8 @@
 package imaginative.backend.system;
 
+import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
 
-// PLANNED: SCORE
 /**
  * Forces specification for "saveName"s but since this is a string you can do whatever you want really.
  */
@@ -22,6 +22,14 @@ enum abstract SaveType(String) from String to String {
 	 * For engine settings.
 	 */
 	var SETTINGS = 'settings';
+	/**
+	 * For player controls.
+	 */
+	var CONTROLS = 'controls';
+	/**
+	 * Where scores are kept.
+	 */
+	var SCORE = 'score';
 }
 
 /**
@@ -65,17 +73,78 @@ final private class SettingsSaveData extends SaveDataClass {
 	 */
 	public var player2:PlayerSettings;
 }
+// MAYBE: Make this not maps?
+final private class ControlsSaveData extends SaveDataClass {
+	/**
+	 * The general controls.
+	 */
+	public var global:Map<String, Array<FlxKey>> = [
+		// UI //
+		'uiLeft' => [A, LEFT],
+		'uiDown' => [S, DOWN],
+		'uiUp' => [W, UP],
+		'uiRight' => [D, RIGHT],
+
+		// Actions //
+		'accept' => [ENTER, SPACE],
+		'back' => [BACKSPACE, ESCAPE],
+		'pause' => [ENTER, ESCAPE],
+		'reset' => [R, DELETE],
+
+		// Volume //
+		'volumeUp' => [PLUS, NUMPADPLUS],
+		'volumeDown' => [MINUS, NUMPADMINUS],
+		'volumeMute' => [ZERO, NUMPADZERO],
+
+		// Extras //
+		'fullscreen' => [F11],
+
+		// Debug //
+		'botplay' => [F4],
+		'resetState' => [F5],
+		'shortcutState' => [F6],
+		'reloadGlobalScripts' => [F7]
+	];
+	/**
+	 * The players controls.
+	 */
+	public var player1:Map<String, Array<FlxKey>> = [
+		// Controls //
+		'noteLeft' => [E, LEFT],
+		'noteDown' => [F, DOWN],
+		'noteUp' => [K, UP],
+		'noteRight' => [O, RIGHT]
+	];
+	/**
+	 * The second players controls.
+	 */
+	public var player2:Map<String, Array<FlxKey>> = [
+		// Controls //
+		'noteLeft' => [],
+		'noteDown' => [],
+		'noteUp' => [],
+		'noteRight' => []
+	];
+}
 
 @:access(flixel.util.FlxSave)
 class SaveData {
 	/**
 	 * The active saves that have been initialized.
 	 */
-	static var saveInstances:Map<SaveType, FlxSave> = new Map<SaveType, FlxSave>();
+	static final saveInstances:Map<SaveType, FlxSave> = new Map<SaveType, FlxSave>();
 	/**
 	 * The current save slot.
 	 */
-	static var saveSlot:Int = 0;
+	static var saveSlot(default, null):Int = 0;
+
+	/**
+	 * Returns the engine save path.
+	 * @return String ~ The save path.
+	 */
+	public static var savePath(get, never):String;
+	inline static function get_savePath():String
+		return ['Funkin-Imaginative', #if debug 'debug', #end 'Save$saveSlot'].join('/');
 
 	@:allow(imaginative.backend.system.Main.new)
 	static function init():Void {
@@ -84,7 +153,7 @@ class SaveData {
 		FlxWindow.instance.self.onClose.add(() -> {
 			for (name => save in saveInstances) {
 				var success = save.flush();
-				if (success) _log('[SaveData] Successfully saved path "$name".');
+				if (success) _log('[SaveData] Successfully saved path "$savePath/$name".');
 			}
 			#if debug
 			if (debug.clearOnExit) {
@@ -98,7 +167,6 @@ class SaveData {
 		});
 	}
 
-	// There ain't one for flixel because it's literally just "FlxG.save", I'm not making a shortcut for a shortcut.
 	#if debug
 	/**
 	 * The save data for debug builds.
@@ -107,12 +175,19 @@ class SaveData {
 	inline static function get_debug():DebugSaveData
 		return getSave(DEBUG).data;
 	#end
+	// There ain't one for flixel because it's literally just "FlxG.save", I'm not making a shortcut for a shortcut.
 	/**
-	 * The save data for the player settings.
+	 * The save data for settings.
 	 */
 	public static var settings(get, never):SettingsSaveData;
 	inline static function get_settings():SettingsSaveData
 		return getSave(SETTINGS).data;
+	/**
+	 * The save data for controls.
+	 */
+	public static var controls(get, never):ControlsSaveData;
+	inline static function get_controls():ControlsSaveData
+		return getSave(CONTROLS).data;
 
 	/**
 	 * Returns the 'FlxSave' instance if its been pre-initialized.
@@ -122,7 +197,7 @@ class SaveData {
 	static function getSave(saveName:SaveType):Null<FlxSave> {
 		if (saveInstances.exists(saveName))
 			return saveInstances.get(saveName);
-		_log('[SaveData] Save path of "$saveName" needs to be initialized first before attempting to get it.');
+		_log('[SaveData] Save path of "$savePath/$saveName" needs to be initialized first before attempting to get it.');
 		return null;
 	}
 
@@ -136,19 +211,20 @@ class SaveData {
 			return true;
 		else {
 			var save:FlxSave = saveName == FLIXEL ? FlxG.save : new FlxSave();
-			_log('[SaveData] Loading save slot "$saveSlot" of path "$saveName".');
-			save.bind('$saveSlot/$saveName', 'Funkin-Imaginative' #if debug + '/debug' #end);
+			_log('[SaveData] Loading save "$savePath/$saveName".');
+			save.bind(saveName, savePath);
 			switch (save.status) {
-				case EMPTY:
-					_log('[SaveData] Slot "$saveSlot" of path "$saveName" was empty, new save initiated.', DebugMessage);
+				case EMPTY: // it only calls this if you don't run bind()
+					_log('[SaveData] Save "$savePath/$saveName" was empty, new save initiated!', DebugMessage);
 				case ERROR(msg):
-					_log('[SaveData] Error in slot "$saveSlot" of path "$saveName".', ErrorMessage);
+					_log('[SaveData] Error on save "$savePath/$saveName". (error:$msg)', ErrorMessage);
 				case SAVE_ERROR(type):
-					_log('[SaveData] Error saving slot "$saveSlot" of path "$saveName", error "$type"', ErrorMessage);
+					_log('[SaveData] Error saving "$savePath/$saveName". (error:$type)', ErrorMessage);
 				case LOAD_ERROR(type):
-					_log('[SaveData] Error loading slot "$saveSlot" of path "$saveName", error "$type"', ErrorMessage);
+					_log('[SaveData] Error loading "$savePath/$saveName". (error:$type)', ErrorMessage);
 				case BOUND(name, path):
-					_log('[SaveData] Slot "$saveSlot" of path "$saveName" has data, save initiated.', DebugMessage);
+					if (save.isEmpty()) _log('[SaveData] Save "$path/$name" was empty, new save initiated!', DebugMessage);
+					else _log('[SaveData] Save "$path/$name" has data, save initiated! (savedata:${save.data})', DebugMessage);
 			}
 			if (save.isBound) {
 				saveInstances.set(saveName, save);
@@ -167,6 +243,9 @@ class SaveData {
 				}
 				switch (saveName) {
 					#if debug
+					case DEBUG:
+						if (save.isEmpty()) save._set('data', new DebugSaveData());
+						save._set('data', mergeNewClassVars(save.data, new DebugSaveData()));
 					case FLIXEL:
 						if (save.isEmpty()) {
 							save.data.volume = debug.flixelVolume;
@@ -176,25 +255,25 @@ class SaveData {
 					case SETTINGS:
 						if (save.isEmpty()) save._set('data', new SettingsSaveData());
 						save._set('data', mergeNewClassVars(save.data, new SettingsSaveData()));
-					#if debug
-					case DEBUG:
-						if (save.isEmpty()) save._set('data', new DebugSaveData());
-						save._set('data', mergeNewClassVars(save.data, new DebugSaveData()));
-					#end
+					case CONTROLS:
+						if (save.isEmpty()) save._set('data', new ControlsSaveData());
+						save._set('data', mergeNewClassVars(save.data, new ControlsSaveData()));
 					default:
 				}
 				#if debug
 				try {
 					if (debug.mergeBaseSave && saveName != SaveType.DEBUG) { // allows debug builds to get save data from non-debug builds
-						save.mergeDataFrom('$saveSlot/$saveName', 'Funkin-Imaginative', true, false);
-						_log('[SaveData] Merge from base save.', DebugMessage);
+						save.mergeDataFrom(saveName, savePath.split('/').filter(s -> return s != 'debug').join('/'), true, false);
+						_log('[SaveData] Merged from base save. ($savePath/$saveName)', DebugMessage);
 					}
 				} catch(error:haxe.Exception)
-					_log('[SaveData] Failed to merge from base save.', ErrorMessage);
+					_log('[SaveData] Failed to merge base save. ($savePath/$saveName)', ErrorMessage);
 				#end
-				save.flush();
+				var success = save.flush();
+				if (success) _log('[SaveData] Successfully saved path "$savePath/$saveName".');
 				return true;
-			}
+			} else if (saveName != FLIXEL)
+				save.destroy();
 		}
 		return false;
 	}
@@ -206,7 +285,7 @@ class SaveData {
 	static function clearSave(saveName:SaveType):Void {
 		if (saveInstances.exists(saveName)) {
 			getSave(saveName).erase();
-			_log('[SaveData] Save path of "$saveName" was erased.');
-		} else _log('[SaveData] Save path of "$saveName" needs to be initialized first before attempting to clear it.');
+			_log('[SaveData] Save "$savePath/$saveName" was erased.');
+		} else _log('[SaveData] Save "$savePath/$saveName" needs to be initialized first before attempting to clear it.');
 	}
 }
