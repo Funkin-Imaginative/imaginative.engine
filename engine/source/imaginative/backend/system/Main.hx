@@ -65,6 +65,9 @@ class Main extends openfl.display.Sprite {
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 
+		hxwindowmode.WindowColorMode.setDarkMode();
+		hxwindowmode.WindowColorMode.resetScreenSize();
+
 		// Was testing rating window caps.
 		/* // variables
 		var cap:Float = 230;

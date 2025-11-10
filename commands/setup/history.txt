@@ -1,11 +1,17 @@
 Name: "checkstyle", Version: "none", Skipped Dependencies: Yes
+Name: "hxWindowColorMode", Version: "none", Skipped Dependencies: Yes
 Name: "flixel-addons", Version: "none", Skipped Dependencies: No
 Name: "flixel", Version: "none", Skipped Dependencies: No
 Name: "lime", Version: "none", Skipped Dependencies: Yes
 Name: "openfl", Version: "none", Skipped Dependencies: Yes
+Name: "flixel-animate", Version: "none", Skipped Dependencies: No
+Name: "hscript-improved", Url: "https://github.com/CodenameCrew/hscript-improved", Branch: "custom-classes", Skipped Dependencies: Yes
 Name: "hxcpp", Url: "https://github.com/HaxeFoundation/hxcpp", Branch: "v4.3.75", Skipped Dependencies: Yes
 Name: "hxcpp-debug-server", Version: "none", Skipped Dependencies: Yes
 Name: "hxdiscord_rpc", Version: "none", Skipped Dependencies: Yes
 Name: "hxp", Version: "none", Skipped Dependencies: Yes
+Name: "hxvlc", Url: "https://github.com/MAJigsaw77/hxvlc", Branch: "none", Skipped Dependencies: No
 Name: "json2object", Url: "https://github.com/FunkinCrew/json2object", Branch: "none", Skipped Dependencies: Yes
+Name: "linc_luajit", Url: "https://github.com/superpowers04/linc_luajit", Branch: "none", Skipped Dependencies: Yes
 Name: "moonchart", Url: "https://github.com/Funkin-Imaginative/moonchart", Branch: "imaginative", Skipped Dependencies: Yes
+Name: "thx.semver", Version: "none", Skipped Dependencies: Yes
