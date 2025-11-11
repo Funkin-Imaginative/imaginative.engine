@@ -48,7 +48,7 @@ class EngineAsset {
 	 */
 	static final exeFileName:String = 'Imaginative';
 	/**
-	 * The name of the main so mod the assets folder should become when mod support is enabled.
+	 * The name of the main solo mod the assets folder should become when mod support is enabled.
 	 */
 	static final mainModFolderName:String = 'funkin';
 	/**
