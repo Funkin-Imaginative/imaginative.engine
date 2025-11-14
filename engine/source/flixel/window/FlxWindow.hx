@@ -188,6 +188,10 @@ class FlxWindow implements IFlxDestroyable {
 	inline function set_fullscreen(value:Bool):Bool {
 		_fullscreen = value;
 		self.fullscreen = borderlessFullscreen ? false : _fullscreen;
+		#if EDIT_WINDOW_BORDER_COLOR
+		hxwindowmode.WindowColorMode.setWindowCornerType(borderlessFullscreen && _fullscreen ? 1 : 0);
+		hxwindowmode.WindowColorMode.redrawWindowHeader();
+		#end
 		return value;
 	}
 
@@ -237,6 +241,11 @@ class FlxWindow implements IFlxDestroyable {
 		title = new TitleParts(this, startTitle ?? self.title ?? 'No Title Entered');
 		__width = width;
 		__height = height;
+
+		#if EDIT_WINDOW_BORDER_COLOR
+		hxwindowmode.WindowColorMode.setDarkMode();
+		hxwindowmode.WindowColorMode.redrawWindowHeader();
+		#end
 
 		self.onClose.add(() -> {
 			if (allowClose) {
