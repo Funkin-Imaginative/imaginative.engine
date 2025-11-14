@@ -42,26 +42,26 @@ class Setup {
 		if (FileSystem.exists('./commands/setup/data.json')) {
 			data = Json.parse(File.getContent('./commands/setup/data.json'));
 		} else {
-			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify([
-				{
-					dependencies: [
-						{name: 'thx.semver'},
-						{
-							global: false,
-							name: 'hscript-improved',
-							version: 'git',
-							url: 'https://github.com/CodenameCrew/hscript-improved',
-							branch: 'custom-classes'
-						}
-					],
-					questions: [
-						{
-							name: 'hscript-improved',
-							description: 'include haxe scripting support'
-						}
-					]
-				}
-			], '\t')}');
+			var exampleJson:SetupJson = {
+				dependencies: [
+					{name: 'thx.semver'},
+					{
+						global: false,
+						name: 'hscript-improved',
+						version: 'git',
+						url: 'https://github.com/CodenameCrew/hscript-improved',
+						branch: 'custom-classes'
+					}
+				],
+				questions: [
+					{
+						name: 'hscript-improved',
+						description: 'include haxe scripting support'
+					}
+				]
+			}
+			// was hating github not properly coloring the rest of this file.
+			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify(exampleJson, '\t')}');
 			return;
 		}
 
