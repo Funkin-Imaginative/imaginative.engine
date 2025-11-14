@@ -104,6 +104,7 @@ class Setup {
 
 		Sys.println(Main.dashes);
 
+		Sys.command('haxelib install haxelib --global');
 		Sys.command('haxelib fixrepo');
 		dependenciesCheck(data.dependencies);
 		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
@@ -156,12 +157,16 @@ class Setup {
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
-				Sys.command('haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
-				libHistory.push('Name: "${lib.name}", Url: "${lib.url ?? 'none'}", Branch: "${lib.branch ?? 'none'}", Skipped Dependencies: ${lib.dependencies == null ? 'Yes' : 'No'}');
+				var command = 'haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
+				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.command('$command --always');
+				libHistory.push(command);
 			} else {
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
-				Sys.command('haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
-				libHistory.push('Name: "${lib.name}", Version: "${lib.version ?? 'none'}", Skipped Dependencies: ${lib.dependencies == null ? 'Yes' : 'No'}');
+				var command = 'haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
+				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.command('$command --always');
+				libHistory.push(command); // TODO: Figure out how to get lib version when none specified.
 			}
 			if (lib.dependencies != null)
 				dependenciesCheck(lib.dependencies, true);
