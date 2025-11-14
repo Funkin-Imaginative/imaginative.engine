@@ -79,6 +79,11 @@ class EngineAsset {
 	static final useTracy:CompilerFlag = 'TRACY_DEBUGGER';
 
 	/**
+	 * States if the engine can set the window border color.
+	 */
+	static final editWindowBorderColor:CompilerFlag = 'EDIT_WINDOW_BORDER_COLOR';
+
+	/**
 	 * States if the engine has a version ID.
 	 */
 	static final knowsVersionID:CompilerFlag = 'KNOWS_VERSION_ID';
@@ -207,6 +212,8 @@ class EngineAsset {
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
+		// literally wasn't gonna fuckin' add this but then @NebulaStellaNova implemented it improperly so here we are
+		editWindowBorderColor.enable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -268,7 +275,6 @@ class EngineAsset {
 
 		/* Libraries */
 		addHaxelib('hxp');
-		addHaxelib('hxWindowColorMode');
 		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
 		addHaxelib('lime');
@@ -296,6 +302,9 @@ class EngineAsset {
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
+
+		if (isWindows() && editWindowBorderColor.exists())
+			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
 		if (!isDebug())

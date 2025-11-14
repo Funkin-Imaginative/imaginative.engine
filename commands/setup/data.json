@@ -81,7 +81,11 @@
 		},
 		{
 			"name": "thx.semver",
-			"description": "the engine to have version checking capabilities"
+			"description": "allow engine to have version checking capabilities"
+		},
+		{
+			"name": "hxWindowColorMode",
+			"description": "allow engine to set the window border color (WINDOWS ONLY)"
 		}
 	]
 }
