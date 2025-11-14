@@ -244,7 +244,7 @@ class Controls extends FlxBasic {
 	/**
 	 * Used for arrow field's when it's not maintained by a player.
 	 */
-	public static final blank:PlayerControls = new PlayerControls([]);
+	public static final blank:PlayerControls = new PlayerControls();
 	/**
 	 * Player 1's controls.
 	 */
@@ -283,10 +283,10 @@ class Controls extends FlxBasic {
 	inline function bindCheck(key:String):Array<FlxKey>
 		return active && bindMap.exists(key) ? bindMap.get(key) : [];
 
-	public function new(initBinds:Map<String, Array<FlxKey>>) {
+	public function new(?initBinds:Map<String, Array<FlxKey>>) {
 		super();
 		active = true;
-		bindMap = initBinds;
+		bindMap = initBinds ?? [];
 		// FlxG.plugins.addPlugin(this);
 	}
 
