@@ -310,6 +310,8 @@ class PlayState extends BeatState {
 	//temp
 	var ratings:FlxTypedGroup<BaseSprite>;
 
+	override function initCamera():Void {}
+
 	override public function create():Void {
 		Assets.clearCache(true, false, true, true);
 		// precache them here for now
@@ -320,7 +322,7 @@ class PlayState extends BeatState {
 
 		bgColor = 0xFFBDBDBD;
 
-		FlxG.cameras.reset(camera = camGame = new PlayCamera('World Camera').beatSetup(songAudio));
+		FlxG.cameras.reset(camera = mainCamera = camGame = new PlayCamera('World Camera').beatSetup(songAudio));
 		FlxG.cameras.add(camHUD = new BeatCamera('Hud Camera').beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 

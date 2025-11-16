@@ -187,17 +187,21 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		return event;
 	}
 
+	var mainCamera:BeatCamera;
+	function initCamera():Void
+		FlxG.cameras.add(camera = mainCamera = new BeatCamera('Sub Camera').beatSetup(conductor, 0.5), false).bgColor = FlxColor.TRANSPARENT;
+
 	var parentDisabler:ParentDisabler;
 	function initParentDisabler():Void
 		add(parentDisabler = new ParentDisabler());
 
 	override public function create():Void {
+		initCamera();
 		Conductor.beatSubStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
-		if (isAPauseState)
-			initParentDisabler();
+		if (isAPauseState) initParentDisabler();
 		scriptCall('create');
 	}
 
@@ -316,6 +320,8 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		parent = null;
 		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
+		if (FlxG.cameras.list.contains(mainCamera))
+			FlxG.cameras.remove(mainCamera, true);
 		super.destroy();
 	}
 }

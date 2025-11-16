@@ -49,7 +49,6 @@ class StoryMenu extends BeatState {
 
 	// Camera management.
 	var camPoint:FlxObject;
-	var mainCamera:BeatCamera;
 
 	override public function create():Void {
 		super.create();
@@ -61,7 +60,6 @@ class StoryMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		FlxG.cameras.reset(mainCamera = new BeatCamera('Main Camera').beatSetup(conductor, 0.5));
 		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
 		mainCamera.setZooming(1, 0.16);
 		mainCamera.zoomEnabled = true;

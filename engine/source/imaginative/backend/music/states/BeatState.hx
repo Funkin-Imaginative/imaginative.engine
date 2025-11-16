@@ -219,6 +219,10 @@ class BeatState extends FlxState implements IBeatState {
 	// 	return Type.createInstance(Type.getClass(this), []);
 	// }
 
+	var mainCamera:BeatCamera;
+	function initCamera():Void
+		FlxG.cameras.reset(camera = mainCamera = new BeatCamera('Main Camera').beatSetup(conductor, 0.5));
+
 	override public function create():Void {
 		#if FLX_DEBUG
 		FlxG.game.debugger.watch.add('Conductor',    FUNCTION(() -> return                        conductor.id));
@@ -231,6 +235,8 @@ class BeatState extends FlxState implements IBeatState {
 		FlxG.game.debugger.watch.add('Beat',         FUNCTION(() -> return                        curBeatFloat));
 		FlxG.game.debugger.watch.add('Measure',      FUNCTION(() -> return                     curMeasureFloat));
 		#end
+
+		initCamera();
 
 		Conductor.beatStates.push(this);
 		persistentUpdate = true;
