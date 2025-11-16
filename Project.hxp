@@ -213,7 +213,7 @@ class EngineAsset {
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
 		// literally wasn't gonna fuckin' add this but then @NebulaStellaNova implemented it improperly so here we are
-		editWindowBorderColor.enable();
+		if (isWindows()) editWindowBorderColor.enable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -303,7 +303,7 @@ class EngineAsset {
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
 
-		if (isWindows() && editWindowBorderColor.exists())
+		if (editWindowBorderColor.exists())
 			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
