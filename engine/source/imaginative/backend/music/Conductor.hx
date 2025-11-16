@@ -84,6 +84,13 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	public var canLoop:Bool;
 
+	/**
+	 * How long of a song the conductor is playing in milliseconds.
+	 */
+	public var length(get, never):Float;
+	inline function get_length():Float
+		return audio?.endTime ?? audio?.length ?? 0;
+
 	// FlxSignals
 	/**
 	 * Dispatches when the bpm changes.
@@ -205,7 +212,7 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	public var autoSetTime(get, never):Bool;
 	inline function get_autoSetTime():Bool {
-		if (time > 0 && (time < audio.length || audioEnded))
+		if (time > 0 && (time < length || audioEnded))
 			return false;
 		return true;
 	}

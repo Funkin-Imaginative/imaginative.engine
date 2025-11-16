@@ -22,6 +22,10 @@ class PauseMenu extends BeatSubState {
 
 		FlxG.cameras.add(camera = new FlxCamera(), false);
 		camera.bgColor = 0xb3000000;
+		conductor.loadMusic('breakfast', (_:FlxSound) -> {
+			conductor.playFromTime(FlxG.random.float(0, conductor.length / 2), 0);
+			conductor.fadeIn(5, 0.5);
+		});
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -35,6 +39,7 @@ class PauseMenu extends BeatSubState {
 	override public function destroy():Void {
 		if (FlxG.cameras.list.contains(camera))
 			FlxG.cameras.remove(camera, true);
+		conductor.stop();
 		super.destroy();
 	}
 }
