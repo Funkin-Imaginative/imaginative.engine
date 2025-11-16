@@ -1,6 +1,9 @@
 package imaginative.backend;
 
 import flixel.input.keyboard.FlxKey;
+/* import flixel.input.mouse.FlxMouseButton;
+import flixel.input.android.FlxAndroidKey;
+import flixel.input.gamepad.FlxGamepadInputID; */
 
 /**
  * Player input for menus and other general things.
@@ -12,97 +15,97 @@ class GlobalControls extends Controls {
 	 */
 	public var uiLeft(get, never):Bool;
 	inline function get_uiLeft():Bool
-		return pressed('uiLeft');
+		return pressed('ui_left');
 	/**
 	 * When you press down to move through ui elements
 	 */
 	public var uiDown(get, never):Bool;
 	inline function get_uiDown():Bool
-		return pressed('uiDown');
+		return pressed('ui_down');
 	/**
 	 * When you press up to move through ui elements
 	 */
 	public var uiUp(get, never):Bool;
 	inline function get_uiUp():Bool
-		return pressed('uiUp');
+		return pressed('ui_up');
 	/**
 	 * When you press right to move through ui elements
 	 */
 	public var uiRight(get, never):Bool;
 	inline function get_uiRight():Bool
-		return pressed('uiRight');
+		return pressed('ui_right');
 
 	/**
 	 * When you hold left to move through ui elements
 	 */
 	public var uiLeftPress(get, never):Bool;
 	inline function get_uiLeftPress():Bool
-		return held('uiLeft');
+		return held('ui_left');
 	/**
 	 * When you hold down to move through ui elements
 	 */
 	public var uiDownPress(get, never):Bool;
 	inline function get_uiDownPress():Bool
-		return held('uiDown');
+		return held('ui_down');
 	/**
 	 * When you hold up to move through ui elements
 	 */
 	public var uiUpPress(get, never):Bool;
 	inline function get_uiUpPress():Bool
-		return held('uiUp');
+		return held('ui_up');
 	/**
 	 * When you hold up to move through ui elements
 	 */
 	public var uiRightPress(get, never):Bool;
 	inline function get_uiRightPress():Bool
-		return held('uiRight');
+		return held('ui_right');
 
 	/**
 	 * When you release left to move through ui elements
 	 */
 	public var uiLeftReleased(get, never):Bool;
 	inline function get_uiLeftReleased():Bool
-		return released('uiLeft');
+		return released('ui_left');
 	/**
 	 * When you release down to move through ui elements
 	 */
 	public var uiDownReleased(get, never):Bool;
 	inline function get_uiDownReleased():Bool
-		return released('uiDown');
+		return released('ui_down');
 	/**
 	 * When you release up to move through ui elements
 	 */
 	public var uiUpReleased(get, never):Bool;
 	inline function get_uiUpReleased():Bool
-		return released('uiUp');
+		return released('ui_up');
 	/**
 	 * When you release right to move through ui elements
 	 */
 	public var uiRightReleased(get, never):Bool;
 	inline function get_uiRightReleased():Bool
-		return released('uiRight');
+		return released('ui_right');
 
 	// Actions
 	/**
-	 * When accept is pressed.
+	 * When "accept" is pressed.
 	 */
 	public var accept(get, never):Bool;
 	inline function get_accept():Bool
 		return pressed('accept');
 	/**
-	 * When back is pressed.
+	 * When "back" is pressed.
 	 */
 	public var back(get, never):Bool;
 	inline function get_back():Bool
 		return pressed('back');
 	/**
-	 * When paused is pressed.
+	 * When "paused" is pressed.
 	 */
 	public var pause(get, never):Bool;
 	inline function get_pause():Bool
 		return pressed('pause');
 	/**
-	 * When reset is pressed.
+	 * When "reset" is pressed.
 	 */
 	public var reset(get, never):Bool;
 	inline function get_reset():Bool
@@ -110,7 +113,7 @@ class GlobalControls extends Controls {
 
 	// Extras
 	/**
-	 * When fullscreen is pressed.
+	 * When "fullscreen" is pressed.
 	 */
 	public var fullscreen(get, never):Bool;
 	inline function get_fullscreen():Bool
@@ -118,109 +121,87 @@ class GlobalControls extends Controls {
 
 	// Debug
 	/**
-	 * When botplay is pressed.
+	 * When "botplay" is pressed.
 	 */
 	public var botplay(get, never):Bool;
 	inline function get_botplay():Bool
 		return pressed('botplay');
 	/**
-	 * When resetState is pressed.
+	 * When "resetState" is pressed.
 	 */
 	public var resetState(get, never):Bool;
 	inline function get_resetState():Bool
 		return pressed('resetState');
 	/**
-	 * When shortcutState is pressed.
+	 * When "shortcutState" is pressed.
 	 */
 	public var shortcutState(get, never):Bool;
 	inline function get_shortcutState():Bool
 		return pressed('shortcutState');
 	/**
-	 * When reloadGlobalScripts is pressed.
+	 * When "reloadGame" is pressed.
 	 */
-	public var reloadGlobalScripts(get, never):Bool;
-	inline function get_reloadGlobalScripts():Bool
-		return pressed('reloadGlobalScripts');
+	public var reloadGame(get, never):Bool;
+	inline function get_reloadGame():Bool
+		return pressed('reloadGame');
+
+	public function new(?initBinds:Map<String, Array<FlxKey>>) {
+		super(initBinds);
+		if (bindMap.exists('volume_up')) FlxG.sound.volumeUpKeys = bindMap.get('volume_up');
+		if (bindMap.exists('volume_down')) FlxG.sound.volumeDownKeys = bindMap.get('volume_down');
+		if (bindMap.exists('volume_mute')) FlxG.sound.muteKeys = bindMap.get('volume_mute');
+	}
 }
 /**
  * Player input for 'ArrowField's.
  */
 class PlayerControls extends Controls {
-	// Controls
 	/**
-	 * Left note press.
+	 * Pressed input for notes.
+	 * @param id The lane id.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteLeft(get, never):Bool;
-	inline function get_noteLeft():Bool
-		return pressed('noteLeft');
+	inline public function notePressed(id:Int, count:Int):Bool
+		return pressed('note_$count:$id');
 	/**
-	 * Down note press.
+	 * Held input for notes.
+	 * @param id The lane id.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteDown(get, never):Bool;
-	inline function get_noteDown():Bool
-		return pressed('noteDown');
+	inline public function noteHeld(id:Int, count:Int):Bool
+		return held('note_$count:$id');
 	/**
-	 * Up note press
+	 * Released input for notes.
+	 * @param id The lane id.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteUp(get, never):Bool;
-	inline function get_noteUp():Bool
-		return pressed('noteUp');
-	/**
-	 * Right note press.
-	 */
-	public var noteRight(get, never):Bool;
-	inline function get_noteRight():Bool
-		return pressed('noteRight');
+	inline public function noteReleased(id:Int, count:Int):Bool
+		return released('note_$count:$id');
 
 	/**
-	 * Left note held.
+	 * Pressed inputs for all note id's in that lane amount.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteLeftHeld(get, never):Bool;
-	inline function get_noteLeftHeld():Bool
-		return held('noteLeft');
+	inline public function notesPressed(count:Int):Array<Bool>
+		return [for (id in 0...count) notePressed(id, count)];
 	/**
-	 * Down note held.
+	 * Held inputs for all note id's in that lane amount.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteDownHeld(get, never):Bool;
-	inline function get_noteDownHeld():Bool
-		return held('noteDown');
+	inline public function notesHeld(count:Int):Array<Bool>
+		return [for (id in 0...count) noteHeld(id, count)];
 	/**
-	 * Up note held.
+	 * Released inputs for all note id's in that lane amount.
+	 * @param count The lane amount.
+	 * @return Bool
 	 */
-	public var noteUpHeld(get, never):Bool;
-	inline function get_noteUpHeld():Bool
-		return held('noteUp');
-	/**
-	 * Right note held.
-	 */
-	public var noteRightHeld(get, never):Bool;
-	inline function get_noteRightHeld():Bool
-		return held('noteRight');
-
-	/**
-	 * Left note released.
-	 */
-	public var noteLeftReleased(get, never):Bool;
-	inline function get_noteLeftReleased():Bool
-		return released('noteLeft');
-	/**
-	 * Down note released.
-	 */
-	public var noteDownReleased(get, never):Bool;
-	inline function get_noteDownReleased():Bool
-		return released('noteDown');
-	/**
-	 * Up note released.
-	 */
-	public var noteUpReleased(get, never):Bool;
-	inline function get_noteUpReleased():Bool
-		return released('noteUp');
-	/**
-	 * Right note released.
-	 */
-	public var noteRightReleased(get, never):Bool;
-	inline function get_noteRightReleased():Bool
-		return released('noteRight');
+	inline public function notesReleased(count:Int):Array<Bool>
+		return [for (id in 0...count) noteReleased(id, count)];
 }
 
 /**
@@ -257,7 +238,7 @@ class Controls extends FlxBasic {
 	/**
 	 * The binds that are contained within this controls instance.
 	 */
-	public var bindMap:Map<String, Array<FlxKey>>;
+	public final bindMap:Map<String, Array<FlxKey>>;
 	/**
 	 * Pressed input.
 	 * @param key The key name.
@@ -287,20 +268,18 @@ class Controls extends FlxBasic {
 		super();
 		active = true;
 		bindMap = initBinds ?? [];
-		// FlxG.plugins.addPlugin(this);
 	}
 
 	override public function destroy():Void {
 		active = false;
-		// FlxG.plugins.remove(this);
 		bindMap.clear();
 		super.destroy();
 	}
 
 	override public function toString():String {
 		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('active', active),
-			LabelValuePair.weak('Key Binds', bindMap)
+			LabelValuePair.weak('Key Binds', bindMap),
+			LabelValuePair.weak('active', active)
 		]);
 	}
 }

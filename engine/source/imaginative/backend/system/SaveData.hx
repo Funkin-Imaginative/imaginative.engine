@@ -79,52 +79,46 @@ final private class ControlsSaveData extends SaveDataClass {
 	 * The general controls.
 	 */
 	public var global:Map<String, Array<FlxKey>> = [
-		// UI //
-		'uiLeft' => [A, LEFT],
-		'uiDown' => [S, DOWN],
-		'uiUp' => [W, UP],
-		'uiRight' => [D, RIGHT],
+		// UI
+		'ui_left' => [A, LEFT],
+		'ui_down' => [S, DOWN],
+		'ui_up' => [W, UP],
+		'ui_right' => [D, RIGHT],
 
-		// Actions //
+		// Actions
 		'accept' => [ENTER, SPACE],
 		'back' => [BACKSPACE, ESCAPE],
 		'pause' => [ENTER, ESCAPE],
 		'reset' => [R, DELETE],
 
-		// Volume //
-		'volumeUp' => [PLUS, NUMPADPLUS],
-		'volumeDown' => [MINUS, NUMPADMINUS],
-		'volumeMute' => [ZERO, NUMPADZERO],
+		// Volume
+		'volume_up' => [PLUS, NUMPADPLUS],
+		'volume_down' => [MINUS, NUMPADMINUS],
+		'volume_mute' => [ZERO, NUMPADZERO],
 
-		// Extras //
+		// Extras
 		'fullscreen' => [F11],
 
-		// Debug //
+		// Debug
 		'botplay' => [F4],
 		'resetState' => [F5],
 		'shortcutState' => [F6],
-		'reloadGlobalScripts' => [F7]
+		'reloadGame' => [F8]
 	];
 	/**
 	 * The players controls.
 	 */
 	public var player1:Map<String, Array<FlxKey>> = [
-		// Controls //
-		'noteLeft' => [E, LEFT],
-		'noteDown' => [F, DOWN],
-		'noteUp' => [K, UP],
-		'noteRight' => [O, RIGHT]
+		// 4 Keys
+		'note_4:0' => [E, LEFT],
+		'note_4:1' => [F, DOWN],
+		'note_4:2' => [K, UP],
+		'note_4:3' => [O, RIGHT]
 	];
 	/**
 	 * The second players controls.
 	 */
-	public var player2:Map<String, Array<FlxKey>> = [
-		// Controls //
-		'noteLeft' => [],
-		'noteDown' => [],
-		'noteUp' => [],
-		'noteRight' => []
-	];
+	public var player2:Map<String, Array<FlxKey>> = [];
 }
 
 @:access(flixel.util.FlxSave)

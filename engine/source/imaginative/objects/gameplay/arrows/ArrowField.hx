@@ -293,31 +293,7 @@ class ArrowField extends BeatGroup {
 
 	inline function _input():Void {
 		for (i => strum in strums.members)
-			input(
-				i,
-				strum,
-				[
-					controls.noteLeft,
-					controls.noteDown,
-					controls.noteUp,
-					controls.noteRight
-				]
-				[i],
-				[
-					controls.noteLeftHeld,
-					controls.noteDownHeld,
-					controls.noteUpHeld,
-					controls.noteRightHeld
-				]
-				[i],
-				[
-					controls.noteLeftReleased,
-					controls.noteDownReleased,
-					controls.noteUpReleased,
-					controls.noteRightReleased
-				]
-				[i]
-			);
+			input(i, strum, controls.notePressed(i, strumCount), controls.noteHeld(i, strumCount), controls.noteReleased(i, strumCount));
 	}
 
 	// TODO: Rework this.
@@ -329,7 +305,7 @@ class ArrowField extends BeatGroup {
 	 * @param beingHeld If true a bind is being held.
 	 * @param wasReleased If true a bind was released.
 	 */
-	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
+	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
 		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased);
 		userInput.dispatch(event);
 		if (event.prevented) return;

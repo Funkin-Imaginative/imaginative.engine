@@ -188,7 +188,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			case IsSinging | HasMissed:
 				if (singLength > 0 ? (lastHit + (Conductor.song.stepTime * singLength) < Conductor.song.time) : (getAnimName() == null || isAnimFinished())) {
 					if (controls != null)
-						if (controls.noteLeftHeld || controls.noteDownHeld || controls.noteUpHeld || controls.noteRightHeld)
+						if (controls.notesHeld(4).contains(true))
 							return;
 					controls = null;
 					dance();

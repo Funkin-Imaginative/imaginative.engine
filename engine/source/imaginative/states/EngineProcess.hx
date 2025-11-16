@@ -93,15 +93,8 @@ class EngineProcess extends BeatState {
 					_log('Successfully entered the MainMenu!');
 				}
 
-				if (Controls.global.reloadGlobalScripts)
-					if (GlobalScript.scripts.length > 0) {
-						_log('Reloading global scripts...');
-						GlobalScript.loadScript();
-						_log('Global scripts successfully reloaded.');
-					} else {
-						_log('Loading global scripts...');
-						GlobalScript.loadScript();
-					}
+				// TODO: Code this in.
+				// if (Controls.global.reloadGame)
 			}
 		});
 
