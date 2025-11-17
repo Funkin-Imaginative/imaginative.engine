@@ -13,7 +13,7 @@ class TitleScreen extends BeatState {
 
 	override public function create():Void {
 		super.create();
-		new FlxTimer().start(played ? 0.0001 : 1, (_:FlxTimer) -> {
+		inline function start():Void {
 			if (!conductor.playing)
 				conductor.loadMusic('freakyMenu', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
 
@@ -22,10 +22,10 @@ class TitleScreen extends BeatState {
 			logo = new BeatSprite(-150, -100, 'menus/title/logo');
 			add(logo);
 
-			menuDancer = new BeatSprite(FlxG.camera.width * 0.4, FlxG.camera.height * 0.07, 'menus/title/menuDancer');
+			menuDancer = new BeatSprite(mainCamera.width * 0.4, mainCamera.height * 0.07, 'menus/title/menuDancer');
 			add(menuDancer);
 
-			titleText = new BaseSprite(100, FlxG.camera.height * 0.8, 'menus/title/titleEnter');
+			titleText = new BaseSprite(100, mainCamera.height * 0.8, 'menus/title/titleEnter');
 			titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 			titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
 			titleText.playAnim('idle');
@@ -34,7 +34,9 @@ class TitleScreen extends BeatState {
 			add(titleText);
 
 			startIntro();
-		});
+		}
+		if (played) start(); // doing 0.0001 felt poopy to me so I'm doing it like this instead
+		else new FlxTimer().start(1, (_:FlxTimer) -> start());
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -43,7 +45,7 @@ class TitleScreen extends BeatState {
 				titleText.playAnim('press');
 				titleText.centerOffsets();
 				titleText.centerOrigin();
-				camera.flash(FlxColor.WHITE, 1);
+				mainCamera.flash(FlxColor.WHITE, 1);
 				FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);
 				leaving = true;
 				BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
@@ -94,7 +96,7 @@ class TitleScreen extends BeatState {
 			for (l in [logo, menuDancer, titleText])
 				if (l != null)
 					l.visible = true;
-			camera.flash(FlxColor.WHITE, 4);
+			mainCamera.flash(FlxColor.WHITE, 4);
 			mainCamera.zoomEnabled = true;
 			skipped = true;
 		}
