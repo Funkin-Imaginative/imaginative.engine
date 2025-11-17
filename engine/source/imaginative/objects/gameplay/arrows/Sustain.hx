@@ -161,9 +161,7 @@ class Sustain extends FlxSprite {
 		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix(name, '$dir note $name', 24, false);
 
-		animation.play(name, true);
 		scale.scale(ArrowField.arrowScale);
-		updateHitbox();
 		animation.play(name, true);
 		updateHitbox();
 
