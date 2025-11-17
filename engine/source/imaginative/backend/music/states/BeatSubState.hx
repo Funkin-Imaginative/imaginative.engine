@@ -244,7 +244,8 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		if (!event.prevented) {
 			if (isAPauseState) {
 				parent.persistentUpdate = true;
-				parent.conductor.resume();
+				if (parent.conductor != conductor)
+					parent.conductor.resume();
 			}
 			super.close();
 			scriptCall('onClosePost');
@@ -257,7 +258,8 @@ class BeatSubState extends FlxSubState implements IBeatState {
 			var state:BeatSubState = cast sub;
 			state.parent = this;
 			if (state.isAPauseState) {
-				state.parent.conductor.pause();
+				if (state.conductor != conductor)
+					conductor.pause();
 				state.parent.persistentUpdate = false;
 			}
 		}
