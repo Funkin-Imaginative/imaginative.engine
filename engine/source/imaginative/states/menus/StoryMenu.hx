@@ -156,11 +156,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().makeSolid(FlxG.camera.width, 56);
-		weekTopBg.color = camera.bgColor;
+		weekTopBg = new BaseSprite().makeSolid(mainCamera.width, 56);
+		weekTopBg.color = mainCamera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.camera.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(mainCamera.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
@@ -196,7 +196,7 @@ class StoryMenu extends BeatState {
 
 		for (level in levels)
 			for (i => sprite in level.weekObjects) {
-				sprite.setPosition(FlxG.camera.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.setPosition(mainCamera.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
 				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
 
@@ -230,8 +230,8 @@ class StoryMenu extends BeatState {
 		changeDifficulty();
 
 		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
-		camPoint.setPosition(mid.x, mid.y - (FlxG.camera.height / 3.4));
-		camera.snapToTarget();
+		camPoint.setPosition(mid.x, mid.y - (mainCamera.height / 3.4));
+		mainCamera.snapToTarget();
 	}
 
 	function hoverIsCorrect(item:LevelHolder):Bool {
@@ -294,7 +294,7 @@ class StoryMenu extends BeatState {
 		}
 
 		var item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.camera.height / 3.4);
+		camPoint.y = Position.getObjMidpoint(item).y - (mainCamera.height / 3.4);
 		weekBg.color = FunkinUtil.colorLerp(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 

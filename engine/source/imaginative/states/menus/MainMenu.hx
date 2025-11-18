@@ -99,7 +99,7 @@ class MainMenu extends BeatState {
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
 			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
 		);
-		camera.snapToTarget();
+		mainCamera.snapToTarget();
 
 		// version text setup
 		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
@@ -124,7 +124,7 @@ class MainMenu extends BeatState {
 		buildTxt.fieldWidth = versionTxt.width;
 
 		mainTextsGroup.scrollFactor.set();
-		mainTextsGroup.y = FlxG.camera.height - mainTextsGroup.height - 5;
+		mainTextsGroup.y = mainCamera.height - mainTextsGroup.height - 5;
 		add(mainTextsGroup);
 
 		// defined text setup
@@ -155,8 +155,8 @@ class MainMenu extends BeatState {
 		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
 
 		definedTextsGroup.scrollFactor.set();
-		definedTextsGroup.x = FlxG.camera.width - definedTextsGroup.width - 5;
-		definedTextsGroup.y = FlxG.camera.height - definedTextsGroup.height - 5;
+		definedTextsGroup.x = mainCamera.width - definedTextsGroup.width - 5;
+		definedTextsGroup.y = mainCamera.height - definedTextsGroup.height - 5;
 		add(definedTextsGroup);
 	}
 

@@ -297,7 +297,7 @@ class ArrowField extends BeatGroup {
 		strums.setLineup(4);
 		scale.set(1, 1); // wasn't set to 1 by default apparently
 		resetInternalPositions();
-		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
+		setPosition(getDefaultCamera().width / 2, getDefaultCamera().height / 2);
 
 		assignedActors = singers ?? [];
 

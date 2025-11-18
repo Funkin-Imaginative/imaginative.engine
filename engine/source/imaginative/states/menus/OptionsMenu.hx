@@ -23,7 +23,7 @@ class OptionsMenu extends BeatState {
 
 		// Camera position.
 		camPoint = new FlxObject(0, 0, 1, 1);
-		camera.follow(camPoint, LOCKON, 0.2);
+		mainCamera.follow(camPoint, LOCKON, 0.2);
 		add(camPoint);
 
 		// Menu elements.
