@@ -1,6 +1,5 @@
 package imaginative.states.menus;
 
-import haxe.macro.Compiler;
 import flixel.effects.FlxFlicker;
 
 /**
