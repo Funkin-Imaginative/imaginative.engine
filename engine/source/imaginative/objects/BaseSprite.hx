@@ -39,7 +39,7 @@ typedef AnimationMapping = {
 	/**
 	 * Offsets for that set animation.
 	 */
-	@:default({x: 0, y: 0}) var offset:Position;
+	@:default(new imaginative.backend.objects.Position()) var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
