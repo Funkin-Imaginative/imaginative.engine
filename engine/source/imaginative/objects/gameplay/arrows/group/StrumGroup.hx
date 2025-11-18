@@ -26,11 +26,12 @@ class StrumGroup extends FlxTypedSpriteGroup<Strum> {
 	 * @param count The amount you wish to play with.
 	 */
 	public function setLineup(count:Int):Void {
-		if (!members.empty()) for (s in members) unusedMembers.push(remove(s, true));
+		while (!members.empty()) unusedMembers.push(remove(members[0], true));
 		for (i in 0...count) {
 			var strum = recycle(Strum, () -> return unusedMembers.empty() ? new Strum(setField, i) : unusedMembers.shift());
 			strum.id = i; // force strum id
 		}
+		members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id));
 		setField.controls.laneCount = length;
 	}
 }
