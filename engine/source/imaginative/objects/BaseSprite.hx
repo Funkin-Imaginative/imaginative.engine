@@ -1,8 +1,5 @@
 package imaginative.objects;
 
-import imaginative.animation.BetterAnimation;
-import imaginative.animation.BetterAnimationController;
-
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
@@ -38,8 +35,11 @@ enum abstract AnimationContext(String) from String to String {
 	var Unclear;
 }
 
-// TODO: Readd animation offsets to this.
 typedef AnimationMapping = {
+	/**
+	 * Offsets for that set animation.
+	 */
+	@:default({x: 0, y: 0}) var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
@@ -91,11 +91,6 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		textures = [];
 		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
 	}
-
-	/**
-	 * This is a shortcut the animation controller.
-	 */
-	public var animController(default, null):BetterAnimationController;
 
 	/**
 	 * Loads a sheet or graphic texture for the sprite to use based on checks.
@@ -243,8 +238,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 							default:
 								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
-						setAnimationOffset(anim.name, anim.offset.x, anim.offset.y);
 						anims.set(anim.name, {
+							offset: new Position(anim.offset.x, anim.offset.y),
 							swapName: anim.swapKey ?? '',
 							flipName: anim.flipKey ?? '',
 							extra: new Map<String, Dynamic>()
@@ -372,8 +367,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 
 	override function initVars():Void {
 		super.initVars();
+		animationOffset = new Position();
 		_scaledFrameOffset = new FlxPoint();
-		animation = #if ANIMATE_SUPPORT anim = #end animController = new BetterAnimationController(this);
 	}
 
 	function super_update(elapsed:Float):Void
@@ -424,6 +419,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			animation.play(theName, force, reverse, frame);
+			animationOffset.copyFrom(getAnimInfo(theName).offset);
 			animContext = context;
 		}
 	}
@@ -455,9 +451,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			if (anims.exists(name))
 				data = anims.get(name);
 			else
-				data = {swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
+				data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		else
-			data = {swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
+			data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		return data;
 	}
 	/**
@@ -501,29 +497,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		} else super.draw();
 	}
 
-	/**
-	 * Sets the offsets for an animation.
-	 * @param name The animation name.
-	 * @param x The x offset.
-	 * @param y The y offset.
-	 */
-	public function setAnimationOffset(name:String, x:Float = 0, y:Float = 0):Void {
-		var anim:BetterAnimation = cast animation.getByName(name);
-		if (anim != null && anim is BetterAnimation) // jic
-			anim.offset.set(x, y);
-	}
-	/**
-	 * Gets the offsets for an animation.
-	 * @param name The animation name.
-	 * @return Position ~ The animation offset.
-	 */
-	public function getAnimationOffset(?name:String):Position {
-		var anim:BetterAnimation = cast animation.getByName(name ?? getAnimName(false));
-		if (anim == null || !(anim is BetterAnimation)) return new Position();
-		return Position.fromFlxPoint(anim.offset) ?? new Position();
-	}
-
 	// for animation offsets
+	var animationOffset:Position;
 	var _scaledFrameOffset:FlxPoint;
 	function _getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		newRect ??= FlxRect.get();
@@ -532,7 +507,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		if (pixelPerfectPosition) newRect.floor();
 
 		_scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
-		_scaledFrameOffset.set(getAnimationOffset().x * scale.x, getAnimationOffset().y * scale.y);
+		_scaledFrameOffset.set(animationOffset.x * scale.x, animationOffset.y * scale.y);
 		newRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
 		newRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
 
@@ -553,7 +528,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	override function drawComplex(camera:FlxCamera):Void {
 		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
 		_matrix.translate(-origin.x, -origin.y);
-		_matrix.translate(-getAnimationOffset().x, -getAnimationOffset().y);
+		_matrix.translate(-animationOffset.x, -animationOffset.y);
 		_matrix.scale(scale.x, scale.y);
 
 		if (bakedRotationAngle <= 0) {
