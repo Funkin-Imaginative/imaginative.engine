@@ -14,7 +14,7 @@ class KadeHUD extends HUDTemplate {
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, getDefaultCamera().height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		if (Settings.setupP1.downscroll)
 			bg.y = 50;
 		bg.screenCenter(X);
@@ -24,7 +24,7 @@ class KadeHUD extends HUDTemplate {
 	}
 
 	override function initStatsText():FlxText {
-		var text:FlxText = new FlxText(0, (healthBar.y - 4) + 50, FlxG.camera.width);
+		var text:FlxText = new FlxText(0, (healthBar.y - 4) + 50, getDefaultCamera().width);
 		text.setFormat(Paths.font('vcr').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		text.screenCenter(X);
 		// text.y = healthBar.y - 4;

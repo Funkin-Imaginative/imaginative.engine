@@ -81,7 +81,7 @@ class HUDTemplate extends BeatGroup {
 	 */
 	public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = 50;
-		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
+		if (downscroll) yLevel = getDefaultCamera().height - yLevel - ArrowField.arrowSize;
 		yLevel += (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
@@ -148,7 +148,7 @@ class HUDTemplate extends BeatGroup {
 
 	function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, getDefaultCamera().height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		if (Settings.setupP1.downscroll)
 			CodenameHUD.cneYLevel(bg);

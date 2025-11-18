@@ -16,13 +16,13 @@ class ImaginativeHUD extends HUDTemplate {
 	public var accuracyInfo:FlxText;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
-		var yLevel:Float = (FlxG.camera.height / 2) + (FlxG.camera.height / 2.7) * (downscroll ? 1 : -1);
+		var yLevel:Float = (getDefaultCamera().height / 2) + (getDefaultCamera().height / 2.7) * (downscroll ? 1 : -1);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, (FlxG.camera.height / 2) + (FlxG.camera.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, (getDefaultCamera().height / 2) + (getDefaultCamera().height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.y += bg.height / 2;
 		bg.screenCenter(X);
 		elements.add(bg);
@@ -41,7 +41,7 @@ class ImaginativeHUD extends HUDTemplate {
 		var texts:Array<FlxText> = [];
 		for (i in 0...3) {
 			var yCalc:Array<Float> = calculateTextYs();
-			var text:FlxText = new FlxText(0, yCalc[0] - (yCalc[1] * (i == 1 ? -1 : 1)), FlxG.camera.width / 3.2);
+			var text:FlxText = new FlxText(0, yCalc[0] - (yCalc[1] * (i == 1 ? -1 : 1)), getDefaultCamera().width / 3.2);
 			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 			text.screenCenter(X);
 			text.borderSize = 2;
