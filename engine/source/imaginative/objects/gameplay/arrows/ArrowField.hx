@@ -7,6 +7,11 @@ import imaginative.objects.gameplay.arrows.group.SustainGroup;
 import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
 
+typedef FieldSetupData = {
+	var x:Float;
+	var scale:Float;
+}
+
 class ArrowField extends BeatGroup {
 	/**
 	 * Stores extra data that coders can use for cool stuff.
@@ -24,34 +29,40 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The main enemy field.
 	 */
-	public static var enemy:Null<ArrowField>;
+	public static var enemy(default, set):Null<ArrowField>;
+	inline static function set_enemy(?value:ArrowField):Null<ArrowField> {
+		enemy = value;
+		// sets the lane count for the controls instance
+		if (enemy != null) enemy.controls.laneCount = enemy.laneCount;
+		return enemy;
+	}
 	/**
 	 * The main player field.
 	 */
-	public static var player:Null<ArrowField>;
+	public static var player(default, set):Null<ArrowField>;
+	inline static function set_player(?value:ArrowField):Null<ArrowField> {
+		player = value;
+		// sets the lane count for the controls instance
+		if (player != null) player.controls.laneCount = player.laneCount;
+		return player;
+	}
 
 	/**
-	 * Sets up position for an array of fields.
+	 * Returns x position and scaling data for an array of fields.
 	 * @param fields Array of fields.
+	 * @return Array<FieldSetupData> ~ The data for field x position and scaling.
 	 */
-	public static function setupFieldXPositions(fields:Array<ArrowField>):Void {
-		if (fields.empty()) return;
+	public static function getFieldSetupData(fields:Array<ArrowField>):Array<FieldSetupData> {
+		if (fields.empty()) return [];
+		var setupData:Array<FieldSetupData> = [];
 		for (i => field in fields) {
-			var camera = field.camera ?? FlxG.camera;
-			field.x = camera.width * i / fields.length;
-			field.x += camera.width / fields.length / 2;
+			var data:FieldSetupData = {x: 0, scale: 1}
+			var camera = field.getDefaultCamera();
+			data.x = camera.width * i / fields.length;
+			data.x += camera.width / fields.length / 2;
+			setupData.push(data);
 		}
-	}
-	/**
-	 * Sets up scaling for an array of fields.
-	 * @param fields Array of fields.
-	 */
-	public static function setupFieldScaling(fields:Array<ArrowField>):Void {
-		if (fields.empty()) return;
-		for (i => field in fields) {
-			var camera = field.camera ?? FlxG.camera;
-			// field.resetInternalPositions();
-		}
+		return setupData;
 	}
 
 	/**
@@ -297,7 +308,7 @@ class ArrowField extends BeatGroup {
 
 	inline function _input():Void {
 		for (i => strum in strums.members)
-			input(i, strum, controls.notePressed(i, strumCount), controls.noteHeld(i, strumCount), controls.noteReleased(i, strumCount));
+			input(i, strum, controls.notePressed(i), controls.noteHeld(i), controls.noteReleased(i));
 	}
 
 	// TODO: Rework this.

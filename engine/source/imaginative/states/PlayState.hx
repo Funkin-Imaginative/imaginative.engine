@@ -577,10 +577,14 @@ class PlayState extends BeatState {
 					field;
 				}
 		].filter((field:ArrowField) -> return field != null);
-		ArrowField.setupFieldXPositions(activeFields);
-		for (field in activeFields)
-			field.y = hud.getFieldYLevel(Settings.setupP1.downscroll, field);
-		ArrowField.setupFieldScaling(activeFields);
+		for (i => data in ArrowField.getFieldSetupData(activeFields)) {
+			var field:ArrowField = activeFields[i];
+			if (data.scale != 1) {
+				field.scale.set(data.scale, data.scale);
+				field.resetInternalPositions();
+			}
+			field.setPosition(data.x, hud.getFieldYLevel(Settings.setupP1.downscroll, field));
+		}
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
 			ArrowField.enemy = arrowFieldMapping.get(chartData.fieldSettings.enemy);

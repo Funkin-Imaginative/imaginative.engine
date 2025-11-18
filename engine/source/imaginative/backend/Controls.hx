@@ -157,51 +157,56 @@ class GlobalControls extends Controls {
  */
 class PlayerControls extends Controls {
 	/**
+	 * The amount of lanes the assigned 'ArrowField' has.
+	 */
+	public var laneCount:Int = 4;
+
+	/**
 	 * Pressed input for notes.
 	 * @param id The lane id.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function notePressed(id:Int, count:Int):Bool
-		return pressed('note_$count:$id');
+	inline public function notePressed(id:Int, ?count:Int):Bool
+		return pressed('note_${count ?? laneCount}:$id');
 	/**
 	 * Held input for notes.
 	 * @param id The lane id.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function noteHeld(id:Int, count:Int):Bool
-		return held('note_$count:$id');
+	inline public function noteHeld(id:Int, ?count:Int):Bool
+		return held('note_${count ?? laneCount}:$id');
 	/**
 	 * Released input for notes.
 	 * @param id The lane id.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function noteReleased(id:Int, count:Int):Bool
-		return released('note_$count:$id');
+	inline public function noteReleased(id:Int, ?count:Int):Bool
+		return released('note_${count ?? laneCount}:$id');
 
 	/**
 	 * Pressed inputs for all note id's in that lane amount.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function notesPressed(count:Int):Array<Bool>
-		return [for (id in 0...count) notePressed(id, count)];
+	inline public function notesPressed(?count:Int):Array<Bool>
+		return [for (id in 0...count) notePressed(id, count ?? laneCount)];
 	/**
 	 * Held inputs for all note id's in that lane amount.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function notesHeld(count:Int):Array<Bool>
-		return [for (id in 0...count) noteHeld(id, count)];
+	inline public function notesHeld(?count:Int):Array<Bool>
+		return [for (id in 0...count) noteHeld(id, count ?? laneCount)];
 	/**
 	 * Released inputs for all note id's in that lane amount.
 	 * @param count The lane amount.
 	 * @return Bool
 	 */
-	inline public function notesReleased(count:Int):Array<Bool>
-		return [for (id in 0...count) noteReleased(id, count)];
+	inline public function notesReleased(?count:Int):Array<Bool>
+		return [for (id in 0...count) noteReleased(id, count ?? laneCount)];
 }
 
 /**

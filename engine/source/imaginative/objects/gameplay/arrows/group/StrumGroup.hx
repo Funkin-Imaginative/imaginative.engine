@@ -31,5 +31,6 @@ class StrumGroup extends FlxTypedSpriteGroup<Strum> {
 			var strum = recycle(Strum, () -> return unusedMembers.empty() ? new Strum(setField, i) : unusedMembers.shift());
 			strum.id = i; // force strum id
 		}
+		setField.controls.laneCount = length;
 	}
 }
