@@ -279,7 +279,7 @@ class Note extends FlxSprite {
 
 		if (isBeingRendered) {
 			var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			// TODO: Figure out how to do this better, especially for sustains.
@@ -305,7 +305,7 @@ class Note extends FlxSprite {
 			angleDir = resultAngle * angleDir; */
 
 			var pos:Position = new Position(strum.x + mods.offset.x + sustain.mods.offset.x, strum.y + mods.offset.y + sustain.mods.offset.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;
