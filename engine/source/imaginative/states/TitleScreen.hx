@@ -15,7 +15,7 @@ class TitleScreen extends BeatState {
 		super.create();
 		inline function start():Void {
 			if (!conductor.playing)
-				conductor.loadMusic('freakyMenu', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
+				conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.fadeIn(4, 0.7));
 
 			mainCamera.setZooming(1, 0.16);
 

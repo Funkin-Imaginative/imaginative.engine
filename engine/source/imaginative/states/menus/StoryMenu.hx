@@ -234,7 +234,7 @@ class StoryMenu extends BeatState {
 		mainCamera.snapToTarget();
 	}
 
-	function hoverIsCorrect(item:LevelHolder):Bool {
+	inline function hoverIsCorrect(item:LevelHolder):Bool {
 		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && FlxG.mouse.overlaps(item);
 	}
 	override public function update(elapsed:Float):Void {

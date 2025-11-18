@@ -25,8 +25,8 @@ class StartScreen extends BeatState {
 
 		simpleBg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 200, 200, true, 0x7B000000, 0x7BFFFFFF));
 		simpleBg.velocity.set(
-			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1),
-			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1)
+			(FlxG.random.bool() ? 40 : 30) * FlxG.random.sign(),
+			(FlxG.random.bool() ? 40 : 30) * FlxG.random.sign()
 		);
 
 		welcomeText = new FlxText(0, 250, FlxG.width, 'Welcome to\n[ROD]Imaginative Engine[ROD]!');
@@ -83,12 +83,7 @@ class StartScreen extends BeatState {
 					chartNew.save('chart/output/chart', 'chart/output/metadata');
 					_log('converted');
 				} catch(e)
-					try {
-						if (e.message.startsWith('getChartMeta'))
-							chartNew.save('chart/output/chart');
-						else _log('error: $e');
-					} catch(e)
-						_log('error: $e');
+					_log('error: $e');
 			} else _log('not exist');
 		}
 	}
