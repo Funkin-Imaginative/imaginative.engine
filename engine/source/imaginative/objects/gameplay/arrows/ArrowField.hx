@@ -126,23 +126,26 @@ class ArrowField extends BeatGroup {
 	 * The field controls instance.
 	 */
 	public var controls(get, never):PlayerControls;
-	inline function get_controls():PlayerControls
+	inline function get_controls():PlayerControls {
 		if (status == null) return Controls.blank;
-		else return status == enemyPlay ? Controls.p2 : Controls.p1;
+		return status == enemyPlay ? Controls.p2 : Controls.p1;
+	}
 	/**
 	 * The field settings instance.
 	 */
 	public var settings(get, never):PlayerSettings;
-	inline function get_settings():PlayerSettings
+	inline function get_settings():PlayerSettings {
 		if (status == null) return Settings.setupP1;
-		else return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+		return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+	}
 	/**
 	 * The field stats instance.
 	 */
 	public var stats(get, never):PlayerStats;
-	inline function get_stats():PlayerStats
+	inline function get_stats():PlayerStats {
 		if (status == null) return Scoring.unregisteredStats;
-		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
+		return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
+	}
 
 	// FlxSignals
 	/**
@@ -204,9 +207,9 @@ class ArrowField extends BeatGroup {
 	 */
 	public var noteKillRange:Float = 350;
 	/**
-	 * The distance between the each strum.
+	 * The distance between the each lane.
 	 */
-	public var strumSpacing:Float = 7;
+	public var laneSpacing:Float = 7;
 	/**
 	 * Used for psych "middlescroll" type shit.
 	 */
@@ -256,8 +259,8 @@ class ArrowField extends BeatGroup {
 	 * The amount of strums in the field.
 	 * Forced to 4 *for now*... maybe.
 	 */
-	public var strumCount(get, never):Int;
-	inline function get_strumCount():Int
+	public var laneCount(get, never):Int;
+	inline function get_laneCount():Int
 		return strums.length;
 
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
@@ -274,13 +277,14 @@ class ArrowField extends BeatGroup {
 		scale = new FlxCallbackPoint(
 			(point:FlxPoint) -> {
 				strums.scale.copyFrom(point);
+				strums.scale.scale(arrowScale);
 				for (note in notes)
 					note.mods.update_scale();
 			}
 		);
 
 		strums.setLineup(4);
-		// strums.setLineup(startCount);
+		scale.set(1, 1); // wasn't set to 1 by default apparently
 		resetInternalPositions();
 		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
 
@@ -497,7 +501,7 @@ class ArrowField extends BeatGroup {
 	 */
 	public var averageWidth(get, never):Float;
 	inline function get_averageWidth():Float {
-		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 2)) + (centerSpacing ?? strumSpacing);
+		return (arrowSize * laneCount) + (laneSpacing * (laneCount - 2)) + (centerSpacing ?? laneSpacing);
 	}
 	/**
 	 * The total calculated width of the strums.
@@ -547,11 +551,11 @@ class ArrowField extends BeatGroup {
 
 		inline function helper(a:Strum, b:Strum, isMiddle:Bool = false):Void {
 			if (a != null && b != null)
-				b.x = a.x + arrowSize + (isMiddle ? centerSpacing ?? strumSpacing : strumSpacing);
+				b.x = a.x + (arrowSize * Math.abs(scale.x)) + (isMiddle ? centerSpacing ?? laneSpacing : laneSpacing);
 		}
 
 		for (i => strum in strums.members) {
-			strum.y = -arrowSize / 2;
+			strum.y = -(arrowSize * Math.abs(scale.y)) / 2;
 			helper(strum, strums.members[i + 1], i == Math.floor(strums.length / 2) - 1);
 		}
 		totalWidth = (strums.members.last().x + strums.members.last().width) - strums.members[0].x;
