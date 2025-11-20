@@ -8,9 +8,8 @@ class EngineProcess extends BeatState {
 	}
 
 	override public function create():Void {
-		Moonchart.init();
-		Moonchart.CASE_SENSITIVE_DIFFS = false;
-		Moonchart.SPACE_SENSITIVE_DIFFS = false;
+		Moonchart.CASE_SENSITIVE_DIFFS = true;
+		Moonchart.SPACE_SENSITIVE_DIFFS = true;
 		Moonchart.DEFAULT_DIFF = 'normal';
 		Moonchart.DEFAULT_ARTIST = 'Unassigned';
 		Moonchart.DEFAULT_ALBUM = 'Unknown';
