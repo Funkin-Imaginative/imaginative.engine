@@ -135,27 +135,28 @@ class SaveData {
 	 * Returns the engine save path.
 	 * @return String ~ The save path.
 	 */
-	public static var savePath(get, never):String;
-	inline static function get_savePath():String
-		return ['Funkin-Imaginative', #if debug 'debug', #end 'Save$saveSlot'].join('/');
+	public static final savePath:String = 'Funkin-Imaginative/Save${#if debug 'Debug' #else saveSlot #end}';
 
 	@:allow(imaginative.backend.system.Main.new)
 	static function init():Void {
 		#if debug initSave(DEBUG); #end
 		initSave(FLIXEL); // initializes this pre FlxGame init so we don't just have flixel init a random one based the exe file name
 		FlxWindow.instance.self.onClose.add(() -> {
+			#if debug
+			if (debug.clearOnExit) {
+				debug.flixelVolume = FlxG.save.data.volume;
+				debug.flixelMute = FlxG.save.data.mute;
+			}
+			#end
 			for (name => save in saveInstances) {
 				var success = save.flush();
 				if (success) _log('[SaveData] Successfully saved path "$savePath/$name".');
 			}
 			#if debug
-			if (debug.clearOnExit) {
-				debug.flixelVolume = FlxG.save.data.volume;
-				debug.flixelMute = FlxG.save.data.mute;
+			if (debug.clearOnExit)
 				for (saveName in saveInstances.keys())
 					if (saveName != SaveType.DEBUG)
 						clearSave(saveName);
-			}
 			#end
 		});
 	}
@@ -166,7 +167,7 @@ class SaveData {
 	 */
 	public static var debug(get, never):DebugSaveData;
 	inline static function get_debug():DebugSaveData
-		return getSave(DEBUG).data;
+		return getSave(DEBUG).data.content;
 	#end
 	// There ain't one for flixel because it's literally just "FlxG.save", I'm not making a shortcut for a shortcut.
 	/**
@@ -174,13 +175,13 @@ class SaveData {
 	 */
 	public static var settings(get, never):SettingsSaveData;
 	inline static function get_settings():SettingsSaveData
-		return getSave(SETTINGS).data;
+		return getSave(SETTINGS).data.content;
 	/**
 	 * The save data for controls.
 	 */
 	public static var controls(get, never):ControlsSaveData;
 	inline static function get_controls():ControlsSaveData
-		return getSave(CONTROLS).data;
+		return getSave(CONTROLS).data.content;
 
 	/**
 	 * Returns the 'FlxSave' instance if its been pre-initialized.
@@ -217,7 +218,7 @@ class SaveData {
 					_log('[SaveData] Error loading "$savePath/$saveName". (error:$type)', ErrorMessage);
 				case BOUND(name, path):
 					if (save.isEmpty()) _log('[SaveData] Save "$path/$name" was empty, new save initiated!', DebugMessage);
-					else _log('[SaveData] Save "$path/$name" has data, save initiated! (savedata:${save.data})', DebugMessage);
+					else _log('[SaveData] Save "$path/$name" has data, save initiated! (savedata:${save.isEmpty() ? 'empty' : save.data})', DebugMessage);
 			}
 			if (save.isBound) {
 				saveInstances.set(saveName, save);
@@ -237,30 +238,32 @@ class SaveData {
 				switch (saveName) {
 					#if debug
 					case DEBUG:
-						if (save.isEmpty()) save._set('data', new DebugSaveData());
-						save._set('data', mergeNewClassVars(save.data, new DebugSaveData()));
+						if (save.isEmpty()) save.data._set('content', new DebugSaveData());
+						save.data._set('content', mergeNewClassVars(save.data.content, new DebugSaveData()));
 					case FLIXEL:
-						if (save.isEmpty()) {
-							save.data.volume = debug.flixelVolume;
-							save.data.mute = debug.flixelMute;
-						}
+						if (save.isEmpty())
+							save.data = {
+								volume: debug.flixelVolume,
+								mute: debug.flixelMute
+							}
 					#end
 					case SETTINGS:
-						if (save.isEmpty()) save._set('data', new SettingsSaveData());
-						save._set('data', mergeNewClassVars(save.data, new SettingsSaveData()));
+						if (save.isEmpty()) save.data._set('content', new SettingsSaveData());
+						save.data._set('content', mergeNewClassVars(save.data.content, new SettingsSaveData()));
 					case CONTROLS:
-						if (save.isEmpty()) save._set('data', new ControlsSaveData());
-						save._set('data', mergeNewClassVars(save.data, new ControlsSaveData()));
+						if (save.isEmpty()) save.data._set('content', new ControlsSaveData());
+						save.data._set('content', mergeNewClassVars(save.data.content, new ControlsSaveData()));
 					default:
 				}
 				#if debug
+				var nonDebugPath:String = savePath.replace('Debug', '$saveSlot');
 				try {
 					if (debug.mergeBaseSave && saveName != SaveType.DEBUG) { // allows debug builds to get save data from non-debug builds
-						save.mergeDataFrom(saveName, savePath.split('/').filter(s -> return s != 'debug').join('/'), true, false);
-						_log('[SaveData] Merged from base save. ($savePath/$saveName)', DebugMessage);
+						save.mergeDataFrom(saveName, nonDebugPath, true, false);
+						_log('[SaveData] Merged from base save. ($savePath/$nonDebugPath)', DebugMessage);
 					}
 				} catch(error:haxe.Exception)
-					_log('[SaveData] Failed to merge base save. ($savePath/$saveName)', ErrorMessage);
+					_log('[SaveData] Failed to merge base save. ($savePath/$nonDebugPath)', ErrorMessage);
 				#end
 				var success = save.flush();
 				if (success) _log('[SaveData] Successfully saved path "$savePath/$saveName".');
