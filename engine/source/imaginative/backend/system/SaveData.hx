@@ -10,7 +10,6 @@ enum abstract SaveType(String) from String to String {
 	#if debug
 	/**
 	 * For when a debug build is compiled.
-	 * This type is also unable to be erased when ***clearing all***.
 	 */
 	var DEBUG = 'debug';
 	#end
