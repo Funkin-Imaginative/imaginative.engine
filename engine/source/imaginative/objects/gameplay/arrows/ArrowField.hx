@@ -268,7 +268,7 @@ class ArrowField extends BeatGroup {
 
 	/**
 	 * The amount of strums in the field.
-	 * Forced to 4 *for now*... maybe.
+	 * Forced to 4 *for now*.
 	 */
 	public var laneCount(get, never):Int;
 	inline function get_laneCount():Int

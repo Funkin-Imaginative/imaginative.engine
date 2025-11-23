@@ -42,6 +42,10 @@ typedef ChartField = {
 	 * The independent field scroll speed.
 	 */
 	var ?speed:Float;
+	/**
+	 * The starting strum count of the field.
+	 */
+	@:default(4) var ?startCount:Int;
 }
 
 typedef ChartCharacter = {
