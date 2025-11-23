@@ -154,7 +154,7 @@ class FunkinUtil {
 	 * @return Float ~ The result.
 	 */
 	@:noUsing inline public static function lerp(a:Float, b:Float, ratio:Float, fpsSensitive:Bool = true):Float
-		return FlxMath.lerp(a, b, fpsSensitive ? getElapsedRatio(ratio) : ratio);
+		return FlxMath.lerp(a, b, fpsSensitive ? FlxMath.getElapsedLerp(ratio, FlxG.elapsed) : ratio);
 	/**
 	 * Returns the linear interpolation of two colors if ratio is between 0 and 1, and the linear extrapolation otherwise.
 	 * @param a Color "A".
@@ -171,14 +171,6 @@ class FunkinUtil {
 			lerp(a.alphaFloat, b.alphaFloat, ratio, fpsSensitive)
 		);
 	}
-	/**
-	 * Applies a ratio to a number.
-	 * @param ratio The ratio.
-	 * @param fps The FPS target to match. This argument is optional and is best left at 60.
-	 * @return Float ~ The resulting ratio.
-	 */
-	@:noUsing inline public static function getElapsedRatio(ratio:Float, fps:Float = 60):Float
-		return FlxMath.bound(ratio * fps * FlxG.elapsed, 0, 1);
 
 	/**
 	 * Uses the arguments value and max to create a number that ranges the argument range. ex: toPercent(4, 10, 1) returns 0.4
