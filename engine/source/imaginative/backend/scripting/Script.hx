@@ -1,8 +1,11 @@
 package imaginative.backend.scripting;
 
 import imaginative.backend.scripting.types.HaxeScript;
-import imaginative.backend.scripting.types.InvalidScript;
 import imaginative.backend.scripting.types.LuaScript;
+// stops formatter from removing the import
+#if SCRIPT_SUPPORT
+import imaginative.backend.scripting.types.InvalidScript;
+#end
 
 /**
  * Help's clarify a script language instance.
@@ -30,7 +33,7 @@ enum abstract ScriptType(String) from String to String {
 	var TypeInvalid = 'Invalid';
 
 	/**
-	 * If true, this script can't actually be used for anything.
+	 * If true this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -38,12 +41,13 @@ enum abstract ScriptType(String) from String to String {
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
+// TODO: Rework how this is coded.
 /**
  * All your scripting needs are right here!
  * @author Class started by @Zyflx. Expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
-	@:allow(imaginative.backend.system.Main)
+	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		exts = [
 			for (exts in [HaxeScript.exts, LuaScript.exts])
@@ -87,6 +91,7 @@ class Script extends FlxBasic implements IScript {
 	 * @return `Array<Script>`
 	 */
 	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+		#if SCRIPT_SUPPORT
 		#if MOD_SUPPORT
 		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
 			if (getAllInstances) {
@@ -101,7 +106,6 @@ class Script extends FlxBasic implements IScript {
 		#else
 		var paths:Array<String> = [Paths.script(file).format()];
 		#end
-		// trace(paths);
 
 		var scripts:Array<Script> = [];
 		for (path in paths) {
@@ -114,6 +118,9 @@ class Script extends FlxBasic implements IScript {
 			} else scripts.push(new InvalidScript('root:$path'));
 		}
 		return scripts;
+		#else
+		return [];
+		#end
 	}
 
 	var canRun:Bool = false;

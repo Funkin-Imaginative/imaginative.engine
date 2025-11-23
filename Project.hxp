@@ -79,6 +79,11 @@ class EngineAsset {
 	static final useTracy:CompilerFlag = 'TRACY_DEBUGGER';
 
 	/**
+	 * States if the engine can set the window border color.
+	 */
+	static final editWindowBorderColor:CompilerFlag = 'EDIT_WINDOW_BORDER_COLOR';
+
+	/**
 	 * States if the engine has a version ID.
 	 */
 	static final knowsVersionID:CompilerFlag = 'KNOWS_VERSION_ID';
@@ -94,7 +99,7 @@ class EngineAsset {
 	/**
 	 * States if the engine has animate atlas support.
 	 */
-	static final hasAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
+	static final usesAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
 
 	/**
 	 * States if the engine has scripting support.
@@ -167,20 +172,24 @@ class EngineAsset {
 			return;
 		}
 
+		if (FileSystem.exists('./.haxelib'))
+			setenv('HAXEPATH', './.haxelib');
+
 		setDefine('official'); // idk how I'm gonna handle this atm
 
 		addIcon('./extras/art/logo.png');
 
 		/* Define Setup */
 		// useTracy.enable();
+		// if (isDebug()) setDefine('TRACE_REFLECT_UTIL_USAGE');
 
-		knowsVersionID.enable();
+		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
-		modSupport.enable();
-		scriptSupport.enable();
+		// modSupport.enable();
+		// scriptSupport.enable();
 
-		// hasAnimateAtlas.enable();
+		// usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
@@ -195,14 +204,16 @@ class EngineAsset {
 			info('Scripting was enabled.');
 		}
 		if (hasDefine('cpp')) {
-			// something was changed in latest and broke the system
-			// if (isDesktop()) discordRPC.enable();
-			if (isDesktop() || isMobile())
-				allowVideos.enable();
+			if (isDesktop())
+				discordRPC.enable();
+			// if (isDesktop() || isMobile())
+			// 	allowVideos.enable();
 		}
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
+		// literally wasn't gonna fuckin' add this but then @NebulaStellaNova implemented it improperly so here we are
+		if (isWindows()) editWindowBorderColor.enable();
 		/* Define Setup */
 
 		/* App Setup */
@@ -250,20 +261,13 @@ class EngineAsset {
 		for (path in sourceCodeDirectories)
 			sources.push(path);
 
-		inline function mergeArrays<T>(arrays:Array<Array<T>>):Array<T> {
-			var result:Array<T> = [];
-			for (a in arrays)
-				for (v in a)
-					result.push(v);
-			return result;
-		}
 		var repoItems:Array<String> = ['.git*', '.prettier*', '.editorconfig', 'checkstyle.json', '.vscode']; // Should certain things stay?
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('./engine/', './', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'overshadowing']]));
-		addAssetPath('./engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
+		addAssetPath('./engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'source', 'overshadowing']));
+		addAssetPath('./engine/assets', finalPath, ['*'], excludeList.concat(repoItems));
 		if (modSupport.exists()) {
-			addAssetPath('./engine/modding/upfront', './solo', ['*'], mergeArrays([excludeList, repoItems]));
-			addAssetPath('./engine/modding/lowerend', './mods', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('./engine/modding/upfront', './solo', ['*'], excludeList.concat(repoItems));
+			addAssetPath('./engine/modding/lowerend', './mods', ['*'], excludeList.concat(repoItems));
 		}
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
@@ -279,7 +283,7 @@ class EngineAsset {
 		addHaxelib('flixel');
 		addHaxelib('flixel-addons');
 
-		if (hasAnimateAtlas.exists())
+		if (usesAnimateAtlas.exists())
 			addHaxelib('flixel-animate');
 
 		// json parsing
@@ -298,6 +302,9 @@ class EngineAsset {
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
+
+		if (editWindowBorderColor.exists())
+			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
 		if (!isDebug())
@@ -311,10 +318,8 @@ class EngineAsset {
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
-		if (allowVideos.exists()) {
+		if (allowVideos.exists())
 			setHaxedef('HXVLC_NO_SHARE_DIRECTORY');
-			setenv('HAXEPATH', './');
-		}
 		if (canHaxeScript.exists())
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
@@ -329,9 +334,6 @@ class EngineAsset {
 			setHaxedef('absolute-paths'); // Fix source locations so Tracy can see them
 		}
 
-		// related to flixel cne fork
-		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
-
 		// truly push assets
 		for (setAsset in EngineAsset.mapping) {
 			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, /* isDebug() ? false : */ setAsset.embed);
@@ -341,62 +343,62 @@ class EngineAsset {
 	}
 
 	/**
-	 * If true, your compiling on desktop.
+	 * If true your compiling on desktop.
 	 */
 	inline public function isDesktop():Bool
 		return hasDefine('desktop');
 	/**
-	 * If true, your compiling on mobile.
+	 * If true your compiling on mobile.
 	 */
 	inline public function isMobile():Bool
 		return hasDefine('mobile');
 
 	/**
-	 * If true, your compiling on a 32 bit system.
+	 * If true your compiling on a 32 bit system.
 	 */
 	inline public function is32Bit():Bool
 		return architectures.contains(Architecture.X86);
 	/**
-	 * If true, your compiling on a 64 bit system.
+	 * If true your compiling on a 64 bit system.
 	 */
 	inline public function is64Bit():Bool
 		return architectures.contains(Architecture.X64);
 
 
 	/**
-	 * If true, your compiling on windows.
+	 * If true your compiling on windows.
 	 */
 	inline public function isWindows():Bool
 		return hasDefine('windows');
 	/**
-	 * If true, your compiling on mac.
+	 * If true your compiling on mac.
 	 */
 	inline public function isMac():Bool
 		return hasDefine('mac') || hasDefine('macos');
 	/**
-	 * If true, your compiling on linux.
+	 * If true your compiling on linux.
 	 */
 	inline public function isLinux():Bool
 		return hasDefine('linux');
 
 	/**
-	 * If true, your compiling on android.
+	 * If true your compiling on android.
 	 */
 	inline public function isAndroid():Bool
 		return targetFlags.exists('android');
 	/**
-	 * If true, your compiling on ios.
+	 * If true your compiling on ios.
 	 */
 	inline public function isIOS():Bool
 		return targetFlags.exists('ios');
 
 	/**
-	 * If true, your compiling on a release build.
+	 * If true your compiling on a release build.
 	 */
 	inline public function isRelease():Bool
 		return hasDefine('release');
 	/**
-	 * If true, your compiling on a debug build.
+	 * If true your compiling on a debug build.
 	 */
 	inline public function isDebug():Bool
 		return hasDefine('debug');
@@ -429,7 +431,7 @@ class EngineAsset {
 	/**
 	 * Check's if a haxedef exists.
 	 * @param name The haxedef key.
-	 * @return If true, the define exists.
+	 * @return If true the define exists.
 	 */
 	inline public function hasHaxedef(name:String):Bool
 		return haxedefs.exists(name);
@@ -466,7 +468,7 @@ class EngineAsset {
 	/**
 	 * Check's if a define exists.
 	 * @param name The define key.
-	 * @return If true, the define exists.
+	 * @return If true the define exists.
 	 */
 	inline public function hasDefine(name:String):Bool
 		return defines.exists(name);
@@ -513,7 +515,7 @@ class EngineAsset {
 	 * Add an asset to the game build.
 	 * @param path The path the asset is located at.
 	 * @param rename The path the asset should be placed.
-	 * @param force If true, if the game find that the file already exists then it will replace that file.
+	 * @param force If true if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the asset to. `null` = "default"
 	 * @param embed Whether to embed the asset in the executable.
 	 */
@@ -525,7 +527,7 @@ class EngineAsset {
 	 * Add an entire path of assets to the game build.
 	 * @param path The path the assets are located at.
 	 * @param rename The path the assets should be placed.
-	 * @param force If true, if the game find that the file already exists then it will replace that file.
+	 * @param force If true if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the assets to. `null` = "default"
 	 * @param include An optional array to include specific asset names.
 	 * @param exclude An optional array to exclude specific asset names.
@@ -553,7 +555,6 @@ class EngineAsset {
 			return;
 		} /* else
 			info('Found asset path "$path".'); */
-
 
 		if (FileSystem.isDirectory(path) || FileSystem.exists(path))
 			for (file in FileSystem.readDirectory(path)) {

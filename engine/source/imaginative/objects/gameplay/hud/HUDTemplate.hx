@@ -76,13 +76,12 @@ class HUDTemplate extends BeatGroup {
 	/**
 	 * Returns the field y level for the hud.
 	 * @param downscroll If the position should be downscroll.
-	 * @param field Is used for some of the huds.
-	 *              Forced to be required to avoid `Null Object Reference`'s.
-	 * @return `Float` ~ The field y level.
+	 * @param field Is used for some of the huds. Forced to be required to avoid "Null Object Reference"s.
+	 * @return Float ~ The field y level.
 	 */
 	public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = 50;
-		if (downscroll) yLevel = FlxG.camera.height - yLevel - ArrowField.arrowSize;
+		if (downscroll) yLevel = getDefaultCamera().height - yLevel - ArrowField.arrowSize;
 		yLevel += (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
@@ -96,8 +95,8 @@ class HUDTemplate extends BeatGroup {
 		var _scripts:Array<Script> = [];
 		// adds song scripts
 		if (!hudOnly || hudOnly == null)
-			if (PlayState.direct != null && PlayState.direct.scripts != null)
-				for (script in PlayState.direct.scripts)
+			if (PlayState.instance != null && PlayState.instance.scripts != null)
+				for (script in PlayState.instance.scripts)
 					_scripts.push(script);
 		// adds hud scripts
 		if (hudOnly || hudOnly == null)
@@ -106,12 +105,12 @@ class HUDTemplate extends BeatGroup {
 		return _scripts;
 	}
 	/**
-	 * Call's a function in the script instance.
-	 * @param hudOnly If true, it only calls this for hud scripts.
-	 * @param func Name of the function to call.
+	 * Calls a function in the script instance.
+	 * @param hudOnly If true it only calls this for hud scripts.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
 	 * @param def If it's null, then return this.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	public function call(?hudOnly:Bool, func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		for (script in getScripts(hudOnly))
@@ -120,11 +119,11 @@ class HUDTemplate extends BeatGroup {
 		return def;
 	}
 	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param hudOnly If true, it only calls this for hud scripts.
-	 * @param func Name of the function to call.
+	 * Calls an event in the script instance.
+	 * @param hudOnly If true it only calls this for hud scripts.
+	 * @param func The name of the function to call.
 	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * @return ScriptEvent
 	 */
 	@:access(imaginative.backend.scripting.events.ScriptEvent.continueLoop)
 	public function event<SC:ScriptEvent>(?hudOnly:Bool, func:String, event:SC):SC {
@@ -149,7 +148,7 @@ class HUDTemplate extends BeatGroup {
 
 	function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, getDefaultCamera().height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		if (Settings.setupP1.downscroll)
 			CodenameHUD.cneYLevel(bg);
@@ -184,8 +183,8 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function new() {
-		if (HUDType.direct == null)
-			HUDType.direct = this;
+		if (HUDType.instance == null)
+			HUDType.instance = this;
 		else {
 			_log('A HUD already exists, killing new one.');
 			destroy();
@@ -237,6 +236,7 @@ class HUDTemplate extends BeatGroup {
 		if (cameras != null)
 			FlxCamera._defaultCameras = cameras;
 
+		// MAYBE: Rework this.
 		while (i < length) {
 			basic = members[i++];
 			if (basic != null && basic.exists && basic.visible)
@@ -266,8 +266,8 @@ class HUDTemplate extends BeatGroup {
 
 	override public function destroy():Void {
 		scripts.end();
-		if (HUDType.direct == this)
-			HUDType.direct = null;
+		if (HUDType.instance == this)
+			HUDType.instance = null;
 		super.destroy();
 	}
 }

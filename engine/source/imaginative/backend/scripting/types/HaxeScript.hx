@@ -108,7 +108,7 @@ final class HaxeScript extends Script {
 			'DifficultyHolder' => DifficultyHolder,
 			'LevelHolder' => LevelHolder,
 			'FlxWindow' => FlxWindow,
-			'mainWindow' => FlxWindow.direct,
+			'mainWindow' => FlxWindow.instance,
 			'ArrowField' => ArrowField,
 			'Note' => Note,
 			'Strum' => Strum,
@@ -335,7 +335,7 @@ final class HaxeScript extends Script {
 	#else
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		log('Haxe scripting isn\'t supported in this build.', SystemMessage);
+		_log('[Script] Haxe scripting isn\'t supported in this build.', SystemMessage);
 		super(file, null);
 	}
 	#end

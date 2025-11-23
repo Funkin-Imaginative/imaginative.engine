@@ -1,5 +1,6 @@
 package imaginative.objects;
 
+import imaginative.backend.gameplay.CameraDebugCrosshair;
 import imaginative.backend.scripting.events.PointEvent;
 
 typedef CharacterData = {
@@ -8,16 +9,16 @@ typedef CharacterData = {
 	 */
 	@:default(new imaginative.backend.objects.Position()) var camera:Position;
 	/**
-	 * The character's health bar color.
+	 * The characters health bar color.
 	 */
 	var ?color:ParseColor;
 	/**
-	 * The character's icon.
+	 * The characters icon.
 	 */
 	@:default('face') var icon:String;
 	/**
 	 * The amount of time in seconds the animation can be forced to last.
-	 * If set to 0, the animation that is played, plays out normally.
+	 * If set to 0 the animation that is played plays out normally.
 	 */
 	@:default(4) var singlength:Float;
 	/**
@@ -28,7 +29,7 @@ typedef CharacterData = {
 }
 
 /**
- * This is the character class, used for the funny beep boop guys!
+ * This is the character class, used for the funny beep boop guy!
  */
 final class Character extends BeatSprite implements ITexture<Character> {
 	// Texture related stuff.
@@ -38,18 +39,24 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):Character
 		return cast super.loadSheet(newTexture);
+	#if ANIMATE_SUPPORT
+	override public function loadAtlas(newTexture:ModPath):Character
+		return cast super.loadAtlas(newTexture);
+	#end
 
+	// TODO: Rename to "id".
 	/**
 	 * The character key name.
 	 */
 	public var theirName(default, null):String;
+	// TODO: Rename to "iconId".
 	/**
 	 * The character icon.
 	 */
 	public var theirIcon(default, null):String = 'face';
 
 	/**
-	 * The character's vocal suffix.
+	 * The characters vocal suffix.
 	 */
 	public var vocalSuffix(default, null):String;
 	/**
@@ -58,7 +65,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var assignedTracks:Array<FlxSound> = [];
 
 	/**
-	 * Used to help `singLength`.
+	 * Used to help "singLength".
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
@@ -72,26 +79,29 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	 */
 	public var cameraOffset(default, null):Position = new Position();
 	/**
-	 * Get's the characters camera position.
-	 * @param point An optional Position to apply it to.
-	 *              If you put a Position it won't create a new one.
-	 * @return `Position` ~ The camera position.
+	 * Gets the characters camera position.
+	 * @param point An optional Position to apply it to. If you put a Position it won't create a new one.
+	 * @return Position ~ The camera position.
 	 */
 	public function getCamPos(?point:Position):Position {
 		var midpoint:Position = Position.getObjMidpoint(this);
 		var event:PointEvent = new PointEvent(
-			midpoint.x + spriteOffsets.position.x + cameraOffset.x,
-			midpoint.y + spriteOffsets.position.y + cameraOffset.y
+			midpoint.x + (cameraOffset.x * (flipX ? -1 : 1)),
+			midpoint.y + cameraOffset.y
 		);
-		scripts.call('onGetCamPos', [event]);
-
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
+
+		scripts.call('onGetCamPos', [event]);
 		return point == null ? new Position(event.x, event.y) : point.set(event.x, event.y);
 	}
+	/**
+	 * Simple group used for rendering the camera position debug visuals.
+	 */
+	public var cameraDebugVisuals(default, null):CameraDebugCrosshair;
 
 	/**
-	 * The character's health bar color.
+	 * The characters health bar color.
 	 */
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
@@ -102,7 +112,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
-				theirIcon = (Paths.fileExists(Paths.icon(inputData.character.icon)) ? inputData.character.icon : 'face');
+				theirIcon = (Paths.icon(inputData.character.icon).isFile ? inputData.character.icon : 'face');
 				singLength = inputData.character.singlength;
 				vocalSuffix = inputData.character.vocals ?? theirName;
 			}
@@ -139,9 +149,26 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			TracyProfiler.zoneScoped('new Character($x, $y, $name, $faceLeft)');
 		#end
 
-		super(x, y, 'characters/${theirName = (Paths.fileExists(Paths.character(name)) ? name : 'boyfriend')}');
+		super(x, y, 'characters/${theirName = (Paths.character(name).isFile ? name : 'boyfriend')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
+
+		// Camera Position Crosshair System
+		cameraDebugVisuals = new CameraDebugCrosshair(() -> getCamPos().toArray());
+		cameraDebugVisuals.crosshair.color = cameraDebugVisuals.offScreenArrow.color = healthColor; // indicator of who's crosshair it is
+		#if !debug cameraDebugVisuals.visible = debugMode; #end // make certain it always appears when compiling a debug build
+	}
+
+	override public function update(elapsed:Float):Void {
+		super.update(elapsed);
+		if (cameraDebugVisuals != null && cameraDebugVisuals.visible)
+			cameraDebugVisuals.update(elapsed);
+	}
+
+	override public function draw():Void {
+		super.draw();
+		if (cameraDebugVisuals != null && cameraDebugVisuals.visible)
+			cameraDebugVisuals.draw();
 	}
 
 	/**
@@ -154,14 +181,14 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	/**
 	 * Only really used for making it so holding a note will prevent idle.
 	 */
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.characterSing) var controls:Null<Controls>;
+	@:allow(imaginative.objects.gameplay.arrows.ArrowField.characterSing) var controls:Null<PlayerControls>;
 
 	override public function tryDance():Void {
 		switch (animContext) {
 			case IsSinging | HasMissed:
 				if (singLength > 0 ? (lastHit + (Conductor.song.stepTime * singLength) < Conductor.song.time) : (getAnimName() == null || isAnimFinished())) {
 					if (controls != null)
-						if (controls.noteLeftHeld || controls.noteDownHeld || controls.noteUpHeld || controls.noteRightHeld)
+						if (controls.notesHeld().contains(true))
 							return;
 					controls = null;
 					dance();
@@ -181,6 +208,14 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	}
 
 	override public function destroy():Void {
+		cameraDebugVisuals.destroy();
 		super.destroy();
+	}
+
+	override function set_cameras(value:Array<FlxCamera>):Array<FlxCamera> {
+		var output = super.set_cameras(value);
+		if (cameraDebugVisuals != null)
+			cameraDebugVisuals.cameras = output;
+		return output;
 	}
 }

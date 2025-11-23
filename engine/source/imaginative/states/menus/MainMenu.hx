@@ -1,6 +1,5 @@
 package imaginative.states.menus;
 
-import haxe.macro.Compiler;
 import flixel.effects.FlxFlicker;
 
 /**
@@ -39,7 +38,6 @@ class MainMenu extends BeatState {
 
 	// Camera management.
 	var camPoint:FlxObject;
-	var mainCamera:BeatCamera;
 	var highestY:Float = 0;
 	var lowestY:Float = 0;
 
@@ -54,7 +52,6 @@ class MainMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor, 0.5));
 		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
 		mainCamera.setZooming(1, 0.16);
 		mainCamera.zoomEnabled = true;
@@ -94,18 +91,19 @@ class MainMenu extends BeatState {
 
 		// wierd camera posing vars
 		var highMid:Position = Position.getObjMidpoint(menuItems.members[0]);
-		var lowMid:Position = Position.getObjMidpoint(menuItems.members[menuItems.length - 1]);
+		var lowMid:Position = Position.getObjMidpoint(menuItems.members.last());
 
 		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
 			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
 		);
-		camera.snapToTarget();
+		mainCamera.snapToTarget();
 
 		// version text setup
-		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
-		buildTxt = new FlxText(' ~ ' + #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end + ' Build ~ ');
+		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>();
+		var stability:String = #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end;
+		buildTxt = new FlxText(' ~ $stability Build ~ ');
 		buildTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
 		mainTextsGroup.add(buildTxt);
 
@@ -126,7 +124,7 @@ class MainMenu extends BeatState {
 		buildTxt.fieldWidth = versionTxt.width;
 
 		mainTextsGroup.scrollFactor.set();
-		mainTextsGroup.y = FlxG.camera.height - mainTextsGroup.height - 5;
+		mainTextsGroup.y = mainCamera.height - mainTextsGroup.height - 5;
 		add(mainTextsGroup);
 
 		// defined text setup
@@ -138,12 +136,12 @@ class MainMenu extends BeatState {
 
 		var theText:Array<Array<String>> = [];
 		theText.push(['Platform', Sys.systemName()]); // I hate when code is a bitch.
-		theText.push(['Know\'s Version', Compiler.getDefine('KNOWS_VERSION_ID') != null ? 'true' : 'false']);
-		theText.push(['Know\'s When To Update', Compiler.getDefine('CHECK_FOR_UPDATES') != null ? 'true' : 'false']);
-		theText.push(['Has Mod Support', Compiler.getDefine('MOD_SUPPORT') != null ? 'true' : 'false']);
-		theText.push(['Has Script Support', Compiler.getDefine('SCRIPT_SUPPORT') != null ? 'true' : 'false']);
-		theText.push(['Has Discord Connectivity', Compiler.getDefine('DISCORD_RICH_PRESENCE') != null ? 'true' : 'false']);
-		theText.push(['Can Play Videos', Compiler.getDefine('ALLOW_VIDEOS') != null ? 'true' : 'false']);
+		theText.push(['Know\'s Version', #if KNOWS_VERSION_ID 'true' #else 'false' #end]);
+		theText.push(['Know\'s When To Update', #if CHECK_FOR_UPDATES 'true' #else 'false' #end]);
+		theText.push(['Has Mod Support', #if MOD_SUPPORT 'true' #else 'false' #end]);
+		theText.push(['Has Script Support', #if SCRIPT_SUPPORT 'true' #else 'false' #end]);
+		theText.push(['Has Discord Connectivity', #if DISCORD_RICH_PRESENCE 'true' #else 'false' #end]);
+		theText.push(['Can Play Videos', #if ALLOW_VIDEOS 'true' #else 'false' #end]);
 
 		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'));
 		definedTagsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
@@ -157,8 +155,8 @@ class MainMenu extends BeatState {
 		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
 
 		definedTextsGroup.scrollFactor.set();
-		definedTextsGroup.x = FlxG.camera.width - definedTextsGroup.width - 5;
-		definedTextsGroup.y = FlxG.camera.height - definedTextsGroup.height - 5;
+		definedTextsGroup.x = mainCamera.width - definedTextsGroup.width - 5;
+		definedTextsGroup.y = mainCamera.height - definedTextsGroup.height - 5;
 		add(definedTextsGroup);
 	}
 
@@ -169,11 +167,11 @@ class MainMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP) {
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -196,11 +194,11 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
 				BeatState.switchState(() -> new TitleScreen());
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
+			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
@@ -222,9 +220,12 @@ class MainMenu extends BeatState {
 		event.playMenuSFX(ScrollSFX);
 
 		for (i => item in menuItems.members) {
-			item.playAnim(i == curSelected ? 'selected' : 'idle');
-			item.centerOffsets();
-			item.centerOrigin();
+			var newAnim:String = i == curSelected ? 'selected' : 'idle';
+			if (item.getAnimName() != newAnim) {
+				item.playAnim(newAnim);
+				item.centerOffsets();
+				item.centerOrigin();
+			}
 		}
 	}
 

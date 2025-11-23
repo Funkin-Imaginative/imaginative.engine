@@ -38,7 +38,7 @@ final class SongSelectionEvent extends MenuSFXEvent {
 	public var variantKey:String;
 
 	/**
-	 * If true, the song is locked.
+	 * If true the song is locked.
 	 */
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool

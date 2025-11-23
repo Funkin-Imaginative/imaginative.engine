@@ -1,5 +1,6 @@
 package flixel.window;
 
+// TODO: I believe this class is unneeded.
 /**
  * Used to help FlxWindow's do nice movement.
  * Might just have FlxWindow extend FlxObject or FlxSprite at some point instead.

@@ -1,16 +1,13 @@
 package imaginative.backend.system;
 
 import haxe.macro.Compiler;
-import flixel.FlxGame;
-import openfl.display.Sprite;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
 
-class Main extends Sprite {
+class Main extends openfl.display.Sprite {
 	/**
-	 * The main mod that the engine will rely on. Think of it as a fallback.
-	 * This is usually stated as "funkin", aka base game.
+	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
 	inline public static final mainMod:String = Compiler.getDefine('GeneralAssetFolder');
@@ -27,7 +24,7 @@ class Main extends Sprite {
 	#end
 	#if CHECK_FOR_UPDATES
 	/**
-	 * If true, a new update was released for the engine!
+	 * If true a new update was released for the engine!
 	 */
 	public static var updateAvailable(default, null):Bool = false;
 	#end
@@ -42,8 +39,8 @@ class Main extends Sprite {
 	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
-	inline public function new():Void {
-		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+	public function new():Void {
+		CrashHandler.init();
 		#if TRACY_DEBUGGER
 		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (_:openfl.events.Event) -> TracyProfiler.frameMark());
 		TracyProfiler.messageAppInfo('Imaginative Engine');
@@ -53,18 +50,20 @@ class Main extends Sprite {
 		super();
 
 		FlxWindow.init();
+		SaveData.init();
 		Script.init();
 		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
 		#end
 
 		#if KNOWS_VERSION_ID
-		engineVersion = FlxWindow.direct.self.application.meta.get('version');
+		engineVersion = FlxWindow.instance.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
 
-		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
-		FlxG.addChildBelowMouse(new EngineInfoText(), 1);
+		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
+		FlxG.game.focusLostFramerate = 30;
+		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 
 		// Was testing rating window caps.
 		/* // variables
@@ -93,6 +92,34 @@ class Main extends Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
+	}
+
+	/**
+	 * Returns the framerate value based on your settings.
+	 * @return Int ~ Wanted framerate.
+	 */
+	inline public static function getFPS():Int {
+		return switch (Settings.setup.fpsType) {
+			case Custom: Settings.setup.fpsCap;
+			case Unlimited: 950; // not like you'll ever actually reach this
+			case Vsync: #if linux 60 #else FlxWindow.instance.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
+		}
+	}
+
+	/**
+	 * Sets the current framerate.
+	 * @param value The desired framerate.
+	 * @return Int ~ Desired framerate.
+	 */
+	inline public static function setFPS(value:Int):Int {
+		if (value > FlxG.drawFramerate) {
+			FlxG.updateFramerate = value;
+			FlxG.drawFramerate = value;
+		} else {
+			FlxG.drawFramerate = value;
+			FlxG.updateFramerate = value;
+		}
+		return value;
 	}
 }
 

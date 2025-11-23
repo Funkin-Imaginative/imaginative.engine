@@ -4,6 +4,7 @@
 		"HAXEPATH",
 		"HORI",
 		"hxdiscord",
+		"hxwindowmode",
 		"Infront",
 		"jignored",
 		"LOCKON",
@@ -36,10 +37,7 @@
 		"parameterTypes": true
 	},
 
-	"haxecheckstyle.sourceFolders": [
-		"commands",
-		"engine/source"
-	],
+	"haxecheckstyle.sourceFolders": ["engine/source"],
 
 	"xml.format.emptyElements": "collapse",
 	"xml.format.enforceQuoteStyle": "preferred",

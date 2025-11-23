@@ -12,15 +12,70 @@ class Note extends FlxSprite {
 	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
+	 * Returns the previous note in line.
+	 */
+	public var previousMember(get, never):Null<Note>;
+	function get_previousMember():Null<Note> {
+		if (setField == null) return null;
+		setField.notes.members.sort(sortNotes); // jic
+		function doublesCheck(note:Note):Note {
+			var index:Int = setField.notes.members.indexOf(note) - 1;
+			if (index < 0) return null;
+			var setNote = setField.notes.members[index];
+			if (setNote.id == note.id)
+				return doublesCheck(setNote);
+			return note;
+		}
+		return doublesCheck(this);
+	}
+	/**
+	 * Returns the next note in line.
+	 */
+	public var nextMember(get, never):Null<Note>;
+	function get_nextMember():Null<Note> {
+		if (setField == null) return null;
+		setField.notes.members.sort(sortNotes); // jic
+		function doublesCheck(note:Note):Note {
+			var index:Int = setField.notes.members.indexOf(note) + 1;
+			if (index > setField.notes.length - 1) return null;
+			var setNote = setField.notes.members[index];
+			if (setNote.id == note.id)
+				return doublesCheck(setNote);
+			return note;
+		}
+		return doublesCheck(this);
+	}
+
+	/**
 	 * The field the note is assigned to.
 	 */
-	public var setField(default, null):ArrowField;
+	public var setField(default, set):ArrowField;
+	function set_setField(value:ArrowField):ArrowField {
+		if (setField != value) {
+			if (setField != null) {
+				if (setField.notes.members.contains(this))
+					setField.notes.remove(this, true);
+				for (sustain in tail)
+					if (setField.sustains.members.contains(sustain))
+						setField.sustains.remove(sustain, true);
+			}
+			setField = value;
+			if (setField != null) {
+				if (!setField.notes.members.contains(this))
+					setField.notes.add(this);
+				for (sustain in tail)
+					if (!setField.sustains.members.contains(sustain))
+						setField.sustains.add(sustain);
+			}
+		}
+		return setField;
+	}
 	/**
 	 * The parent strum of this note.
 	 */
-	public var setStrum(get, null):Strum;
+	public var setStrum(get, never):Strum;
 	inline function get_setStrum():Strum
-		return setStrum ?? setField.strums.members[id] ?? setField.strums.members[idMod];
+		return setField.strums.members[id];
 	/**
 	 * The sustain pieces this note has.
 	 */
@@ -30,22 +85,19 @@ class Note extends FlxSprite {
 	 */
 	public var length(get, never):Float;
 	inline function get_length():Float
-		return tail.length != 0 ? tail[tail.length - 1].time : 0;
+		return tail.empty() ? 0 : tail.last().time;
 
 	// Note specific variables.
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
-	public var id:Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % setField.strumCount;
+	public var id(default, set):Int;
+	// TODO: Have it update the note skin on set once added.
+	inline function set_id(value:Int):Int
+		return id = value;
 
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	public var time:Float;
@@ -55,7 +107,8 @@ class Note extends FlxSprite {
 	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+		var settings:PlayerSettings = setField == null ? Settings.setupP1 : setField.settings;
+		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
 	}
 
 	/**
@@ -72,7 +125,7 @@ class Note extends FlxSprite {
 	}
 
 	/**
-	 * If true, this note will have less priority in the input system and in most cases be detected last.
+	 * If true this note will have less priority in the input system and in most cases be detected last.
 	 */
 	public var lowPriority:Bool = false;
 
@@ -83,116 +136,176 @@ class Note extends FlxSprite {
 	public var assignedActors:Array<Character> = [];
 	/**
 	 * Returns which characters will sing.
-	 * @return `Array<Character>`
+	 * @return Array<Character>
 	 */
 	inline public function renderActors():Array<Character>
-		return assignedActors.empty() ? setField.assignedActors : assignedActors;
+		return assignedActors.empty() ? (setField == null ? [] : setField.assignedActors) : assignedActors;
 
-	// important
+	// Important
 	/**
-	 * If true, the note can be hit.
+	 * If true the note can be hit.
 	 */
 	public var canHit(get, never):Bool;
-	inline function get_canHit():Bool
+	inline function get_canHit():Bool {
+		if (setField == null) return false;
 		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
+	}
 	/**
-	 * If true, it's too late to hit the note.
+	 * If true it's too late to hit the note.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
+		if (setField == null) return false;
 		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
 	}
 	/**
-	 * If true, the note has pasted the strum.
-	 */
-	public var pastedStrum(get, never):Bool;
-	inline function get_pastedStrum():Bool
-		return setField.conductor.time < time;
-	/**
-	 * If true, this note has been hit.
+	 * If true this note has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true, this note has been missed.
+	 * If true this note has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true, along with the tail, this note and it's tail will be destroyed.
+	 * If true then this note is being rendered and can be seen in song.
 	 */
-	public var canDie:Bool = false;
+	public var isBeingRendered(get, default):Bool = false;
+	inline function get_isBeingRendered():Bool {
+		if (setField == null) return false;
+		if (!setField.activateNoteRendering)
+			return false;
+		return isBeingRendered;
+	}
 
 	/**
 	 * The notes modifiers.
 	 */
 	public var mods:ArrowModifier;
 
-	override public function new(field:ArrowField, parent:Strum, id:Int, time:Float) {
-		setField = field;
-		setStrum = parent;
+	override public function new(field:ArrowField, id:Int, time:Float, tailLength:Float) {
 		this.id = id;
 		this.time = time;
 
+		var roundedLength:Int = Math.round(tailLength / field.conductor.stepTime);
+		if (roundedLength > 1) {
+			for (susNote in 0...roundedLength) {
+				var sustain:Sustain = new Sustain(this, (field.conductor.stepTime * susNote), susNote == (roundedLength - 1));
+				tail.push(sustain);
+			}
+			tail.sort(sortTail);
+		}
+
+		setField = field;
 		super(-10000, -10000);
 
-		var dir:String = ['left', 'down', 'up', 'right'][idMod];
-
 		this.loadTexture('gameplay/arrows/funkin');
-
+		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix('head', '$dir note head', 24, false);
 
-		animation.play('head', true);
-		scale.scale(0.7);
-		updateHitbox();
+		scale.scale(ArrowField.arrowScale);
 		animation.play('head', true);
 		updateHitbox();
 
+		// TODO: Eventually do this properly.
+		var quantColors:Array<FlxColor> = [ // Forever Engines cause I like them :3
+			0xFFFF3535, // 4th
+			0xFF536BEF, // 8th
+			0xFFC24B99, // 12th
+			0xFF01E550, // 16th
+			0xFF606789, // 20th
+			0xFFFF7AD7, // 24th
+			0xFFFFE83D, // 32nd
+			0xFFAE36E6, // 48th
+			0xFF10EBFF, // 64th
+			0xFF606789, // 96th
+			0xFF606789, // 192nd
+		];
+		var quantList:Array<Int> = [4, 8, 12, 16, 20, 24, 32, 48, 64, 96, 192];
+		function getNoteBeat(time:Float):Float {
+			inline function bpmFromSecs(time:Float):BPMChange {
+				var lastChange:BPMChange = {
+					stepTime: 0,
+					songTime: 0,
+					bpm: setField.conductor.bpm,
+					beatsPM: 4,
+					stepsPB: 4
+				}
+				for (i in 0...setField.conductor.bpmChanges.length)
+					if (time >= setField.conductor.bpmChanges[i].songTime)
+						lastChange = setField.conductor.bpmChanges[i];
+				return lastChange;
+			}
+			var last = bpmFromSecs(time);
+			return (time - last.songTime) / (setField.conductor.stepTime * 4);
+		}
+		function getNoteQuant(beat:Float):Int {
+			var row:Int = Math.round(beat * 48);
+			var last:Int = quantList[quantList.length - 1];
+			for (i in 0...quantList.length)
+				if (row % (last / quantList[i]) == 0)
+					return quantList[i];
+			return last;
+		}
+		var quant:Int = getNoteQuant(getNoteBeat(time));
+		var quantIndex:Int = quantList.indexOf(quant);
+		var color = quantColors[quantIndex];
+		setColorTransform(0, 0, 0, 1, color.red, color.green, color.blue, 0);
+		for (sustain in tail)
+			sustain.setColorTransform(0, 0, 0, 1, color.red, color.green, color.blue, 0);
+
 		mods = new ArrowModifier(this);
+		for (s in tail) s.mods.update();
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-		followStrum();
+		if (_update != null)
+			_update(elapsed);
 	}
 
 	/**
-	 * Makes the note follow this strum's position.
+	 * Makes the note follow this strums position.
 	 * @param strum
 	 */
 	public function followStrum(?strum:Strum):Void {
+		if (setField == null) return;
 		strum ??= setStrum;
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
-		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle;
+		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle; // "setField.strums.angle" at some point maybe?
 		if (__scrollSpeed < 0) resultAngle += 180;
-		resultAngle += setField.strums.angle;
+		var angleDir:Float = resultAngle * (Math.PI / 180);
 
-		var angleDir:Float = Math.PI / 180;
-		angleDir = resultAngle * angleDir;
-		var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-		distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed);
+		if (isBeingRendered) {
+			var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
-		pos.x += Math.cos(angleDir) * distance.position;
-		pos.x -= width / 2;
-		pos.x += strum.width / 2;
+			pos.x += Math.cos(angleDir) * distance.position;
+			// TODO: Figure out how to do this better, especially for sustains.
+			pos.x -= width / 2;
+			pos.x += strum.width / 2;
 
-		pos.y += Math.sin(angleDir) * distance.position;
-		pos.y -= height / 2;
-		pos.y += strum.height / 2;
+			pos.y += Math.sin(angleDir) * distance.position;
+			pos.y -= height / 2;
+			pos.y += strum.height / 2;
 
-		setPosition(
-			mods.handler.position.x ? pos.x : x,
-			mods.handler.position.y ? pos.y : y
-		);
+			setPosition(
+				mods.handler.position.x ? pos.x : x,
+				mods.handler.position.y ? pos.y : y
+			);
+		}
 
 		for (sustain in tail) {
-			var resultAngle:Float = resultAngle + sustain.scrollAngle;
+			if (!sustain.isBeingRendered) continue;
+			// commented out for now until I can figure this part out
+			/* var resultAngle:Float = resultAngle + sustain.scrollAngle;
 			var distance:{position:Float, time:Float} = {position: 0, time: 0}
 			var angleDir:Float = Math.PI / 180;
-			angleDir = resultAngle * angleDir;
+			angleDir = resultAngle * angleDir; */
 
-			var pos:Position = new Position(strum.x + sustain.mods.offset.x, strum.y + sustain.mods.offset.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed);
+			var pos:Position = new Position(strum.x + mods.offset.x + sustain.mods.offset.x, strum.y + mods.offset.y + sustain.mods.offset.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;
@@ -208,38 +321,26 @@ class Note extends FlxSprite {
 		}
 	}
 
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.parse)
-	inline static function generateTail(note:Note, length:Float):Void {
-		var roundedLength:Int = Math.round(length / note.setField.conductor.stepTime);
-		if (roundedLength > 0) {
-			for (susNote in 0...roundedLength) {
-				var sustain:Sustain = new Sustain(note, (note.setField.conductor.stepTime * susNote), susNote == (roundedLength - 1));
-				note.tail.push(sustain);
-			}
-			note.tail.sort(sortTail);
-		}
-	}
-
 	/**
 	 * Filters an array of notes.
 	 * @param notes An array of notes.
 	 * @param i Specified note id. This is optional.
-	 * @return `Array<Note>` ~ Resulting filter.
+	 * @return Array<Note> ~ Resulting filter.
 	 */
 	inline public static function filterNotes(notes:Array<Note>, ?i:Int):Array<Note> {
-		var result:Array<Note> = notes.filter((note:Note) -> return note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id) && !note.canDie);
+		var result:Array<Note> = notes.filter((note:Note) -> return note.exists && note.canHit && !note.wasHit && !note.wasMissed && !note.tooLate && note.id == (i ?? note.id));
 		result.sort(sortNotes);
 		return result;
 	}
 	/**
 	 * Filters an array of sustains.
 	 * @param sustains An array of sustains.
-	 * @param isMiss If true, then this filters out sustains that can't be hit.
+	 * @param isMiss If true then this filters out sustains that can't be hit.
 	 * @param i Specified sustain id. This is optional.
-	 * @return `Array<Sustain>` ~ Resulting filter.
+	 * @return Array<Sustain> ~ Resulting filter.
 	 */
 	inline public static function filterTail(sustains:Array<Sustain>, isMiss:Bool = false, ?i:Int):Array<Sustain> {
-		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id) && !sustain.canDie);
+		var result:Array<Sustain> = sustains.filter((sustain:Sustain) -> return sustain.exists && (isMiss ? true : sustain.canHit) && !sustain.wasHit && !sustain.wasMissed && !sustain.tooLate && sustain.id == (i ?? sustain.id));
 		result.sort(sortTail);
 		return result;
 	}
@@ -248,7 +349,7 @@ class Note extends FlxSprite {
 	 * Helper function for sorting an array of notes.
 	 * @param a Note a.
 	 * @param b Note b.
-	 * @return `Int`
+	 * @return Int
 	 */
 	inline public static function sortNotes(a:Note, b:Note):Int {
 		if (a.lowPriority && !b.lowPriority) return 1;
@@ -259,7 +360,7 @@ class Note extends FlxSprite {
 	 * Helper function for sorting an array of sustains.
 	 * @param a Note a.
 	 * @param b Note b.
-	 * @return `Int`
+	 * @return Int
 	 */
 	inline public static function sortTail(a:Sustain, b:Sustain):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
@@ -278,5 +379,17 @@ class Note extends FlxSprite {
 		for (sustain in tail)
 			sustain.destroy();
 		super.destroy();
+	}
+
+	override public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('Time', time),
+			LabelValuePair.weak('ID', id),
+			LabelValuePair.weak('Was Hit', wasHit),
+			LabelValuePair.weak('Was Missed', wasMissed),
+			LabelValuePair.weak('Too Late', tooLate),
+			LabelValuePair.weak('Tail Length', length),
+			LabelValuePair.weak('Tail Count', tail.length)
+		]);
 	}
 }

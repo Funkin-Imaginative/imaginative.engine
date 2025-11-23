@@ -38,7 +38,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
-import flixel.util.FlxSave;
 import flixel.util.FlxSignal;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
@@ -85,6 +84,7 @@ import imaginative.backend.system.Main;
 import imaginative.backend.system.Modding;
 #end
 import imaginative.backend.system.Paths;
+import imaginative.backend.system.SaveData;
 import imaginative.backend.system.Settings;
 import imaginative.objects.BaseSprite;
 import imaginative.objects.BeatSprite;
@@ -106,9 +106,13 @@ import imaginative.utils.ParseUtil;
 import imaginative.utils.PlatformUtil;
 
 using imaginative.utils.FunkinUtil;
+using imaginative.utils.ReflectUtil;
 using imaginative.utils.SpriteUtil;
 
 /* Libs */
+#if ANIMATE_SUPPORT
+import animate.FlxAnimate;
+#end
 #if ALLOW_VIDEOS
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;

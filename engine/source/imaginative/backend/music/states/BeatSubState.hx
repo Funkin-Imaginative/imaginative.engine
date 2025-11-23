@@ -1,11 +1,13 @@
 package imaginative.backend.music.states;
 
+import imaginative.backend.objects.ParentDisabler;
+
 /**
- * It's just `FlxSubState` but with IBeat implementation. Or it would if it wasn't for this.
+ * It's just 'FlxSubState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
 @SuppressWarnings('checkstyle:CodeSimilarity')
-class BeatSubState extends FlxSubState /* implements IBeat */ {
+class BeatSubState extends FlxSubState implements IBeatState {
 	/**
 	 * The states conductor instance.
 	 */
@@ -14,9 +16,9 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return Conductor.menu;
 	function set_conductor(value:Conductor):Conductor
 		return Conductor.menu;
-	// this to for overriding when it comes to game play
+	// this to for overriding when it comes to game play ^^
 
-	// BPM's.
+	// BPM
 	/**
 	 * Starting BPM.
 	 */
@@ -24,7 +26,7 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	inline function get_startBpm():Float
 		return conductor.startBpm;
 	/**
-	 * Previous BPM. (is the start bpm on start)
+	 * Previous BPM. (is the "startBpm" on start)
 	 */
 	public var prevBpm(get, never):Float;
 	inline function get_prevBpm():Float
@@ -56,25 +58,25 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return conductor.curMeasure;
 
 	/**
-	 * The current step, as a float instead.
+	 * The current step, as a float percent.
 	 */
 	public var curStepFloat(get, never):Float;
 	inline function get_curStepFloat():Float
 		return conductor.curStepFloat;
 	/**
-	 * The current beat, as a float instead.
+	 * The current beat, as a float percent.
 	 */
 	public var curBeatFloat(get, never):Float;
 	inline function get_curBeatFloat():Float
 		return conductor.curBeatFloat;
 	/**
-	 * The current measure, as a float instead.
+	 * The current measure, as a float percent.
 	 */
 	public var curMeasureFloat(get, never):Float;
 	inline function get_curMeasureFloat():Float
 		return conductor.curMeasureFloat;
 
-	// time signature
+	// Time Signature
 	/**
 	 * The number of beats per measure.
 	 */
@@ -114,18 +116,22 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	inline function get_time():Float
 		return conductor.time;
 
-	// Actual state stuff below.
+	// Actual state stuff below. vv
 
 	/**
-	 * If false, this sub state is the current state.
-	 * Since `FlxSubState` extends `FlxState`, this variable is possible.
+	 * If true then opening and closing this state pauses and resumes the parent.
+	 */
+	public var isAPauseState(default, null):Bool;
+	/**
+	 * If false this sub state is the current state.
+	 * Since 'FlxSubState' extends 'FlxState', this variable can be useful!
 	 */
 	public var isSubbed(get, never):Bool;
 	inline function get_isSubbed():Bool
 		return FlxG.state != this;
 
 	/**
-	 * The scripts that have access to the state itself.
+	 * The scripts that have access to the state instance.
 	 */
 	public var stateScripts:ScriptGroup;
 	/**
@@ -133,18 +139,20 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	 */
 	public var scriptsAllowed:Bool = true;
 	/**
-	 * The name of the script to have access to the state.
+	 * The name of the state script (will default to the class name if a custom one isn't entered).
 	 */
 	public var scriptName:String;
 
 	/**
-	 * @param scriptsAllowed If true, scripts are allowed.
-	 * @param scriptName The name of the script to access the state.
+	 * @param scriptsAllowed If true scripts are allowed.
+	 * @param scriptName The name of the state script.
+	 * @param pausesGame If true then this subState pauses and resumes the game when opened and closed.
 	 */
-	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+	override public function new(scriptsAllowed:Bool = true, ?scriptName:String, pausesGame:Bool = false) {
 		super();
 		this.scriptsAllowed = #if SCRIPTED_STATES scriptsAllowed #else false #end;
 		this.scriptName = scriptName ?? this.getClassName();
+		isAPauseState = pausesGame;
 	}
 
 	function loadScript():Void {
@@ -156,11 +164,11 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		}
 	}
 	/**
-	 * Call's a function in the script instance.
-	 * @param func Name of the function to call.
+	 * Calls a function in the script group.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
 	 * @param def If it's null then return this.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
 		if (stateScripts != null)
@@ -168,10 +176,10 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return def;
 	}
 	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
-	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * Calls an event in the script group.
+	 * @param func The name of the function to call.
+	 * @param event The event instance.
+	 * @return ScriptEvent
 	 */
 	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
 		if (stateScripts != null)
@@ -179,11 +187,21 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 		return event;
 	}
 
+	var mainCamera:BeatCamera;
+	function initCamera():Void
+		FlxG.cameras.add(camera = mainCamera = new BeatCamera('Sub Camera').beatSetup(conductor, 0.5), false).bgColor = FlxColor.TRANSPARENT;
+
+	var parentDisabler:ParentDisabler;
+	function initParentDisabler():Void
+		add(parentDisabler = new ParentDisabler());
+
 	override public function create():Void {
+		initCamera();
 		Conductor.beatSubStates.push(this);
 		persistentUpdate = true;
 		loadScript();
 		super.create();
+		if (isAPauseState) initParentDisabler();
 		scriptCall('create');
 	}
 
@@ -214,9 +232,9 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	/**
-	 * The state that the subState is attached to.
+	 * The state or subState that this subState is attached to.
 	 */
-	public var parent:FlxState;
+	public var parent:IBeatState;
 	/**
 	 * When the subState is opened.
 	 */
@@ -224,14 +242,28 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function close():Void {
 		var event:ScriptEvent = eventCall('onClose', new ScriptEvent());
 		if (!event.prevented) {
+			if (isAPauseState) {
+				parent.persistentUpdate = true;
+				if (parent.conductor != conductor)
+					parent.conductor.resume();
+			}
 			super.close();
 			scriptCall('onClosePost');
 		}
 	}
 
-	override public function openSubState(SubState:FlxSubState):Void {
-		scriptCall('openingSubState', [SubState]);
-		super.openSubState(SubState);
+	override public function openSubState(sub:FlxSubState):Void {
+		scriptCall('openingSubState', [sub]);
+		if (sub is BeatSubState) {
+			var state:BeatSubState = cast sub;
+			state.parent = this;
+			if (state.isAPauseState) {
+				if (state.conductor != conductor)
+					conductor.pause();
+				state.parent.persistentUpdate = false;
+			}
+		}
+		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
 		scriptCall('closingSubState', [subState]);
@@ -240,10 +272,10 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	override public function resetSubState():Void {
 		scriptCall('resetingSubState');
 		if (subState is BeatSubState) {
-			var subState:BeatSubState = cast subState;
-			subState.parent = this;
+			var state:BeatSubState = cast subState;
+			state.parent = this;
 			super.resetSubState();
-			subState.onSubstateOpen();
+			state.onSubstateOpen();
 			return;
 		}
 		super.resetSubState();
@@ -287,8 +319,11 @@ class BeatSubState extends FlxSubState /* implements IBeat */ {
 	}
 
 	override public function destroy():Void {
+		parent = null;
 		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
+		if (FlxG.cameras.list.contains(mainCamera))
+			FlxG.cameras.remove(mainCamera, true);
 		super.destroy();
 	}
 }

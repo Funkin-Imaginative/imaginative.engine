@@ -415,7 +415,7 @@
 		},
 		{
 			"props": {
-				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG|MAYBE)"
+				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG|MAYBE|NOTE|PLANNED)"
 			},
 			"type": "TODOComment"
 		},

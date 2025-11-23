@@ -23,7 +23,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
@@ -101,7 +101,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
@@ -179,7 +179,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
