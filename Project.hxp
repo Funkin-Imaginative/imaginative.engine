@@ -194,7 +194,8 @@ class EngineAsset {
 		// script related
 		if (scriptSupport.exists()) {
 			canHaxeScript.enable();
-			canLuaScript.enable();
+			if (!isLinux()) // can't finish compiling for some reason, causes action to go on forever
+				canLuaScript.enable();
 
 			disableDCE.enable();
 			scriptedStates.enable();
@@ -298,7 +299,7 @@ class EngineAsset {
 		addHaxelib('moonchart', 'git');
 
 		if ( canHaxeScript.exists()) addHaxelib('hscript-improved', 'git');
-		if ( canLuaScript .exists()) addHaxelib('linc_luajit',      'git');
+		if ( canLuaScript .exists()) addHaxelib('lscript',          'git');
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');

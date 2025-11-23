@@ -13,7 +13,7 @@ Be wary of any issues you may encounter.
 ### Libraries Used
 [CNE Devs](https://github.com/CodenameCrew): [`flixel`](https://github.com/CodenameCrew/cne-flixel) and [`flixel-addons`](https://github.com/CodenameCrew/cne-flixel-addons) forks, [`hscript-improved`](https://github.com/CodenameCrew/hscript-improved) and one of this engine's inspirations!
 
-[SuperPowers04](https://github.com/superpowers04): [`linc_luajit`](https://github.com/superpowers04/linc_luajit), for all my lua needs.
+[SrtHero278](https://github.com/SrtHero278): [`lscript`](https://github.com/SrtHero278/lscript), for all my lua needs.
 
 [Guillaume Desquesnes](https://github.com/elnabo): [`json2object`](https://github.com/elnabo/json2object), a great json parser! Oh and I'm using [FunkinCrew](https://github.com/FunkinCrew/json2object)'s fork btw.
 
