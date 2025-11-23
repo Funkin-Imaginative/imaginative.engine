@@ -1,14 +1,19 @@
 {
 	"cSpell.words": [
 		"FLXGRAPHIC",
+		"HAXEPATH",
+		"HORI",
 		"hxdiscord",
+		"hxwindowmode",
 		"Infront",
 		"jignored",
 		"LOCKON",
 		"lscript",
 		"luajit",
+		"neko",
 		"PAGEUP",
 		"preprocesor",
+		"SDCB",
 		"tweens"
 	],
 
@@ -32,6 +37,8 @@
 		"conditionals": true,
 		"parameterTypes": true
 	},
+
+	"haxecheckstyle.sourceFolders": ["engine/source"],
 
 	"xml.format.emptyElements": "collapse",
 	"xml.format.enforceQuoteStyle": "preferred",

@@ -1,0 +1,91 @@
+{
+	"dependencies": [
+		{ "name": "checkstyle" },
+
+		{ "name": "hxWindowColorMode" },
+
+		{
+			"name": "flixel-addons",
+			"dependencies": [
+				{
+					"name": "flixel",
+					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
+				}
+			]
+		},
+
+		{ "name": "flixel-animate", "dependencies": [] },
+
+		{
+			"name": "hscript-improved",
+			"version": "git",
+			"branch": "custom-classes",
+			"url": "https://github.com/CodenameCrew/hscript-improved"
+		},
+		{
+			"name": "hxcpp",
+			"version": "git",
+			"branch": "v4.3.75",
+			"url": "https://github.com/HaxeFoundation/hxcpp"
+		},
+
+		{ "name": "hxcpp-debug-server" },
+		{ "name": "hxdiscord_rpc" },
+		{ "name": "hxp" },
+
+		{
+			"name": "hxvlc",
+			"version": "git",
+			"url": "https://github.com/MAJigsaw77/hxvlc",
+			"dependencies": []
+		},
+		{
+			"name": "json2object",
+			"version": "git",
+			"url": "https://github.com/FunkinCrew/json2object"
+		},
+		{
+			"name": "linc_luajit",
+			"version": "git",
+			"url": "https://github.com/superpowers04/linc_luajit"
+		},
+		{
+			"name": "moonchart",
+			"version": "git",
+			"branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/moonchart"
+		},
+
+		{"name": "thx.semver" }
+	],
+	"questions": [
+		{
+			"name": "flixel-animate",
+			"description": "include animate atlas support"
+		},
+		{
+			"name": "hscript-improved",
+			"description": "include haxe scripting support"
+		},
+		{
+			"name": "linc_luajit",
+			"description": "include lua scripting support"
+		},
+		{
+			"name": "hxdiscord_rpc",
+			"description": "include functionality with discord RPC"
+		},
+		{
+			"name": "hxvlc",
+			"description": "allow videos to be played"
+		},
+		{
+			"name": "thx.semver",
+			"description": "allow engine to have version checking capabilities"
+		},
+		{
+			"name": "hxWindowColorMode",
+			"description": "allow engine to set the window border color (WINDOWS ONLY)"
+		}
+	]
+}

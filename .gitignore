@@ -3,10 +3,12 @@
 desktop.ini
 RECOVER_*.fla
 vscode-project.hxml
-compile/platform.txt
+commands/compile/platform.txt
+# easy shortcut to where flixel outputs the engines save data
+.saves.lnk
 
 # unnecessary folders
 .haxelib/
-.vscode/
+.tracy/
 export/
 dump/

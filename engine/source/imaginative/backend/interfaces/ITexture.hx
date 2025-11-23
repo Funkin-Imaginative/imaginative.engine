@@ -1,5 +1,9 @@
 package imaginative.backend.interfaces;
 
+// TODO: Make sure function names match purpose.
+/**
+ * Used for keeping track of what images a sprites using.
+ */
 interface ITexture<T:FlxSprite> {
 	/**
 	 * The main texture the sprite is using.
@@ -9,60 +13,74 @@ interface ITexture<T:FlxSprite> {
 	 * All textures the sprite is using.
 	 */
 	var textures(default, null):Array<TextureData>;
-	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):ModPath;
+	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):Void;
 
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Loads a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
 	function loadTexture(newTexture:ModPath):T;
 	/**
-	 * Load's a graphic texture for the sprite to use.
+	 * Loads a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @param animated Whether the graphic should be the sprite cut into a grid.
 	 * @param width Grid width.
 	 * @param height Grid height.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
 	function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T;
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Loads a sheet for the sprite to use.
 	 * @param newTexture The mod path.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
 	function loadSheet(newTexture:ModPath):T;
+	#if ANIMATE_SUPPORT
+	/**
+	 * Loads an animate atlas for the sprite to use.
+	 * @param newTexture The mod path.
+	 * @return FlxAnimate ~ Current instance for chaining.
+	 */
+	function loadAtlas(newTexture:ModPath):T;
+	#end
 }
 
 /**
- * The texture typing of a spritesheet.
+ * The texture typing of a sprite.
  */
 enum abstract TextureType(String) from String to String {
 	/**
-	 * States that this sprite uses a sparrow sheet method.
+	 * States that this sprite uses the sparrow sheet method.
 	 */
 	var IsSparrow = 'Sparrow';
 	/**
-	 * States that this sprite uses a packer sheet method.
+	 * States that this sprite uses the packer sheet method.
 	 */
 	var IsPacker = 'Packer';
 	/**
-	 * States that this sprite uses a single image, grid system method.
+	 * States that this sprite uses the single image grid system method.
 	 */
 	var IsGraphic = 'Graphic';
 	/**
-	 * States that this sprite uses an sheet made in the aseprite pixel art software.
+	 * States that this sprite uses the aseprite sheet method.
 	 */
 	var IsAseprite = 'Aseprite';
+	#if ANIMATE_SUPPORT
+	/**
+	 * States that this sprite uses the animate atlas method.
+	 */
+	var IsAnimateAtlas = 'AnimateAtlas';
+	#end
 	/**
 	 * States that this sprite method is unknown.
 	 */
 	var IsUnknown = 'Unknown';
 
 	/**
-	 * Get's the file extension from texture type.
+	 * Gets the file extension from texture type.
 	 * @param type The texture type.
-	 * @return `String` ~ File extension.
+	 * @return String ~ File extension.
 	 */
 	inline public static function getExtFromType(type:TextureType):String {
 		return switch (type) {
@@ -70,14 +88,17 @@ enum abstract TextureType(String) from String to String {
 			case IsPacker: 'txt';
 			case IsAseprite: 'json';
 			case IsGraphic: 'png';
+			#if ANIMATE_SUPPORT
+			case IsAnimateAtlas: '';
+			#end
 			default: IsUnknown;
 		}
 	}
 	/**
-	 * Get's the method based on file extension.
+	 * Gets the method based on file extension.
 	 * @param modPath The mod path extension that the sheet data type is attached to.
 	 * @param defaultIsUnknown If default should be recognized as unknown instead of a graphic.
-	 * @return `TextureType`
+	 * @return TextureType
 	 */
 	inline public static function getTypeFromExt(modPath:ModPath, defaultIsUnknown:Bool = false):TextureType {
 		return switch (modPath.extension) {
@@ -85,13 +106,16 @@ enum abstract TextureType(String) from String to String {
 			case 'txt': IsPacker;
 			case 'json': IsAseprite;
 			case 'png': IsGraphic;
+			#if ANIMATE_SUPPORT
+			case '': IsAnimateAtlas;
+			#end
 			default: defaultIsUnknown ? IsUnknown : IsGraphic;
 		}
 	}
 }
 
 /**
- * Gives details about a texture a sprite uses.
+ * Gives details about the texture(s) a sprite uses.
  */
 class TextureData {
 	/**
@@ -114,6 +138,11 @@ class TextureData {
 		this.type = type;
 	}
 
-	public function toString():String
-		return '{image => ${image.format()}, type => $type, path => $path}';
+	inline public function toString():String {
+		return FlxStringUtil.getDebugString([
+			LabelValuePair.weak('image', image.format()),
+			LabelValuePair.weak('type', type),
+			LabelValuePair.weak('path', path)
+		]);
+	}
 }

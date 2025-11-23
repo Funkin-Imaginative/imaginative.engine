@@ -5,13 +5,13 @@ typedef ChartNote = {
 	 * The note direction id.
 	 */
 	var id:Int;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The length of a sustain in steps.
 	 */
 	@:default(0) var length:Float;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	var time:Float;
@@ -42,6 +42,10 @@ typedef ChartField = {
 	 * The independent field scroll speed.
 	 */
 	var ?speed:Float;
+	/**
+	 * The starting strum count of the field.
+	 */
+	@:default(4) var ?startCount:Int;
 }
 
 typedef ChartCharacter = {
@@ -83,6 +87,17 @@ typedef FieldSettings = {
 }
 
 typedef ChartEvent = {
+	// NOTE: As of rn this is actually in milliseconds!!!!!
+	/**
+	 * The event position in steps.
+	 */
+	var time:Float;
+	/**
+	 * Each event to trigger.
+	 */
+	var data:Array<ChartSubEvent>;
+}
+typedef ChartSubEvent = {
 	/**
 	 * The event name.
 	 */
@@ -90,16 +105,7 @@ typedef ChartEvent = {
 	/**
 	 * The event parameters.
 	 */
-	var params:Array<OneOfFour<Int, Float, Bool, String>>;
-	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
-	 * The event position in steps.
-	 */
-	var time:Float;
-	/**
-	 * This is used for event stacking detection.
-	 */
-	@:default(0) var ?sub:Int;
+	var params:Array<ParseDynamic>;
 }
 
 typedef ChartData = {
@@ -123,6 +129,10 @@ typedef ChartData = {
 	 * Field settings.
 	 */
 	var fieldSettings:FieldSettings;
+	/**
+	 * The song hud.
+	 */
+	@:default('funkin') var ?hud:String;
 	/**
 	 * Chart specific events.
 	 */

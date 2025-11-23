@@ -23,7 +23,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
@@ -37,7 +37,13 @@ jobs:
           restore-keys: windows-debug-cache
 
       - name: Install Libraries
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Compile Engine
         run: haxelib run lime build windows -debug
@@ -95,7 +101,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
@@ -108,8 +114,14 @@ jobs:
             export/debug/mac/obj/
           restore-keys: mac-debug-cache
 
-      - name: Installing Libs
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+      - name: Install Libraries
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build mac -debug
@@ -167,7 +179,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
         uses: actions/cache@v3
@@ -183,8 +195,14 @@ jobs:
       - name: Installing Dependencies
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
 
-      - name: Installing Libs
-        run: haxe -cp setup -D analyzer-optimize --run Main --always
+      - name: Install Libraries
+        run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build linux -debug

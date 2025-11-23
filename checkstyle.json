@@ -21,7 +21,7 @@
 		},
 		{
 			"props": {
-				"severity": "INFO"
+				"severity": "IGNORE"
 			},
 			"type": "AvoidStarImport"
 		},
@@ -249,7 +249,7 @@
 			"props": {
 				"newFunctionTypePolicy": "around",
 				"ternaryOpPolicy": "around",
-				"unaryOpPolicy": "ignore",
+				"unaryOpPolicy": "none",
 				"oldFunctionTypePolicy": "none",
 				"boolOpPolicy": "around",
 				"intervalOpPolicy": "none",
@@ -415,7 +415,7 @@
 		},
 		{
 			"props": {
-				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG|MAYBE)"
+				"format": "^\\s*(TODO|FIXME|HACK|XXX|BUG|MAYBE|NOTE|PLANNED)"
 			},
 			"type": "TODOComment"
 		},

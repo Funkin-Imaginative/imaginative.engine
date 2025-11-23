@@ -1,7 +1,6 @@
 package imaginative.objects;
 
-import imaginative.backend.scripting.events.objects.BopEvent;
-import imaginative.backend.scripting.events.objects.PlaySpecialAnimEvent;
+import imaginative.backend.scripting.events.objects.*;
 
 typedef BeatData = {
 	/**
@@ -9,7 +8,7 @@ typedef BeatData = {
 	 */
 	@:default(0) var interval:Int;
 	/**
-	 * If true, the dance will still happen, even if the beat numbers are in the negatives.
+	 * If true the dance will still happen, even if the beat numbers are in the negatives.
 	 */
 	@:default(false) var skipnegative:Bool;
 }
@@ -25,6 +24,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):BeatSprite
 		return cast super.loadSheet(newTexture);
+	#if ANIMATE_SUPPORT
+	override public function loadAtlas(newTexture:ModPath):BeatSprite
+		return cast super.loadAtlas(newTexture);
+	#end
 
 	/**
 	 * The amount of beats it takes to trigger the dance.
@@ -32,10 +35,12 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	public var bopRate(get, set):Int;
 	inline function get_bopRate():Int
 		return Math.round(beatInterval * bopSpeed);
-	inline function set_bopRate(value:Int):Int
+	inline function set_bopRate(value:Int):Int {
+		bopSpeed = 1;
 		return beatInterval = value;
+	}
 	/**
-	 * The multiplier for the `beatInterval`.
+	 * The multiplier for the "beatInterval".
 	 */
 	public var bopSpeed(default, set):Float = 1;
 	inline function set_bopSpeed(value:Float):Float
@@ -48,17 +53,18 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		return beatInterval = value < 1 ? (hasSway ? 1 : 2) : value;
 
 	/**
-	 * If true, the dance will still happen, even if the beat numbers are in the negatives.
+	 * If true the dance will still happen, even if the beat numbers are in the negatives.
 	 */
 	public var skipNegativeBeats:Bool = false;
+	// MAYBE: Do "idleSteps"?
 	/**
-	 * If true, the character will play the sway animation on the off beat.
+	 * If true the character will play the sway animation on the off beat.
 	 */
-	public var hasSway(get, never):Bool; // Replaced 'danceLeft' with 'idle' and 'danceRight' with 'sway'.
+	public var hasSway(get, never):Bool; // Replaced "danceLeft" with "idle" and "danceRight" with "sway".
 	inline function get_hasSway():Bool
 		return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
 	/**
-	 * If true, it prevents the idle animation from playing altogether.
+	 * If true it prevents the idle animation from playing altogether.
 	 */
 	public var preventIdle:Bool = false;
 
@@ -78,25 +84,24 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		super.renderData(inputData, applyStartValues);
 	}
 
-	var animB4Loop(default, null):String = ''; // "-end" anim code by @HIGGAMEON
+	#if TRACY_DEBUGGER
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+		if (this.getClassName() == 'BeatSprite')
+			TracyProfiler.zoneScoped('new BeatSprite($x, $y, $sprite, $script, $applyStartValues)');
+		super(x, y, sprite, script, applyStartValues);
+	}
+	#end
+
 	override public function update(elapsed:Float):Void {
 		scripts.call('update', [elapsed]);
 		if (!debugMode) {
-			if (isAnimFinished() && doesAnimExist('${getAnimName()}-loop') && !getAnimName().endsWith('-loop')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('loop'));
-				if (!event.prevented) {
-					var prevAnimContext:AnimationContext = animContext;
-					playAnim('${getAnimName()}-loop', event.force, event.context, event.reverse, event.frame);
-					if (prevAnimContext == IsSinging || prevAnimContext == HasMissed)
-						animContext = prevAnimContext; // for `tryDance()` checks
-					scripts.call('playingSpecialAnimPost', [event]);
-				}
-			}
-
 			if (animContext != IsDancing)
 				tryDance();
 		}
-		super.update(elapsed);
+		super_update(elapsed);
+		if (_update != null)
+			_update(elapsed);
+		scripts.call('updatePost', [elapsed]);
 	}
 
 	/**
@@ -107,7 +112,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 		return idleSuffix = value.trim();
 
 	/**
-	 * When run, it attempts to trigger the dance.
+	 * When ran it attempts to trigger the dance.
 	 */
 	public function tryDance():Void {
 		switch (animContext) {
@@ -127,22 +132,12 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public var onSway:Bool = false;
 	/**
-	 * When run, it triggers the dance.
+	 * When ran it triggers the dance.
 	 */
 	public function dance():Void {
 		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
-		if (!debugMode || !event.prevented) {
-			if (isAnimFinished() && doesAnimExist('$animB4Loop-end') && !getAnimName().endsWith('-end')) {
-				var event:PlaySpecialAnimEvent = scripts.event('playingSpecialAnim', new PlaySpecialAnimEvent('end'));
-				if (event.prevented) return;
-				playAnim('$animB4Loop-end', event.force, event.context, event.reverse, event.frame);
-				scripts.call('playingSpecialAnimPost', [event]);
-			} else if (!preventIdle) {
-				onSway = event.sway;
-				var anim:String = onSway ? (hasSway ? 'sway' : 'idle') : 'idle';
-				playAnim('$anim', IsDancing, doesAnimExist('$anim$idleSuffix') ? idleSuffix : '');
-			}
-		}
+		if ((!debugMode || !event.prevented) && !preventIdle)
+			playAnim((onSway = event.sway) ? (hasSway ? 'sway' : 'idle') : 'idle', IsDancing, idleSuffix);
 		scripts.call('dancingPost', [event]);
 	}
 
@@ -182,7 +177,8 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			tryDance();
 			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
-		scripts.call('beatHit', [curBeat]);
+		if (type != IsHealthIcon)
+			scripts.call('beatHit', [curBeat]);
 	}
 
 	/**

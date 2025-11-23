@@ -1,12 +1,12 @@
 package imaginative.backend.music.group;
 
 /**
- * This class is just `FlxGroup` but with `IBeat` implementation.
+ * This class is just 'FlxGroup' but with 'IBeat' implementation.
  */
 typedef BeatGroup = BeatTypedGroup<FlxBasic>;
 
 /**
- * This class is just `FlxTypedGroup` but with `IBeat` implementation.
+ * This class is just 'FlxTypedGroup' but with 'IBeat' implementation.
  */
 class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	/**
@@ -20,8 +20,7 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).stepHit(curStep);
+			IBeatHelper.iBeatCheck(member, curStep, IsStep);
 	}
 
 	/**
@@ -35,8 +34,7 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	public function beatHit(curBeat:Int):Void {
 		this.curBeat = curBeat;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).beatHit(curBeat);
+			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
 	}
 
 	/**
@@ -50,7 +48,6 @@ class BeatTypedGroup<T:FlxBasic> extends FlxTypedGroup<T> implements IBeat {
 	public function measureHit(curMeasure:Int):Void {
 		this.curMeasure = curMeasure;
 		for (member in members)
-			if (member is IBeat)
-				cast(member, IBeat).measureHit(curMeasure);
+			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
 	}
 }

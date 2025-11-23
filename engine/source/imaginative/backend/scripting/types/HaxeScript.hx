@@ -80,7 +80,6 @@ final class HaxeScript extends Script {
 
 			// Engine //
 			'Controls' => Controls,
-			'PlayConfig' => PlayConfig,
 			'Conductor' => Conductor,
 			'BeatGroup' => BeatGroup,
 			'BeatSpriteGroup' => BeatSpriteGroup,
@@ -109,7 +108,7 @@ final class HaxeScript extends Script {
 			'DifficultyHolder' => DifficultyHolder,
 			'LevelHolder' => LevelHolder,
 			'FlxWindow' => FlxWindow,
-			'mainWindow' => FlxWindow.direct,
+			'mainWindow' => FlxWindow.instance,
 			'ArrowField' => ArrowField,
 			'Note' => Note,
 			'Strum' => Strum,
@@ -160,7 +159,8 @@ final class HaxeScript extends Script {
 
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function renderNecessities():Void {
-		__importedPaths.push(pathing.format());
+		if (pathing != null)
+			__importedPaths.push(pathing.format());
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
 		for (name => thing in getScriptImports(this))
 			set(name, thing);
@@ -179,10 +179,10 @@ final class HaxeScript extends Script {
 				if (__importedPaths.contains(path))
 					return true; // prevent double import
 				if (Paths.fileExists(path)) {
-					var content:String = Paths.getFileContent(path);
+					var content:String = Assets.text(path);
 					var expr:Expr = null;
 					try {
-						if (content != null && content.trim() != '') {
+						if (!content.isNullOrEmpty()) {
 							parser.line = 1;
 							expr = parser.parseString(content, '${importPath.join('/')}.$ext');
 						}
@@ -190,7 +190,7 @@ final class HaxeScript extends Script {
 						try {
 							interp.errorHandler(error);
 						} catch(error:Error)
-							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
 					if (expr != null) {
 						@:privateAccess
 							interp.exprReturn(expr);
@@ -230,8 +230,8 @@ final class HaxeScript extends Script {
 	}
 	override function loadCodeString(code:String):Void {
 		try {
-			if (code != null && code.trim() != '') {
-				expr = parser.parseString(code, pathing.format() ?? 'from string');
+			if (!code.isNullOrEmpty()) {
+				expr = parser.parseString(code, pathing?.format() ?? 'from string');
 				canRun = true;
 				return;
 			}
@@ -239,7 +239,7 @@ final class HaxeScript extends Script {
 			try {
 				interp.errorHandler(error);
 			} catch(error:Error)
-				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing.format() ?? 'from string', 0));
+				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
 		canRun = false;
 	}
 
@@ -335,7 +335,7 @@ final class HaxeScript extends Script {
 	#else
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		log('Haxe scripting isn\'t supported in this build.', SystemMessage);
+		_log('[Script] Haxe scripting isn\'t supported in this build.', SystemMessage);
 		super(file, null);
 	}
 	#end

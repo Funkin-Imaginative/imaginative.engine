@@ -1,1 +1,0 @@
-haxe -cp compile -D analyzer-optimize --run Main

@@ -14,67 +14,81 @@ class Strum extends FlxSprite {
 	/**
 	 * The field the strum is assigned to.
 	 */
-	public var setField(default, null):ArrowField;
+	public final setField:ArrowField;
 
 	// Strum specific variables.
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
-	public var id(default, null):Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % setField.strumCount;
+	public var id(default, set):Int;
+	// TODO: Have it update the strum skin on set once added.
+	inline function set_id(value:Int):Int
+		return id = value;
 
+	/**
+	 * The scroll speed of this strum.
+	 */
 	public var __scrollSpeed(get, never):Float;
 	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.apply.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
 	}
 
 	/**
 	 * The direction the notes will come from.
 	 * This offsets from the field speed.
 	 */
-	public var scrollAngle:Float = 0;
+	public var scrollAngle(default, set):Float = 0;
+	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
+	inline function set_scrollAngle(value:Float):Float {
+		scrollAngle = value;
+		for (sustain in setField.sustains.members.copy().filter((sustain:Sustain) -> return sustain.id == id))
+			sustain.mods.update_angle();
+		return value;
+	}
 
 	/**
-	 * Used to help `glowLength`.
+	 * Used to help "glowLength".
 	 */
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
 	/**
 	 * The amount of time in steps the animation can be forced to last.
-	 * If set to 0, the animation that is played, plays out normally.
+	 * If set to 0 the animation that is played plays out normally.
 	 */
 	public var glowLength:Float = 4;
 
 	/**
-	 * If true, after the glowlength is reached the animation will go back to "static".
+	 * If true after the "glowlength" is reached the animation will go back to "static".
 	 */
 	public var willReset:Bool = false;
 
+	/**
+	 * The strums modifiers.
+	 */
 	public var mods:ArrowModifier;
 
-	@:allow(imaginative.objects.gameplay.arrows.ArrowField.new)
-	override function new(field:ArrowField, id:Int) {
+	override public function new(field:ArrowField, id:Int) {
 		setField = field;
 		this.id = id;
 
 		super();
 
-		var dir:String = ['left', 'down', 'up', 'right'][idMod];
-
 		this.loadTexture('gameplay/arrows/funkin');
-
+		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix('static', '$dir strum static', 24, false);
 		animation.addByPrefix('press', '$dir strum press', 24, false);
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
-		animation.addByPrefix('confirm-hold', '$dir strum hold confirm', 24);
+		animation.addByPrefix('confirm-end', '$dir strum hold confirm', 24, false);
 
-		playAnim('static');
-		scale.scale(0.7);
-		updateHitbox();
+		animation.onFinish.add((name:String) -> {
+			if (doesAnimExist('$name-loop'))
+				playAnim('$name-loop');
+			if (!setField.isPlayer && name.endsWith('-end'))
+				playAnim('static'); // simple fix for now possibly?
+			else if (doesAnimExist('$name-end'))
+				playAnim('$name-end');
+		});
+
+		scale.scale(ArrowField.arrowScale);
 		playAnim('static');
 		updateHitbox();
 
@@ -90,13 +104,12 @@ class Strum extends FlxSprite {
 	}
 
 	/**
-	 * Play's an animation.
+	 * Plays an animation.
 	 * @param name The animation name.
-	 * @param reset If true, after the glowlength is reached the animation will go back to "static".
-	 * @param force If true, the game won't care if another one is already playing.
-	 * @param reverse If true, the animation will play backwards.
-	 * @param frame The starting frame. By default it's 0.
-	 *              Although if reversed it will use the last frame instead.
+	 * @param reset If true after the glowlength is reached the animation will go back to "static".
+	 * @param force If true the game won't care if another one is already playing.
+	 * @param reverse If true the animation will play backwards.
+	 * @param frame The starting frame. By default it's 0, although if reversed it will use the last frame instead.
 	 */
 	public function playAnim(name:String, reset:Bool = false, force:Bool = true, reverse:Bool = false, frame:Int = 0):Void {
 		if (animation.exists(name)) {
@@ -110,9 +123,9 @@ class Strum extends FlxSprite {
 	}
 
 	/**
-	 * Get's the name of the currently playing animation.
+	 * Gets the name of the currently playing animation.
 	 * The arguments are to reverse the name.
-	 * @return `Null<String>` ~ The animation name.
+	 * @return Null<String> ~ The animation name.
 	 */
 	inline public function getAnimName():Null<String> {
 		if (animation.name != null)
@@ -121,21 +134,19 @@ class Strum extends FlxSprite {
 	}
 	/**
 	 * Tells you if the animation has finished playing.
-	 * @return `Bool`
+	 * @return Bool
 	 */
-	inline public function isAnimFinished():Bool {
-		return (animation == null || animation.curAnim == null) ? false : animation.curAnim.finished;
-	}
+	inline public function isAnimFinished():Bool
+		return animation.finished;
 	/**
-	 * When run, it forces the animation to finish.
+	 * When ran it forces the animation to finish.
 	 */
 	inline public function finishAnim():Void
-		if (animation.curAnim != null)
-			animation.curAnim.finish();
+		animation.finished = true;
 	/**
-	 * Check's if the animation exists.
+	 * Checks if the animation exists.
 	 * @param name The animation name to check.
-	 * @return `Bool` ~ If true, the animation exists.
+	 * @return Bool ~ If true the animation exists.
 	 */
 	inline public function doesAnimExist(name:String/* , inGeneral:Bool */):Bool {
 		return /* inGeneral ? */ animation.exists(name) /* : (animation.exists(name) && anims.exists(name)) */;
