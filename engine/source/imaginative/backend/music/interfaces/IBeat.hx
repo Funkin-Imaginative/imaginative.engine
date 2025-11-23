@@ -1,7 +1,8 @@
 package imaginative.backend.music.interfaces;
 
+// TODO: Rework a LOT of beat related shit.
 /**
- * Implementing this interface will allow the object to detect when a song is playing.
+ * Implementing this interface will allow the object to detect when a conductor is active.
  */
 interface IBeat {
 	/**
@@ -35,11 +36,12 @@ interface IBeat {
 	function measureHit(curMeasure:Int):Void;
 }
 
+// TODO: Rethink this classes use.
 class IBeatHelper {
 	/**
 	 * Function for calling beat functions on an object.
 	 * @param member The object to effect.
-	 * @param curTime The current time value of the `timeType`.
+	 * @param curTime The current time value of the 'timeType'.
 	 * @param timeType The time type.
 	 */
 	public static function iBeatCheck(member:FlxBasic, curTime:Int, timeType:SongTimeType):Void {
@@ -68,37 +70,31 @@ class IBeatHelper {
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
-					else
-						functionReflect(member, switch (timeType) {
+					/* else
+						member._call(switch (timeType) {
 							case IsStep: 'stepHit';
 							case IsBeat: 'beatHit';
 							case IsMeasure: 'measureHit';
-						}, [curTime]);
+						}, [curTime]); */
 				}
 			} else if (member is FlxTypedSpriteGroup) {
 				var group:FlxTypedSpriteGroup<FlxSprite> = cast member;
 				for (member in group) {
 					if (member is IBeat)
 						iBeatCheck(cast member, curTime, timeType);
-					else
-						functionReflect(member, switch (timeType) {
+					/* else
+						member._call(switch (timeType) {
 							case IsStep: 'stepHit';
 							case IsBeat: 'beatHit';
 							case IsMeasure: 'measureHit';
-						}, [curTime]);
+						}, [curTime]); */
 				}
-			} else
-				functionReflect(member, switch (timeType) {
+			} /* else
+				member._call(switch (timeType) {
 					case IsStep: 'stepHit';
 					case IsBeat: 'beatHit';
 					case IsMeasure: 'measureHit';
-				}, [curTime]);
+				}, [curTime]); */
 		}
-	}
-
-	static function functionReflect(member:FlxBasic, funcName:String, args:Array<Dynamic>):Void {
-		var func = Reflect.getProperty(member, funcName);
-		if (Reflect.isFunction(func))
-			Reflect.callMethod(null, func, args);
 	}
 }

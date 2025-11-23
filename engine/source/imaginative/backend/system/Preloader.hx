@@ -5,6 +5,7 @@ import flash.display.Bitmap;
 import flixel.system.FlxBasePreloader;
 import openfl.display.Sprite;
 
+// TODO: Figure out better preloading.
 class Preloader extends FlxBasePreloader {
 	override public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
 		super(MinDisplayTime, AllowedURLs);

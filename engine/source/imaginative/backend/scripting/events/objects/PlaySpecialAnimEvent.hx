@@ -7,7 +7,7 @@ final class PlaySpecialAnimEvent extends ScriptEvent {
 	public var type(default, null):String;
 
 	/**
-	 * If true, the game won't care if another one is already playing.
+	 * If true the game won't care if another one is already playing.
 	 */
 	public var force:Bool = true;
 	/**
@@ -15,7 +15,7 @@ final class PlaySpecialAnimEvent extends ScriptEvent {
 	 */
 	public var context:AnimationContext = Unclear;
 	/**
-	 * If true, the animation will play backwards.
+	 * If true the animation will play backwards.
 	 */
 	public var reverse:Bool = false;
 	/**

@@ -3,8 +3,12 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
+// MAYBE: Might end up not using.
+/**
+ * Used for parsing extra data from json files.
+ */
 @SuppressWarnings('checkstyle:FieldDocComment')
-@:runtimeValue abstract JsonDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
+abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
 	@:to inline public function toInt():Int {
 		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
 		return switch (Type.getClass(target)) {
@@ -39,13 +43,72 @@ import imaginative.states.editors.ChartEditor.ChartData;
 		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
 }
 
-typedef AllowedModesTyping = {
+/**
+ * Used for parsing colors from json files.
+ */
+@SuppressWarnings('checkstyle:FieldDocComment')
+abstract ParseColor(String) {
+	public var red(get, set):Int;
+	inline function get_red():Int
+		return toFlxColor().red;
+	inline function set_red(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.red = value;
+		this = fromFlxColor(color);
+		return color.red;
+	}
+	public var green(get, set):Int;
+	inline function get_green():Int
+		return toFlxColor().green;
+	inline function set_green(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.green = value;
+		this = fromFlxColor(color);
+		return color.green;
+	}
+	public var blue(get, set):Int;
+	inline function get_blue():Int
+		return toFlxColor().blue;
+	inline function set_blue(value:Int):Int {
+		var color:FlxColor = toFlxColor();
+		color.blue = value;
+		this = fromFlxColor(color);
+		return color.blue;
+	}
+
+	inline public function nullCheck(nullColor:ParseColor):ParseColor
+		return this ??= nullColor;
+
+	@:from inline public static function fromString(from:String):ParseColor
+		return cast FlxColor.fromString(from ?? 'white').toWebString();
+	@:to inline public function toString():String
+		return this ?? '#FFFFFF';
+
+	@:from inline public static function fromInt(from:Int):ParseColor
+		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
+	@:to inline public function toInt():Int
+		return FlxColor.fromString(this ?? 'white');
+
+	@:from inline public static function fromFlxColor(from:FlxColor):ParseColor
+		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
+	@:to inline public function toFlxColor():FlxColor
+		return FlxColor.fromString(this ?? 'white');
+
+	@:from inline public static function fromArray(from:Array<Int>):ParseColor
+		return fromInt(FlxColor.fromRGB(from[0] ?? 255, from[1] ?? 255, from[2] ?? 255));
+	@:to inline public function toArray():Array<Int> {
+		var color:FlxColor = toFlxColor();
+		return [color.red ?? 255, color.green ?? 255, color.blue ?? 255];
+	}
+}
+
+typedef GamemodesTyping = {
 	/**
-	 * If true, this song allows you to play as the enemy.
+	 * If true this song allows you to play as the enemy.
 	 */
 	@:default(false) var playAsEnemy:Bool;
 	/**
-	 * If true, this song allows you to go against another player.
+	 * If true this song allows you to go against another player.
 	 */
 	@:default(false) var p2AsEnemy:Bool;
 }
@@ -58,9 +121,9 @@ typedef AllowedModesTyping = {
 	/**
 	 * The data contents.
 	 */
-	public var data:JsonDynamic;
+	public var data:ParseDynamic;
 
-	public function new(name:String, ?data:JsonDynamic) {
+	public function new(name:String, ?data:ParseDynamic) {
 		this.name = name;
 		this.data = data;
 	}
@@ -71,9 +134,9 @@ typedef AllowedModesTyping = {
  */
 class ParseUtil {
 	/**
-	 * Parse's a json file.
+	 * Parses a json file.
 	 * @param file The mod path.
-	 * @return `Dynamic` ~ The parsed json.
+	 * @return Dynamic ~ The parsed json.
 	 */
 	inline public static function json(file:ModPath):Dynamic {
 		var jsonPath:ModPath = Paths.json(file);
@@ -81,9 +144,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a difficulty json.
+	 * Parses a difficulty json.
 	 * @param key The difficulty key.
-	 * @return `DifficultyData` ~ The parsed difficulty json.
+	 * @return DifficultyData ~ The parsed difficulty json.
 	 */
 	inline public static function difficulty(key:String):DifficultyData {
 		var jsonPath:ModPath = Paths.difficulty(key);
@@ -93,25 +156,23 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a level json.
+	 * Parses a level json.
 	 * @param name The level json name.
-	 * @return `LevelData` ~ The parsed level json.
+	 * @return LevelData ~ The parsed level json.
 	 */
 	public static function level(name:ModPath):LevelData {
 		var jsonPath:ModPath = Paths.level(name);
 		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
-			data.flip = data.flip ?? ((i + 1) > Math.floor(contents.objects.length / 2));
-			if (data.offsets == null) data.offsets = new Position();
-			data.size = data.size ?? 1;
-			data.willHey = data.willHey ?? (i == Math.floor(contents.objects.length / 2));
+			data.flip ??= ((i + 1) > Math.floor(contents.objects.length / 2));
+			data.willHey ??= (i == Math.floor(contents.objects.length / 2));
 		}
 		var songs:Array<SongData> = [
 			for (song in contents.songs)
 				ParseUtil.song(song)
 		];
 		for (song in songs)
-			song.color = song.color == null ? FlxColor.fromString(contents.color) : song.color;
+			song.color = song.color == null ? contents.color : song.color;
 		return {
 			name: name.path,
 			title: contents.title,
@@ -129,15 +190,15 @@ class ParseUtil {
 					variant.toLowerCase()
 			],
 			objects: contents.objects,
-			color: FlxColor.fromString(contents.color)
+			color: contents.color.nullCheck('#F9CF51')
 		}
 	}
 
 	/**
-	 * Parse's an object json.
+	 * Parses an object json.
 	 * @param file The object json name.
 	 * @param type The sprite type.
-	 * @return `SpriteData` ~ The parsed object json.
+	 * @return SpriteData ~ The parsed object json.
 	 */
 	public static function object(file:ModPath, type:SpriteType):SpriteData {
 		var jsonPath:ModPath = Paths.object(file);
@@ -145,8 +206,8 @@ class ParseUtil {
 		var tempData:Dynamic = json(jsonPath);
 
 		var charData:CharacterData = null;
-		if (type == IsCharacterSprite && Reflect.hasField(tempData, 'character')) {
-			var gottenData:CharacterParse = null;
+		if (type == IsCharacterSprite && tempData._has('character')) {
+			var gottenData:CharacterData = null;
 			var typeData:SpriteData = typeData;
 			try {
 				gottenData = json(jsonPath).character;
@@ -154,7 +215,7 @@ class ParseUtil {
 			} catch(error:haxe.Exception)
 				log(error.message, ErrorMessage);
 			charData = {
-				camera: new Position(Reflect.getProperty(typeData.character.camera, 'x'), Reflect.getProperty(typeData.character.camera, 'y')),
+				camera: new Position(typeData.character.camera._get('x'), typeData.character.camera._get('y')),
 				color: typeData.character.color,
 				icon: typeData.character.icon,
 				singlength: typeData.character.singlength
@@ -162,7 +223,7 @@ class ParseUtil {
 		}
 
 		var beatData:BeatData = null;
-		if (type.isBeatType && Reflect.hasField(tempData, 'beat')) {
+		if (type.isBeatType && tempData._has('beat')) {
 			var typeData:BeatData = typeData.beat;
 			beatData = {
 				interval: typeData.interval,
@@ -171,12 +232,12 @@ class ParseUtil {
 		}
 
 		var data:Dynamic = {}
-		if (Reflect.hasField(typeData, 'offsets'))
+		if (typeData._has('offsets'))
 			try {
 				data.offsets = {
-					position: new Position(Reflect.getProperty(typeData.offsets.position, 'x'), Reflect.getProperty(typeData.offsets.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.offsets.flip, 'x'), Reflect.getProperty(typeData.offsets.flip, 'y')),
-					scale: new Position(Reflect.getProperty(typeData.offsets.scale, 'x'), Reflect.getProperty(typeData.offsets.scale, 'y'))
+					position: new Position(typeData.offsets.position._get('x'), typeData.offsets.position._get('y')),
+					flip: new TypeXY<Bool>(typeData.offsets.flip._get('x'), typeData.offsets.flip._get('y')),
+					scale: new Position(typeData.offsets.scale._get('x'), typeData.offsets.scale._get('y'))
 				}
 			} catch(error:haxe.Exception) {
 				data.offsets = {
@@ -193,29 +254,29 @@ class ParseUtil {
 			}
 
 		data.asset = typeData.asset;
-		if (Reflect.hasField(typeData.asset, 'dimensions'))
-			data.asset.dimensions = new TypeXY<Int>(Reflect.getProperty(typeData.asset.dimensions, 'x') ?? 0, Reflect.getProperty(typeData.asset.dimensions, 'y') ?? 0);
+		if (typeData.asset._has('dimensions'))
+			data.asset.dimensions = new TypeXY<Int>(typeData.asset.dimensions._get('x') ?? 0, typeData.asset.dimensions._get('y') ?? 0);
 		data.animations = [];
 		for (anim in typeData.animations) {
 			var slot:AnimationTyping = cast {}
 			slot.name = anim.name;
-			if (Reflect.hasField(anim, 'tag')) slot.tag = anim.tag ?? slot.name;
-			if (Reflect.hasField(anim, 'swapKey')) slot.swapKey = anim.swapKey ?? '';
-			if (Reflect.hasField(anim, 'flipKey')) slot.flipKey = anim.flipKey ?? '';
+			if (anim._has('tag')) slot.tag = anim.tag ?? slot.name;
+			if (anim._has('swapKey')) slot.swapKey = anim.swapKey ?? '';
+			if (anim._has('flipKey')) slot.flipKey = anim.flipKey ?? '';
 			slot.indices = anim.indices ?? [];
-			slot.offset = new Position(Reflect.getProperty(anim.offset, 'x'), Reflect.getProperty(anim.offset, 'y'));
-			slot.flip = new TypeXY<Bool>(Reflect.getProperty(anim.flip, 'x'), Reflect.getProperty(anim.flip, 'y'));
+			slot.offset = new Position(anim.offset._get('x'), anim.offset._get('y'));
+			slot.flip = new TypeXY<Bool>(anim.flip._get('x'), anim.flip._get('y'));
 			slot.loop = anim.loop ?? false;
 			slot.fps = anim.fps ?? 24;
 			data.animations.push(slot);
 		}
 
-		if (Reflect.hasField(typeData, 'starting')) {
+		if (typeData._has('starting')) {
 			try {
 				data.starting = {
-					position: new Position(Reflect.getProperty(typeData.starting.position, 'x'), Reflect.getProperty(typeData.starting.position, 'y')),
-					flip: new TypeXY<Bool>(Reflect.getProperty(typeData.starting.flip, 'x'), Reflect.getProperty(typeData.starting.flip, 'y')),
-					scale: new Position(Reflect.getProperty(typeData.starting.scale, 'x'), Reflect.getProperty(typeData.starting.scale, 'y'))
+					position: new Position(typeData.starting.position._get('x'), typeData.starting.position._get('y')),
+					flip: new TypeXY<Bool>(typeData.starting.flip._get('x'), typeData.starting.flip._get('y')),
+					scale: new Position(typeData.starting.scale._get('x'), typeData.starting.scale._get('y'))
 				}
 			} catch(error:haxe.Exception) {}
 		}
@@ -231,11 +292,11 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a chart json.
+	 * Parses a chart json.
 	 * @param song The song folder name.
 	 * @param difficulty The difficulty key.
 	 * @param variant The variant key.
-	 * @return `ChartData` ~ The parsed chart json.
+	 * @return ChartData ~ The parsed chart json.
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
@@ -243,9 +304,9 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a SpriteText json.
+	 * Parses a SpriteText json.
 	 * @param font The font json file name.
-	 * @return `SpriteTextSetup` ~ The parsed font json.
+	 * @return SpriteTextSetup ~ The parsed font json.
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
 		var jsonPath:ModPath = Paths.spriteFont(font);
@@ -253,16 +314,16 @@ class ParseUtil {
 	}
 
 	/**
-	 * Parse's a songs meta json.
+	 * Parses a songs meta json.
 	 * @param name The song folder name.
-	 * @return `SongData` ~ The parsed meta json.
+	 * @return SongData ~ The parsed meta json.
 	 */
 	public static function song(name:ModPath):SongData {
 		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
 		var contents:SongParse = new JsonParser<SongParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,
-			folder: contents.folder,
+			folder: name.path,
 			icon: contents.icon,
 			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
@@ -276,7 +337,7 @@ class ParseUtil {
 				])
 					variant.toLowerCase()
 			],
-			color: contents.color != null ? FlxColor.fromString(contents.color) : null,
+			color: contents.color,
 			allowedModes: contents.allowedModes
 		}
 	}

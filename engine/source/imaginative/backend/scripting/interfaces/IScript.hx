@@ -1,5 +1,6 @@
 package imaginative.backend.scripting.interfaces;
 
+// TODO: Rework how this is coded.
 /**
  * Implementing this interface means this class will be used to handle scripting capabilities.
  */
@@ -61,22 +62,21 @@ interface IScript {
 	 * Gets a variable from the script.
 	 * @param variable The variable to receive.
 	 * @param def If it's null then return this.
-	 * @return `T` ~ The value the variable will hold.
+	 * @return Dynamic ~ The value the variable holds.
 	 */
 	function get<T>(variable:String, ?def:T):T;
 	/**
 	 * Calls a function in the script instance.
-	 * @param func Name of the function to call.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
-	 * @param def If your using this to return something, then this would be if it returns null.
-	 * @return `T` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T;
 	/**
-	 * Calls a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
+	 * Calls an event in the script instance.
+	 * @param func The name of the function to call.
 	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * @return ScriptEvent
 	 */
 	function event<SC:ScriptEvent>(func:String, event:SC):SC;
 

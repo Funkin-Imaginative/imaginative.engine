@@ -2,13 +2,12 @@ package imaginative.objects.holders;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef SongParse = {
-	var folder:String;
 	var icon:String;
 	var ?startingDiff:Int;
 	var difficulties:Array<String>;
 	var ?variants:Array<String>;
-	var ?color:String;
-	var allowedModes:AllowedModesTyping;
+	var ?color:ParseColor;
+	var allowedModes:GamemodesTyping;
 }
 typedef SongData = {
 	/**
@@ -38,16 +37,16 @@ typedef SongData = {
 	/**
 	 * The song color.
 	 */
-	var ?color:FlxColor;
+	var ?color:ParseColor;
 	/**
 	 * Allowed modes for the song.
 	 */
-	var allowedModes:AllowedModesTyping;
+	var allowedModes:GamemodesTyping;
 }
 
 class SongHolder extends BeatSpriteGroup {
 	/**
-	 * The holder's path type.
+	 * The holders path type.
 	 */
 	public var pathType:ModType;
 
@@ -100,9 +99,9 @@ class SongHolder extends BeatSpriteGroup {
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
 			var bruh:Array<ModPath> = ['lead:global', name];
-			log([for (file in bruh) file.format()], DebugMessage);
+			// log([for (file in bruh) file.format()], DebugMessage);
 			for (song in bruh)
-				for (script in Script.create('$pathType:content/scripts/songs/${name.path}'))
+				for (script in Script.create('$pathType:content/scripts/songs/${song.path}'))
 					scripts.add(script);
 		}
 		scripts.load();

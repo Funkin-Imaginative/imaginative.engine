@@ -1,12 +1,12 @@
 package imaginative.backend.music.group;
 
 /**
- * This class is just `FlxSpriteGroup` but with `IBeat` implementation.
+ * This class is just 'FlxSpriteGroup' but with 'IBeat' implementation.
  */
 typedef BeatSpriteGroup = BeatTypedSpriteGroup<FlxSprite>;
 
 /**
- * This class is just `FlxTypedSpriteGroup` but with `IBeat` implementation.
+ * This class is just 'FlxTypedSpriteGroup' but with 'IBeat' implementation.
  */
 @SuppressWarnings('checkstyle:CodeSimilarity')
 class BeatTypedSpriteGroup<T:FlxSprite> extends FlxTypedSpriteGroup<T> implements IBeat {

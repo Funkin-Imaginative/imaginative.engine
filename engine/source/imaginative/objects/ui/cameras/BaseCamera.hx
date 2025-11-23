@@ -3,16 +3,16 @@ package imaginative.objects.ui.cameras;
 @:forward(x, y, set, toFlxPoint, toString)
 abstract CameraTarget(Position) from Position to Position {
 	/**
-	 * Converts a FlxObject to a Position.
-	 * @param from The FlxObject to intake.
-	 * @return `Position`
+	 * Converts a 'FlxObject' to a 'Position'.
+	 * @param from The 'FlxObject' to intake.
+	 * @return Position
 	 */
 	@:from inline public static function fromFlxObject(from:FlxObject):CameraTarget
 		return new Position(from.x, from.y);
 	/**
-	 * Converts a FlxPoint to a Position.
-	 * @param from The FlxPoint to intake.
-	 * @return `Position`
+	 * Converts a 'FlxPoint' to a 'Position'.
+	 * @param from The 'FlxPoint' to intake.
+	 * @return Position
 	 */
 	@:from inline public static function fromFlxPoint(from:FlxPoint):CameraTarget
 		return Position.fromFlxPoint(from);
@@ -20,7 +20,7 @@ abstract CameraTarget(Position) from Position to Position {
 
 @:structInit class TargetSetup<T> {
 	/**
-	 * If true, when calculating it with others it will multiply instead of adding.
+	 * If true when calculating it with others it will multiply instead of adding.
 	 */
 	public var multiply:Bool;
 	/**
@@ -44,6 +44,7 @@ abstract CameraTarget(Position) from Position to Position {
 	}
 }
 
+@SuppressWarnings('checkstyle:CodeSimilarity')
 class FollowTargetSetup {
 	/**
 	 * The targets used for calculations.
@@ -61,9 +62,9 @@ class FollowTargetSetup {
 
 	/**
 	 * Adds a target to use for calculations.
-	 * @param tag The tag name. This is optional.
+	 * @param tag The tag name (this is optional).
 	 * @param func The function that returns the calculations to add.
-	 * @return `FollowTargetSetup` ~ Current instance for chaining.
+	 * @return FollowTargetSetup ~ Current instance for chaining.
 	 */
 	public function add(?tag:String, func:Void->TargetSetup<CameraTarget>):FollowTargetSetup {
 		if (tag == null) {
@@ -77,9 +78,9 @@ class FollowTargetSetup {
 	}
 	/**
 	 * Removes a target from calculations.
-	 * @param tag The tag name. This is optional.
-	 * @param func The function that should be removed from calculations. If using a tag, this argument is optional.
-	 * @return `FollowTargetSetup` ~ Current instance for chaining.
+	 * @param tag The tag name (this is optional).
+	 * @param func The function that should be removed from calculations. If using a tag this argument is optional.
+	 * @return FollowTargetSetup ~ Current instance for chaining.
 	 */
 	public function remove(?tag:String, ?func:Void->TargetSetup<CameraTarget>):FollowTargetSetup {
 		if (tag == null) {
@@ -94,8 +95,8 @@ class FollowTargetSetup {
 
 	/**
 	 * Returns the final value that adds or multiplies all the targets together.
-	 * @param includeMain If false, it won't include the main target in the calculations.
-	 * @return `CameraTarget` ~ The final calculation.
+	 * @param includeMain If false it won't include the main target in the calculations.
+	 * @return CameraTarget ~ The final calculation.
 	 */
 	public function getFinalValue(includeMain:Bool = true):TargetSetup<CameraTarget> {
 		var result:TargetSetup<CameraTarget> = loadTargets(includeMain);
@@ -149,9 +150,9 @@ class ZoomTargetSetup {
 
 	/**
 	 * Adds a target to use for calculations.
-	 * @param tag The tag name. This is optional.
+	 * @param tag The tag name (this is optional).
 	 * @param func The function that returns the calculations to add.
-	 * @return `ZoomTargetSetup` ~ Current instance for chaining.
+	 * @return ZoomTargetSetup ~ Current instance for chaining.
 	 */
 	public function add(?tag:String, func:Void->TargetSetup<Float>):ZoomTargetSetup {
 		if (tag == null) {
@@ -165,9 +166,9 @@ class ZoomTargetSetup {
 	}
 	/**
 	 * Removes a target from calculations.
-	 * @param tag The tag name. This is optional.
-	 * @param func The function that should be removed from calculations. If using a tag, this argument is optional.
-	 * @return `ZoomTargetSetup` ~ Current instance for chaining.
+	 * @param tag The tag name (this is optional).
+	 * @param func The function that should be removed from calculations. If using a tag this argument is optional.
+	 * @return ZoomTargetSetup ~ Current instance for chaining.
 	 */
 	public function remove(?tag:String, ?func:Void->TargetSetup<Float>):ZoomTargetSetup {
 		if (tag == null) {
@@ -182,8 +183,8 @@ class ZoomTargetSetup {
 
 	/**
 	 * Returns the final value that adds or multiplies all the targets together.
-	 * @param includeMain If false, it won't include the main target in the calculations.
-	 * @return `Float` ~ The final calculation.
+	 * @param includeMain If false it won't include the main target in the calculations.
+	 * @return Float ~ The final calculation.
 	 */
 	public function getFinalValue(includeMain:Bool = true):TargetSetup<Float> {
 		var result:TargetSetup<Float> = loadTargets(includeMain);
@@ -218,7 +219,6 @@ class ZoomTargetSetup {
 	}
 }
 
-@SuppressWarnings('checkstyle:CodeSimilarity')
 class BaseCamera extends FlxCamera {
 	/**
 	 * The camera **id**, used for debugging purposes.
@@ -233,9 +233,6 @@ class BaseCamera extends FlxCamera {
 	 * The camera zoom targets.
 	 */
 	public var zoomTargets(default, null):ZoomTargetSetup;
-
-	inline override function set_followLerp(value:Float):Float
-		return followLerp = FlxMath.bound(value, 0, value);
 
 	/**
 	 * The camera follow multiplier.
@@ -257,12 +254,12 @@ class BaseCamera extends FlxCamera {
 	inline function set_zoomSpeed(value:Float):Float
 		return zoomSpeed = FlxMath.bound(value, 0, value);
 	/**
-	 * Whenever target zooming is enabled. Defaults to `false`.
+	 * Whenever target zooming is enabled. Defaults to false.
 	 */
 	public var zoomEnabled:Bool = false;
 
 	/**
-	 * The default zoom to lerp to when **zoomEnabled** is true.
+	 * The default zoom to lerp to when "zoomEnabled" is true.
 	 */
 	public var defaultZoom:Float = 1;
 
@@ -294,33 +291,34 @@ class BaseCamera extends FlxCamera {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (zoomEnabled && !paused)
+		if (zoomEnabled)
 			updateZoom(elapsed);
 		super.update(elapsed);
 	}
 
-	override public function updateFollow():Void {
+	override function updateFollow():Void {
 		if (deadzone == null) {
 			target.getMidpoint(_point);
 			_point.addPoint(followTargets.getFinalValue(false).target.toFlxPoint());
-			focusOn(_point);
+			_scrollTarget.set(_point.x - width * 0.5, _point.y - height * 0.5);
 		} else {
 			var edge:Float;
-			var finalValue:TargetSetup<CameraTarget> = followTargets.getFinalValue();
-			var targetPosition:Position = finalValue.target;
+			var targetPosition:Position = followTargets.getFinalValue().target;
 			var targetX:Float = targetPosition.x;
 			var targetY:Float = targetPosition.y;
 
 			if (style == SCREEN_BY_SCREEN) {
-				if (targetX >= (scroll.x + width))
-					_scrollTarget.x += width;
-				else if (targetX < scroll.x)
-					_scrollTarget.x -= width;
+				if (targetX >= viewRight)
+					_scrollTarget.x += viewWidth;
+				else if (targetX + target.width < viewLeft)
+					_scrollTarget.x -= viewWidth;
 
-				if (targetY >= (scroll.y + height))
-					_scrollTarget.y += height;
-				else if (targetY < scroll.y)
-					_scrollTarget.y -= height;
+				if (targetY >= viewBottom)
+					_scrollTarget.y += viewHeight;
+				else if (targetY + target.height < viewTop)
+					_scrollTarget.y -= viewHeight;
+				// without this we see weird behavior when switching to SCREEN_BY_SCREEN at arbitrary scroll positions
+				bindScrollPos(_scrollTarget);
 			} else {
 				edge = targetX - deadzone.x;
 				if (_scrollTarget.x > edge)
@@ -347,7 +345,7 @@ class BaseCamera extends FlxCamera {
 				_lastTargetPosition.x = camPos.x;
 				_lastTargetPosition.y = camPos.y;
 			} else */ if (target is FlxSprite) {
-				_lastTargetPosition ??= FlxPoint.get(target.x, target.y);
+				_lastTargetPosition ??= FlxPoint.get(target.x, target.y); // Creates this point.
 
 				_scrollTarget.x += (target.x - _lastTargetPosition.x) * followLead.x;
 				_scrollTarget.y += (target.y - _lastTargetPosition.y) * followLead.y;
@@ -355,13 +353,21 @@ class BaseCamera extends FlxCamera {
 				_lastTargetPosition.x = target.x;
 				_lastTargetPosition.y = target.y;
 			}
+		}
+	}
 
-			if ((followLerp * followSpeed) == Math.POSITIVE_INFINITY)
-				scroll.copyFrom(_scrollTarget);
-			else {
-				scroll.x = FunkinUtil.lerp(scroll.x, _scrollTarget.x, finalValue.lerp * finalValue.mult);
-				scroll.y = FunkinUtil.lerp(scroll.y, _scrollTarget.y, finalValue.lerp * finalValue.mult);
-			}
+	override function updateLerp(elapsed:Float):Void {
+		if ((followLerp * followSpeed) >= 1)
+			scroll.copyFrom(_scrollTarget); // no easing
+		else if ((followLerp * followSpeed) > 0.0) {
+			/* // Adjust lerp based on the current frame rate so lerp is less framerate dependant
+			final adjustedLerp = 1.0 - Math.pow(1.0 - followLerp, elapsed * 60);
+			scroll.x += (_scrollTarget.x - scroll.x) * adjustedLerp;
+			scroll.y += (_scrollTarget.y - scroll.y) * adjustedLerp; */
+
+			var finalValue:TargetSetup<CameraTarget> = followTargets.getFinalValue();
+			scroll.x = FunkinUtil.lerp(scroll.x, _scrollTarget.x, finalValue.lerp * finalValue.mult);
+			scroll.y = FunkinUtil.lerp(scroll.y, _scrollTarget.y, finalValue.lerp * finalValue.mult);
 		}
 	}
 
@@ -373,10 +379,6 @@ class BaseCamera extends FlxCamera {
 		var finalValue:TargetSetup<Float> = zoomTargets.getFinalValue();
 		zoom = FunkinUtil.lerp(zoom, finalValue.target, finalValue.lerp * finalValue.mult);
 	}
-
-	@:deprecated('Use setFollow instead.') // override used just for this lol
-	@:noCompletion override public function follow(target:FlxObject, ?style:FlxCameraFollowStyle, ?lerp:Float):Void
-		super.follow(target, style, lerp);
 
 	/**
 	 * Snaps the camera to the default zoom.
@@ -390,7 +392,7 @@ class BaseCamera extends FlxCamera {
 	 * @param lerp The lerp amount.
 	 * @param speed The lerp multiplier.
 	 * @param style The camera follow style.
-	 * @param resetOffsets If true, it will clear all offsets.
+	 * @param resetOffsets If true it will clear all offsets.
 	 */
 	inline public function setFollow(target:FlxObject, lerp:Float = 0.2, speed:Float = 1, style:FlxCameraFollowStyle = LOCKON, resetOffsets:Bool = false):Void {
 		if (resetOffsets) followTargets.reset();
@@ -416,7 +418,7 @@ class BaseCamera extends FlxCamera {
 	 * @param target The target zoom to follow.
 	 * @param lerp The lerp amount.
 	 * @param speed The lerp multiplier.
-	 * @param resetOffsets If true, it will clear all offsets.
+	 * @param resetOffsets If true it will clear all offsets.
 	 */
 	inline public function setZooming(target:Float, lerp:Float = 0.16, speed:Float = 1, resetOffsets:Bool = false):Void {
 		if (resetOffsets) zoomTargets.reset();

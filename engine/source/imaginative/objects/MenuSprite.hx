@@ -33,7 +33,7 @@ class MenuSprite extends FlxSpriteGroup {
 	 * @param x The x position.
 	 * @param y The y position.
 	 * @param color FlxColor input.
-	 * @param funkinColor It true, when using FlxColor YELLOW, BLUE, MAGENTA, or GRAY it will use the menuBG color instead.
+	 * @param funkinColor If true when using 'FlxColor' "YELLOW", "BLUE", "MAGENTA", or "GRAY" it will use the menuBG color instead.
 	 * @param imagePathType The mod path type.
 	 */
 	override public function new(x:Float = 0, y:Float = 0, color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true, imagePathType:ModType = ANY) {
@@ -51,8 +51,8 @@ class MenuSprite extends FlxSpriteGroup {
 	/**
 	 * Changes the color of the sprite.
 	 * @param color The new color.
-	 * @param funkinColor If true, depending on the inputted color, it will look like the original funkin bg bg colors.
-	 * @return `FlxColor`
+	 * @param funkinColor If true depending on the inputted color, it will look like the original funkin bg bg colors.
+	 * @return FlxColor
 	 */
 	inline public function changeColor(color:FlxColor = FlxColor.YELLOW, funkinColor:Bool = true):FlxColor {
 		lineArt.color = (funkinColor && lineArtColors.exists(color)) ? lineArtColors.get(color) : color - 0xFF646464;
@@ -63,7 +63,7 @@ class MenuSprite extends FlxSpriteGroup {
 	 * Scales the sprite.
 	 * @param x New x scale.
 	 * @param y New y scale.
-	 * @param updateHitbox If true, it updates the hitbox.
+	 * @param updateHitbox If true it updates the hitbox.
 	 */
 	inline public function updateScale(x:Float = 1, ?y:Float, updateHitbox:Bool = true):Void {
 		for (obj in [blankBg, lineArt]) {
@@ -76,7 +76,7 @@ class MenuSprite extends FlxSpriteGroup {
 	 * Scales the graphic size.
 	 * @param width New width size.
 	 * @param height New height size.
-	 * @param updateHitbox If true, it updates the hitbox.
+	 * @param updateHitbox If true it updates the hitbox.
 	 */
 	inline public function updateSize(width:Int = 0, height:Int = 0, updateHitbox:Bool = true):Void {
 		for (obj in [blankBg, lineArt]) {
@@ -86,12 +86,12 @@ class MenuSprite extends FlxSpriteGroup {
 		}
 	}
 	/**
-	 * Scales the graphic size, but makes sure its unstretched.
+	 * Scales the graphic size but makes sure its unstretched.
 	 * @param width New width size.
 	 * @param height New height size.
 	 * @param fill Whenever the sprite should fill instead of shrinking (true).
 	 * @param maxScale Maximum scale (0 / none).
-	 * @param updateHitbox If true, it updates the hitbox.
+	 * @param updateHitbox If true it updates the hitbox.
 	 */
 	inline public function updateSizeUnstretched(width:Int = 0, height:Int = 0, fill:Bool = true, maxScale:Float = 0, updateHitbox:Bool = true):Void {
 		for (obj in [blankBg, lineArt]) {

@@ -1,22 +1,22 @@
 package imaginative.backend.scripting.group;
 
+// TODO: Rethink this class.
 /**
  * This class is to utilize several scripts in a single place.
  */
 class ScriptGroup implements IFlxDestroyable {
 	/**
-	 * `Array` of all the members in this group.
+	 * An array of all the members in this group.
 	 */
 	public var members:Array<Script> = [];
 	/**
 	 * Iterates through every member.
-	 * @return `FlxTypedGroupIterator<Script>`
+	 * @return FlxTypedGroupIterator<Script>
 	 */
 	inline public function iterator(?filter:Script->Bool):FlxTypedGroupIterator<Script>
 		return new FlxTypedGroupIterator<Script>(members, filter);
 	/**
-	 * The number of entries in the members array. For performance and safety you should check this
-	 * variable instead of `members.length` unless you really know what you're doing!
+	 * The number of entries in the members array.
 	 */
 	public var length(get, never):Int;
 	inline function get_length():Int
@@ -41,9 +41,9 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 
 	/**
-	 * Import's a script into the group.
-	 * @param file The mod path,
-	 * @return `Script`
+	 * Imports a script into the group.
+	 * @param file The mod path.
+	 * @return Script
 	 */
 	public function importScript(file:ModPath):Script {
 		final script:Script = Script.create(file, false)[0];
@@ -62,8 +62,8 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 
 	/**
-	 * Load's the scripts in the group, pretty self-explanatory.
-	 * @param clearInvalid If true, improper scripts will be removed from the group.
+	 * Loads the scripts in the group, pretty self-explanatory.
+	 * @param clearInvalid If true improper scripts will be removed from the group.
 	 */
 	public function load(clearInvalid:Bool = true):Void {
 		if (clearInvalid)
@@ -87,7 +87,7 @@ class ScriptGroup implements IFlxDestroyable {
 	 * Gets a variable from the script.
 	 * @param variable The variable to receive.
 	 * @param def If it's null then return this.
-	 * @return `T` ~ The value the variable will hold.
+	 * @return Dynamic ~ The value the variable holds.
 	 */
 	public function get<T>(variable:String, ?def:T):T {
 		var returnCall:T = null;
@@ -100,10 +100,9 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 	/**
 	 * Calls a function in the script instance.
-	 * @param func Name of the function to call.
+	 * @param func The name of the function to call.
 	 * @param args Arguments of said function.
-	 * @param def If your using this to return something, then this would be if it returns null.
-	 * @return `T` ~ Whatever is in the functions return statement.
+	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
 		var returnCall:T = null;
@@ -115,10 +114,10 @@ class ScriptGroup implements IFlxDestroyable {
 		return returnCall ?? def;
 	}
 	/**
-	 * Calls a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
+	 * Calls an event in the script instance.
+	 * @param func The name of the function to call.
 	 * @param event The event class.
-	 * @return `ScriptEvent`
+	 * @return ScriptEvent
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
 		for (script in members) {
@@ -133,7 +132,7 @@ class ScriptGroup implements IFlxDestroyable {
 	/**
 	 * Adds a new script to the group.
 	 * @param script The script you want to add to the group.
-	 * @param allowDuplicate If true, it allow scripts of the same mod path to be added.
+	 * @param allowDuplicate If true it allow scripts of the same mod path to be added.
 	 */
 	public function add(script:Script, allowDuplicate:Bool = false):Void {
 		if (!allowDuplicate && isDuplicate(script)) return;
@@ -144,7 +143,7 @@ class ScriptGroup implements IFlxDestroyable {
 	 * Inserts a new script to the group at the specified position.
 	 * @param position The position that the new script should be inserted at.
 	 * @param script The script you want to insert into the group.
-	 * @param allowDuplicate If true, it allow scripts of the same mod path to be added.
+	 * @param allowDuplicate If true it allow scripts of the same mod path to be added.
 	 */
 	public function insert(position:Int, script:Script, allowDuplicate:Bool = false):Void {
 		if (!allowDuplicate && isDuplicate(script)) return;
@@ -184,7 +183,7 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 
 	/**
-	 * End's the script group.
+	 * Ends the script group.
 	 * @param funcName Custom function call name.
 	 */
 	inline public function end(funcName:String = 'end'):Void {
@@ -202,9 +201,9 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 
 	/**
-	 * Get's a script from within the group via it's mod path.
+	 * Gets a script from within the group via it's mod path.
 	 * @param path The mod path.
-	 * @return `Script` ~ The returned script.
+	 * @return Script ~ The returned script.
 	 */
 	public function getByPath(path:String):Script {
 		var result:Script = null;
@@ -216,9 +215,9 @@ class ScriptGroup implements IFlxDestroyable {
 		return result;
 	}
 	/**
-	 * Get's a script from within the group via it's name.
+	 * Gets a script from within the group via it's file name.
 	 * @param name The name.
-	 * @return `Script` ~ The returned script.
+	 * @return Script ~ The returned script.
 	 */
 	public function getByName(name:String):Script {
 		var result:Script = null;

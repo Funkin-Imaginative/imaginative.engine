@@ -5,7 +5,7 @@ enum abstract HUDType(String) from String to String {
 	/**
 	 * The current HUD instance.
 	 */
-	public static var direct:HUDTemplate;
+	public static var instance:HUDTemplate;
 
 	var Template;
 	var VSlice;

@@ -2,10 +2,10 @@ package imaginative.objects.gameplay.arrows;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract ArrowModFollowType(String) from String to String {
-	var FIELD;
-	var STRUM;
-	var NOTE;
-	// var SUSTAIN; // useless, as the system can't go backwards
+	var FIELD = 'field';
+	var STRUM = 'strum';
+	var NOTE = 'note';
+	// var SUSTAIN = 'sustain'; // useless, as the system can't go backwards
 	var NONE = null;
 }
 
@@ -15,7 +15,7 @@ class ArrowModHandler {
 
 	/**
 	 * States what object to follow.
-	 * By default, Strum follows field, note follows strum and sustain follows note.
+	 * By default, strum follows field, note follows strum and sustain follows note.
 	 * Note that this system doesn't always apply. Also it can't go backwards, that would be a pain in the ass to deal with.
 	 * EFFCTS: Strum, Note, Sustain
 	 */
@@ -68,8 +68,8 @@ class ArrowModHandler {
 	}
 
 	/**
-	 * If true, the speed var becomes a multiplier.
-	 * If false, it is the direct speed.
+	 * If true the speed var becomes a multiplier.
+	 * If false it is the direct speed.
 	 */
 	public var speedIsMult:Bool = true;
 	inline function set_speedIsMult(value:Bool):Bool {
@@ -128,7 +128,7 @@ class ArrowModifier {
 	}
 	/**
 	 * This is an scroll speed variable.
-	 * EFFCTS: Strum, Note, Sustain
+	 * EFFCTS: Strum, Note
 	 */
 	public var speed(default, set):Float = 1;
 	inline function set_speed(value:Float):Float {
@@ -163,6 +163,15 @@ class ArrowModifier {
 		handler = new ArrowModHandler(this, startType);
 	}
 
+	/**
+	 * A manually update to all of these properties.
+	 */
+	inline public function update():Void {
+		update_scale();
+		update_angle();
+		update_alpha();
+	}
+
 	function update_scale():Void {
 		if (handler.scale) {
 			if (strum != null) {
@@ -170,18 +179,18 @@ class ArrowModifier {
 					case FIELD: [strum.setField.scale.x, strum.setField.scale.y];
 					default: [1, 1];
 				}
-				strum.scale.set( // 0.7 being base scale, which might be given a variable at some point
-					0.7 * followScale[0] * scale.x,
-					0.7 * followScale[1] * scale.y
+				strum.scale.set(
+					ArrowField.arrowScale * followScale[0] * scale.x,
+					ArrowField.arrowScale * followScale[1] * scale.y
 				);
 				for (note in strum.setField.notes.members.copy().filter((note:Note) -> return note.id == strum.id))
 					note.mods.update_scale();
 			}
 			if (note != null) {
 				var followScale:Array<Float> = switch (handler.followType) {
-					case FIELD: [0.7 * note.setField.scale.x, 0.7 * note.setField.scale.y];
+					case FIELD: [ArrowField.arrowScale * note.setField.scale.x, ArrowField.arrowScale * note.setField.scale.y];
 					case STRUM: [note.setStrum.scale.x, note.setStrum.scale.y];
-					default: [0.7, 0.7];
+					default: [ArrowField.arrowScale, ArrowField.arrowScale];
 				}
 				note.scale.set(
 					followScale[0] * scale.x,
@@ -192,10 +201,10 @@ class ArrowModifier {
 			}
 			if (sustain != null) {
 				var followScale:Array<Float> = switch (handler.followType) {
-					case FIELD: [0.7 * sustain.setField.scale.x, 0.7 * sustain.setField.scale.y];
+					case FIELD: [ArrowField.arrowScale * sustain.setField.scale.x, ArrowField.arrowScale * sustain.setField.scale.y];
 					case STRUM: [sustain.setStrum.scale.x, sustain.setStrum.scale.y];
 					case NOTE: [sustain.setHead.scale.x, sustain.setHead.scale.y];
-					default: [0.7, 0.7];
+					default: [ArrowField.arrowScale, ArrowField.arrowScale];
 				}
 				sustain.scale.set(
 					followScale[0] * scale.x,

@@ -16,13 +16,13 @@ class ImaginativeHUD extends HUDTemplate {
 	public var accuracyInfo:FlxText;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
-		var yLevel:Float = (FlxG.camera.height / 2) + (FlxG.camera.height / 2.7) * (downscroll ? 1 : -1);
+		var yLevel:Float = (getDefaultCamera().height / 2) + (getDefaultCamera().height / 2.7) * (downscroll ? 1 : -1);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, (FlxG.camera.height / 2) + (FlxG.camera.height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, (getDefaultCamera().height / 2) + (getDefaultCamera().height / 2.6) * (Settings.setupP1.downscroll ? -1 : 1)).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.y += bg.height / 2;
 		bg.screenCenter(X);
 		elements.add(bg);
@@ -41,7 +41,7 @@ class ImaginativeHUD extends HUDTemplate {
 		var texts:Array<FlxText> = [];
 		for (i in 0...3) {
 			var yCalc:Array<Float> = calculateTextYs();
-			var text:FlxText = new FlxText(0, yCalc[0] - (yCalc[1] * (i == 1 ? -1 : 1)), FlxG.camera.width / 3.2);
+			var text:FlxText = new FlxText(0, yCalc[0] - (yCalc[1] * (i == 1 ? -1 : 1)), getDefaultCamera().width / 3.2);
 			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 			text.screenCenter(X);
 			text.borderSize = 2;
@@ -55,7 +55,7 @@ class ImaginativeHUD extends HUDTemplate {
 		return texts[2];
 	}
 	override function initStatsP2Text():FlxText {
-		return new FlxText('', 0); // to prevent crashes
+		return new FlxText(); // to prevent crashes
 	}
 
 	var range = {
@@ -82,7 +82,7 @@ class ImaginativeHUD extends HUDTemplate {
 				[30, 4],
 				[0, 0]
 			];
-			var value:Array<Int> = spedLevel[spedLevel.length - 1];
+			var value:Array<Int> = spedLevel.last();
 			for (i in 0...spedLevel.length) {
 				value = spedLevel[i];
 				if (100 >= value[0])
@@ -97,7 +97,7 @@ class ImaginativeHUD extends HUDTemplate {
 			if (true && (curBeat % spedCalc == 0 || accuracyInfo.text.contains('(...)'))) {
 				FlxTween.cancelTweensOf(accuracyInfo, ['scale.x', 'scale.y']);
 				accuracyInfo.scale.set(1.2, 1.2);
-				var beatCalc:Float = Conductor.direct.beatTime / 1000 / 2.3;
+				var beatCalc:Float = Conductor.instance.beatTime / 1000 / 2.3;
 				FlxTween.tween(accuracyInfo, {'scale.x': 1}, beatCalc, {ease: FlxEase.bounceOut});
 				FlxTween.tween(accuracyInfo, {'scale.y': 1}, beatCalc, {ease: FlxEase.smootherStepInOut});
 			}

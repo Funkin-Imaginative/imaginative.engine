@@ -49,7 +49,6 @@ class StoryMenu extends BeatState {
 
 	// Camera management.
 	var camPoint:FlxObject;
-	var mainCamera:BeatCamera;
 
 	override public function create():Void {
 		super.create();
@@ -61,7 +60,6 @@ class StoryMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		FlxG.cameras.reset(mainCamera = new BeatCamera().beatSetup(conductor, 0.5));
 		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
 		mainCamera.setZooming(1, 0.16);
 		mainCamera.zoomEnabled = true;
@@ -71,11 +69,14 @@ class StoryMenu extends BeatState {
 		var loadedObjects:Array<Array<ObjectTyping>> = [];
 		levels = new FlxTypedGroup<LevelHolder>();
 		var levelList:Array<Array<ModPath>> = [
+			#if MOD_SUPPORT
 			Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
 			Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
+			#else
+			Paths.readFolderOrderTxt('content/levels', 'json', false)
+			#end
 		];
-		if (Settings.setup.debugMode && ![for (list in levelList) for (name in list) name].contains('main:debug/Test'))
-			levelList.insert(0, ['main:debug/Test']);
+		trace(levelList);
 		for (list in levelList) {
 			for (i => name in list) {
 				var level:LevelHolder = new LevelHolder(name, true);
@@ -129,14 +130,14 @@ class StoryMenu extends BeatState {
 			arrow.animation.addByPrefix('idle', '${dir}Idle', 24, false);
 			arrow.animation.addByPrefix('confirm', '${dir}Confirm', 24, false);
 
-			arrow.animation.finishCallback = (name:String) -> {
+			arrow.animation.onFinish.add((name:String) -> {
 				switch (name) {
 					case 'confirm':
 						arrow.playAnim('idle');
 						arrow.centerOffsets();
 						arrow.centerOrigin();
 				}
-			}
+			});
 
 			arrow.scale.scale(0.85);
 			arrow.updateHitbox();
@@ -155,11 +156,11 @@ class StoryMenu extends BeatState {
 		leftArrow.x -= arrowDistance;
 		rightArrow.x += arrowDistance;
 
-		weekTopBg = new BaseSprite().makeSolid(FlxG.camera.width, 56);
-		weekTopBg.color = camera.bgColor;
+		weekTopBg = new BaseSprite().makeSolid(mainCamera.width, 56);
+		weekTopBg.color = mainCamera.bgColor;
 		add(weekTopBg);
 
-		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(FlxG.camera.width, 400);
+		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(mainCamera.width, 400);
 		weekBg.color = levels.members[curSelected].data.color;
 		add(weekBg);
 
@@ -170,12 +171,9 @@ class StoryMenu extends BeatState {
 				var modPath:ModPath = data.path;
 				var objectData:SpriteData = data.object;
 
-				if (!data.path.isNullOrEmpty()) {
-					if (!Paths.fileExists(Paths.object(modPath)) && !cantFindList.contains(modPath.path)) {
-						log('Object "${Paths.object(modPath).path}" doesn\'t exist.', WarningMessage);
+				if (!data.path.isNullOrEmpty())
+					if (!Paths.object(modPath).isFile && !cantFindList.contains(modPath.path))
 						cantFindList.push(modPath.path);
-					}
-				}
 
 				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
 				if (data.flip) sprite.flipX = !sprite.flipX;
@@ -193,10 +191,12 @@ class StoryMenu extends BeatState {
 				levels.members[i].weekObjects.push(sprite);
 				weekObjects.add(sprite);
 			}
+		if (!cantFindList.empty())
+			log('Object(s) ${cantFindList.cleanDisplayList()} doesn\'t exist.', WarningMessage);
 
 		for (level in levels)
 			for (i => sprite in level.weekObjects) {
-				sprite.setPosition(FlxG.camera.width / 2, weekBg.height / 2 + weekBg.y);
+				sprite.setPosition(mainCamera.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
 				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
 
@@ -230,20 +230,20 @@ class StoryMenu extends BeatState {
 		changeDifficulty();
 
 		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
-		camPoint.setPosition(mid.x, mid.y - (FlxG.camera.height / 3.4));
-		camera.snapToTarget();
+		camPoint.setPosition(mid.x, mid.y - (mainCamera.height / 3.4));
+		mainCamera.snapToTarget();
 	}
 
-	function hoverIsCorrect(item:LevelHolder):Bool {
+	inline function hoverIsCorrect(item:LevelHolder):Bool {
 		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && FlxG.mouse.overlaps(item);
 	}
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP)
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP)
 				changeSelection(-1);
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN)
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN)
 				changeSelection(1);
 
 			if (FlxG.mouse.wheel != 0)
@@ -268,13 +268,13 @@ class StoryMenu extends BeatState {
 					playArrowAnim();
 			}
 
-			if (Controls.uiLeft)
+			if (Controls.global.uiLeft)
 				changeDifficulty(-1);
-			else if (Controls.uiLeftPress)
+			else if (Controls.global.uiLeftPress)
 				playArrowAnim(true);
-			if (Controls.uiRight)
+			if (Controls.global.uiRight)
 				changeDifficulty(1);
-			else if (Controls.uiRightPress)
+			else if (Controls.global.uiRightPress)
 				playArrowAnim();
 
 			if (FlxG.keys.justPressed.HOME)
@@ -282,19 +282,19 @@ class StoryMenu extends BeatState {
 			if (FlxG.keys.justPressed.END)
 				changeSelection(levels.length - 1, true);
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
 					event.playMenuSFX(CancelSFX);
-					BeatState.switchState(new MainMenu());
+					BeatState.switchState(() -> new MainMenu());
 				}
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
+			if (Controls.global.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
 				selectCurrent();
 		}
 
 		var item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = Position.getObjMidpoint(item).y - (FlxG.camera.height / 3.4);
+		camPoint.y = Position.getObjMidpoint(item).y - (mainCamera.height / 3.4);
 		weekBg.color = FunkinUtil.colorLerp(weekBg.color, levels.members[curSelected].data.color, 0.1);
 	}
 
@@ -390,7 +390,7 @@ class StoryMenu extends BeatState {
 
 			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
-				BeatState.switchState(new PlayState());
+				BeatState.switchState(() -> new PlayState());
 			});
 		}
 	}

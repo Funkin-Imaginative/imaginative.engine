@@ -91,9 +91,9 @@ class Native {
 		final display:Null<Display> = System.getDisplay(0);
 		if (display != null) {
 			final dpiScale:Float = display.dpi / 96;
-			FlxWindow.direct.self.width = Std.int(Main.initialWidth * dpiScale);
-			FlxWindow.direct.self.height = Std.int(Main.initialHeight * dpiScale);
-			FlxWindow.direct.screenCenter();
+			FlxWindow.instance.self.width = Std.int(Main.initialWidth * dpiScale);
+			FlxWindow.instance.self.height = Std.int(Main.initialHeight * dpiScale);
+			FlxWindow.instance.screenCenter();
 		}
 
 		untyped __cpp__('

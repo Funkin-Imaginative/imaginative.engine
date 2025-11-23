@@ -1,26 +1,20 @@
 {
 	"dependencies": [
-		{"name": "hxp"},
+		{ "name": "checkstyle" },
+
+		{ "name": "hxWindowColorMode" },
 
 		{
-			"name": "flixel-addons", "version": "git",
-			"url": "https://github.com/CodenameCrew/cne-flixel-addons",
+			"name": "flixel-addons",
 			"dependencies": [
 				{
-					"name": "flixel", "version": "git",
-					"url": "https://github.com/CodenameCrew/cne-flixel",
-					"dependencies": [{"name": "openfl"}, {"name": "lime"}]
+					"name": "flixel",
+					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
 				}
 			]
 		},
 
-		{
-			"name": "json2object", "version": "git",
-			"url": "https://github.com/FunkinCrew/json2object"
-		},
-		{"name": "checkstyle"},
-
-		{"name": "hxcpp-debug-server"},
+		{ "name": "flixel-animate", "dependencies": [] },
 
 		{
 			"name": "moonchart", "version": "git", "branch": "imaginative",
@@ -29,21 +23,40 @@
 
 		{"name": "rulescript"},
 		{
-			"name": "linc_luajit", "version": "git",
+			"name": "hxcpp",
+			"version": "git",
+			"branch": "v4.3.75",
+			"url": "https://github.com/HaxeFoundation/hxcpp"
+		},
+
+		{ "name": "hxcpp-debug-server" },
+		{ "name": "hxdiscord_rpc" },
+		{ "name": "hxp" },
+
+		{
+			"name": "hxvlc",
+			"version": "git",
+			"url": "https://github.com/MAJigsaw77/hxvlc",
+			"dependencies": []
+		},
+		{
+			"name": "json2object",
+			"version": "git",
+			"url": "https://github.com/FunkinCrew/json2object"
+		},
+		{
+			"name": "linc_luajit",
+			"version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"
 		},
-		{"name": "hxdiscord_rpc"},
 		{
-			"name": "hxvlc", "version": "git",
-			"url": "https://github.com/MAJigsaw77/hxvlc",
-			"dependencies": [
-				{
-					"name": "hxcpp", "version": "git", "branch": "v4.3.75",
-					"url": "https://github.com/HaxeFoundation/hxcpp"
-				}
-			]
+			"name": "moonchart",
+			"version": "git",
+			"branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
-		{"name": "thx.semver"}
+
+		{"name": "thx.semver" }
 	],
 	"questions": [
 		{
@@ -64,7 +77,11 @@
 		},
 		{
 			"name": "thx.semver",
-			"description": "the engine to have version checking capabilities"
+			"description": "allow engine to have version checking capabilities"
+		},
+		{
+			"name": "hxWindowColorMode",
+			"description": "allow engine to set the window border color (WINDOWS ONLY)"
 		}
 	]
 }

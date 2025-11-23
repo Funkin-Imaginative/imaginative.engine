@@ -1,8 +1,16 @@
 package imaginative.objects.gameplay.arrows;
 
 import imaginative.backend.scripting.events.gameplay.*;
+import imaginative.objects.gameplay.arrows.group.NoteGroup;
+import imaginative.objects.gameplay.arrows.group.StrumGroup;
+import imaginative.objects.gameplay.arrows.group.SustainGroup;
 import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.states.editors.ChartEditor.ChartField;
+
+typedef FieldSetupData = {
+	var x:Float;
+	var scale:Float;
+}
 
 class ArrowField extends BeatGroup {
 	/**
@@ -15,70 +23,74 @@ class ArrowField extends BeatGroup {
 	 */
 	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
-		return conductor ?? Conductor.mainDirect;
+		return conductor ?? Conductor.mainInstance;
 
-	// Even though you can have a but ton of ArrowField's you can ***ONLY*** play as one!
+	// Even though you can have a but ton of 'ArrowField's you can ***ONLY*** play as one!
 	/**
 	 * The main enemy field.
 	 */
-	public static var enemy:ArrowField;
+	public static var enemy(default, set):Null<ArrowField>;
+	inline static function set_enemy(?value:ArrowField):Null<ArrowField> {
+		enemy = value;
+		// sets the lane count for the controls instance
+		if (enemy != null) enemy.controls.laneCount = enemy.laneCount;
+		return enemy;
+	}
 	/**
 	 * The main player field.
 	 */
-	public static var player:ArrowField;
-
-	/**
-	 * Sets up position for an array of fields.
-	 * @param fields Array of fields.
-	 * @return `Array<ArrowField>`
-	 */
-	public static function setupFieldXPositions(fields:Array<ArrowField>, ?camera:FlxCamera):Array<ArrowField> {
-		if (camera == null)
-			camera = FlxG.camera;
-		for (i => field in fields) {
-			if (field.length < 3)
-				field.scale.set(field.scale.x / Math.min(field.length, 2), field.scale.y / Math.min(field.length, 2));
-			field.visible = true;
-		}
-		var hatred:Array<FlxObject> = [
-			for (field in fields)
-				new FlxObject(field.x, field.y, field.totalWidth, arrowSize)
-		];
-		hatred.space((camera.width / 2) - (camera.width / 4), 0, (camera.width / 2) + (camera.width / 4) - (camera.width / 2) - (camera.width / 4), 0, (object:FlxObject, x:Float, y:Float) -> {
-			var field:ArrowField = fields[hatred.indexOf(object)];
-			field.x = /* field.totalWidth / 2 + */ x;
-		});
-		for (obj in hatred)
-			obj.destroy();
-		return fields;
+	public static var player(default, set):Null<ArrowField>;
+	inline static function set_player(?value:ArrowField):Null<ArrowField> {
+		player = value;
+		// sets the lane count for the controls instance
+		if (player != null) player.controls.laneCount = player.laneCount;
+		return player;
 	}
 
 	/**
-	 * If enabled, botplay will be active when entering a song.
+	 * Returns x position and scaling data for an array of fields.
+	 * @param fields Array of fields.
+	 * @return Array<FieldSetupData> ~ The data for field x position and scaling.
+	 */
+	public static function getFieldSetupData(fields:Array<ArrowField>):Array<FieldSetupData> {
+		if (fields.empty()) return [];
+		var setupData:Array<FieldSetupData> = [];
+		for (i => field in fields) {
+			var data:FieldSetupData = {x: 0, scale: 1}
+			var camera = field.getDefaultCamera();
+			data.x = camera.width * i / fields.length;
+			data.x += camera.width / fields.length / 2;
+			setupData.push(data);
+		}
+		return setupData;
+	}
+
+	/**
+	 * If enabled botplay will be activate when entering a song.
 	 */
 	public static var botplay:Bool = false;
 	/**
-	 * If enabled, you play as the enemy instead of the player.
+	 * If enabled you play as the enemy instead of the player.
 	 */
 	public static var enemyPlay:Bool = false;
 	/**
-	 * If enabled, the enemy will be controlled by a second player.
+	 * If enabled the enemy will be controlled by a second player.
 	 * But with enemyPlay your swapped around, making P1 the enemy and P2 the player.
 	 */
 	public static var enableP2:Bool = false;
 
-	// MAYBE: Figure out how to do this better.
+	// TODO: Figure out how to do this better.
 	inline public static function characterSing(field:ArrowField, actors:Array<Character>, id:Int, context:AnimationContext, force:Bool = true, ?suffix:String):Void {
-		for (char in actors.filter((char:Character) -> return char != null)) {
+		for (char in field.previousInteractedActors = actors.filter((char:Character) -> return char != null)) {
 			char.controls = field.isPlayer ? field.controls : null;
 			var temp:String = ['LEFT', 'DOWN', 'UP', 'RIGHT'][id];
-			char.playAnim('sing$temp', context, suffix);
+			char.playAnim('sing$temp', force, context, suffix);
 			char.lastHit = field.conductor.time;
 		}
 	}
 
 	/**
-	 * States if it's the main enemy or player field.
+	 * States if its the main enemy or player field.
 	 * False is the enemy, true is the player, and null is neither.
 	 */
 	public var status(get, set):Null<Bool>;
@@ -114,7 +126,7 @@ class ArrowField extends BeatGroup {
 		player = prevEnemy;
 	}
 	/**
-	 * If true, this field is maintained by a player.
+	 * If true this field is maintained by a player.
 	 */
 	public var isPlayer(get, never):Bool;
 	inline function get_isPlayer():Bool {
@@ -124,26 +136,29 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The field controls instance.
 	 */
-	public var controls(get, never):Controls;
-	inline function get_controls():Controls
+	public var controls(get, never):PlayerControls;
+	inline function get_controls():PlayerControls {
 		if (status == null) return Controls.blank;
-		else return status == enemyPlay ? Controls.p2 : Controls.p1;
+		return status == enemyPlay ? Controls.p2 : Controls.p1;
+	}
 	/**
 	 * The field settings instance.
 	 */
 	public var settings(get, never):PlayerSettings;
-	inline function get_settings():PlayerSettings
+	inline function get_settings():PlayerSettings {
 		if (status == null) return Settings.setupP1;
-		else return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+		return status == enemyPlay ? Settings.setupP2 : Settings.setupP1;
+	}
 	/**
 	 * The field stats instance.
 	 */
 	public var stats(get, never):PlayerStats;
-	inline function get_stats():PlayerStats
+	inline function get_stats():PlayerStats {
 		if (status == null) return Scoring.unregisteredStats;
-		else return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
+		return status == enemyPlay ? Scoring.statsP2 : Scoring.statsP1;
+	}
 
-	// signals
+	// FlxSignals
 	/**
 	 * Dispatches when user input happens at all.
 	 */
@@ -174,30 +189,42 @@ class ArrowField extends BeatGroup {
 	 * `May make it contain string instead.`
 	 */
 	public var assignedActors:Array<Character>;
+	/**
+	 * States what characters last sang for this field.
+	 * Used for tracking you should be the target character for gameovers.
+	 */
+	public var previousInteractedActors:Array<Character> = [];
+
+	/**
+	 * If true then the note rendering process is active.
+	 */
+	public var activateNoteRendering:Bool = true;
 
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):BeatTypedSpriteGroup<Strum> = new BeatTypedSpriteGroup<Strum>();
+	public var strums(default, null):StrumGroup;
 	/**
 	 * The notes of the field.
 	 */
-	public var notes(default, null):BeatTypedGroup<Note> = new BeatTypedGroup<Note>();
+	public var notes(default, null):NoteGroup;
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains(default, null):BeatTypedGroup<Sustain> = new BeatTypedGroup<Sustain>();
+	public var sustains(default, null):SustainGroup;
 
 	/**
 	 * How far out until a note is killed.
 	 */
 	public var noteKillRange:Float = 350;
 	/**
-	 * The distance between the each strum.
-	 * TODO: Make it so strum skins will have their own spacing!
-	 * TODO: REWORK THIS COMPLETELY
+	 * The distance between the each lane.
 	 */
-	public var strumSpacing:Float = 0;
+	public var laneSpacing:Float = 7;
+	/**
+	 * Used for psych "middlescroll" type shit.
+	 */
+	public var centerSpacing:Null<Float> = null;
 
 	/**
 	 * This function is used to get the scroll speed but also check for the personal speed!
@@ -209,14 +236,14 @@ class ArrowField extends BeatGroup {
 	 * scrollSpeed = personalScrollSpeed + 2;
 	 * // that wouldn't be fun
 	 * ```
-	 * @return `Float` ~ Target scroll speed.
+	 * @return Float ~ Target scroll speed.
 	 */
 	inline public function getScrollSpeed():Float
 		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : scrollSpeed;
 	/**
 	 * The scroll speed of the field.
 	 * This overrides the base chart speed.
-	 * When null is returns the base chart speed.
+	 * When "null" is returns the base chart speed.
 	 */
 	public var scrollSpeed(default, set):Null<Float>;
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
@@ -233,8 +260,7 @@ class ArrowField extends BeatGroup {
 	public var scrollAngle(default, set):Null<Float>;
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_angle)
 	inline function set_scrollAngle(?value:Float):Null<Float> {
-		value ??= (settings.downscroll ? 90 : 270);
-		scrollAngle = value;
+		scrollAngle = value ?? (settings.downscroll ? 90 : 270);
 		for (sustain in sustains)
 			sustain.mods.update_angle();
 		return value;
@@ -242,87 +268,59 @@ class ArrowField extends BeatGroup {
 
 	/**
 	 * The amount of strums in the field.
-	 * Forced to 4 for now.
+	 * Forced to 4 *for now*.
 	 */
-	public var strumCount(default, set):Int;
-	inline function set_strumCount(value:Int):Int
-		return strumCount = 4;//Std.int(FlxMath.bound(value, 1, 9));
+	public var laneCount(get, never):Int;
+	inline function get_laneCount():Int
+		return strums.length;
 
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
-	override public function new(?singers:Array<Character>, mania:Int = 4) {
-		strumCount = mania;
+	override public function new(?singers:Array<Character>, startCount:Int = 4) {
+		strums = new StrumGroup(this);
+		notes = new NoteGroup(strums);
+		sustains = new SustainGroup(notes);
 		super();
 
-		for (i in 0...strumCount)
-			strums.add(new Strum(this, i));
-
-		scrollSpeed = scrollAngle = null; // runs the "set_" function
+		// runs the "set_" function
+		scrollSpeed = null;
+		scrollAngle = null;
 
 		scale = new FlxCallbackPoint(
 			(point:FlxPoint) -> {
 				strums.scale.copyFrom(point);
+				strums.scale.scale(arrowScale);
 				for (note in notes)
 					note.mods.update_scale();
 			}
 		);
 
-		strums.group.memberAdded.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
-		strums.group.memberRemoved.add((_:Strum) -> strums.members.sort((a:Strum, b:Strum) -> return FlxSort.byValues(FlxSort.ASCENDING, a.id, b.id)));
-
+		strums.setLineup(4);
+		scale.set(1, 1); // wasn't set to 1 by default apparently
 		resetInternalPositions();
-		setPosition(FlxG.camera.width / 2, FlxG.camera.height / 2);
+		setPosition(getDefaultCamera().width / 2, getDefaultCamera().height / 2);
 
 		assignedActors = singers ?? [];
 
-		notes.memberAdded.add((_:Note) -> notes.members.sort(Note.sortNotes));
-		notes.memberRemoved.add((_:Note) -> notes.members.sort(Note.sortNotes));
-
-		sustains.memberAdded.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
-		sustains.memberRemoved.add((_:Sustain) -> sustains.members.sort(Note.sortTail));
-
 		add(strums);
 		add(notes);
-		insert(members.indexOf(true ? strums : notes), sustains); // behindStrums
+		insert(members.indexOf(false ? strums : notes), sustains); // behindStrums
 	}
 
 	inline function _input():Void {
 		for (i => strum in strums.members)
-			input(
-				i,
-				strum,
-				[
-					controls.noteLeft,
-					controls.noteDown,
-					controls.noteUp,
-					controls.noteRight
-				]
-				[i],
-				[
-					controls.noteLeftHeld,
-					controls.noteDownHeld,
-					controls.noteUpHeld,
-					controls.noteRightHeld
-				]
-				[i],
-				[
-					controls.noteLeftReleased,
-					controls.noteDownReleased,
-					controls.noteUpReleased,
-					controls.noteRightReleased
-				]
-				[i]
-			);
+			input(i, strum, controls.notePressed(i), controls.noteHeld(i), controls.noteReleased(i));
 	}
 
+	// TODO: Rework this.
 	/**
 	 * Where input stuff really begins.
-	 * @param i The strum lane index.
+	 * @param i The lane index.
 	 * @param strum The strum object instance.
-	 * @param hasHit If true, a bind was pressed.
-	 * @param beingHeld If true, a bind is being held.
-	 * @param wasReleased If true, a bind was released.
+	 * @param hasHit If true a bind was pressed.
+	 * @param beingHeld If true a bind is being held.
+	 * @param wasReleased If true a bind was released.
 	 */
-	inline function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
+	function input(i:Int, strum:Strum, hasHit:Bool, beingHeld:Bool, wasReleased:Bool):Void {
 		var event:FieldInputEvent = new FieldInputEvent(i, strum, this, hasHit, beingHeld, wasReleased);
 		userInput.dispatch(event);
 		if (event.prevented) return;
@@ -331,22 +329,18 @@ class ArrowField extends BeatGroup {
 		if (hasHit) {
 			var activeNotes:Array<Note> = Note.filterNotes(notes.members, i);
 			if (!activeNotes.empty()) {
-				for (note in activeNotes) {
-					var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
-					if (activeNotes.length > 2) {
-						var backNote:Note = activeNotes[1];
-						if (backNote.id == frontNote.id) {
-							if (Math.abs(backNote.time - frontNote.time) < 1.0) {
-								var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
-								var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
-								deadNote.canDie = true;
-								frontNote = liveNote;
-							} else if (backNote.time < frontNote.time)
-								frontNote = backNote;
-						}
-					}
-					_onNoteHit(frontNote, i);
+				var frontNote:Note = activeNotes[0]; // took from psych, fixes a dumb issue where it eats up jacks
+				if (activeNotes.length > 2) {
+					var backNote:Note = activeNotes[1];
+					if (Math.abs(backNote.time - frontNote.time) < 1.0) {
+						var liveNote:Note = backNote.length < frontNote.length ? backNote : frontNote;
+						var deadNote:Note = backNote.length < frontNote.length ? frontNote : backNote;
+						deadNote.destroy(); // shouldn't need to keep existing
+						frontNote = liveNote;
+					} else if (backNote.time < frontNote.time)
+						frontNote = backNote;
 				}
+				_onNoteHit(frontNote, i);
 			} else {
 				// void hits (random key presses / ghost tapping)
 				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
@@ -354,6 +348,8 @@ class ArrowField extends BeatGroup {
 				if (!event.prevented) {
 					if (!event.stopStrumPress)
 						event.strum.playAnim('press', !event.triggerMiss);
+					if (event.triggerMiss)
+						FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 					event.field.updateStatsText();
 				}
 			}
@@ -375,36 +371,35 @@ class ArrowField extends BeatGroup {
 		if (isPlayer)
 			_input();
 
-		for (note in notes) {
-			// lol
-			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / note.__scrollSpeed)) {
+		// auto hit and note miss
+		notes.forEachExists((note:Note) -> {
+			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / Math.abs(note.__scrollSpeed)))
 				if (!note.wasHit && !note.wasMissed)
 					_onNoteMissed(note);
-				note.canDie = true;
-			}
-			if (!isPlayer) {
+			if (!isPlayer)
 				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
-			}
-			var shouldKill:Bool = note.canDie;
-			for (sustain in note.tail)
-				if (!(shouldKill = sustain.canDie))
-					break;
-			if (shouldKill)
-				note.kill();
-		}
-		for (sustain in sustains) {
-			// lol
-			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / sustain.__scrollSpeed)) {
+		});
+		// auto hit and sustain miss
+		sustains.forEachExists((sustain:Sustain) -> {
+			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / Math.abs(sustain.__scrollSpeed)))
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
-				sustain.canDie = true;
-			}
-			if (!isPlayer) {
+			if (!isPlayer)
 				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
-			}
-		}
+		});
+		// checks when a note and its tail can be killed
+		notes.forEachExists((note:Note) -> {
+			var canKill:Array<Bool> = [(note.wasHit || note.wasMissed) && note.tooLate];
+			for (sustain in note.tail)
+				canKill.push((sustain.wasHit || sustain.wasMissed) && sustain.tooLate);
+			if (!canKill.contains(false)) {
+				_log('[ArrowField] Lineage Killed: $note', DebugMessage);
+				note.kill();
+			} else note.followStrum();
+			canKill = canKill.clearArray();
+		});
 
 		super.update(elapsed);
 	}
@@ -413,11 +408,12 @@ class ArrowField extends BeatGroup {
 	 * Shortcut function to update the stats text of the hud.
 	 */
 	inline public function updateStatsText():Void
-		if (status != null && HUDType.direct != null)
-			if (status == enemyPlay) HUDType.direct.updateStatsP2Text();
-			else HUDType.direct.updateStatsText();
+		if (status != null && HUDType.instance != null)
+			if (status == enemyPlay) HUDType.instance.updateStatsP2Text();
+			else HUDType.instance.updateStatsText();
 
-	inline function _onNoteHit(note:Note, ?i:Int):Void {
+	// TODO: Figure out how to do this better.
+	function _onNoteHit(note:Note, ?i:Int):Void {
 		if (note.wasHit) return;
 		i ??= note.id;
 		note.wasHit = true;
@@ -436,7 +432,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onSustainHit(sustain:Sustain, ?i:Int):Void {
+	function _onSustainHit(sustain:Sustain, ?i:Int):Void {
 		if (sustain.wasHit) return;
 		i ??= sustain.id;
 		sustain.wasHit = true;
@@ -451,7 +447,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onNoteMissed(note:Note, ?i:Int):Void {
+	function _onNoteMissed(note:Note, ?i:Int):Void {
 		if (note.wasMissed) return;
 		i ??= note.id;
 		note.wasMissed = true;
@@ -459,9 +455,12 @@ class ArrowField extends BeatGroup {
 		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
+			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
-				for (sustain in Note.filterTail(event.note.tail, true))
+				for (sustain in Note.filterTail(event.note.tail, true)) {
 					sustain.wasMissed = true;
+					sustain.mods.alpha *= 0.86;
+				}
 			if (event.field.isPlayer) {
 				event.field.stats.score -= 50;
 				event.field.stats.combo = 0;
@@ -472,7 +471,7 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	inline function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
+	function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
 		if (sustain.wasMissed) return;
 		i ??= sustain.id;
 		sustain.wasMissed = true;
@@ -480,9 +479,12 @@ class ArrowField extends BeatGroup {
 		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
+			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
 			if (event.field.settings.missFullSustain)
-				for (sustain in Note.filterTail(event.sustain.setHead.tail, true))
+				for (sustain in Note.filterTail(event.sustain.setHead.tail, true)) {
 					sustain.wasMissed = true;
+					sustain.mods.alpha *= 0.86;
+				}
 			if (event.field.isPlayer) {
 				event.field.stats.score -= 20;
 				event.field.stats.combo = 0;
@@ -495,39 +497,79 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * The base arrow size.
+	 * The base arrow scale.
+	 * Scale being the objects scale variable.
 	 */
-	public static var arrowSize(default, null):Float = 160 * 0.7;
+	public static var arrowScale:Float = 0.7;
+	/**
+	 * The base arrow size.
+	 * Size being the objects width and height.
+	 */
+	public static var arrowSize(default, null):Float = 150 * arrowScale; // 150 being the average width and height of the base note textures
 
 	/**
 	 * The average width you'll get from this field.
 	 */
-	public var averageWidth(get, null):Float;
+	public var averageWidth(get, never):Float;
 	inline function get_averageWidth():Float {
-		return (arrowSize * strumCount) + (strumSpacing * (strumCount - 1));
+		return (arrowSize * laneCount) + (laneSpacing * (laneCount - 2)) + (centerSpacing ?? laneSpacing);
 	}
 	/**
 	 * The total calculated width of the strums.
+	 * Would use an automatic method like 'FlxSpriteGroup's shit but doesn't work right for some reason.
 	 */
-	public var totalWidth(default, null):Float;
+	public var totalWidth:Float = 0;
+	/* inline function get_totalWidth():Float {
+		if (strums.members.empty()) return 0;
+		return findMaxStrumsX() - findMinStrumsX();
+	}
+	// these were taken from 'FlxSpriteGroup'
+	function findMinStrumsX():Float {
+		var value = Math.POSITIVE_INFINITY;
+		for (member in strums) {
+			if (member == null) continue;
+
+			var minX:Float;
+			if (member.flixelType == SPRITEGROUP) minX = (cast member:FlxSpriteGroup).findMinX();
+			else minX = member.x;
+
+			if (minX < value)
+				value = minX;
+		}
+		return value;
+	}
+	function findMaxStrumsX():Float {
+		var value = Math.NEGATIVE_INFINITY;
+		for (member in strums) {
+			if (member == null) continue;
+
+			var maxX:Float;
+			if (member.flixelType == SPRITEGROUP) maxX = (cast member:FlxSpriteGroup).findMaxX();
+			else maxX = member.x + member.width;
+
+			if (maxX > value)
+				value = maxX;
+		}
+		return value;
+	} */
 
 	/**
-	 * Reset's the internal positions of the strums.
+	 * Resets the internal positions of the strums.
 	 */
 	public function resetInternalPositions():Void {
 		for (strum in strums)
 			strum.x = 0;
 
-		inline function helper(a:Strum, b:Strum):Void
+		inline function helper(a:Strum, b:Strum, isMiddle:Bool = false):Void {
 			if (a != null && b != null)
-				b.x = a.x + arrowSize + strumSpacing;
-
-		for (i => strum in strums.members) {
-			strum.y = -arrowSize / 2;
-			helper(strum, strums.members[i + 1]);
+				b.x = a.x + (arrowSize * Math.abs(scale.x)) + (isMiddle ? centerSpacing ?? laneSpacing : laneSpacing);
 		}
 
-		totalWidth = (strums.members[strums.length - 1].x + strums.members[strums.length - 1].width) - strums.members[0].x;
+		for (i => strum in strums.members) {
+			strum.y = -(arrowSize * Math.abs(scale.y)) / 2;
+			helper(strum, strums.members[i + 1], i == Math.floor(strums.length / 2) - 1);
+		}
+		totalWidth = (strums.members.last().x + strums.members.last().width) - strums.members[0].x;
 		for (strum in strums)
 			strum.x -= totalWidth / 2;
 	}
@@ -579,25 +621,22 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Parse's ChartField information.
-	 * @param data The ChartField data.
+	 * Parses 'ChartField' information.
+	 * @param data The 'ChartField' data.
 	 */
 	public function parse(data:ChartField):Void {
 		for (base in data.notes) {
-			var note:Note = new Note(this, strums.members[base.id], base.id, base.time);
-			Note.generateTail(note, base.length);
+			var note:Note = new Note(this, base.id, base.time, base.length);
 			var lol:Array<String> = base.characters ??= [];
-			note.assignedActors = PlayState.direct == null ? [] : [
-				for (tag => char in PlayState.direct.characterMapping)
+			note.assignedActors = PlayState.instance == null ? [] : [
+				for (tag => char in PlayState.instance.characterMapping)
 					if (lol.contains(tag))
 						char
 			];
-			for (sustain in notes.add(note).tail)
-				sustains.add(sustain);
 		}
 	}
 
-	override function destroy():Void {
+	override public function destroy():Void {
 		if (enemy == this) enemy = null;
 		if (player == this) player = null;
 		onNoteHit.destroy();

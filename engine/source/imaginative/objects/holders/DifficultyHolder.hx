@@ -1,5 +1,6 @@
 package imaginative.objects.holders;
 
+// TODO: This a little dumb, definitely reworking this.
 typedef DifficultyData = {
 	/**
 	 * The difficulty display name.
@@ -64,7 +65,7 @@ class DifficultyHolder extends BeatSpriteGroup {
 			if (Paths.spriteSheetExists('ui/difficulties/$name'))
 				sprite.animation.addByPrefix('idle', 'idle', 24);
 			else sprite.animation.add('idle', [0], 24, false);
-			sprite.anims.set('idle', {swapName: '', flipName: '', extra: new Map<String, Dynamic>()});
+			sprite.anims.set('idle', {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()});
 			refreshAnim();
 			add(sprite);
 

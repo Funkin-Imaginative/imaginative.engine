@@ -1,9 +1,5 @@
 package imaginative.objects;
 
-import flixel.addons.effects.FlxSkewedSprite;
-import imaginative.animation.BetterAnimation;
-import imaginative.animation.BetterAnimationController;
-
 /**
  * Tells you what a sprites current animation is supposed to mean.
  * Idea from Codename Engine.
@@ -41,6 +37,10 @@ enum abstract AnimationContext(String) from String to String {
 
 typedef AnimationMapping = {
 	/**
+	 * Offsets for that set animation.
+	 */
+	@:default(new imaginative.backend.objects.Position()) var offset:Position;
+	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
@@ -58,9 +58,9 @@ typedef AnimationMapping = {
 }
 
 /**
- * This class is a version of FlxSkewedSprite but with animation support among other things.
+ * This is the base sprite you will use for most other sprites within the engine.
  */
-class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
+class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite #end implements ITexture<BaseSprite> {
 	// Cool variables.
 	/**
 	 * Custom update function.
@@ -93,31 +93,35 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Loads a sheet or graphic texture for the sprite to use based on checks.
 	 * @param newTexture The mod path.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadTexture(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			try {
 				if (Paths.spriteSheetExists(newTexture)) return loadSheet(newTexture);
+				#if ANIMATE_SUPPORT
+				else if (Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation')).isFile)
+					return loadAtlas(newTexture);
+				#end
 				else return loadImage(newTexture);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 		return this;
 	}
 	/**
-	 * Load's a graphic texture for the sprite to use.
+	 * Loads a graphic texture for the sprite to use.
 	 * @param newTexture The mod path.
 	 * @param animated Whether the graphic should be the sprite cut into a grid.
 	 * @param width Grid width.
 	 * @param height Grid height.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadImage(newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):BaseSprite {
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			try {
 				loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
 				resetTextures(Paths.image(newTexture), IsGraphic);
@@ -126,29 +130,49 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		return this;
 	}
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Loads a sheet for the sprite to use.
 	 * @param newTexture The mod path.
-	 * @return `BaseSprite` ~ Current instance for chaining.
+	 * @return BaseSprite ~ Current instance for chaining.
 	 */
 	public function loadSheet(newTexture:ModPath):BaseSprite {
 		var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 		var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-		if (Paths.fileExists(Paths.image(newTexture)))
+		if (Paths.image(newTexture).isFile)
 			if (Paths.spriteSheetExists(newTexture))
 				try {
 					frames = Assets.frames(newTexture, textureType);
 					resetTextures(Paths.image(newTexture), textureType);
 				} catch(error:haxe.Exception)
 					try {
-						loadImage(newTexture);
+						loadImage(newTexture); // failsafe for if the pack data ins't found
 					} catch(error:haxe.Exception)
 						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 			else return loadImage(newTexture);
 		return this;
 	}
-
-	override public function makeSolid(width:Int, height:Int, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):BaseSprite
-		return cast super.makeSolid(width, height, color, unique, key);
+	#if ANIMATE_SUPPORT
+	/**
+	 * Loads an animate atlas for the sprite to use.
+	 * @param newTexture The mod path.
+	 * @return BaseSprite ~ Current instance for chaining.
+	 */
+	public function loadAtlas(newTexture:ModPath):BaseSprite {
+		var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
+		var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
+		var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
+		if (jsonPath.isFile) {
+			try {
+				frames = Assets.frames(atlasPath, textureType);
+				resetTextures(atlasPath, textureType);
+			} catch(error:haxe.Exception)
+				try {
+					loadImage('${newTexture.type}:${newTexture.path}/spritemap1'); // failsafe for if the pack data ins't found
+				} catch(error:haxe.Exception)
+					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+		}
+		return this;
+	}
+	#end
 
 	// Where the BaseSprite class really begins.
 	/**
@@ -176,11 +200,15 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			try {
 				if (inputData.asset.type == IsGraphic)
 					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+				#if ANIMATE_SUPPORT
+				else if (inputData.asset.type == IsAnimateAtlas)
+					loadAtlas(modPath);
+				#end
 				else loadTexture(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
-			if (Reflect.hasField(inputData, 'offsets')) {
+			if (inputData._has('offsets')) {
 				spriteOffsets.position.copyFrom(inputData.offsets.position);
 				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
 				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
@@ -202,11 +230,16 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 							case IsSparrow | IsPacker | IsAseprite:
 								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							#if ANIMATE_SUPPORT
+							case IsAnimateAtlas:
+								if ((anim.indices ?? []).length > 0) this.anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
+								this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+							#end
 							default:
 								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
-						setAnimationOffset(anim.name, anim.offset.x, anim.offset.y);
 						anims.set(anim.name, {
+							offset: new Position(anim.offset.x, anim.offset.y),
 							swapName: anim.swapKey ?? '',
 							flipName: anim.flipKey ?? '',
 							extra: new Map<String, Dynamic>()
@@ -222,7 +255,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 				log('Couldn\'t add the animations.', WarningMessage);
 
 			if (applyStartValues) {
-				if (Reflect.hasField(inputData, 'starting')) {
+				if (inputData._has('starting')) {
 					setPosition(inputData.starting.position.x, inputData.starting.position.y);
 					flipX = inputData.starting.flip.x;
 					flipY = inputData.starting.flip.y;
@@ -236,7 +269,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			flipAnimTrigger = inputData.flipAnimTrigger;
 			antialiasing = inputData.antialiasing;
 
-			if (Reflect.hasField(inputData, 'extra') && inputData.extra != null) {
+			if (inputData._has('extra') && inputData.extra != null) {
 				try {
 					if (!inputData.extra.empty())
 						for (extraData in inputData.extra)
@@ -269,7 +302,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		scale: new Position()
 	}
 	/**
-	 * If true, the swap anim var can go off.
+	 * If true the swap anim var can go off.
 	 * For characters and icons it always on.
 	 */
 	public var swapAnimTriggers(get, null):Bool = false;
@@ -311,7 +344,7 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		super(x, y);
 		if (sprite is String) {
 			var file:ModPath = ModPath.fromString(sprite);
-			if (Paths.fileExists(Paths.object(file))) {
+			if (Paths.object(file).isFile) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
@@ -334,8 +367,8 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 
 	override function initVars():Void {
 		super.initVars();
-		// _scaledFrameOffset = new FlxPoint();
-		animation = new BetterAnimationController(this);
+		animationOffset = new Position();
+		_scaledFrameOffset = new FlxPoint();
 	}
 
 	function super_update(elapsed:Float):Void
@@ -367,14 +400,13 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	/**
-	 * Play's an animation.
+	 * Plays an animation.
 	 * @param name The animation name.
-	 * @param force If true, the game won't care if another one is already playing.
+	 * @param force If true the game won't care if another one is already playing.
 	 * @param context The context for the upcoming animation.
 	 * @param suffix The animation suffix.
-	 * @param reverse If true, the animation will play backwards.
-	 * @param frame The starting frame. By default it's 0.
-	 *              Although if reversed it will use the last frame instead.
+	 * @param reverse If true the animation will play backwards.
+	 * @param frame The starting frame. By default it's 0. although if reversed it will use the last frame instead.
 	 */
 	public function playAnim(name:String, force:Bool = true, context:AnimationContext = Unclear, ?suffix:String, reverse:Bool = false, frame:Int = 0):Void {
 		var theName:String = name;
@@ -387,15 +419,16 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		theName = '$theName${suffixResult.trim()}';
 		if (doesAnimExist(theName, true)) {
 			animation.play(theName, force, reverse, frame);
+			animationOffset.copyFrom(getAnimInfo(theName).offset);
 			animContext = context;
 		}
 	}
 	/**
-	 * Get's the name of the currently playing animation.
+	 * Gets the name of the currently playing animation.
 	 * The arguments are to reverse the name.
-	 * @param ignoreSwap If true, it won't use the swap name.
-	 * @param ignoreFlip If true, it won't use the flip name.
-	 * @return `Null<String>` ~ The animation name.
+	 * @param ignoreSwap If true it won't use the swap name.
+	 * @param ignoreFlip If true it won't use the flip name.
+	 * @return Null<String> ~ The animation name.
 	 */
 	inline public function getAnimName(ignoreSwap:Bool = true, ignoreFlip:Bool = false):Null<String> {
 		if (animation.name != null) {
@@ -407,10 +440,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		return null;
 	}
 	/**
-	 * Get's information on a set animation of your choosing.
+	 * Gets information on a set animation of your choosing.
 	 * This way you won't have to worry about certain things.
 	 * @param name The animation name.
-	 * @return `AnimationMapping` ~ The animation information.
+	 * @return AnimationMapping ~ The animation information.
 	 */
 	inline public function getAnimInfo(name:String):AnimationMapping {
 		var data:AnimationMapping;
@@ -418,14 +451,14 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			if (anims.exists(name))
 				data = anims.get(name);
 			else
-				data = {swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
+				data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		else
-			data = {swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
+			data = {offset: new Position(), swapName: '', flipName: '', extra: new Map<String, Dynamic>()}
 		return data;
 	}
 	/**
 	 * Tells you if the animation has finished playing.
-	 * @return `Bool`
+	 * @return Bool
 	 */
 	inline public function isAnimFinished():Bool
 		return animation.finished;
@@ -435,10 +468,10 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	inline public function finishAnim():Void
 		animation.finished = true;
 	/**
-	 * Check's if the animation exists.
+	 * Checks if the animation exists.
 	 * @param name The animation name to check.
-	 * @param inGeneral If false, it only checks if the animation is listed in the map.
-	 * @return `Bool` ~ If true, the animation exists.
+	 * @param inGeneral If false it only checks if the animation is listed in the map.
+	 * @return Bool ~ If true the animation exists.
 	 */
 	inline public function doesAnimExist(name:String, inGeneral:Bool = false):Bool {
 		return inGeneral ? animation.exists(name) : (animation.exists(name) && anims.exists(name));
@@ -464,44 +497,23 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 		} else super.draw();
 	}
 
-	/**
-	 * Sets the offsets for an animation.
-	 * @param name The animation name.
-	 * @param x The x offset.
-	 * @param y The y offset.
-	 */
-	public function setAnimationOffset(name:String, x:Float = 0, y:Float = 0):Void {
-		var anim:BetterAnimation = cast animation.getByName(name);
-		if (anim != null && anim is BetterAnimation) // jic
-			anim.offset.set(x, y);
-	}
-	/**
-	 * Gets the offsets for an animation.
-	 * @param name The animation name.
-	 * @return `Position` ~ The animation offset.
-	 */
-	public function getAnimationOffset(?name:String):Position {
-		var anim:BetterAnimation = cast animation.getByName(name ?? getAnimName(false));
-		if (anim == null || !(anim is BetterAnimation)) return new Position();
-		return Position.fromFlxPoint(anim.offset) ?? new Position();
-	}
-
 	// for animation offsets
-	// var _scaledFrameOffset:FlxPoint;
+	var animationOffset:Position;
+	var _scaledFrameOffset:FlxPoint;
 	function _getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		newRect ??= FlxRect.get();
-		camera ??= FlxG.camera;
+		camera ??= getDefaultCamera();
 		newRect.setPosition(x, y);
 		if (pixelPerfectPosition) newRect.floor();
 
 		_scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
-		_scaledFrameOffset.set(getAnimationOffset().x * scale.x, getAnimationOffset().y * scale.y);
+		_scaledFrameOffset.set(animationOffset.x * scale.x, animationOffset.y * scale.y);
 		newRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
 		newRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
 
 		if (isPixelPerfectRender(camera)) newRect.floor();
 		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
-		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect, _scaledFrameOffset);
+		return BetterRect.newGetRotatedBounds(newRect, angle, _scaledOrigin, newRect, _scaledFrameOffset);
 	}
 	override public function getScreenBounds(?newRect:FlxRect, ?camera:FlxCamera):FlxRect {
 		if (__offsetFlip) {
@@ -514,27 +526,18 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 	}
 
 	override function drawComplex(camera:FlxCamera):Void {
-		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX() != camera.flipX, checkFlipY() != camera.flipY);
+		_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
 		_matrix.translate(-origin.x, -origin.y);
-		_matrix.translate(-getAnimationOffset().x, -getAnimationOffset().y);
+		_matrix.translate(-animationOffset.x, -animationOffset.y);
 		_matrix.scale(scale.x, scale.y);
 
-		if (matrixExposed)
-
-			_matrix.concat(transformMatrix);
-
-		else {
-			if (bakedRotationAngle <= 0) {
-				updateTrig();
-				if (angle != 0)
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-			}
-
-			updateSkewMatrix();
-			_matrix.concat(_skewMatrix);
+		if (bakedRotationAngle <= 0) {
+			updateTrig();
+			if (angle != 0)
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 		}
 
-		getScreenPosition(_point, camera).subtractPoint(offset);
+		getScreenPosition(_point, camera).subtract(offset);
 		_point.add(origin.x, origin.y);
 		_matrix.translate(_point.x, _point.y);
 
@@ -543,14 +546,61 @@ class BaseSprite extends FlxSkewedSprite implements ITexture<BaseSprite> {
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
 
-		doAdditionalMatrixStuff(_matrix, camera);
-
-		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 	}
 
 	override public function destroy():Void {
 		scripts.end();
-		// _scaledFrameOffset.put();
+		_scaledFrameOffset.put();
 		super.destroy();
+	}
+}
+
+class BetterRect extends FlxRect {
+	public static function newGetRotatedBounds(parent:FlxRect, degrees:Float, ?origin:FlxPoint, ?newRect:FlxRect, ?innerOffset:FlxPoint):FlxRect {
+		origin ??= FlxPoint.weak();
+		newRect ??= FlxRect.get();
+		innerOffset ??= FlxPoint.weak();
+
+		degrees = degrees % 360;
+		if (degrees == 0) {
+			newRect.set(parent.x - innerOffset.x, parent.y - innerOffset.y, parent.width, parent.height);
+			origin.putWeak();
+			innerOffset.putWeak();
+			return newRect;
+		}
+
+		if (degrees < 0)
+			degrees += 360;
+
+		var radians = FlxAngle.TO_RAD * degrees;
+		var cos = Math.cos(radians);
+		var sin = Math.sin(radians);
+
+		var left = -origin.x - innerOffset.x;
+		var top = -origin.y - innerOffset.y;
+		var right = -origin.x + parent.width - innerOffset.x;
+		var bottom = -origin.y + parent.height - innerOffset.y;
+		if (degrees < 90) {
+			newRect.x = parent.x + origin.x + cos * left - sin * bottom;
+			newRect.y = parent.y + origin.y + sin * left + cos * top;
+		} else if (degrees < 180) {
+			newRect.x = parent.x + origin.x + cos * right - sin * bottom;
+			newRect.y = parent.y + origin.y + sin * left + cos * bottom;
+		} else if (degrees < 270) {
+			newRect.x = parent.x + origin.x + cos * right - sin * top;
+			newRect.y = parent.y + origin.y + sin * right + cos * bottom;
+		} else {
+			newRect.x = parent.x + origin.x + cos * left - sin * top;
+			newRect.y = parent.y + origin.y + sin * right + cos * top;
+		}
+		// temp var, in case input rect is the output rect
+		var newHeight = Math.abs(cos * parent.height) + Math.abs(sin * parent.width);
+		newRect.width = Math.abs(cos * parent.width) + Math.abs(sin * parent.height);
+		newRect.height = newHeight;
+
+		origin.putWeak();
+		innerOffset.putWeak();
+		return newRect;
 	}
 }

@@ -42,23 +42,26 @@ class Setup {
 		if (FileSystem.exists('./commands/setup/data.json')) {
 			data = Json.parse(File.getContent('./commands/setup/data.json'));
 		} else {
-			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify([
-				{
-					dependencies: [
-						{
-							name: 'rulescript',
-							version: 'git',
-							url: 'https://github.com/Kriptel/RuleScript'
-						}
-					],
-					questions: [
-						{
-							name: 'hscript-improved',
-							description: 'include haxe scripting support'
-						}
-					]
-				}
-			], '\t')}');
+			var exampleJson:SetupJson = {
+				dependencies: [
+					{name: 'thx.semver'},
+					{
+						global: false,
+						name: 'rulescript',
+						version: 'git',
+						url: 'https://github.com/Kriptel/RuleScript',
+						branch: 'dev'
+					}
+				],
+				questions: [
+					{
+						name: 'hscript-improved',
+						description: 'include haxe scripting support'
+					}
+				]
+			}
+			// was hating github not properly coloring the rest of this file.
+			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify(exampleJson, '\t')}');
 			return;
 		}
 
@@ -101,12 +104,15 @@ class Setup {
 
 		Sys.println(Main.dashes);
 
+		Sys.command('haxelib install haxelib --global');
+		Sys.command('haxelib fixrepo');
 		dependenciesCheck(data.dependencies);
+		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
 		var haxeVer:String = proc.stdout.readLine().toLowerCase().trim();
-		if (haxeVer != '4.3.6') {
+		if (haxeVer != '4.3.7') {
 			// check for outdated haxe
 			var curHaxeVer:Array<Int> = [
 				for (v in haxeVer.split('.'))
@@ -116,9 +122,9 @@ class Setup {
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
 					Sys.println('Your current Haxe version is outdated.');
-					Sys.println('You\'re using $haxeVer, while the required version is 4.3.6.');
+					Sys.println('You\'re using $haxeVer, while the required version is 4.3.7.');
 					Sys.println('The engine may or may not compile with your current version of Haxe.');
-					Sys.println('We recommend upgrading to 4.3.6!');
+					Sys.println('We recommend upgrading to 4.3.7!');
 					break;
 				}
 			}
@@ -140,6 +146,7 @@ class Setup {
 		}
 	}
 
+	static var libHistory:Array<String> = [];
 	static function dependenciesCheck(dependencies:Array<Library>, doneAgain:Bool = false):Void {
 		for (lib in dependencies) {
 			if (optionalCheck.exists(lib.name) && !optionalCheck.get(lib.name))
@@ -150,10 +157,16 @@ class Setup {
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
-				Sys.command('haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
+				var command = 'haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
+				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.command('$command --always');
+				libHistory.push(command);
 			} else {
 				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
-				Sys.command('haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''} --always');
+				var command = 'haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
+				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.command('$command --always');
+				libHistory.push(command); // TODO: Figure out how to get lib version when none specified.
 			}
 			if (lib.dependencies != null)
 				dependenciesCheck(lib.dependencies, true);

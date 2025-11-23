@@ -1,5 +1,6 @@
 package flixel.window;
 
+// TODO: I believe this class is unneeded.
 /**
  * Used to help FlxWindow's do nice movement.
  * Might just have FlxWindow extend FlxObject or FlxSprite at some point instead.
@@ -36,7 +37,7 @@ class WindowBounds extends FlxSprite {
 	override function new(parent:FlxWindow) {
 		this.parent = parent;
 		super(parent.x, parent.y);
-		makeSolid(Math.ceil(parent.width), Math.ceil(parent.height));
+		this.makeSolid(parent.width, parent.height);
 		FlxG.signals.postUpdate.add(() -> boundUpdate(FlxG.elapsed));
 	}
 

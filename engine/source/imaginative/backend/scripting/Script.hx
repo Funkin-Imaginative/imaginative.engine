@@ -1,8 +1,11 @@
 package imaginative.backend.scripting;
 
 import imaginative.backend.scripting.types.HaxeScript;
-import imaginative.backend.scripting.types.InvalidScript;
 import imaginative.backend.scripting.types.LuaScript;
+// stops formatter from removing the import
+#if SCRIPT_SUPPORT
+import imaginative.backend.scripting.types.InvalidScript;
+#end
 
 /**
  * Helps clarify a script language instance.
@@ -26,7 +29,7 @@ enum abstract ScriptType(String) from String to String {
 	var TypeInvalid = 'Invalid';
 
 	/**
-	 * If true, this script can't actually be used for anything.
+	 * If true this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -34,6 +37,7 @@ enum abstract ScriptType(String) from String to String {
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
+// TODO: Rework how this is coded.
 /**
  * All your scripting needs are right here!
  * Class started by @Zyflx, expanded on by @rodney528.
@@ -81,6 +85,7 @@ class Script implements IFlxDestroyable implements IScript {
 	 * @return `Array<Script>`
 	 */
 	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+		#if SCRIPT_SUPPORT
 		#if MOD_SUPPORT
 		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
 			if (getAllInstances) {
@@ -107,6 +112,9 @@ class Script implements IFlxDestroyable implements IScript {
 			} else scripts.push(new InvalidScript('root:$path'));
 		}
 		return scripts;
+		#else
+		return [];
+		#end
 	}
 
 	var canRun:Bool = false;

@@ -22,8 +22,8 @@ class SongEvent {
 	 */
 	public var fromChart:Bool;
 
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The event position in steps.
 	 */
 	public var time:Float;
@@ -40,7 +40,7 @@ class SongEvent {
 	}
 
 	/**
-	 * Execute's the event code.
+	 * Executes the event code.
 	 */
 	inline public function execute():Void
 		if (code != null)
@@ -64,29 +64,27 @@ class PlayState extends BeatState {
 	inline function get_cutsceneAudio():Conductor
 		return Conductor.cutscene;
 
-	override public function get_conductor():Conductor {
-		if (songEnded)
-			return cutsceneAudio;
-		if (!countdownStarted)
+	override function get_conductor():Conductor {
+		if (songEnded || !(songStarted || countdownStarted))
 			return cutsceneAudio;
 		return songAudio;
 	}
-	override public function set_conductor(value:Conductor):Conductor
+	inline override function set_conductor(value:Conductor):Conductor
 		return get_conductor();
 
 	/**
 	 * Direct access to the state instance.
 	 */
-	public static var direct:PlayState;
+	public static var instance:PlayState;
 
 	/**
 	 * The amount of beats the countdown lasts for.
 	 */
 	public var countdownLength(default, set):Int = 4;
 	inline function set_countdownLength(value:Int):Int
-		return countdownLength = value < 1 ? 1 : value;
+		return countdownLength = Std.int(Math.max(value, 1));
 	/**
-	 * The variable that tracks the countdown.
+	 * This timer that tracks the countdown steps.
 	 */
 	public var countdownTimer:FlxTimer = new FlxTimer();
 	/**
@@ -98,7 +96,7 @@ class PlayState extends BeatState {
 	 * @param root The path to the assets.
 	 * @param parts List of assets to get from root var path.
 	 * @param suffix Adds a suffix to each item of the parts array.
-	 * @return `Array<ModPath>` ~ The mod paths of the items.
+	 * @return Array<ModPath> ~ The mod paths of the items.
 	 */
 	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, ?suffix:String):Array<ModPath> {
 		if (root == null)
@@ -112,32 +110,36 @@ class PlayState extends BeatState {
 	/**
 	 * States if the countdown has started.
 	 */
-	public var countdownStarted:Bool = false;
+	public var countdownStarted(default, null):Bool = false;
 	/**
 	 * States if the song has started.
 	 */
-	public var songStarted:Bool = false;
+	public var songStarted(default, null):Bool = false;
 	/**
 	 * States if the song has ended.
 	 */
-	public var songEnded:Bool = false;
+	public var songEnded(default, null):Bool = false;
 
 	/**
 	 * The general vocal track instance.
 	 */
 	public var generalVocals:Null<FlxSound>;
 
+	// TODO: Figure out what to do with this.
 	/**
-	 * It true, your score will save.
+	 * If true your score will save.
 	 */
-	public var saveScore:Bool = true;
+	public var saveScore(default, null):Bool = true;
 
 	/**
-	 * The chart information.
+	 * The chart information that *PlayState* uses.
 	 */
 	public static var chartData:ChartData;
+	// TODO: Code this shit in.
 	public var songEvents:Array<SongEvent> = [];
 
+	// TODO: Rework these into playlist specific stuff.
+	// MAYBE: Move these into a util class?
 	/**
 	 * Contains the week information.
 	 */
@@ -152,12 +154,12 @@ class PlayState extends BeatState {
 		return val;
 	}
 	/**
-	 * If true, your in story mode.
-	 * If false, your playing the song by choice.
+	 * If true your in story mode.
+	 * If false your playing the song by choice.
 	 */
 	public static var storyMode(default, null):Bool = false;
 	/**
-	 * List of songs that will play in story mode.
+	 * List of songs that will play out.
 	 */
 	public static var songList(default, null):Array<String> = ['Test'];
 
@@ -180,11 +182,11 @@ class PlayState extends BeatState {
 	public static var curVariant(default, null):String = 'normal';
 
 	/**
-	 * If true, the player character can die upon losing all their health.
+	 * If true the player character can die upon losing all their health.
 	 */
 	public var canPlayerDie:Bool = !ArrowField.enemyPlay && !ArrowField.enableP2;
 	/**
-	 * If true, the enemy character can die upon losing all their health.
+	 * If true the enemy character can die upon losing all their health.
 	 */
 	public var canEnemyDie:Bool = ArrowField.enemyPlay && !ArrowField.enableP2;
 
@@ -234,38 +236,50 @@ class PlayState extends BeatState {
 	/**
 	 * What would be known as Daddy Dearest.
 	 */
-	public var enemy(get, set):Character;
-	inline function get_enemy():Character
+	public var enemy(get, set):Null<Character>;
+	inline function get_enemy():Null<Character>
 		return enemies[0];
-	inline function set_enemy(value:Character):Character
-		return enemies[1] = value;
+	inline function set_enemy(?value:Character):Null<Character> {
+		if (enemyField == null) return null;
+		return enemies[0] = value; // don't want to be setting an empty field
+	}
 	/**
 	 * What would be known as the Boyfriend.
 	 */
-	public var player(get, set):Character;
-	inline function get_player():Character
+	public var player(get, set):Null<Character>;
+	inline function get_player():Null<Character>
 		return players[0];
-	inline function set_player(value:Character):Character
-		return players[0] = value;
+	inline function set_player(?value:Character):Null<Character> {
+		if (playerField == null) return null;
+		return players[0] = value; // don't want to be setting an empty field
+	}
 
 	/**
 	 * All characters from the enemy field.
 	 */
 	public var enemies(get, set):Array<Character>;
-	inline function get_enemies():Array<Character>
+	inline function get_enemies():Array<Character> {
+		if (enemyField == null) return [];
 		return enemyField.assignedActors;
-	inline function set_enemies(value:Array<Character>):Array<Character>
+	}
+	inline function set_enemies(value:Array<Character>):Array<Character> {
+		if (enemyField == null) return [];
 		return enemyField.assignedActors = value;
+	}
 	/**
 	 * All characters from the player field.
 	 */
 	public var players(get, set):Array<Character>;
-	inline function get_players():Array<Character>
+	inline function get_players():Array<Character> {
+		if (playerField == null) return [];
 		return playerField.assignedActors;
-	inline function set_players(value:Array<Character>):Array<Character>
+	}
+	inline function set_players(value:Array<Character>):Array<Character> {
+		if (playerField == null) return [];
 		return playerField.assignedActors = value;
+	}
 
-	// ArrowField variables.
+	// 'ArrowField' variables.
 	/**
 	 * Contains all existing arrow fields.
 	 */
@@ -274,32 +288,42 @@ class PlayState extends BeatState {
 	/**
 	 * The enemy field.
 	 */
-	public var enemyField(get, set):ArrowField;
-	inline function get_enemyField():ArrowField
+	public var enemyField(get, set):Null<ArrowField>;
+	inline function get_enemyField():Null<ArrowField>
 		return ArrowField.enemy;
-	inline function set_enemyField(value:ArrowField):ArrowField
+	inline function set_enemyField(?value:ArrowField):Null<ArrowField>
 		return ArrowField.enemy = value;
 	/**
 	 * The player field.
 	 */
-	public var playerField(get, set):ArrowField;
-	inline function get_playerField():ArrowField
+	public var playerField(get, set):Null<ArrowField>;
+	inline function get_playerField():Null<ArrowField>
 		return ArrowField.player;
-	inline function set_playerField(value:ArrowField):ArrowField
+	inline function set_playerField(?value:ArrowField):Null<ArrowField>
 		return ArrowField.player = value;
+
+	/**
+	 * The fields that will be positioned and visible on screen.
+	 */
+	public var activeFields:Array<ArrowField> = [];
 
 	//temp
 	var ratings:FlxTypedGroup<BaseSprite>;
 
-	override public function create():Void {
-		Assets.clearCache();
+	override function initCamera():Void {}
 
-		scripts = new ScriptGroup(direct = this);
+	override public function create():Void {
+		Assets.clearCache(true, false, true, true);
+		// precache them here for now
+		for (i in [1, 2, 3]) // lazy
+			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
+
+		scripts = new ScriptGroup(instance = this);
 
 		bgColor = 0xFFBDBDBD;
 
-		FlxG.cameras.reset(camera = camGame = new PlayCamera().beatSetup(songAudio));
-		FlxG.cameras.add(camHUD = new BeatCamera().beatSetup(songAudio), false);
+		FlxG.cameras.reset(camera = mainCamera = camGame = new PlayCamera('World Camera').beatSetup(songAudio));
+		FlxG.cameras.add(camHUD = new BeatCamera('Hud Camera').beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
 		hud = switch (chartData.hud ??= 'funkin') {
@@ -315,6 +339,22 @@ class PlayState extends BeatState {
 			default:
 				new ScriptedHUD(chartData.hud);
 		}
+		hud.healthBar.setCallbacks(
+			() ->
+				if (canPlayerDie) {
+					var actors:Array<Character> = [];
+					if (enemyField != null) actors.concat(enemyField.previousInteractedActors);
+					if (enemyField != null) actors.concat(playerField.previousInteractedActors);
+					initGameover(actors);
+				},
+			() ->
+				if (canEnemyDie) {
+					var actors:Array<Character> = [];
+					if (enemyField != null) actors.concat(enemyField.previousInteractedActors);
+					if (enemyField != null) actors.concat(playerField.previousInteractedActors);
+					initGameover(actors);
+				}
+		);
 		hud.cameras = [camHUD];
 		add(hud);
 
@@ -356,7 +396,7 @@ class PlayState extends BeatState {
 				vocalTargeting.set(base.tag, []);
 			vocalTargeting.get(base.tag).push(suffix);
 		}
-		log('Character${loadedCharacters.empty() ? '' : "'s"} ${[for (i => char in loadedCharacters) (i == (loadedCharacters.length - 2) && !loadedCharacters.empty()) ? '"$char" and' : '"$char"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
+		log('Character(s) ${loadedCharacters.cleanDisplayList()} loaded.', DebugMessage);
 
 		if (characterMapping.exists(chartData.fieldSettings.cameraTarget))
 			cameraTarget = chartData.fieldSettings.cameraTarget;
@@ -410,7 +450,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -453,7 +493,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, IsSinging, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, IsSinging, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -470,7 +510,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -490,7 +530,7 @@ class PlayState extends BeatState {
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
-					ArrowField.characterSing(event.field, actors, event.idMod, HasMissed, event.force, event.suffix);
+					ArrowField.characterSing(event.field, actors, event.id, HasMissed, event.force, event.suffix);
 
 					for (char in actors)
 						for (track in char.assignedTracks)
@@ -508,7 +548,7 @@ class PlayState extends BeatState {
 				if (!event.prevented) {
 					if (event.triggerMiss) {
 						if (!event.stopMissAnimation)
-							ArrowField.characterSing(event.field, event.field.assignedActors, event.idMod, HasMissed, event.force, event.suffix);
+							ArrowField.characterSing(event.field, event.field.assignedActors, event.id, HasMissed, event.force, event.suffix);
 
 						for (char in event.field.assignedActors)
 							for (track in char.assignedTracks)
@@ -526,27 +566,30 @@ class PlayState extends BeatState {
 				scripts.event('fieldInputPost', event);
 			});
 		}
-		log('Field${loadedFields.empty() ? '' : "'s"} ${[for (i => field in loadedFields) (i == (loadedFields.length - 2) && !loadedFields.empty()) ? '"$field" and' : '"$field"'].join(', ').replace('and,', 'and')} loaded.', DebugMessage);
+		log('Field(s) ${loadedFields.cleanDisplayList()} loaded.', DebugMessage);
 
 		// arrow field setup
-		var fields:Array<ArrowField> = [
+		activeFields = [
 			for (tag in chartData.fieldSettings.order)
-				if (arrowFieldMapping.exists(tag))
-					arrowFieldMapping.get(tag)
-		];
-		// ArrowField.setupFieldXPositions(fields, camHUD);
-		for (field in fields)
-			field.y = hud.getFieldYLevel(Settings.setupP1.downscroll, field);
+				if (arrowFieldMapping.exists(tag)) {
+					var field:ArrowField = arrowFieldMapping.get(tag);
+					field.visible = true;
+					field;
+				}
+		].filter((field:ArrowField) -> return field != null);
+		for (i => data in ArrowField.getFieldSetupData(activeFields)) {
+			var field:ArrowField = activeFields[i];
+			if (data.scale != 1) {
+				field.scale.set(data.scale, data.scale);
+				field.resetInternalPositions();
+			}
+			field.setPosition(data.x, hud.getFieldYLevel(Settings.setupP1.downscroll, field));
+		}
 
 		if (arrowFieldMapping.exists(chartData.fieldSettings.enemy))
 			ArrowField.enemy = arrowFieldMapping.get(chartData.fieldSettings.enemy);
 		if (arrowFieldMapping.exists(chartData.fieldSettings.player))
 			ArrowField.player = arrowFieldMapping.get(chartData.fieldSettings.player);
-
-		// position system doesn't work yet, so for now there being put on screen like this
-		enemyField.x = (camHUD.width / 2) - (camHUD.width / 4);
-		playerField.x = (camHUD.width / 2) + (camHUD.width / 4);
-		enemyField.visible = playerField.visible = true;
 
 		countdownAssets = {
 			images: getCountdownAssetList(null, [null, 'ready', 'set', 'go']),
@@ -555,6 +598,19 @@ class PlayState extends BeatState {
 
 		camGame.follow(camPoint = new FlxObject(0, 0, 1, 1), LOCKON, 0.05);
 		add(camPoint);
+
+		if (chartData.events.empty())
+			_log('[PlayState] This song has no events.', DebugMessage);
+		else {
+			for (event in chartData.events)
+				for (data in event.data)
+					songEvents.push(new SongEvent(event.time, switch (data.name) {
+						default:
+							() -> {
+								_log('[Event] Ran "${data.name} at ${event.time} with paramaters of ${data.params}.', DebugMessage);
+							}
+					}));
+		}
 
 		super.create();
 
@@ -605,6 +661,7 @@ class PlayState extends BeatState {
 			}
 
 			songAudio._onComplete = (event) -> {
+				_log('[PlayState] Song Ended.', DebugMessage);
 				for (char in characterMapping)
 					if (char.animContext == IsSinging || char.animContext == HasMissed)
 						char.dance();
@@ -620,17 +677,14 @@ class PlayState extends BeatState {
 					endSong();
 			}
 
-			startSong();
+			startCountdown(countdownAssets);
 		});
 
 		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
 		camPoint.setPosition(startPosition.x, startPosition.y);
 		camGame.snapToTarget();
 		camGame.snapZoom();
-	}
 
-	override public function createPost():Void {
-		super.createPost();
 		scripts.call('createPost');
 	}
 
@@ -644,13 +698,16 @@ class PlayState extends BeatState {
 				poppedEvent.execute();
 		}
 
+		if (Controls.global.pause) initPause();
+		if (Controls.global.reset && !Settings.setup.disableDeathBind)
+			initGameover([enemy, player]);
 		scripts.call('updatePost', [elapsed]);
 	}
 
-	function startSong():Void {
+	function startCountdown(saidAssets:CountdownAssets):Void {
 		var assets:CountdownAssets = {
-			images: countdownAssets.images.copy(),
-			sounds: countdownAssets.sounds.copy()
+			images: saidAssets.images.copy(),
+			sounds: saidAssets.sounds.copy()
 		}
 		assets.images.reverse();
 		assets.sounds.reverse();
@@ -659,13 +716,17 @@ class PlayState extends BeatState {
 		if (countdownLength >= 1) {
 			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
 				var assetIndex:Int = timer.loopsLeft - 1;
+				_log('[PlayState] Countdown step $assetIndex.', DebugMessage);
 
 				var soundAsset:ModPath = assets.sounds[assetIndex];
-				if (Paths.fileExists(Paths.sound(soundAsset)))
+				if (Paths.sound(soundAsset).isFile) {
+					_log('[PlayState] Played countdown sound "$soundAsset".', DebugMessage);
 					FlxG.sound.play(Assets.sound(soundAsset));
+				}
 
 				var imageAsset:ModPath = assets.images[assetIndex];
-				if (Paths.fileExists(Paths.image(imageAsset))) {
+				if (Paths.image(imageAsset).isFile) {
+					_log('[PlayState] Spawned countdown image "$imageAsset".', DebugMessage);
 					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();
@@ -678,25 +739,50 @@ class PlayState extends BeatState {
 					});
 				}
 
-				if (timer.loopsLeft == 0)
-					songStarted = true;
+				if (!songStarted)
+					startSong(countdownLength);
 			}, countdownLength + 1);
 		}
-		songAudio.playFromTime(-beatTime * (countdownLength + 1));
+	}
+
+	function startSong(startDelay:Int = 0):Void {
+		songStarted = true;
+		songAudio.playFromTime(-beatTime * Math.abs(startDelay));
+		_log('[PlayState] Song started with a delay of ${Math.abs(startDelay)} beats.', DebugMessage);
 	}
 
 	function endSong():Void {
 		if (storyMode) {
 			if (storyIndex == songList.length - 1)
-				BeatState.switchState(new StoryMenu());
+				BeatState.switchState(() -> new StoryMenu());
 			else {
 				storyIndex++;
 				renderChart(songList[storyIndex], curDifficulty, curVariant);
 				BeatState.resetState();
 			}
 		} else {
-			BeatState.switchState(new FreeplayMenu());
+			BeatState.switchState(() -> new FreeplayMenu());
 		}
+	}
+
+	function initPause(?subState:FlxSubState):Void {
+		openSubState(subState ?? new PauseMenu());
+	}
+
+	function initGameover(?potentialChars:Array<Character>):Void {
+		potentialChars = potentialChars.filter((char:Character) -> return char != null);
+		_log('[PlayState] Triggered Gameover.', DebugMessage);
+		var potentialEnemies = potentialChars.filter((char:Character) -> return enemyField == null ? false : enemyField.previousInteractedActors.contains(char));
+		var potentialPlayers = potentialChars.filter((char:Character) -> return playerField == null ? false : playerField.previousInteractedActors.contains(char));
+		var targetChar:Character = null;
+		var enemyHasGameover = potentialEnemies.empty() ? false : Paths.character('${potentialEnemies[0].theirName}-dead').isFile;
+		if (!(potentialEnemies.empty() && potentialPlayers.empty()))
+			targetChar = enemyHasGameover ? potentialEnemies[0] : potentialPlayers[0];
+		else if (!potentialPlayers.empty())
+			targetChar = potentialPlayers[0];
+		else if (!potentialEnemies.empty())
+			targetChar = enemyHasGameover ? potentialEnemies[0] : null;
+		openSubState(new GameoverState(targetChar));
 	}
 
 	override public function stepHit(curStep:Int):Void {
@@ -731,7 +817,7 @@ class PlayState extends BeatState {
 
 	override public function destroy():Void {
 		scripts.end();
-		direct = null;
+		instance = null;
 		super.destroy();
 	}
 
@@ -748,7 +834,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		log('Rendering level "${level.name}", rendering songs ${[for (i => song in levelData.songs) (i == (levelData.songs.length - 2) && !levelData.songs.empty()) ? '"${song.name}" and' : '"${song.name}"'].join(', ').replace('and,', 'and')} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -763,8 +849,8 @@ class PlayState extends BeatState {
 		storyMode = false;
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
-		renderChart(song, difficulty, variant);
-		log('Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
+		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -778,40 +864,49 @@ class PlayState extends BeatState {
 		var loadedChart:String = song;
 		var diff:String = difficulty;
 		var varia:String = variant;
-		chartData = ParseUtil.chart(loadedChart, diff, varia) ?? ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal') ?? {
-			speed: 2.6,
-			stage: 'void',
-			fields: [
-				{
-					tag: 'field',
-					characters: ['bf'],
-					notes: [
+		try {
+			chartData = ParseUtil.chart(loadedChart, diff, varia);
+		} catch(error:haxe.Exception)
+			try {
+				chartData = ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
+			} catch(error:haxe.Exception)
+				chartData = {
+					speed: 2.6,
+					stage: 'void',
+					fields: [
 						{
-							id: 0,
-							length: 6000,
-							time: 8000,
+							tag: 'field',
 							characters: ['bf'],
-							type: ''
+							notes: [
+								{
+									id: 0,
+									length: 6000,
+									time: 8000,
+									characters: ['bf'],
+									type: ''
+								}
+							]
 						}
-					]
+					],
+					characters: [
+						{
+							tag: 'bf',
+							name: 'boyfriend',
+							position: ''
+						}
+					],
+					fieldSettings: {
+						cameraTarget: 'bf',
+						order: ['field'],
+						enemy: loadedChart = diff = varia = 'null',
+						player: 'field'
+					},
+					hud: 'funkin'
 				}
-			],
-			characters: [
-				{
-					tag: 'bf',
-					name: 'boyfriend',
-					position: ''
-				}
-			],
-			fieldSettings: {
-				cameraTarget: 'bf',
-				order: ['field'],
-				enemy: loadedChart = diff = varia = 'null',
-				player: 'field'
-			},
-			hud: 'funkin'
-		}
-		log('Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
+		chartData.events ??= [];
+		var eventsPath = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
+		if (Paths.fileExists(eventsPath)) chartData.events.concat(ParseUtil.json(eventsPath));
+		_log('[PlayState] Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;
 	}

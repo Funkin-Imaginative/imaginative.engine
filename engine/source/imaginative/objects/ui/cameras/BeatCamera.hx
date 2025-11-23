@@ -6,7 +6,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 	 */
 	public var conductor(get, default):Conductor;
 	inline function get_conductor():Conductor
-		return conductor ?? Conductor.direct;
+		return conductor ?? Conductor.instance;
 
 	/**
 	 * The amount of beats it takes to trigger the zoom bop.
@@ -19,7 +19,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 		return beatInterval = value;
 	}
 	/**
-	 * The multiplier for the `beatInterval`.
+	 * The multiplier for the "beatInterval".
 	 */
 	public var bopSpeed(default, set):Float = 1;
 	inline function set_bopSpeed(value:Float):Float
@@ -32,12 +32,12 @@ class BeatCamera extends BaseCamera implements IBeat {
 		return beatInterval = value < 1 ? 4 : value;
 
 	/**
-	 * If true, the zoom bop will still happen, even if the beat numbers are in the negatives.
+	 * If true the zoom bop will still happen, even if the beat numbers are in the negatives.
 	 */
 	public var skipNegativeBeats:Bool = false;
 
 	/**
-	 * If true, it prevents the zoom bop from playing altogether.
+	 * If true it prevents the zoom bop from playing altogether.
 	 */
 	public var preventZoomBop:Bool = false;
 
@@ -72,9 +72,9 @@ class BeatCamera extends BaseCamera implements IBeat {
 
 	/**
 	 * Sets up certain variables and data.
-	 * @param thing The thing to setup from. Your choices are a `BeatState`, `BeatSubState` or a `Conductor`.
+	 * @param thing The thing to setup from. Your choices are a "BeatState", "BeatSubState" or a "Conductor".
 	 * @param speed Shortcut for the setting the bop speed.
-	 * @return `BeatCamera` ~ Current instance for chaining.
+	 * @return BeatCamera ~ Current instance for chaining.
 	 */
 	public function beatSetup(thing:OneOfThree<BeatState, BeatSubState, Conductor>, speed:Float = 1):BeatCamera {
 		if (thing is BeatState) {
@@ -87,7 +87,7 @@ class BeatCamera extends BaseCamera implements IBeat {
 			conductor = cast thing;
 			beatInterval = conductor.beatsPerMeasure;
 		} else {
-			conductor = Conductor.direct;
+			conductor = Conductor.instance;
 			beatInterval = conductor.beatsPerMeasure;
 		}
 		bopSpeed = speed;
