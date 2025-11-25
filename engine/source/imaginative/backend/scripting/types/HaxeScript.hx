@@ -16,6 +16,21 @@ final class HaxeScript extends Script {
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
+	/**
+	 * Loads code from string.
+	 * @param code The script code.
+	 * @param onCreate Runs when the script is created.
+	 * @param onLoad Runs when the script is loaded.
+	 * @return HaxeScript ~ The haxe script instance.
+	 */
+	public static function loadCodeFromString(code:String, onCreate:HaxeScript->Void, onLoad:HaxeScript->Void):HaxeScript {
+		var script:HaxeScript = new HaxeScript('', code);
+		if (onCreate != null) onCreate(script);
+		script.load();
+		if (onLoad != null) onLoad(script);
+		return script;
+	}
+
 	var interp:Interp;
 	var parser:Parser;
 	var expr:Expr;
@@ -151,19 +166,33 @@ final class HaxeScript extends Script {
 		];
 	}
 
-	var __importedPaths:Array<String> = [];
+	override function get_parent():Dynamic
+		return interp.scriptObject;
+	override function set_parent(value:Dynamic):Dynamic
+		return interp.scriptObject = value;
 
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String)
 		super(file, code);
 
-	@:access(imaginative.backend.Console.formatLogInfo)
-	override function renderNecessities():Void {
-		if (pathing != null)
-			__importedPaths.push(pathing.format());
+	override function renderScript(file:ModPath, ?code:String):Void {
+		interp = new Interp();
+		parser = new Parser();
+
+		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 		interp.allowStaticVariables = interp.allowPublicVariables = true;
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
+		interp.staticVariables = Script.constantVariables;
+
+		super.renderScript(file, code);
+	}
+	var __importedPaths:Array<String> = [];
+	@:access(imaginative.backend.Console.formatLogInfo)
+	override function loadNecessities():Void {
+		super.loadNecessities();
+
+		if (filePath != null)
+			__importedPaths.push(filePath.format());
+
 		parser.preprocesorValues = #if (neko || eval || display) haxe.macro.Context.getDefines() #else new Map<String, Dynamic>() #end;
 		interp.errorHandler = (error:Error) -> {
 			var content:String = error.toString();
@@ -190,7 +219,7 @@ final class HaxeScript extends Script {
 						try {
 							interp.errorHandler(error);
 						} catch(error:Error)
-							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
+							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, filePath?.format() ?? 'from string', 0));
 					if (expr != null) {
 						@:privateAccess
 							interp.exprReturn(expr);
@@ -201,7 +230,6 @@ final class HaxeScript extends Script {
 			}
 			return false;
 		}
-		interp.staticVariables = Script.staticVars;
 
 		/**
 		Snapshot in time.
@@ -220,18 +248,10 @@ final class HaxeScript extends Script {
 		**/
 	}
 
-	override function renderScript(file:ModPath, ?code:String):Void {
-		interp = new Interp();
-		parser = new Parser();
-
-		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
-
-		super.renderScript(file, code);
-	}
-	override function loadCodeString(code:String):Void {
+	override function launchCode(code:String):Void {
 		try {
 			if (!code.isNullOrEmpty()) {
-				expr = parser.parseString(code, pathing?.format() ?? 'from string');
+				expr = parser.parseString(code, filePath?.format() ?? 'from string');
 				canRun = true;
 				return;
 			}
@@ -239,25 +259,8 @@ final class HaxeScript extends Script {
 			try {
 				interp.errorHandler(error);
 			} catch(error:Error)
-				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
+				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, filePath?.format() ?? 'from string', 0));
 		canRun = false;
-	}
-
-	/**
-	 * Load's code from string.
-	 * @param code The script code.
-	 * @param vars Variables to input into the haxe script instance.
-	 * @param funcToRun Function to run inside the haxe script instance.
-	 * @param funcArgs Arguments to run for said function.
-	 * @return `HaxeScript` ~ The haxe script instance from string.
-	 */
-	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
-		var script:HaxeScript = new HaxeScript('', code);
-		for (name => thing in vars)
-			script.set(name, thing);
-		script.load();
-		script.call(funcToRun, funcArgs ?? []);
-		return script;
 	}
 
 	@:access(hscript.Parser.mk)
@@ -275,56 +278,29 @@ final class HaxeScript extends Script {
 				log('Error while trying to execute script: ${error.message}', ErrorMessage);
 		}
 	}
-	override public function reload():Void {
-		// save variables
-		interp.allowStaticVariables = interp.allowPublicVariables = false;
-		var savedVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
-		for (name => thing in interp.variables)
-			if (!Reflect.isFunction(thing))
-				savedVariables[name] = thing;
-		var oldParent:Dynamic = interp.scriptObject;
-		renderScript(pathing);
 
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
-
-		load();
-		parent = oldParent;
-
-		for (name => thing in savedVariables)
-			set(name, thing);
-
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
-	}
-
-	override function get_parent():Dynamic
-		return interp.scriptObject;
-	override function set_parent(value:Dynamic):Dynamic
-		return interp.scriptObject = value;
-
-	override public function setPublicMap(map:Map<String, Dynamic>):Void
+	override public function setGlobalVariables(map:Map<String, Dynamic>):Void
 		interp.publicVariables = map;
 
 	override public function set(variable:String, value:Dynamic):Void
 		interp.variables.set(variable, value);
-	override public function get(variable:String, ?def:Dynamic):Dynamic
-		return interp.variables.get(variable) ?? def;
-	override public function call(func:String, ?args:Array<Dynamic>):Dynamic {
-		if (interp == null || !interp.variables.exists(func))
-			return null;
+	override public function get<V>(name:String, ?def:V):V {
+		if (interp.variables.exists(func))
+			return interp.variables.get(variable) ?? def;
+		return def;
+	}
+	override public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
+		if (!active) return def;
+		if (!interp.variables.exists(func)) return def;
 
-		var func = get(func);
-		if (func != null && Reflect.isFunction(func))
+		var daFunc:haxe.Constraints.Function = get(func);
+		if (Reflect.isFunction(daFunc))
 			try {
-				return Reflect.callMethod(null, func, args ?? []);
+				return Reflect.callMethod(null, daFunc, args ?? []) ?? def;
 			} catch(error:haxe.Exception)
 				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
 
 		return null;
-	}
-	override public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		event.returnCall = call(func, [event]);
-		return event;
 	}
 
 	override public function destroy():Void {
@@ -333,9 +309,12 @@ final class HaxeScript extends Script {
 		super.destroy();
 	}
 	#else
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?_:String) {
-		_log('[Script] Haxe scripting isn\'t supported in this build.', SystemMessage);
+		if (file.path.isNullOrEmpty())
+			_log('[Script] Haxe scripting isn\'t supported in this build.');
+		else
+			_log('[Script] Haxe scripting isn\'t supported in this build. (file:${file.format()})');
 		super(file, null);
 	}
 	#end

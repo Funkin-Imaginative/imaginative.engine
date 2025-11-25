@@ -140,10 +140,10 @@ class HUDTemplate extends BeatGroup {
 			/* if (Paths.folderExists('lead:content/huds/$type'))
 				for (ext in Script.exts)
 					for (file in Paths.readFolder(folder, ext))
-						for (script in Script.create(file))
+						for (script in Script.createMulti(file))
 							scripts.add(script);
 			else */
-				for (script in Script.create('lead:content/huds/${type}HUD'))
+				for (script in Script.createMulti('lead:content/huds/${type}HUD'))
 					scripts.add(script);
 
 	function initHealthBar():Bar {

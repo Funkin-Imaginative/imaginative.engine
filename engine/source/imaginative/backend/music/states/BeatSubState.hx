@@ -158,7 +158,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	function loadScript():Void {
 		stateScripts = new ScriptGroup(this);
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/$scriptName'))
+			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}

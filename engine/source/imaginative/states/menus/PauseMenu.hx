@@ -20,7 +20,7 @@ class PauseMenu extends BeatSubState {
 		FlxG.cameras.add(camera = mainCamera = new BeatCamera('Pause Camera'), false).bgColor = 0xb3000000;
 
 	override public function create():Void {
-		script = Script.create(scriptPath, false)[0];
+		script = Script.create(scriptPath);
 		super.create();
 		conductor.loadMusic('breakfast', (_:FlxSound) -> {
 			conductor.playFromTime(FlxG.random.float(0, conductor.length / 2), 0);

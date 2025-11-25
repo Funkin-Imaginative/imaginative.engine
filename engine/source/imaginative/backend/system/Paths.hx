@@ -379,17 +379,14 @@ class Paths {
 		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = 'root:./solo/${Main.mainMod}/$file'))
 				result = check.path;
-		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
-			if (itemExists(check = 'root:./$file'))
-				result = check.path;
 		#else
 		if (result.isNullOrEmpty())
 			if (itemExists(check = 'root:./${Main.mainMod}/$file'))
 				result = check.path;
+		#end
 		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
 			if (itemExists(check = 'root:./$file'))
 				result = check.path;
-		#end
 
 		return FilePath.normalize(result);
 	}
@@ -447,9 +444,11 @@ class Paths {
 	 */
 	public static function multExt(file:ModPath, exts:Array<String>):ModPath {
 		var result:ModPath = '';
+		var check:ModPath = '';
 		for (ext in exts)
-			if (fileExists(result = file.pushExt(ext)))
-				break;
+			if (fileExists(check = file.pushExt(ext))) {
+				result = check; break;
+			}
 		return result;
 	}
 	/**

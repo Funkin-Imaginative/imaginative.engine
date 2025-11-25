@@ -193,7 +193,7 @@ class PlayState extends BeatState {
 	/**
 	 * Scripts for the funny softcoding bullshit.
 	 */
-	public var scripts:ScriptGroup;
+	public var songScripts:ScriptGroup;
 	/**
 	 * The HUD itself.
 	 */
@@ -318,7 +318,7 @@ class PlayState extends BeatState {
 		for (i in [1, 2, 3]) // lazy
 			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
 
-		scripts = new ScriptGroup(instance = this);
+		songScripts = new ScriptGroup(instance = this);
 
 		bgColor = 0xFFBDBDBD;
 
@@ -422,31 +422,31 @@ class PlayState extends BeatState {
 			Starting to think of doing these method's.
 
 			```haxe
-			scripts.event('pre[____]', event);
-			scripts.event('[____]', event);
+			songScripts.event('pre[____]', event);
+			songScripts.event('[____]', event);
 
 			if (!event.prevented) {
 				// code
 			}
 
-			scripts.event('[____]Post', event);
+			songScripts.event('[____]Post', event);
 			```
 
 			or
 
 			```haxe
-			scripts.event('pre[____]', event);
+			songScripts.event('pre[____]', event);
 			if (!event.prevented) {
-				scripts.event('[____]', event);
+				songScripts.event('[____]', event);
 				if (!event.prevented) { // idfk lmao, probably wont do this now that I've written it out lol
-					scripts.event('[____]Post', event);
+					songScripts.event('[____]Post', event);
 				}
 			}
 			```
 			**/
 			field.onNoteHit.add((event) -> {
-				scripts.event('preNoteHit', event);
-				scripts.event('noteHit', event);
+				songScripts.event('preNoteHit', event);
+				songScripts.event('noteHit', event);
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
@@ -485,11 +485,11 @@ class PlayState extends BeatState {
 					}
 				}
 
-				scripts.event('noteHitPost', event);
+				songScripts.event('noteHitPost', event);
 			});
 			field.onSustainHit.add((event) -> {
-				scripts.event('preSustainHit', event);
-				scripts.event('sustainHit', event);
+				songScripts.event('preSustainHit', event);
+				songScripts.event('sustainHit', event);
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
@@ -502,11 +502,11 @@ class PlayState extends BeatState {
 						generalVocals.volume = 1;
 				}
 
-				scripts.event('sustainHitPost', event);
+				songScripts.event('sustainHitPost', event);
 			});
 			field.onNoteMissed.add((event) -> {
-				scripts.event('preNoteMissed', event);
-				scripts.event('noteMissed', event);
+				songScripts.event('preNoteMissed', event);
+				songScripts.event('noteMissed', event);
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.note.renderActors();
@@ -522,11 +522,11 @@ class PlayState extends BeatState {
 						hud.health -= 0.035 * (event.field.status ? 1 : -1);
 				}
 
-				scripts.event('noteMissedPost', event);
+				songScripts.event('noteMissedPost', event);
 			});
 			field.onSustainMissed.add((event) -> {
-				scripts.event('preSustainMissed', event);
-				scripts.event('sustainMissed', event);
+				songScripts.event('preSustainMissed', event);
+				songScripts.event('sustainMissed', event);
 
 				if (!event.prevented) {
 					var actors:Array<Character> = event.sustain.renderActors();
@@ -539,11 +539,11 @@ class PlayState extends BeatState {
 						generalVocals.volume = 0;
 				}
 
-				scripts.event('sustainMissedPost', event);
+				songScripts.event('sustainMissedPost', event);
 			});
 			field.onVoidMiss.add((event) -> {
-				scripts.event('preVoidMiss', event);
-				scripts.event('voidMiss', event);
+				songScripts.event('preVoidMiss', event);
+				songScripts.event('voidMiss', event);
 
 				if (!event.prevented) {
 					if (event.triggerMiss) {
@@ -558,12 +558,12 @@ class PlayState extends BeatState {
 					}
 				}
 
-				scripts.event('voidMissPost', event);
+				songScripts.event('voidMissPost', event);
 			});
 			field.userInput.add((event) -> {
-				scripts.event('preFieldInput', event);
-				scripts.event('fieldInput', event);
-				scripts.event('fieldInputPost', event);
+				songScripts.event('preFieldInput', event);
+				songScripts.event('fieldInput', event);
+				songScripts.event('fieldInputPost', event);
 			});
 		}
 		log('Field(s) ${loadedFields.cleanDisplayList()} loaded.', DebugMessage);
@@ -617,11 +617,11 @@ class PlayState extends BeatState {
 		for (folder in ['content/songs', 'content/songs/$setSong/scripts'])
 			for (ext in Script.exts)
 				for (file in Paths.readFolder(folder, ext))
-					for (script in Script.create(file))
-						scripts.add(script);
+					for (script in Script.createMulti(file))
+						songScripts.add(script);
 
-		scripts.load();
-		scripts.call('create');
+		songScripts.load();
+		songScripts.call('create');
 
 		// hud.healthBar.setColors(enemy.healthColor, player.healthColor);
 
@@ -671,7 +671,7 @@ class PlayState extends BeatState {
 						if (strum.willReset)
 							strum.playAnim('static');
 
-				scripts.event('onSongEnd', event);
+				songScripts.event('onSongEnd', event);
 				songEnded = true;
 				if (!event.prevented)
 					endSong();
@@ -685,11 +685,11 @@ class PlayState extends BeatState {
 		camGame.snapToTarget();
 		camGame.snapZoom();
 
-		scripts.call('createPost');
+		songScripts.call('createPost');
 	}
 
 	override public function update(elapsed:Float):Void {
-		scripts.call('update', [elapsed]);
+		songScripts.call('update', [elapsed]);
 		super.update(elapsed);
 
 		while (songEvents.length > 0 && songEvents.last().time <= time) {
@@ -701,7 +701,7 @@ class PlayState extends BeatState {
 		if (Controls.global.pause) initPause();
 		if (Controls.global.reset && !Settings.setup.disableDeathBind)
 			initGameover([enemy, player]);
-		scripts.call('updatePost', [elapsed]);
+		songScripts.call('updatePost', [elapsed]);
 	}
 
 	function startCountdown(saidAssets:CountdownAssets):Void {
@@ -787,36 +787,36 @@ class PlayState extends BeatState {
 
 	override public function stepHit(curStep:Int):Void {
 		super.stepHit(curStep);
-		scripts.call('stepHit', [curStep]);
+		songScripts.call('stepHit', [curStep]);
 	}
 	override public function beatHit(curBeat:Int):Void {
 		super.beatHit(curBeat);
-		scripts.call('beatHit', [curBeat]);
+		songScripts.call('beatHit', [curBeat]);
 	}
 	override public function measureHit(curMeasure:Int):Void {
 		super.measureHit(curMeasure);
-		scripts.call('measureHit', [curMeasure]);
+		songScripts.call('measureHit', [curMeasure]);
 	}
 
 	override public function draw():Void {
-		var event:ScriptEvent = scripts.event('onDraw', new ScriptEvent());
+		var event:ScriptEvent = songScripts.event('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
-			scripts.call('onDrawPost');
+			songScripts.call('onDrawPost');
 		}
 	}
 
 	override public function onFocus():Void {
-		scripts.call('onFocus');
+		songScripts.call('onFocus');
 		super.onFocus();
 	}
 	override public function onFocusLost():Void {
-		scripts.call('onFocusLost');
+		songScripts.call('onFocusLost');
 		super.onFocusLost();
 	}
 
 	override public function destroy():Void {
-		scripts.end();
+		songScripts.end();
 		instance = null;
 		super.destroy();
 	}
