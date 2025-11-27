@@ -26,7 +26,7 @@ jobs:
           haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: windows-build-cache
@@ -78,7 +78,7 @@ jobs:
             }
 
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: windows-build-cache
@@ -104,7 +104,7 @@ jobs:
           haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: mac-build-cache
@@ -156,7 +156,7 @@ jobs:
             }
 
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: mac-build-cache
@@ -182,7 +182,7 @@ jobs:
           haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: linux-build-cache
@@ -236,7 +236,7 @@ jobs:
               }
             }
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: linux-build-cache
