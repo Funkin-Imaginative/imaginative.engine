@@ -311,9 +311,7 @@ final class HaxeScript extends Script {
 	#else
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?_:String) {
-		if (file.path.isNullOrEmpty())
-			_log('[Script] Haxe scripting isn\'t supported in this build.');
-		else
+		if (file.isFile)
 			_log('[Script] Haxe scripting isn\'t supported in this build. (file:${file.format()})');
 		super(file, null);
 	}

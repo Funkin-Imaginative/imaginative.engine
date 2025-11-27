@@ -444,11 +444,9 @@ class Paths {
 	 */
 	public static function multExt(file:ModPath, exts:Array<String>):ModPath {
 		var result:ModPath = '';
-		var check:ModPath = '';
 		for (ext in exts)
-			if (fileExists(check = file.pushExt(ext))) {
-				result = check; break;
-			}
+			if (fileExists(result = file.pushExt(ext)))
+				break;
 		return result;
 	}
 	/**
