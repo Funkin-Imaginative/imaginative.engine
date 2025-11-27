@@ -1,6 +1,7 @@
 name: Feature Request
 description: Request something you want put in the engine!
 labels: [enhancement]
+type: Feature
 body:
   - type: textarea
     attributes:

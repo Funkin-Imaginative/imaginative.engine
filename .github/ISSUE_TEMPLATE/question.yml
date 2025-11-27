@@ -1,6 +1,5 @@
 name: Question
 description: Ask something related to the engine.
-labels: [question]
 body:
   - type: textarea
     attributes:
