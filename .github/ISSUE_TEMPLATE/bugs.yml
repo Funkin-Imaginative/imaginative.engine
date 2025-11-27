@@ -2,7 +2,7 @@ name: Report a Bug
 description: Report a bug you found in the engine.
 labels: [bug]
 type: Bug
-projects: 1
+projects: [Engine Todo List]
 body:
   - type: input
     id: version
