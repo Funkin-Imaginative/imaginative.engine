@@ -1,13 +1,15 @@
 name: Report a Bug
 description: Report a bug you found in the engine.
 labels: [bug]
+type: Bug
+projects: [Engine Todo List]
 body:
   - type: input
     id: version
     attributes:
       label: |
         What version of the engine are you using?
-        If it's an action build please provide it with a link or something of the sorts.
+        If it's an action build, please provide it with a link or something of the sort.
       placeholder: "v0.3-pre-alpha action 2826 [example link]"
 
   - type: textarea
@@ -15,7 +17,7 @@ body:
     attributes:
       label: |
         Describe the bug as clearly as possible.
-        Give context to what lead you to this bug.
+        Give context to what led you to this bug.
       placeholder: |
         I did ____ and ____, as well as ____.
         Then ____ happened when I ____ which shouldn't have happened.
