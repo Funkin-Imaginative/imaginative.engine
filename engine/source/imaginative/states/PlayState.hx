@@ -318,7 +318,7 @@ class PlayState extends BeatState {
 		for (i in [1, 2, 3]) // lazy
 			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
 
-		songScripts = new ScriptGroup(instance = this);
+		add(songScripts = new ScriptGroup(instance = this));
 
 		bgColor = 0xFFBDBDBD;
 
@@ -816,7 +816,6 @@ class PlayState extends BeatState {
 	}
 
 	override public function destroy():Void {
-		songScripts.end();
 		instance = null;
 		super.destroy();
 	}

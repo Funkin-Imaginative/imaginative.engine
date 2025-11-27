@@ -154,6 +154,7 @@ class LevelHolder extends BeatSpriteGroup {
 			}
 		}
 	}
+
 	override public function destroy():Void {
 		scripts.end();
 		super.destroy();

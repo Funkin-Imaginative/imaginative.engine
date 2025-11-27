@@ -156,7 +156,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	}
 
 	function loadScript():Void {
-		stateScripts = new ScriptGroup(this);
+		add(stateScripts = new ScriptGroup(this));
 		if (scriptsAllowed) {
 			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
@@ -320,7 +320,6 @@ class BeatSubState extends FlxSubState implements IBeatState {
 
 	override public function destroy():Void {
 		parent = null;
-		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
 		if (FlxG.cameras.list.contains(mainCamera))
 			FlxG.cameras.remove(mainCamera, true);

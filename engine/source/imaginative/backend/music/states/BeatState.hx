@@ -139,7 +139,7 @@ class BeatState extends FlxState implements IBeatState {
 	}
 
 	function loadScript():Void {
-		stateScripts = new ScriptGroup(this);
+		add(stateScripts = new ScriptGroup(this));
 		if (scriptsAllowed) {
 			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
@@ -351,7 +351,6 @@ class BeatState extends FlxState implements IBeatState {
 	}
 
 	override public function destroy():Void {
-		stateScripts.end();
 		Conductor.beatStates.remove(this);
 		bgColor = FlxColor.BLACK;
 		super.destroy();

@@ -4,7 +4,7 @@ package imaginative.backend.scripting.group;
 /**
  * This class is to utilize several scripts in a single place.
  */
-class ScriptGroup extends FlxTypedGroup<Script> {
+class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	/**
 	 * Public variables throughout the group.
 	 */
@@ -17,7 +17,8 @@ class ScriptGroup extends FlxTypedGroup<Script> {
 	/**
 	 * The parent object that the script group is tied to.
 	 */
-	public var parent(default, set):Dynamic;
+	@:isVar public var parent(get, set):Dynamic;
+	inline function get_parent():Dynamic return parent; // so IScript won't yell at me
 	inline function set_parent(value:Dynamic):Dynamic {
 		forEach((script:Script) -> script.parent = value);
 		return parent = value;
@@ -49,10 +50,9 @@ class ScriptGroup extends FlxTypedGroup<Script> {
 
 	/**
 	 * Loads the scripts in the group, pretty self-explanatory.
-	 * @param clearInvalid If true improper scripts will be removed from the group.
 	 */
-	public function load(clearInvalid:Bool = true):Void {
-		if (clearInvalid) this.clearInvalid();
+	public function load():Void {
+		clearInvalid();
 		forEach((script:Script) -> script.load());
 	}
 
