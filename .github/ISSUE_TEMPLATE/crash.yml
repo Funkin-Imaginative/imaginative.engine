@@ -1,7 +1,8 @@
-name: Question
-title: "Question: "
-description: Ask something related to the engine.
-labels: [enhancement]
+name: Crash
+title: "Crash Report: "
+description: Report a crash that occurred while using the engine.
+labels: [major bug]
+type: Bug
 body:
   - type: checkboxes
     attributes:

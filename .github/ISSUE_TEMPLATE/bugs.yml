@@ -1,21 +1,33 @@
 name: Report a Bug
+title: "Bug Report: "
 description: Report a bug you found in the engine.
-labels: [bug]
+labels: [minor bug]
+type: Bug
 body:
+  - type: checkboxes
+    attributes:
+      label: Issue Checklist
+      description: Be sure to complete these steps to increase the chances of your issue being addressed!
+      options:
+        # - label: I have read the [Contributing Guide](https://github.com/FunkinCrew/Funkin/blob/main/docs/CONTRIBUTING.md)
+        - label: I have checked the issues/discussions pages to see if my issue has already been reported.
+        - label: I have properly titled my issue.
+        - label: I did not have any mods installed when I encountered this issue.
+
   - type: input
-    id: version
     attributes:
       label: |
         What version of the engine are you using?
-        If it's an action build please provide it with a link or something of the sorts.
+        If it's an action build, please provide a link or something similar.
       placeholder: "v0.3-pre-alpha action 2826 [example link]"
+    validations:
+      required: true
 
   - type: textarea
-    id: description
     attributes:
       label: |
         Describe the bug as clearly as possible.
-        Give context to what lead you to this bug.
+        Give context to what led you to this bug.
       placeholder: |
         I did ____ and ____, as well as ____.
         Then ____ happened when I ____ which shouldn't have happened.
@@ -23,12 +35,10 @@ body:
       required: true
 
   - type: textarea
-    id: console-logs
     attributes:
       label: Console Logs
 
   - type: dropdown
-    id: modding-types
     attributes:
       label: How are you modding the engine?
       description: Check the boxes to state what things you've done.
@@ -42,7 +52,6 @@ body:
       required: true
 
   - type: dropdown
-    id: build-target
     attributes:
       label: What platform are you running the engine on?
       options:
