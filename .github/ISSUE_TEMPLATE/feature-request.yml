@@ -4,21 +4,8 @@ labels: [enhancement]
 body:
   - type: textarea
     attributes:
-      label: What feature do you want to get added on the **base** engine?
-    validations:
-      required: true
-
-  - type: dropdown
-    id: eyetest
-    attributes:
       label: |
-        To test your sight, and reliability, please select the option of what should **NOT** be requested. **[insert, this is from psych joke here]**
-      options:
-        - Credit that was forgotten.
-        - A useful feature.
-        - Actual feedback.
-        - A good idea.
-        - Modchart editor and online multiplayer.
-        - Better compatibility with other engines.
+        What feature do you want to get added to the **base** engine?
+        Why do you think we should consider adding this?
     validations:
       required: true
