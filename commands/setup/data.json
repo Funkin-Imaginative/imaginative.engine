@@ -55,6 +55,10 @@
 	],
 	"questions": [
 		{
+			"name": "flixel-animate",
+			"description": "include animate atlas support"
+		},
+		{
 			"name": "rulescript",
 			"description": "include haxe scripting support"
 		},

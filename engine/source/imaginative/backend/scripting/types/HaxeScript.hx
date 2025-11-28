@@ -15,9 +15,29 @@ final class HaxeScript extends Script {
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
-	var internalScript(default, null):RuleScript;
-	var _parser(get, never):HxParser;
-	inline function get__parser():HxParser
+	@:allow(imaginative.backend.scripting.Script)
+	inline static function init():Void {
+		RuleScript.defaultImports.get('').remove('Sys');
+	}
+
+	/**
+	 * Loads code from string.
+	 * @param code The script code.
+	 * @param onCreate Runs when the script is created.
+	 * @param onLoad Runs when the script is loaded.
+	 * @return HaxeScript ~ The haxe script instance.
+	 */
+	public static function loadCodeFromString(code:String, onCreate:HaxeScript->Void, onLoad:HaxeScript->Void):HaxeScript {
+		var script:HaxeScript = new HaxeScript('', code);
+		if (onCreate != null) onCreate(script);
+		script.load();
+		if (onLoad != null) onLoad(script);
+		return script;
+	}
+
+	final internalScript:RuleScript;
+	var parser(get, never):HxParser;
+	inline function get_parser():HxParser
 		return internalScript.getParser(HxParser);
 
 	/* static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
@@ -144,35 +164,23 @@ final class HaxeScript extends Script {
 		];
 	} */
 
+	override function get_parent():Dynamic
+		return internalScript.superInstance;
+	override function set_parent(value:Dynamic):Dynamic
+		return internalScript.superInstance = value;
+
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String) {
-		internalScript = new RuleScript();
 		super(file, code);
+		internalScript = new RuleScript();
 	}
 
-	override function loadScriptCode(file:ModPath, ?code:String):Void {
+	override function renderScript(file:ModPath, ?code:String):Void {
 		super.loadScriptCode(file, code);
-		_parser.allowAll();
+		parser.allowAll();
 	}
 
-	@:access(imaginative.backend.Console.formatLogInfo)
-	override function loadNecessities():Void {
-		internalScript.scriptName = scriptPath == null ? 'from string' : scriptPath.format();
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
-		#if (neko || eval || display)
-		for (tag => value in haxe.macro.Context.getDefines())
-			if (!_parser.preprocesorValues.exists(tag))
-				_parser.preprocesorValues.set(tag, value);
-		#end
-		internalScript.errorHandler = (error:haxe.Exception) -> {
-			_log(Console.formatLogInfo(error.message, ErrorMessage, internalScript.scriptName, _parser.parser.line), ErrorMessage);
-			return error;
-		}
-		canRun = true;
-	}
-
-	override function launchScript(code:String):Void {
+	override function renderScript(code:String):Void {
 		try {
 			if (!code.isNullOrEmpty()) {
 				internalScript.tryExecute(code, internalScript.errorHandler);
@@ -183,42 +191,48 @@ final class HaxeScript extends Script {
 			internalScript.errorHandler(error);
 		loaded = false;
 	}
+	@:access(imaginative.backend.Console.formatLogInfo)
+	override function loadNecessities():Void {
+		super.loadNecessities();
+		set('trace', (value:Dynamic) -> log(value, FromHaxe, interp.posInfos()));
+		set('log', (value:Dynamic) -> log(value, level, FromHaxe, interp.posInfos()));
 
-	/**
-	 * Load's code from string.
-	 * @param code The script code.
-	 * @param vars Variables to input into the haxe script instance.
-	 * @param funcToRun Function to run inside the haxe script instance.
-	 * @param funcArgs Arguments to run for said function.
-	 * @return `HaxeScript` ~ The haxe script instance from string.
-	 */
-	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
-		var script:HaxeScript = new HaxeScript('', code);
-		for (name => thing in vars)
-			script.set(name, thing);
-		script.load();
-		script.call(funcToRun, funcArgs);
-		return script;
+		/* inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
+			set(alias ?? cls.getClassName(), cls);
+		}
+		var classArray:Array<Class<Dynamic>> = [Float, Int, Bool, String];
+		for (i in classArray)
+			importClass(i); */
+
+		internalScript.scriptName = scriptPath == null ? 'from string' : scriptPath.format();
+		#if (neko || eval || display)
+		for (tag => value in haxe.macro.Context.getDefines())
+			if (!parser.preprocesorValues.exists(tag))
+				parser.preprocesorValues.set(tag, value);
+		#end
+		internalScript.errorHandler = (error:haxe.Exception) -> {
+			_log(Console.formatLogInfo(error.message, ErrorMessage, internalScript.scriptName, parser.parser.line), ErrorMessage);
+			return error;
+		}
+		canRun = true;
 	}
-
-	override function get_parent():Dynamic
-		return internalScript.superInstance;
-	override function set_parent(value:Dynamic):Dynamic
-		return internalScript.superInstance = value;
 
 	override public function set(variable:String, value:Dynamic):Void
 		internalScript.variables.set(variable, value);
-	override public function get<T>(variable:String, ?def:T):T
-		return internalScript.variables.get(variable) ?? def;
+	override public function get<T>(variable:String, ?def:T):T {
+		if (internalScript.variables.exists(func))
+			return internalScript.variables.get(variable) ?? def;
+		return def;
+	}
 
 	override public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
-		if (!active && internalScript.interp == null || !internalScript.variables.exists(func))
-			return def;
+		if (!active) return def;
+		if (!internalScript.variables.exists(func)) return def;
 
 		var daFunc:haxe.Constraints.Function = get(func);
 		if (Reflect.isFunction(daFunc))
 			try {
-				return Reflect.callMethod(null, func, args ?? []) ?? def;
+				return Reflect.callMethod(null, daFunc, args ?? []) ?? def;
 			} catch(error:haxe.Exception)
 				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
 

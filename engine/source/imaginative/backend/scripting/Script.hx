@@ -50,6 +50,7 @@ class Script extends FlxBasic implements IScript {
 				for (ext in exts)
 					ext
 		];
+		HaxeScript.init();
 	}
 
 	// Util Functions.
