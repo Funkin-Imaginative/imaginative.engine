@@ -100,4 +100,16 @@ class MenuSprite extends FlxSpriteGroup {
 				obj.updateHitbox();
 		}
 	}
+
+	@:allow(imaginative.backend.music.states.BeatState) var shouldDraw:Bool = true;
+	override public function draw() {
+		if (shouldDraw)
+			super.draw();
+		else {
+			var last:Bool = visible;
+			visible = false;
+			super.draw();
+			visible = last;
+		}
+	}
 }
