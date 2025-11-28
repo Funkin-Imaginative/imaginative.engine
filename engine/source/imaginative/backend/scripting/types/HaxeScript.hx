@@ -35,7 +35,7 @@ final class HaxeScript extends Script {
 	var parser:Parser;
 	var expr:Expr;
 
-	static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
+	/* static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
 		return [
 			// Haxe //
 			'Std' => Std,
@@ -164,7 +164,7 @@ final class HaxeScript extends Script {
 			// self //
 			'__this__' => script
 		];
-	}
+	} */
 
 	override function get_parent():Dynamic
 		return interp.scriptObject;
@@ -189,11 +189,26 @@ final class HaxeScript extends Script {
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadNecessities():Void {
 		super.loadNecessities();
+		set('trace', (value:Dynamic) -> log(value, FromHaxe, interp.posInfos()));
+		set('log', (value:Dynamic) -> log(value, level, FromHaxe, interp.posInfos()));
+
+		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
+			set(alias ?? cls.getClassName(), cls);
+		}
+		var classArray:Array<Class<Dynamic>> = [Float, Int, Bool, String];
+		for (i in classArray)
+			importClass(i);
 
 		if (filePath != null)
 			__importedPaths.push(filePath.format());
 
 		parser.preprocesorValues = #if (neko || eval || display) haxe.macro.Context.getDefines() #else new Map<String, Dynamic>() #end;
+		interp.warnHandler = (error:Error) -> {
+			var content:String = error.toString();
+			if (content.startsWith(error.origin))
+				content = content.substr(error.origin.length);
+			_log(Console.formatLogInfo(content, ErrorMessage, error.origin, error.line), WarningMessage);
+		}
 		interp.errorHandler = (error:Error) -> {
 			var content:String = error.toString();
 			if (content.startsWith(error.origin))

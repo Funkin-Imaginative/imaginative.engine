@@ -200,10 +200,30 @@ class Script extends FlxBasic implements IScript {
 		#end
 	}
 	function loadNecessities():Void {
-		// TODO: load pre-import stuff here
-		/* var classes:Map<String, Class<Dynamic>> = [];
-		for (c in classes)
-			set(c.getClassName(), c); */
+		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
+			set(alias ?? cls.getClassName(), cls);
+		}
+		// TODO: Implement blacklisting.
+		var classArray:Array<Class<Dynamic>> = [
+			Date, DateTools, IntIterator, Lambda, Math, Std, StringTools, Type,
+			FlxBasic, FlxCamera, FlxG, FlxObject, FlxSprite, FlxState, FlxSubState, FlxGroup, FlxSpriteGroup, FlxTypedGroup, FlxTypedSpriteGroup, FlxMath
+		];
+		for (i in classArray)
+			importClass(i);
+
+		// Custom Functions //
+		set('addInfrontOf',
+			(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+				return SpriteUtil.addInfrontOf(obj, from, into)
+		);
+		set('addBehind',
+			(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+				return SpriteUtil.addBehind(obj, from, into)
+		);
+		set('trace', (value:Dynamic) -> log(value, FromUnknown));
+		set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
+		set('disableScript', () -> active = false);
+		set('__this__', this);
 	}
 
 	var canRun:Bool = false;
