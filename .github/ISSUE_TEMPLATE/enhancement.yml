@@ -1,7 +1,8 @@
-name: Question
-title: "Question: "
-description: Ask something related to the engine.
+name: Enhancement
+title: "Enhancement: "
+description: Request something you want put in the engine!
 labels: [enhancement]
+type: Feature
 body:
   - type: checkboxes
     attributes:
@@ -15,7 +16,6 @@ body:
 
   - type: textarea
     attributes:
-      label: What's your question?
-      placeholder: Well, how do I ____?
+      label: What is your suggestion, and why should it be implemented?
     validations:
       required: true

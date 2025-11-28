@@ -1,7 +1,7 @@
-name: Report a Bug
-title: "Bug Report: "
-description: Report a bug you found in the engine.
-labels: [minor bug]
+name: Crash
+title: "Crash Report: "
+description: Report a crash that occurred while using the engine.
+labels: [major bug]
 type: Bug
 body:
   - type: checkboxes
@@ -26,17 +26,21 @@ body:
   - type: textarea
     attributes:
       label: |
-        Describe the bug as clearly as possible.
-        Give context to what led you to this bug.
+        Describe the crash as clearly as possible.
+        Give context to what led you to this crash.
       placeholder: |
         I did ____ and ____, as well as ____.
-        Then ____ happened when I ____ which shouldn't have happened.
+        Then ____ happened when I ____ which crashed my game.
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: Console Logs
+      label: Crash Log
+      placeholder: |
+        The crash log should be located in the crash folder at the root of the engine.
+    validations:
+      required: true
 
   - type: dropdown
     attributes:
