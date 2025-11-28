@@ -16,7 +16,7 @@ enum abstract LogLevel(String) from String to String {
 /**
  * An internal enum used for stating where a trace came from.
  */
-enum LogFrom {
+private enum LogFrom {
 	FromSource;
 	FromHaxe;
 	FromLua;

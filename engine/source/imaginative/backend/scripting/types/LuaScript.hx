@@ -17,24 +17,25 @@ final class LuaScript extends Script {
 	static function getScriptImports(script:LuaScript):Map<String, Dynamic> {
 		return [
 			'print' => (value:Dynamic) ->
-				_log(Console.formatLogInfo(value, LogMessage, script.scriptPath.format(), FromLua)),
+				_log(Console.formatLogInfo(value, LogMessage, script.filePath.format(), FromLua)),
 			'log' => (value:Dynamic, level:String = LogMessage) ->
-				_log(Console.formatLogInfo(value, level, script.scriptPath.format(), FromLua)),
+				_log(Console.formatLogInfo(value, level, script.filePath.format(), FromLua)),
 
 			'disableScript' => () ->
 				script.active = false
 		];
 	}
 
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
-		_log('[Script] Lua scripting isn\'t supported... yet.', SystemMessage);
+		_log('[Script] Lua scripting isn\'t supported... yet.');
 		super(file, code);
 	}
 	#else
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?_:String) {
-		_log('[Script] Lua scripting isn\'t supported in this build.', SystemMessage);
+		if (file.isFile)
+			_log('[Script] Lua scripting isn\'t supported in this build. (file:${file.format()})');
 		super(file, null);
 	}
 	#end

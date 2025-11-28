@@ -9,24 +9,20 @@ class GlobalScript {
 	 */
 	public static var scripts:ScriptGroup;
 
-	static function getScriptImports():Map<String, Dynamic>
-		return [
-			'scripts' => scripts,
-			'loadScript' => loadScript,
-			'call' => call,
-			'event' => event,
-		];
-
 	@:allow(imaginative.states.EngineProcess)
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.end();
 
 		scripts = new ScriptGroup();
-		for (script in Script.create('lead:content/global'))
+		scripts.globalVariables = [
+			'scripts' => scripts,
+			'loadScript' => loadScript,
+			'call' => call,
+			'event' => event,
+		];
+		for (script in Script.createMulti('lead:content/global'))
 			scripts.add(script);
-		for (name => thing in getScriptImports())
-			scripts.extraVars.set(name, thing);
 		scripts.load();
 	}
 

@@ -329,7 +329,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			bruh.push(file);
 
 		for (sprite in bruh)
-			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
+			for (script in Script.createMulti('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();

@@ -3,6 +3,7 @@ package imaginative.backend.converters;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor;
 
+#if NO_COMPILE
 typedef CNE_ChartData = {
 	strumLines:Array<CNE_ChartStrumLine>,
 	events:Array<CNE_ChartEvent>,
@@ -144,3 +145,4 @@ class ChartConverter {
 	}
 
 }
+#end

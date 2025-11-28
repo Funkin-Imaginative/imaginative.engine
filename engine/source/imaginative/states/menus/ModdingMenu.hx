@@ -1,6 +1,6 @@
-#if MOD_SUPPORT
 package imaginative.states.menus;
 
+#if MOD_SUPPORT
 class ModdingMenu extends BeatState {
 	var bg:MenuSprite;
 

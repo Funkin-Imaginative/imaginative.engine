@@ -4,39 +4,23 @@ package imaginative.backend.scripting.group;
 /**
  * This class is to utilize several scripts in a single place.
  */
-class ScriptGroup implements IFlxDestroyable {
+class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	/**
-	 * An array of all the members in this group.
+	 * Public variables throughout the group.
 	 */
-	public var members:Array<Script> = [];
-	/**
-	 * Iterates through every member.
-	 * @return FlxTypedGroupIterator<Script>
-	 */
-	inline public function iterator(?filter:Script->Bool):FlxTypedGroupIterator<Script>
-		return new FlxTypedGroupIterator<Script>(members, filter);
-	/**
-	 * The number of entries in the members array.
-	 */
-	public var length(get, never):Int;
-	inline function get_length():Int
-		return members.length;
-
+	public var globalVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 	/**
 	 * Shared variables throughout the group.
 	 */
-	public var extraVars:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var extraVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * The parent object that the script group is tied to.
 	 */
 	@:isVar public var parent(get, set):Dynamic;
-	inline function get_parent():Dynamic
-		return parent;
+	inline function get_parent():Dynamic return parent; // so IScript won't yell at me
 	inline function set_parent(value:Dynamic):Dynamic {
-		for (script in members)
-			if (script != null)
-				script.parent = value;
+		forEach((script:Script) -> script.parent = value);
 		return parent = value;
 	}
 
@@ -46,8 +30,9 @@ class ScriptGroup implements IFlxDestroyable {
 	 * @return Script
 	 */
 	public function importScript(file:ModPath):Script {
-		final script:Script = Script.create(file, false)[0];
+		final script:Script = Script.create(file);
 		if (script.type.dummy) {
+			script.destroy();
 			log('Script at "${file.format()}", doesn\'t exist.', WarningMessage);
 			return null;
 		}
@@ -57,61 +42,49 @@ class ScriptGroup implements IFlxDestroyable {
 	}
 
 	public function new(?parent:Dynamic) {
-		extraVars['importScript'] = importScript;
+		super();
+		extraVariables['importScript'] = importScript;
 		this.parent = parent;
+		memberAdded.add(setupScript);
 	}
 
 	/**
 	 * Loads the scripts in the group, pretty self-explanatory.
-	 * @param clearInvalid If true improper scripts will be removed from the group.
 	 */
-	public function load(clearInvalid:Bool = true):Void {
-		if (clearInvalid)
-			this.clearInvalid();
-		for (script in members)
-			if (script != null)
-				script.load();
+	public function load():Void {
+		clearInvalid();
+		forEach((script:Script) -> script.load());
 	}
 
 	/**
-	 * Sets a variable to the script.
-	 * @param variable The variable to apply.
-	 * @param value The value the variable will hold.
+	 * Sets a variable in all scripts.
+	 * @param name The name of the variable.
+	 * @param value The value to apply.
 	 */
-	public function set(variable:String, value:Dynamic):Void
-		for (script in members) {
-			if (script == null) continue;
-			script.set(variable, value);
-		}
+	public function set(name:String, value:Dynamic):Void
+		forEach((script:Script) -> script.set(name, value));
 	/**
-	 * Gets a variable from the script.
-	 * @param variable The variable to receive.
-	 * @param def If it's null then return this.
-	 * @return Dynamic ~ The value the variable holds.
+	 * Gets a variable from any of the scripts.
+	 * @param name The name of the variable.
+	 * @param def If it doesn't exist or is null, return this.
+	 * @return Dynamic ~ The value.
 	 */
-	public function get<T>(variable:String, ?def:T):T {
-		var returnCall:T = null;
-		for (script in members) {
-			if (script == null) continue;
-			var returned:T = script.get(variable, def);
-			if (returned != null) returnCall = returned;
-		}
-		return returnCall ?? def;
+	public function get<V>(name:String, ?def:V):V {
+		// var commonValue:V;
+		forEach((script:Script) -> script.get(name));
+		return def;
 	}
 	/**
-	 * Calls a function in the script instance.
-	 * @param func The name of the function to call.
-	 * @param args Arguments of said function.
-	 * @return Dynamic ~ Whatever is in the functions return statement.
+	 * Calls a function in all the scripts.
+	 * @param func The name of the function.
+	 * @param args Arguments of the said function.
+	 * @param def If it returns null, then return this.
+	 * @return Dynamic ~ Whatever the function returns.
 	 */
-	public function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T {
-		var returnCall:T = null;
-		for (script in members) {
-			if (script == null) continue;
-			var returned:T = script.call(func, args);
-			if (returned != null) returnCall = returned;
-		}
-		return returnCall ?? def;
+	public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
+		// var commonValue:V;
+		forEach((script:Script) -> script.call(func, args));
+		return def;
 	}
 	/**
 	 * Calls an event in the script instance.
@@ -120,45 +93,18 @@ class ScriptGroup implements IFlxDestroyable {
 	 * @return ScriptEvent
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		for (script in members) {
-			if (script == null) continue;
-			var returned:Dynamic = call(func, [event]);
-			if (returned != null) event.returnCall = returned;
-			if (event.prevented && !event.continueLoop) break;
-		}
+		forEach((script:Script) -> {
+			event.returnCall = script.call(func, [event]);
+			if (event.prevented && !event.continueLoop) return;
+		});
 		return event;
 	}
 
-	/**
-	 * Adds a new script to the group.
-	 * @param script The script you want to add to the group.
-	 * @param allowDuplicate If true it allow scripts of the same mod path to be added.
-	 */
-	public function add(script:Script, allowDuplicate:Bool = false):Void {
-		if (!allowDuplicate && isDuplicate(script)) return;
-		members.push(script);
-		setupScript(script);
-	}
-	/**
-	 * Inserts a new script to the group at the specified position.
-	 * @param position The position that the new script should be inserted at.
-	 * @param script The script you want to insert into the group.
-	 * @param allowDuplicate If true it allow scripts of the same mod path to be added.
-	 */
-	public function insert(position:Int, script:Script, allowDuplicate:Bool = false):Void {
-		if (!allowDuplicate && isDuplicate(script)) return;
-		members.insert(position, script);
-		setupScript(script);
-	}
-	/**
-	 * Removes the specified script from the group.
-	 * @param script The script you want to remove.
-	 */
-	public function remove(script:Script):Void
-		members.remove(script);
+	@:deprecated('It doesn\'t make sense for ScriptGroup to have the power to recycle.')
+	override public function recycle(?objectClass:Class<Script>, ?objectFactory:Void->Script, force:Bool = false, revive:Bool = true):Script return null;
 
 	function isDuplicate(script:Script):Bool {
-		var check:Script = getByPath(script.scriptPath.path);
+		var check:Script = getByPath(script.filePath.path);
 		var isDup:Bool = check != null;
 		if (isDup) script.end('onDuplicate');
 		return isDup;
@@ -166,7 +112,8 @@ class ScriptGroup implements IFlxDestroyable {
 
 	function setupScript(script:Script):Void {
 		if (parent != null) script.parent = parent;
-		for (name => thing in extraVars)
+		script.setGlobalVariables(globalVariables);
+		for (name => thing in extraVariables)
 			script.set(name, thing);
 	}
 
@@ -174,12 +121,12 @@ class ScriptGroup implements IFlxDestroyable {
 	 * Improper scripts get removed from the group.
 	 */
 	public function clearInvalid():Void {
-		for (script in members) {
-			if (script != null && script.type.dummy) {
-				remove(script);
+		forEach((script:Script) -> {
+			if (script.type.dummy) {
+				remove(script, true);
 				script.end('onInvalid');
 			}
-		}
+		});
 	}
 
 	/**
@@ -191,13 +138,10 @@ class ScriptGroup implements IFlxDestroyable {
 		destroy();
 	}
 
-	/**
-	 * Destroys the script group when called.
-	 */
-	public function destroy():Void {
-		for (script in members)
-			if (script != null)
-				script.destroy();
+	override public function destroy():Void {
+		globalVariables.clear(); // jic
+		extraVariables.clear();
+		super.destroy();
 	}
 
 	/**
@@ -207,11 +151,12 @@ class ScriptGroup implements IFlxDestroyable {
 	 */
 	public function getByPath(path:String):Script {
 		var result:Script = null;
-		for (script in members)
-			if (script != null && script.scriptPath.path == path) {
+		forEach((script:Script) -> {
+			if (script.filePath.path == path) {
 				result = script;
-				break;
+				return;
 			}
+		});
 		return result;
 	}
 	/**
@@ -221,11 +166,12 @@ class ScriptGroup implements IFlxDestroyable {
 	 */
 	public function getByName(name:String):Script {
 		var result:Script = null;
-		for (script in members)
-			if (script != null && script.fileName == name) {
+		forEach((script:Script) -> {
+			if (script.name == name) {
 				result = script;
-				break;
+				return;
 			}
+		});
 		return result;
 	}
 }

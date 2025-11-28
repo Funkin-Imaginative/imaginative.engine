@@ -47,7 +47,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 			bruh.push(file);
 
 		for (sprite in bruh)
-			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
+			for (script in Script.createMulti('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();
@@ -118,7 +118,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 
 				// remove previous icon scripts
 				scripts.call('onIconChange');
-				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.scriptPath.path.contains('global'));
+				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.filePath.path.contains('global'));
 				for (script in oldScripts)
 					if (scripts.members.contains(script)) {
 						scripts.remove(script);
@@ -126,7 +126,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 					}
 
 				// add new icon scripts
-				for (script in Script.create('${tag.type}:content/objects/${tag.path}'))
+				for (script in Script.createMulti('${tag.type}:content/objects/${tag.path}'))
 					scripts.add(script);
 
 				// change texture and data

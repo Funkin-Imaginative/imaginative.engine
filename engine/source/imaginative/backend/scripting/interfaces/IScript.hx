@@ -1,84 +1,40 @@
 package imaginative.backend.scripting.interfaces;
 
-// TODO: Rework how this is coded.
 /**
  * Implementing this interface means this class will be used to handle scripting capabilities.
  */
 interface IScript {
-	/**
-	 * Contains the mod path information.
-	 */
-	var scriptPath(default, null):ModPath;
-
-	/**
-	 * This variable holds the name of the script.
-	 */
-	var fileName(get, never):String;
-	/**
-	 * This variable holds the name of the file extension.
-	 */
-	var extension(get, never):String;
-
-	/**
-	 * States the type of script this is.
-	 */
-	var type(get, never):ScriptType;
-
-	// /**
-	//  * Loads code from string.
-	//  * @param code The script code.
-	//  * @param vars Variables to input into the script instance.
-	//  * @param funcToRun Function to run inside the script instance.
-	//  * @param funcArgs Arguments to run for said function.
-	//  * @return `Script` ~ The script instance from string.
-	//  */
-	// function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script;
-
-	/**
-	 * If true, the script is active and can mess around with the game.
-	 */
-	var active(get, default):Bool;
-	/**
-	 * States if the script has loaded.
-	 */
-	var loaded(default, null):Bool;
-	/**
-	 * Loads the script, pretty self-explanatory.
-	 */
-	function load():Void;
-
 	/**
 	 * The parent object that the script is tied to.
 	 */
 	var parent(get, set):Dynamic;
 
 	/**
-	 * Sets a variable to the script.
-	 * @param variable The variable to apply.
-	 * @param value The value the variable will hold.
+	 * Loads the script, pretty self-explanatory.
 	 */
-	function set(variable:String, value:Dynamic):Void;
+	function load():Void;
+
+	/**
+	 * Sets a variable in the script.
+	 * @param name The name of the variable.
+	 * @param value The value to apply.
+	 */
+	function set(name:String, value:Dynamic):Void;
 	/**
 	 * Gets a variable from the script.
-	 * @param variable The variable to receive.
-	 * @param def If it's null then return this.
-	 * @return Dynamic ~ The value the variable holds.
+	 * @param name The name of the variable.
+	 * @param def If it doesn't exist or is null, return this.
+	 * @return Dynamic ~ The value.
 	 */
-	function get<T>(variable:String, ?def:T):T;
+	function get<V>(name:String, ?def:V):V;
 	/**
-	 * Calls a function in the script instance.
-	 * @param func The name of the function to call.
-	 * @param args Arguments of said function.
-	 * @return Dynamic ~ Whatever is in the functions return statement.
+	 * Calls a function in the script.
+	 * @param func The name of the function.
+	 * @param args Arguments of the said function.
+	 * @param def If it returns null, then return this.
+	 * @return Dynamic ~ Whatever the function returns.
 	 */
-	function call<T>(func:String, ?args:Array<Dynamic>, ?def:T):T;
-	/**
-	 * Calls an event in the script instance.
-	 * @param func The name of the function to call.
-	 * @param event The event class.
-	 * @return ScriptEvent
-	 */
-	function event<SC:ScriptEvent>(func:String, event:SC):SC;
+	function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R;
 
 	/**
 	 * Ends the script, basically **destroy**, but with an extra step.

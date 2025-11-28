@@ -20,7 +20,7 @@ final class HaxeScript extends Script {
 	inline function get__parser():HxParser
 		return internalScript.getParser(HxParser);
 
-	static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
+	/* static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
 		return [
 			// Haxe // rest is done by rulescript
 			'Lambda' => Lambda,
@@ -142,7 +142,7 @@ final class HaxeScript extends Script {
 			// self //
 			'__this__' => script
 		];
-	}
+	} */
 
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String) {
@@ -215,8 +215,8 @@ final class HaxeScript extends Script {
 		if (!active && internalScript.interp == null || !internalScript.variables.exists(func))
 			return def;
 
-		var func = get(func);
-		if (func != null && Reflect.isFunction(func))
+		var daFunc:haxe.Constraints.Function = get(func);
+		if (Reflect.isFunction(daFunc))
 			try {
 				return Reflect.callMethod(null, func, args ?? []) ?? def;
 			} catch(error:haxe.Exception)
@@ -224,19 +224,16 @@ final class HaxeScript extends Script {
 
 		return def;
 	}
-	override public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		event.returnCall = call(func, [event]);
-		return event;
-	}
 
 	override public function destroy():Void {
 		internalScript = null;
 		super.destroy();
 	}
 	#else
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?_:String) {
-		_log('[Script] Haxe scripting isn\'t supported in this build.', SystemMessage);
+		if (file.isFile)
+			_log('[Script] Haxe scripting isn\'t supported in this build. (file:${file.format()})');
 		super(file, null);
 	}
 	#end
