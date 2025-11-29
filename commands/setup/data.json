@@ -9,6 +9,9 @@
 			"dependencies": [
 				{
 					"name": "flixel",
+					"version": "git",
+					"branch": "dev",
+					"url": "https://github.com/HaxeFlixel/flixel",
 					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
 				}
 			]
