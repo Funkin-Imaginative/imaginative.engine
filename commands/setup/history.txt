@@ -1,7 +1,7 @@
 haxelib install checkstyle
 haxelib install hxWindowColorMode
 haxelib install flixel-addons --skip-dependencies
-haxelib install flixel --skip-dependencies
+haxelib git flixel https://github.com/HaxeFlixel/flixel dev --skip-dependencies
 haxelib install lime
 haxelib install openfl
 haxelib git hscript-improved https://github.com/CodenameCrew/hscript-improved codename-dev

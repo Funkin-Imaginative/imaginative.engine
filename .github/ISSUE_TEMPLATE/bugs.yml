@@ -12,7 +12,7 @@ body:
         # - label: I have read the [Contributing Guide](https://github.com/FunkinCrew/Funkin/blob/main/docs/CONTRIBUTING.md)
         - label: I have checked the issues/discussions pages to see if my issue has already been reported.
         - label: I have properly titled my issue.
-        - label: I did not have any mods installed when I encountered this issue.
+        - label: I did not have any mods enabled when I encountered this issue.
 
   - type: input
     attributes:
@@ -44,7 +44,7 @@ body:
       description: Check the boxes to state what things you've done.
       multiple: true
       options:
-        - I edited the **source code**.
+        - I edited the **source code**. # unsure how to handle this
         - I used **haxe scripting**.
         - I used **lua scripting**.
         - I haven't changed anything!
@@ -58,7 +58,7 @@ body:
         - Windows
         - Linux
         - Mac
-        - Android
-        - IOS
+        # - Android
+        # - IOS
     validations:
       required: true
