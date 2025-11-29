@@ -201,6 +201,7 @@ class Script extends FlxBasic implements IScript {
 		}
 		#end
 	}
+	@:access(imaginative.backend.Console.formatValueInfo)
 	function loadNecessities():Void {
 		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
 			set(alias ?? cls.getClassName(), cls);
@@ -214,15 +215,13 @@ class Script extends FlxBasic implements IScript {
 			importClass(i);
 
 		// Custom Functions //
-		set('addInfrontOf',
-			(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addInfrontOf(obj, from, into)
+		set('addInfrontOf', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+			return SpriteUtil.addInfrontOf(obj, from, into)
 		);
-		set('addBehind',
-			(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addBehind(obj, from, into)
+		set('addBehind', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+			return SpriteUtil.addBehind(obj, from, into)
 		);
-		set('trace', (value:Dynamic) -> log(value, FromUnknown));
+		set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromUnknown)));
 		set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
 		set('disableScript', () -> active = false);
 		set('__this__', this);
