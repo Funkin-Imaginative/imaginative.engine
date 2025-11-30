@@ -680,11 +680,12 @@ class PlayState extends BeatState {
 			startCountdown(countdownAssets);
 		});
 
+	}
+	override public function createPost():Void {
 		var startPosition:Position = characterMapping.exists(cameraTarget) ? characterMapping.get(cameraTarget).getCamPos() : new Position();
 		camPoint.setPosition(startPosition.x, startPosition.y);
 		camGame.snapToTarget();
 		camGame.snapZoom();
-
 		songScripts.call('createPost');
 	}
 

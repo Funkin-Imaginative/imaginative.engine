@@ -37,8 +37,8 @@ interface IScript {
 	function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R;
 
 	/**
-	 * Ends the script.
-	 * @param funcName Custom function call name.
+	 * Ends the script, basically **destroy**, but with an extra step.
+	 * @param funcName The function name to call that tells the script that it's time is over.
 	 */
 	function end(funcName:String = 'end'):Void;
 }

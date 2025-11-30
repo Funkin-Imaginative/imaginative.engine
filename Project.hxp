@@ -193,7 +193,7 @@ class EngineAsset {
 
 		// script related
 		if (scriptSupport.exists()) {
-			// canHaxeScript.enable();
+			canHaxeScript.enable();
 			// canLuaScript.enable();
 
 			ensureClassInclusion.softEnable();
@@ -297,7 +297,7 @@ class EngineAsset {
 		// chart converter
 		addHaxelib('moonchart', 'git');
 
-		if (canHaxeScript.exists()) addHaxelib('hscript-improved', 'git');
+		if (canHaxeScript.exists()) addHaxelib('rulescript');
 		if (canLuaScript.exists()) addHaxelib('linc_luajit', 'git');
 		if (discordRPC.exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos.exists()) addHaxelib('hxvlc', 'git');
@@ -305,13 +305,16 @@ class EngineAsset {
 
 		if (editWindowBorderColor.exists())
 			addHaxelib('hxWindowColorMode');
+		if (scriptSupport.exists())
+			addHaxelib('compiletime');
 		/* Libraries */
 
 		if (ensureClassInclusion.exists()) {
-			addHaxeFlag('-dce no');
 			addHaxeMacro('include("imaginative", true)');
 			addHaxeMacro('include("flixel", true, ["flixel.addons.editors.spine.*", "flixel.addons.nape.*", "flixel.system.macros.*", "flixel.addons.tile.FlxRayCastTilemap"])');
 		}
+		if (canHaxeScript.exists())
+			setDefine('rulescript_abstracts_file_path', './engine/modding/rulescript-abstracts.txt');
 
 		if (!isDebug())
 			setHaxedef('FLX_NO_DEBUG');

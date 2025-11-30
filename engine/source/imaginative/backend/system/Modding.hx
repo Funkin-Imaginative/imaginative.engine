@@ -73,6 +73,7 @@ class Modding {
 	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY, preventModDuplicates:Bool = false):Array<String> {
 		var duplicateCheck:Array<String> = [];
 		var potentialPaths:Array<String> = [];
+		var finalResults:Array<String> = [];
 
 		if (ModType.pathCheck(MAIN, pathType)) {
 			var asset:ModPath = 'root:./solo/${Main.mainMod}/$file';

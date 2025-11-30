@@ -243,6 +243,13 @@ class BeatState extends FlxState implements IBeatState {
 		loadScript();
 		super.create();
 		scriptCall('create');
+		FlxG.signals.postStateSwitch.addOnce(createPost);
+	}
+	/**
+	 * For after the create function runs!
+	 */
+	public function createPost():Void {
+		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
@@ -292,6 +299,7 @@ class BeatState extends FlxState implements IBeatState {
 		super.resetSubState();
 		if (subState is BeatSubState) {
 			var state:BeatSubState = cast subState;
+			state.createPost();
 			state.parent = this;
 			state.onSubstateOpen();
 		}

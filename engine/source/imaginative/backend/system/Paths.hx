@@ -454,7 +454,7 @@ class Paths {
 	 * @param file The mod path.
 	 * @return ModPath ~ The path data.
 	 */
-	inline public static function script(file:ModPath):ModPath
+	inline public static function script(file:ModPath, type:ScriptType = TypeInvalid):ModPath
 		return multExt(file, Script.exts);
 
 	/**
