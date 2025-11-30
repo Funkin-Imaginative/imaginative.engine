@@ -204,6 +204,12 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		if (isAPauseState) initParentDisabler();
 		scriptCall('create');
 	}
+	/**
+	 * For after the create function runs!
+	 */
+	public function createPost():Void {
+		scriptCall('createPost');
+	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
@@ -275,6 +281,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 			var state:BeatSubState = cast subState;
 			state.parent = this;
 			super.resetSubState();
+			state.createPost();
 			state.onSubstateOpen();
 			return;
 		}

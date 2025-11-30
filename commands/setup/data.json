@@ -19,7 +19,7 @@
 
 		{ "name": "flixel-animate", "dependencies": [] },
 
-		{"name": "rulescript"},
+		{ "name": "rulescript" },
 		{
 			"name": "hxcpp",
 			"version": "git",
@@ -54,7 +54,7 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{"name": "thx.semver" }
+		{ "name": "thx.semver" }
 	],
 	"questions": [
 		{

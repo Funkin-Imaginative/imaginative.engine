@@ -11,4 +11,3 @@ haxelib install hxdiscord_rpc
 haxelib install hxp
 haxelib git json2object https://github.com/FunkinCrew/json2object
 haxelib git moonchart https://github.com/Funkin-Imaginative/moonchart imaginative
-haxelib install thx.semver

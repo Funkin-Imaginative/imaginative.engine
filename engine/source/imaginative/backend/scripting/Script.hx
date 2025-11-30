@@ -180,12 +180,16 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public function setGlobalVariables(map:Map<String, Dynamic>):Void {}
 
+	var startVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 	function new(file:ModPath, ?code:String):Void {
 		if (code == null)
 			filePath = file;
 		super();
 		renderScript(filePath);
 		loadNecessities();
+		// was being weird when loadNecessities would run in extended classes
+		for (key => value in startVariables)
+			set(key, value);
 		GlobalScript.call('scriptCreated', [this, type]);
 	}
 
@@ -193,7 +197,7 @@ class Script extends FlxBasic implements IScript {
 	function renderScript(file:ModPath, ?code:String):Void {
 		#if SCRIPT_SUPPORT
 		try {
-			var content:String = file.isFile ? '' : Assets.text(file);
+			var content:String = file.isFile ? Assets.text(file) : '';
 			scriptCode = content.isNullOrEmpty() ? code : content;
 		} catch(error:haxe.Exception) {
 			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
@@ -203,28 +207,29 @@ class Script extends FlxBasic implements IScript {
 	}
 	@:access(imaginative.backend.Console.formatValueInfo)
 	function loadNecessities():Void {
-		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
-			set(alias ?? cls.getClassName(), cls);
-		}
+		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
+			startVariables.set(alias ?? Std.string(cls).split('.').last(), cls);
 		// TODO: Implement blacklisting.
-		var classArray:Array<Class<Dynamic>> = [
-			Date, DateTools, IntIterator, Lambda, Math, Std, StringTools, Type,
-			FlxBasic, FlxCamera, FlxG, FlxObject, FlxSprite, FlxState, FlxSubState, FlxGroup, FlxSpriteGroup, FlxTypedGroup, FlxTypedSpriteGroup, FlxMath
-		];
+		for (list in [CompileTime.getAllClasses('imaginative'), CompileTime.getAllClasses('flixel')])
+			for (classInst in list) // TODO: For now we import EVERYTHING, but I will eventually exclude certain directories.
+				if (!Std.string(classInst).endsWith('_Impl_'))
+					importClass(classInst);
+		// still gonna import using classes for other types
+		var classArray:Array<Class<Dynamic>> = [Date, DateTools, Lambda, Math, Std, StringTools, Type];
 		for (i in classArray)
 			importClass(i);
 
 		// Custom Functions //
-		set('addInfrontOf', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+		startVariables.set('addInfrontOf', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
 			return SpriteUtil.addInfrontOf(obj, from, into)
 		);
-		set('addBehind', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
+		startVariables.set('addBehind', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
 			return SpriteUtil.addBehind(obj, from, into)
 		);
-		set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromUnknown)));
-		set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
-		set('disableScript', () -> active = false);
-		set('__this__', this);
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromUnknown)));
+		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
+		startVariables.set('disableScript', () -> active = false);
+		startVariables.set('__this__', this);
 	}
 
 	var canRun:Bool = false;

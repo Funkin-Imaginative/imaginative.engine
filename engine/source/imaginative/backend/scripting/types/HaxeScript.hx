@@ -17,7 +17,19 @@ final class HaxeScript extends Script {
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
 	inline static function init():Void {
-		RuleScript.defaultImports.get('').remove('Sys');
+		var rootImport = RuleScript.defaultImports.get('');
+		rootImport.remove('Sys');
+		var jic:Map<String, Dynamic> = [
+			'Float' => Float,
+			'Int' => Int,
+			'Bool' => Bool,
+			'String' => String,
+			'Array' => Array
+		];
+		for (key => value in jic)
+			rootImport.set(key, value);
+		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
+			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
 	}
 
 	/**
@@ -36,133 +48,9 @@ final class HaxeScript extends Script {
 	}
 
 	var internalScript(default, null):RuleScript;
-	var parser(get, never):HxParser;
-	inline function get_parser():HxParser
+	var _parser(get, never):HxParser;
+	inline function get__parser():HxParser
 		return internalScript.getParser(HxParser);
-
-	/* static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
-		return [
-			// Haxe // rest is done by rulescript
-			'Lambda' => Lambda,
-			'Json' => haxe.Json,
-
-			// Lime + OpenFL //
-			'Assets' => openfl.utils.Assets,
-			'Application' => lime.app.Application,
-
-			// Flixel //
-			'FlxBasic' => FlxBasic,
-			'FlxCamera' => FlxCamera,
-			'FlxG' => FlxG,
-			'FlxObject' => FlxObject,
-			'FlxSprite' => FlxSprite,
-			'FlxState' => FlxState,
-			'FlxSubState' => FlxSubState,
-			'FlxTypeText' => FlxTypeText,
-			'FlxGroup' => FlxGroup,
-			'FlxSpriteGroup' => FlxSpriteGroup,
-			'FlxTypedGroup' => FlxTypedGroup,
-			'FlxTypedSpriteGroup' => FlxTypedSpriteGroup,
-			'FlxAngle' => FlxAngle,
-			'FlxMath' => FlxMath,
-			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
-			'FlxRect' => FlxRect,
-			'FlxVelocity' => FlxVelocity,
-			'FlxSound' => FlxSound,
-			'FlxSoundGroup' => FlxSoundGroup,
-			'FlxText' => FlxText,
-			'FlxEase' => FlxEase,
-			'FlxTween' => FlxTween,
-			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
-			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
-			'FlxGradient' => FlxGradient,
-			'FlxSave' => FlxSave,
-			'FlxTypedSignal' => Type.resolveClass('flixel.util.FlxTypedSignal_HSC'),
-			'FlxSkewedSprite' => flixel.addons.effects.FlxSkewedSprite,
-			'FlxBackdrop' => flixel.addons.display.FlxBackdrop,
-			'FlxSort' => FlxSort,
-			'FlxTimer' => FlxTimer,
-			'OneOfFour' => Type.resolveClass('flixel.util.typeLimit.OneOfFour_HSC'),
-			'OneOfThree' => Type.resolveClass('flixel.util.typeLimit.OneOfThree_HSC'),
-			'OneOfTwo' => Type.resolveClass('flixel.util.typeLimit.OneOfTwo_HSC'),
-			'FlxArrayUtil' => FlxArrayUtil,
-			'FlxColorTransformUtil' => FlxColorTransformUtil,
-			'FlxDestroyUtil' => FlxDestroyUtil,
-			'FlxSpriteUtil' => FlxSpriteUtil,
-			'FlxStringUtil' => FlxStringUtil,
-
-			// Engine //
-			'Controls' => Controls,
-			'Conductor' => Conductor,
-			'BeatGroup' => BeatGroup,
-			'BeatSpriteGroup' => BeatSpriteGroup,
-			'BeatTypedGroup' => BeatTypedGroup,
-			'BeatTypedSpriteGroup' => BeatTypedSpriteGroup,
-			'BeatState' => BeatState,
-			'BeatSubState' => BeatSubState,
-			'TypeXY' => TypeXY,
-			'Position' => Position,
-			'Script' => Script,
-			'ScriptGroup' => ScriptGroup,
-			'ScriptedState' => imaginative.backend.scripting.states.ScriptedState,
-			'ScriptedSubState' => imaginative.backend.scripting.states.ScriptedSubState,
-			'GlobalScript' => GlobalScript,
-			'HaxeScript' => HaxeScript,
-			'InvalidScript' => InvalidScript,
-			'LuaScript' => LuaScript,
-			'Main' => Main,
-			#if MOD_SUPPORT
-			'Modding' => Modding,
-			#end
-			'ModType' => Type.resolveClass('imaginative.backend.system._Paths.ModType_Impl_'),
-			'ModPath' => Type.resolveClass('imaginative.backend.system._Paths.ModPath_Impl_'),
-			'Paths' => Paths,
-			'Settings' => Settings,
-			'DifficultyHolder' => DifficultyHolder,
-			'LevelHolder' => LevelHolder,
-			'FlxWindow' => FlxWindow,
-			'mainWindow' => FlxWindow.instance,
-			'ArrowField' => ArrowField,
-			'Note' => Note,
-			'Strum' => Strum,
-			'SpriteText' => SpriteText,
-			'SpriteTextLine' => SpriteTextLine,
-			'SpriteTextCharacter' => SpriteTextCharacter,
-			'HealthIcon' => HealthIcon,
-			'WindowBounds' => WindowBounds,
-			'AnimationContext' => Type.resolveClass('imaginative.objects.BaseSprite.AnimationContext_HSC'),
-			'BaseSprite' => BaseSprite,
-			'BeatSprite' => BeatSprite,
-			'Character' => Character,
-			'PlayState' => PlayState,
-			'FunkinUtil' => FunkinUtil,
-			'ParseUtil' => ParseUtil,
-			'PlatformUtil' => PlatformUtil,
-			'SpriteUtil' => SpriteUtil,
-
-			// Extra //
-			#if KNOWS_VERSION_ID
-			'Version' => Type.resolveClass('thx.semver._Version.Version_Impl_'),
-			#end
-
-			// Custom Functions //
-			'addInfrontOf' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addInfrontOf(obj, from, into),
-			'addBehind' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addBehind(obj, from, into),
-
-			'trace' => (value:Dynamic) ->
-				log(value, FromHaxe, script.internalScript.interp.posInfos()),
-			'log' => (value:Dynamic, level:LogLevel = LogMessage) ->
-				log(value, level, FromHaxe, script.internalScript.interp.posInfos()),
-
-			'disableScript' => () ->
-				script.active = false,
-
-			// self //
-			'__this__' => script
-		];
-	} */
 
 	override function get_parent():Dynamic
 		return internalScript.superInstance;
@@ -171,37 +59,37 @@ final class HaxeScript extends Script {
 
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
-		super(file, code);
 		internalScript = new RuleScript();
+		super(file, code);
+		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
+		// trace(startVariables);
 	}
 
 	override function renderScript(file:ModPath, ?code:String):Void {
 		super.renderScript(file, code);
-		parser.allowAll();
+		_parser.allowAll();
 	}
 
 	@:access(imaginative.backend.Console.formatValueInfo)
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadNecessities():Void {
 		super.loadNecessities();
-		set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromHaxe, internalScript.interp.posInfos())));
-		set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, internalScript.interp.posInfos()));
+		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools];
+		for (i in usingArray) // TODO: Add more.
+			internalScript.interp.usings.set(Std.string(i).split('.').last(), i);
 
-		/* inline function importClass(cls:Class<Dynamic>, ?alias:String):Void {
-			set(alias ?? cls.getClassName(), cls);
-		}
-		var classArray:Array<Class<Dynamic>> = [Float, Int, Bool, String];
-		for (i in classArray)
-			importClass(i); */
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromHaxe, internalScript.interp.posInfos())));
+		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, internalScript.interp.posInfos()));
 
-		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
 		#if (neko || eval || display)
 		for (tag => value in haxe.macro.Context.getDefines())
-			if (!parser.preprocesorValues.exists(tag))
-				parser.preprocesorValues.set(tag, value);
+			if (!_parser.preprocesorValues.exists(tag))
+				_parser.preprocesorValues.set(tag, value);
 		#end
 		internalScript.errorHandler = (error:haxe.Exception) -> {
-			_log(Console.formatLogInfo(error.message, ErrorMessage, internalScript.scriptName, parser.parser.line), ErrorMessage);
+			var errorMessage = error.message.split(':'); errorMessage.shift();
+			var errorLine:Int = Std.parseInt(errorMessage.shift());
+			_log(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe), ErrorMessage);
 			return error;
 		}
 		canRun = true;
@@ -212,6 +100,7 @@ final class HaxeScript extends Script {
 			if (!code.isNullOrEmpty()) {
 				internalScript.tryExecute(code, internalScript.errorHandler);
 				loaded = true;
+				call('new');
 				return;
 			} else _log('Script "${internalScript.scriptName}" is either null or empty.');
 		} catch(error:haxe.Exception)
@@ -242,6 +131,8 @@ final class HaxeScript extends Script {
 	}
 
 	override public function destroy():Void {
+		internalScript.interp = null;
+		internalScript.parser = null;
 		internalScript = null;
 		super.destroy();
 	}

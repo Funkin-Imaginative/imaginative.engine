@@ -7,7 +7,7 @@ import openfl.utils.Assets as OpenFLAssets;
 /**
  * Used to help 'ModPath' abstract.
  */
-@:runtimeValue enum abstract ModType(String) {
+enum abstract ModType(String) {
 	// Base Paths
 	/**
 	 * No Mod.
@@ -198,7 +198,7 @@ import openfl.utils.Assets as OpenFLAssets;
 /**
  * Used for getting the paths of many files within the engine!
  */
-@:runtimeValue abstract ModPath(String) {
+abstract ModPath(String) {
 	/**
 	 * States if the path is invalid.
 	 */
