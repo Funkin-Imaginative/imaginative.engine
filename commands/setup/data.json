@@ -19,7 +19,12 @@
 
 		{ "name": "flixel-animate", "dependencies": [] },
 
-		{ "name": "rulescript" },
+		{
+			"name": "rulescript",
+			"version": "git",
+			"branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/RuleScript"
+		},
 		{
 			"name": "hxcpp",
 			"version": "git",
