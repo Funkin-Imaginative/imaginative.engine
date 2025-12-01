@@ -59,7 +59,8 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{ "name": "thx.semver" }
+		{ "name": "thx.semver" },
+		{ "name": "compiletime" }
 	],
 	"questions": [
 		{
