@@ -17,7 +17,7 @@ final class HaxeScript extends Script {
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
 	inline static function init():Void {
-		RuleScript.defaultImports.set('', Script.defaultImports.copy())
+		RuleScript.defaultImports.set('', Script.defaultImports.copy());
 		var rootImport = RuleScript.defaultImports.get('');
 		var jic:Map<String, Dynamic> = [
 			'Float' => Float,
