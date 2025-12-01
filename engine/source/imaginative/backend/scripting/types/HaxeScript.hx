@@ -17,8 +17,8 @@ final class HaxeScript extends Script {
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
 	inline static function init():Void {
+		RuleScript.defaultImports.set('', Script.defaultImports.copy())
 		var rootImport = RuleScript.defaultImports.get('');
-		rootImport.remove('Sys');
 		var jic:Map<String, Dynamic> = [
 			'Float' => Float,
 			'Int' => Int,
@@ -28,6 +28,7 @@ final class HaxeScript extends Script {
 		];
 		for (key => value in jic)
 			rootImport.set(key, value);
+		// we don't need to worry about excluding with this one
 		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
 			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
 	}
@@ -62,7 +63,6 @@ final class HaxeScript extends Script {
 		internalScript = new RuleScript();
 		super(file, code);
 		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
-		// trace(startVariables);
 	}
 
 	override function renderScript(file:ModPath, ?code:String):Void {
@@ -74,7 +74,7 @@ final class HaxeScript extends Script {
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadNecessities():Void {
 		super.loadNecessities();
-		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools];
+		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools, FunkinUtil, ReflectUtil, SpriteUtil];
 		for (i in usingArray) // TODO: Add more.
 			internalScript.interp.usings.set(Std.string(i).split('.').last(), i);
 

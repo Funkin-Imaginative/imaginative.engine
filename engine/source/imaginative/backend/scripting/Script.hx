@@ -39,6 +39,10 @@ enum abstract ScriptType(String) from String to String {
  */
 class Script extends FlxBasic implements IScript {
 	/**
+	 * The default imports classes will use.
+	 */
+	public static final defaultImports:Map<String, Dynamic> = new Map<String, Dynamic>();
+	/**
 	 * All possible script extension types.
 	 */
 	public static var exts(default, null):Array<String> = ['hx', 'lua'];
@@ -50,6 +54,55 @@ class Script extends FlxBasic implements IScript {
 				for (ext in exts)
 					ext
 		];
+		var classList:List<Class<Dynamic>> = CompileTime.getAllClasses();
+		function getClasses(?rootPath:String, ?excludes:Array<String>):List<Class<Dynamic>> {
+			return classList.filter(classInst -> {
+				var className:String = Std.string(classInst);
+				if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
+					return false;
+				for (exclude in excludes ?? [])
+					if (className.startsWith(exclude.endsWith('*') ? exclude.substring(0, exclude.length - 1) : exclude))
+						return false;
+				return true;
+			});
+		}
+		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
+			defaultImports.set(alias ?? Std.string(cls).split('.').last(), cls);
+		// TODO: Implement blacklisting.
+		var flixelExclude = [
+			'flixel.animation.*',
+			'flixel.effects.*',
+			'flixel.graphics.*',
+			'flixel.input.*',
+			'flixel.path.*',
+			'flixel.system.*',
+			'flixel.tile.*',
+			'flixel.addons.api.*',
+			'flixel.addons.editors.*',
+			'flixel.addons.plugin.*',
+			'flixel.addons.system.*',
+			'flixel.addons.tile.*'
+		];
+		var imagExclude = [
+			'imaginative.backend.converters.*',
+			'imaginative.backend.display.*',
+			'imaginative.backend.system.ALSoftSetup',
+			'imaginative.backend.system.CrashHandler',
+			'imaginative.backend.system.EngineInfoText',
+			'imaginative.backend.system.Native',
+			'imaginative.backend.system.Preloader',
+			'imaginative.objects.arrows.group.*',
+			'imaginative.objects.arrows.ArrowModifier',
+			// 'imaginative.objects.holders.*',
+			'imaginative.states.EngineProcess'
+		];
+		for (list in [getClasses('imaginative', imagExclude), getClasses('flixel', flixelExclude)])
+			for (classInst in list)
+				importClass(classInst);
+		// still gonna import using classes for other types
+		var classArray:Array<Class<Dynamic>> = [Date, DateTools, Lambda, Math, Std, StringTools, Type];
+		for (i in classArray)
+			importClass(i);
 		HaxeScript.init();
 	}
 
@@ -180,6 +233,7 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public function setGlobalVariables(map:Map<String, Dynamic>):Void {}
 
+	// was being weird when loadNecessities would run in extended classes
 	var startVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 	function new(file:ModPath, ?code:String):Void {
 		if (code == null)
@@ -187,9 +241,9 @@ class Script extends FlxBasic implements IScript {
 		super();
 		renderScript(filePath);
 		loadNecessities();
-		// was being weird when loadNecessities would run in extended classes
-		for (key => value in startVariables)
-			set(key, value);
+		for (map in [defaultImports, startVariables])
+			for (key => value in map)
+				set(key, value);
 		GlobalScript.call('scriptCreated', [this, type]);
 	}
 
@@ -207,18 +261,6 @@ class Script extends FlxBasic implements IScript {
 	}
 	@:access(imaginative.backend.Console.formatValueInfo)
 	function loadNecessities():Void {
-		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
-			startVariables.set(alias ?? Std.string(cls).split('.').last(), cls);
-		// TODO: Implement blacklisting.
-		for (list in [CompileTime.getAllClasses('imaginative'), CompileTime.getAllClasses('flixel')])
-			for (classInst in list) // TODO: For now we import EVERYTHING, but I will eventually exclude certain directories.
-				if (!Std.string(classInst).endsWith('_Impl_'))
-					importClass(classInst);
-		// still gonna import using classes for other types
-		var classArray:Array<Class<Dynamic>> = [Date, DateTools, Lambda, Math, Std, StringTools, Type];
-		for (i in classArray)
-			importClass(i);
-
 		// Custom Functions //
 		startVariables.set('addInfrontOf', (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
 			return SpriteUtil.addInfrontOf(obj, from, into)
