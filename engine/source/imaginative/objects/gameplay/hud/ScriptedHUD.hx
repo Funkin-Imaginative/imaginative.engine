@@ -11,7 +11,7 @@ class ScriptedHUD extends HUDTemplate {
 	 */
 	public var name(default, null):String;
 	override function loadScript():Void
-		for (script in Script.create('lead:content/huds/$name'))
+		for (script in Script.createMulti('lead:content/huds/$name'))
 			scripts.add(script);
 
 	override function initHealthBar():Bar

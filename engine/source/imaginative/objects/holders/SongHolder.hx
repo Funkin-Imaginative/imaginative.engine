@@ -101,7 +101,7 @@ class SongHolder extends BeatSpriteGroup {
 			var bruh:Array<ModPath> = ['lead:global', name];
 			// log([for (file in bruh) file.format()], DebugMessage);
 			for (song in bruh)
-				for (script in Script.create('$pathType:content/scripts/songs/${song.path}'))
+				for (script in Script.createMulti('$pathType:content/scripts/songs/${song.path}'))
 					scripts.add(script);
 		}
 		scripts.load();

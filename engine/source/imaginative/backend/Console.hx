@@ -16,7 +16,7 @@ enum abstract LogLevel(String) from String to String {
 /**
  * An internal enum used for stating where a trace came from.
  */
-enum LogFrom {
+private enum LogFrom {
 	FromSource;
 	FromHaxe;
 	FromLua;
@@ -49,10 +49,13 @@ class Console {
 		}
 	}
 
-	static function formatValueInfo(value:Dynamic):String {
+	static function formatValueInfo(value:Dynamic, addArrayBrackets:Bool = true):String {
 		return switch (Type.getClass(value)) {
 			case String: cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
-			case Array: '[${[for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol)].formatArray()}]';
+			case Array:
+				var output = [for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol)].formatArray(); // doesn't
+				if (addArrayBrackets) output = '[$output]';
+				output;
 			default: Std.string(value);
 		}
 	}

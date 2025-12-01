@@ -20,10 +20,10 @@
 		{ "name": "flixel-animate", "dependencies": [] },
 
 		{
-			"name": "hscript-improved",
+			"name": "rulescript",
 			"version": "git",
-			"branch": "custom-classes",
-			"url": "https://github.com/CodenameCrew/hscript-improved"
+			"branch": "imaginative",
+			"url": "https://github.com/Funkin-Imaginative/RuleScript"
 		},
 		{
 			"name": "hxcpp",
@@ -59,7 +59,8 @@
 			"url": "https://github.com/Funkin-Imaginative/moonchart"
 		},
 
-		{"name": "thx.semver" }
+		{ "name": "thx.semver" },
+		{ "name": "compiletime" }
 	],
 	"questions": [
 		{
@@ -67,7 +68,7 @@
 			"description": "include animate atlas support"
 		},
 		{
-			"name": "hscript-improved",
+			"name": "rulescript",
 			"description": "include haxe scripting support"
 		},
 		{

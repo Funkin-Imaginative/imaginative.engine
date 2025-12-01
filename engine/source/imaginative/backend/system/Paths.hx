@@ -379,17 +379,14 @@ class Paths {
 		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = 'root:./solo/${Main.mainMod}/$file'))
 				result = check.path;
-		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
-			if (itemExists(check = 'root:./$file'))
-				result = check.path;
 		#else
 		if (result.isNullOrEmpty())
 			if (itemExists(check = 'root:./${Main.mainMod}/$file'))
 				result = check.path;
+		#end
 		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
 			if (itemExists(check = 'root:./$file'))
 				result = check.path;
-		#end
 
 		return FilePath.normalize(result);
 	}
@@ -457,7 +454,7 @@ class Paths {
 	 * @param file The mod path.
 	 * @return ModPath ~ The path data.
 	 */
-	inline public static function script(file:ModPath):ModPath
+	inline public static function script(file:ModPath, type:ScriptType = TypeInvalid):ModPath
 		return multExt(file, Script.exts);
 
 	/**

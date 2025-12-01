@@ -156,9 +156,9 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	}
 
 	function loadScript():Void {
-		stateScripts = new ScriptGroup(this);
+		add(stateScripts = new ScriptGroup(this));
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/$scriptName'))
+			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}
@@ -203,6 +203,12 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		super.create();
 		if (isAPauseState) initParentDisabler();
 		scriptCall('create');
+	}
+	/**
+	 * For after the create function runs!
+	 */
+	public function createPost():Void {
+		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
@@ -275,6 +281,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 			var state:BeatSubState = cast subState;
 			state.parent = this;
 			super.resetSubState();
+			state.createPost();
 			state.onSubstateOpen();
 			return;
 		}
@@ -320,7 +327,6 @@ class BeatSubState extends FlxSubState implements IBeatState {
 
 	override public function destroy():Void {
 		parent = null;
-		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
 		if (FlxG.cameras.list.contains(mainCamera))
 			FlxG.cameras.remove(mainCamera, true);
