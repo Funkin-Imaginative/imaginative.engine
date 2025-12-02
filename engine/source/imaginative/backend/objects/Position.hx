@@ -1,10 +1,33 @@
 package imaginative.backend.objects;
 
+import hxjsonast.Json;
+
 // TODO: Rethink this classes existence.
 /**
  * Basically TypeXY but forced to be a Float.
  */
 class Position {
+	public static function _jsonParse(val:Json, name:String):Position {
+		inline function getJNumber(value:JsonValue):Float {
+			return switch (value) {
+				case JNumber(num): Std.parseFloat(num);
+				default: 0;
+			}
+		}
+		return switch (val.value) {
+			case JObject(fields):
+				var pos = new Position();
+				for (field in fields)
+					if (field.name == 'x') pos.x = getJNumber(field.value.value);
+					else if (field.name == 'y') pos.y = getJNumber(field.value.value);
+				pos;
+			case JArray(data): fromArray([for (value in data) getJNumber(value.value)]);
+			default: null;
+		}
+	}
+	public static function _jsonWrite(data:Position):Array<Float>
+		return data.toArray();
+
 	/**
 	 * The x position.
 	 */

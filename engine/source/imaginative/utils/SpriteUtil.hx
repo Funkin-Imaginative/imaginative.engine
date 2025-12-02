@@ -4,15 +4,24 @@ typedef ObjectSetupData = {
 	/**
 	 * Position value.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var position:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	var position:Position;
 	/**
 	 * Flip value.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false)) var flip:TypeXY<Bool>;
+	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false))
+	@:jcustomparse(imaginative.backend.objects.TypeXY._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._jsonWrite)
+	var flip:TypeXY<Bool>;
 	/**
 	 * Scale value.
 	 */
-	@:default(new imaginative.backend.objects.Position(1, 1)) var scale:Position;
+	@:default(new imaginative.backend.objects.Position(1, 1))
+	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	var scale:Position;
 }
 
 typedef AssetTyping = {
@@ -28,7 +37,10 @@ typedef AssetTyping = {
 	 * Height and width dimensions.
 	 * Only if texture type is a graphic.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Int>(150, 150)) var ?dimensions:TypeXY<Int>;
+	@:default(new imaginative.backend.objects.TypeXY<Int>(150, 150))
+	@:jcustomparse(imaginative.backend.objects.TypeXY._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._jsonWrite)
+	var ?dimensions:TypeXY<Int>;
 }
 
 typedef AnimationTyping = {
@@ -48,7 +60,10 @@ typedef AnimationTyping = {
 	/**
 	 * The offset for the set animation.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var offset:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
@@ -63,7 +78,10 @@ typedef AnimationTyping = {
 	/**
 	 * The flip offset for the set animation.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false)) var flip:TypeXY<Bool>;
+	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false))
+	@:jcustomparse(imaginative.backend.objects.TypeXY._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._jsonWrite)
+	var flip:TypeXY<Bool>;
 	/**
 	 * If true the animation loops.
 	 */

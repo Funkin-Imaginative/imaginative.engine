@@ -1,10 +1,35 @@
 package imaginative.backend.objects;
 
+import hxjsonast.Json;
+
 // TODO: Rethink this classes existence.
 /**
  * This class is adaptable since it utilizes <T> to change it's type definition.
  */
 class TypeXY<T> {
+	public static function _jsonParse(val:Json, name:String):TypeXY<Dynamic> {
+		inline function getJValue(value:JsonValue):Dynamic {
+			return switch (value) {
+				case JString(string): string;
+				case JNumber(num): Std.parseFloat(num);
+				case JBool(bool): bool;
+				default: null;
+			}
+		}
+		return switch (val.value) {
+			case JObject(fields):
+				var pos = new TypeXY<Dynamic>(null, null);
+				for (field in fields)
+					if (field.name == 'x') pos.x = getJValue(field.value.value);
+					else if (field.name == 'y') pos.y = getJValue(field.value.value);
+				pos;
+			case JArray(data): fromArray([for (value in data) getJValue(value.value)]);
+			default: null;
+		}
+	}
+	public static function _jsonWrite<T>(data:TypeXY<T>):Array<T>
+		return data.toArray();
+
 	/**
 	 * The x value.
 	 */

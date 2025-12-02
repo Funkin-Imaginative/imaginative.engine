@@ -7,7 +7,10 @@ typedef CharacterData = {
 	/**
 	 * The camera offset position.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var camera:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	var camera:Position;
 	/**
 	 * The characters health bar color.
 	 */

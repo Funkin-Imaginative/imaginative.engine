@@ -16,7 +16,10 @@ typedef ObjectTyping = {
 	/**
 	 * Position offsets.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var offsets:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
+	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	var offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
