@@ -43,65 +43,6 @@ abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from
 		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
 }
 
-/**
- * Used for parsing colors from json files.
- */
-@SuppressWarnings('checkstyle:FieldDocComment')
-abstract ParseColor(String) {
-	public var red(get, set):Int;
-	inline function get_red():Int
-		return toFlxColor().red;
-	inline function set_red(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.red = value;
-		this = fromFlxColor(color);
-		return color.red;
-	}
-	public var green(get, set):Int;
-	inline function get_green():Int
-		return toFlxColor().green;
-	inline function set_green(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.green = value;
-		this = fromFlxColor(color);
-		return color.green;
-	}
-	public var blue(get, set):Int;
-	inline function get_blue():Int
-		return toFlxColor().blue;
-	inline function set_blue(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.blue = value;
-		this = fromFlxColor(color);
-		return color.blue;
-	}
-
-	inline public function nullCheck(nullColor:ParseColor):ParseColor
-		return this ??= nullColor;
-
-	@:from inline public static function fromString(from:String):ParseColor
-		return cast FlxColor.fromString(from ?? 'white').toWebString();
-	@:to inline public function toString():String
-		return this ?? '#FFFFFF';
-
-	@:from inline public static function fromInt(from:Int):ParseColor
-		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
-	@:to inline public function toInt():Int
-		return FlxColor.fromString(this ?? 'white');
-
-	@:from inline public static function fromFlxColor(from:FlxColor):ParseColor
-		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
-	@:to inline public function toFlxColor():FlxColor
-		return FlxColor.fromString(this ?? 'white');
-
-	@:from inline public static function fromArray(from:Array<Int>):ParseColor
-		return fromInt(FlxColor.fromRGB(from[0] ?? 255, from[1] ?? 255, from[2] ?? 255));
-	@:to inline public function toArray():Array<Int> {
-		var color:FlxColor = toFlxColor();
-		return [color.red ?? 255, color.green ?? 255, color.blue ?? 255];
-	}
-}
-
 typedef GamemodesTyping = {
 	/**
 	 * If true this song allows you to play as the enemy.
@@ -162,21 +103,17 @@ class ParseUtil {
 	 */
 	public static function level(name:ModPath):LevelData {
 		var jsonPath:ModPath = Paths.level(name);
-		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		var contents:LevelData = new JsonParser<LevelData>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		for (i => data in contents.objects) {
 			data.flip ??= ((i + 1) > Math.floor(contents.objects.length / 2));
 			data.willHey ??= (i == Math.floor(contents.objects.length / 2));
 		}
-		var songs:Array<SongData> = [
-			for (song in contents.songs)
-				ParseUtil.song(song)
-		];
-		for (song in songs)
+		for (song in contents.songs)
 			song.color = song.color == null ? contents.color : song.color;
 		return {
 			name: name.path,
 			title: contents.title,
-			songs: songs,
+			songs: contents.songs,
 			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
 				for (difficulty in contents.difficulties)
@@ -190,7 +127,7 @@ class ParseUtil {
 					variant.toLowerCase()
 			],
 			objects: contents.objects,
-			color: contents.color.nullCheck('#F9CF51')
+			color: contents.color ?? 0xFFF9CF51
 		}
 	}
 
@@ -211,7 +148,7 @@ class ParseUtil {
 			var typeData:SpriteData = typeData;
 			try {
 				gottenData = json(jsonPath).character;
-				typeData.character.color = FlxColor.fromString(gottenData.color);
+				typeData.character.color = gottenData.color;
 			} catch(error:haxe.Exception)
 				log(error.message, ErrorMessage);
 			charData = {
@@ -320,7 +257,7 @@ class ParseUtil {
 	 */
 	public static function song(name:ModPath):SongData {
 		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
-		var contents:SongParse = new JsonParser<SongParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		var contents:SongData = new JsonParser<SongData>().fromJson(Assets.text(jsonPath), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,
 			folder: name.path,

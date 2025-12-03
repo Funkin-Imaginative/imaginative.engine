@@ -1,23 +1,14 @@
 package imaginative.objects.holders;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef SongParse = {
-	var icon:String;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var ?color:ParseColor;
-	var allowedModes:GamemodesTyping;
-}
 typedef SongData = {
 	/**
 	 * The song display name.
 	 */
-	var name:String;
+	@:jignored var ?name:String;
 	/**
 	 * The song folder name.
 	 */
-	var folder:String;
+	@:jignored var ?folder:String;
 	/**
 	 * The song icon.
 	 */
@@ -25,7 +16,7 @@ typedef SongData = {
 	/**
 	 * The starting difficulty.
 	 */
-	var startingDiff:Int;
+	var ?startingDiff:Int;
 	/**
 	 * The difficulties listing.
 	 */
@@ -33,11 +24,13 @@ typedef SongData = {
 	/**
 	 * The variations listing.
 	 */
-	var variants:Array<String>;
+	var ?variants:Array<String>;
 	/**
 	 * The song color.
 	 */
-	var ?color:ParseColor;
+	// @:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomwrite(imaginative.backend.Tools._writeColor)
+	var ?color:FlxColor;
 	/**
 	 * Allowed modes for the song.
 	 */

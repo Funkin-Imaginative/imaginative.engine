@@ -17,8 +17,8 @@ typedef ObjectTyping = {
 	 * Position offsets.
 	 */
 	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._jsonParse)
-	@:jcustomwrite(imaginative.backend.objects.Position._jsonWrite)
+	@:jcustomparse(imaginative.backend.objects.Position._parse)
+	@:jcustomwrite(imaginative.backend.objects.Position._write)
 	var offsets:Position;
 	/**
 	 * Size multiplier.
@@ -30,33 +30,25 @@ typedef ObjectTyping = {
 	var ?willHey:Bool;
 }
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef LevelParse = {
-	@:default('No Title Value') var title:String;
-	var songs:Array<String>;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var objects:Array<ObjectTyping>;
-	@:default('#F9CF51') var color:ParseColor;
-}
 typedef LevelData = {
 	/**
 	 * The display name.
 	 */
-	var name:String;
+	@:jignored var ?name:String;
 	/**
 	 * The title.
 	 */
-	var title:String;
+	@:default('No Title Value') var title:String;
 	/**
 	 * List of each songs data.
 	 */
+	@:jcustomparse(imaginative.backend.Tools._parseSongData)
+	@:jcustomwrite(imaginative.backend.Tools._writeSongData)
 	var songs:Array<SongData>;
 	/**
 	 * Starting difficulty index.
 	 */
-	var startingDiff:Int;
+	var ?startingDiff:Int;
 	/**
 	 * Difficulty listing.
 	 */
@@ -64,7 +56,7 @@ typedef LevelData = {
 	/**
 	 * Variation listing.
 	 */
-	var variants:Array<String>;
+	var ?variants:Array<String>;
 	/**
 	 * List of week object data's.
 	 * This is mostly used for the story menu.
@@ -73,7 +65,9 @@ typedef LevelData = {
 	/**
 	 * Associated color.
 	 */
-	var color:ParseColor;
+	// @:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomwrite(imaginative.backend.Tools._writeColor)
+	@:default(0xFFF9CF51) var color:FlxColor;
 }
 
 /**

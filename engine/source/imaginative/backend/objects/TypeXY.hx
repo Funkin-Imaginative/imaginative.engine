@@ -7,27 +7,27 @@ import hxjsonast.Json;
  * This class is adaptable since it utilizes <T> to change it's type definition.
  */
 class TypeXY<T> {
-	public static function _jsonParse(val:Json, name:String):TypeXY<Dynamic> {
-		inline function getJValue(value:JsonValue):Dynamic {
-			return switch (value) {
+	public static function _parse<T>(json:Json, name:String):Null<TypeXY<T>> {
+		inline function getJValue(value:JsonValue):T {
+			return cast switch (value) {
 				case JString(string): string;
-				case JNumber(num): Std.parseFloat(num);
-				case JBool(bool): bool;
+				case JNumber(number): cast Std.parseInt(number);
+				case JBool(bool): cast bool;
 				default: null;
 			}
 		}
-		return switch (val.value) {
+		return cast switch (json.value) {
 			case JObject(fields):
-				var pos = new TypeXY<Dynamic>(null, null);
+				var data = new TypeXY<T>(null, null);
 				for (field in fields)
-					if (field.name == 'x') pos.x = getJValue(field.value.value);
-					else if (field.name == 'y') pos.y = getJValue(field.value.value);
-				pos;
-			case JArray(data): fromArray([for (value in data) getJValue(value.value)]);
+					if (field.name == 'x') data.x = getJValue(field.value.value);
+					else if (field.name == 'y') data.y = getJValue(field.value.value);
+				data;
+			case JArray(array): fromArray([for (slot in array) getJValue(slot.value)]);
 			default: null;
 		}
 	}
-	public static function _jsonWrite<T>(data:TypeXY<T>):Array<T>
+	public static function _write<T>(data:TypeXY<T>):Array<T>
 		return data.toArray();
 
 	/**

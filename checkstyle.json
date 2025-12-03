@@ -142,7 +142,7 @@
 					"TYPEDEF_DEF"
 				],
 				"modifier": "PUBLIC",
-				"excludeNames": ["new", "toString", "_jsonParse", "_jsonWrite"]
+				"excludeNames": ["new", "toString", "_parse", "_write"]
 			},
 			"type": "FieldDocComment"
 		},

@@ -7,25 +7,25 @@ import hxjsonast.Json;
  * Basically TypeXY but forced to be a Float.
  */
 class Position {
-	public static function _jsonParse(val:Json, name:String):Position {
+	public static function _parse(json:Json, name:String):Position {
 		inline function getJNumber(value:JsonValue):Float {
 			return switch (value) {
-				case JNumber(num): Std.parseFloat(num);
+				case JNumber(number): Std.parseFloat(number);
 				default: 0;
 			}
 		}
-		return switch (val.value) {
+		return switch (json.value) {
 			case JObject(fields):
-				var pos = new Position();
+				var data = new Position();
 				for (field in fields)
-					if (field.name == 'x') pos.x = getJNumber(field.value.value);
-					else if (field.name == 'y') pos.y = getJNumber(field.value.value);
-				pos;
-			case JArray(data): fromArray([for (value in data) getJNumber(value.value)]);
+					if (field.name == 'x') data.x = getJNumber(field.value.value);
+					else if (field.name == 'y') data.y = getJNumber(field.value.value);
+				data;
+			case JArray(array): fromArray([for (slot in array) getJNumber(slot.value)]);
 			default: null;
 		}
 	}
-	public static function _jsonWrite(data:Position):Array<Float>
+	public static function _write(data:Position):Array<Float>
 		return data.toArray();
 
 	/**
