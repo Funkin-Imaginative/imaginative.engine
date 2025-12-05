@@ -26,7 +26,8 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.hxp": "haxe"
+		"*.hxp": "haxe",
+		"*.json": "jsonc"
 	},
 	"files.autoGuessEncoding": true,
 	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!

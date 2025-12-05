@@ -93,12 +93,18 @@ typedef SpriteData = {
 	/**
 	 * The character data.
 	 */
-	@:default({camera: new imaginative.backend.objects.Position(), icon: null, singlength: 4, vocals: null})
+	@:default({
+		camera: new imaginative.backend.objects.Position(),
+		color: flixel.util.FlxColor.GRAY,
+		icon: null,
+		singlength: 4,
+		vocals: null
+	})
 	var ?character:CharacterData;
 	/**
 	 * The beat data.
 	 */
-	@:default({interval: 2, skipnegative: false})
+	@:default({interval: 0, skipnegative: false})
 	var ?beat:BeatData;
 	/**
 	 * The offset data.
