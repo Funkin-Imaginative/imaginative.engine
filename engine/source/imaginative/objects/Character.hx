@@ -7,15 +7,20 @@ typedef CharacterData = {
 	/**
 	 * The camera offset position.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var camera:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?camera:Position;
 	/**
 	 * The characters health bar color.
 	 */
-	var ?color:ParseColor;
+	@:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomwrite(imaginative.backend.Tools._writeColor)
+	@:default(flixel.util.FlxColor.GRAY) var ?color:FlxColor;
 	/**
 	 * The characters icon.
 	 */
-	@:default('face') var icon:String;
+	var ?icon:String;
 	/**
 	 * The amount of time in seconds the animation can be forced to last.
 	 * If set to 0 the animation that is played plays out normally.
@@ -112,7 +117,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
-				theirIcon = (Paths.icon(inputData.character.icon).isFile ? inputData.character.icon : 'face');
+				theirIcon = inputData.character.icon ?? theirName;
 				singLength = inputData.character.singlength;
 				vocalSuffix = inputData.character.vocals ?? theirName;
 			}

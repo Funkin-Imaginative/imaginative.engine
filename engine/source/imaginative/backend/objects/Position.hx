@@ -1,5 +1,7 @@
 package imaginative.backend.objects;
 
+import hxjsonast.Json;
+
 // TODO: Rethink this classes existence.
 /**
  * Basically TypeXY but forced to be a Float.
@@ -88,4 +90,54 @@ class Position {
 
 	inline public function toString():String
 		return '{x: $x, y: $y}';
+
+	// json2object parse and write shit
+	/**
+	 * Json2Object custom parse for the Position class.
+	 * @param json The json variable.
+	 * @param name The variable name.
+	 * @return Position ~ The parsed data.
+	 */
+	public static function _parse(json:Json, name:String):Position {
+		inline function getJNumber(value:JsonValue):Float {
+			return switch (value) {
+				case JNumber(number): Std.parseFloat(number);
+				default: 0;
+			}
+		}
+		return switch (json.value) {
+			case JObject(fields):
+				var data = new Position();
+				for (field in fields)
+					if (field.name == 'x') data.x = getJNumber(field.value.value);
+					else if (field.name == 'y') data.y = getJNumber(field.value.value);
+				data;
+			case JArray(array): fromArray([for (slot in array) getJNumber(slot.value)]);
+			default: null;
+		}
+	}
+	/**
+	 * Json2Object custom parse for the Position class.
+	 * This version is for when it forces to state 'Null' return.
+	 * @param json The json variable.
+	 * @param name The variable name.
+	 * @return Position ~ The parsed data.
+	 */
+	public static function _parseOp(json:Json, name:String):Null<Position>
+		return _parse(json, name);
+	/**
+	 * Json2Object custom write for the Position class.
+	 * @param data The data to convert to a string.
+	 * @return String ~ The written output.
+	 */
+	public static function _write(data:Position):String
+		return _writeOp(data);
+	/**
+	 * Json2Object custom write for the Position class.
+	 * This version is for when it forces to state 'Null' input.
+	 * @param data The data to convert to a string.
+	 * @return String ~ The written output.
+	 */
+	public static function _writeOp(?data:Position):String
+		return data == null ? 'null' : '[${data.toArray().formatArray()}]';
 }

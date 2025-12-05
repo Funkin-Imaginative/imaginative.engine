@@ -28,6 +28,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		var modPath:ModPath = null;
 		try {
 			modPath = inputData.asset.image;
+			trace(modPath.format());
 		} catch(error:haxe.Exception)
 			try {
 				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);

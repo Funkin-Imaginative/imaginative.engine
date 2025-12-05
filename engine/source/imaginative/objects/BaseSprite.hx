@@ -39,18 +39,18 @@ typedef AnimationMapping = {
 	/**
 	 * Offsets for that set animation.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var offset:Position;
+	var offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	@:default('') var swapName:String;
+	var swapName:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	@:default('') var flipName:String;
+	var flipName:String;
 	/**
 	 * Stores extra data that coders can use for cool stuff.
 	 */
@@ -208,7 +208,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
-			if (inputData._has('offsets')) {
+			if (inputData.offsets != null) {
 				spriteOffsets.position.copyFrom(inputData.offsets.position);
 				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
 				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
@@ -221,25 +221,28 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			try {
 				for (i => anim in inputData.animations) {
 					try {
-						var flipping:TypeXY<Bool> = new TypeXY<Bool>(anim.flip.x, anim.flip.y);
+						var flipping:TypeXY<Bool> = new TypeXY<Bool>(false, false);
+						if (anim.flip != null) flipping.copyFrom(anim.flip);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
 						switch (inputData.asset.type) {
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							case IsSparrow | IsPacker | IsAseprite:
-								if ((anim.indices ?? []).length > 0) animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
-								else animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								if ((anim.indices ?? []).empty()) animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								else animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 							#if ANIMATE_SUPPORT
 							case IsAnimateAtlas:
-								if ((anim.indices ?? []).length > 0) this.anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
-								this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								if ((anim.indices ?? []).empty()) this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								else this.anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							#end
 							default:
 								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
 						}
+						var animOffset:Position = new Position();
+						if (anim.offset != null) animOffset.copyFrom(anim.offset);
 						anims.set(anim.name, {
-							offset: new Position(anim.offset.x, anim.offset.y),
+							offset: animOffset,
 							swapName: anim.swapKey ?? '',
 							flipName: anim.flipKey ?? '',
 							extra: new Map<String, Dynamic>()
@@ -254,35 +257,27 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			} catch(error:haxe.Exception)
 				log('Couldn\'t add the animations.', WarningMessage);
 
-			if (applyStartValues) {
-				if (inputData._has('starting')) {
-					setPosition(inputData.starting.position.x, inputData.starting.position.y);
-					flipX = inputData.starting.flip.x;
-					flipY = inputData.starting.flip.y;
-					scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
-					scale.scale(inputData.starting.scale.x, inputData.starting.scale.y);
-					updateHitbox();
-				}
+			if (applyStartValues && inputData.starting != null) {
+				setPosition(inputData.starting.position.x, inputData.starting.position.y);
+				flipX = inputData.starting.flip.x;
+				flipY = inputData.starting.flip.y;
+				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
+				scale.scale(inputData.starting.scale.x, inputData.starting.scale.y);
+				updateHitbox();
 			}
 
 			swapAnimTriggers = inputData.swapAnimTriggers;
 			flipAnimTrigger = inputData.flipAnimTrigger;
 			antialiasing = inputData.antialiasing;
 
-			if (inputData._has('extra') && inputData.extra != null) {
-				try {
-					if (!inputData.extra.empty())
-						for (extraData in inputData.extra)
-							extra.set(extraData.name, extraData.data);
-				} catch(error:haxe.Exception)
-					log('Invalid information in extra array or the null check failed.', ErrorMessage);
+			if (inputData.extra != null) {
+				extra = inputData.extra.copy();
 			}
-		} catch(error:haxe.Exception) {
+		} catch(error:haxe.Exception)
 			try {
 				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
 			} catch(error:haxe.Exception)
 				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
-		}
 	}
 
 	/**
@@ -299,7 +294,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public var spriteOffsets:ObjectSetupData = {
 		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
-		scale: new Position()
+		scale: new Position(1, 1)
 	}
 	/**
 	 * If true the swap anim var can go off.
