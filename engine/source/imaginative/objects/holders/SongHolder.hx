@@ -12,7 +12,7 @@ typedef SongData = {
 	/**
 	 * The song icon.
 	 */
-	var icon:String;
+	@:default('face') var icon:String;
 	/**
 	 * The starting difficulty.
 	 */
@@ -28,7 +28,7 @@ typedef SongData = {
 	/**
 	 * The song color.
 	 */
-	// @:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomparse(imaginative.backend.Tools._parseColor)
 	@:jcustomwrite(imaginative.backend.Tools._writeColor)
 	var ?color:FlxColor;
 	/**

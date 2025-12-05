@@ -674,7 +674,7 @@ class Conductor extends FlxBasic implements IBeat {
 	public function getMetadata(file:String):AudioData {
 		try {
 			var jsonPath:ModPath = Paths.json(file);
-			var content:AudioData = new json2object.JsonParser<AudioData>().fromJson(Assets.text(jsonPath), jsonPath.format());
+			var content:AudioData = new json2object.JsonParser<AudioData>().fromJson(ParseUtil.removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 			if (content == null) {
 				log('$file: Metadata parse failed.', ErrorMessage);
 				return {

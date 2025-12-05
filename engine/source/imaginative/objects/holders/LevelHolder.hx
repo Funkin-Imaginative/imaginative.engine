@@ -17,13 +17,13 @@ typedef ObjectTyping = {
 	 * Position offsets.
 	 */
 	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._parse)
-	@:jcustomwrite(imaginative.backend.objects.Position._write)
-	var offsets:Position;
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
-	@:default(1) var size:Float;
+	@:default(1) var ?size:Float;
 	/**
 	 * Will is play a cheer animation when entering the week?
 	 */
@@ -38,7 +38,7 @@ typedef LevelData = {
 	/**
 	 * The title.
 	 */
-	@:default('No Title Value') var title:String;
+	@:default('[Please Add a Title]') var title:String;
 	/**
 	 * List of each songs data.
 	 */
@@ -65,9 +65,9 @@ typedef LevelData = {
 	/**
 	 * Associated color.
 	 */
-	// @:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomparse(imaginative.backend.Tools._parseColor)
 	@:jcustomwrite(imaginative.backend.Tools._writeColor)
-	@:default(0xFFF9CF51) var color:FlxColor;
+	@:default(0xFFF9CF51) var ?color:FlxColor;
 }
 
 /**

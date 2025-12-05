@@ -17,11 +17,11 @@ class Tools {
 			case JArray(array):
 				var output:Array<Int> = [for (slot in array) getJNumber(slot.value)];
 				FlxColor.fromRGB(output[0], output[1], output[2], output[3]);
-			default: cast null;
-		};
+			default: null;
+		}
 	}
-	public static function _writeColor(data:FlxColor):String
-		return data.toWebString();
+	public static function _writeColor(?data:FlxColor):String
+		return data?.toWebString() ?? 'white';
 
 	public static function _parseSongData(json:Json, name:String):Array<SongData> {
 		inline function getJString(value:JsonValue):String {
@@ -37,6 +37,6 @@ class Tools {
 			default: [];
 		}
 	}
-	public static function _writeSongData(data:Array<SongData>):Array<String>
-		return [for (song in data) song.folder];
+	public static function _writeSongData(data:Array<SongData>):String
+		return '[${[for (song in data) song.folder].formatArray()}]';
 }
