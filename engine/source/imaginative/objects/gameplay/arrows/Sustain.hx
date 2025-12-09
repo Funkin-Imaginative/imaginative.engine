@@ -6,10 +6,6 @@ class Sustain extends FlxSprite {
 	 * Custom update function.
 	 */
 	public var _update:Float->Void;
-	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * Returns the previous sustain in line.

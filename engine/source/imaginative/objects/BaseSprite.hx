@@ -67,10 +67,6 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	 */
 	public var _update:Float->Void;
 	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
-	/**
 	 * Used for editors to prevent the sprites natural functions.
 	 * Mostly used for editors.
 	 */

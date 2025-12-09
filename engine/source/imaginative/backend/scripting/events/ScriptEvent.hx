@@ -29,13 +29,7 @@ class ScriptEvent {
 		continueLoop = finishLoop;
 	}
 
-	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Dynamic = {}
-	public function new(?data:Dynamic)
-		if (data != null)
-			extra = data;
+	public function new() {}
 
 	inline public function toString():String
 		return '[${this.getClassName()}${prevented ? ' ~ Prevented' : ''}]';
