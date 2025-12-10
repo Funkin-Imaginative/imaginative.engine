@@ -106,6 +106,7 @@ class Setup {
 
 		Sys.command('haxelib install haxelib --global');
 		Sys.command('haxelib fixrepo');
+		Sys.println(Main.dashes);
 		dependenciesCheck(data.dependencies);
 		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
 
@@ -118,7 +119,7 @@ class Setup {
 				for (v in haxeVer.split('.'))
 					Std.parseInt(v)
 			];
-			var requiredHaxeVer:Array<Int> = [4, 3, 6];
+			var requiredHaxeVer:Array<Int> = [4, 3, 7];
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
 					Sys.println('Your current Haxe version is outdated.');
