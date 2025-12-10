@@ -1,17 +1,30 @@
 package imaginative.states;
 
+import moonchart.Moonchart;
+
 class EngineProcess extends BeatState {
 	override public function new() {
 		super(false);
 	}
 
 	override public function create():Void {
-		FlxSprite.defaultAntialiasing = true;
+		Moonchart.CASE_SENSITIVE_DIFFS = true;
+		Moonchart.SPACE_SENSITIVE_DIFFS = true;
+		Moonchart.DEFAULT_DIFF = 'normal';
+		Moonchart.DEFAULT_ARTIST = 'Unassigned';
+		Moonchart.DEFAULT_ALBUM = 'Unknown';
+		Moonchart.DEFAULT_CHARTER = 'Unassigned';
+		Moonchart.DEFAULT_TITLE = 'Unknown';
+
+		FlxG.fixedTimestep = false;
+		FlxSprite.defaultAntialiasing = true; // this ain't a pixel game... yeah ik week 6 exists!
 		Console.init();
 		Assets.init();
 		Conductor.init();
 		GlobalScript.init();
 		Settings.init();
+		Controls.init();
+		FileUtil.init();
 
 		super.create();
 
@@ -34,8 +47,6 @@ class EngineProcess extends BeatState {
 		}
 		#end
 
-		FlxG.mouse.useSystemCursor = true; // we use custom object lol
-
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
 		FlxG.game.debugger.console.registerClass(FlxWindow);
@@ -46,38 +57,46 @@ class EngineProcess extends BeatState {
 		FlxG.game.debugger.console.registerClass(Modding);
 		#end
 		FlxG.game.debugger.console.registerClass(Paths);
+		FlxG.game.debugger.console.registerClass(SaveData);
 		FlxG.game.debugger.console.registerClass(Settings);
 		FlxG.game.debugger.console.registerClass(Controls);
 		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerFunction('resetState', () -> BeatState.resetState());
+		FlxG.game.debugger.console.registerFunction('setCameraToCharacter', (camera:FlxCamera, char:Character) -> {
+			var camPos = char.getCamPos();
+			camera.target.setPosition(camPos.x, camPos.y);
+			camera.snapToTarget();
+		});
+		var QuickSave = {} // for quick access to all saves in the debug console
+		for (name => save in @:privateAccess SaveData.saveInstances)
+			QuickSave._set(name, save);
+		FlxG.game.debugger.console.registerObject('QuickSave', QuickSave);
 		#end
 
 		FlxG.signals.preUpdate.add(() -> {
 			if (Settings.setup.debugMode) {
-				if (Controls.resetState) {
-					log('Reseting state...', SystemMessage);
+				if (Controls.global.botplay) {
+					ArrowField.botplay = !ArrowField.botplay;
+					_log('Botplay has been ${ArrowField.botplay ? 'enabled' : 'disabled'}.');
+				}
+
+				if (Controls.global.resetState) {
+					_log('Reseting state...');
 					BeatState.resetState();
-					log('Reset state successfully!', SystemMessage);
+					_log('Reset state successfully!');
 				}
 
-				if (Controls.shortcutState) {
-					log('Heading to the MainMenu...', SystemMessage);
-					BeatState.switchState(new imaginative.states.menus.MainMenu());
-					log('Successfully entered the MainMenu!', SystemMessage);
+				if (Controls.global.shortcutState) {
+					_log('Heading to the MainMenu...');
+					BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
+					_log('Successfully entered the MainMenu!');
 				}
 
-				if (Controls.reloadGlobalScripts)
-					if (GlobalScript.scripts.length > 0) {
-						log('Reloading global scripts...', SystemMessage);
-						GlobalScript.loadScript();
-						log('Global scripts successfully reloaded.', SystemMessage);
-					} else {
-						log('Loading global scripts...', SystemMessage);
-						GlobalScript.loadScript();
-					}
+				// TODO: Code this in.
+				// if (Controls.global.reloadGame)
 			}
 		});
 
-		BeatState.switchState(new StartScreen());
+		BeatState.switchState(() -> new StartScreen());
 	}
 }

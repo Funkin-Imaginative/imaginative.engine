@@ -1,12 +1,19 @@
 {
 	"cSpell.words": [
 		"FLXGRAPHIC",
+		"HAXEPATH",
 		"HORI",
 		"hxdiscord",
+		"hxhardware",
+		"hxjsonast",
+		"hxwindowmode",
 		"Infront",
+		"jcustomparse",
+		"jcustomwrite",
 		"jignored",
 		"LOCKON",
 		"luajit",
+		"neko",
 		"PAGEUP",
 		"preprocesor",
 		"SDCB",
@@ -20,7 +27,8 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.hxp": "haxe"
+		"*.hxp": "haxe",
+		"*.json": "jsonc"
 	},
 	"files.autoGuessEncoding": true,
 	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
@@ -34,10 +42,7 @@
 		"parameterTypes": true
 	},
 
-	"haxecheckstyle.sourceFolders": [
-		"commands",
-		"engine/source"
-	],
+	"haxecheckstyle.sourceFolders": ["engine/source"],
 
 	"xml.format.emptyElements": "collapse",
 	"xml.format.enforceQuoteStyle": "preferred",

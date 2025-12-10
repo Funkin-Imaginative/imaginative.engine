@@ -3,7 +3,6 @@ package imaginative.backend;
 import haxe.Log;
 import haxe.PosInfos;
 import flixel.system.debug.log.LogStyle;
-import flixel.system.frontEnds.LogFrontEnd;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
@@ -15,7 +14,7 @@ enum abstract LogLevel(String) from String to String {
 }
 
 /**
- * Just an enum, since, you wont need to use it. When scripting anyway.
+ * An internal enum used for stating where a trace came from.
  */
 enum LogFrom {
 	FromSource;
@@ -25,29 +24,29 @@ enum LogFrom {
 }
 
 class Console {
-	static final ogTrace:(Dynamic, ?PosInfos) -> Void = Log.trace;
+	static var ogTrace(default, null):(Dynamic, ?PosInfos) -> Void;
 
+	static var initialized(default, null):Bool = false;
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
-		if (Log.trace != ogTrace) {
-			_log('You can\'t run this again!');
-			return;
+		if (!initialized) {
+			initialized = true;
+			ogTrace = Log.trace;
+			Log.trace = (value:Dynamic, ?infos:PosInfos) -> log(value, infos);
+			@:privateAccess FlxG.log._standardTraceFunction = (value:Dynamic, ?infos:PosInfos) -> {}
+
+			var styles:Array<LogStyle> = [LogStyle.NORMAL, LogStyle.WARNING, LogStyle.ERROR, LogStyle.NOTICE, LogStyle.CONSOLE];
+			for (style in styles) {
+				style.onLog.add((data:Any, ?pos:PosInfos) -> log(data, switch (style.prefix) {
+					case '[WARNING]': WarningMessage;
+					case '[ERROR]': ErrorMessage;
+					default: SystemMessage;
+				}, pos));
+			}
+			styles = styles.clearArray();
+
+			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 		}
-
-		Log.trace = (value:Dynamic, ?infos:PosInfos) ->
-			log(value, infos);
-
-		LogFrontEnd.onLogs = (data:Dynamic, style:LogStyle, fireOnce:Bool) -> {
-			var level:LogLevel = LogMessage;
-			if (style == LogStyle.CONSOLE) level = SystemMessage;
-			else if (style == LogStyle.ERROR) level = ErrorMessage;
-			else if (style == LogStyle.NORMAL) level = SystemMessage;
-			else if (style == LogStyle.NOTICE) level = SystemMessage;
-			else if (style == LogStyle.WARNING) level = WarningMessage;
-			_log(data, level);
-		}
-
-		_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 	}
 
 	static function formatValueInfo(value:Dynamic):String {
@@ -93,12 +92,15 @@ class Console {
 		var message:String = formatValueInfo(value);
 		if (extra != null && !extra.empty())
 			message += extra.formatArray();
-
-		return '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		#if TRACY_DEBUGGER
+		TracyProfiler.message(traceMessage, FlxColor.WHITE);
+		#end
+		return traceMessage;
 	}
 
 	/**
-	 * The engine's special trace function.
+	 * The engines special trace function.
 	 * @param value The information you want to pop on to the console.
 	 * @param level The level status of the message.
 	 * @param from States if script or source logged this.
@@ -116,7 +118,7 @@ class Console {
 	}
 
 	/**
-	 * It's just log, but without the file and line in the print.
+	 * It's just log but without the file and line in the print.
 	 * @param value The information you want to pop on to the console.
 	 * @param level The level status of the message.
 	 * @param from States if script or source logged this.

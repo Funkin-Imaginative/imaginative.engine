@@ -11,26 +11,20 @@ class FieldInputEvent extends ScriptEvent {
 	public var strum(default, null):Strum;
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var i(default, null):Int;
-	/**
-	 * Its just i but with % applied.
-	 */
-	public var iMod(get, never):Int;
-	inline function get_iMod():Int
-		return i % field.strumCount;
 
 	/**
-	 * If true, a bind was pressed.
+	 * If true a bind was pressed.
 	 */
 	public var hasHit(default, null):Bool;
 	/**
-	 * If true, a bind is being held.
+	 * If true a bind is being held.
 	 */
 	public var beingHeld(default, null):Bool;
 	/**
-	 * If true, a bind was released.
+	 * If true a bind was released.
 	 */
 	public var wasReleased(default, null):Bool;
 
@@ -40,7 +34,7 @@ class FieldInputEvent extends ScriptEvent {
 	public var settings(default, null):PlayerSettings;
 
 	/**
-	 * If true, it prevents the press animation from playing on the target strum.
+	 * If true it prevents the press animation from playing on the target strum.
 	 */
 	public var stopStrumPress:Bool = false;
 

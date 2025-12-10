@@ -17,7 +17,7 @@ class CodenameHUD extends HUDTemplate {
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, getDefaultCamera().height * 0.9).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		elements.add(bg);
 
@@ -45,10 +45,10 @@ class CodenameHUD extends HUDTemplate {
 	/**
 	 * Applies CNE's y level system thing to a sprite.
 	 * @param spr The sprite to effect.
-	 * @return `FlxSprite`
+	 * @return FlxObject
 	 */
-	public static function cneYLevel<Sprite:FlxObject>(spr:Sprite):Sprite {
-		spr.y = FlxG.camera.height - spr.y - spr.height;
+	public static function cneYLevel(spr:FlxObject):FlxObject {
+		spr.y = spr.getDefaultCamera().height - spr.y - spr.height;
 		return spr;
 	}
 	override function createElements():Void {

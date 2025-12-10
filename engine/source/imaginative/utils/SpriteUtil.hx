@@ -4,15 +4,24 @@ typedef ObjectSetupData = {
 	/**
 	 * Position value.
 	 */
-	@:default({x: 0, y: 0}) var position:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?position:Position;
 	/**
 	 * Flip value.
 	 */
-	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
+	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false))
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
+	var ?flip:TypeXY<Bool>;
 	/**
 	 * Scale value.
 	 */
-	@:default({x: 1, y: 1}) var scale:Position;
+	@:default(new imaginative.backend.objects.Position(1, 1))
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?scale:Position;
 }
 
 typedef AssetTyping = {
@@ -23,12 +32,14 @@ typedef AssetTyping = {
 	/**
 	 * Texture type.
 	 */
-	@:enum @:default(IsUnknown) var type:TextureType;
+	@:default(imaginative.backend.interfaces.ITexture.TextureType.IsUnknown) var type:TextureType;
 	/**
 	 * Height and width dimensions.
 	 * Only if texture type is a graphic.
 	 */
-	@:default({x: 150, y: 150}) var ?dimensions:TypeXY<Int>;
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseIntOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeIntOp)
+	var ?dimensions:TypeXY<Int>;
 }
 
 typedef AnimationTyping = {
@@ -39,49 +50,61 @@ typedef AnimationTyping = {
 	/**
 	 * Animation key on data method.
 	 */
-	var ?tag:String;
+	var tag:String;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
 	 */
-	var indices:Array<Int>;
+	var ?indices:Array<Int>;
 	/**
 	 * The offset for the set animation.
 	 */
-	@:default({x: 0, y: 0}) var offset:Position;
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	var swapKey:String;
+	var ?swapKey:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	var flipKey:String;
+	var ?flipKey:String;
 	/**
 	 * The flip offset for the set animation.
 	 */
-	@:default({x: false, y: false}) var flip:TypeXY<Bool>;
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
+	var ?flip:TypeXY<Bool>;
 	/**
-	 * If true, the animation loops.
+	 * If true the animation loops.
 	 */
-	@:default(false) var loop:Bool;
+	@:default(false) var ?loop:Bool;
 	/**
 	 * The framerate of the animation.
 	 */
-	@:default(24) var fps:Int;
+	@:default(24) var ?fps:Int;
 }
 
 typedef SpriteData = {
 	/**
 	 * The character data.
 	 */
+	@:default({
+		camera: new imaginative.backend.objects.Position(),
+		color: flixel.util.FlxColor.GRAY,
+		icon: null,
+		singlength: 4,
+		vocals: null
+	})
 	var ?character:CharacterData;
 	/**
 	 * The beat data.
 	 */
+	@:default({interval: 0, skipnegative: false})
 	var ?beat:BeatData;
 	/**
 	 * The offset data.
@@ -100,22 +123,22 @@ typedef SpriteData = {
 	 */
 	var ?starting:ObjectSetupData;
 	/**
-	 * If true, the swap anim var can go off.
+	 * If true the swap anim var can go off.
 	 * For characters and icons it always on.
 	 */
-	@:default(false) var swapAnimTriggers:Bool;
+	@:default(false) var ?swapAnimTriggers:Bool;
 	/**
 	 * States which flipX state the sprite must be in to trigger the flip anim var.
 	 */
-	@:default(true) var flipAnimTrigger:Bool;
+	@:default(true) var ?flipAnimTrigger:Bool;
 	/**
 	 * Should antialiasing be enabled?
 	 */
-	@:default(true) var antialiasing:Bool;
+	@:default(true) var ?antialiasing:Bool;
 	/**
 	 * Extra data for the sprite.
 	 */
-	var ?extra:Array<ExtraData>;
+	var ?extra:Map<String, Dynamic>;
 }
 
 enum abstract SpriteType(String) from String to String {
@@ -131,11 +154,11 @@ enum abstract SpriteType(String) from String to String {
 
 	// Base Types
 	/**
-	 * States that this is the a sprite that can bop to the beat. A bit limiting without the help of the `isBeatType` property.
+	 * States that this is the a sprite that can bop to the beat. A bit limiting without the help of the "isBeatType" property.
 	 */
 	var IsBeatSprite = 'Beat';
 	/**
-	 * States that this is the engine's base sprite.
+	 * States that this is the engines base sprite.
 	 */
 	var IsBaseSprite = 'Base';
 
@@ -145,7 +168,7 @@ enum abstract SpriteType(String) from String to String {
 	var IsUnidentified = 'Unidentified';
 
 	/**
-	 * States that this is the a sprite that can bop to the beat. Even when not set as the `IsBeatSprite` type.
+	 * States that this is the a sprite that can bop to the beat. Even when not set as the 'IsBeatSprite' type.
 	 */
 	public var isBeatType(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -155,40 +178,44 @@ enum abstract SpriteType(String) from String to String {
 
 class SpriteUtil {
 	/**
-	 * Load's a sheet for the sprite to use.
+	 * Loads a sheet or graphic texture for the sprite to use based on checks.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
-	inline public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+	public static function loadTexture<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadTexture(newTexture);
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				try {
-					if (Paths.spriteSheetExists(newTexture)) loadSheet(sprite, newTexture);
-					else loadImage(sprite, newTexture);
+					if (Paths.spriteSheetExists(newTexture)) return loadSheet(sprite, newTexture);
+					/* #if ANIMATE_SUPPORT
+					else if (sprite is FlxAnimate && Paths.image(Paths.json('${newTexture.type}:${newTexture.path}/Animation')).isFile)
+						return loadAtlas(cast(sprite, FlxAnimate), newTexture);
+					#end */
+					else return loadImage(sprite, newTexture);
 				} catch(error:haxe.Exception)
 					log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
 		}
 		return sprite;
 	}
 	/**
-	 * Load's a graphic texture for the sprite to use.
+	 * Loads a graphic texture for the sprite to use.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
 	 * @param animated Whether the graphic should be the sprite cut into a grid.
 	 * @param width Grid width.
 	 * @param height Grid height.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
-	inline public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T {
+	public static function loadImage<T:FlxSprite>(sprite:T, newTexture:ModPath, animated:Bool = false, width:Int = 0, height:Int = 0):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadImage(newTexture, animated, width, height);
 		else if (sprite is FlxSprite)
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				try {
 					sprite.loadGraphic(Assets.image(newTexture), width < 1 || height < 1 ? false : animated, width, height);
 				} catch(error:haxe.Exception)
@@ -196,30 +223,57 @@ class SpriteUtil {
 		return sprite;
 	}
 	/**
-	 * Load's a sheet or graphic texture for the sprite to use based on checks.
+	 * Loads a sheet for the sprite to use.
 	 * @param sprite The sprite to affect.
 	 * @param newTexture The mod path.
-	 * @return `FlxSprite` ~ Current instance for chaining.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
-	inline public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
+	public static function loadSheet<T:FlxSprite>(sprite:T, newTexture:ModPath):T {
 		if (sprite is ITexture)
 			cast(sprite, ITexture<Dynamic>).loadSheet(newTexture);
 		else if (sprite is FlxSprite) {
 			var sheetPath:ModPath = Paths.multExt('${newTexture.type}:images/${newTexture.path}', Paths.spritesheetExts);
 			var textureType:TextureType = TextureType.getTypeFromExt(sheetPath, true);
-			if (Paths.fileExists(Paths.image(newTexture)))
+			if (Paths.image(newTexture).isFile)
 				if (Paths.spriteSheetExists(newTexture))
 					try {
 						sprite.frames = Assets.frames(newTexture, textureType);
 					} catch(error:haxe.Exception)
 						try {
-							loadImage(sprite, newTexture);
+							loadImage(sprite, newTexture); // failsafe for if the pack data ins't found
 						} catch(error:haxe.Exception)
 							log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
-				else loadImage(sprite, newTexture);
+				else return loadImage(sprite, newTexture);
 		}
 		return sprite;
 	}
+	#if ANIMATE_SUPPORT
+	/**
+	 * Loads an animate atlas for the sprite to use.
+	 * @param sprite The sprite to affect.
+	 * @param newTexture The mod path.
+	 * @return FlxAnimate ~ Current instance for chaining.
+	 */
+	public static function loadAtlas<T:FlxAnimate>(sprite:T, newTexture:ModPath):T {
+		if (sprite is ITexture)
+			cast(sprite, ITexture<Dynamic>).loadAtlas(newTexture);
+		else if (sprite is FlxAnimate) {
+			var atlasPath:ModPath = Paths.image(Paths.json(newTexture));
+			var jsonPath:ModPath = '${atlasPath.type}:${FilePath.directory(atlasPath.path)}/Animation${atlasPath.extension}';
+			var textureType:TextureType = TextureType.getTypeFromExt(atlasPath, true);
+			if (jsonPath.isFile) {
+				try {
+					sprite.frames = Assets.frames(atlasPath, textureType);
+				} catch(error:haxe.Exception)
+					try {
+						loadImage(sprite, '${newTexture.type}:${newTexture.path}/spritemap1'); // failsafe for if the pack data ins't found
+					} catch(error:haxe.Exception)
+						log('Couldn\'t find asset "${newTexture.format()}", type "$textureType"', WarningMessage);
+			}
+		}
+		return sprite;
+	}
+	#end
 
 	/**
 	 * Allows you to set a graphic size (ex: 150x150), with proper hitbox without a stretched sprite.
@@ -239,11 +293,31 @@ class SpriteUtil {
 	}
 
 	/**
-	 * Get's the dominant color of a sprite.
-	 * @param sprite The sprite to check.
-	 * @return `FlxColor` ~ The dominant color.
+	 * It's makeGraphic but sets the scale to size the graphic.
+	 * @param sprite THe sprite to do this too.
+	 * @param width The wanted width.
+	 * @param height The wanted height.
+	 * @param color The wanted color.
+	 * @param unique If it should be unique.
+	 * @param key Custom key.
+	 * @return FlxSprite ~ Current instance for chaining.
 	 */
-	inline public static function getDominantColor<T:FlxSprite>(sprite:T):FlxColor {
+	inline public static function makeSolid<T:FlxSprite>(sprite:T, width:Float, height:Float, color:FlxColor = FlxColor.WHITE, unique:Bool = false, ?key:String):T {
+		sprite.makeGraphic(1, 1, color, unique, key);
+		sprite.scale.set(width, height);
+		sprite.updateHitbox();
+		#if FLX_TRACK_GRAPHICS
+		sprite.graphic.trackingInfo = '${sprite.ID}.makeSolid($width, $height, ${color.toHexString()}, $unique, $key)';
+		#end
+		return sprite;
+	}
+
+	/**
+	 * Gets the dominant color of a sprite.
+	 * @param sprite The sprite to check.
+	 * @return FlxColor ~ The dominant color.
+	 */
+	inline public static function getDominantColor(sprite:FlxSprite):FlxColor {
 		var countByColor:Map<Int, Int> = new Map<Int, Int>();
 		for (col in 0...sprite.frameWidth) {
 			for (row in 0...sprite.frameHeight) {
@@ -273,48 +347,49 @@ class SpriteUtil {
 	/**
 	 * Is kinda just basically-ish FlxTypedGroup.resolveGroup().
 	 * @param obj The object to check.
-	 * @return `FlxTypedGroup<Dynamic>`
+	 * @return FlxTypedGroup<Dynamic>
 	 */
 	@:access(flixel.group.FlxTypedGroup.resolveGroup)
-	inline public static function getGroup<T:FlxBasic>(obj:T):FlxTypedGroup<Dynamic> {
+	inline public static function getGroup(obj:FlxBasic):FlxTypedGroup<Dynamic> {
 		return FlxTypedGroup.resolveGroup(obj) ?? (FlxG.state.persistentUpdate ? FlxG.state : FlxG.state.subState ?? cast FlxG.state);
 	}
 
 	/**
-	 * Add's an object in front of another.
+	 * Adds an object in front of another.
 	 * @param obj The object to insert.
 	 * @param from The object to be placed in front of.
 	 * @param into Specified group.
-	 * @return `T` ~ Current instance for chaining.
+	 * @return FlxBasic ~ Current instance for chaining.
 	 */
-	inline public static function addInfrontOf<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addInfrontOf(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>):FlxBasic {
 		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from) + 1, obj);
 	}
 	/**
-	 * Add's an object behind of another.
+	 * Adds an object behind of another.
 	 * @param obj The object to insert.
 	 * @param from The object to be placed behind of.
 	 * @param into Specified group.
-	 * @return `T` ~ Current instance for chaining.
+	 * @return FlxBasic ~ Current instance for chaining.
 	 */
-	inline public static function addBehind<T:FlxBasic>(obj:T, from:T, ?into:FlxTypedGroup<Dynamic>):T {
+	inline public static function addBehind(obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>):FlxBasic {
 		var group:FlxTypedGroup<Dynamic> = into ?? obj.getGroup();
 		return group.insert(group.members.indexOf(from), obj);
 	}
 
+	// TODO: There's literally already a function for this.
 	/**
-	 * Get's the name of a class.
-	 * @param direct The class to get it's name of.
-	 * @param provideFullPath If true, this will return the full class path, else, just the name.
-	 * @return `String` ~ The class name.
+	 * Gets the name of a class.
+	 * @param instance The class to get it's name of.
+	 * @param provideFullPath If true this will return the full class path, else, just the name.
+	 * @return String ~ The class name.
 	 */
-	inline public static function getClassName(direct:Dynamic, provideFullPath:Bool = false):String {
+	inline public static function getClassName(instance:Dynamic, provideFullPath:Bool = false):String {
 		if (provideFullPath)
-			return Type.getClassName(Type.getClass(direct));
+			return Type.getClassName(Type.getClass(instance));
 		else {
-			var path:Array<String> = Type.getClassName(Type.getClass(direct)).split('.');
-			return path[path.length - 1];
+			var path:Array<String> = Type.getClassName(Type.getClass(instance)).split('.');
+			return path.last();
 		}
 	}
 }

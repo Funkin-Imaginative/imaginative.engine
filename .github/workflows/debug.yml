@@ -23,10 +23,10 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: windows-debug-cache
@@ -38,6 +38,12 @@ jobs:
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Compile Engine
         run: haxelib run lime build windows -debug
@@ -72,7 +78,7 @@ jobs:
             }
 
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: windows-debug-cache
@@ -84,7 +90,7 @@ jobs:
 
   mac:
     permissions: write-all
-    runs-on: macos-13
+    runs-on: macos-15
 
     steps:
       - name: Checking Latest Commit
@@ -95,10 +101,10 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: mac-debug-cache
@@ -110,6 +116,12 @@ jobs:
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build mac -debug
@@ -144,7 +156,7 @@ jobs:
             }
 
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: mac-debug-cache
@@ -167,10 +179,10 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Run Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: linux-debug-cache
@@ -185,6 +197,12 @@ jobs:
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
+
+      - name: Building HXCPP
+        run: |
+          cd ./.haxelib/hxcpp/git/tools/hxcpp
+          haxe compile.hxml
+          cd ../../../../../
 
       - name: Building the game
         run: haxelib run lime build linux -debug
@@ -218,7 +236,7 @@ jobs:
               }
             }
       - name: Run New Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4.3.0
         with:
           # not caching the bin folder to prevent asset duplication and stuff like that
           key: linux-debug-cache

@@ -1,5 +1,6 @@
 package imaginative.backend.system;
 
+import hxhardware.*;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.Sprite;
@@ -15,11 +16,6 @@ class EngineInfoText extends Sprite {
 	var text:TextField;
 
 	var framesPerSecond:Int = 0;
-
-	var memoryPeakUsage:Float = 0;
-	var memoryUsage(get, never):Float;
-	inline function get_memoryUsage():Float
-		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE);
 
 	var times:Array<Float> = [];
 
@@ -39,19 +35,17 @@ class EngineInfoText extends Sprite {
 	override function __enterFrame(elapsed:Float):Void {
 		var time:Float = haxe.Timer.stamp() * 1000;
 		times.push(time);
+
 		while (times[0] < time - 1000)
 			times.shift();
 
-		if (memoryPeakUsage < memoryUsage)
-			memoryPeakUsage = memoryUsage;
-
-		// TODO: Have it say the script file path.
 		text.text = [
-			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${FlxG.drawFramerate}'}',
-			'Memory: ${memoryUsage.formatBytes()} / ${memoryPeakUsage.formatBytes()}',
+			'Framerate: ${framesPerSecond = times.length}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
+			'Memory: ${Memory.getProcessPhysicalMemoryUsage().formatBytes()} / ${Memory.getProcessPeakPhysicalMemoryUsage().formatBytes()}',
+			'CPU: ${FlxMath.roundDecimal(CPU.getProcessCPUUsage(), 2)}% / ${FlxMath.roundDecimal(CPU.getProcessPeakCPUUsage(), 2)}%',
 			'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 		].join('\n');
-		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.direct.self.displayMode.refreshRate * 2 : FlxG.drawFramerate) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
+		text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.instance.self.displayMode.refreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
 
 		background.x = text.x;
 		background.y = text.y;

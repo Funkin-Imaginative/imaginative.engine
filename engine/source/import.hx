@@ -1,5 +1,9 @@
 package;
 
+#if TRACY_DEBUGGER
+import cpp.vm.tracy.TracyProfiler;
+#end
+
 /* Haxe */
 import haxe.io.Path as FilePath;
 import sys.FileSystem;
@@ -34,7 +38,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
-import flixel.util.FlxSave;
 import flixel.util.FlxSignal;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
@@ -81,6 +84,7 @@ import imaginative.backend.system.Main;
 import imaginative.backend.system.Modding;
 #end
 import imaginative.backend.system.Paths;
+import imaginative.backend.system.SaveData;
 import imaginative.backend.system.Settings;
 import imaginative.objects.BaseSprite;
 import imaginative.objects.BeatSprite;
@@ -94,14 +98,21 @@ import imaginative.objects.holders.LevelHolder;
 import imaginative.objects.holders.SongHolder;
 import imaginative.objects.ui.HealthIcon;
 import imaginative.objects.ui.SpriteText;
+import imaginative.objects.ui.cameras.BaseCamera;
+import imaginative.objects.ui.cameras.BeatCamera;
 import imaginative.states.PlayState;
+import imaginative.utils.FileUtil;
 import imaginative.utils.ParseUtil;
 import imaginative.utils.PlatformUtil;
 
 using imaginative.utils.FunkinUtil;
+using imaginative.utils.ReflectUtil;
 using imaginative.utils.SpriteUtil;
 
 /* Libs */
+#if ANIMATE_SUPPORT
+import animate.FlxAnimate;
+#end
 #if ALLOW_VIDEOS
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;

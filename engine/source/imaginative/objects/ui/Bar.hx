@@ -58,7 +58,7 @@ class BarColors {
 	public var player(default, set):FlxColor;
 	inline function set_player(value:Null<FlxColor>):Null<FlxColor> {
 		var result:Null<FlxColor> = value ?? (isBlank ? FlxColor.YELLOW : parent.blankColors.player);
-		parent.createColoredFilledBar(result);
+		parent.createColoredFilledBar(result); parent.updateBar();
 		return player = result;
 	}
 
@@ -75,7 +75,7 @@ class BarColors {
 	 * Sets the bar colors.
 	 * @param enemy The enemy bar color.
 	 * @param player The player bar color.
-	 * @return `BarColors`
+	 * @return BarColors
 	 */
 	inline public function set(?enemy:FlxColor, ?player:FlxColor):BarColors {
 		this.enemy = enemy;
@@ -89,12 +89,12 @@ class BarColors {
  */
 class Bar extends FlxBar {
 	/**
-	 * The bar's center point.
+	 * The bars center point.
 	 * Used to help position icons.
 	 */
 	public var centerPoint:Position = new Position();
 	/**
-	 * When there are no colors, when does it default too?
+	 * When there are no colors what does it default too?
 	 */
 	public var blankColors:BarColors;
 	/**
@@ -118,11 +118,11 @@ class Bar extends FlxBar {
 	override function updateValueFromParent():Void {
 		if (parent is IScript) { // script support
 			var script:IScript = cast parent;
-			value = FlxMath.bound(script.get(parentVariable, value), min, max);
+			value = script.get(parentVariable, value);
 			script.set(parentVariable, value);
 		} else {
-			value = FlxMath.bound(Reflect.getProperty(parent, parentVariable), min, max);
-			Reflect.setProperty(parent, parentVariable, value);
+			value = parent._get(parentVariable);
+			parent._set(parentVariable, value);
 		}
 	}
 
@@ -138,12 +138,29 @@ class Bar extends FlxBar {
 		onBarUpdate.dispatch(FlxG.elapsed);
 	}
 
+	override function set_value(newValue:Float):Float {
+		value = FlxMath.bound(newValue, min, max);
+		var roundedValue = FlxMath.roundDecimal(value, 2);
+
+		if (roundedValue <= min && emptyCallback != null)
+			emptyCallback();
+
+		if (roundedValue >= max && filledCallback != null)
+			filledCallback();
+
+		if (roundedValue <= min && killOnEmpty)
+			kill();
+
+		updateBar();
+		return newValue;
+	}
+
 	/**
 	 * Sets the bar colors.
 	 * @param enemy The enemy bar color.
 	 * @param player The player bar color.
-	 * @param isBlank If true, it sets the default colors of the bar.
-	 * @return `Bar`
+	 * @param isBlank If true it sets the default colors of the bar.
+	 * @return Bar
 	 */
 	inline public function setColors(?enemy:FlxColor, ?player:FlxColor, isBlank:Bool = false):Bar {
 		(isBlank ? blankColors : colors).set(enemy, player);
@@ -153,7 +170,7 @@ class Bar extends FlxBar {
 	/**
 	 * Sets the fill direction of the bar.
 	 * @param newFillDirection The new fill direction.
-	 * @return `Bar`
+	 * @return Bar
 	 */
 	inline public function setFillDirection(newFillDirection:BarFillDirection):Bar {
 		fillDirection = newFillDirection;

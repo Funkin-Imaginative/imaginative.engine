@@ -1,9 +1,7 @@
 package imaginative.states.menus;
 
-import imaginative.backend.scripting.events.menus.*;
-
 /**
- * The freeplay menu, where you can pick any song!
+ * The freeplay menu where you can pick any song!
  */
 class FreeplayMenu extends BeatState {
 	// Menu related vars.
@@ -70,8 +68,9 @@ class FreeplayMenu extends BeatState {
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
 
 		// Camera position.
-		camPoint = new FlxObject(0, 0, 1, 1);
-		camera.follow(camPoint, LOCKON, 0.2);
+		mainCamera.beatSetup(conductor);
+		mainCamera.setFollow(camPoint = new FlxObject(0, 0, 1, 1), 0.2);
+		mainCamera.setZooming(1, 0.16);
 		add(camPoint);
 
 		// Menu elements.
@@ -85,11 +84,13 @@ class FreeplayMenu extends BeatState {
 		var loadedDiffs:Array<String> = [];
 		songs = new FlxTypedGroup<SongHolder>();
 		var songList:Array<Array<ModPath>> = [
+			#if MOD_SUPPORT
 			FunkinUtil.getSongFolderNames(LEAD),
 			FunkinUtil.getSongFolderNames(MOD),
+			#else
+			FunkinUtil.getSongFolderNames()
+			#end
 		];
-		if (Settings.setup.debugMode && ![for (list in songList) for (name in list) name].contains('main:Test'))
-			songList.insert(0, ['main:Test']);
 		trace(songList);
 		for (list in songList) {
 			for (i => name in list) {
@@ -176,7 +177,7 @@ class FreeplayMenu extends BeatState {
 			10 * (curSelected + 1) + 50,
 			Position.getObjMidpoint(songs.members[curSelected].text).y
 		);
-		camera.snapToTarget();
+		mainCamera.snapToTarget();
 		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
@@ -200,11 +201,11 @@ class FreeplayMenu extends BeatState {
 		super.update(elapsed);
 
 		if (canSelect) {
-			if (Controls.uiUp || FlxG.keys.justPressed.PAGEUP) {
+			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
 				changeSelection(-1);
 				visualSelected = curSelected;
 			}
-			if (Controls.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
+			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
 				changeSelection(1);
 				visualSelected = curSelected;
 			}
@@ -218,9 +219,9 @@ class FreeplayMenu extends BeatState {
 					if (FlxG.mouse.overlaps(item.text))
 						changeSelection(i, true);
 
-			if (Controls.uiLeft)
+			if (Controls.global.uiLeft)
 				changeDifficulty(-1);
-			if (Controls.uiRight)
+			if (Controls.global.uiRight)
 				changeDifficulty(1);
 
 			if (FlxG.keys.justPressed.HOME) {
@@ -232,7 +233,7 @@ class FreeplayMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 
-			if (Controls.back) {
+			if (Controls.global.back) {
 				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
@@ -241,6 +242,7 @@ class FreeplayMenu extends BeatState {
 							winningIcon.preventScaleBop = true;
 						}
 						currentSongAudio = currentSongVariant = ':MENU:';
+						mainCamera.zoomEnabled = false;
 						conductor.loadMusic('freakyMenu', (_:FlxSound) -> {
 							conductor.playFromTime(menuTimePosition, 0);
 							conductor.fadeOut(stepTime * 2.5 / 1000, 0.8);
@@ -250,16 +252,16 @@ class FreeplayMenu extends BeatState {
 						scriptCall('onStopSongPreview');
 					} else {
 						event.playMenuSFX(CancelSFX);
-						BeatState.switchState(new MainMenu());
+						BeatState.switchState(() -> new MainMenu());
 					}
 				}
 			}
-			if (Controls.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
+			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
 				if (visualSelected != curSelected) {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else {
-					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff]));
+					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff])));
 					if (!event.prevented) {
 						if (event.playPreview) {
 							var song:SongHolder = songs.members[curSelected];
@@ -271,6 +273,7 @@ class FreeplayMenu extends BeatState {
 							(winningIcon = song.icon).playAnim('winning');
 							winningIcon.preventScaleBop = false;
 
+							mainCamera.zoomEnabled = true;
 							event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 							musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
 							artistText.text = 'By: ${conductor.data.artist}';
@@ -290,22 +293,15 @@ class FreeplayMenu extends BeatState {
 			10 * (visualSelected + 1) - 50,
 			Position.getObjMidpoint(songs.members[visualSelected].text).y
 		);
-		camera.zoom = FunkinUtil.lerp(camera.zoom, 1, 0.16);
-		bgColor = bg.changeColor(FlxColor.interpolate(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
+		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 
 		for (i => song in songs.members)
 			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
 
 		if (FlxG.mouse.pressed)
-			for (i => item in songs.members)
+			for (item in songs.members)
 				if (FlxG.mouse.overlaps(item.icon))
 					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
-	}
-
-	override public function beatHit(curBeat:Int):Void {
-		super.beatHit(curBeat);
-		if (curBeat % beatsPerMeasure == 0 && currentSongAudio != ':MENU:')
-			camera.zoom += 0.02;
 	}
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
@@ -374,7 +370,7 @@ class FreeplayMenu extends BeatState {
 		} else {
 			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
 				PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
-				BeatState.switchState(new PlayState());
+				BeatState.switchState(() -> new PlayState());
 			});
 		}
 	}

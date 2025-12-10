@@ -6,7 +6,7 @@ package imaginative.backend.scripting.types;
 final class InvalidScript extends Script {
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		log('Extension "${file.extension.toLowerCase()}" is invalid!', SystemMessage);
+		_log('[Script] Extension "${file.extension.toLowerCase()}" is invalid!', SystemMessage);
 		super(file, null);
 	}
 }

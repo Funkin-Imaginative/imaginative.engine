@@ -28,13 +28,13 @@ final class LuaScript extends Script {
 
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?code:String) {
-		log('Lua scripting isn\'t supported... yet.', SystemMessage);
+		_log('[Script] Lua scripting isn\'t supported... yet.', SystemMessage);
 		super(file, code);
 	}
 	#else
 	@:allow(imaginative.backend.scripting.Script.create)
 	override function new(file:ModPath, ?_:String) {
-		log('Lua scripting isn\'t supported in this build.', SystemMessage);
+		_log('[Script] Lua scripting isn\'t supported in this build.', SystemMessage);
 		super(file, null);
 	}
 	#end

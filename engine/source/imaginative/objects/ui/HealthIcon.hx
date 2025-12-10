@@ -13,8 +13,12 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		return cast super.loadImage(newTexture, animated, width, height);
 	override public function loadSheet(newTexture:ModPath):HealthIcon
 		return cast super.loadSheet(newTexture);
+	#if ANIMATE_SUPPORT
+	override public function loadAtlas(newTexture:ModPath):HealthIcon
+		return cast super.loadAtlas(newTexture);
+	#end
 
-	// TODO: Write this better.
+	// TODO: Rename to "id".
 	/**
 	 * The icon name.
 	 */
@@ -50,7 +54,12 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	}
 
 	override public function new(x:Float, y:Float, name:String = 'face', faceLeft:Bool = false) {
-		super(x, y, 'icons/${tagName = (Paths.fileExists(Paths.icon(name)) ? name : 'face')}');
+		#if TRACY_DEBUGGER
+		if (this.getClassName() == 'HealthIcon')
+			TracyProfiler.zoneScoped('new HealthIcon($x, $y, $name, $faceLeft)');
+		#end
+
+		super(x, y, 'icons/${tagName = (Paths.icon(name).isFile ? name : 'face')}');
 		if (faceLeft) flipX = !flipX;
 		scripts.call('createPost');
 	}
@@ -81,7 +90,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	}
 
 	/**
-	 * If true, it prevents the scale bopping from occurring.
+	 * If true it prevents the scale bopping from occurring.
 	 */
 	public var preventScaleBop:Bool = false;
 	/**
@@ -105,7 +114,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 			try {
 				var prevAnim:String = getAnimName();
 				// double check tag
-				var tag:ModPath = (Paths.fileExists(Paths.icon('$pathType:$newTag')) ? '$pathType:$newTag' : 'face');
+				var tag:ModPath = (Paths.icon('$pathType:$newTag').isFile ? '$pathType:$newTag' : 'face');
 
 				// remove previous icon scripts
 				scripts.call('onIconChange');

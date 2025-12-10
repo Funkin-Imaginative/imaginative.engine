@@ -1,32 +1,22 @@
 package imaginative.objects.holders;
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef SongParse = {
-	var folder:String;
-	var icon:String;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var ?color:String;
-	var allowedModes:AllowedModesTyping;
-}
 typedef SongData = {
 	/**
 	 * The song display name.
 	 */
-	var name:String;
+	@:jignored var ?name:String;
 	/**
 	 * The song folder name.
 	 */
-	var folder:String;
+	@:jignored var ?folder:String;
 	/**
 	 * The song icon.
 	 */
-	var icon:String;
+	@:default('face') var icon:String;
 	/**
 	 * The starting difficulty.
 	 */
-	var startingDiff:Int;
+	var ?startingDiff:Int;
 	/**
 	 * The difficulties listing.
 	 */
@@ -34,20 +24,22 @@ typedef SongData = {
 	/**
 	 * The variations listing.
 	 */
-	var variants:Array<String>;
+	var ?variants:Array<String>;
 	/**
 	 * The song color.
 	 */
+	@:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomwrite(imaginative.backend.Tools._writeColor)
 	var ?color:FlxColor;
 	/**
 	 * Allowed modes for the song.
 	 */
-	var allowedModes:AllowedModesTyping;
+	var allowedModes:GamemodesTyping;
 }
 
 class SongHolder extends BeatSpriteGroup {
 	/**
-	 * The holder's path type.
+	 * The holders path type.
 	 */
 	public var pathType:ModType;
 
@@ -100,9 +92,9 @@ class SongHolder extends BeatSpriteGroup {
 		scripts = new ScriptGroup(this);
 		if (allowScripts) {
 			var bruh:Array<ModPath> = ['lead:global', name];
-			log([for (file in bruh) file.format()], DebugMessage);
+			// log([for (file in bruh) file.format()], DebugMessage);
 			for (song in bruh)
-				for (script in Script.create('$pathType:content/scripts/songs/${name.path}'))
+				for (script in Script.create('$pathType:content/scripts/songs/${song.path}'))
 					scripts.add(script);
 		}
 		scripts.load();

@@ -15,26 +15,20 @@ final class NoteHitEvent extends PlayAnimEvent {
 	public var note:Note;
 
 	/**
-	 * The strum lane index.
+	 * The lane index.
 	 */
 	public var id:Int;
-	/**
-	 * Its just id but with % applied.
-	 */
-	public var idMod(get, never):Int;
-	inline function get_idMod():Int
-		return id % field.strumCount;
 
 	/**
-	 * If true, it creates a splash instance.
+	 * If true it creates a splash instance.
 	 */
 	public var createSplash:Bool = true;
 	/**
-	 * If true, it creates a hold cover instance.
+	 * If true it creates a hold cover instance.
 	 */
 	public var createHoldCover:Bool;
 	/**
-	 * If true, it prevents the comfirm animation from playing on the target strum.
+	 * If true it prevents the comfirm animation from playing on the target strum.
 	 */
 	public var stopStrumConfirm:Bool = false;
 

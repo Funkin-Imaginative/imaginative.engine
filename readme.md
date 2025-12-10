@@ -1,15 +1,15 @@
 # Welcome to Imaginative Engine!
-This engine is still work in progress!
-Be weary of any issues you may encounter.
-# Credits
+This engine is still a work in progress!
+Be wary of any issues you may encounter.
+# Credits [WIP]
 ### Members
 [Rodney](https://github.com/rodney528): Main programmer and director.
-
-[Atlas](https://github.com/AtlasGamer27): Underrated programmer and great friend.
 
 [Zyflx](https://github.com/Zyflx): Programmer and helped with scripting.
 
 [Nebula](https://github.com/NebulaStellaNova): Programmer and great friend.
+### Ex Members
+[Atlas](https://github.com/AtlasGamer27): Underrated programmer and great friend.
 ### Libraries Used
 [CNE Devs](https://github.com/CodenameCrew): [`flixel`](https://github.com/CodenameCrew/cne-flixel) and [`flixel-addons`](https://github.com/CodenameCrew/cne-flixel-addons) forks, [`hscript-improved`](https://github.com/CodenameCrew/hscript-improved) and one of this engine's inspirations!
 

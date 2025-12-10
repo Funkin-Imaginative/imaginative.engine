@@ -1,8 +1,11 @@
 package imaginative.backend.scripting;
 
 import imaginative.backend.scripting.types.HaxeScript;
-import imaginative.backend.scripting.types.InvalidScript;
 import imaginative.backend.scripting.types.LuaScript;
+// stops formatter from removing the import
+#if SCRIPT_SUPPORT
+import imaginative.backend.scripting.types.InvalidScript;
+#end
 
 /**
  * Help's clarify a script language instance.
@@ -26,7 +29,7 @@ enum abstract ScriptType(String) from String to String {
 	var TypeInvalid = 'Invalid';
 
 	/**
-	 * If true, this script can't actually be used for anything.
+	 * If true this script can't actually be used for anything.
 	 */
 	public var dummy(get, never):Bool;
 	@SuppressWarnings('checkstyle:FieldDocComment')
@@ -34,12 +37,13 @@ enum abstract ScriptType(String) from String to String {
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
+// TODO: Rework how this is coded.
 /**
  * All your scripting needs are right here!
  * @author Class started by @Zyflx. Expanded on by @rodney528.
  */
 class Script extends FlxBasic implements IScript {
-	@:allow(imaginative.backend.system.Main)
+	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		exts = [
 			for (exts in [HaxeScript.exts, LuaScript.exts])
@@ -64,7 +68,7 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public var name(get, never):String;
 	inline function get_name():String
-		return FilePath.withoutDirectory(pathing.path);
+		return FilePath.withoutDirectory(pathing?.path) ?? 'none';
 	/**
 	 * Contains the mod path information.
 	 */
@@ -74,7 +78,7 @@ class Script extends FlxBasic implements IScript {
 	 */
 	public var extension(get, never):String;
 	inline function get_extension():String
-		return pathing.extension;
+		return pathing?.extension ?? 'none';
 
 	/**
 	 * Creates a script instance(s).
@@ -83,6 +87,7 @@ class Script extends FlxBasic implements IScript {
 	 * @return `Array<Script>`
 	 */
 	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+		#if SCRIPT_SUPPORT
 		#if MOD_SUPPORT
 		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
 			if (getAllInstances) {
@@ -103,12 +108,15 @@ class Script extends FlxBasic implements IScript {
 			var extension:String = FilePath.extension(path).toLowerCase();
 			if (exts.contains(extension)) {
 				if (HaxeScript.exts.contains(extension))
-					scripts.push(new HaxeScript(path));
+					scripts.push(new HaxeScript('root:$path'));
 				if (LuaScript.exts.contains(extension))
-					scripts.push(new LuaScript(path));
-			} else scripts.push(new InvalidScript(path));
+					scripts.push(new LuaScript('root:$path'));
+			} else scripts.push(new InvalidScript('root:$path'));
 		}
 		return scripts;
+		#else
+		return [];
+		#end
 	}
 
 	var canRun:Bool = false;
@@ -189,13 +197,13 @@ class Script extends FlxBasic implements IScript {
 		return value = null;
 
 	/**
-	 * Set's the public map for getting global variables.
+	 * Sets the public map for getting global variables.
 	 * @param map The map itself.
 	 */
 	public function setPublicMap(map:Map<String, Dynamic>):Void {}
 
 	/**
-	 * Set's a variable to the script.
+	 * Sets a variable to the script.
 	 * @param variable The variable to apply.
 	 * @param value The value the variable will hold.
 	 */

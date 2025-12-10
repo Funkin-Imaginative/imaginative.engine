@@ -12,48 +12,43 @@ typedef ObjectTyping = {
 	/**
 	 * Should the object be flipped?
 	 */
-	@:default(false) var flip:Bool;
+	var ?flip:Bool;
 	/**
 	 * Position offsets.
 	 */
-	@:default({x: 0, y: 0}) var offsets:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
-	@:default(1) var size:Float;
+	@:default(1) var ?size:Float;
 	/**
 	 * Will is play a cheer animation when entering the week?
 	 */
-	@:default(false) var willHey:Bool;
+	var ?willHey:Bool;
 }
 
-@SuppressWarnings('checkstyle:FieldDocComment')
-typedef LevelParse = {
-	var title:String;
-	var songs:Array<String>;
-	var ?startingDiff:Int;
-	var difficulties:Array<String>;
-	var ?variants:Array<String>;
-	var objects:Array<ObjectTyping>;
-	@:default('#F9CF51') var color:String;
-}
 typedef LevelData = {
 	/**
 	 * The display name.
 	 */
-	var name:String;
+	@:jignored var ?name:String;
 	/**
 	 * The title.
 	 */
-	var title:String;
+	@:default('[Please Add a Title]') var title:String;
 	/**
 	 * List of each songs data.
 	 */
+	@:jcustomparse(imaginative.backend.Tools._parseSongData)
+	@:jcustomwrite(imaginative.backend.Tools._writeSongData)
 	var songs:Array<SongData>;
 	/**
 	 * Starting difficulty index.
 	 */
-	public var startingDiff:Int;
+	var ?startingDiff:Int;
 	/**
 	 * Difficulty listing.
 	 */
@@ -61,7 +56,7 @@ typedef LevelData = {
 	/**
 	 * Variation listing.
 	 */
-	var variants:Array<String>;
+	var ?variants:Array<String>;
 	/**
 	 * List of week object data's.
 	 * This is mostly used for the story menu.
@@ -70,7 +65,9 @@ typedef LevelData = {
 	/**
 	 * Associated color.
 	 */
-	var color:FlxColor;
+	@:jcustomparse(imaginative.backend.Tools._parseColor)
+	@:jcustomwrite(imaginative.backend.Tools._writeColor)
+	@:default(0xFFF9CF51) var ?color:FlxColor;
 }
 
 /**
@@ -79,7 +76,7 @@ typedef LevelData = {
  */
 class LevelHolder extends BeatSpriteGroup {
 	/**
-	 * The holder's path type.
+	 * The holders path type.
 	 */
 	public var pathType:ModType;
 

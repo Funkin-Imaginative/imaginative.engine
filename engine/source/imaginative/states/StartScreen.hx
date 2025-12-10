@@ -18,15 +18,15 @@ class StartScreen extends BeatState {
 		super.create();
 		if (!conductor.playing)
 			conductor.loadMusic('lunchbox', (sound:FlxSound) -> conductor.fadeIn(4, 0.7));
-		camera.fade(4, true, () -> canSelect = true);
-		if (tweenAxes.x) camera.scroll.x -= camera.width * (swapAxes.x ? -1 : 1);
-		if (tweenAxes.y) camera.scroll.y -= camera.height * (swapAxes.y ? -1 : 1);
-		FlxTween.tween(camera, {'scroll.x': 0, 'scroll.y': 0}, 3, {ease: FlxEase.cubeOut, startDelay: 1});
+		mainCamera.fade(4, true, () -> canSelect = true);
+		if (tweenAxes.x) mainCamera.scroll.x -= mainCamera.width * (swapAxes.x ? -1 : 1);
+		if (tweenAxes.y) mainCamera.scroll.y -= mainCamera.height * (swapAxes.y ? -1 : 1);
+		FlxTween.tween(mainCamera.scroll, {x: 0, y: 0}, 3, {ease: FlxEase.cubeOut, startDelay: 1});
 
 		simpleBg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 200, 200, true, 0x7B000000, 0x7BFFFFFF));
 		simpleBg.velocity.set(
-			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1),
-			(FlxG.random.bool() ? 40 : 30) * (FlxG.random.bool() ? -1 : 1)
+			(FlxG.random.bool() ? 40 : 30) * FlxG.random.sign(),
+			(FlxG.random.bool() ? 40 : 30) * FlxG.random.sign()
 		);
 
 		welcomeText = new FlxText(0, 250, FlxG.width, 'Welcome to\n[ROD]Imaginative Engine[ROD]!');
@@ -53,25 +53,38 @@ class StartScreen extends BeatState {
 		super.update(elapsed);
 
 		// skips the leave transition
-		if (leaving && (Controls.accept || FlxG.mouse.justPressed)) {
+		if (leaving && (Controls.global.accept || FlxG.mouse.justPressed)) {
 			@:privateAccess
 				if (conductor.fadeTween != null)
 					if (conductor.fadeTween.active)
 						conductor.reset();
-			BeatState.switchState(new TitleScreen());
+			BeatState.switchState(() -> new TitleScreen());
 		}
 
-		if (canSelect && (Controls.accept || FlxG.mouse.justPressed)) {
+		if (canSelect && (Controls.global.accept || FlxG.mouse.justPressed)) {
 			leaving = true;
 			canSelect = false;
 			FunkinUtil.playMenuSFX(ConfirmSFX, 0.7);
 			conductor.fadeOut(3, (_:FlxTween) -> conductor.reset());
-			camera.fade(3.5, () -> BeatState.switchState(new TitleScreen()), true);
-			FlxTween.completeTweensOf(camera); // skips the entry transition
-			FlxTween.tween(camera, {
-				'scroll.x': tweenAxes.x ? ((camera.scroll.x + camera.width) * (swapAxes.x ? -1 : 1)) : 0,
-				'scroll.y': tweenAxes.y ? ((camera.scroll.y + camera.height) * (swapAxes.y ? -1 : 1)) : 0
+			mainCamera.fade(3.5, () -> BeatState.switchState(() -> new TitleScreen()), true);
+			FlxTween.completeTweensOf(mainCamera.scroll); // skips the entry transition
+			FlxTween.tween(mainCamera.scroll, {
+				x: tweenAxes.x ? ((mainCamera.scroll.x + mainCamera.width) * (swapAxes.x ? -1 : 1)) : 0,
+				y: tweenAxes.y ? ((mainCamera.scroll.y + mainCamera.height) * (swapAxes.y ? -1 : 1)) : 0
 			}, 5, {ease: FlxEase.smoothStepIn});
+		}
+
+		// just gonna leave this here for easy vslice conversion
+		if (FlxG.keys.justPressed.TAB) {
+			if (Paths.fileExists('root:chart/chart.json') && Paths.fileExists('root:chart/metadata.json')) {
+				var chartOld = new moonchart.formats.fnf.FNFVSlice().fromFile('chart/chart.json', 'chart/metadata.json', 'normal');
+				var chartNew = new moonchart.formats.fnf.FNFImaginative().fromFormat(chartOld);
+				try {
+					chartNew.save('chart/output/chart', 'chart/output/metadata');
+					_log('converted');
+				} catch(e)
+					_log('error: $e');
+			} else _log('not exist');
 		}
 	}
 }

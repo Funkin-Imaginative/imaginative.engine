@@ -7,26 +7,26 @@ class PsychHUD extends HUDTemplate {
 		return Psych;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
-		var yLevel:Float = (downscroll ? (FlxG.camera.height - 150) : 50) + (ArrowField.arrowSize / 2);
+		var yLevel:Float = (downscroll ? (getDefaultCamera().height - 150) : 50) + (ArrowField.arrowSize / 2);
 		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {
 		// temp bg add
-		var bg:FlxSprite = new FlxSprite(0, FlxG.camera.height * (!Settings.setupP1.downscroll ? 0.89 : 0.11)).makeGraphic(600, 20, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite(0, getDefaultCamera().height * (!Settings.setupP1.downscroll ? 0.89 : 0.11)).makeGraphic(600, 20, FlxColor.BLACK);
 		bg.screenCenter(X);
 		elements.add(bg);
 
 		return new Bar(bg.x + 4, bg.y + 4, RIGHT_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), this, 'visualHealth', minHealth, maxHealth);
 	}
 	override function initStatsText():FlxText {
-		var text:FlxText = new FlxText(0, (healthBar.y - 4) + 40 - 8, FlxG.camera.width);
+		var text:FlxText = new FlxText(0, (healthBar.y - 4) + 40 - 8, getDefaultCamera().width);
 		text.setFormat(Paths.font('vcr').format(), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		text.borderSize = 1.25;
 		return text;
 	}
 	override function initStatsP2Text():FlxText {
-		var text:FlxText = new FlxText(0, Settings.setupP1.downscroll ? 650 : 0, FlxG.camera.width);
+		var text:FlxText = new FlxText(0, Settings.setupP1.downscroll ? 650 : 0, getDefaultCamera().width);
 		text.setFormat(Paths.font('vcr').format(), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		text.borderSize = 1.25;
 		text.visible = ArrowField.enableP2;

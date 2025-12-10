@@ -1,12 +1,21 @@
 package imaginative.backend.system;
 
-import flash.media.Sound;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets;
+import moonchart.backend.Util as MoonUtil;
 import openfl.display.BitmapData;
+import openfl.media.Sound;
 import openfl.utils.Assets as OpenFLAssets;
+import imaginative.backend.display.BetterBitmapData;
+#if ANIMATE_SUPPORT
+import animate.FlxAnimateFrames;
+#end
 
+@:bitmap('assets/images/logo/logo.png')
+private class HaxeLogo extends BitmapData {}
+
+// TODO: Rework into something simliar to VSlice's registries.
 /**
  * This is mostly taken from Psych since idk what to actually do.
  */
@@ -14,78 +23,133 @@ import openfl.utils.Assets as OpenFLAssets;
 class Assets {
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
-		excludeAsset(Paths.image('main:menus/bgs/menuArt'));
-		excludeAsset(Paths.music('main:freakyMenu'));
-		excludeAsset(Paths.music('main:breakfast'));
-		FlxG.signals.preGameReset.add(() -> clearCache(true, true));
+		/* var cacheExclusions:Array<String> = [];
+		function excludeCache(file:ModPath):Void {
+			var path:String = Paths.addBeginningSlash(file.format());
+			if (Paths.fileExists('root:$path')) {
+				if (!cacheExclusions.contains(path))
+					cacheExclusions.push(path);
+			}
+		}
+		for (file in Paths.readFolder('main:images/lol', 'png')) {
+			file.pushExt('png');
+			excludeCache(file);
+		}
+
+		function readFolderLoop(path:ModPath, ?setExt:String) {
+			for (item in Paths.readFolder(path)) {
+				if (item.extension == setExt || item.extension == '') {} else continue;
+				if (Paths.folderExists(item)) {
+					readFolderLoop(item, setExt);
+				} else {
+					trace(item.format());
+					if (Paths.fileExists(item) && !cacheExclusions.contains(item.format()))
+						excludeAsset(item);
+				}
+			}
+		}
+		readFolderLoop('main:images', 'png');
+		for (ext in Paths.soundExts) {
+			readFolderLoop('main:music', ext);
+			readFolderLoop('main:sounds', ext);
+		} */
+
+		#if ANIMATE_SUPPORT
+		@:privateAccess {
+			FlxAnimateFrames.getTextFromPath = (path:String) -> return text('root:$path').replace(String.fromCharCode(0xFEFF), '');
+			FlxAnimateFrames.existsFile = (path:String, type:openfl.utils.AssetType) -> return Paths.fileExists('root:$path');
+			FlxAnimateFrames.listWithFilter = (path:String, filter:String->Bool) -> return [for (file in Paths.readFolder('root:$path')) file.format()].filter(filter);
+			FlxAnimateFrames.getGraphic = (path:String) -> return image('root:$path');
+		}
+		#end
+
+		MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
+		MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
+		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
+
+		clearCache(false, false, true);
 	}
 
 	/**
 	 * Paths that the game shouldn't dump their data for when dumping data.
 	 */
-	public static var dumpExclusions(default, null):Array<String> = [/* 'flixel/sounds/beep.ogg' */];
+	public static var dumpExclusions(default, null):Array<String> = [
+		'./flixel/images/logo/logo.png',
+		'./flixel/sounds/beep.ogg'
+	];
 	/**
 	 * An asset to exclude from dumpping.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
 	 */
-	inline public static function excludeAsset(file:ModPath, doTypeCheck:Bool = true):Void {
-		var path:String = doTypeCheck ? file.format() : file.path;
-		if (!dumpExclusions.contains(path))
-			dumpExclusions.push(path);
+	inline public static function excludeAsset(file:ModPath):Void {
+		var path:String = Paths.addBeginningSlash(file.format());
+		if (Paths.fileExists('root:$path')) {
+			_log('Excluded asset "$path" from future dumps.', DebugMessage);
+			if (!dumpExclusions.contains(path))
+				dumpExclusions.push(path);
+		} // else _log('Couldn\'t exclude asset "$path" since it doesn\'t exist.', DebugMessage);
 	}
 	/**
 	 * When called it clears all graphics.
-	 * @param clearUnused If true, it clears any unused graphics.
-	 * @param ignoreExclusions If true, it ignores excluded graphics.
-	 *                         Used for resetGame shenanigans.
+	 * @param clearUnused If true it clears any unused graphics.
+	 * @param ignoreExclusions If true it ignores excluded graphics. Used for resetGame shenanigans.
 	 */
 	inline public static function clearGraphics(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		for (tag => graphic in loadedGraphics) {
+		for (tag in loadedGraphics.keys()) {
+			var graphic:FlxGraphic = loadedGraphics.get(tag);
+
 			if (graphic == null) continue;
+			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
-			if (clearUnused && !assetsInUse.contains(tag)) continue;
+			loadedGraphics.remove(tag);
 
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
-			graphic.dump();
 
-			loadedGraphics.remove(tag);
+			if (graphic.bitmap != null && graphic.bitmap.__texture != null)
+				graphic.bitmap.__texture.dispose();
 
-			if (graphic.bitmap.__texture != null) graphic.bitmap.__texture.dispose();
-			if (FlxG.bitmap.checkCache(tag)) FlxG.bitmap.remove(graphic);
-			if (OpenFLAssets.cache.hasBitmapData(tag)) OpenFLAssets.cache.removeBitmapData(tag);
+			if (OpenFLAssets.cache.hasBitmapData(tag))
+				OpenFLAssets.cache.removeBitmapData(tag);
 		}
 		if (clearUnused)
 			FlxG.bitmap.clearUnused();
-		openfl.system.System.gc();
+		FlxG.bitmapLog.clear();
 	}
 	/**
 	 * When called it clears all sounds.
-	 * @param clearUnused If true, it clears any unused sounds.
-	 * @param ignoreExclusions If true, it ignores excluded sounds.
-	 *                         Used for resetGame shenanigans.
+	 * @param clearUnused If true it clears any unused sounds.
+	 * @param ignoreExclusions If true it ignores excluded sounds. Used for resetGame shenanigans.
 	 */
 	inline public static function clearSounds(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		for (tag => sound in loadedSounds) {
+		for (tag in loadedSounds.keys()) {
+			var sound:Sound = loadedSounds.get(tag);
+
 			if (sound == null) continue;
+			if (assetsInUse.contains(tag)) continue;
 			if (!ignoreExclusions && dumpExclusions.contains(tag)) continue;
-			if (clearUnused && !assetsInUse.contains(tag)) continue;
-
-			if (OpenFLAssets.cache.hasSound(tag)) OpenFLAssets.cache.removeSound(tag);
-
 			loadedSounds.remove(tag);
+
+			sound.close();
+
+			if (OpenFLAssets.cache.hasSound(tag))
+				OpenFLAssets.cache.removeSound(tag);
 		}
 	}
 	/**
 	 * When called it clears all.
-	 * @param clearUnused If true, it clears any unused things.
-	 * @param ignoreExclusions If true, it ignores excluded things.
-	 *                         Used for resetGame shenanigans.
+	 * @param clearUnused If true it clears any unused things.
+	 * @param ignoreExclusions If true it ignores excluded things. Used for resetGame shenanigans.
+	 * @param runGarbageCollector if true this function will run the garbage collector.
+	 * @param isMajor If true it cleans out bigger data.
 	 */
-	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false):Void {
-		clearSounds(clearUnused, ignoreExclusions);
+	inline public static function clearCache(clearUnused:Bool = false, ignoreExclusions:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
 		clearGraphics(clearUnused, ignoreExclusions);
+		clearSounds(clearUnused, ignoreExclusions);
+		if (runGarbageCollector) {
+			cpp.vm.Gc.run(isMajor);
+			cpp.vm.Gc.compact();
+		}
 	}
 
 	/**
@@ -109,27 +173,20 @@ class Assets {
 	 */
 	public static var loadedSounds:Map<String, Sound> = new Map<String, Sound>();
 	inline static function listSound(path:String, sound:Sound):Sound {
-		path = Paths.removeBeginningSlash(path);
 		loadedSounds.set(path, sound);
 		if (!assetsInUse.contains(path))
 			assetsInUse.push(path);
 		return sound;
 	}
 
-	@:using inline static function destroyGraphic(graphic:FlxGraphic):Void {
-		if (graphic != null && graphic.bitmap != null && graphic.bitmap.__texture != null)
-			graphic.bitmap.__texture.dispose();
-		FlxG.bitmap.remove(graphic);
-	}
-
 	/**
-	 * Get's the data of an image file.
+	 * Gets the data of an image file.
 	 * From `../images/`.
 	 * @param file The mod path.
-	 * @return `FlxGraphic` ~ The graphic data.
+	 * @return FlxGraphic ~ The graphic data.
 	 */
 	inline public static function image(file:ModPath):FlxGraphic {
-		var path:String = Paths.removeBeginningSlash(Paths.image(file).format());
+		var path:String = Paths.image(file).format();
 		if (loadedGraphics.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -139,13 +196,13 @@ class Assets {
 	}
 
 	/**
-	 * Get's the data of an audio file.
+	 * Gets the data of an audio file.
 	 * @param file The mod path.
-	 * @param beepWhenNull If true, the flixel beep sound when play when the wanted sound doesn't exist.
-	 * @return `Sound` ~ The sound data.
+	 * @param beepWhenNull If true the flixel beep sound will be retrieved when the wanted sound doesn't exist.
+	 * @return Sound ~ The sound data.
 	 */
 	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound {
-		var path:String = Paths.removeBeginningSlash(Paths.audio(file).format());
+		var path:String = Paths.audio(file).format();
 		if (loadedSounds.exists(path)) {
 			if (!assetsInUse.contains(path))
 				assetsInUse.push(path);
@@ -154,104 +211,117 @@ class Assets {
 		return cacheSound(path, beepWhenNull);
 	}
 	/**
-	 * Get's the data of a songs instrumental file.
+	 * Gets the data of a songs instrumental file.
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param variant The variant key.
-	 * @return `Sound` ~ The sound data.
+	 * @return Sound ~ The sound data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):Sound
-		return audio(Paths.inst(song, variant), false);
+		return audio(Paths.inst(song, variant));
 	/**
-	 * Get's the data of a songs vocal track.
+	 * Gets the data of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
 	 * @param song The song folder name.
 	 * @param suffix The suffix tag.
 	 * @param variant The variant key.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):Sound
 		return audio(Paths.vocal(song, suffix, variant), false);
 	/**
-	 * Get's the data of a song.
+	 * Gets the data of a song.
 	 * From `../music/`.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function music(file:ModPath):Sound
 		return audio(Paths.music(file));
 	/**
-	 * Get's the data of a sound.
+	 * Gets the data of a sound.
 	 * From `../sounds/`.
 	 * @param file The mod path.
-	 * @return `ModPath` ~ The sound data.
+	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function sound(file:ModPath):Sound
 		return audio(Paths.sound(file));
 
 	/**
-	 * Get's a spritesheet's data file.
-	 * @param file The mod path.
-	 *             From `../images/`.
+	 * Gets a spritesheet's data file.
+	 * @param file The mod path. From `../images/`.
 	 * @param type The texture type.
-	 * @return `FlxAtlasFrames`
+	 * @return FlxAtlasFrames
 	 */
 	inline public static function frames(file:ModPath, type:TextureType = IsUnknown):FlxAtlasFrames {
 		if (type == IsUnknown) {
-			if (Paths.fileExists(Paths.xml('${file.type}:images/${file.path}'))) type = IsSparrow;
-			if (Paths.fileExists(Paths.txt('${file.type}:images/${file.path}'))) type = IsPacker;
-			if (Paths.fileExists(Paths.json('${file.type}:images/${file.path}'))) type = IsAseprite;
+			if (Paths.image(Paths.xml(file)).isFile) type = IsSparrow;
+			if (Paths.image(Paths.txt(file)).isFile) type = IsPacker;
+			if (Paths.image(Paths.json(file)).isFile) type = IsAseprite;
+			#if ANIMATE_SUPPORT
+			if (Paths.image(Paths.json('${file.type}:${file.path}/Animation')).isFile) type = IsAnimateAtlas;
+			#end
 		}
 		return switch (type) {
 			case IsSparrow: getSparrowFrames(file);
 			case IsPacker: getPackerFrames(file);
 			case IsAseprite: getAsepriteFrames(file);
+			#if ANIMATE_SUPPORT
+			case IsAnimateAtlas: getAnimateAtlas(file);
+			#end
 			default: getSparrowFrames(file);
 		}
 	}
 	/**
-	 * Get's sparrow sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Sparrow frame collection.
+	 * Gets sparrow sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Sparrow frame collection.
 	 */
 	inline public static function getSparrowFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromSparrow(image(file), Paths.xml('${file.type}:images/${file.path}'));
 	/**
-	 * Get's packer sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Packer frame collection.
+	 * Gets packer sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Packer frame collection.
 	 */
 	inline public static function getPackerFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(file), Paths.txt('${file.type}:images/${file.path}'));
 	/**
-	 * Get's aseprite sheet data.
-	 * @param file The mod path.
-	 *             From `../images/`.
-	 * @return `FlxAtlasFrames` ~ The Aseprite frame collection.
+	 * Gets aseprite sheet data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAtlasFrames ~ The Aseprite frame collection.
 	 */
 	inline public static function getAsepriteFrames(file:ModPath):FlxAtlasFrames
 		return FlxAtlasFrames.fromAseprite(image(file), Paths.json('${file.type}:images/${file.path}'));
+	#if ANIMATE_SUPPORT
+	/**
+	 * Gets animate atlas data.
+	 * @param file The mod path. From `../images/`.
+	 * @return FlxAnimateFrames ~ The Atlas frame collection.
+	 */
+	inline public static function getAnimateAtlas(file:ModPath):FlxAnimateFrames
+		return FlxAnimateFrames.fromAnimate(Paths.image(Paths.json('${file.type}:${file.path}/Animation')));
+	#end
 
 	/**
-	 * Get's the content of a file containing text.
+	 * Gets the content of a file containing text.
 	 * @param file The mod path.
-	 * @param doTypeCheck If false, it starts the check from the engine root.
-	 * @return `String` ~ The file contents.
+	 * @return String ~ The file contents.
 	 */
-	inline public static function text(file:ModPath, doTypeCheck:Bool = true):String {
-		var finalPath:String = doTypeCheck ? Paths.removeBeginningSlash(file.format()) : file.path;
-		var sysContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? sys.io.File.getContent(finalPath) : null;
-		var limeContent:Null<String> = Paths.fileExists(file, doTypeCheck) ? OpenFLAssets.getText(finalPath) : null;
-		return sysContent ?? limeContent ?? '';
+	inline public static function text(file:ModPath):String {
+		var finalPath:String = file.format();
+		try {
+			var sysContent:Null<String> = file.isFile ? sys.io.File.getContent(finalPath) : null;
+			var limeContent:Null<String> = file.isFile ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
+			return sysContent ?? limeContent ?? '';
+		} catch(error:haxe.Exception) {
+			return file.isFile ? sys.io.File.getContent(finalPath) : '';
+		}
 	}
 	/**
-	 * Parse's json data.
+	 * Parses json data.
 	 * @param data The stringified json data.
-	 * @param file A mod path, for just in case reasons.
-	 *             Mostly for showing the path when it errors.
-	 * @return `Dynamic` ~ The parsed data.
+	 * @param file A mod path, for just in case reasons. Used for showing the path when it errors.
+	 * @return Dynamic ~ The parsed data.
 	 */
 	inline public static function json(data:String, ?file:ModPath):Dynamic {
 		var content:Dynamic = {}
@@ -266,49 +336,41 @@ class Assets {
 	}
 
 	static function cacheBitmap(path:String):FlxGraphic {
+		if (loadedGraphics.exists(path))
+			return loadedGraphics.get(path);
+
 		var bitmap:BitmapData = null;
-		if (Paths.fileExists(path, false)) {
-			bitmap = BitmapData.fromFile(path);
-			if (bitmap == null)
-				bitmap = FlxAssets.getBitmapData(path);
+		if (Paths.fileExists('root:$path')) {
+			bitmap = BetterBitmapData.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getBitmapData(Paths.removeBeginningSlash(path));
+		}
+		@:privateAccess function createGraphic(Bitmap:BitmapData, Key:String, Unique:Bool = false):FlxGraphic {
+			Bitmap = FlxGraphic.getBitmap(Bitmap, Unique);
+			var graphic:FlxGraphic = new FlxGraphic(Key, Bitmap);
+			graphic.unique = Unique;
+			return graphic;
 		}
 		if (bitmap == null) {
 			FlxG.log.error('No bitmap data from path "$path".');
-			return FlxG.bitmap.add(FlxAssets.getBitmapData('flixel/images/logo.png'), 'flixel/images/logo.png');
+			return FlxGraphic.fromClass(HaxeLogo, './flixel/images/logo/logo.png');
 		}
-
-		if (Settings.setup.gpuCaching && bitmap.image != null) {
-			bitmap.lock();
-			if (bitmap.__texture == null) {
-				bitmap.image.premultiplied = true;
-				bitmap.getTexture(FlxG.stage.context3D);
-			}
-			bitmap.getSurface();
-			bitmap.disposeImage();
-			bitmap.image.data = null;
-			bitmap.image = null;
-			bitmap.readable = true;
-		}
-
-		var graphic:FlxGraphic = FlxG.bitmap.add(bitmap, path);
+		var graphic:FlxGraphic = createGraphic(bitmap, path);
 		graphic.persist = true;
 		graphic.destroyOnNoUse = false;
 
-		return listGraphic(path, FlxG.bitmap.addGraphic(graphic));
+		return listGraphic(path, graphic);
 	}
 	static function cacheSound(path:String, beepWhenNull:Bool = true):Sound {
-		var result:Sound = null;
-		if (!loadedSounds.exists(path)) {
-			if (Paths.fileExists(path, false)) {
-				result = Sound.fromFile(path);
-				if (result == null)
-					result = FlxAssets.getSound(path);
-				if (result == null) {
-					FlxG.log.error('No sound data from path "$path".');
-					return beepWhenNull ? FlxAssets.getSound('flixel/sounds/beep') : null;
-				}
-			}
+		if (loadedSounds.exists(path))
+			return loadedSounds.get(path);
+
+		var sound:Sound = null;
+		if (Paths.fileExists('root:$path'))
+			sound = Sound.fromFile(Paths.removeBeginningSlash(path)) ?? FlxAssets.getSoundAddExtension(Paths.removeBeginningSlash(path));
+		if (sound == null) {
+			FlxG.log.error('No sound data from path "$path".');
+			return beepWhenNull ? FlxAssets.getSoundAddExtension('flixel/sounds/beep') : null;
 		}
-		return listSound(path, result);
+
+		return listSound(path, sound);
 	}
 }

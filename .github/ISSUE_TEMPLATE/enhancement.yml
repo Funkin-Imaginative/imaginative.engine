@@ -1,0 +1,20 @@
+name: Enhancement
+title: "Enhancement: "
+description: Request something you want put in the engine!
+labels: [enhancement]
+type: Feature
+body:
+  - type: checkboxes
+    attributes:
+      label: Issue Checklist
+      description: Be sure to complete these steps to increase the chances of your issue being addressed!
+      options:
+        # - label: I have read the [Contributing Guide](https://github.com/FunkinCrew/Funkin/blob/main/docs/CONTRIBUTING.md)
+        - label: I have checked the issues/discussions pages to see if my issue has already been reported.
+        - label: I have properly titled my issue.
+
+  - type: textarea
+    attributes:
+      label: What is your suggestion, and why should it be implemented?
+    validations:
+      required: true

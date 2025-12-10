@@ -74,6 +74,16 @@ class EngineAsset {
 
 	// Compiler flags.
 	/**
+	 * States if Tracy can be used.
+	 */
+	static final useTracy:CompilerFlag = 'TRACY_DEBUGGER';
+
+	/**
+	 * States if the engine can set the window border color.
+	 */
+	static final editWindowBorderColor:CompilerFlag = 'EDIT_WINDOW_BORDER_COLOR';
+
+	/**
 	 * States if the engine has a version ID.
 	 */
 	static final knowsVersionID:CompilerFlag = 'KNOWS_VERSION_ID';
@@ -86,6 +96,10 @@ class EngineAsset {
 	 * States if the engine has modding support.
 	 */
 	static final modSupport:CompilerFlag = 'MOD_SUPPORT';
+	/**
+	 * States if the engine has animate atlas support.
+	 */
+	static final usesAnimateAtlas:CompilerFlag = 'ANIMATE_SUPPORT';
 
 	/**
 	 * States if the engine has scripting support.
@@ -154,20 +168,28 @@ class EngineAsset {
 				setDefine('macos');
 			}
 		} else {
-			error('Hey this engine only works on desktop and android devices!');
+			error('Hey this engine only works on desktop and mobile devices!');
 			return;
 		}
+
+		if (FileSystem.exists('./.haxelib'))
+			setenv('HAXEPATH', './.haxelib');
 
 		setDefine('official'); // idk how I'm gonna handle this atm
 
 		addIcon('./extras/art/logo.png');
 
 		/* Define Setup */
-		knowsVersionID.enable();
+		// useTracy.enable();
+		// if (isDebug()) setDefine('TRACE_REFLECT_UTIL_USAGE');
+
+		// knowsVersionID.enable();
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
-		modSupport.enable();
-		scriptSupport.enable();
+		// modSupport.enable();
+		// scriptSupport.enable();
+
+		// usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
@@ -182,40 +204,42 @@ class EngineAsset {
 			info('Scripting was enabled.');
 		}
 		if (hasDefine('cpp')) {
-			// something was changed in latest and broke the system
-			// if (isDesktop()) discordRPC.enable();
-			if (isDesktop() || isMobile())
-				allowVideos.enable();
+			if (isDesktop())
+				discordRPC.enable();
+			// if (isDesktop() || isMobile())
+			// 	allowVideos.enable();
 		}
 		if (discordRPC.exists())
 			setHaxedef('DISCORD_DISABLE_IO_THREAD');
 		allowShaders.enable();
+		// literally wasn't gonna fuckin' add this but then @NebulaStellaNova implemented it improperly so here we are
+		if (isWindows()) editWindowBorderColor.enable();
 		/* Define Setup */
 
 		/* App Setup */
-		this.meta.title = windowTitle;
-		this.meta.version = engineVersion;
-		this.meta.packageName = packageName;
-		this.meta.company = companyName;
-		this.app.main = mainClassPath;
-		this.app.file = exeFileName;
-		this.app.preloader = preloaderClassPath;
+		meta.title = windowTitle;
+		meta.version = engineVersion;
+		meta.packageName = packageName;
+		meta.company = companyName;
+		app.main = mainClassPath;
+		app.file = exeFileName;
+		app.preloader = preloaderClassPath;
 		/* App Setup */
 
 		/* Window Settings */
-		this.window.fps = 60;
-		setDefine('InitialWidth', '${this.window.width = 1280}');
-		setDefine('InitialHeight', '${this.window.height = 720}');
-		this.window.background = 0xFF000000;
-		this.window.allowHighDPI = this.window.hardware = this.window.resizable = true;
-		this.window.vsync = this.window.fullscreen = false;
-		this.window.allowShaders = allowShaders.exists();
+		window.fps = 60;
+		setDefine('InitialWidth', '${window.width = 1280}');
+		setDefine('InitialHeight', '${window.height = 720}');
+		window.background = 0xFF000000;
+		window.allowHighDPI = window.hardware = window.resizable = true;
+		window.vsync = window.fullscreen = false;
+		window.allowShaders = allowShaders.exists();
 
-		this.window.orientation = Orientation.LANDSCAPE;
+		window.orientation = Orientation.LANDSCAPE;
 
 		if (isMobile()) {
-			this.window.fullscreen = true;
-			this.window.resizable = false;
+			window.fullscreen = true;
+			window.resizable = false;
 		}
 		/* Window Settings */
 
@@ -227,42 +251,41 @@ class EngineAsset {
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		this.app.path = './export/$buildFolder${is32Bit() ? '-32bit' : ''}';
+		this.app.path = './export/$buildFolder';
+		if (useTracy.exists())
+			this.app.path += '-tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolderName : 'assets');
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		for (path in sourceCodeDirectories)
-			this.sources.push(path);
+			sources.push(path);
 
-		inline function mergeArrays<T>(arrays:Array<Array<T>>):Array<T> {
-			var result:Array<T> = [];
-			for (a in arrays)
-				for (v in a)
-					result.push(v);
-			return result;
-		}
 		var repoItems:Array<String> = ['.git*', '.prettier*', '.editorconfig', 'checkstyle.json', '.vscode']; // Should certain things stay?
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('./engine/', './', ['*'], mergeArrays([excludeList, ['assets', 'modding', 'source', 'overshadowing']]));
-		addAssetPath('./engine/assets', finalPath, ['*'], mergeArrays([excludeList, repoItems]));
+		addAssetPath('./engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'source', 'overshadowing']));
+		addAssetPath('./engine/assets', finalPath, ['*'], excludeList.concat(repoItems));
 		if (modSupport.exists()) {
-			addAssetPath('./engine/modding/upfront', './solo', ['*'], mergeArrays([excludeList, repoItems]));
-			addAssetPath('./engine/modding/lowerend', './mods', ['*'], mergeArrays([excludeList, repoItems]));
+			addAssetPath('./engine/modding/upfront', './solo', ['*'], excludeList.concat(repoItems));
+			addAssetPath('./engine/modding/lowerend', './mods', ['*'], excludeList.concat(repoItems));
 		}
 
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 		/* Path Settings */
 
 		/* Libraries */
-		addHaxelib('hxp');
+		addHaxelib('hxhardware');
+		addHaxelib('hxp'); // is need apparently???
 		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
 		addHaxelib('lime');
 
 		// the game engine
-		addHaxelib('flixel', 'git');
-		addHaxelib('flixel-addons', 'git');
+		addHaxelib('flixel');
+		addHaxelib('flixel-addons');
+
+		if (usesAnimateAtlas.exists())
+			addHaxelib('flixel-animate');
 
 		// json parsing
 		addHaxelib('json2object', 'git');
@@ -280,6 +303,9 @@ class EngineAsset {
 		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
 		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
+
+		if (editWindowBorderColor.exists())
+			addHaxelib('hxWindowColorMode');
 		/* Libraries */
 
 		if (!isDebug())
@@ -291,87 +317,89 @@ class EngineAsset {
 		if (disableDCE.exists())
 			addHaxeFlag('-dce no');
 
-		setHaxedef('no-deprecation-warnings'); // May remove?
-
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
-		if (allowVideos.exists()) {
+		if (allowVideos.exists())
 			setHaxedef('HXVLC_NO_SHARE_DIRECTORY');
-			setenv('HAXEPATH', './');
-		}
 		if (canHaxeScript.exists())
 			setHaxedef('hscriptPos');
 		if (isRelease() && !isDebug())
 			setHaxedef('analyzer-optimize');
 
-		// related to flixel cne fork
-		setHaxedef('EXPERIMENTAL_FLXGRAPHIC_DESTROY_FIX');
+		if (useTracy.exists()) { // mostly just copied from base funkin
+			setHaxedef('HXCPP_TELEMETRY'); // Enable telemetry
+			setHaxedef('HXCPP_TRACY'); // Enable Tracy telemetry
+			setHaxedef('HXCPP_TRACY_MEMORY'); // Track memory allocations
+			setHaxedef('HXCPP_TRACY_ON_DEMAND'); // Only collect telemetry when Tracy is open and reachable
+			// setHaxedef('HXCPP_TRACY_INCLUDE_CALLSTACKS'); // Inspect callstacks per zone, inflating telemetry data
+			setHaxedef('absolute-paths'); // Fix source locations so Tracy can see them
+		}
 
 		// truly push assets
 		for (setAsset in EngineAsset.mapping) {
 			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, /* isDebug() ? false : */ setAsset.embed);
 			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
-			this.assets.push(asset);
+			assets.push(asset);
 		}
 	}
 
 	/**
-	 * If true, your compiling on desktop.
+	 * If true your compiling on desktop.
 	 */
 	inline public function isDesktop():Bool
 		return hasDefine('desktop');
 	/**
-	 * If true, your compiling on mobile.
+	 * If true your compiling on mobile.
 	 */
 	inline public function isMobile():Bool
 		return hasDefine('mobile');
 
 	/**
-	 * If true, your compiling on a 32 bit system.
+	 * If true your compiling on a 32 bit system.
 	 */
 	inline public function is32Bit():Bool
-		return this.architectures.contains(Architecture.X86);
+		return architectures.contains(Architecture.X86);
 	/**
-	 * If true, your compiling on a 64 bit system.
+	 * If true your compiling on a 64 bit system.
 	 */
 	inline public function is64Bit():Bool
-		return this.architectures.contains(Architecture.X64);
+		return architectures.contains(Architecture.X64);
 
 
 	/**
-	 * If true, your compiling on windows.
+	 * If true your compiling on windows.
 	 */
 	inline public function isWindows():Bool
 		return hasDefine('windows');
 	/**
-	 * If true, your compiling on mac.
+	 * If true your compiling on mac.
 	 */
 	inline public function isMac():Bool
 		return hasDefine('mac') || hasDefine('macos');
 	/**
-	 * If true, your compiling on linux.
+	 * If true your compiling on linux.
 	 */
 	inline public function isLinux():Bool
 		return hasDefine('linux');
 
 	/**
-	 * If true, your compiling on android.
+	 * If true your compiling on android.
 	 */
 	inline public function isAndroid():Bool
-		return this.targetFlags.exists('android');
+		return targetFlags.exists('android');
 	/**
-	 * If true, your compiling on ios.
+	 * If true your compiling on ios.
 	 */
 	inline public function isIOS():Bool
-		return this.targetFlags.exists('ios');
+		return targetFlags.exists('ios');
 
 	/**
-	 * If true, your compiling on a release build.
+	 * If true your compiling on a release build.
 	 */
 	inline public function isRelease():Bool
 		return hasDefine('release');
 	/**
-	 * If true, your compiling on a debug build.
+	 * If true your compiling on a debug build.
 	 */
 	inline public function isDebug():Bool
 		return hasDefine('debug');
@@ -381,9 +409,9 @@ class EngineAsset {
 	 * @param name The haxedef key.
 	 * @param value The value of the haxedef.
 	 */
-	inline public function setHaxedef(name:String, value:String = ''):Void {
+	inline public function setHaxedef(name:String, ?value:String):Void {
 		info('Set haxedef "$name"${value == null ? '' : ' value of "$value"'}.');
-		this.haxedefs.set(name, value);
+		haxedefs.set(name, value ?? '');
 	}
 	/**
 	 * Get's information from a haxedef.
@@ -391,7 +419,7 @@ class EngineAsset {
 	 * @return The value of the haxedef.
 	 */
 	inline public function getHaxedef(name:String):Null<Dynamic>
-		return this.haxedefs.get(name);
+		return haxedefs.get(name);
 	/**
 	 * Unset's a haxedef.
 	 * @param name The haxedef key.
@@ -399,26 +427,26 @@ class EngineAsset {
 	inline public function unsetHaxedef(name:String):Void
 		if (hasHaxedef(name)) {
 			info('Unset haxedef "$name".');
-			this.haxedefs.remove(name);
+			haxedefs.remove(name);
 		}
 	/**
 	 * Check's if a haxedef exists.
 	 * @param name The haxedef key.
-	 * @return If true, the define exists.
+	 * @return If true the define exists.
 	 */
 	inline public function hasHaxedef(name:String):Bool
-		return this.haxedefs.exists(name);
+		return haxedefs.exists(name);
 
 	/**
 	 * Set's a define.
 	 * @param name The define key.
 	 * @param value The value of the define.
 	 */
-	inline public function setDefine(name:String, value:String = ''):Void {
+	inline public function setDefine(name:String, ?value:String):Void {
 		info('Set define "$name"${value == null ? '' : ' value of "$value"'}.');
-		this.defines.set(name, value);
-		this.haxedefs.set(name, value);
-		this.environment.set(name, value);
+		defines.set(name, value ?? '');
+		haxedefs.set(name, value ?? '');
+		environment.set(name, value ?? '');
 	}
 	/**
 	 * Get's information from a define.
@@ -426,7 +454,7 @@ class EngineAsset {
 	 * @return The value of the define.
 	 */
 	inline public function getDefine(name:String):Null<Dynamic>
-		return this.defines.get(name);
+		return defines.get(name);
 	/**
 	 * Unset's a define.
 	 * @param name The define key.
@@ -434,32 +462,42 @@ class EngineAsset {
 	inline public function unsetDefine(name:String):Void
 		if (hasDefine(name)) {
 			info('Unset define "$name".');
-			this.defines.remove(name);
-			this.haxedefs.remove(name);
-			this.environment.remove(name);
+			defines.remove(name);
+			haxedefs.remove(name);
+			environment.remove(name);
 		}
 	/**
 	 * Check's if a define exists.
 	 * @param name The define key.
-	 * @return If true, the define exists.
+	 * @return If true the define exists.
 	 */
 	inline public function hasDefine(name:String):Bool
-		return this.defines.exists(name);
+		return defines.exists(name);
 
 	/**
 	 * Add a library to the list of dependencies for the project.
 	 * @param name The name of the library to add.
 	 * @param version The version of the library to add. Optional.
 	 */
-	inline public function addHaxelib(name:String, version:String = ''):Void
-		this.haxelibs.push(new Haxelib(name, version));
+	inline public function addHaxelib(name:String, ?version:LibraryVersion):Void {
+		var addLib:Bool = !FileSystem.exists('./.haxelib');
+		if (!addLib)
+			if (name != null && version != null)
+				addLib = FileSystem.exists('./.haxelib/$name/$version');
+			else if (name != null && version == null)
+				addLib = FileSystem.exists('./.haxelib/$name');
+		if (addLib) {
+			info('Added library "$name"${version == null ? '' : ' version "$version"'}.');
+			haxelibs.push(new Haxelib(name, version));
+		}
+	}
 
 	/**
 	 * Add a `haxeflag` to the project.
 	 * @param value The flag.
 	 */
 	inline public function addHaxeFlag(value:String):Void
-		this.haxeflags.push(value);
+		haxeflags.push(value);
 	/**
 	 * Call a Haxe build macro.
 	 * @param value The macro.
@@ -473,12 +511,12 @@ class EngineAsset {
 	 * @param size The size of the icon, optional.
 	 */
 	inline public function addIcon(icon:String, ?size:Int):Void
-		this.icons.push(new Icon(icon, size));
+		icons.push(new Icon(icon, size));
 	/**
 	 * Add an asset to the game build.
 	 * @param path The path the asset is located at.
 	 * @param rename The path the asset should be placed.
-	 * @param force If true, if the game find that the file already exists then it will replace that file.
+	 * @param force If true if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the asset to. `null` = "default"
 	 * @param embed Whether to embed the asset in the executable.
 	 */
@@ -490,7 +528,7 @@ class EngineAsset {
 	 * Add an entire path of assets to the game build.
 	 * @param path The path the assets are located at.
 	 * @param rename The path the assets should be placed.
-	 * @param force If true, if the game find that the file already exists then it will replace that file.
+	 * @param force If true if the game find that the file already exists then it will replace that file.
 	 * @param library The asset library to add the assets to. `null` = "default"
 	 * @param include An optional array to include specific asset names.
 	 * @param exclude An optional array to exclude specific asset names.
@@ -519,12 +557,11 @@ class EngineAsset {
 		} /* else
 			info('Found asset path "$path".'); */
 
-
 		if (FileSystem.isDirectory(path) || FileSystem.exists(path))
 			for (file in FileSystem.readDirectory(path)) {
 				if (FileSystem.isDirectory('$path/$file')) {
 					// Attempt to recursively add all assets in the directory.
-					if (this.filter(file, ['*'], exclude)) {
+					if (filter(file, ['*'], exclude)) {
 						var renamedFolder:String = file;
 						var willEmbed:Bool = file == 'embed';
 
@@ -538,7 +575,7 @@ class EngineAsset {
 						addAssetPath('$path/$file', '${Path.addTrailingSlash(targetPath)}$renamedFolder', force, library, include, exclude, willEmbed);
 					}
 				} else if (FileSystem.exists('$path/$file'))
-					if (this.filter(file, include, exclude)) {
+					if (filter(file, include, exclude)) {
 						var folderEmbedded:Bool = false;
 						var renamedFile:String = file;
 						var willEmbed:Bool = Path.extension(Path.withoutExtension(file)) == 'embed';
@@ -564,7 +601,7 @@ class EngineAsset {
 	 * @param preload
 	 */
 	inline public function addAssetLibrary(name:String, embed:Bool = false, preload:Bool = false):Void
-		this.libraries.push(new Library('', name, null, embed, preload, false, ''));
+		libraries.push(new Library('', name, null, embed, preload, false, ''));
 
 	/**
 	 * Display an error message. This should stop the build process.
@@ -575,56 +612,71 @@ class EngineAsset {
 	/**
 	 * Display an info message. This should not interfere with the build process.
 	 */
-	inline public function info(message:String):Void {
-		// CURSED: We have to disable info() log calls because of a bug.
-		// https://github.com/haxelime/lime-vscode-extension/issues/88
+	inline public function info(message:String):Void
+		if (command != 'display')
+			Log.info('[INFO] $message');
+}
 
-		// The bug they talk about is a thing, but unlike them it doesn't effect compiling for me lmfao.
-		// Log.info('[INFO] $message');
-	}
+abstract LibraryVersion(String) from String to String {
+	@:from inline public static function fromArray(from:Array<Int>):LibraryVersion
+		return from.join(',');
 }
 
 /**
- * An object representing a feature flag, which can be enabled or disabled.
- * Includes features such as automatic generation of compile defines and inversion.
+ * An object representing a compiler flag, which can be enabled or disabled.
+ * Includes features such as automatic generation of compile defines.
  */
 abstract CompilerFlag(String) {
 	static var parentProject(default, null):Project;
+	static var list:Array<String> = [];
 
-	public static function init(project:Project):Void
+	public static function init(project:Project):Void {
 		parentProject = project;
 
+		for (tag in list) {
+			var flag:CompilerFlag = tag;
+			if (parentProject.hasDefine(tag) && !flag.exists())
+				flag.enable();
+		}
+
+		if (parentProject.hasDefine('tracy')) {
+			new CompilerFlag('TRACY_DEBUGGER').enable();
+			parentProject.unsetDefine('tracy');
+		}
+	}
+
 	inline public function new(input:String)
-		this = input;
+		if (!list.contains(this = input))
+			list.push(this);
 
 	@:from inline public static function fromString(input:String):CompilerFlag
 		return new CompilerFlag(input);
 
 	/**
-	 * Enable this feature flag by setting the appropriate compile define.
+	 * Enable this compiler flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
-	inline public function enable(value:String = ''):Void
+	inline public function enable(?value:String):Void
 		if (!exists())
 			parentProject.setDefine(this, value);
 	/**
-	 * Enable this feature flag by setting the appropriate compile define.
+	 * Enable this compiler flag by setting the appropriate compile define.
 	 * @param value The flag value.
 	 */
-	inline public function softEnable(value:String = ''):Void
+	inline public function softEnable(?value:String):Void
 		if (!exists())
 			parentProject.setHaxedef(this, value);
 	/**
-	 * Disable this feature flag by removing the appropriate compile define.
+	 * Disable this compiler flag by removing the appropriate compile define.
 	 */
 	inline public function disable():Void
-		if (exists())
+		if (parentProject.hasDefine(this))
 			parentProject.unsetDefine(this);
-		else if (parentProject.hasHaxedef(this))
+		else if (exists()) // looks gross but makes sense
 			parentProject.unsetHaxedef(this);
 
 	/**
-	 * Query if this feature flag is enabled.
+	 * Query if this compiler flag exists.
 	 */
 	inline public function exists():Bool
 		return parentProject.hasHaxedef(this);

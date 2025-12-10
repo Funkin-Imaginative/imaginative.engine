@@ -8,44 +8,9 @@ import imaginative.backend.system.frontEnds.OverlayCameraFrontEnd;
 import thx.semver.Version;
 #end
 
-class Main extends Sprite {
+class Main extends openfl.display.Sprite {
 	/**
-	 * Direct access to stuff in the Main class.
-	 */
-	public static var direct:Main;
-
-	// might get rid of these till I figure out how to resize the shit properly
-	/**
-	 * Overlay Camera.
-	 */
-	public static var camera(default, set):FlxCamera;
-	inline static function set_camera(value:FlxCamera):FlxCamera {
-		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerObject('topCamera', value);
-		#end
-		return camera = value;
-	}
-	/**
-	 * Overlay camera manager.
-	 */
-	public static var cameras(default, null):OverlayCameraFrontEnd = new OverlayCameraFrontEnd();
-	/**
-	 * The group where overlay sprites will be loaded in.
-	 */
-	public static var overlay(default, set):FlxGroup;
-	inline static function set_overlay(value:FlxGroup):FlxGroup {
-		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerObject('overlayGroup', value);
-		#end
-		return overlay = value;
-	}
-
-	@:allow(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
-	static var _inputContainer:Sprite;
-
-	/**
-	 * The main mod that the engine will rely on. Think of it as a fallback.
-	 * This is usually stated as "funkin", aka base game.
+	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
 	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but were not normal! 😎
 	 */
 	inline public static final mainMod:String = Compiler.getDefine('GeneralAssetFolder');
@@ -62,65 +27,49 @@ class Main extends Sprite {
 	#end
 	#if CHECK_FOR_UPDATES
 	/**
-	 * If true, a new update was released for the engine!
+	 * If true a new update was released for the engine!
 	 */
 	public static var updateAvailable(default, null):Bool = false;
 	#end
 
 	// TODO: Figure out how to do this without creating these variables.
+	/**
+	 * The initial window width.
+	 */
 	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
+	/**
+	 * The initial window height.
+	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
-	inline public function new():Void {
-		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(openfl.events.UncaughtErrorEvent.UNCAUGHT_ERROR, CrashHandler.onCrash);
+	public function new():Void {
+		CrashHandler.init();
+		#if TRACY_DEBUGGER
+		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (_:openfl.events.Event) -> TracyProfiler.frameMark());
+		TracyProfiler.messageAppInfo('Imaginative Engine');
+		TracyProfiler.setThreadName('main');
+		#end
 
 		super();
 		direct = this;
 
 		FlxWindow.init();
+		SaveData.init();
 		Script.init();
 		#if DISCORD_RICH_PRESENCE
 		RichPresence.init();
 		#end
 
 		#if KNOWS_VERSION_ID
-		engineVersion = FlxWindow.direct.self.application.meta.get('version');
+		engineVersion = FlxWindow.instance.self.application.meta.get('version');
 		latestVersion = engineVersion;
 		#end
 
-		addChild(new FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, 60, 60, true));
-		FlxG.addChildBelowMouse(new EngineInfoText(), 1);
-		FlxG.addChildBelowMouse(_inputContainer = new Sprite(), 1);
-
-		cameras.reset();
-
-		#if FLX_DEBUG
-		FlxG.game.debugger.console.registerObject('overlayCameras', cameras);
-		#end
-
-		FlxG.signals.preGameReset.add(() -> {
-			if (overlay != null)
-				overlay.destroy();
-			beingReset = true;
-		});
-		FlxG.signals.postGameReset.add(() -> overlayCameraInit);
-		overlayCameraInit();
-
-		FlxG.signals.gameResized.add((width:Int, height:Int) -> cameras.resize());
-		FlxG.signals.postUpdate.add(() -> {
-			if (overlay != null)
-				overlay.update(FlxG.elapsed);
-			cameras.update(FlxG.elapsed);
-		});
-		FlxG.signals.preDraw.add(() -> cameras.lock);
-		FlxG.signals.postDraw.add(() -> {
-			if (overlay != null)
-				overlay.draw();
-			if (FlxG.renderTile)
-				cameras.render();
-			cameras.unlock();
-		});
+		hxhardware.CPU.init();
+		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
+		FlxG.game.focusLostFramerate = 30;
+		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 
 		// Was testing rating window caps.
 		/* // variables
@@ -151,20 +100,32 @@ class Main extends Sprite {
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
 	}
 
-	static var beingReset:Bool = true;
-	static function overlayCameraInit():Void {
-		if (beingReset)
-			beingReset = false;
-		else return;
+	/**
+	 * Returns the framerate value based on your settings.
+	 * @return Int ~ Wanted framerate.
+	 */
+	inline public static function getFPS():Int {
+		return switch (Settings.setup.fpsType) {
+			case Custom: Settings.setup.fpsCap;
+			case Unlimited: 950; // not like you'll ever actually reach this
+			case Vsync: #if linux 60 #else FlxWindow.instance.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
+		}
+	}
 
-		overlay = new FlxGroup();
-		overlay.cameras = [camera];
-
-		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
-		erect.screenCenter();
-		overlay.add(erect); */
-
-		GlobalScript.call('onOverlayCameraInit');
+	/**
+	 * Sets the current framerate.
+	 * @param value The desired framerate.
+	 * @return Int ~ Desired framerate.
+	 */
+	inline public static function setFPS(value:Int):Int {
+		if (value > FlxG.drawFramerate) {
+			FlxG.updateFramerate = value;
+			FlxG.drawFramerate = value;
+		} else {
+			FlxG.drawFramerate = value;
+			FlxG.updateFramerate = value;
+		}
+		return value;
 	}
 }
 

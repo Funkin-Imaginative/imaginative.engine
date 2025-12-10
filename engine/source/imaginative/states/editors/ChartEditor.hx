@@ -5,13 +5,13 @@ typedef ChartNote = {
 	 * The note direction id.
 	 */
 	var id:Int;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The length of a sustain in steps.
 	 */
 	@:default(0) var length:Float;
+	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
 	 * The note position in steps.
 	 */
 	var time:Float;
@@ -22,7 +22,7 @@ typedef ChartNote = {
 	/**
 	 * The note type.
 	 */
-	var type:String;
+	@:default('') var ?type:String;
 }
 
 typedef ChartField = {
@@ -33,7 +33,7 @@ typedef ChartField = {
 	/**
 	 * Characters to be assigned as singers for this field.
 	 */
-	var characters:Array<String>;
+	var ?characters:Array<String>;
 	/**
 	 * Array of notes to load.
 	 */
@@ -42,6 +42,10 @@ typedef ChartField = {
 	 * The independent field scroll speed.
 	 */
 	var ?speed:Float;
+	/**
+	 * The starting strum count of the field.
+	 */
+	@:default(4) var ?startCount:Int;
 }
 
 typedef ChartCharacter = {
@@ -75,14 +79,25 @@ typedef FieldSettings = {
 	/**
 	 * The enemy field.
 	 */
-	var enemy:String;
+	var ?enemy:String;
 	/**
 	 * The player field.
 	 */
-	var player:String;
+	var ?player:String;
 }
 
 typedef ChartEvent = {
+	// NOTE: As of rn this is actually in milliseconds!!!!!
+	/**
+	 * The event position in steps.
+	 */
+	var time:Float;
+	/**
+	 * Each event to trigger.
+	 */
+	var data:Array<ChartSubEvent>;
+}
+typedef ChartSubEvent = {
 	/**
 	 * The event name.
 	 */
@@ -90,27 +105,18 @@ typedef ChartEvent = {
 	/**
 	 * The event parameters.
 	 */
-	var params:Array<JsonDynamic>;
-	/**
-	 * NOTE: As of rn this is actually in milliseconds!!!!!
-	 * The event position in steps.
-	 */
-	var time:Float;
-	/**
-	 * This is used for event stacking detection.
-	 */
-	@:default(0) var ?sub:Int;
+	var params:Map<String, Dynamic>;
 }
 
 typedef ChartData = {
 	/**
 	 * The song scroll speed.
 	 */
-	@:default(2.6) var speed:Float;
+	@:default(2.6) var ?speed:Float;
 	/**
 	 * The stage this song will take place.
 	 */
-	@:default('void') var stage:String;
+	@:default('void') var ?stage:String;
 	/**
 	 * Array of arrow fields to load.
 	 */
@@ -118,7 +124,7 @@ typedef ChartData = {
 	/**
 	 * Array of characters to load.
 	 */
-	var characters:Array<ChartCharacter>;
+	var ?characters:Array<ChartCharacter>;
 	/**
 	 * Field settings.
 	 */

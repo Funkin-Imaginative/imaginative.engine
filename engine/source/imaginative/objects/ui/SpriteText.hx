@@ -36,7 +36,10 @@ typedef SpriteTextCharacterSetup = {
 	/**
 	 * The offset for the set character.
 	 */
-	@:default({x: 0, y: 0}) var offset:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offset:Position;
 	/**
 	 * The character type.
 	 */
@@ -64,6 +67,7 @@ typedef SpriteTextSetup = {
 	@:default(50) var spaceWidth:Float;
 }
 
+// TODO: Get this functioning.
 /**
  * SpriteText is this engines version of the alphabet class.
  */
@@ -119,9 +123,9 @@ class SpriteTextLine extends FlxTypedSpriteGroup<SpriteTextCharacter> {
 	 */
 	public var id(default, null):Int = -1;
 	/**
-	 * Allow's the parent to set the id.
+	 * Allows the parent to set the id.
 	 * @param value The new id.
-	 * @return `Int` The new id.
+	 * @return Int The new id.
 	 */
 	@:allow(imaginative.objects.ui.SpriteText)
 	inline function set_id(value:Int):Int
@@ -209,15 +213,15 @@ class SpriteTextLine extends FlxTypedSpriteGroup<SpriteTextCharacter> {
 	}
 
 	/**
-	 * Get's the parent SpriteText's fieldSize.y.
-	 * @return `Float` The parent field height.
+	 * Gets the parent 'SpriteText's "fieldSize.y".
+	 * @return Float The parent field height.
 	 */
 	inline public function getParentHeight():Float
 		return parent.fieldSize.y;
 }
 
 /**
- * SpriteTextCharacter's are the individual characters of a SpriteText.
+ * 'SpriteTextCharacter's are the individual characters of a 'SpriteText'.
  */
 class SpriteTextCharacter extends FlxSkewedSprite {
 	/**
@@ -229,9 +233,9 @@ class SpriteTextCharacter extends FlxSkewedSprite {
 	 */
 	public var id(default, null):Int = -1;
 	/**
-	 * Allow's the parent to set the id.
+	 * Allows the parent to set the id.
 	 * @param value The new id.
-	 * @return `Int` The new id.
+	 * @return Int The new id.
 	 */
 	@:allow(imaginative.objects.ui.SpriteTextLine)
 	inline function set_id(value:Int):Int
@@ -247,14 +251,14 @@ class SpriteTextCharacter extends FlxSkewedSprite {
 	 */
 	public var character:String;
 	/**
-	 * If true, the character sprite is bold.
+	 * If true the character sprite is bold.
 	 */
 	public var isBold(default, set):Bool = false;
 	inline function set_isBold(value:Bool):Bool {
 		return isBold = value;
 	}
 	/**
-	 * If true, the character sprite is italic.
+	 * If true the character sprite is italic.
 	 */
 	public var isItalic(default, set):Bool = false;
 	inline function set_isItalic(value:Bool):Bool {
@@ -270,8 +274,8 @@ class SpriteTextCharacter extends FlxSkewedSprite {
 	}
 
 	/**
-	 * Get's the parent SpriteText's fieldSize.y.
-	 * @return `Float` The parent field height.
+	 * Gets the parent 'SpriteText's "fieldSize.y".
+	 * @return Float The parent field height.
 	 */
 	inline public function getParentWidth():Float
 		return parent.parent.fieldSize.x;
