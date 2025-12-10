@@ -201,7 +201,7 @@ class FunkinUtil {
 		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
-		return Browser.window.performance.now();
+		return js.Browser.window.performance.now();
 		#elseif (lime_cffi && !macro)
 		@:privateAccess
 		return cast lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
