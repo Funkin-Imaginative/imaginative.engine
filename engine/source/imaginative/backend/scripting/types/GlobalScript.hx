@@ -11,10 +11,9 @@ class GlobalScript {
 
 	static function getScriptImports():Map<String, Dynamic>
 		return [
-			'scripts' => scripts,
-			'loadScript' => loadScript,
-			'call' => call,
-			'event' => event,
+			'__scripts__' => scripts,
+			'scriptCall' => call,
+			'eventCall' => event
 		];
 
 	@:allow(imaginative.states.EngineProcess)
@@ -22,7 +21,7 @@ class GlobalScript {
 		if (scripts != null)
 			scripts.end();
 
-		scripts = new ScriptGroup();
+		scripts = new ScriptGroup(Main.overlay);
 		for (script in Script.create('lead:content/global'))
 			scripts.add(script);
 		for (name => thing in getScriptImports())

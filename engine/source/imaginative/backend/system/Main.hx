@@ -1,9 +1,6 @@
 package imaginative.backend.system;
 
 import haxe.macro.Compiler;
-import flixel.FlxGame;
-import openfl.display.Sprite;
-import imaginative.backend.system.frontEnds.OverlayCameraFrontEnd;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
@@ -42,6 +39,28 @@ class Main extends openfl.display.Sprite {
 	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
+	// overlay camera
+	/**
+	 * Overlay Camera.
+	 */
+	public static var camera(default, set):BaseCamera;
+	inline static function set_camera(value:BaseCamera):BaseCamera {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('topCamera', value);
+		#end
+		return camera = value;
+	}
+	/**
+	 * The group where overlay sprites will be loaded in.
+	 */
+	public static var overlay(default, set):BeatGroup;
+	inline static function set_overlay(value:BeatGroup):BeatGroup {
+		#if FLX_DEBUG
+		FlxG.game.debugger.console.registerObject('overlayGroup', value);
+		#end
+		return overlay = value;
+	}
+
 	@:access(imaginative.backend.system.frontEnds.OverlayCameraFrontEnd)
 	public function new():Void {
 		CrashHandler.init();
@@ -52,7 +71,6 @@ class Main extends openfl.display.Sprite {
 		#end
 
 		super();
-		direct = this;
 
 		FlxWindow.init();
 		SaveData.init();
@@ -70,6 +88,40 @@ class Main extends openfl.display.Sprite {
 		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
+
+		FlxG.cameras.cameraAdded.add((cam:FlxCamera) -> {
+			if (camera == null || !camera.exists)
+				camera = new BaseCamera('Overlay Camera');
+			if (cam != camera) {
+				if (FlxG.cameras.list.contains(camera))
+					FlxG.cameras.remove(camera, false);
+				if (!FlxG.cameras.list.contains(camera)) // jic ig?
+					FlxG.cameras.add(camera, false);
+			}
+		});
+		FlxG.cameras.cameraRemoved.add((cam:FlxCamera) ->
+			if (cam == camera && (camera == null || !camera.exists))
+				FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false)
+		);
+
+		FlxG.signals.preGameReset.add(() -> {
+			if (overlay != null)
+				overlay.destroy();
+			beingReset = true;
+		});
+		FlxG.signals.postGameReset.add(() -> overlayCameraInit);
+		overlayCameraInit();
+
+		FlxG.signals.postUpdate.add(() ->
+			if (overlay != null) {
+				overlay.cameras = camera == null ? [] : [camera];
+				overlay.update(FlxG.elapsed);
+			}
+		);
+		FlxG.signals.postDraw.add(() ->
+			if (overlay != null)
+				overlay.draw()
+		);
 
 		// Was testing rating window caps.
 		/* // variables
@@ -98,6 +150,24 @@ class Main extends openfl.display.Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
+	}
+
+	static var beingReset:Bool = true;
+	static function overlayCameraInit():Void {
+		if (beingReset)
+			beingReset = false;
+		else return;
+
+		if (camera == null || !camera.exists)
+			FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false);
+		overlay = new BeatGroup();
+		GlobalScript.scripts.parent = overlay; // jic
+
+		var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
+		erect.screenCenter();
+		overlay.add(erect);
+
+		GlobalScript.call('onOverlayCameraInit');
 	}
 
 	/**
