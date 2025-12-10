@@ -1,7 +1,6 @@
 package imaginative.backend.system;
 
 import haxe.macro.Compiler;
-import lime.graphics.Image;
 #if KNOWS_VERSION_ID
 import thx.semver.Version;
 #end
@@ -69,7 +68,7 @@ class Main extends openfl.display.Sprite {
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 		#if (!windows)
-		FlxG.stage.window.setIcon(Image.fromFile('icon.png'));
+		FlxG.stage.window.setIcon(lime.graphics.Image.fromFile('icon.png'));
 		#end
 
 		// Was testing rating window caps.

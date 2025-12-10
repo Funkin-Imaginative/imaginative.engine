@@ -49,8 +49,10 @@ class EngineInfoText extends Sprite {
 
 			text.text = [
 				'Framerate: ${framesPerSecond}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
+				#if cpp
 				'Memory: ${Memory.getProcessPhysicalMemoryUsage().formatBytes()} / ${Memory.getProcessPeakPhysicalMemoryUsage().formatBytes()}',
 				'CPU: ${FlxMath.roundDecimal(CPU.getProcessCPUUsage(), 2)}% / ${FlxMath.roundDecimal(CPU.getProcessPeakCPUUsage(), 2)}%',
+				#end
 				'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 			].join('\n');
 
