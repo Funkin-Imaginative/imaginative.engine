@@ -274,7 +274,8 @@ class EngineAsset {
 		/* Path Settings */
 
 		/* Libraries */
-		addHaxelib('hxp');
+		addHaxelib('hxhardware');
+		addHaxelib('hxp'); // is need apparently???
 		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
 		addHaxelib('lime');

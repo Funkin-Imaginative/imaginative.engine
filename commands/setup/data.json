@@ -1,6 +1,11 @@
 {
 	"dependencies": [
-		{ "name": "checkstyle" },
+		{
+			"name": "hxhardware",
+			"version": "git",
+			"branch": "main",
+			"url": "https://github.com/Vortex2Oblivion/hxhardware/"
+		},
 
 		{ "name": "hxWindowColorMode" },
 

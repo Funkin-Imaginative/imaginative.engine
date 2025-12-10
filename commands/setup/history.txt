@@ -1,4 +1,4 @@
-haxelib install checkstyle
+haxelib git hxhardware https://github.com/Vortex2Oblivion/hxhardware/ main
 haxelib install hxWindowColorMode
 haxelib install flixel-addons --skip-dependencies
 haxelib install flixel --skip-dependencies

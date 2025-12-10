@@ -61,6 +61,7 @@ class Main extends openfl.display.Sprite {
 		latestVersion = engineVersion;
 		#end
 
+		hxhardware.CPU.init();
 		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
