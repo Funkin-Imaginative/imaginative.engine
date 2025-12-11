@@ -92,8 +92,15 @@ class Main extends openfl.display.Sprite {
 		FlxG.stage.window.setIcon(lime.graphics.Image.fromFile('icon.png'));
 		#end
 
+		FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false);
+		overlay = new BeatGroup();
+
+		/* var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
+		erect.screenCenter();
+		overlay.add(erect); */
+
 		FlxG.cameras.cameraAdded.add((cam:FlxCamera) -> {
-			if (camera == null || !camera.exists)
+			if (!camera.exists)
 				camera = new BaseCamera('Overlay Camera');
 			if (cam != camera) {
 				if (FlxG.cameras.list.contains(camera))
@@ -102,22 +109,12 @@ class Main extends openfl.display.Sprite {
 					FlxG.cameras.add(camera, false);
 			}
 		});
-		FlxG.cameras.cameraRemoved.add((cam:FlxCamera) ->
-			if (cam == camera && (camera == null || !camera.exists))
-				FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false)
-		);
 
-		FlxG.signals.preGameReset.add(() -> {
-			if (overlay != null)
-				overlay.destroy();
-			beingReset = true;
-		});
-		FlxG.signals.postGameReset.add(() -> overlayCameraInit);
-		overlayCameraInit();
-
+		FlxG.signals.preStateSwitch.add(() -> FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false));
 		FlxG.signals.postUpdate.add(() ->
 			if (overlay != null) {
-				overlay.cameras = camera == null ? [] : [camera];
+				camera.bgColor = FlxColor.TRANSPARENT;
+				overlay.cameras = [camera];
 				overlay.update(FlxG.elapsed);
 			}
 		);
@@ -153,24 +150,6 @@ class Main extends openfl.display.Sprite {
 		bad = FunkinUtil.undoPercent(bad, cap, 1);
 		shit = FunkinUtil.undoPercent(shit, cap, 1);
 		trace('Milliseconds ~ Killer: $killer, Sick: $sick, Good: $good, Bad: $bad, Shit: $shit'); */
-	}
-
-	static var beingReset:Bool = true;
-	static function overlayCameraInit():Void {
-		if (beingReset)
-			beingReset = false;
-		else return;
-
-		if (camera == null || !camera.exists)
-			FlxG.cameras.add(camera = new BaseCamera('Overlay Camera'), false);
-		overlay = new BeatGroup();
-		GlobalScript.scripts.parent = overlay; // jic
-
-		var erect:BaseSprite = new BaseSprite('ui/difficulties/erect');
-		erect.screenCenter();
-		overlay.add(erect);
-
-		GlobalScript.call('onOverlayCameraInit');
 	}
 
 	/**
