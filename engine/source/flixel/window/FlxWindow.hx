@@ -112,6 +112,13 @@ class FlxWindow implements IFlxDestroyable {
 		return self.display.bounds.height;
 
 	/**
+	 * The refresh rate of the monitor.
+	 */
+	public var monitorRefreshRate(get, never):Int;
+	inline function get_monitorRefreshRate():Int
+		return #if linux imaginative.backend.native.Native.getLinuxMonitorRefreshRate() #else self.displayMode.refreshRate #end;
+
+	/**
 	 * The x position of the window.
 	 */
 	public var x(get, set):Float;
@@ -221,7 +228,7 @@ class FlxWindow implements IFlxDestroyable {
 	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		FlxWindow.instance = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
-		imaginative.backend.system.Native.fixScaling();
+		imaginative.backend.native.Native.fixScaling();
 	}
 
 	/**

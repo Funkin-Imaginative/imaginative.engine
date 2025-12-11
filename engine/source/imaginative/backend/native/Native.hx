@@ -1,9 +1,9 @@
-package imaginative.backend.system;
+package imaginative.backend.native;
 
 import lime.system.Display;
 import lime.system.System;
 
-#if (cpp && windows)
+#if windows
 @:buildXml('
 <target id="haxe">
 	<lib name="dwmapi.lib" if="windows"/>
@@ -52,6 +52,10 @@ void getHandle() {
 }
 ')
 #end
+#if linux
+@:buildXml('<include name="../../../../engine/source/imaginative/backend/native/build.xml" />')
+@:include('refreshrate.hpp')
+#end
 /**
  * Basically taken from psych since idk how tf to avoid the issue :sob:.
  * https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
@@ -63,7 +67,7 @@ class Native {
 		registerDPIAware();
 
 	public static function registerDPIAware():Void {
-		#if (cpp && windows)
+		#if windows
 		// DPI Scaling fix for windows
 		// this shouldn't be needed for other systems
 		// Credit to YoshiCrafter29 for finding this function
@@ -87,7 +91,7 @@ class Native {
 		if (fixedScaling) return;
 		fixedScaling = true;
 
-		#if (cpp && windows)
+		#if windows
 		final display:Null<Display> = System.getDisplay(0);
 		if (display != null) {
 			final dpiScale:Float = display.dpi / 96;
@@ -108,4 +112,7 @@ class Native {
 		');
 		#end
 	}
+
+	@:native('getMonitorRefreshRate')
+	extern static function getLinuxMonitorRefreshRate():cpp.Int16;
 }
