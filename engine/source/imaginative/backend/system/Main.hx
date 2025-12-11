@@ -61,9 +61,13 @@ class Main extends openfl.display.Sprite {
 		latestVersion = engineVersion;
 		#end
 
+		hxhardware.CPU.init();
 		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
+		#if (!windows)
+		FlxG.stage.window.setIcon(lime.graphics.Image.fromFile('icon.png'));
+		#end
 
 		// Was testing rating window caps.
 		/* // variables
@@ -102,7 +106,7 @@ class Main extends openfl.display.Sprite {
 		return switch (Settings.setup.fpsType) {
 			case Custom: Settings.setup.fpsCap;
 			case Unlimited: 950; // not like you'll ever actually reach this
-			case Vsync: #if linux 60 #else FlxWindow.instance.self.displayMode.refreshRate #end; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
+			case Vsync: FlxWindow.instance.monitorRefreshRate; // @Rudyrue and @superpowers04 said it's better with `* 2`? For now I'm just not gonna do that.
 		}
 	}
 

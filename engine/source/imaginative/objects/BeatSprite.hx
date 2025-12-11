@@ -50,7 +50,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public var beatInterval(default, set):Int = 0;
 	inline function set_beatInterval(value:Int):Int
-		return beatInterval = value < 1 ? (hasSway ? 1 : 2) : value;
+		return beatInterval = value < 1 ? (type == IsHealthIcon || hasSway ? 1 : 2) : value;
 
 	/**
 	 * If true the dance will still happen, even if the beat numbers are in the negatives.
@@ -62,7 +62,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public var hasSway(get, never):Bool; // Replaced "danceLeft" with "idle" and "danceRight" with "sway".
 	inline function get_hasSway():Bool
-		return animation.exists('sway$idleSuffix') ? true : animation.exists('sway');
+		return doesAnimExist('sway$idleSuffix', true) ? true : doesAnimExist('sway', true);
 	/**
 	 * If true it prevents the idle animation from playing altogether.
 	 */

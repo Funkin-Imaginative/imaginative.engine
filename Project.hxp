@@ -269,7 +269,8 @@ class EngineAsset {
 		/* Path Settings */
 
 		/* Libraries */
-		addHaxelib('hxp');
+		addHaxelib('hxhardware');
+		addHaxelib('hxp'); // is need apparently???
 		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
 		addHaxelib('lime');
@@ -511,8 +512,14 @@ class EngineAsset {
 	 * @param icon The path to the icon.
 	 * @param size The size of the icon, optional.
 	 */
-	inline public function addIcon(icon:String, ?size:Int):Void
+	inline public function addIcon(icon:String, ?size:Int):Void {
+		#if !windows
+		if(icons.length <= 0) {
+			addAsset(icon, "./icon.png");
+		}
+		#end
 		icons.push(new Icon(icon, size));
+	}
 	/**
 	 * Add an asset to the game build.
 	 * @param path The path the asset is located at.

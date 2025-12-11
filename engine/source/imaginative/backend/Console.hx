@@ -94,7 +94,7 @@ class Console {
 
 		var message:String = formatValueInfo(value);
 		if (extra != null && !extra.empty())
-			message += extra.formatArray();
+			message += formatValueInfo(extra);
 		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);
@@ -112,9 +112,9 @@ class Console {
 	public static function log(value:Dynamic, level:LogLevel = LogMessage, from:LogFrom = FromSource, ?infos:PosInfos):Void {
 		// When compiling debug it's basically forced off the DebugMessage level in a sense.
 		#if !debug
-		if (Settings.setup.debugMode && level != DebugMessage)
+		if (Settings?.setup?.debugMode ?? false && level != DebugMessage)
 			return;
-		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
+		if (Settings?.setup?.ignoreLogWarnings ?? false && level != WarningMessage)
 			return;
 		#end
 		Sys.println(formatLogInfo(value, level, infos.fileName, infos.lineNumber, infos.customParams, from));
@@ -129,9 +129,9 @@ class Console {
 	public static function _log(value:Dynamic, level:LogLevel = SystemMessage, from:LogFrom = FromSource):Void {
 		// When compiling debug it's basically forced off the DebugMessage level in a sense.
 		#if !debug
-		if (Settings.setup.debugMode && level != DebugMessage)
+		if (Settings?.setup?.debugMode ?? false && level != DebugMessage)
 			return;
-		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
+		if (Settings?.setup?.ignoreLogWarnings ?? false && level != WarningMessage)
 			return;
 		#end
 		Sys.println(formatLogInfo(value, level, '', from));

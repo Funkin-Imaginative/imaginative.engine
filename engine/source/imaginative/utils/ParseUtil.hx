@@ -3,105 +3,6 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
-// MAYBE: Might end up not using.
-/**
- * Used for parsing extra data from json files.
- */
-@SuppressWarnings('checkstyle:FieldDocComment')
-abstract ParseDynamic(Dynamic) from ExtraData from Int from Float from Bool from String {
-	@:to inline public function toInt():Int {
-		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
-		return switch (Type.getClass(target)) {
-			case Int: target;
-			case Float: Math.round(target);
-			case Bool: target ? 1 : 0;
-			case String: Std.parseInt(target);
-			default: cast target;
-		}
-	}
-	@:to inline public function toFloat():Float {
-		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
-		return switch (Type.getClass(target)) {
-			case Int: target;
-			case Float: target;
-			case Bool: target ? 1 : 0;
-			case String: Std.parseFloat(target);
-			default: cast target;
-		}
-	}
-	@:to inline public function toBool():Bool {
-		var target:Dynamic = Type.getClass(this) == ExtraData ? this.data : this;
-		return switch (Type.getClass(target)) {
-			case Int: target > 0;
-			case Float: target > 0;
-			case Bool: target;
-			case String: target == 'true';
-			default: cast target;
-		}
-	}
-	@:to inline public function toString():String
-		return Std.string(Type.getClass(this) == ExtraData ? this.data : this);
-}
-
-/**
- * Used for parsing colors from json files.
- */
-@SuppressWarnings('checkstyle:FieldDocComment')
-abstract ParseColor(String) {
-	public var red(get, set):Int;
-	inline function get_red():Int
-		return toFlxColor().red;
-	inline function set_red(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.red = value;
-		this = fromFlxColor(color);
-		return color.red;
-	}
-	public var green(get, set):Int;
-	inline function get_green():Int
-		return toFlxColor().green;
-	inline function set_green(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.green = value;
-		this = fromFlxColor(color);
-		return color.green;
-	}
-	public var blue(get, set):Int;
-	inline function get_blue():Int
-		return toFlxColor().blue;
-	inline function set_blue(value:Int):Int {
-		var color:FlxColor = toFlxColor();
-		color.blue = value;
-		this = fromFlxColor(color);
-		return color.blue;
-	}
-
-	inline public function nullCheck(nullColor:ParseColor):ParseColor
-		return this ??= nullColor;
-
-	@:from inline public static function fromString(from:String):ParseColor
-		return cast FlxColor.fromString(from ?? 'white').toWebString();
-	@:to inline public function toString():String
-		return this ?? '#FFFFFF';
-
-	@:from inline public static function fromInt(from:Int):ParseColor
-		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
-	@:to inline public function toInt():Int
-		return FlxColor.fromString(this ?? 'white');
-
-	@:from inline public static function fromFlxColor(from:FlxColor):ParseColor
-		return FlxColor.fromInt(from ?? FlxColor.WHITE).toWebString();
-	@:to inline public function toFlxColor():FlxColor
-		return FlxColor.fromString(this ?? 'white');
-
-	@:from inline public static function fromArray(from:Array<Int>):ParseColor
-		return fromInt(FlxColor.fromRGB(from[0] ?? 255, from[1] ?? 255, from[2] ?? 255));
-	@:to inline public function toArray():Array<Int> {
-		var color:FlxColor = toFlxColor();
-		return [color.red ?? 255, color.green ?? 255, color.blue ?? 255];
-	}
-}
-
 typedef GamemodesTyping = {
 	/**
 	 * If true this song allows you to play as the enemy.
@@ -113,26 +14,37 @@ typedef GamemodesTyping = {
 	@:default(false) var p2AsEnemy:Bool;
 }
 
-@:structInit class ExtraData {
-	/**
-	 * Name of the data.
-	 */
-	public var name:String;
-	/**
-	 * The data contents.
-	 */
-	public var data:ParseDynamic;
-
-	public function new(name:String, ?data:ParseDynamic) {
-		this.name = name;
-		this.data = data;
-	}
-}
-
 /**
  * This util is for all your parsing needs.
  */
 class ParseUtil {
+	/**
+	 * Removes comments in json files, allowing for parsing commented json's!
+	 * @param jsonContents The contents of the json file.
+	 * @return String
+	 * @author Made by @NebulaStellaNova, cleaned up by @rodney528.
+	 */
+	public static function removeJsonComments(jsonContents:String):String {
+		var lineSplit:Array<String> = jsonContents.split('');
+		var isComment:Bool = false;
+		var isString:Bool = false;
+		var result:String = '';
+		for (i => char in lineSplit) {
+			if (char == '"')
+				isString = !isString;
+			else if (!isString)
+				if (char == '/' && lineSplit[i + 1] == '/')
+					isComment = true;
+			if (!isComment)
+				result += char;
+			else if (char == '\n') {
+				isComment = false;
+				result += char;
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Parses a json file.
 	 * @param file The mod path.
@@ -140,7 +52,7 @@ class ParseUtil {
 	 */
 	inline public static function json(file:ModPath):Dynamic {
 		var jsonPath:ModPath = Paths.json(file);
-		return Assets.json(Assets.text(jsonPath), jsonPath);
+		return Assets.json(removeJsonComments(Assets.text(jsonPath)), jsonPath);
 	}
 
 	/**
@@ -150,7 +62,7 @@ class ParseUtil {
 	 */
 	inline public static function difficulty(key:String):DifficultyData {
 		var jsonPath:ModPath = Paths.difficulty(key);
-		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		contents.display = contents.display ?? key;
 		return contents;
 	}
@@ -162,21 +74,17 @@ class ParseUtil {
 	 */
 	public static function level(name:ModPath):LevelData {
 		var jsonPath:ModPath = Paths.level(name);
-		var contents:LevelParse = new JsonParser<LevelParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		var contents:LevelData = new JsonParser<LevelData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		for (i => data in contents.objects) {
 			data.flip ??= ((i + 1) > Math.floor(contents.objects.length / 2));
 			data.willHey ??= (i == Math.floor(contents.objects.length / 2));
 		}
-		var songs:Array<SongData> = [
-			for (song in contents.songs)
-				ParseUtil.song(song)
-		];
-		for (song in songs)
+		for (song in contents.songs)
 			song.color = song.color == null ? contents.color : song.color;
 		return {
 			name: name.path,
 			title: contents.title,
-			songs: songs,
+			songs: contents.songs,
 			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
 			difficulties: [
 				for (difficulty in contents.difficulties)
@@ -190,7 +98,7 @@ class ParseUtil {
 					variant.toLowerCase()
 			],
 			objects: contents.objects,
-			color: contents.color.nullCheck('#F9CF51')
+			color: contents.color ?? 0xFFF9CF51
 		}
 	}
 
@@ -202,93 +110,12 @@ class ParseUtil {
 	 */
 	public static function object(file:ModPath, type:SpriteType):SpriteData {
 		var jsonPath:ModPath = Paths.object(file);
-		var typeData:SpriteData = new JsonParser<SpriteData>().fromJson(Assets.text(jsonPath), jsonPath.format());
-		var tempData:Dynamic = json(jsonPath);
-
-		var charData:CharacterData = null;
-		if (type == IsCharacterSprite && tempData._has('character')) {
-			var gottenData:CharacterData = null;
-			var typeData:SpriteData = typeData;
-			try {
-				gottenData = json(jsonPath).character;
-				typeData.character.color = FlxColor.fromString(gottenData.color);
-			} catch(error:haxe.Exception)
-				log(error.message, ErrorMessage);
-			charData = {
-				camera: new Position(typeData.character.camera._get('x'), typeData.character.camera._get('y')),
-				color: typeData.character.color,
-				icon: typeData.character.icon,
-				singlength: typeData.character.singlength
-			}
-		}
-
-		var beatData:BeatData = null;
-		if (type.isBeatType && tempData._has('beat')) {
-			var typeData:BeatData = typeData.beat;
-			beatData = {
-				interval: typeData.interval,
-				skipnegative: typeData.skipnegative
-			}
-		}
-
-		var data:Dynamic = {}
-		if (typeData._has('offsets'))
-			try {
-				data.offsets = {
-					position: new Position(typeData.offsets.position._get('x'), typeData.offsets.position._get('y')),
-					flip: new TypeXY<Bool>(typeData.offsets.flip._get('x'), typeData.offsets.flip._get('y')),
-					scale: new Position(typeData.offsets.scale._get('x'), typeData.offsets.scale._get('y'))
-				}
-			} catch(error:haxe.Exception) {
-				data.offsets = {
-					position: new Position(),
-					flip: new TypeXY<Bool>(false, false),
-					scale: new Position(1, 1)
-				}
-			}
-		else
-			data.offsets = {
-				position: new Position(),
-				flip: new TypeXY<Bool>(false, false),
-				scale: new Position(1, 1)
-			}
-
-		data.asset = typeData.asset;
-		if (typeData.asset._has('dimensions'))
-			data.asset.dimensions = new TypeXY<Int>(typeData.asset.dimensions._get('x') ?? 0, typeData.asset.dimensions._get('y') ?? 0);
-		data.animations = [];
-		for (anim in typeData.animations) {
-			var slot:AnimationTyping = cast {}
-			slot.name = anim.name;
-			if (anim._has('tag')) slot.tag = anim.tag ?? slot.name;
-			if (anim._has('swapKey')) slot.swapKey = anim.swapKey ?? '';
-			if (anim._has('flipKey')) slot.flipKey = anim.flipKey ?? '';
-			slot.indices = anim.indices ?? [];
-			slot.offset = new Position(anim.offset._get('x'), anim.offset._get('y'));
-			slot.flip = new TypeXY<Bool>(anim.flip._get('x'), anim.flip._get('y'));
-			slot.loop = anim.loop ?? false;
-			slot.fps = anim.fps ?? 24;
-			data.animations.push(slot);
-		}
-
-		if (typeData._has('starting')) {
-			try {
-				data.starting = {
-					position: new Position(typeData.starting.position._get('x'), typeData.starting.position._get('y')),
-					flip: new TypeXY<Bool>(typeData.starting.flip._get('x'), typeData.starting.flip._get('y')),
-					scale: new Position(typeData.starting.scale._get('x'), typeData.starting.scale._get('y'))
-				}
-			} catch(error:haxe.Exception) {}
-		}
-
-		data.swapAnimTriggers = typeData.swapAnimTriggers;
-		data.flipAnimTrigger = typeData.flipAnimTrigger;
-		data.antialiasing = typeData.antialiasing;
-
-		if (charData != null) data.character = charData;
-		if (beatData != null) data.beat = beatData;
-
-		return data;
+		var typeData:SpriteData = new JsonParser<SpriteData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
+		if (type != IsCharacterSprite) typeData._set('character', null);
+		if (!type.isBeatType) typeData._set('beat', null);
+		// trace('PRE WRITE (file:${file.format()}) ', haxe.Json.stringify(typeData, '\t'));
+		// trace('POST WRITE (file:${file.format()}) ', new json2object.JsonWriter<SpriteData>(true).write(typeData, '\t'));
+		return typeData;
 	}
 
 	/**
@@ -300,7 +127,7 @@ class ParseUtil {
 	 */
 	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
-		return new JsonParser<ChartData>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		return new JsonParser<ChartData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 	}
 
 	/**
@@ -310,7 +137,7 @@ class ParseUtil {
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
 		var jsonPath:ModPath = Paths.spriteFont(font);
-		return new JsonParser<SpriteTextSetup>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		return new JsonParser<SpriteTextSetup>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 	}
 
 	/**
@@ -320,7 +147,7 @@ class ParseUtil {
 	 */
 	public static function song(name:ModPath):SongData {
 		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
-		var contents:SongParse = new JsonParser<SongParse>().fromJson(Assets.text(jsonPath), jsonPath.format());
+		var contents:SongData = new JsonParser<SongData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,
 			folder: name.path,

@@ -4,15 +4,24 @@ typedef ObjectSetupData = {
 	/**
 	 * Position value.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var position:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?position:Position;
 	/**
 	 * Flip value.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false)) var flip:TypeXY<Bool>;
+	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false))
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
+	var ?flip:TypeXY<Bool>;
 	/**
 	 * Scale value.
 	 */
-	@:default(new imaginative.backend.objects.Position(1, 1)) var scale:Position;
+	@:default(new imaginative.backend.objects.Position(1, 1))
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?scale:Position;
 }
 
 typedef AssetTyping = {
@@ -23,12 +32,14 @@ typedef AssetTyping = {
 	/**
 	 * Texture type.
 	 */
-	@:default('Unknown') var type:TextureType;
+	@:default(imaginative.backend.interfaces.ITexture.TextureType.IsUnknown) var type:TextureType;
 	/**
 	 * Height and width dimensions.
 	 * Only if texture type is a graphic.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Int>(150, 150)) var ?dimensions:TypeXY<Int>;
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseIntOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeIntOp)
+	var ?dimensions:TypeXY<Int>;
 }
 
 typedef AnimationTyping = {
@@ -39,49 +50,61 @@ typedef AnimationTyping = {
 	/**
 	 * Animation key on data method.
 	 */
-	var ?tag:String;
+	var tag:String;
 	/**
 	 * The specified frames to use in the animation.
 	 * For graphic's this is the specified as the frames array in the add function.
 	 */
-	var indices:Array<Int>;
+	var ?indices:Array<Int>;
 	/**
 	 * The offset for the set animation.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var offset:Position;
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offset:Position;
 	/**
 	 * Swapped name for that set animation.
 	 * Ex: singLEFT to singRIGHT
 	 */
-	var swapKey:String;
+	var ?swapKey:String;
 	/**
 	 * Flipped name for that set animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	var flipKey:String;
+	var ?flipKey:String;
 	/**
 	 * The flip offset for the set animation.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false)) var flip:TypeXY<Bool>;
+	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
+	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
+	var ?flip:TypeXY<Bool>;
 	/**
 	 * If true the animation loops.
 	 */
-	@:default(false) var loop:Bool;
+	@:default(false) var ?loop:Bool;
 	/**
 	 * The framerate of the animation.
 	 */
-	@:default(24) var fps:Int;
+	@:default(24) var ?fps:Int;
 }
 
 typedef SpriteData = {
 	/**
 	 * The character data.
 	 */
+	@:default({
+		camera: new imaginative.backend.objects.Position(),
+		color: flixel.util.FlxColor.GRAY,
+		icon: null,
+		singlength: 4,
+		vocals: null
+	})
 	var ?character:CharacterData;
 	/**
 	 * The beat data.
 	 */
+	@:default({interval: 0, skipnegative: false})
 	var ?beat:BeatData;
 	/**
 	 * The offset data.
@@ -103,19 +126,19 @@ typedef SpriteData = {
 	 * If true the swap anim var can go off.
 	 * For characters and icons it always on.
 	 */
-	@:default(false) var swapAnimTriggers:Bool;
+	@:default(false) var ?swapAnimTriggers:Bool;
 	/**
 	 * States which flipX state the sprite must be in to trigger the flip anim var.
 	 */
-	@:default(true) var flipAnimTrigger:Bool;
+	@:default(true) var ?flipAnimTrigger:Bool;
 	/**
 	 * Should antialiasing be enabled?
 	 */
-	@:default(true) var antialiasing:Bool;
+	@:default(true) var ?antialiasing:Bool;
 	/**
 	 * Extra data for the sprite.
 	 */
-	var ?extra:Array<ExtraData>;
+	var ?extra:Map<String, Dynamic>;
 }
 
 enum abstract SpriteType(String) from String to String {

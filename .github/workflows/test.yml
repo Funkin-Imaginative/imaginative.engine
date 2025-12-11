@@ -90,7 +90,7 @@ jobs:
 
   mac:
     permissions: write-all
-    runs-on: macos-13
+    runs-on: macos-15
 
     steps:
       - name: Checking Latest Commit

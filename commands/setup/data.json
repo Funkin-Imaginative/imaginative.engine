@@ -1,6 +1,11 @@
 {
 	"dependencies": [
-		{ "name": "checkstyle" },
+		{
+			"name": "hxhardware",
+			"version": "git",
+			"branch": "main",
+			"url": "https://github.com/Vortex2Oblivion/hxhardware/"
+		},
 
 		{ "name": "hxWindowColorMode" },
 
@@ -9,9 +14,6 @@
 			"dependencies": [
 				{
 					"name": "flixel",
-					"version": "git",
-					"branch": "dev",
-					"url": "https://github.com/HaxeFlixel/flixel",
 					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
 				}
 			]

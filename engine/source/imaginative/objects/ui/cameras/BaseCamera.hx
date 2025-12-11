@@ -299,7 +299,7 @@ class BaseCamera extends FlxCamera {
 	override function updateFollow():Void {
 		if (deadzone == null) {
 			target.getMidpoint(_point);
-			_point.addPoint(followTargets.getFinalValue(false).target.toFlxPoint());
+			_point.add(followTargets.getFinalValue(false).target.toFlxPoint());
 			_scrollTarget.set(_point.x - width * 0.5, _point.y - height * 0.5);
 		} else {
 			var edge:Float;

@@ -36,7 +36,10 @@ typedef SpriteTextCharacterSetup = {
 	/**
 	 * The offset for the set character.
 	 */
-	@:default(new imaginative.backend.objects.Position()) var offset:Position;
+	@:default(new imaginative.backend.objects.Position())
+	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
+	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
+	var ?offset:Position;
 	/**
 	 * The character type.
 	 */

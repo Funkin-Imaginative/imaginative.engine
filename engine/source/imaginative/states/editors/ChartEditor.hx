@@ -22,7 +22,7 @@ typedef ChartNote = {
 	/**
 	 * The note type.
 	 */
-	var type:String;
+	@:default('') var ?type:String;
 }
 
 typedef ChartField = {
@@ -33,7 +33,7 @@ typedef ChartField = {
 	/**
 	 * Characters to be assigned as singers for this field.
 	 */
-	var characters:Array<String>;
+	var ?characters:Array<String>;
 	/**
 	 * Array of notes to load.
 	 */
@@ -79,11 +79,11 @@ typedef FieldSettings = {
 	/**
 	 * The enemy field.
 	 */
-	var enemy:String;
+	var ?enemy:String;
 	/**
 	 * The player field.
 	 */
-	var player:String;
+	var ?player:String;
 }
 
 typedef ChartEvent = {
@@ -105,18 +105,18 @@ typedef ChartSubEvent = {
 	/**
 	 * The event parameters.
 	 */
-	var params:Array<ParseDynamic>;
+	var params:Map<String, Dynamic>;
 }
 
 typedef ChartData = {
 	/**
 	 * The song scroll speed.
 	 */
-	@:default(2.6) var speed:Float;
+	@:default(2.6) var ?speed:Float;
 	/**
 	 * The stage this song will take place.
 	 */
-	@:default('void') var stage:String;
+	@:default('void') var ?stage:String;
 	/**
 	 * Array of arrow fields to load.
 	 */
@@ -124,7 +124,7 @@ typedef ChartData = {
 	/**
 	 * Array of characters to load.
 	 */
-	var characters:Array<ChartCharacter>;
+	var ?characters:Array<ChartCharacter>;
 	/**
 	 * Field settings.
 	 */
