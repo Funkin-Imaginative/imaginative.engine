@@ -1,5 +1,6 @@
 package imaginative.backend.system;
 
+
 /**
  * Framerate cap types.
  */
@@ -124,9 +125,9 @@ class MainSettings {
 	/**
 	 * If true your given access to all the tools to make a mod!
 	 */
-	public var debugMode(get, default):Bool = false;
-	inline function get_debugMode():Bool
-		return #if debug true #else debugMode #end;
+	public var debugMode(get, default):Null<Bool> = false;
+	inline function get_debugMode():Null<Bool>
+		return #if debug true #else false #end;
 	// TODO: Rethink log levels.
 	/**
 	 * If true logs with the 'Warning' level won't show up.

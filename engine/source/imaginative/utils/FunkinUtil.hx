@@ -192,4 +192,25 @@ class FunkinUtil {
 	@:noUsing inline public static function undoPercent(percent:Float, max:Float, range:Float = 100):Float {
 		return (percent * max) / range;
 	}
+
+	/**
+	 * The number of milliseconds since the application was initialized.
+	 * @return Float ~ The time in milliseconds.
+	 */
+	@:noUsing inline public static function getTimerPrecise():Float {
+		#if flash
+		return flash.Lib.getTimer();
+		#elseif ((js && !nodejs) || electron)
+		return js.Browser.window.performance.now();
+		#elseif (lime_cffi && !macro)
+		@:privateAccess
+		return cast lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
+		#elseif cpp
+		return untyped __global__.__time_stamp() * 1000.0;
+		#elseif sys
+		return Sys.time() * 1000.0;
+		#else
+		return 0;
+		#end
+	}
 }
