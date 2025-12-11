@@ -18,6 +18,7 @@ class EngineProcess extends BeatState {
 
 		FlxG.fixedTimestep = false;
 		FlxSprite.defaultAntialiasing = true; // this ain't a pixel game... yeah ik week 6 exists!
+		FlxObject.defaultMoves = false;
 		Console.init();
 		Assets.init();
 		Conductor.init();
