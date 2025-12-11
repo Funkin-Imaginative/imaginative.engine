@@ -34,41 +34,37 @@ class EngineInfoText extends Sprite {
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 
+	// Credits to @Vortex2Oblivion for helping out!
 	var _framesPassed:Int = 0;
 	var _previousTime:Float = 0;
 	var _updateClock:Float = 999999;
 
 	function onEnterFrame(e:Event):Void {
-        _framesPassed++;
+		_framesPassed++;
 
-        final deltaTime:Float = Math.max(FunkinUtil.getTimerPrecise() - _previousTime, 0);
-        _updateClock += deltaTime;
+		final deltaTime:Float = Math.max(FunkinUtil.getTimerPrecise() - _previousTime, 0);
+		_updateClock += deltaTime;
 
-        if (_updateClock >= 1000) {
-            framesPerSecond = (FlxG.drawFramerate > 0) ? FlxMath.minInt(_framesPassed, FlxG.drawFramerate) : _framesPassed;
+		if (_updateClock >= 1000) {
+			framesPerSecond = (FlxG.drawFramerate > 0) ? FlxMath.minInt(_framesPassed, FlxG.drawFramerate) : _framesPassed;
 
 			text.text = [
-				'Framerate: ${framesPerSecond}${Settings.setup.fpsType == Unlimited ? '' : ' / ${Main.getFPS()}'}',
-				#if cpp
-				'Memory: ${Memory.getProcessPhysicalMemoryUsage().formatBytes()} / ${Memory.getProcessPeakPhysicalMemoryUsage().formatBytes()}',
-				'CPU: ${FlxMath.roundDecimal(CPU.getProcessCPUUsage(), 2)}% / ${FlxMath.roundDecimal(CPU.getProcessPeakCPUUsage(), 2)}%',
-				#end
+				['Framerate', [Std.string(framesPerSecond), Settings.setup.fpsType == Unlimited ? '' : Std.string(Main.getFPS())].join(' / ')].join(': '),
+				['Memory', [Memory.getProcessPhysicalMemoryUsage().formatBytes(), Memory.getProcessPeakPhysicalMemoryUsage().formatBytes()].join(' / ')].join(': '),
+				['CPU', ['${FlxMath.roundDecimal(CPU.getProcessCPUUsage(), 2)}%', '${FlxMath.roundDecimal(CPU.getProcessPeakCPUUsage(), 2)}%'].join(' / ')].join(': '),
 				'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
 			].join('\n');
 
-
-			var refreshRate = #if (linux && cpp) engine.source.imaginative.utils.LinuxUtil.getMonitorRefreshRate() #else FlxWindow.instance.self.displayMode.refreshRate #end;
-
-			text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? refreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
+			text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.instance.monitorRefreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
 
 			background.x = text.x;
 			background.y = text.y;
 			background.width = text.width + boxDistanceOffset;
 			background.height = text.height + boxDistanceOffset;
 
-            _framesPassed = 0;
-            _updateClock = 0;
-        }
-        _previousTime = FunkinUtil.getTimerPrecise();
+			_framesPassed = 0;
+			_updateClock = 0;
+		}
+		_previousTime = FunkinUtil.getTimerPrecise();
 	}
 }

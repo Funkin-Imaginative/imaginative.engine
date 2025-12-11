@@ -6,7 +6,6 @@ import flixel.system.FlxAssets;
 import moonchart.backend.Util as MoonUtil;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
-import openfl.system.System;
 import openfl.utils.Assets as OpenFLAssets;
 import imaginative.backend.display.BetterBitmapData;
 #if ANIMATE_SUPPORT
@@ -148,12 +147,8 @@ class Assets {
 		clearGraphics(clearUnused, ignoreExclusions);
 		clearSounds(clearUnused, ignoreExclusions);
 		if (runGarbageCollector) {
-			#if cpp
 			cpp.vm.Gc.run(isMajor);
 			cpp.vm.Gc.compact();
-			#else
-			System.gc();
-			#end
 		}
 	}
 

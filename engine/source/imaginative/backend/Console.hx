@@ -27,7 +27,6 @@ class Console {
 	static var ogTrace(default, null):(Dynamic, ?PosInfos) -> Void;
 
 	static var initialized(default, null):Bool = false;
-
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
 		if (!initialized) {
@@ -36,13 +35,7 @@ class Console {
 			Log.trace = (value:Dynamic, ?infos:PosInfos) -> log(value, infos);
 			@:privateAccess FlxG.log._standardTraceFunction = (value:Dynamic, ?infos:PosInfos) -> {}
 
-			var styles:Array<LogStyle> = [
-				LogStyle.NORMAL,
-				LogStyle.WARNING,
-				LogStyle.ERROR,
-				LogStyle.NOTICE,
-				LogStyle.CONSOLE
-			];
+			var styles:Array<LogStyle> = [LogStyle.NORMAL, LogStyle.WARNING, LogStyle.ERROR, LogStyle.NOTICE, LogStyle.CONSOLE];
 			for (style in styles) {
 				style.onLog.add((data:Any, ?pos:PosInfos) -> log(data, switch (style.prefix) {
 					case '[WARNING]': WarningMessage;
@@ -63,14 +56,13 @@ class Console {
 			default: Std.string(value);
 		}
 	}
-
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		var log:String = switch (level) {
-			case ErrorMessage: 'Error';
-			case WarningMessage: 'Warning';
-			case SystemMessage: 'System';
-			case DebugMessage: 'Debug';
-			case LogMessage: 'Message';
+			case ErrorMessage:      'Error';
+			case WarningMessage:  'Warning';
+			case SystemMessage:    'System';
+			case DebugMessage:      'Debug';
+			case LogMessage:      'Message';
 		}
 
 		var description:Null<String> = switch (level) {
@@ -99,7 +91,7 @@ class Console {
 
 		var message:String = formatValueInfo(value);
 		if (extra != null && !extra.empty())
-			message += extra.formatArray();
+			message += formatValueInfo(extra);
 		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);
@@ -117,9 +109,9 @@ class Console {
 	public static function log(value:Dynamic, level:LogLevel = LogMessage, from:LogFrom = FromSource, ?infos:PosInfos):Void {
 		// When compiling debug it's basically forced off the DebugMessage level in a sense.
 		#if !debug
-		if (Settings.setup.debugMode && level != DebugMessage)
+		if (Settings?.setup?.debugMode ?? false && level != DebugMessage)
 			return;
-		if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
+		if (Settings?.setup?.ignoreLogWarnings ?? false && level != WarningMessage)
 			return;
 		#end
 		Sys.println(formatLogInfo(value, level, infos.fileName, infos.lineNumber, infos.customParams, from));
@@ -134,12 +126,10 @@ class Console {
 	public static function _log(value:Dynamic, level:LogLevel = SystemMessage, from:LogFrom = FromSource):Void {
 		// When compiling debug it's basically forced off the DebugMessage level in a sense.
 		#if !debug
-		try {
-			if (Settings.setup.debugMode && level != DebugMessage)
-				return;
-			if (Settings.setup.ignoreLogWarnings && level != WarningMessage)
-				return;
-		} catch(e) {}
+		if (Settings?.setup?.debugMode ?? false && level != DebugMessage)
+			return;
+		if (Settings?.setup?.ignoreLogWarnings ?? false && level != WarningMessage)
+			return;
 		#end
 		Sys.println(formatLogInfo(value, level, '', from));
 	}
