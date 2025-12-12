@@ -91,7 +91,7 @@ class StoryMenu extends BeatState {
 				loadedObjects.push(temp);
 			}
 		}
-		for (i => level in levels.members) {
+		for (i => level in levels) {
 			level.screenCenter(X);
 			level.y = 150 * (i + 1);
 		}
@@ -254,7 +254,7 @@ class StoryMenu extends BeatState {
 					changeDifficulty(-1);
 				if (FlxG.mouse.overlaps(rightArrow))
 					changeDifficulty(1);
-				for (i => item in levels.members)
+				for (i => item in levels)
 					if (curSelected == i)
 						continue;
 					else if (hoverIsCorrect(item)) {

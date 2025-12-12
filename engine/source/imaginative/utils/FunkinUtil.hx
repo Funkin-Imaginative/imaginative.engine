@@ -194,10 +194,22 @@ class FunkinUtil {
 	}
 
 	/**
+	 * Converts a map of variables to a debug string using 'FlxStringUtil.getDebugString()'.
+	 * @param variables The map to turn into the label value pairs.
+	 * @return String ~ The debug string.
+	 */
+	inline public static function toDebugString(variables:Map<String, Dynamic>):String {
+		return FlxStringUtil.getDebugString([
+			for (key => value in variables)
+				LabelValuePair.weak(key, value)
+		]);
+	}
+
+	/**
 	 * The number of milliseconds since the application was initialized.
 	 * @return Float ~ The time in milliseconds.
 	 */
-	@:noUsing inline public static function getTimerPrecise():Float {
+	inline public static function getTimerPrecise():Float {
 		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)

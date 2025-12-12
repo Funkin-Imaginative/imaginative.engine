@@ -49,15 +49,26 @@ class Console {
 		}
 	}
 
-	static function formatValueInfo(value:Dynamic, addArrayBrackets:Bool = true):String {
-		return switch (Type.getClass(value)) {
-			case String: cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
-			case Array:
-				var output = [for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol)].formatArray(); // doesn't
-				if (addArrayBrackets) output = '[$output]';
-				output;
-			default: Std.string(value);
+	// TODO: Move to a different class.
+	static function formatValueInfo(value:Dynamic, addArrayBrackets:Bool = false, addStringQuotes:Bool = false):String {
+		if (value is String) {
+			var output = cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
+			if (addStringQuotes) output = '"$output"';
+			return output;
 		}
+		if (value is Array) {
+			var output = [for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol, true, true)].formatArray();
+			if (addArrayBrackets) output = '[$output]';
+			return output;
+		}
+		if (value is haxe.Constraints.IMap) {
+			var output = [for (lol in cast(value, Map<Dynamic, Dynamic>)) formatValueInfo(lol.key, true, true) + ' => ' + formatValueInfo(lol.value, true, true)].formatArray();
+			if (addArrayBrackets) output = '[$output]';
+			return output;
+		}
+		if (value is Class)
+			return SpriteUtil.getClassName(value) + ' = {' + [for (field in value._fields()) field + ': ' + formatValueInfo(value._get(field), true, true)].formatArray() + '}';
+		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		var log:String = switch (level) {
@@ -92,9 +103,9 @@ class Console {
 			default: 'Unknown';
 		}
 
-		var message:String = formatValueInfo(value);
+		var message:String = formatValueInfo(value, true);
 		if (extra != null && !extra.empty())
-			message += formatValueInfo(extra);
+			message += formatValueInfo(extra, false);
 		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);

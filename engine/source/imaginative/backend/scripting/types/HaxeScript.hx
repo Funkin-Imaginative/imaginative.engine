@@ -70,7 +70,6 @@ final class HaxeScript extends Script {
 		_parser.allowAll();
 	}
 
-	@:access(imaginative.backend.Console.formatValueInfo)
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function loadNecessities():Void {
 		super.loadNecessities();
@@ -78,7 +77,7 @@ final class HaxeScript extends Script {
 		for (i in usingArray) // TODO: Add more.
 			internalScript.interp.usings.set(Std.string(i).split('.').last(), i);
 
-		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(Console.formatValueInfo(value, false), FromHaxe, internalScript.interp.posInfos())));
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, internalScript.interp.posInfos())));
 		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, internalScript.interp.posInfos()));
 
 		#if (neko || eval || display)
@@ -89,7 +88,7 @@ final class HaxeScript extends Script {
 		internalScript.errorHandler = (error:haxe.Exception) -> {
 			var errorMessage = error.message.split(':'); errorMessage.shift();
 			var errorLine:Int = Std.parseInt(errorMessage.shift());
-			_log(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe), ErrorMessage);
+			Sys.println(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe));
 			return error;
 		}
 		canRun = true;

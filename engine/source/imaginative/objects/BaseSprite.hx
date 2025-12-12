@@ -267,7 +267,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			antialiasing = inputData.antialiasing;
 
 			if (inputData.extra != null) {
-				extra = inputData.extra.copy();
+				for (key => value in inputData.extra)
+					extra.set(key, value);
 			}
 		} catch(error:haxe.Exception)
 			try {

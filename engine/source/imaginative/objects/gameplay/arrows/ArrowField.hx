@@ -302,7 +302,7 @@ class ArrowField extends BeatGroup {
 	}
 
 	inline function _input():Void {
-		for (i => strum in strums.members)
+		for (i => strum in strums)
 			input(i, strum, controls.notePressed(i), controls.noteHeld(i), controls.noteReleased(i));
 	}
 
@@ -560,7 +560,7 @@ class ArrowField extends BeatGroup {
 				b.x = a.x + (arrowSize * Math.abs(scale.x)) + (isMiddle ? centerSpacing ?? laneSpacing : laneSpacing);
 		}
 
-		for (i => strum in strums.members) {
+		for (i => strum in strums) {
 			strum.y = -(arrowSize * Math.abs(scale.y)) / 2;
 			helper(strum, strums.members[i + 1], i == Math.floor(strums.length / 2) - 1);
 		}

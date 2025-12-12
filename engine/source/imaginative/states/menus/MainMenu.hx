@@ -181,7 +181,7 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 			if (PlatformUtil.mouseJustMoved())
-				for (i => item in menuItems.members)
+				for (i => item in menuItems)
 					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
 
@@ -219,7 +219,7 @@ class MainMenu extends BeatState {
 		curSelected = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		for (i => item in menuItems.members) {
+		for (i => item in menuItems) {
 			var newAnim:String = i == curSelected ? 'selected' : 'idle';
 			if (item.getAnimName() != newAnim) {
 				item.playAnim(newAnim);
