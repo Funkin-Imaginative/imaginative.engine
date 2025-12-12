@@ -1,5 +1,7 @@
 package imaginative.backend.music.states;
 
+import imaginative.objects.MenuSprite;
+
 /**
  * It's just 'FlxState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
@@ -263,7 +265,25 @@ class BeatState extends FlxState implements IBeatState {
 		super.update(elapsed);
 	}
 
+	var _menuBgs:Array<MenuSprite> = [];
 	override public function draw():Void {
+		_menuBgs = cast members.copy().filter((basic:FlxBasic) -> return basic is MenuSprite);
+		for (bg in _menuBgs)
+			bg.shouldDraw = false;
+		if (!_menuBgs.empty()) {
+			var index:Int = _menuBgs.length - 1;
+			var bg:MenuSprite = _menuBgs[index];
+			while (bg.alpha < 1 || !bg.visible) {
+				var newI:Int = index--;
+				if (newI == -1) break;
+				bg = _menuBgs[newI];
+				if (bg != null) break;
+			}
+			if (bg != null) {
+				bgColor = bg.blankBg.color;
+				bg.shouldDraw = true;
+			}
+		}
 		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
