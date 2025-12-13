@@ -67,7 +67,7 @@ class Console {
 
 		var description:Null<String> = switch (level) {
 			case ErrorMessage:
-				'It seems an error has ourred!';
+				'It seems an error has occurred!';
 			case WarningMessage:
 				'Uh oh, something happened!';
 			case SystemMessage:
