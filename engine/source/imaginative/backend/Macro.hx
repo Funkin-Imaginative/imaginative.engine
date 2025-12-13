@@ -50,6 +50,21 @@ class Macro {
 				destroyFunc.kind = FFun(f);
 			default:
 		}
+		var toStringFunc = classFields.filter(field -> return field.name == 'toString')[0];
+		switch (toStringFunc.kind) {
+			case FFun(f):
+				f.expr = macro {
+					return FlxStringUtil.getDebugString([
+						LabelValuePair.weak('active', active),
+						LabelValuePair.weak('visible', visible),
+						LabelValuePair.weak('alive', alive),
+						LabelValuePair.weak('exists', exists),
+						LabelValuePair.weak('destroyed', destroyed)
+					]);
+				}
+				toStringFunc.kind = FFun(f);
+			default:
+		}
 
 		return classFields.concat(tempClass.fields);
 	}
@@ -100,7 +115,6 @@ class Macro {
 		screenCenterFunc.doc = newScreenCenterFunc.doc;
 		screenCenterFunc.access = newScreenCenterFunc.access;
 		screenCenterFunc.kind = newScreenCenterFunc.kind;
-		screenCenterFunc.pos = newScreenCenterFunc.pos;
 		screenCenterFunc.meta = newScreenCenterFunc.meta;
 
 		return classFields.concat(tempClass.fields);
