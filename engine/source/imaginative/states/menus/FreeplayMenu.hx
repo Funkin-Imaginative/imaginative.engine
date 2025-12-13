@@ -215,7 +215,7 @@ class FreeplayMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 			if (PlatformUtil.mouseJustMoved())
-				for (i => item in songs.members)
+				for (i => item in songs)
 					if (FlxG.mouse.overlaps(item.text))
 						changeSelection(i, true);
 
@@ -295,11 +295,11 @@ class FreeplayMenu extends BeatState {
 		);
 		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
 
-		for (i => song in songs.members)
+		for (i => song in songs)
 			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
 
 		if (FlxG.mouse.pressed)
-			for (item in songs.members)
+			for (item in songs)
 				if (FlxG.mouse.overlaps(item.icon))
 					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
 	}

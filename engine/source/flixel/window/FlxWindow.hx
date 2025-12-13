@@ -315,8 +315,6 @@ class FlxWindow implements IFlxDestroyable {
 	}
 
 	inline public function toString():String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('title', title)
-		]);
+		return ['title' => title].toDebugString();
 	}
 }

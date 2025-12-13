@@ -139,9 +139,9 @@ class BeatState extends FlxState implements IBeatState {
 	}
 
 	function loadScript():Void {
-		stateScripts = new ScriptGroup(this);
+		add(stateScripts = new ScriptGroup(this));
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/$scriptName'))
+			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}
@@ -243,6 +243,13 @@ class BeatState extends FlxState implements IBeatState {
 		loadScript();
 		super.create();
 		scriptCall('create');
+		FlxG.signals.postStateSwitch.addOnce(createPost);
+	}
+	/**
+	 * For after the create function runs!
+	 */
+	public function createPost():Void {
+		scriptCall('createPost');
 	}
 
 	override public function tryUpdate(elapsed:Float):Void {
@@ -292,6 +299,7 @@ class BeatState extends FlxState implements IBeatState {
 		super.resetSubState();
 		if (subState is BeatSubState) {
 			var state:BeatSubState = cast subState;
+			state.createPost();
 			state.parent = this;
 			state.onSubstateOpen();
 		}
@@ -351,7 +359,6 @@ class BeatState extends FlxState implements IBeatState {
 	}
 
 	override public function destroy():Void {
-		stateScripts.end();
 		Conductor.beatStates.remove(this);
 		bgColor = FlxColor.BLACK;
 		super.destroy();

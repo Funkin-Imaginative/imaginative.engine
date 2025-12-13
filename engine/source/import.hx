@@ -1,3 +1,4 @@
+#if !macro
 package;
 
 #if TRACY_DEBUGGER
@@ -116,4 +117,5 @@ import animate.FlxAnimate;
 #if ALLOW_VIDEOS
 import hxvlc.flixel.FlxVideo;
 import hxvlc.flixel.FlxVideoSprite;
+#end
 #end

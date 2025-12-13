@@ -95,8 +95,8 @@ class HUDTemplate extends BeatGroup {
 		var _scripts:Array<Script> = [];
 		// adds song scripts
 		if (!hudOnly || hudOnly == null)
-			if (PlayState.instance != null && PlayState.instance.scripts != null)
-				for (script in PlayState.instance.scripts)
+			if (PlayState.instance != null && PlayState.instance.songScripts != null)
+				for (script in PlayState.instance.songScripts)
 					_scripts.push(script);
 		// adds hud scripts
 		if (hudOnly || hudOnly == null)
@@ -140,10 +140,10 @@ class HUDTemplate extends BeatGroup {
 			/* if (Paths.folderExists('lead:content/huds/$type'))
 				for (ext in Script.exts)
 					for (file in Paths.readFolder(folder, ext))
-						for (script in Script.create(file))
+						for (script in Script.createMulti(file))
 							scripts.add(script);
 			else */
-				for (script in Script.create('lead:content/huds/${type}HUD'))
+				for (script in Script.createMulti('lead:content/huds/${type}HUD'))
 					scripts.add(script);
 
 	function initHealthBar():Bar {
@@ -191,7 +191,7 @@ class HUDTemplate extends BeatGroup {
 		}
 		super();
 
-		scripts = new ScriptGroup(this);
+		add(scripts = new ScriptGroup(this));
 		loadScript();
 		scripts.load();
 		call(true, 'create');
@@ -265,7 +265,6 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function destroy():Void {
-		scripts.end();
 		if (HUDType.instance == this)
 			HUDType.instance = null;
 		super.destroy();

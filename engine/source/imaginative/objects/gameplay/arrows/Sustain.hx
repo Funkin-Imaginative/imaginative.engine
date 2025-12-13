@@ -6,10 +6,6 @@ class Sustain extends FlxSprite {
 	 * Custom update function.
 	 */
 	public var _update:Float->Void;
-	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * Returns the previous sustain in line.
@@ -199,14 +195,14 @@ class Sustain extends FlxSprite {
 	}
 
 	override public function toString():String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('Time', setHead.time + time),
-			LabelValuePair.weak('ID', id),
-			LabelValuePair.weak('Was Hit', wasHit),
-			LabelValuePair.weak('Was Missed', wasMissed),
-			LabelValuePair.weak('Too Late', tooLate),
-			LabelValuePair.weak('Tail Length', setHead.length),
-			LabelValuePair.weak('Tail Count', setHead.tail.length)
+		return FunkinUtil.toDebugString([
+			'Time' => setHead.time + time,
+			'ID' => id,
+			'Was Hit' => wasHit,
+			'Was Missed' => wasMissed,
+			'Too Late' => tooLate,
+			'Tail Length' => setHead.length,
+			'Tail Count' => setHead.tail.length
 		]);
 	}
 }

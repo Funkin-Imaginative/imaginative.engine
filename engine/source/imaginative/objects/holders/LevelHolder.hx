@@ -131,7 +131,7 @@ class LevelHolder extends BeatSpriteGroup {
 		if (allowScripts) {
 			var bruh:Array<ModPath> = ['lead:global', name];
 			for (level in bruh)
-				for (script in Script.create('${level.type}:content/levels/${level.path}'))
+				for (script in Script.createMulti('${level.type}:content/levels/${level.path}'))
 					scripts.add(script);
 		}
 		scripts.load();
@@ -151,6 +151,7 @@ class LevelHolder extends BeatSpriteGroup {
 			}
 		}
 	}
+
 	override public function destroy():Void {
 		scripts.end();
 		super.destroy();
