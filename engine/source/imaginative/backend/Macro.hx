@@ -54,7 +54,7 @@ class Macro {
 		return classFields.concat(tempClass.fields);
 	}
 	/**
-	 * Implements forceIsOnScreen from Codename Engine.
+	 * Implements forceIsOnScreen from Codename Engine and makes screenCenter compatible with other cameras.
 	 * @return Array<Field>
 	 */
 	public static macro function buildFlxObject():Array<Field> {
@@ -64,6 +64,20 @@ class Macro {
 			 * If true, the object will always be considered to be on screen.
 			 */
 			public var forceIsOnScreen:Bool = false;
+
+			/**
+			 * Centers this `FlxObject` on the screen, either by the x axis, y axis, or both.
+			 *
+			 * @param   axes   On what axes to center the object (e.g. `X`, `Y`, `XY`) - default is both.
+			 * @param  camera  The camera to use for centering. If `null`, the default camera is used.
+			 * @return  This FlxObject for chaining
+			 */
+			public function screenCenter(axes:FlxAxes = XY, ?camera:FlxCamera):FlxObject {
+				camera ??= getDefaultCamera();
+				if (axes.x) x = (camera.width - width) / 2;
+				if (axes.y) y = (camera.height - height) / 2;
+				return this;
+			}
 		}
 
 		var onScreenFunc = classFields.filter(field -> return field.name == 'isOnScreen')[0];
@@ -78,6 +92,16 @@ class Macro {
 				onScreenFunc.kind = FFun(f);
 			default:
 		}
+
+		var newScreenCenterFunc = tempClass.fields.filter(field -> return field.name == 'screenCenter')[0];
+		tempClass.fields.remove(newScreenCenterFunc);
+		var screenCenterFunc = classFields.filter(field -> return field.name == 'screenCenter')[0];
+		screenCenterFunc.name = newScreenCenterFunc.name;
+		screenCenterFunc.doc = newScreenCenterFunc.doc;
+		screenCenterFunc.access = newScreenCenterFunc.access;
+		screenCenterFunc.kind = newScreenCenterFunc.kind;
+		screenCenterFunc.pos = newScreenCenterFunc.pos;
+		screenCenterFunc.meta = newScreenCenterFunc.meta;
 
 		return classFields.concat(tempClass.fields);
 	}
