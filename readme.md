@@ -11,8 +11,6 @@ Be wary of any issues you may encounter.
 ### Ex Members
 [Atlas](https://github.com/AtlasGamer27): Underrated programmer and great friend.
 ### Libraries Used
-[CNE Devs](https://github.com/CodenameCrew): [`flixel`](https://github.com/CodenameCrew/cne-flixel) and [`flixel-addons`](https://github.com/CodenameCrew/cne-flixel-addons) forks and one of this engine's inspirations!
-
 [Kriptel](https://github.com/Kriptel): [`rulescript`](https://github.com/Kriptel/RuleScript), used for haxe scripting throughout the engine!
 
 [SuperPowers04](https://github.com/superpowers04): [`linc_luajit`](https://github.com/superpowers04/linc_luajit), for all my lua needs.
