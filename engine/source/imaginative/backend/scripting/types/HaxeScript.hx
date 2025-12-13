@@ -31,6 +31,17 @@ final class HaxeScript extends Script {
 		// we don't need to worry about excluding with this one
 		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
 			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
+
+		// would normally do an arrow function but type errors are a bitch
+		RuleScript.resolveScript = function(name:String):Dynamic {
+			var script:Script = Script.create('lead:content/modules/$name');
+			if (script.type == TypeHaxe)
+				return cast(script, HaxeScript).internalScript;
+			else {
+				script.destroy();
+				return Type.resolveClass(name) ?? Type.resolveClass('rulescript.__abstracts.$name');
+			}
+		}
 	}
 
 	/**
@@ -61,6 +72,7 @@ final class HaxeScript extends Script {
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
 		internalScript = new RuleScript();
+		if (FilePath.directory(file.path).contains('content/modules/')) _parser.mode = MODULE;
 		super(file, code);
 		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
 	}
@@ -87,7 +99,7 @@ final class HaxeScript extends Script {
 		#end
 		internalScript.errorHandler = (error:haxe.Exception) -> {
 			var errorMessage = error.message.split(':'); errorMessage.shift();
-			var errorLine:Int = Std.parseInt(errorMessage.shift());
+			var errorLine:Int = Std.parseInt(errorMessage.shift()) /* _parser.parser.line */;
 			Sys.println(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe));
 			return error;
 		}
