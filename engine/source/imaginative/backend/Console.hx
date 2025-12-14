@@ -62,12 +62,12 @@ class Console {
 			return output;
 		}
 		if (value is haxe.Constraints.IMap) {
-			var output = [for (lol in cast(value, Map<Dynamic, Dynamic>)) formatValueInfo(lol.key, true, true) + ' => ' + formatValueInfo(lol.value, true, true)].formatArray();
+			var output = [for (key => value in cast(value, Map<Dynamic, Dynamic>)) formatValueInfo(key, true, true) + ' => ' + formatValueInfo(value, true, true)].formatArray();
 			if (addArrayBrackets) output = '[$output]';
 			return output;
 		}
 		if (value is Class)
-			return SpriteUtil.getClassName(value) + ' = {' + [for (field in value._fields()) field + ': ' + formatValueInfo(value._get(field), true, true)].formatArray() + '}';
+			return Std.string(value).split('.').last() + ' = {' + [for (field in value._fields()) field + ': ' + formatValueInfo(value._get(field), true, true)].formatArray() + '}';
 		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
@@ -103,9 +103,9 @@ class Console {
 			default: 'Unknown';
 		}
 
-		var message:String = formatValueInfo(value, true);
+		var message:String = formatValueInfo(value, from == FromSource || from == FromUnknown);
 		if (extra != null && !extra.empty())
-			message += formatValueInfo(extra, false);
+			message += formatValueInfo(extra);
 		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);
