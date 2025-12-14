@@ -34,12 +34,19 @@ final class HaxeScript extends Script {
 
 		// would normally do an arrow function but type errors are a bitch
 		RuleScript.resolveScript = function(name:String):Dynamic {
-			var script:Script = Script.create('lead:content/modules/$name');
-			if (script.type == TypeHaxe)
+			_log('[HaxeScript] Resolving script for module: $name');
+			var script:Script = Script.create('lead:content/modules/${name.replace('.', '/')}');
+			if (script.type == TypeHaxe) {
+				script.load();
 				return cast(script, HaxeScript).internalScript;
-			else {
+			} else {
 				script.destroy();
-				return Type.resolveClass(name) ?? Type.resolveClass('rulescript.__abstracts.$name');
+				inline function resolveAbstract(name:String):Dynamic {
+					var path = name.split('.');
+					path[path.length - 1] = '_' + path.last();
+					return Type.resolveClass('rulescript.__abstracts.${path.join('.')}');
+				}
+				return Script.defaultImports.get(name) ?? Type.resolveClass(name) ?? resolveAbstract(name);
 			}
 		}
 	}
@@ -72,7 +79,13 @@ final class HaxeScript extends Script {
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
 		internalScript = new RuleScript();
-		if (FilePath.directory(file.path).contains('content/modules/')) _parser.mode = MODULE;
+		var finalPath:String = file.format();
+		if (file.isFile && finalPath.contains('content/modules/')) {
+			if (!finalPath.contains(internalScript.interp.scriptPackage.replace('.', '/')) && Paths.fileExists('lead:content/modules/${internalScript.interp.scriptPackage.replace('.', '/')}')) {
+				internalScript.interp.scriptPackage = finalPath.split('/content/modules/')[1].split('/').join('/').split('.')[0].replace('/', '.');
+				_parser.mode = MODULE;
+			}
+		}
 		super(file, code);
 		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
 	}
@@ -111,7 +124,8 @@ final class HaxeScript extends Script {
 			if (!code.isNullOrEmpty()) {
 				internalScript.tryExecute(code, internalScript.errorHandler);
 				loaded = true;
-				call('new');
+				if (_parser.mode != MODULE)
+					call('new');
 				return;
 			} else _log('Script "${internalScript.scriptName}" is either null or empty.');
 		} catch(error:haxe.Exception)
