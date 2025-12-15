@@ -4,7 +4,7 @@
 			"name": "hxhardware",
 			"version": "git",
 			"branch": "main",
-			"url": "https://github.com/Vortex2Oblivion/hxhardware/"
+			"url": "https://github.com/Vortex2Oblivion/hxhardware"
 		},
 
 		{ "name": "hxWindowColorMode" },
@@ -27,14 +27,20 @@
 			"branch": "imaginative",
 			"url": "https://github.com/Funkin-Imaginative/RuleScript"
 		},
+
 		{
 			"name": "hxcpp",
 			"version": "git",
-			"branch": "v4.3.75",
-			"url": "https://github.com/HaxeFoundation/hxcpp"
+			"branch": "363d3d0a8d3ac450f5ba1b4c3357353656b71e82",
+			"url": "https://github.com/FunkinCrew/hxcpp"
+		},
+		{
+			"name": "hxcpp-debug-server",
+			"version": "git",
+			"branch": "7459934666a473a4cc4d066ba4a93ef92f1ce94c",
+			"url": "https://github.com/FunkinCrew/hxcpp-debugger"
 		},
 
-		{ "name": "hxcpp-debug-server" },
 		{ "name": "hxdiscord_rpc" },
 		{ "name": "hxp" },
 

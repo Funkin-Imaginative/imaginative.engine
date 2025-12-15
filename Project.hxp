@@ -326,6 +326,13 @@ class EngineAsset {
 		if (isRelease() && !isDebug())
 			setHaxedef('analyzer-optimize');
 
+		if (isDebug() || useTracy.exists()) {
+			setHaxedef('HXCPP_CHECK_POINTER');
+			setHaxedef('HXCPP_STACK_LINE');
+			setHaxedef('HXCPP_STACK_TRACE');
+			setHaxedef('HXCPP_CATCH_SEGV');
+		}
+
 		if (useTracy.exists()) { // mostly just copied from base funkin
 			setHaxedef('HXCPP_TELEMETRY'); // Enable telemetry
 			setHaxedef('HXCPP_TRACY'); // Enable Tracy telemetry
