@@ -4,6 +4,7 @@ haxelib install flixel-addons --skip-dependencies
 haxelib install flixel --skip-dependencies
 haxelib install lime
 haxelib install openfl
+haxelib git rulescript https://github.com/Funkin-Imaginative/RuleScript imaginative
 haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 363d3d0a8d3ac450f5ba1b4c3357353656b71e82
 haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c
 haxelib install hxdiscord_rpc
