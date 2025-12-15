@@ -3,88 +3,27 @@ package imaginative.backend.native;
 import lime.system.Display;
 import lime.system.System;
 
-#if windows
-@:buildXml('
-<target id="haxe">
-	<lib name="dwmapi.lib" if="windows"/>
-	<lib name="gdi32.lib" if="windows"/>
-</target>
-')
-@:cppFileCode('
-#include <windows.h>
-#include <dwmapi.h>
-#include <winuser.h>
-#include <wingdi.h>
-
-#define attributeDarkMode 20
-#define attributeDarkModeFallback 19
-
-#define attributeCaptionColor 34
-#define attributeTextColor 35
-#define attributeBorderColor 36
-
-struct HandleData {
-	DWORD pid = 0;
-	HWND handle = 0;
-};
-
-BOOL CALLBACK findByPID(HWND handle, LPARAM lParam) {
-	DWORD targetPID = ((HandleData*)lParam)->pid;
-	DWORD curPID = 0;
-
-	GetWindowThreadProcessId(handle, &curPID);
-	if (targetPID != curPID || GetWindow(handle, GW_OWNER) != (HWND)0 || !IsWindowVisible(handle)) {
-		return TRUE;
-	}
-
-	((HandleData*)lParam)->handle = handle;
-	return FALSE;
-}
-
-HWND curHandle = 0;
-void getHandle() {
-	if (curHandle == (HWND)0) {
-		HandleData data;
-		data.pid = GetCurrentProcessId();
-		EnumWindows(findByPID, (LPARAM)&data);
-		curHandle = data.handle;
-	}
-}
-')
-#end
-#if linux
 @:buildXml('<include name="../../../../engine/source/imaginative/backend/native/build.xml" />')
-@:include('refreshrate.hpp')
-#end
+@:include('native.hpp')
 /**
  * Basically taken from psych since idk how tf to avoid the issue :sob:.
  * https://github.com/ShadowMario/FNF-PsychEngine/commit/7fa4f9c89526241ca4926b81b2a04661ab2e91f4
  * https://github.com/ShadowMario/FNF-PsychEngine/commit/ecdb1a037a20bd16275981f0afd0b37aea79c53c
  */
 @SuppressWarnings('checkstyle:FieldDocComment')
-class Native {
+extern class Native {
+	#if windows
 	public static function __init__():Void
 		registerDPIAware();
 
-	public static function registerDPIAware():Void {
-		#if windows
-		// DPI Scaling fix for windows
-		// this shouldn't be needed for other systems
-		// Credit to YoshiCrafter29 for finding this function
-		untyped __cpp__('
-			SetProcessDPIAware();
-			#ifdef DPI_AWARENESS_CONTEXT
-			SetProcessDpiAwarenessContext(
-				#ifdef DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
-				DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
-				#else
-				DPI_AWARENESS_CONTEXT_SYSTEM_AWARE
-				#endif
-			);
-			#endif
-		');
-		#end
-	}
+	@:native('native::registerDPIAware')
+	static function registerDPIAware():Void;
+
+	@:native('native::fixScaling')
+	private static function _fixScaling():Void;
+
+	@:native('native::fixedScaling')
+	private static var fixedScaling:Bool;
 
 	static var fixedScaling:Bool = false;
 	public static function fixScaling():Void {
@@ -100,19 +39,12 @@ class Native {
 			FlxWindow.instance.screenCenter();
 		}
 
-		untyped __cpp__('
-			getHandle();
-			if (curHandle != (HWND)0) {
-				HDC curHDC = GetDC(curHandle);
-				RECT curRect;
-				GetClientRect(curHandle, &curRect);
-				FillRect(curHDC, &curRect, (HBRUSH)GetStockObject(BLACK_BRUSH));
-				ReleaseDC(curHandle, curHDC);
-			}
-		');
+		_fixScaling();
 		#end
 	}
 
-	@:native('getMonitorRefreshRate')
-	extern static function getLinuxMonitorRefreshRate():cpp.Int16;
+	#elseif linux
+	@:native('native::getMonitorRefreshRate')
+	static function getLinuxMonitorRefreshRate():cpp.Int16;
+	#end
 }

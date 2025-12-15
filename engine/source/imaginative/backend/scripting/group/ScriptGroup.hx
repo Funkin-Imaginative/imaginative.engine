@@ -103,7 +103,6 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	override public function recycle(?objectClass:Class<Script>, ?objectFactory:Void->Script, force:Bool = false, revive:Bool = true):Script return null;
 
 	override function forEach(func:Script->Void, recurse:Bool = false):Void {
-		clearInvalid();
 		members.sort((a:Script, b:Script) -> return FlxSort.byValues(FlxSort.DESCENDING, a.priorityIndex, b.priorityIndex));
 		for (script in members) {
 			if (script == null) continue;
