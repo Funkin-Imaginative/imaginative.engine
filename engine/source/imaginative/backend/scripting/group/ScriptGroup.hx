@@ -1,6 +1,6 @@
 package imaginative.backend.scripting.group;
 
-// TODO: Rethink this class.
+// MAYBE: Do a sprite group (extend Script)? Doing this would allow for script groups to be within script groups.
 /**
  * This class is to utilize several scripts in a single place.
  */
@@ -24,28 +24,26 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 		return parent = value;
 	}
 
-	/**
-	 * Imports a script into the group.
-	 * @param file The mod path.
-	 * @return Script
-	 */
-	public function importScript(file:ModPath):Script {
-		final script:Script = Script.create(file);
-		if (script.type.dummy) {
-			script.destroy();
-			log('Script at "${file.format()}", doesn\'t exist.', WarningMessage);
-			return null;
-		}
-		add(script);
-		script.load();
-		return script;
-	}
-
 	public function new(?parent:Dynamic) {
 		super();
-		extraVariables['importScript'] = importScript;
+		extraVariables.set('importScript', (file:ModPath) -> {
+			final script:Script = Script.create(file);
+			if (script.type.dummy) {
+				script.destroy();
+				log('Script at "${file.format()}", doesn\'t exist.', WarningMessage);
+				return null;
+			}
+			add(script);
+			script.load();
+			return script;
+		});
 		this.parent = parent;
-		memberAdded.add(setupScript);
+		memberAdded.add((script:Script) -> {
+			if (parent != null) script.parent = parent;
+			script.setGlobalVariables(globalVariables);
+			for (name => thing in extraVariables)
+				script.set(name, thing);
+		});
 	}
 
 	/**
@@ -93,6 +91,7 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	 * @return ScriptEvent
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
+		if (destroyed) return event;
 		forEach((script:Script) -> {
 			event.returnCall = script.call(func, [event]);
 			if (event.prevented && !event.continueLoop) return;
@@ -100,8 +99,47 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 		return event;
 	}
 
-	@:deprecated('It doesn\'t make sense for ScriptGroup to have the power to recycle.')
+	@:deprecated('It doesn\'t make sense for \'ScriptGroup\' to have the power to recycle.')
 	override public function recycle(?objectClass:Class<Script>, ?objectFactory:Void->Script, force:Bool = false, revive:Bool = true):Script return null;
+
+	override function forEach(func:Script->Void, recurse:Bool = false):Void {
+		clearInvalid();
+		members.sort((a:Script, b:Script) -> return FlxSort.byValues(FlxSort.DESCENDING, a.priorityIndex, b.priorityIndex));
+		for (script in members) {
+			if (script == null) continue;
+			// siphons out dead scripts
+			if (script.destroyed) {
+				remove(script, true);
+				continue;
+			}
+			// once implemented, run recurse code here <<
+			func(script);
+		}
+	}
+	override function forEachAlive(func:Script->Void, recurse:Bool = false):Void {
+		inline forEachExists((script:Script) -> {
+			if (script.alive)
+				func(script);
+		}, recurse);
+	}
+	override function forEachDead(func:Script->Void, recurse:Bool = false):Void {
+		inline forEach((script:Script) -> {
+			if (!script.alive)
+				func(script);
+		}, recurse);
+	}
+	override function forEachExists(func:Script->Void, recurse:Bool = false):Void {
+		inline forEach((script:Script) -> {
+			if (script.exists)
+				func(script);
+		}, recurse);
+	}
+	override function forEachOfType<S>(scriptClass:Class<S>, func:S->Void, recurse:Bool = false):Void {
+		inline forEach((script:Script) -> {
+			if (Std.isOfType(script, scriptClass))
+				func(cast script);
+		}, recurse);
+	}
 
 	function isDuplicate(script:Script):Bool {
 		var check:Script = getByPath(script.filePath.path);
@@ -109,14 +147,6 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 		if (isDup) script.end('onDuplicate');
 		return isDup;
 	}
-
-	function setupScript(script:Script):Void {
-		if (parent != null) script.parent = parent;
-		script.setGlobalVariables(globalVariables);
-		for (name => thing in extraVariables)
-			script.set(name, thing);
-	}
-
 	/**
 	 * Improper scripts get removed from the group.
 	 */

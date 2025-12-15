@@ -2,39 +2,39 @@ flixel.input.keyboard.FlxKey
 
 flixel.math.FlxPoint
 
-flixel.text.FlxTextAlign
+flixel.text.FlxText.FlxTextAlign
 
-flixel.tweens.FlxTweenType
+flixel.tweens.FlxTween.FlxTweenType
 
--flixel.util.FlxAxes
+-#flixel.util.FlxAxes
 flixel.util.FlxColor
--flixel.util.FlxTypedSignal
+-#flixel.util.FlxSignal.FlxTypedSignal
 
--openfl.display.BlendMode
+-#openfl.display.BlendMode
 
--openfl.text.TextFieldAutoSize
--openfl.text.TextFormatAlign
+-#openfl.text.TextFieldAutoSize
+-#openfl.text.TextFormatAlign
 
-imaginative.backend.interfaces.TextureType
+imaginative.backend.interfaces.ITexture.TextureType
 
-imaginative.backend.music.SongTimeType
+imaginative.backend.music.Conductor.SongTimeType
 
-imaginative.backend.scripting.ScriptType
+imaginative.backend.scripting.Script.ScriptType
 
-imaginative.backend.system.ModType
-imaginative.backend.system.ModPath
-imaginative.backend.system.FpsType
+imaginative.backend.system.Paths.ModType
+imaginative.backend.system.Paths.ModPath
+imaginative.backend.system.Settings.FpsType
 
-imaginative.backend.LogLevel
+imaginative.backend.Console.LogLevel
 
-imaginative.objects.gameplay.arrows.ArrowModFollowType
+imaginative.objects.gameplay.arrows.ArrowModifier.ArrowModFollowType
 
 imaginative.objects.gameplay.hud.HUDType
 
-imaginative.objects.ui.BarFillDirection
-imaginative.objects.ui.SpriteTextCharacterType
+imaginative.objects.ui.Bar.BarFillDirection
+imaginative.objects.ui.SpriteText.SpriteTextCharacterType
 
-imaginative.objects.AnimationContext
+imaginative.objects.BaseSprite.AnimationContext
 
-imaginative.utils.MenuSFX
-imaginative.utils.SpriteType
+imaginative.utils.FunkinUtil.MenuSFX
+imaginative.utils.SpriteUtil.SpriteType

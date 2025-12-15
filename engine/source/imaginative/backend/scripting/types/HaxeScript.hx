@@ -2,7 +2,9 @@ package imaginative.backend.scripting.types;
 
 #if CAN_HAXE_SCRIPT
 import rulescript.RuleScript;
+import rulescript.interps.RuleScriptInterp;
 import rulescript.parsers.HxParser;
+import rulescript.types.ScriptedTypeUtil;
 #end
 
 /**
@@ -17,8 +19,7 @@ final class HaxeScript extends Script {
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
 	inline static function init():Void {
-		RuleScript.defaultImports.set('', Script.defaultImports.copy());
-		var rootImport = RuleScript.defaultImports.get('');
+		var rootImport = Script.defaultImports.copy();
 		var jic:Map<String, Dynamic> = [
 			'Float' => Float,
 			'Int' => Int,
@@ -32,23 +33,17 @@ final class HaxeScript extends Script {
 		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
 			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
 
-		// would normally do an arrow function but type errors are a bitch
-		RuleScript.resolveScript = function(name:String):Dynamic {
+		ScriptedTypeUtil.resolveModule = (name:String) -> {
 			_log('[HaxeScript] Resolving script for module: $name');
-			var script:Script = Script.create('lead:content/modules/${name.replace('.', '/')}');
-			if (script.type == TypeHaxe) {
-				script.load();
-				return cast(script, HaxeScript).internalScript;
-			} else {
+			var script:HaxeScript = cast Script.create('lead:content/modules/${name.replace('.', '/')}', TypeHaxe);
+			if (script.type.dummy) {
+				_log('[HaxeScript] Failed to resolve module: $name');
 				script.destroy();
-				inline function resolveAbstract(name:String):Dynamic {
-					var path = name.split('.');
-					path[path.length - 1] = '_' + path.last();
-					return Type.resolveClass('rulescript.__abstracts.${path.join('.')}');
-				}
-				return Script.defaultImports.get(name) ?? Type.resolveClass(name) ?? resolveAbstract(name);
+				return [];
 			}
+			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : [];
 		}
+		RuleScript.defaultImports.set('', rootImport);
 	}
 
 	/**
@@ -70,24 +65,31 @@ final class HaxeScript extends Script {
 	var _parser(get, never):HxParser;
 	inline function get__parser():HxParser
 		return internalScript.getParser(HxParser);
+	var _interp(get, never):RuleScriptInterp;
+	inline function get__interp():RuleScriptInterp
+		return internalScript.getInterp(RuleScriptInterp);
 
 	override function get_parent():Dynamic
-		return internalScript.superInstance;
-	override function set_parent(value:Dynamic):Dynamic
+		return destroyed ? null : internalScript.superInstance;
+	override function set_parent(value:Dynamic):Dynamic {
+		if (destroyed) return null;
 		return internalScript.superInstance = value;
+	}
+	override function setGlobalVariables(variables:Map<String, Dynamic>):Void
+		if (!destroyed) internalScript.context.publicVariables = variables;
 
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
-		internalScript = new RuleScript();
+		internalScript = new RuleScript(new rulescript.Context());
 		var finalPath:String = file.format();
 		if (file.isFile && finalPath.contains('content/modules/')) {
-			if (!finalPath.contains(internalScript.interp.scriptPackage.replace('.', '/')) && Paths.fileExists('lead:content/modules/${internalScript.interp.scriptPackage.replace('.', '/')}')) {
-				internalScript.interp.scriptPackage = finalPath.split('/content/modules/')[1].split('/').join('/').split('.')[0].replace('/', '.');
+			if (!Paths.fileExists(Paths.script('lead:content/modules/${internalScript.scriptPackage.replace('.', '/')}', TypeHaxe))) {
+				internalScript.scriptPackage = finalPath.split('/content/modules/')[1].split('/').join('/').split('.')[0].replace('/', '.');
 				_parser.mode = MODULE;
 			}
 		}
 		super(file, code);
-		internalScript.scriptName = filePath == null ? 'from string' : filePath.format();
+		internalScript.scriptName = code == null ? (filePath.isFile ? filePath.format() : 'no code') : 'from string';
 	}
 
 	override function renderScript(file:ModPath, ?code:String):Void {
@@ -100,10 +102,11 @@ final class HaxeScript extends Script {
 		super.loadNecessities();
 		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools, FunkinUtil, ReflectUtil, SpriteUtil];
 		for (i in usingArray) // TODO: Add more.
-			internalScript.interp.usings.set(Std.string(i).split('.').last(), i);
+			_interp.usings.set(Std.string(i).split('.').last(), i);
 
-		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, internalScript.interp.posInfos())));
-		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, internalScript.interp.posInfos()));
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, _interp.posInfos())));
+		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, _interp.posInfos()));
+		internalScript.context.staticVariables = Script.constantVariables;
 
 		#if (neko || eval || display)
 		for (tag => value in haxe.macro.Context.getDefines())
@@ -112,52 +115,50 @@ final class HaxeScript extends Script {
 		#end
 		internalScript.errorHandler = (error:haxe.Exception) -> {
 			var errorMessage = error.message.split(':'); errorMessage.shift();
-			var errorLine:Int = Std.parseInt(errorMessage.shift()) /* _parser.parser.line */;
+			var line = errorMessage.shift();
+			var errorLine:Int = /* Std.parseInt(line) */ _parser.parser.line;
 			Sys.println(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe));
-			return error;
 		}
 		canRun = true;
 	}
 
 	override function launchCode(code:String):Void {
+		if (destroyed) return;
 		try {
 			if (!code.isNullOrEmpty()) {
-				internalScript.tryExecute(code, internalScript.errorHandler);
-				loaded = true;
+				internalScript.tryExecute(code, (error:haxe.Exception) -> {
+					internalScript.errorHandler(error);
+					return error;
+				});
+				active = loaded = true;
 				if (_parser.mode != MODULE)
 					call('new');
 				return;
 			} else _log('Script "${internalScript.scriptName}" is either null or empty.');
 		} catch(error:haxe.Exception)
 			internalScript.errorHandler(error);
-		loaded = false;
+		active = loaded = false;
 	}
 
 	override public function set(name:String, value:Dynamic):Void
-		internalScript.variables.set(name, value);
+		if (!destroyed && exists) internalScript.access.setVariable(name, value);
 	override public function get<V>(name:String, ?def:V):V {
-		if (internalScript.variables.exists(name))
-			return internalScript.variables.get(name) ?? def;
+		if (!destroyed && exists && internalScript.access.variableExists(name))
+			return internalScript.access.getVariable(name) ?? def;
 		return def;
 	}
 
 	override public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
-		if (!active) return def;
-		if (!internalScript.variables.exists(func)) return def;
-
-		var daFunc:haxe.Constraints.Function = get(func);
-		if (Reflect.isFunction(daFunc))
-			try {
-				return Reflect.callMethod(null, daFunc, args ?? []) ?? def;
-			} catch(error:haxe.Exception)
-				log('Error while trying to call function "$func". (error:$error)', ErrorMessage);
-
+		if (!active || destroyed || !exists)
+			return def;
+		try {
+			return internalScript.access.callFunction(func, args ?? []) ?? def;
+		} catch(error:haxe.Exception)
+			log('Error while trying to call function "$func". (error:$error)', ErrorMessage);
 		return def;
 	}
 
 	override public function destroy():Void {
-		internalScript.interp = null;
-		internalScript.parser = null;
 		internalScript = null;
 		super.destroy();
 	}

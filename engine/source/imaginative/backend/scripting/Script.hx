@@ -67,7 +67,7 @@ class Script extends FlxBasic implements IScript {
 			});
 		}
 		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
-			defaultImports.set(alias ?? Std.string(cls).split('.').last(), cls);
+			defaultImports.set(alias ?? Std.string(cls).split('.').last(), Type.resolveClass(Std.string(cls)));
 		// TODO: Implement blacklisting.
 		var flixelExclude = [
 			'flixel.animation.*',
@@ -133,17 +133,19 @@ class Script extends FlxBasic implements IScript {
 	/**
 	 * Creates a script instance.
 	 * @param file The mod path.
+	 * @param type The script type, just in case you wanna be specific about what scripts to find.
 	 * @return Script ~ The script you wished to create.
 	 */
-	public static function create(file:ModPath):Script
-		return _create(Paths.script(file).format());
+	public static function create(file:ModPath, type:ScriptType = TypeInvalid):Script
+		return _create(Paths.script(file).format(), type);
 	/**
 	 * Creates script instances.
 	 * @param file The mod path.
+	 * @param type The script type, just in case you wanna be specific about what scripts to find.
 	 * @param preventModDuplicates If true prevent's duplicates between mods.
 	 * @return Array<Script> ~ The scripts you wished to create.
 	 */
-	public static function createMulti(file:ModPath, preventModDuplicates:Bool = true):Array<Script> {
+	public static function createMulti(file:ModPath, type:ScriptType = TypeInvalid, preventModDuplicates:Bool = true):Array<Script> {
 		#if SCRIPT_SUPPORT
 		var paths:Array<String> = [
 			#if MOD_SUPPORT
@@ -151,10 +153,10 @@ class Script extends FlxBasic implements IScript {
 				for (instance in Modding.getAllInstancesOfFile('${file.path}.$ext', file.type, preventModDuplicates))
 					instance
 			#else
-			Paths.script(file).format()
+			Paths.script(file, type).format()
 			#end
 		];
-		var scripts:Array<Script> = [for (path in paths) _create(path)];
+		var scripts:Array<Script> = [for (path in paths) _create(path, type)];
 		scripts.filter((script:Script) -> {
 			if (script == null)
 				return false;
@@ -169,13 +171,13 @@ class Script extends FlxBasic implements IScript {
 		return [];
 		#end
 	}
-	static function _create(path:String):Script {
+	static function _create(path:String, type:ScriptType = TypeInvalid):Script {
 		#if SCRIPT_SUPPORT
 		var extension:String = FilePath.extension(path).toLowerCase();
 		if (exts.contains(extension)) {
-			if (HaxeScript.exts.contains(extension))
+			if ((type == TypeInvalid || type == TypeHaxe) && HaxeScript.exts.contains(extension))
 				return new HaxeScript('root:$path');
-			if (LuaScript.exts.contains(extension))
+			if ((type == TypeInvalid || type == TypeLua) && LuaScript.exts.contains(extension))
 				return new LuaScript('root:$path');
 		}
 		return new InvalidScript('root:$path');
@@ -189,6 +191,12 @@ class Script extends FlxBasic implements IScript {
 	 * This is the static variables map, these variables can be accessed at all times.
 	 */
 	public static var constantVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
+
+	/**
+	 * The priority index of the script.
+	 * Used for stuff like script calls.
+	 */
+	public var priorityIndex:Int = 1000;
 
 	/**
 	 * States the type of script this is.
@@ -236,12 +244,13 @@ class Script extends FlxBasic implements IScript {
 	// was being weird when loadNecessities would run in extended classes
 	var startVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
 	function new(file:ModPath, ?code:String):Void {
+		active = false;
 		if (code == null)
 			filePath = file;
 		super();
-		renderScript(filePath);
+		renderScript(filePath, code);
 		loadNecessities();
-		for (map in [defaultImports, startVariables])
+		for (map in (type == TypeHaxe ? [startVariables] : [defaultImports, startVariables])) // work plz
 			for (key => value in map)
 				set(key, value);
 		GlobalScript.call('scriptCreated', [this, type]);
@@ -266,11 +275,12 @@ class Script extends FlxBasic implements IScript {
 		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromUnknown)));
 		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
 		startVariables.set('disableScript', () -> active = false);
-		startVariables.set('__this__', this);
+		startVariables.set('__script__', this);
 	}
 
 	var canRun:Bool = false;
-	function launchCode(code:String):Void {}
+	function launchCode(code:String):Void
+		active = true;
 
 	/**
 	 * States if the script has loaded.
@@ -280,7 +290,7 @@ class Script extends FlxBasic implements IScript {
 	 * Loads the script, pretty self-explanatory.
 	 */
 	public function load():Void
-		if (!loaded)
+		if (!loaded && !destroyed && exists)
 			launchCode(scriptCode);
 
 	// Basic functions.
@@ -319,5 +329,17 @@ class Script extends FlxBasic implements IScript {
 	override public function destroy():Void {
 		GlobalScript.call('scriptDestroyed', [this, type]);
 		super.destroy();
+	}
+
+	override function toString():String {
+		return FunkinUtil.toDebugString([
+			'filePath' => filePath.format(),
+			'type' => type,
+			'priorityIndex' => priorityIndex,
+			'loaded' => loaded,
+			'active' => active,
+			'exists' => exists,
+			'parent' => Std.string(parent).split('.').last()
+		]);
 	}
 }

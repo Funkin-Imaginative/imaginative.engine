@@ -20,6 +20,7 @@ class Macro {
 		Compiler.include('haxe', true, ['haxe.atomic.*', 'haxe.macro.*']);
 		Compiler.include('flixel', true, ['flixel.addons.editors.spine.*', 'flixel.addons.nape.*', 'flixel.system.macros.*', 'flixel.addons.tile.FlxRayCastTilemap', 'flixel.addons.weapon.*']);
 		#end
+		Compiler.include('moonchart', true, ['moonchart.backend.*']); // force include, no matter what
 	}
 
 	/**
