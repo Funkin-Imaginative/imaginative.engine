@@ -39,7 +39,7 @@ extern class Native {
 	}
 
 	#elseif linux
-	@:allow(flixel.FlxWindow)
+	@:allow(flixel.window.FlxWindow)
 	@:native('native::getMonitorRefreshRate')
 	private static function getLinuxMonitorRefreshRate():cpp.Int16;
 	#end
