@@ -1,7 +1,6 @@
 package imaginative.backend.native;
 
-import lime.system.Display;
-import lime.system.System;
+
 
 @:buildXml('<include name="../../../../engine/source/imaginative/backend/native/build.xml" />')
 @:include('native.hpp')
@@ -13,7 +12,7 @@ import lime.system.System;
 @SuppressWarnings('checkstyle:FieldDocComment')
 extern class Native {
 	#if windows
-	public static function __init__():Void
+	static function __init__():Void
 		registerDPIAware();
 
 	@:native('native::registerDPIAware')
@@ -26,7 +25,7 @@ extern class Native {
 	private static var fixedScaling:Bool;
 
 	static var fixedScaling:Bool = false;
-	public static function fixScaling():Void {
+	static function fixScaling():Void {
 		if (fixedScaling) return;
 		fixedScaling = true;
 
