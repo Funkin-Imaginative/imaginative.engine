@@ -4,11 +4,15 @@ haxelib install flixel-addons --skip-dependencies
 haxelib install flixel --skip-dependencies
 haxelib install lime
 haxelib install openfl
+haxelib install flixel-animate --skip-dependencies
 haxelib git rulescript https://github.com/Funkin-Imaginative/RuleScript imaginative
 haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 363d3d0a8d3ac450f5ba1b4c3357353656b71e82
 haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c
 haxelib install hxdiscord_rpc
 haxelib install hxp
+haxelib git hxvlc https://github.com/MAJigsaw77/hxvlc --skip-dependencies
 haxelib git json2object https://github.com/FunkinCrew/json2object
+haxelib git linc_luajit https://github.com/superpowers04/linc_luajit
 haxelib git moonchart https://github.com/Funkin-Imaginative/moonchart imaginative
+haxelib install thx.semver
 haxelib install compiletime

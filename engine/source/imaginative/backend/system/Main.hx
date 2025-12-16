@@ -39,6 +39,12 @@ class Main extends openfl.display.Sprite {
 	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
+	#if windows
+	static function __init__():Void {
+		imaginative.backend.native.Native.registerDPIAware();
+	}
+	#end
+
 	public function new():Void {
 		CrashHandler.init();
 		#if TRACY_DEBUGGER
