@@ -39,9 +39,10 @@ final class HaxeScript extends Script {
 			if (script.type.dummy) {
 				_log('[HaxeScript] Failed to resolve module: $name');
 				script.destroy();
-				return [];
+				return null;
 			}
-			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : [];
+			if (!script.filePath.isFile) script.destroy();
+			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : null;
 		}
 		RuleScript.defaultImports.set('', rootImport);
 	}
