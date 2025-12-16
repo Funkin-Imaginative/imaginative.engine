@@ -33,7 +33,8 @@ final class HaxeScript extends Script {
 		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
 			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
 
-		ScriptedTypeUtil.resolveModule = (name:String) -> {
+		// fucks over so much for no reason
+		/* ScriptedTypeUtil.resolveModule = (name:String) -> {
 			_log('[HaxeScript] Resolving script for module: $name');
 			var script:HaxeScript = cast Script.create('lead:content/modules/${name.replace('.', '/')}', TypeHaxe);
 			if (script.type.dummy) {
@@ -43,7 +44,7 @@ final class HaxeScript extends Script {
 			}
 			if (!script.filePath.isFile) script.destroy();
 			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : null;
-		}
+		} */
 		RuleScript.defaultImports.set('', rootImport);
 	}
 
