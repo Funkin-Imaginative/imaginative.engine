@@ -90,8 +90,8 @@ class Macro {
 			 */
 			public function screenCenter(axes:FlxAxes = XY, ?camera:FlxCamera):FlxObject {
 				camera ??= getDefaultCamera();
-				if (axes.x) x = (camera.width - width) / 2;
-				if (axes.y) y = (camera.height - height) / 2;
+				if (axes.x) x = (camera.width - width) / 2 - (camera.scroll.x * -scrollFactor.x);
+				if (axes.y) y = (camera.height - height) / 2 - (camera.scroll.y * -scrollFactor.y);
 				return this;
 			}
 		}
