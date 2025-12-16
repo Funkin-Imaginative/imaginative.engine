@@ -50,7 +50,6 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	 * Loads the scripts in the group, pretty self-explanatory.
 	 */
 	public function load():Void {
-		clearInvalid();
 		forEach((script:Script) -> script.load());
 	}
 
@@ -103,12 +102,11 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	override public function recycle(?objectClass:Class<Script>, ?objectFactory:Void->Script, force:Bool = false, revive:Bool = true):Script return null;
 
 	override function forEach(func:Script->Void, recurse:Bool = false):Void {
-		clearInvalid();
 		members.sort((a:Script, b:Script) -> return FlxSort.byValues(FlxSort.DESCENDING, a.priorityIndex, b.priorityIndex));
 		for (script in members) {
 			if (script == null) continue;
 			// siphons out dead scripts
-			if (script.destroyed) {
+			if (script.type.dummy || script.destroyed) {
 				remove(script, true);
 				continue;
 			}
@@ -146,17 +144,6 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 		var isDup:Bool = check != null;
 		if (isDup) script.end('onDuplicate');
 		return isDup;
-	}
-	/**
-	 * Improper scripts get removed from the group.
-	 */
-	public function clearInvalid():Void {
-		forEach((script:Script) -> {
-			if (script.type.dummy) {
-				remove(script, true);
-				script.end('onInvalid');
-			}
-		});
 	}
 
 	/**
