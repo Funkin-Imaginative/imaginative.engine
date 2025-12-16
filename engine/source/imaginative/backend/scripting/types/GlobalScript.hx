@@ -14,12 +14,10 @@ class GlobalScript {
 		if (scripts != null)
 			scripts.end();
 
-		scripts = new ScriptGroup();
+		scripts = new ScriptGroup(FlxG.state);
 		scripts.globalVariables = [
-			'scripts' => scripts,
-			'loadScript' => loadScript,
-			'call' => call,
-			'event' => event,
+			'_scriptCall' => call,
+			'_eventCall' => event,
 		];
 		for (script in Script.createMulti('lead:content/global'))
 			scripts.add(script);
@@ -52,7 +50,10 @@ class GlobalScript {
 
 		FlxG.signals.preStateCreate.add((state:FlxState) -> call('preStateCreate', [state]));
 		FlxG.signals.preStateSwitch.add(() -> call('preStateSwitch'));
-		FlxG.signals.postStateSwitch.add(() -> call('stateSwitchPost'));
+		FlxG.signals.postStateSwitch.add(() -> {
+			scripts.parent = FlxG.state;
+			call('stateSwitchPost');
+		});
 
 		loadScript();
 	}
