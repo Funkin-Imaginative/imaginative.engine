@@ -67,7 +67,7 @@ class Console {
 			return output;
 		}
 		if (value is Class)
-			return '[${Std.string(value)/* .split('.').last() */}] = {' + [for (field in value._fields()) field + ': ' + formatValueInfo(value._get(field), true, true)].formatArray() + '}';
+			return '[${Std.string(value)/* .split('.').last() */}]';
 		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
