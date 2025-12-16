@@ -10,10 +10,8 @@ package imaginative.backend.native;
 @SuppressWarnings('checkstyle:FieldDocComment')
 extern class Native {
 	#if windows
-	static function __init__():Void
-		registerDPIAware();
-
 	@:native('native::registerDPIAware')
+	@:allow(imaginative.backend.system.Main)
 	private static function registerDPIAware():Void;
 
 	@:native('native::fixScaling')
