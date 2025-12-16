@@ -1,7 +1,5 @@
 package imaginative.backend.native;
 
-
-
 @:buildXml('<include name="../../../../engine/source/imaginative/backend/native/build.xml" />')
 @:include('native.hpp')
 /**
@@ -16,7 +14,7 @@ extern class Native {
 		registerDPIAware();
 
 	@:native('native::registerDPIAware')
-	static function registerDPIAware():Void;
+	private static function registerDPIAware():Void;
 
 	@:native('native::fixScaling')
 	private static function _fixScaling():Void;
@@ -24,25 +22,25 @@ extern class Native {
 	@:native('native::fixedScaling')
 	private static var fixedScaling:Bool;
 
-	static inline function fixScaling():Void {
+	inline static function fixScaling():Void {
 		if (fixedScaling) return;
 		fixedScaling = true;
 
 		#if windows
-		final display:Null<Display> = System.getDisplay(0);
+		final display:Null<lime.system.Display> = lime.system.System.getDisplay(0);
 		if (display != null) {
 			final dpiScale:Float = display.dpi / 96;
 			FlxWindow.instance.self.width = Std.int(Main.initialWidth * dpiScale);
 			FlxWindow.instance.self.height = Std.int(Main.initialHeight * dpiScale);
 			FlxWindow.instance.screenCenter();
 		}
-
 		_fixScaling();
 		#end
 	}
 
 	#elseif linux
+	@:allow(flixel.FlxWindow)
 	@:native('native::getMonitorRefreshRate')
-	static function getLinuxMonitorRefreshRate():cpp.Int16;
+	private static function getLinuxMonitorRefreshRate():cpp.Int16;
 	#end
 }
