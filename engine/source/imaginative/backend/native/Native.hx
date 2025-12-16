@@ -24,7 +24,6 @@ extern class Native {
 	@:native('native::fixedScaling')
 	private static var fixedScaling:Bool;
 
-	static var fixedScaling:Bool = false;
 	static function fixScaling():Void {
 		if (fixedScaling) return;
 		fixedScaling = true;
