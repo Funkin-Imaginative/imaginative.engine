@@ -124,12 +124,13 @@ final class HaxeScript extends Script {
 		canRun = true;
 	}
 
+	@:access(imaginative.backend.Console.formatLogInfo)
 	override function launchCode(code:String):Void {
 		if (destroyed) return;
 		try {
 			if (!code.isNullOrEmpty()) {
 				internalScript.tryExecute(code, (error:haxe.Exception) -> {
-					internalScript.errorHandler(error);
+					Sys.println(Console.formatLogInfo(error, ErrorMessage, internalScript.scriptName, _parser.parser.line, FromHaxe));
 					return error;
 				});
 				active = loaded = true;
