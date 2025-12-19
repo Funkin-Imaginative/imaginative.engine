@@ -36,6 +36,16 @@ jobs:
             export/debug/windows/obj/
           restore-keys: windows-debug-cache
 
+      - name: Cache Oxipng
+        uses: actions/cache@v4.3.0
+        with:
+          path: ~/.cargo/
+          key: windows-cargo
+      - name: Install Oxipng
+        run: which oxipng || cargo install oxipng
+      - name: Optimize PNGs
+        run: oxipng -o 4 -i 0 --strip safe *.png
+
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
@@ -114,6 +124,16 @@ jobs:
             export/debug/mac/obj/
           restore-keys: mac-debug-cache
 
+      - name: Cache Oxipng
+        uses: actions/cache@v4.3.0
+        with:
+          path: ~/.cargo/
+          key: mac-cargo
+      - name: Install Oxipng
+        run: which oxipng || cargo install oxipng
+      - name: Optimize PNGs
+        run: oxipng -o 4 -i 0 --strip safe *.png
+
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
 
@@ -191,6 +211,16 @@ jobs:
             export/debug/linux/haxe/
             export/debug/linux/obj/
           restore-keys: linux-debug-cache
+
+      - name: Cache Oxipng
+        uses: actions/cache@v4.3.0
+        with:
+          path: ~/.cargo/
+          key: linux-cargo
+      - name: Install Oxipng
+        run: which oxipng || cargo install oxipng
+      - name: Optimize PNGs
+        run: oxipng -o 4 -i 0 --strip safe *.png
 
       - name: Installing Dependencies
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
