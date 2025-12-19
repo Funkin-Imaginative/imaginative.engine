@@ -44,7 +44,8 @@ jobs:
       - name: Install Oxipng
         run: which oxipng || cargo install oxipng
       - name: Optimize PNGs
-        run: oxipng -o 4 -i 0 --strip safe *.png
+        run: |-
+          oxipng -o 4 -i 0 --strip safe *.png
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
@@ -132,7 +133,8 @@ jobs:
       - name: Install Oxipng
         run: which oxipng || cargo install oxipng
       - name: Optimize PNGs
-        run: oxipng -o 4 -i 0 --strip safe *.png
+        run: |-
+          oxipng -o 4 -i 0 --strip safe *.png
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always
@@ -220,7 +222,8 @@ jobs:
       - name: Install Oxipng
         run: which oxipng || cargo install oxipng
       - name: Optimize PNGs
-        run: oxipng -o 4 -i 0 --strip safe *.png
+        run: |-
+          oxipng -o 4 -i 0 --strip safe *.png
 
       - name: Installing Dependencies
         run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
