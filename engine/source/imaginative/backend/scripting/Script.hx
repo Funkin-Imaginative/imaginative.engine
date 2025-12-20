@@ -103,7 +103,7 @@ class Script extends FlxBasic implements IScript {
 		var classArray:Array<Class<Dynamic>> = [Date, DateTools, Lambda, Math, Std, StringTools, Type];
 		for (i in classArray)
 			importClass(i);
-		HaxeScript.init();
+		#if CAN_HAXE_SCRIPT HaxeScript.init(); #end
 	}
 
 	// Util Functions.
@@ -182,7 +182,7 @@ class Script extends FlxBasic implements IScript {
 		}
 		return new InvalidScript('root:$path');
 		#else
-		new InvalidScript('');
+		return new InvalidScript('');
 		#end
 	}
 
