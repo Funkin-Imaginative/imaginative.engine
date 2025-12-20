@@ -74,11 +74,11 @@ import imaginative.backend.music.states.BeatState;
 import imaginative.backend.music.states.BeatSubState;
 import imaginative.backend.objects.Position;
 import imaginative.backend.objects.TypeXY;
+import imaginative.backend.scripting.GlobalScript;
 import imaginative.backend.scripting.Script;
+import imaginative.backend.scripting.ScriptGroup;
 import imaginative.backend.scripting.events.ScriptEvent;
-import imaginative.backend.scripting.group.ScriptGroup;
 import imaginative.backend.scripting.interfaces.IScript;
-import imaginative.backend.scripting.types.GlobalScript;
 import imaginative.backend.system.Assets;
 import imaginative.backend.system.Main;
 #if MOD_SUPPORT

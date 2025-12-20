@@ -11,7 +11,7 @@ class ScriptEvent {
 	 * If true whatever it does is prevented.
 	 */
 	public var prevented:Bool = false;
-	@:allow(imaginative.backend.scripting.group.ScriptGroup.event)
+	@:allow(imaginative.backend.scripting.ScriptGroup.event)
 	var continueLoop:Bool = true;
 
 	/**

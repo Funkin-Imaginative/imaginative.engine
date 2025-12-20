@@ -1,4 +1,4 @@
-package imaginative.backend.scripting.group;
+package imaginative.backend.scripting;
 
 // MAYBE: Do a sprite group (extend Script)? Doing this would allow for script groups to be within script groups.
 /**

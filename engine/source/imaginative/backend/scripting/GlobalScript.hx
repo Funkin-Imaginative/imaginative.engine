@@ -1,4 +1,4 @@
-package imaginative.backend.scripting.types;
+package imaginative.backend.scripting;
 
 /**
  * This is used for global scripts. Global scripts are scripts that always run in the background.
