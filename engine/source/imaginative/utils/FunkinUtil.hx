@@ -234,12 +234,11 @@ class FunkinUtil {
 		#elseif ((js && !nodejs) || electron)
 		return js.Browser.window.performance.now();
 		#elseif (lime_cffi && !macro)
-		@:privateAccess
-		return cast lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
+		return cast @:privateAccess lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
 		#elseif cpp
-		return untyped __global__.__time_stamp() * 1000.0;
+		return untyped __global__.__time_stamp() * 1000;
 		#elseif sys
-		return Sys.time() * 1000.0;
+		return Sys.time() * 1000;
 		#else
 		return 0;
 		#end

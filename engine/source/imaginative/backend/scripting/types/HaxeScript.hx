@@ -4,7 +4,8 @@ package imaginative.backend.scripting.types;
 import rulescript.RuleScript;
 import rulescript.interps.RuleScriptInterp;
 import rulescript.parsers.HxParser;
-import rulescript.types.ScriptedTypeUtil;
+
+// import rulescript.types.ScriptedTypeUtil;
 #end
 
 /**
