@@ -22,6 +22,9 @@ class Macro {
 		Compiler.include('flixel', true, ['flixel.addons.editors.spine.*', 'flixel.addons.nape.*', 'flixel.system.macros.*', 'flixel.addons.tile.FlxRayCastTilemap', 'flixel.addons.weapon.*']);
 		#end
 		Compiler.include('moonchart', true, ['moonchart.backend.*']); // force include, no matter what
+		#if (FLX_DEBUG && CAN_HAXE_SCRIPT)
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideConsoleUtil())', 'flixel.system.debug.console.ConsoleUtil');
+		#end
 	}
 
 	/**
@@ -185,5 +188,52 @@ class Macro {
 		}
 		return classFields;
 	}
+
+	#if (FLX_DEBUG && CAN_HAXE_SCRIPT)
+	/**
+	 * Makes ConsoleUtil run RuleScript instead of base hscript.
+	 * Why did I implement this? Idk, I thought it would be a good idea.
+	 * @return Array<Field>
+	 */
+	public static macro function overrideConsoleUtil():Array<Field> {
+		var classFields = Context.getBuildFields();
+		var tempClass = macro class TempClass {
+			/**
+			 * The hscript parser to make strings into haxe code.
+			 */
+			static var parser:rulescript.parsers.HxParser;
+
+			/**
+			 * The custom hscript interpreter to run the haxe code from the parser.
+			 */
+			public static var interp:rulescript.interps.RuleScriptInterp;
+
+			/**
+			 * Sets up the hscript parser and interpreter.
+			 */
+			public static function init():Void {
+				parser = new rulescript.parsers.HxParser();
+				parser.setParameters({
+					allowJSON: true,
+					allowMetadata: true,
+					allowTypes: true,
+					allowPackage: false,
+					allowImport: false,
+					allowUsing: false,
+					allowStringInterpolation: true,
+					allowPublicVariables: false,
+					allowStaticVariables: false,
+					allowTypePath: true
+				});
+				interp = new rulescript.interps.RuleScriptInterp();
+			}
+		}
+		for (name in ['parser', 'interp', 'init']) {
+			var field = classFields.filter(field -> return field.name == name)[0];
+			field.remove(oldParser);
+		}
+		return classFields.concat(tempClass.fields);
+	}
+	#end
 }
 #end
