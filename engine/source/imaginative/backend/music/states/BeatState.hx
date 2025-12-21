@@ -4,6 +4,7 @@ package imaginative.backend.music.states;
  * It's just 'FlxState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
+@:build(imaginative.backend.scripting.ScriptMacro.addShortcuts('stateScripts', true, true))
 class BeatState extends FlxState implements IBeatState {
 	/**
 	 * The states conductor instance.
@@ -145,29 +146,6 @@ class BeatState extends FlxState implements IBeatState {
 				stateScripts.add(script);
 			stateScripts.load();
 		}
-	}
-	/**
-	 * Calls a function in the script group.
-	 * @param func The name of the function to call.
-	 * @param args Arguments of said function.
-	 * @param def If it's null then return this.
-	 * @return Dynamic ~ Whatever is in the functions return statement.
-	 */
-	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		if (stateScripts != null)
-			return stateScripts.call(func, args, def);
-		return def;
-	}
-	/**
-	 * Calls an event in the script group.
-	 * @param func The name of the function to call.
-	 * @param event The event instance.
-	 * @return ScriptEvent
-	 */
-	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
-		if (stateScripts != null)
-			return stateScripts.event(func, event);
-		return event;
 	}
 
 	/**

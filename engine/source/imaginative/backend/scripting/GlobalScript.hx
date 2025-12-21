@@ -3,6 +3,7 @@ package imaginative.backend.scripting;
 /**
  * This is used for global scripts. Global scripts are scripts that always run in the background.
  */
+@:build(imaginative.backend.scripting.ScriptMacro.addShortcuts('scripts', false, true))
 class GlobalScript {
 	/**
 	 * Contains global scripts.
@@ -16,8 +17,8 @@ class GlobalScript {
 
 		scripts = new ScriptGroup(FlxG.state);
 		scripts.globalVariables = [
-			'_scriptCall' => call,
-			'_eventCall' => event,
+			'_scriptCall' => call, 'globalScriptCall' => call,
+			'_eventCall' => event, 'globalEventCall' => event,
 		];
 		for (script in Script.createMulti('lead:content/global'))
 			scripts.add(script);
@@ -40,13 +41,8 @@ class GlobalScript {
 		FlxG.signals.preGameReset.add(() -> call('preGameReset'));
 		FlxG.signals.postGameReset.add(() -> call('gameResetPost'));
 
-		FlxG.signals.preUpdate.add(() -> {
-			call('preUpdate', [FlxG.elapsed]);
-			call('update', [FlxG.elapsed]);
-		});
-		FlxG.signals.postUpdate.add(() -> {
-			call('updatePost', [FlxG.elapsed]);
-		});
+		FlxG.signals.preUpdate.add(() -> call('update', [FlxG.elapsed]));
+		FlxG.signals.postUpdate.add(() -> call('updatePost', [FlxG.elapsed]));
 
 		FlxG.signals.preStateCreate.add((state:FlxState) -> call('preStateCreate', [state]));
 		FlxG.signals.preStateSwitch.add(() -> call('preStateSwitch'));
@@ -56,30 +52,6 @@ class GlobalScript {
 		});
 
 		loadScript();
-	}
-
-	/**
-	 * Call's a function in the script instance.
-	 * @param func Name of the function to call.
-	 * @param args Arguments of said function.
-	 * @param def If it's null then return this.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
-	 */
-	inline public static function call(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		if (scripts != null)
-			return scripts.call(func, args, def);
-		return def;
-	}
-	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
-	 * @param event The event class.
-	 * @return `ScriptEvent`
-	 */
-	inline public static function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		if (scripts != null)
-			return scripts.event(func, event);
-		return event;
 	}
 
 	@:allow(imaginative.backend.music.Conductor.callToState)
