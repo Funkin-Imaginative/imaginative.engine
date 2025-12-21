@@ -49,18 +49,8 @@ class EngineProcess extends BeatState {
 
 		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if FLX_DEBUG
+		for (cls in FunkinUtil.getClasses('imaginative')) FlxG.game.debugger.console.registerClass(cls);
 		FlxG.game.debugger.console.registerClass(FlxWindow);
-		FlxG.game.debugger.console.registerClass(Scoring);
-		FlxG.game.debugger.console.registerClass(Conductor);
-		FlxG.game.debugger.console.registerClass(Assets);
-		#if MOD_SUPPORT
-		FlxG.game.debugger.console.registerClass(Modding);
-		#end
-		FlxG.game.debugger.console.registerClass(Paths);
-		FlxG.game.debugger.console.registerClass(SaveData);
-		FlxG.game.debugger.console.registerClass(Settings);
-		FlxG.game.debugger.console.registerClass(Controls);
-		FlxG.game.debugger.console.registerClass(ArrowField);
 		FlxG.game.debugger.console.registerFunction('resetState', () -> BeatState.resetState());
 		FlxG.game.debugger.console.registerFunction('setCameraToCharacter', (camera:FlxCamera, char:Character) -> {
 			var camPos = char.getCamPos();
