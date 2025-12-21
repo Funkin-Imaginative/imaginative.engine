@@ -14,7 +14,7 @@ class ScriptMacro {
 	 * @param scriptGroupName The name of the script group variable.
 	 * @param differentiateFunctionNames If true the generated function names will be different to avoid issues.
 	 * example: "call" will become "scriptCall" and "event" will become "eventCall".
-	 * @param makeInline If true then all generated fields will be inlined
+	 * @param makeInline If true then all generated fields will be inlined.
 	 * @return Array<Field>
 	 */
 	public static macro function addShortcuts(scriptGroupName:String, differentiateFunctionNames:Bool, makeInline:Bool):Array<Field> {
@@ -36,7 +36,7 @@ class ScriptMacro {
 			 * @param def If it's null then return this.
 			 * @return `Dynamic` ~ Whatever is in the functions return statement.
 			 */
-			public function $callFuncName(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
+			public function $callFuncName<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
 				if ($mainVarName != null)
 					return $mainVarName.call(func, args, def);
 				return def;
