@@ -233,28 +233,31 @@ class MainMenu extends BeatState {
 		selectionCooldown(1.1);
 
 		var event:ChoiceEvent = eventCall('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
-		if (!event.prevented)
+		if (!event.prevented) {
 			event.playMenuSFX(ConfirmSFX);
-		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
-			if (!event.prevented)
-			switch (event.choice) {
-				case 'storymode':
-					BeatState.switchState(() -> new StoryMenu());
-				case 'freeplay':
-					BeatState.switchState(() -> new FreeplayMenu());
-				case 'donate':
-					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
-				case 'kickstarter':
-					PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
-				case 'merch':
-					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
-				case 'options':
-					selectionCooldown(0.4); // extend cooldown
-					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
-				case 'credits':
-					BeatState.switchState(() -> new CreditsMenu());
-			}
-			bgColor = bg.changeColor();
-		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
+			FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
+				if (!event.prevented)
+				switch (event.choice) {
+					case 'storymode':
+						BeatState.switchState(() -> new StoryMenu());
+					case 'freeplay':
+						BeatState.switchState(() -> new FreeplayMenu());
+					case 'donate':
+						PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
+					case 'kickstarter':
+						PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
+					case 'merch':
+						PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
+					case 'options':
+						selectionCooldown(0.4); // extend cooldown
+						conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
+					case 'credits':
+						BeatState.switchState(() -> new CreditsMenu());
+					default:
+						_log('[MainMenu] Item "${event.choice}" doesn\'t exist.');
+				}
+				bgColor = bg.changeColor();
+			}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
+		}
 	}
 }
