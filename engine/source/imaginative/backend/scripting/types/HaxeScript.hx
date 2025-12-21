@@ -20,6 +20,11 @@ final class HaxeScript extends Script {
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
 	inline static function init():Void {
+		#if (neko || eval || display)
+		for (tag => value in haxe.macro.Context.getDefines())
+			if (!HxParser.defaultPreprocesorValues.exists(tag))
+				HxParser.defaultPreprocesorValues.set(tag, value);
+		#end
 		var rootImport = Script.defaultImports.copy();
 		var jic:Map<String, Dynamic> = [
 			'Float' => Float,
@@ -110,12 +115,6 @@ final class HaxeScript extends Script {
 		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, _interp.posInfos())));
 		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, _interp.posInfos()));
 		internalScript.context.staticVariables = Script.constantVariables;
-
-		#if (neko || eval || display)
-		for (tag => value in haxe.macro.Context.getDefines())
-			if (!_parser.preprocesorValues.exists(tag))
-				_parser.preprocesorValues.set(tag, value);
-		#end
 		internalScript.errorHandler = (error:haxe.Exception) -> {
 			var errorMessage = error.message.split(':'); errorMessage.shift();
 			var line = errorMessage.shift();
