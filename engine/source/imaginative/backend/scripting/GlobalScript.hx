@@ -3,7 +3,7 @@ package imaginative.backend.scripting;
 /**
  * This is used for global scripts. Global scripts are scripts that always run in the background.
  */
-@:build(imaginative.backend.scripting.ScriptMacro.addShortcuts('scripts', false, true))
+@:build(imaginative.backend.scripting.ScriptMacro.buildShortcutVariables('scripts', false, true))
 class GlobalScript {
 	/**
 	 * Contains global scripts.

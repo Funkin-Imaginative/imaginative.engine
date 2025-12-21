@@ -17,7 +17,7 @@ class ScriptMacro {
 	 * @param makeInline If true then all generated fields will be inlined.
 	 * @return Array<Field>
 	 */
-	public static macro function addShortcuts(scriptGroupName:String, differentiateFunctionNames:Bool, makeInline:Bool):Array<Field> {
+	public static macro function buildShortcutVariables(scriptGroupName:String, differentiateFunctionNames:Bool, makeInline:Bool):Array<Field> {
 		var classFields = Context.getBuildFields();
 		if (![for (field in classFields) field.name].contains(scriptGroupName)) {
 			Context.error('Variable "$scriptGroupName" doesn\'t exist.', Context.currentPos());

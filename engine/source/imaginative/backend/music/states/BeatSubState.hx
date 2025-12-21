@@ -7,7 +7,7 @@ import imaginative.backend.objects.ParentDisabler;
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
 @SuppressWarnings('checkstyle:CodeSimilarity')
-@:build(imaginative.backend.scripting.ScriptMacro.addShortcuts('stateScripts', true, true))
+@:build(imaginative.backend.scripting.ScriptMacro.buildShortcutVariables('stateScripts', true, true))
 class BeatSubState extends FlxSubState implements IBeatState {
 	/**
 	 * The states conductor instance.

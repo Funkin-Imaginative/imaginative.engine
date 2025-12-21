@@ -4,7 +4,7 @@ package imaginative.backend.music.states;
  * It's just 'FlxState' but with 'IBeat' implementation. Or it would if it wasn't for this.
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
-@:build(imaginative.backend.scripting.ScriptMacro.addShortcuts('stateScripts', true, true))
+@:build(imaginative.backend.scripting.ScriptMacro.buildShortcutVariables('stateScripts', true, true))
 class BeatState extends FlxState implements IBeatState {
 	/**
 	 * The states conductor instance.
