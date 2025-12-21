@@ -4,9 +4,7 @@ class MenuSFXEvent extends ScriptEvent {
 	/**
 	 * If true the menu sound effect will play.
 	 */
-	public var playSFX(get, default):Bool;
-	inline function get_playSFX():Bool
-		return sfxVolume > 0 ? playSFX : false;
+	public var playSFX:Bool;
 	/**
 	 * The volume of the sound effect.
 	 */
@@ -24,8 +22,11 @@ class MenuSFXEvent extends ScriptEvent {
 	 * @param onComplete FlxG.sound.play's onComplete function.
 	 * @return `FlxSound` ~ The menu sound.
 	 */
-	inline public function playMenuSFX(sound:MenuSFX, forcePlay:Bool = false, ?onComplete:Void->Void):FlxSound
-		return playSFX || forcePlay ? FunkinUtil.playMenuSFX(sound, sfxVolume, sfxSubFolder, onComplete) : new FlxSound();
+	inline public function playMenuSFX(sound:MenuSFX, forcePlay:Bool = false, ?onComplete:Void->Void):Null<FlxSound> {
+		if (sfxVolume > 0 && (playSFX || forcePlay))
+			return FunkinUtil.playMenuSFX(sound, sfxVolume, sfxSubFolder, onComplete);
+		return null;
+	}
 
 	override public function new(playSFX:Bool = true, sfxVolume:Float = 0.7) {
 		super();

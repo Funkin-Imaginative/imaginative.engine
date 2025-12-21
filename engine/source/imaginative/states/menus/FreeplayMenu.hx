@@ -355,7 +355,11 @@ class FreeplayMenu extends BeatState {
 
 		if (songLocked || diffLocked) {
 			if (songShake == null) {
-				var time:Float = event.playMenuSFX(CancelSFX, true).time / 1000;
+				var time:Float = {
+					var sound = event.playMenuSFX(CancelSFX, true);
+					if (sound == null) 3;
+					else sound.time / 1000;
+				}
 				var ogX:Float = song.text.x;
 				song.icon.playAnim('losing');
 				songShake = FlxTween.shake(song.text, 0.02, time, X, {
@@ -368,7 +372,12 @@ class FreeplayMenu extends BeatState {
 				selectionCooldown(time);
 			}
 		} else {
-			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
+			var time:Float = {
+				var sound = event.playMenuSFX(ConfirmSFX, true);
+				if (sound == null) 3;
+				else sound.time / 1000;
+			}
+			new FlxTimer().start(time, (_:FlxTimer) -> {
 				PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
 				BeatState.switchState(() -> new PlayState());
 			});

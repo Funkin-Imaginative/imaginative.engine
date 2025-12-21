@@ -10,10 +10,8 @@ class BeatState extends FlxState implements IBeatState {
 	 * The states conductor instance.
 	 */
 	@:isVar public var conductor(get, set):Conductor;
-	function get_conductor():Conductor
-		return Conductor.menu;
-	function set_conductor(value:Conductor):Conductor
-		return Conductor.menu;
+	function get_conductor():Conductor return Conductor.menu;
+	function set_conductor(value:Conductor):Conductor return Conductor.menu;
 	// this to for overriding when it comes to game play ^^
 
 	// BPM
@@ -135,6 +133,7 @@ class BeatState extends FlxState implements IBeatState {
 	 */
 	override public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
 		super();
+		// MAYBE: Have "#if SCRIPTED_STATES" be placed in more areas?
 		this.scriptsAllowed = #if SCRIPTED_STATES scriptsAllowed #else false #end;
 		this.scriptName = scriptName ?? this.getClassName();
 	}

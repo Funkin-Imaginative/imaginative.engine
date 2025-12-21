@@ -362,7 +362,11 @@ class StoryMenu extends BeatState {
 
 		if (levelLocked || diffLocked) {
 			if (levelShake == null || diffShake == null) {
-				var time:Float = event.playMenuSFX(CancelSFX, true).time / 1000;
+				var time:Float = {
+					var sound = event.playMenuSFX(CancelSFX, true);
+					if (sound == null) 3;
+					else sound.time / 1000;
+				}
 				if (levelLocked) {
 					var ogX:Float = level.x;
 					levelShake = FlxTween.shake(level, 0.02, time, X, {
@@ -388,7 +392,12 @@ class StoryMenu extends BeatState {
 				if (sprite.extra.get('willHey'))
 					sprite.playAnim('hey', NoDancing);
 
-			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
+			var time:Float = {
+				var sound = event.playMenuSFX(ConfirmSFX, true);
+				if (sound == null) 3;
+				else sound.time / 1000;
+			}
+			new FlxTimer().start(time, (_:FlxTimer) -> {
 				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
 				BeatState.switchState(() -> new PlayState());
 			});
