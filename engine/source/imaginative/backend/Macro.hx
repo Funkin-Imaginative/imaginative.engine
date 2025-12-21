@@ -13,10 +13,11 @@ class Macro {
 		// MAYBE: Re-add offset variable to FlxAnimation?????
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxBasic())', 'flixel.FlxBasic');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxObject())', 'flixel.FlxObject');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxSprite())', 'flixel.FlxSprite');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideDebugString())', 'flixel.util.FlxStringUtil');
 		#if SCRIPT_SUPPORT
-		Compiler.include('imaginative', true);
+		Compiler.include('imaginative', true, ['*Macro']);
 		Compiler.include('haxe', true, ['haxe.atomic.*', 'haxe.macro.*']);
 		Compiler.include('flixel', true, ['flixel.addons.editors.spine.*', 'flixel.addons.nape.*', 'flixel.system.macros.*', 'flixel.addons.tile.FlxRayCastTilemap', 'flixel.addons.weapon.*']);
 		#end
@@ -120,6 +121,30 @@ class Macro {
 
 		return classFields.concat(tempClass.fields);
 	}
+	/**
+	 * Implements forceIsOnScreen from Codename Engine.
+	 * @return Array<Field>
+	 */
+	public static macro function buildFlxSprite():Array<Field> {
+		var classFields = Context.getBuildFields();
+
+		// I hate that I hate to do this twice.
+		var onScreenFunc = classFields.filter(field -> return field.name == 'isOnScreen')[0];
+		switch (onScreenFunc.kind) {
+			case FFun(f):
+				var initExpr:Expr = f.expr;
+				f.expr = macro {
+					if (forceIsOnScreen)
+						return true;
+					$initExpr;
+				}
+				onScreenFunc.kind = FFun(f);
+			default:
+		}
+
+		return classFields;
+	}
+
 	/**
 	 * Implements keyValueIterator because it doesn't have one for some reason???
 	 * @return Array<Field>
