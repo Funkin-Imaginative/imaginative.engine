@@ -22,6 +22,25 @@ enum abstract MenuSFX(String) from String to String {
  * Utilities for this funkin engine.
  */
 class FunkinUtil {
+	@:unreflective static var classList:List<Class<Dynamic>> = CompileTime.getAllClasses();
+	/**
+	 * Returns a list of classes of your choosing.
+	 * @param rootPath The package path to get the list from.
+	 * @param excludes Sets of packages to exclude when returning the list.
+	 * @return List<Class<Dynamic>>
+	 */
+	public static function getClasses(?rootPath:String, ?excludes:Array<String>):List<Class<Dynamic>> {
+		return classList.filter(classInst -> {
+			var className:String = Std.string(classInst);
+			if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
+				return false;
+			for (exclude in excludes ?? [])
+				if (className.startsWith(exclude.endsWith('*') ? exclude.substring(0, exclude.length - 1) : exclude))
+					return false;
+			return true;
+		});
+	}
+
 	/**
 	 * Adds missing folders to your mod.
 	 * If you realize certain folders don't show up, please tell me.

@@ -30,7 +30,7 @@ final class HaxeScript extends Script {
 		for (key => value in jic)
 			rootImport.set(key, value);
 		// we don't need to worry about excluding with this one
-		for (classInst in CompileTime.getAllClasses('rulescript.__abstracts'))
+		for (classInst in FunkinUtil.getClasses('rulescript.__abstracts'))
 			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
 
 		// fucks over so much for no reason

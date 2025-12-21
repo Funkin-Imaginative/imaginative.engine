@@ -54,18 +54,6 @@ class Script extends FlxBasic implements IScript {
 				for (ext in exts)
 					ext
 		];
-		var classList:List<Class<Dynamic>> = CompileTime.getAllClasses();
-		function getClasses(?rootPath:String, ?excludes:Array<String>):List<Class<Dynamic>> {
-			return classList.filter(classInst -> {
-				var className:String = Std.string(classInst);
-				if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
-					return false;
-				for (exclude in excludes ?? [])
-					if (className.startsWith(exclude.endsWith('*') ? exclude.substring(0, exclude.length - 1) : exclude))
-						return false;
-				return true;
-			});
-		}
 		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
 			defaultImports.set(alias ?? Std.string(cls).split('.').last(), cls);
 		// TODO: Implement blacklisting.
@@ -96,7 +84,7 @@ class Script extends FlxBasic implements IScript {
 			// 'imaginative.objects.holders.*',
 			'imaginative.states.EngineProcess'
 		];
-		for (list in [getClasses('imaginative', imagExclude), getClasses('flixel', flixelExclude)])
+		for (list in [FunkinUtil.getClasses('imaginative', imagExclude), FunkinUtil.getClasses('flixel', flixelExclude)])
 			for (classInst in list)
 				importClass(classInst);
 		// still gonna import using classes for other types
