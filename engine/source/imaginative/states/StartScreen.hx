@@ -81,10 +81,10 @@ class StartScreen extends BeatState {
 				var chartNew = new moonchart.formats.fnf.FNFImaginative().fromFormat(chartOld);
 				try {
 					chartNew.save('chart/output/chart', 'chart/output/metadata');
-					_log('converted');
-				} catch(e)
-					_log('error: $e');
-			} else _log('not exist');
+					_log('[Moonchart] Successfully converted.');
+				} catch(error:haxe.Exception)
+					_log('[Moonchart] An error occurred! (error:$error)');
+			} else _log('[Moonchart] Chart doesn\'t exist.');
 		}
 	}
 }
