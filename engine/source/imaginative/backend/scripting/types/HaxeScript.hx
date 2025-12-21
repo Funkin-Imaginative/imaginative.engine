@@ -32,7 +32,7 @@ final class HaxeScript extends Script {
 			rootImport.set(key, value);
 		// we don't need to worry about excluding with this one
 		for (classInst in FunkinUtil.getClasses('rulescript.__abstracts'))
-			rootImport.set(Std.string(classInst).split('.').last().substring(1), classInst);
+			rootImport.set(classInst.getClassName().substring(1), classInst.getClassName(true));
 
 		// fucks over so much for no reason
 		/* ScriptedTypeUtil.resolveModule = (name:String) -> {
@@ -105,7 +105,7 @@ final class HaxeScript extends Script {
 		super.loadNecessities();
 		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools, FunkinUtil, ReflectUtil, SpriteUtil];
 		for (i in usingArray) // TODO: Add more.
-			_interp.usings.set(Std.string(i).split('.').last(), i);
+			_interp.usings.set(i.getClassName(), i);
 
 		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, _interp.posInfos())));
 		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, _interp.posInfos()));

@@ -55,7 +55,7 @@ class Script extends FlxBasic implements IScript {
 					ext
 		];
 		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
-			defaultImports.set(alias ?? Std.string(cls).split('.').last(), cls);
+			defaultImports.set(alias ?? cls.getClassName(), cls);
 		// TODO: Implement blacklisting.
 		var flixelExclude = [
 			'flixel.animation.*',
@@ -327,7 +327,7 @@ class Script extends FlxBasic implements IScript {
 			'loaded' => loaded,
 			'active' => active,
 			'exists' => exists,
-			'parent' => Std.string(parent).split('.').last()
+			'parent' => parent.getClassName()
 		]);
 	}
 }

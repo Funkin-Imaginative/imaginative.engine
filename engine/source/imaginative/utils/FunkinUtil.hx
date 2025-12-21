@@ -31,7 +31,7 @@ class FunkinUtil {
 	 */
 	public static function getClasses(?rootPath:String, ?excludes:Array<String>):List<Class<Dynamic>> {
 		return classList.filter(classInst -> {
-			var className:String = Std.string(classInst);
+			var className:String = classInst.getClassName(true);
 			if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
 				return false;
 			for (exclude in excludes ?? [])

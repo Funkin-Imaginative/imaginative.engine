@@ -67,7 +67,7 @@ class Console {
 			return output;
 		}
 		if (value is Class)
-			return '[${Std.string(value)/* .split('.').last() */}]';
+			return '[${value.getClassName(true)}]';
 		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
