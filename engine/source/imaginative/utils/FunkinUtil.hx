@@ -22,14 +22,17 @@ enum abstract MenuSFX(String) from String to String {
  * Utilities for this funkin engine.
  */
 class FunkinUtil {
-	@:unreflective static var classList:List<Class<Dynamic>> = CompileTime.getAllClasses();
+	@:unreflective static var classList:Array<Class<Dynamic>> = [
+		for (cls in CompileTime.getAllClasses())
+			Type.resolveClass(cls.getClassName(true))
+	];
 	/**
 	 * Returns a list of classes of your choosing.
 	 * @param rootPath The package path to get the list from.
 	 * @param excludes Sets of packages to exclude when returning the list.
-	 * @return List<Class<Dynamic>>
+	 * @return Array<Class<Dynamic>>
 	 */
-	public static function getClasses(?rootPath:String, ?excludes:Array<String>):List<Class<Dynamic>> {
+	public static function getClasses(?rootPath:String, ?excludes:Array<String>):Array<Class<Dynamic>> {
 		return classList.filter(classInst -> {
 			var className:String = classInst.getClassName(true);
 			if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
