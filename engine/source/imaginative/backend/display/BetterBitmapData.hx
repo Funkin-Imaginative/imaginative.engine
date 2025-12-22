@@ -9,9 +9,11 @@ import openfl.geom.Rectangle;
  * Used for GPU caching!
  */
 class BetterBitmapData extends BitmapData {
-	@SuppressWarnings('checkstyle:Dynamic')
-	override function __fromImage(image:#if lime Image #else Dynamic #end):Void {
-		#if lime
+	override function __fromImage(image:Image):Void {
+		if (!Settings.setup.gpuCaching) {
+			super.__fromImage(image);
+			return;
+		}
 		if (image != null && image.buffer != null) {
 			this.image = image;
 
@@ -39,16 +41,12 @@ class BetterBitmapData extends BitmapData {
 				this.image = null;
 			}
 		}
-		#end
 	}
 
 	override function getSurface():CairoImageSurface {
-		#if lime
+		if (!Settings.setup.gpuCaching) return super.getSurface();
 		// https://github.com/CodenameCrew/CodenameEngine/blob/main/source/funkin/backend/system/OptimizedBitmapData.hx#L48L61
 		return __surface ??= CairoImageSurface.fromImage(image);
-		#else
-		return null;
-		#end
 	}
 
 	/**
