@@ -97,7 +97,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 		event.x *= scrollFactor.x;
 		event.y *= scrollFactor.y;
 
-		scripts.call('onGetCamPos', [event]);
+		scripts.call('onCameraPosition', [event]);
 		return point == null ? new Position(event.x, event.y) : point.set(event.x, event.y);
 	}
 	/**

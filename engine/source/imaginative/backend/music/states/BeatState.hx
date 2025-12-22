@@ -225,9 +225,8 @@ class BeatState extends FlxState implements IBeatState {
 	/**
 	 * For after the create function runs!
 	 */
-	public function createPost():Void {
+	public function createPost():Void
 		scriptCall('createPost');
-	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
@@ -251,12 +250,12 @@ class BeatState extends FlxState implements IBeatState {
 		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
-			scriptCall('onDrawPost');
+			scriptCall('postDraw');
 		}
 	}
 
 	override public function openSubState(sub:FlxSubState):Void {
-		scriptCall('openingSubState', [sub]);
+		scriptCall('uponOpeningSubstate', [sub]);
 		if (sub is BeatSubState) {
 			var state:BeatSubState = cast sub;
 			state.parent = this;
@@ -268,11 +267,11 @@ class BeatState extends FlxState implements IBeatState {
 		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
-		scriptCall('closingSubState', [subState]);
+		scriptCall('uponClosingSubstate', [subState]);
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
-		scriptCall('resetingSubState');
+		scriptCall('uponResetingSubState');
 		super.resetSubState();
 		if (subState is BeatSubState) {
 			var state:BeatSubState = cast subState;
@@ -286,12 +285,12 @@ class BeatState extends FlxState implements IBeatState {
 	 * Runs when reseting the state.
 	 */
 	public function onReset():Void {
-		scriptCall('resetingState');
+		scriptCall('uponResetingState');
 	}
 
 	override public function onFocus():Void {
 		super.onFocus();
-		scriptCall('onFocus');
+		scriptCall('onGameFocus');
 	}
 	override public function onFocusLost():Void {
 		super.onFocusLost();
@@ -312,7 +311,7 @@ class BeatState extends FlxState implements IBeatState {
 		beatCamLoop((camera:BeatCamera) -> camera.stepHit(curStep));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
-		scriptCall('stepHit', [curStep]);
+		scriptCall('onStepHit', [curStep]);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -322,7 +321,7 @@ class BeatState extends FlxState implements IBeatState {
 		beatCamLoop((camera:BeatCamera) -> camera.beatHit(curBeat));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
-		scriptCall('beatHit', [curBeat]);
+		scriptCall('onBeatHit', [curBeat]);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -332,7 +331,7 @@ class BeatState extends FlxState implements IBeatState {
 		beatCamLoop((camera:BeatCamera) -> camera.measureHit(curMeasure));
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
-		scriptCall('measureHit', [curMeasure]);
+		scriptCall('onMeasureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {

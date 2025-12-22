@@ -74,7 +74,7 @@ class FreeplayMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		var event:MenuBackgroundEvent = eventCall('uponMenuBackgroundCreation', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bg.scrollFactor.set();
 		bg.updateSizeUnstretched(FlxG.width, FlxG.height, false);
@@ -234,7 +234,7 @@ class FreeplayMenu extends BeatState {
 			}
 
 			if (Controls.global.back) {
-				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
+				var event:ExitFreeplayEvent = eventCall('uponExitingMenu', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
 						if (winningIcon != null) {
@@ -261,7 +261,7 @@ class FreeplayMenu extends BeatState {
 					visualSelected = curSelected;
 					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
 				} else {
-					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff])));
+					var event:PreviewSongEvent = eventCall('uponSongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff])));
 					if (!event.prevented) {
 						if (event.playPreview) {
 							var song:SongHolder = songs.members[curSelected];
@@ -282,7 +282,7 @@ class FreeplayMenu extends BeatState {
 							updateMusicInfoBoxWidth();
 							FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
 							FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
-							eventCall('onSongPreview', event);
+							eventCall('onStartSongPreview', event);
 						} else selectCurrent();
 					}
 				}
@@ -306,7 +306,7 @@ class FreeplayMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, songs.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('uponSelectionChange', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, songs.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
@@ -329,7 +329,7 @@ class FreeplayMenu extends BeatState {
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('uponSwitchingDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
@@ -344,11 +344,11 @@ class FreeplayMenu extends BeatState {
 	var songShake:FlxTween;
 	function selectCurrent():Void {
 		canSelect = false;
-		var event:SongSelectionEvent = eventCall('onSongSelect', new SongSelectionEvent(songs.members[curSelected], diffMap[curDiffString], songs.members[curSelected].data.name, curDiffString, songs.members[curSelected].data.variants[curDiff]));
+		var event:SongSelectionEvent = eventCall('uponSongSelection', new SongSelectionEvent(songs.members[curSelected], diffMap[curDiffString], songs.members[curSelected].data.name, curDiffString, songs.members[curSelected].data.variants[curDiff]));
 		if (event.prevented) return;
 
 		var song:SongHolder = event.holder;
-		song.scripts.event('onSongSelect', event);
+		song.scripts.event('uponSongSelection', event);
 		if (event.prevented) return;
 		var songLocked:Bool = song.isLocked;
 		var diffLocked:Bool = event.diffHolder.isLocked;

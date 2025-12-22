@@ -92,7 +92,7 @@ class DifficultyHolder extends BeatSpriteGroup {
 	}
 
 	override public function destroy():Void {
-		scripts.end();
+		scripts.destroy();
 		super.destroy();
 	}
 }

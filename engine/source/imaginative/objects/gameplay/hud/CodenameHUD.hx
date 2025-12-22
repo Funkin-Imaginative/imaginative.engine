@@ -47,15 +47,16 @@ class CodenameHUD extends HUDTemplate {
 	 * @param spr The sprite to effect.
 	 * @return FlxObject
 	 */
-	public static function cneYLevel(spr:FlxObject):FlxObject {
-		spr.y = spr.getDefaultCamera().height - spr.y - spr.height;
+	inline public static function cneYLevel(spr:FlxObject, ?camera:FlxCamera):FlxObject {
+		camera ??= spr.getDefaultCamera();
+		spr.y = camera.height - spr.y - spr.height;
 		return spr;
 	}
 	override function createElements():Void {
 		super.createElements();
 		if (Settings.setupP1.downscroll) {
-			// var ignoreList:Array<FlxBasic> = cast call('setHudYIgnoreList', [], []) ?? [];
-			for (object in elements/* .members.copy().filter(_ -> !ignoreList.contains(_)) */)
+			var ignoreList:Array<FlxBasic> = cast call('hudYIgnoreList', [], []) ?? [];
+			for (object in elements.members.filter(_ -> !ignoreList.contains(_)))
 				cneYLevel(cast object);
 		}
 	}

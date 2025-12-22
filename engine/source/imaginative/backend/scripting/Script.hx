@@ -241,7 +241,7 @@ class Script extends FlxBasic implements IScript {
 		for (map in (type == TypeHaxe ? [startVariables] : [defaultImports, startVariables])) // work plz
 			for (key => value in map)
 				set(key, value);
-		GlobalScript.call('scriptCreated', [this, type]);
+		GlobalScript.call('onScriptCreated', [this, type]);
 	}
 
 	var scriptCode:String = '';
@@ -306,16 +306,9 @@ class Script extends FlxBasic implements IScript {
 	public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R
 		return def;
 
-	/**
-	 * Ends the script.
-	 * @param funcName Custom function call name.
-	 */
-	inline public function end(funcName:String = 'end'):Void {
-		call(funcName);
-		destroy();
-	}
 	override public function destroy():Void {
-		GlobalScript.call('scriptDestroyed', [this, type]);
+		call('onEnd');
+		GlobalScript.call('onScriptDestroyed', [this, type]);
 		super.destroy();
 	}
 

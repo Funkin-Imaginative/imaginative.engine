@@ -142,23 +142,17 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	function isDuplicate(script:Script):Bool {
 		var check:Script = getByPath(script.filePath.path);
 		var isDup:Bool = check != null;
-		if (isDup) script.end('onDuplicate');
+		if (isDup) {
+			script.call('onDuplicate');
+			script.destroy();
+		}
 		return isDup;
 	}
 
-	/**
-	 * Ends the script group.
-	 * @param funcName Custom function call name.
-	 */
-	inline public function end(funcName:String = 'end'):Void {
-		call(funcName);
-		destroy();
-	}
-
 	override public function destroy():Void {
+		super.destroy();
 		globalVariables.clear(); // jic
 		extraVariables.clear();
-		super.destroy();
 	}
 
 	/**

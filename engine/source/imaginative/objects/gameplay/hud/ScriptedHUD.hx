@@ -20,7 +20,7 @@ class ScriptedHUD extends HUDTemplate {
 	override function initStatsText():FlxText
 		return call(true, 'onStatsTextInit', [Settings.setupP1.downscroll]) ?? super.initStatsText();
 	override function initStatsP2Text():FlxText
-		return call(true, 'onStatsP2TextInit', [Settings.setupP1.downscroll]) ?? super.initStatsP2Text();
+		return call(true, 'onStatsTextInitP2', [Settings.setupP1.downscroll]) ?? super.initStatsP2Text();
 
 	override function createElements():Void {
 		call(true, 'onCreateElements');

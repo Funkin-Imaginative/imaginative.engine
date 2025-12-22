@@ -183,9 +183,8 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	/**
 	 * For after the create function runs!
 	 */
-	public function createPost():Void {
+	public function createPost():Void
 		scriptCall('createPost');
-	}
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
@@ -209,7 +208,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
-			scriptCall('onDrawPost');
+			scriptCall('postDraw');
 		}
 	}
 
@@ -235,7 +234,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	}
 
 	override public function openSubState(sub:FlxSubState):Void {
-		scriptCall('openingSubState', [sub]);
+		scriptCall('uponOpeningSubstate', [sub]);
 		if (sub is BeatSubState) {
 			var state:BeatSubState = cast sub;
 			state.parent = this;
@@ -248,11 +247,11 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
-		scriptCall('closingSubState', [subState]);
+		scriptCall('uponClosingSubstate', [subState]);
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
-		scriptCall('resetingSubState');
+		scriptCall('uponResetingSubState');
 		if (subState is BeatSubState) {
 			var state:BeatSubState = cast subState;
 			state.parent = this;
@@ -266,7 +265,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 
 	override public function onFocus():Void {
 		super.onFocus();
-		scriptCall('onFocus');
+		scriptCall('onGameFocus');
 	}
 	override public function onFocusLost():Void {
 		super.onFocusLost();
@@ -280,7 +279,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
-		scriptCall('stepHit', [curStep]);
+		scriptCall('onStepHit', [curStep]);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -289,7 +288,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
-		scriptCall('beatHit', [curBeat]);
+		scriptCall('onBeatHit', [curBeat]);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -298,7 +297,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
-		scriptCall('measureHit', [curMeasure]);
+		scriptCall('onMeasureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {

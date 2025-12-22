@@ -542,7 +542,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 
 	override public function destroy():Void {
-		scripts.end();
+		scripts.destroy();
 		_scaledFrameOffset.put();
 		super.destroy();
 	}

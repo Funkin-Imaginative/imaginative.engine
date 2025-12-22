@@ -101,7 +101,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		super.beatHit(curBeat);
 		if (!preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
 			scale.set(spriteOffsets.scale.x * bopScaleMult.x, spriteOffsets.scale.y * bopScaleMult.y);
-		scripts.call('beatHit', [curBeat]);
+		scripts.call('onBeatHit', [curBeat]);
 	}
 
 	/**
@@ -122,7 +122,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 				for (script in oldScripts)
 					if (scripts.members.contains(script)) {
 						scripts.remove(script);
-						script.end();
+						script.destroy();
 					}
 
 				// add new icon scripts

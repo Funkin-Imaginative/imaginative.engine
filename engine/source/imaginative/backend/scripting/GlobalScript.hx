@@ -13,13 +13,10 @@ class GlobalScript {
 	@:allow(imaginative.states.EngineProcess)
 	static function loadScript():Void {
 		if (scripts != null)
-			scripts.end();
+			scripts.destroy();
 
 		scripts = new ScriptGroup(FlxG.state);
-		scripts.globalVariables = [
-			'_scriptCall' => call, 'globalScriptCall' => call,
-			'_eventCall' => event, 'globalEventCall' => event,
-		];
+		scripts.globalVariables = ['_scriptCall' => call, '_eventCall' => event];
 		for (script in Script.createMulti('lead:content/global'))
 			scripts.add(script);
 		scripts.load();
@@ -27,19 +24,19 @@ class GlobalScript {
 
 	@:allow(imaginative.states.EngineProcess)
 	inline static function init():Void {
-		FlxG.signals.focusLost.add(() -> call('focusLost'));
-		FlxG.signals.focusGained.add(() -> call('focusGained'));
+		FlxG.signals.focusLost.add(() -> call('onFocusLost'));
+		FlxG.signals.focusGained.add(() -> call('onGameFocus'));
 
-		FlxG.signals.gameResized.add((width:Int, height:Int) -> call('gameResized', [width, height]));
+		FlxG.signals.gameResized.add((width:Int, height:Int) -> call('onGameResized', [width, height]));
 
-		FlxG.signals.preDraw.add(() -> call('preDraw'));
-		FlxG.signals.postDraw.add(() -> call('drawPost'));
+		FlxG.signals.preDraw.add(() -> call('onDraw'));
+		FlxG.signals.postDraw.add(() -> call('postDraw'));
 
 		FlxG.signals.preGameStart.add(() -> call('preGameStart'));
-		FlxG.signals.postGameStart.add(() -> call('gameStartPost'));
+		FlxG.signals.postGameStart.add(() -> call('onGameStart'));
 
 		FlxG.signals.preGameReset.add(() -> call('preGameReset'));
-		FlxG.signals.postGameReset.add(() -> call('gameResetPost'));
+		FlxG.signals.postGameReset.add(() -> call('onGameReset'));
 
 		FlxG.signals.preUpdate.add(() -> call('update', [FlxG.elapsed]));
 		FlxG.signals.postUpdate.add(() -> call('updatePost', [FlxG.elapsed]));
@@ -48,7 +45,7 @@ class GlobalScript {
 		FlxG.signals.preStateSwitch.add(() -> call('preStateSwitch'));
 		FlxG.signals.postStateSwitch.add(() -> {
 			scripts.parent = FlxG.state;
-			call('stateSwitchPost');
+			call('onStateSwitch');
 		});
 
 		loadScript();
@@ -58,18 +55,18 @@ class GlobalScript {
 	inline static function stepHit(curStep:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curStep', curStep);
-		call('stepHit', [curStep, conductor]);
+		call('onStepHit', [curStep, conductor]);
 	}
 	@:allow(imaginative.backend.music.Conductor.callToState)
 	inline static function beatHit(curBeat:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curBeat', curBeat);
-		call('beatHit', [curBeat, conductor]);
+		call('onBeatHit', [curBeat, conductor]);
 	}
 	@:allow(imaginative.backend.music.Conductor.callToState)
 	inline static function measureHit(curMeasure:Int, conductor:Conductor):Void {
 		if (scripts != null)
 			scripts.set('curMeasure', curMeasure);
-		call('measureHit', [curMeasure, conductor]);
+		call('onMeasureHit', [curMeasure, conductor]);
 	}
 }

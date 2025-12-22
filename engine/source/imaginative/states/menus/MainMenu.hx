@@ -58,7 +58,7 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		var event:MenuBackgroundEvent = eventCall('uponMenuBackgroundCreation', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bgColor = bg.blankBg.color;
 		bg.scrollFactor.set();
@@ -195,8 +195,11 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.global.back) {
-				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
-				BeatState.switchState(() -> new TitleScreen());
+				var event:MenuSFXEvent = eventCall('uponExitingMenu', new MenuSFXEvent());
+				if (!event.prevented) {
+					event.playMenuSFX(CancelSFX);
+					BeatState.switchState(() -> new TitleScreen());
+				}
 			}
 			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
@@ -213,7 +216,7 @@ class MainMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('uponSelectionChange', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
@@ -232,7 +235,7 @@ class MainMenu extends BeatState {
 	function selectCurrent():Void {
 		selectionCooldown(1.1);
 
-		var event:ChoiceEvent = eventCall('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
+		var event:ChoiceEvent = eventCall('uponSelection', new ChoiceEvent(itemLineUp[curSelected]));
 		if (!event.prevented) {
 			event.playMenuSFX(ConfirmSFX);
 			FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
