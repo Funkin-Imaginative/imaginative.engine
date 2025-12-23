@@ -379,17 +379,14 @@ class Paths {
 		if (result.isNullOrEmpty() && ModType.pathCheck(MAIN, type))
 			if (itemExists(check = 'root:./solo/${Main.mainMod}/$file'))
 				result = check.path;
-		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
-			if (itemExists(check = 'root:./$file'))
-				result = check.path;
 		#else
 		if (result.isNullOrEmpty())
 			if (itemExists(check = 'root:./${Main.mainMod}/$file'))
 				result = check.path;
+		#end
 		if (result.isNullOrEmpty() && ModType.pathCheck(ROOT, type))
 			if (itemExists(check = 'root:./$file'))
 				result = check.path;
-		#end
 
 		return FilePath.normalize(result);
 	}
@@ -455,10 +452,16 @@ class Paths {
 	/**
 	 * Prepends the extention of a script file.
 	 * @param file The mod path.
+	 * @param type The script type, just in case you wanna be specific about what scripts to find.
 	 * @return ModPath ~ The path data.
 	 */
-	inline public static function script(file:ModPath):ModPath
-		return multExt(file, Script.exts);
+	public static function script(file:ModPath, type:ScriptType = TypeInvalid):ModPath {
+		return multExt(file, switch (type) {
+			case TypeHaxe: imaginative.backend.scripting.types.HaxeScript.exts;
+			case TypeLua: imaginative.backend.scripting.types.LuaScript.exts;
+			default: Script.exts;
+		});
+	}
 
 	/**
 	 * All possible font extension types.

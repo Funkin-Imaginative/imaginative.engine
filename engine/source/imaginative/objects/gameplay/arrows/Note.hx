@@ -6,10 +6,6 @@ class Note extends FlxSprite {
 	 * Custom update function.
 	 */
 	public var _update:Float->Void;
-	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	/**
 	 * Returns the previous note in line.
@@ -382,14 +378,14 @@ class Note extends FlxSprite {
 	}
 
 	override public function toString():String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('Time', time),
-			LabelValuePair.weak('ID', id),
-			LabelValuePair.weak('Was Hit', wasHit),
-			LabelValuePair.weak('Was Missed', wasMissed),
-			LabelValuePair.weak('Too Late', tooLate),
-			LabelValuePair.weak('Tail Length', length),
-			LabelValuePair.weak('Tail Count', tail.length)
+		return FunkinUtil.toDebugString([
+			'Time' => time,
+			'ID' => id,
+			'Was Hit' => wasHit,
+			'Was Missed' => wasMissed,
+			'Too Late' => tooLate,
+			'Tail Length' => length,
+			'Tail Count' => tail.length
 		]);
 	}
 }

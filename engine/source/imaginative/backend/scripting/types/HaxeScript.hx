@@ -1,9 +1,11 @@
 package imaginative.backend.scripting.types;
 
 #if CAN_HAXE_SCRIPT
-import hscript.Expr;
-import hscript.Interp;
-import hscript.Parser;
+import rulescript.RuleScript;
+import rulescript.interps.RuleScriptInterp;
+import rulescript.parsers.HxParser;
+
+// import rulescript.types.ScriptedTypeUtil;
 #end
 
 /**
@@ -16,326 +18,158 @@ final class HaxeScript extends Script {
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
 
 	#if CAN_HAXE_SCRIPT
-	var interp:Interp;
-	var parser:Parser;
-	var expr:Expr;
-
-	static function getScriptImports(script:HaxeScript):Map<String, Dynamic> {
-		return [
-			// Haxe //
-			'Std' => Std,
-			'Math' => Math,
-			'Date' => Date,
-			'Type' => Type,
-			'Lambda' => Lambda,
-			'StringTools' => StringTools,
-			'Json' => haxe.Json,
-			'Reflect' => Reflect,
-
-			// Lime + OpenFL //
-			'Assets' => openfl.utils.Assets,
-			'Application' => lime.app.Application,
-			'window' => lime.app.Application.current.window,
-
-			// Flixel //
-			'FlxBasic' => FlxBasic,
-			'FlxCamera' => FlxCamera,
-			'FlxG' => FlxG,
-			'FlxObject' => FlxObject,
-			'FlxSprite' => FlxSprite,
-			'FlxState' => FlxState,
-			'FlxSubState' => FlxSubState,
-			'FlxTypeText' => FlxTypeText,
-			'FlxGroup' => FlxGroup,
-			'FlxSpriteGroup' => FlxSpriteGroup,
-			'FlxTypedGroup' => FlxTypedGroup,
-			'FlxTypedSpriteGroup' => FlxTypedSpriteGroup,
-			'FlxAngle' => FlxAngle,
-			'FlxMath' => FlxMath,
-			'FlxPoint' => Type.resolveClass('flixel.math.FlxPoint_HSC'),
-			'FlxRect' => FlxRect,
-			'FlxVelocity' => FlxVelocity,
-			'FlxSound' => FlxSound,
-			'FlxSoundGroup' => FlxSoundGroup,
-			'FlxText' => FlxText,
-			'FlxEase' => FlxEase,
-			'FlxTween' => FlxTween,
-			'FlxAxes' => Type.resolveClass('flixel.util.FlxAxes_HSC'),
-			'FlxColor' => Type.resolveClass('flixel.util.FlxColor_HSC'),
-			'FlxGradient' => FlxGradient,
-			'FlxSave' => FlxSave,
-			'FlxTypedSignal' => Type.resolveClass('flixel.util.FlxTypedSignal_HSC'),
-			'FlxSkewedSprite' => flixel.addons.effects.FlxSkewedSprite,
-			'FlxBackdrop' => flixel.addons.display.FlxBackdrop,
-			'FlxSort' => FlxSort,
-			'FlxTimer' => FlxTimer,
-			'OneOfFour' => Type.resolveClass('flixel.util.typeLimit.OneOfFour_HSC'),
-			'OneOfThree' => Type.resolveClass('flixel.util.typeLimit.OneOfThree_HSC'),
-			'OneOfTwo' => Type.resolveClass('flixel.util.typeLimit.OneOfTwo_HSC'),
-			'FlxArrayUtil' => FlxArrayUtil,
-			'FlxColorTransformUtil' => FlxColorTransformUtil,
-			'FlxDestroyUtil' => FlxDestroyUtil,
-			'FlxSpriteUtil' => FlxSpriteUtil,
-			'FlxStringUtil' => FlxStringUtil,
-
-			// Engine //
-			'Controls' => Controls,
-			'Conductor' => Conductor,
-			'BeatGroup' => BeatGroup,
-			'BeatSpriteGroup' => BeatSpriteGroup,
-			'BeatTypedGroup' => BeatTypedGroup,
-			'BeatTypedSpriteGroup' => BeatTypedSpriteGroup,
-			'BeatState' => BeatState,
-			'BeatSubState' => BeatSubState,
-			'TypeXY' => TypeXY,
-			'Position' => Position,
-			'Script' => Script,
-			'ScriptGroup' => ScriptGroup,
-			'ScriptedState' => imaginative.backend.scripting.states.ScriptedState,
-			'ScriptedSubState' => imaginative.backend.scripting.states.ScriptedSubState,
-			'GlobalScript' => GlobalScript,
-			'HaxeScript' => HaxeScript,
-			'InvalidScript' => InvalidScript,
-			'LuaScript' => LuaScript,
-			'Main' => Main,
-			#if MOD_SUPPORT
-			'Modding' => Modding,
-			#end
-			'ModType' => Type.resolveClass('imaginative.backend.system.Paths.ModType_HSC'),
-			'ModPath' => Type.resolveClass('imaginative.backend.system.Paths.ModPath_HSC'),
-			'Paths' => Paths,
-			'Settings' => Settings,
-			'DifficultyHolder' => DifficultyHolder,
-			'LevelHolder' => LevelHolder,
-			'FlxWindow' => FlxWindow,
-			'mainWindow' => FlxWindow.instance,
-			'ArrowField' => ArrowField,
-			'Note' => Note,
-			'Strum' => Strum,
-			'SpriteText' => SpriteText,
-			'SpriteTextLine' => SpriteTextLine,
-			'SpriteTextCharacter' => SpriteTextCharacter,
-			'HealthIcon' => HealthIcon,
-			'WindowBounds' => WindowBounds,
-			'AnimationContext' => Type.resolveClass('imaginative.objects.BaseSprite.AnimationContext_HSC'),
-			'BaseSprite' => BaseSprite,
-			'BeatSprite' => BeatSprite,
-			'Character' => Character,
-			'PlayState' => PlayState,
-			'FunkinUtil' => FunkinUtil,
-			'ParseUtil' => ParseUtil,
-			'PlatformUtil' => PlatformUtil,
-			'SpriteUtil' => SpriteUtil,
-
-			// Extra //
-			#if KNOWS_VERSION_ID
-			'Version' => Type.resolveClass('thx.semver.Version_HSC'),
-			#end
-
-			// Custom Functions //
-			'addInfrontOf' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addInfrontOf(obj, from, into),
-			'addBehind' => (obj:FlxBasic, from:FlxBasic, ?into:FlxTypedGroup<Dynamic>) ->
-				return SpriteUtil.addBehind(obj, from, into),
-
-			'trace' => (value:Dynamic) ->
-				log(value, FromHaxe, script.interp.posInfos()),
-			'log' => (value:Dynamic, level:LogLevel = LogMessage) ->
-				log(value, level, FromHaxe, script.interp.posInfos()),
-
-			'disableScript' => () ->
-				script.active = false,
-
-			// self //
-			'__this__' => script
+	@:allow(imaginative.backend.scripting.Script)
+	inline static function init():Void {
+		#if (neko || eval || display)
+		for (tag => value in haxe.macro.Context.getDefines())
+			if (!HxParser.defaultPreprocesorValues.exists(tag))
+				HxParser.defaultPreprocesorValues.set(tag, value);
+		#end
+		var rootImport = Script.defaultImports.copy();
+		var jic:Map<String, Dynamic> = [
+			'Float' => Float,
+			'Int' => Int,
+			'Bool' => Bool,
+			'String' => String,
+			'Array' => Array
 		];
-	}
+		for (key => value in jic)
+			rootImport.set(key, value);
+		// we don't need to worry about excluding with this one
+		for (classInst in FunkinUtil.getClasses('rulescript.__abstracts'))
+			rootImport.set(classInst.getClassName().substring(1), classInst.getClassName(true));
 
-	var __importedPaths:Array<String> = [];
-
-	@:allow(imaginative.backend.scripting.Script.create)
-	override function new(file:ModPath, ?code:String)
-		super(file, code);
-
-	@:access(imaginative.backend.Console.formatLogInfo)
-	override function renderNecessities():Void {
-		if (pathing != null)
-			__importedPaths.push(pathing.format());
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
-		parser.preprocesorValues = #if (neko || eval || display) haxe.macro.Context.getDefines() #else new Map<String, Dynamic>() #end;
-		interp.errorHandler = (error:Error) -> {
-			var content:String = error.toString();
-			if (content.startsWith(error.origin))
-				content = content.substr(error.origin.length);
-			_log(Console.formatLogInfo(content, ErrorMessage, error.origin, error.line), ErrorMessage);
-		}
-		interp.importFailedCallback = (importPath:Array<String>) -> {
-			var sourcePath:String = 'source/${importPath.join('/')}';
-			for (ext in exts) {
-				// current path probably wont work, as I haven't setup the directory properly
-				var path:String = '$sourcePath.$ext';
-				if (__importedPaths.contains(path))
-					return true; // prevent double import
-				if (Paths.fileExists(path)) {
-					var content:String = Assets.text(path);
-					var expr:Expr = null;
-					try {
-						if (!content.isNullOrEmpty()) {
-							parser.line = 1;
-							expr = parser.parseString(content, '${importPath.join('/')}.$ext');
-						}
-					} catch(error:Error)
-						try {
-							interp.errorHandler(error);
-						} catch(error:Error)
-							interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
-					if (expr != null) {
-						@:privateAccess
-							interp.exprReturn(expr);
-						__importedPaths.push(path);
-					}
-					return true;
-				}
+		// fucks over so much for no reason
+		/* ScriptedTypeUtil.resolveModule = (name:String) -> {
+			_log('[HaxeScript] Resolving script for module: $name');
+			var script:HaxeScript = cast Script.create('lead:content/modules/${name.replace('.', '/')}', TypeHaxe);
+			if (script.type.dummy) {
+				_log('[HaxeScript] Failed to resolve module: $name');
+				script.destroy();
+				return null;
 			}
-			return false;
-		}
-		interp.staticVariables = Script.staticVars;
-
-		/**
-		Snapshot in time.
-		```haxe
-		interp.importFailedCallback = (importPath:Array<String>) -> {
-			var sourcePath:ModPath = 'source/${importPath.join('/')}';
-			for (ext in exts) {
-				// abstracts can die in a fire for thousands of years... ITS NOT THE SAME FUCKING INSTANCE YOU BITCH!!!!
-				var path:ModPath = sourcePath; // .pushExt(ext)
-				path.pushExt(ext);
-				// any cloning methods I did, didn't wanna work 😭
-			}
-			return false;
-		}
-		```
-		**/
-	}
-
-	override function renderScript(file:ModPath, ?code:String):Void {
-		interp = new Interp();
-		parser = new Parser();
-
-		parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
-
-		super.renderScript(file, code);
-	}
-	override function loadCodeString(code:String):Void {
-		try {
-			if (!code.isNullOrEmpty()) {
-				expr = parser.parseString(code, pathing?.format() ?? 'from string');
-				canRun = true;
-				return;
-			}
-		} catch(error:Error)
-			try {
-				interp.errorHandler(error);
-			} catch(error:Error)
-				interp.errorHandler(new Error(ECustom(error.toString()), 0, 0, pathing?.format() ?? 'from string', 0));
-		canRun = false;
+			if (!script.filePath.isFile) script.destroy();
+			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : null;
+		} */
+		RuleScript.defaultImports.set('', rootImport);
 	}
 
 	/**
-	 * Load's code from string.
+	 * Loads code from string.
 	 * @param code The script code.
-	 * @param vars Variables to input into the haxe script instance.
-	 * @param funcToRun Function to run inside the haxe script instance.
-	 * @param funcArgs Arguments to run for said function.
-	 * @return `HaxeScript` ~ The haxe script instance from string.
+	 * @param onCreate Runs when the script is created.
+	 * @param onLoad Runs when the script is loaded.
+	 * @return HaxeScript ~ The haxe script instance.
 	 */
-	public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):HaxeScript {
+	public static function loadCodeFromString(code:String, onCreate:HaxeScript->Void, onLoad:HaxeScript->Void):HaxeScript {
 		var script:HaxeScript = new HaxeScript('', code);
-		for (name => thing in vars)
-			script.set(name, thing);
+		if (onCreate != null) onCreate(script);
 		script.load();
-		script.call(funcToRun, funcArgs ?? []);
+		if (onLoad != null) onLoad(script);
 		return script;
 	}
 
-	@:access(hscript.Parser.mk)
-	override public function load() {
-		super.load();
-		if (!loaded && canRun) {
-			try {
-				interp.execute(parser.mk(EBlock([]), 0, 0));
-				if (expr != null) {
-					interp.execute(expr);
-					loaded = true;
-					call('new');
-				}
-			} catch(error:haxe.Exception)
-				log('Error while trying to execute script: ${error.message}', ErrorMessage);
-		}
-	}
-	override public function reload():Void {
-		// save variables
-		interp.allowStaticVariables = interp.allowPublicVariables = false;
-		var savedVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
-		for (name => thing in interp.variables)
-			if (!Reflect.isFunction(thing))
-				savedVariables[name] = thing;
-		var oldParent:Dynamic = interp.scriptObject;
-		renderScript(pathing);
-
-		for (name => thing in getScriptImports(this))
-			set(name, thing);
-
-		load();
-		parent = oldParent;
-
-		for (name => thing in savedVariables)
-			set(name, thing);
-
-		interp.allowStaticVariables = interp.allowPublicVariables = true;
-	}
+	var internalScript(default, null):RuleScript;
+	var _parser(get, never):HxParser;
+	inline function get__parser():HxParser
+		return internalScript.getParser(HxParser);
+	var _interp(get, never):RuleScriptInterp;
+	inline function get__interp():RuleScriptInterp
+		return internalScript.getInterp(RuleScriptInterp);
 
 	override function get_parent():Dynamic
-		return interp.scriptObject;
-	override function set_parent(value:Dynamic):Dynamic
-		return interp.scriptObject = value;
-
-	override public function setPublicMap(map:Map<String, Dynamic>):Void
-		interp.publicVariables = map;
-
-	override public function set(variable:String, value:Dynamic):Void
-		interp.variables.set(variable, value);
-	override public function get(variable:String, ?def:Dynamic):Dynamic
-		return interp.variables.get(variable) ?? def;
-	override public function call(func:String, ?args:Array<Dynamic>):Dynamic {
-		if (interp == null || !interp.variables.exists(func))
-			return null;
-
-		var func = get(func);
-		if (func != null && Reflect.isFunction(func))
-			try {
-				return Reflect.callMethod(null, func, args ?? []);
-			} catch(error:haxe.Exception)
-				log('Error while trying to call function $func: ${error.message}', ErrorMessage);
-
-		return null;
+		return destroyed ? null : internalScript.superInstance;
+	override function set_parent(value:Dynamic):Dynamic {
+		if (destroyed) return null;
+		return internalScript.superInstance = value;
 	}
-	override public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		event.returnCall = call(func, [event]);
-		return event;
+	override function setGlobalVariables(variables:Map<String, Dynamic>):Void
+		if (!destroyed) internalScript.context.publicVariables = variables;
+
+	@:allow(imaginative.backend.scripting.Script._create)
+	override function new(file:ModPath, ?code:String) {
+		internalScript = new RuleScript(new rulescript.Context());
+		var finalPath:String = file.format();
+		if (file.isFile && finalPath.contains('content/modules/')) {
+			if (!Paths.fileExists(Paths.script('lead:content/modules/${internalScript.scriptPackage.replace('.', '/')}', TypeHaxe))) {
+				internalScript.scriptPackage = finalPath.split('/content/modules/')[1].split('/').join('/').split('.')[0].replace('/', '.');
+				_parser.mode = MODULE;
+			}
+		}
+		super(file, code);
+		internalScript.scriptName = code == null ? (filePath.isFile ? filePath.format() : 'no code') : 'from string';
+	}
+
+	override function renderScript(file:ModPath, ?code:String):Void {
+		super.renderScript(file, code);
+		_parser.allowAll();
+	}
+
+	@:access(imaginative.backend.Console.formatLogInfo)
+	override function loadNecessities():Void {
+		super.loadNecessities();
+		var usingArray:Array<Class<Dynamic>> = [Lambda, StringTools, FunkinUtil, ReflectUtil, SpriteUtil];
+		for (i in usingArray) // TODO: Add more.
+			_interp.usings.set(i.getClassName(), i);
+
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromHaxe, _interp.posInfos())));
+		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromHaxe, _interp.posInfos()));
+		internalScript.context.staticVariables = Script.constantVariables;
+		internalScript.errorHandler = (error:haxe.Exception) -> {
+			var errorMessage = error.message.split(':'); errorMessage.shift();
+			var line = errorMessage.shift();
+			var errorLine:Int = /* Std.parseInt(line) */ _parser.parser.line;
+			Sys.println(Console.formatLogInfo(errorMessage.join(':').substring(1), ErrorMessage, internalScript.scriptName, errorLine, FromHaxe));
+		}
+		canRun = true;
+	}
+
+	@:access(imaginative.backend.Console.formatLogInfo)
+	override function launchCode(code:String):Void {
+		if (destroyed) return;
+		try {
+			if (!code.isNullOrEmpty()) {
+				internalScript.tryExecute(code, (error:haxe.Exception) -> {
+					Sys.println(Console.formatLogInfo(error, ErrorMessage, internalScript.scriptName, _parser.parser.line, FromHaxe));
+					return error;
+				});
+				active = loaded = true;
+				if (_parser.mode != MODULE)
+					call('new');
+				return;
+			} else _log('Script "${internalScript.scriptName}" is either null or empty.');
+		} catch(error:haxe.Exception)
+			internalScript.errorHandler(error);
+		active = loaded = false;
+	}
+
+	override public function set(name:String, value:Dynamic):Void
+		if (!destroyed && exists) internalScript.access.setVariable(name, value);
+	override public function get<V>(name:String, ?def:V):V {
+		if (!destroyed && exists && internalScript.access.variableExists(name))
+			return internalScript.access.getVariable(name) ?? def;
+		return def;
+	}
+
+	override public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
+		if (!active || destroyed || !exists)
+			return def;
+		try {
+			return internalScript.access.callFunction(func, args ?? []) ?? def;
+		} catch(error:haxe.Exception)
+			log('Error while trying to call function "$func". (error:$error)', ErrorMessage);
+		return def;
 	}
 
 	override public function destroy():Void {
-		interp = null;
-		parser = null;
+		internalScript = null;
 		super.destroy();
 	}
 	#else
-	@:allow(imaginative.backend.scripting.Script.create)
+	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?_:String) {
-		_log('[Script] Haxe scripting isn\'t supported in this build.', SystemMessage);
+		if (file.isFile)
+			_log('[Script] Haxe scripting isn\'t supported in this build. (file:${file.format()})');
 		super(file, null);
 	}
 	#end

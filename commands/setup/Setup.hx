@@ -47,10 +47,10 @@ class Setup {
 					{name: 'thx.semver'},
 					{
 						global: false,
-						name: 'hscript-improved',
+						name: 'rulescript',
 						version: 'git',
-						url: 'https://github.com/CodenameCrew/hscript-improved',
-						branch: 'custom-classes'
+						url: 'https://github.com/Kriptel/RuleScript',
+						branch: 'dev'
 					}
 				],
 				questions: [

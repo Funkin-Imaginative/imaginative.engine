@@ -8,7 +8,7 @@ package imaginative.backend.system;
  * @author From Psych Engine.
  */
 final class ALSoftSetup {
-	#if !DISABLE_DCE @:keep #end static function __init__():Void {
+	@:keep static function __init__():Void {
 		var origin:String = #if hl Sys.getCwd() #else Sys.programPath() #end;
 
 		var configPath:String = FilePath.directory(FilePath.withoutExtension(origin));

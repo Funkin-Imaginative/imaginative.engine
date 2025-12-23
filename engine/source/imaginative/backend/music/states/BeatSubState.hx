@@ -7,15 +7,14 @@ import imaginative.backend.objects.ParentDisabler;
  * `Field curStep has different property access than in backend.interfaces.IBeat ((get,never) should be (default,null))`
  */
 @SuppressWarnings('checkstyle:CodeSimilarity')
+@:build(imaginative.backend.scripting.ScriptMacro.buildShortcutVariables('stateScripts', true, true))
 class BeatSubState extends FlxSubState implements IBeatState {
 	/**
 	 * The states conductor instance.
 	 */
 	@:isVar public var conductor(get, set):Conductor;
-	function get_conductor():Conductor
-		return Conductor.menu;
-	function set_conductor(value:Conductor):Conductor
-		return Conductor.menu;
+	function get_conductor():Conductor return Conductor.menu;
+	function set_conductor(value:Conductor):Conductor return Conductor.menu;
 	// this to for overriding when it comes to game play ^^
 
 	// BPM
@@ -156,35 +155,12 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	}
 
 	function loadScript():Void {
-		stateScripts = new ScriptGroup(this);
+		add(stateScripts = new ScriptGroup(this));
 		if (scriptsAllowed) {
-			for (script in Script.create('content/states/$scriptName'))
+			for (script in Script.createMulti('content/states/$scriptName'))
 				stateScripts.add(script);
 			stateScripts.load();
 		}
-	}
-	/**
-	 * Calls a function in the script group.
-	 * @param func The name of the function to call.
-	 * @param args Arguments of said function.
-	 * @param def If it's null then return this.
-	 * @return Dynamic ~ Whatever is in the functions return statement.
-	 */
-	inline public function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		if (stateScripts != null)
-			return stateScripts.call(func, args, def);
-		return def;
-	}
-	/**
-	 * Calls an event in the script group.
-	 * @param func The name of the function to call.
-	 * @param event The event instance.
-	 * @return ScriptEvent
-	 */
-	inline public function eventCall<SC:ScriptEvent>(func:String, event:SC):SC {
-		if (stateScripts != null)
-			return stateScripts.event(func, event);
-		return event;
 	}
 
 	var mainCamera:BeatCamera;
@@ -204,6 +180,11 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		if (isAPauseState) initParentDisabler();
 		scriptCall('create');
 	}
+	/**
+	 * For after the create function runs!
+	 */
+	public function createPost():Void
+		scriptCall('createPost');
 
 	override public function tryUpdate(elapsed:Float):Void {
 		if (persistentUpdate || subState == null) {
@@ -227,7 +208,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		var event:ScriptEvent = eventCall('onDraw', new ScriptEvent());
 		if (!event.prevented) {
 			super.draw();
-			scriptCall('onDrawPost');
+			scriptCall('postDraw');
 		}
 	}
 
@@ -253,7 +234,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	}
 
 	override public function openSubState(sub:FlxSubState):Void {
-		scriptCall('openingSubState', [sub]);
+		scriptCall('uponOpeningSubstate', [sub]);
 		if (sub is BeatSubState) {
 			var state:BeatSubState = cast sub;
 			state.parent = this;
@@ -266,15 +247,16 @@ class BeatSubState extends FlxSubState implements IBeatState {
 		super.openSubState(sub);
 	}
 	override public function closeSubState():Void {
-		scriptCall('closingSubState', [subState]);
+		scriptCall('uponClosingSubstate', [subState]);
 		super.closeSubState();
 	}
 	override public function resetSubState():Void {
-		scriptCall('resetingSubState');
+		scriptCall('uponResetingSubState');
 		if (subState is BeatSubState) {
 			var state:BeatSubState = cast subState;
 			state.parent = this;
 			super.resetSubState();
+			state.createPost();
 			state.onSubstateOpen();
 			return;
 		}
@@ -283,7 +265,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 
 	override public function onFocus():Void {
 		super.onFocus();
-		scriptCall('onFocus');
+		scriptCall('onGameFocus');
 	}
 	override public function onFocusLost():Void {
 		super.onFocusLost();
@@ -297,7 +279,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function stepHit(curStep:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curStep, IsStep);
-		scriptCall('stepHit', [curStep]);
+		scriptCall('onStepHit', [curStep]);
 	}
 	/**
 	 * Runs when the next beat happens.
@@ -306,7 +288,7 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function beatHit(curBeat:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curBeat, IsBeat);
-		scriptCall('beatHit', [curBeat]);
+		scriptCall('onBeatHit', [curBeat]);
 	}
 	/**
 	 * Runs when the next measure happens.
@@ -315,12 +297,11 @@ class BeatSubState extends FlxSubState implements IBeatState {
 	public function measureHit(curMeasure:Int):Void {
 		for (member in members)
 			IBeatHelper.iBeatCheck(member, curMeasure, IsMeasure);
-		scriptCall('measureHit', [curMeasure]);
+		scriptCall('onMeasureHit', [curMeasure]);
 	}
 
 	override public function destroy():Void {
 		parent = null;
-		stateScripts.end();
 		Conductor.beatSubStates.remove(this);
 		if (FlxG.cameras.list.contains(mainCamera))
 			FlxG.cameras.remove(mainCamera, true);

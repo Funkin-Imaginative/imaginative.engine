@@ -67,10 +67,6 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	 */
 	public var _update:Float->Void;
 	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Map<String, Dynamic> = new Map<String, Dynamic>();
-	/**
 	 * Used for editors to prevent the sprites natural functions.
 	 * Mostly used for editors.
 	 */
@@ -271,7 +267,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			antialiasing = inputData.antialiasing;
 
 			if (inputData.extra != null) {
-				extra = inputData.extra.copy();
+				for (key => value in inputData.extra)
+					extra.set(key, value);
 			}
 		} catch(error:haxe.Exception)
 			try {
@@ -324,7 +321,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 			bruh.push(file);
 
 		for (sprite in bruh)
-			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
+			for (script in Script.createMulti('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();
@@ -545,7 +542,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	}
 
 	override public function destroy():Void {
-		scripts.end();
+		scripts.destroy();
 		_scaledFrameOffset.put();
 		super.destroy();
 	}

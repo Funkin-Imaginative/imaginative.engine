@@ -83,7 +83,7 @@ class HUDTemplate extends BeatGroup {
 		var yLevel:Float = 50;
 		if (downscroll) yLevel = getDefaultCamera().height - yLevel - ArrowField.arrowSize;
 		yLevel += (ArrowField.arrowSize / 2);
-		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
+		return call(true, 'onFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	// scripting shiz
@@ -95,13 +95,11 @@ class HUDTemplate extends BeatGroup {
 		var _scripts:Array<Script> = [];
 		// adds song scripts
 		if (!hudOnly || hudOnly == null)
-			if (PlayState.instance != null && PlayState.instance.scripts != null)
-				for (script in PlayState.instance.scripts)
-					_scripts.push(script);
+			if (PlayState.instance != null && PlayState.instance.songScripts != null)
+				PlayState.instance.songScripts.forEach(script -> _scripts.push(script));
 		// adds hud scripts
 		if (hudOnly || hudOnly == null)
-			for (script in scripts)
-				_scripts.push(script);
+			scripts.forEach(script -> _scripts.push(script));
 		return _scripts;
 	}
 	/**
@@ -113,9 +111,10 @@ class HUDTemplate extends BeatGroup {
 	 * @return Dynamic ~ Whatever is in the functions return statement.
 	 */
 	public function call(?hudOnly:Bool, func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic {
-		for (script in getScripts(hudOnly))
-			if (script != null)
-				return script.call(func, args) ?? def;
+		for (script in getScripts(hudOnly)) {
+			// var commonValue:V;
+			script.call(func, args);
+		}
 		return def;
 	}
 	/**
@@ -128,8 +127,7 @@ class HUDTemplate extends BeatGroup {
 	@:access(imaginative.backend.scripting.events.ScriptEvent.continueLoop)
 	public function event<SC:ScriptEvent>(?hudOnly:Bool, func:String, event:SC):SC {
 		for (script in getScripts(hudOnly)) {
-			if (!script.active) continue;
-			event.returnCall = call(func, [event]);
+			event.returnCall = script.call(func, [event]);
 			if (event.prevented && !event.continueLoop) break;
 		}
 		return event;
@@ -140,10 +138,10 @@ class HUDTemplate extends BeatGroup {
 			/* if (Paths.folderExists('lead:content/huds/$type'))
 				for (ext in Script.exts)
 					for (file in Paths.readFolder(folder, ext))
-						for (script in Script.create(file))
+						for (script in Script.createMulti(file))
 							scripts.add(script);
 			else */
-				for (script in Script.create('lead:content/huds/${type}HUD'))
+				for (script in Script.createMulti('lead:content/huds/${type}HUD'))
 					scripts.add(script);
 
 	function initHealthBar():Bar {
@@ -191,7 +189,7 @@ class HUDTemplate extends BeatGroup {
 		}
 		super();
 
-		scripts = new ScriptGroup(this);
+		add(scripts = new ScriptGroup(this));
 		loadScript();
 		scripts.load();
 		call(true, 'create');
@@ -265,7 +263,6 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function destroy():Void {
-		scripts.end();
 		if (HUDType.instance == this)
 			HUDType.instance = null;
 		super.destroy();

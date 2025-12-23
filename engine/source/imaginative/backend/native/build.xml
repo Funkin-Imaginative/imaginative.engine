@@ -10,16 +10,20 @@
         <compilervalue name="-I" value="${PROJECT_DIR}/" />
     </files>
 
-    <files id='refreshrate'>
+    <files id='native'>
         <compilervalue name="-I" value="${PROJECT_DIR}/include/" />
-        <file name="${PROJECT_DIR}/refreshrate.cpp" if="linux" />
+        <file name="${PROJECT_DIR}/native.cpp" />
     </files>
 
     <target id="haxe">
-        <files id="refreshrate" />
+        <files id="native" />
         <section if="linux">
             <lib name="-lX11" />
             <lib name="-lXrandr" />
+        </section>
+		<section if="windows">
+            <lib name="dwmapi.lib" if="windows"/>
+            <lib name="gdi32.lib" if="windows"/>
         </section>
     </target>
 </xml>

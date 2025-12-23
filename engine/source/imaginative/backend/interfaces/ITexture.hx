@@ -139,10 +139,10 @@ class TextureData {
 	}
 
 	inline public function toString():String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('image', image.format()),
-			LabelValuePair.weak('type', type),
-			LabelValuePair.weak('path', path)
+		return FunkinUtil.toDebugString([
+			'image' => image.format(),
+			'type' => type,
+			'path' => path
 		]);
 	}
 }

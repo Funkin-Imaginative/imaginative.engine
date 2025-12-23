@@ -115,16 +115,20 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 * When ran it attempts to trigger the dance.
 	 */
 	public function tryDance():Void {
-		switch (animContext) {
-			case IsDancing:
-				dance();
-			case NoDancing | NoSinging:
-				if (getAnimName() == null)
+		var event:ScriptEvent = scripts.event('uponDanceAttempt', new ScriptEvent());
+		if (!event.prevented) {
+			switch (animContext) {
+				case IsDancing:
 					dance();
-			default:
-				if (getAnimName() == null || isAnimFinished())
-					dance();
+				case NoDancing | NoSinging:
+					if (getAnimName() == null)
+						dance();
+				default:
+					if (getAnimName() == null || isAnimFinished())
+						dance();
+			}
 		}
+		scripts.event('onDanceAttempted', event);
 	}
 
 	/**
@@ -135,10 +139,10 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 * When ran it triggers the dance.
 	 */
 	public function dance():Void {
-		var event:BopEvent = scripts.event('dancing', new BopEvent(!onSway));
+		var event:BopEvent = scripts.event('uponDance', new BopEvent(!onSway));
 		if ((!debugMode || !event.prevented) && !preventIdle)
 			playAnim((onSway = event.sway) ? (hasSway ? 'sway' : 'idle') : 'idle', IsDancing, idleSuffix);
-		scripts.call('dancingPost', [event]);
+		scripts.call('onDance', [event]);
 	}
 
 	override function generalSuffixCheck(context:AnimationContext):String {
@@ -160,7 +164,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public function stepHit(curStep:Int):Void {
 		this.curStep = curStep;
-		scripts.call('stepHit', [curStep]);
+		scripts.call('onStepHit', [curStep]);
 	}
 
 	/**
@@ -178,7 +182,7 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 			if (animContext != IsDancing && getAnimName().endsWith('-loop')) finishAnim();
 		}
 		if (type != IsHealthIcon)
-			scripts.call('beatHit', [curBeat]);
+			scripts.call('onBeatHit', [curBeat]);
 	}
 
 	/**
@@ -191,6 +195,6 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	 */
 	public function measureHit(curMeasure:Int):Void {
 		this.curMeasure = curMeasure;
-		scripts.call('measureHit', [curMeasure]);
+		scripts.call('onMeasureHit', [curMeasure]);
 	}
 }

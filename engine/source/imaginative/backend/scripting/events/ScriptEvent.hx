@@ -11,7 +11,7 @@ class ScriptEvent {
 	 * If true whatever it does is prevented.
 	 */
 	public var prevented:Bool = false;
-	@:allow(imaginative.backend.scripting.group.ScriptGroup.event)
+	@:allow(imaginative.backend.scripting.ScriptGroup.event)
 	var continueLoop:Bool = true;
 
 	/**
@@ -29,13 +29,7 @@ class ScriptEvent {
 		continueLoop = finishLoop;
 	}
 
-	/**
-	 * Stores extra data that coders can use for cool stuff.
-	 */
-	public var extra:Dynamic = {}
-	public function new(?data:Dynamic)
-		if (data != null)
-			extra = data;
+	public function new() {}
 
 	inline public function toString():String
 		return '[${this.getClassName()}${prevented ? ' ~ Prevented' : ''}]';

@@ -58,7 +58,7 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		var event:MenuBackgroundEvent = eventCall('uponMenuBackgroundCreation', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bgColor = bg.blankBg.color;
 		bg.scrollFactor.set();
@@ -181,7 +181,7 @@ class MainMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 			if (PlatformUtil.mouseJustMoved())
-				for (i => item in menuItems.members)
+				for (i => item in menuItems)
 					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
 
@@ -195,8 +195,11 @@ class MainMenu extends BeatState {
 			}
 
 			if (Controls.global.back) {
-				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
-				BeatState.switchState(() -> new TitleScreen());
+				var event:MenuSFXEvent = eventCall('uponExitingMenu', new MenuSFXEvent());
+				if (!event.prevented) {
+					event.playMenuSFX(CancelSFX);
+					BeatState.switchState(() -> new TitleScreen());
+				}
 			}
 			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
 				if (visualSelected != curSelected) {
@@ -213,13 +216,13 @@ class MainMenu extends BeatState {
 
 	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('uponSelectionChange', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
 		if (event.prevented) return;
 		prevSelected = event.previousValue;
 		curSelected = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		for (i => item in menuItems.members) {
+		for (i => item in menuItems) {
 			var newAnim:String = i == curSelected ? 'selected' : 'idle';
 			if (item.getAnimName() != newAnim) {
 				item.playAnim(newAnim);
@@ -232,29 +235,32 @@ class MainMenu extends BeatState {
 	function selectCurrent():Void {
 		selectionCooldown(1.1);
 
-		var event:ChoiceEvent = eventCall('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
-		if (!event.prevented)
+		var event:ChoiceEvent = eventCall('uponSelection', new ChoiceEvent(itemLineUp[curSelected]));
+		if (!event.prevented) {
 			event.playMenuSFX(ConfirmSFX);
-		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
-			if (!event.prevented)
-			switch (event.choice) {
-				case 'storymode':
-					BeatState.switchState(() -> new StoryMenu());
-				case 'freeplay':
-					BeatState.switchState(() -> new FreeplayMenu());
-				case 'donate':
-					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
-				case 'kickstarter':
-					PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
-				case 'merch':
-					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
-				case 'options':
-					selectionCooldown(0.4); // extend cooldown
-					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
-				case 'credits':
-					BeatState.switchState(() -> new CreditsMenu());
-			}
-			bgColor = bg.changeColor();
-		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
+			FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
+				if (!event.prevented)
+				switch (event.choice) {
+					case 'storymode':
+						BeatState.switchState(() -> new StoryMenu());
+					case 'freeplay':
+						BeatState.switchState(() -> new FreeplayMenu());
+					case 'donate':
+						PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
+					case 'kickstarter':
+						PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
+					case 'merch':
+						PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
+					case 'options':
+						selectionCooldown(0.4); // extend cooldown
+						conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
+					case 'credits':
+						BeatState.switchState(() -> new CreditsMenu());
+					default:
+						_log('[MainMenu] Item "${event.choice}" doesn\'t exist.');
+				}
+				bgColor = bg.changeColor();
+			}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
+		}
 	}
 }

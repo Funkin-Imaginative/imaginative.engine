@@ -103,7 +103,7 @@ class LevelHolder extends BeatSpriteGroup {
 	 */
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool {
-		var theCall:Dynamic = scripts.call('shouldLock');
+		var theCall:Dynamic = scripts.call('onLevelLocked');
 		var result:Bool = theCall is Bool ? theCall : false;
 		return false;//result;
 	}
@@ -112,7 +112,7 @@ class LevelHolder extends BeatSpriteGroup {
 	 */
 	public var isHidden(get, never):Bool;
 	inline function get_isHidden():Bool {
-		var theCall:Dynamic = scripts.call('shouldHide');
+		var theCall:Dynamic = scripts.call('onLevelHidden');
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
@@ -131,7 +131,7 @@ class LevelHolder extends BeatSpriteGroup {
 		if (allowScripts) {
 			var bruh:Array<ModPath> = ['lead:global', name];
 			for (level in bruh)
-				for (script in Script.create('${level.type}:content/levels/${level.path}'))
+				for (script in Script.createMulti('${level.type}:content/levels/${level.path}'))
 					scripts.add(script);
 		}
 		scripts.load();
@@ -151,8 +151,9 @@ class LevelHolder extends BeatSpriteGroup {
 			}
 		}
 	}
+
 	override public function destroy():Void {
-		scripts.end();
+		scripts.destroy();
 		super.destroy();
 	}
 }

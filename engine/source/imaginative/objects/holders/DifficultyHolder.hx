@@ -55,7 +55,7 @@ class DifficultyHolder extends BeatSpriteGroup {
 		scripts = new ScriptGroup(this);
 		if (allowScripts)
 			for (diff in ['lead:global', name])
-				for (script in Script.create('content/difficulties/$diff'))
+				for (script in Script.createMulti('content/difficulties/$diff'))
 					scripts.add(script);
 
 		scripts.load();
@@ -92,7 +92,7 @@ class DifficultyHolder extends BeatSpriteGroup {
 	}
 
 	override public function destroy():Void {
-		scripts.end();
+		scripts.destroy();
 		super.destroy();
 	}
 }

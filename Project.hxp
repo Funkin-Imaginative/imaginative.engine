@@ -121,10 +121,6 @@ class EngineAsset {
 	 * States if haxe scripting can do custom classes.
 	 */
 	static final customClasses:CompilerFlag = 'CUSTOM_CLASSES';
-	/**
-	 * States if dead code elimination will be disabled.
-	 */
-	static final disableDCE:CompilerFlag = 'DISABLE_DCE';
 
 	/**
 	 * States if the engine allows shaders at all.
@@ -187,16 +183,15 @@ class EngineAsset {
 		if ((isRelease() && knowsVersionID.exists()) && !isDebug())
 			checkForUpdates.enable();
 		// modSupport.enable();
-		// scriptSupport.enable();
+		scriptSupport.enable();
 
 		// usesAnimateAtlas.enable();
 
 		// script related
 		if (scriptSupport.exists()) {
 			canHaxeScript.enable();
-			canLuaScript.enable();
+			// canLuaScript.enable();
 
-			disableDCE.enable();
 			scriptedStates.enable();
 			if (canHaxeScript.exists())
 				customClasses.enable();
@@ -298,24 +293,29 @@ class EngineAsset {
 		// chart converter
 		addHaxelib('moonchart', 'git');
 
-		if ( canHaxeScript.exists()) addHaxelib('hscript-improved', 'git');
-		if ( canLuaScript .exists()) addHaxelib('linc_luajit',      'git');
-		if (  discordRPC  .exists()) addHaxelib('hxdiscord_rpc');
-		if (allowVideos   .exists()) addHaxelib('hxvlc',            'git');
+		if (canHaxeScript.exists()) addHaxelib('rulescript', 'git');
+		if (canLuaScript.exists()) addHaxelib('linc_luajit', 'git');
+		if (discordRPC.exists()) addHaxelib('hxdiscord_rpc');
+		if (allowVideos.exists()) addHaxelib('hxvlc', 'git');
 		if (knowsVersionID.exists()) addHaxelib('thx.semver');
 
 		if (editWindowBorderColor.exists())
 			addHaxelib('hxWindowColorMode');
+		if (scriptSupport.exists())
+			addHaxelib('compiletime');
 		/* Libraries */
+
+		addHaxeMacro('imaginative.backend.Macro.init()');
+		if (canHaxeScript.exists())
+			setDefine('rulescript_abstracts_file_path', './engine/modding/rulescript-abstracts.txt');
 
 		if (!isDebug())
 			setHaxedef('FLX_NO_DEBUG');
 
+		setHaxedef('FLX_NO_HEALTH');
+
 		// may add one
 		setHaxedef('FLX_NO_FOCUS_LOST_SCREEN');
-
-		if (disableDCE.exists())
-			addHaxeFlag('-dce no');
 
 		setHaxedef('message.reporting', 'pretty');
 		setHaxedef('message.log-format', 'pretty');
@@ -503,8 +503,10 @@ class EngineAsset {
 	 * Add a `haxeflag` to the project.
 	 * @param value The flag.
 	 */
-	inline public function addHaxeFlag(value:String):Void
+	inline public function addHaxeFlag(value:String):Void {
+		info('Added flag "$value".');
 		haxeflags.push(value);
+	}
 	/**
 	 * Call a Haxe build macro.
 	 * @param value The macro.
