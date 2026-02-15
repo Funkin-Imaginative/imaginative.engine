@@ -156,6 +156,7 @@ class Sustain extends FlxSprite {
 		var name:String = isEnd ? 'end' : 'hold';
 		var dir:String = ['left', 'down', 'up', 'right'][id];
 		animation.addByPrefix(name, '$dir note $name', 24, false);
+		// makeGraphic(50, isEnd ? 60 : 44, (isEnd ? [0xff3c1f56, 0xff1542b7, 0xff0a4447, 0xff651038] : [0xffc24b99, 0xff00ffff, 0xff12fa05, 0xfff9393f])[id]);
 
 		scale.scale(ArrowField.arrowScale);
 		animation.play(name, true);
@@ -163,6 +164,7 @@ class Sustain extends FlxSprite {
 
 		mods = new ArrowModifier(this);
 		mods.alpha = 0.6;
+		antialiasing = false;
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -183,13 +185,10 @@ class Sustain extends FlxSprite {
 		// prevent scaling on sustain end
 		if (sustain.isEnd) return;
 
-		// setGraphicSize
-		sustain.scale.y = (67.9 / sustain.frameHeight) * mult;
-
+		sustain.setGraphicSize(sustain.width, 45 * mult);
 		// updateHitbox
 		sustain.height = Math.abs(sustain.scale.y) * sustain.frameHeight;
 		sustain.offset.y = -0.5 * (sustain.height - sustain.frameHeight);
-
 		// centerOrigin
 		sustain.origin.y = sustain.frameHeight * 0.5;
 	}

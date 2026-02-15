@@ -73,15 +73,15 @@ class Strum extends FlxSprite {
 		animation.addByPrefix('static', '$dir strum static', 24, false);
 		animation.addByPrefix('press', '$dir strum press', 24, false);
 		animation.addByPrefix('confirm', '$dir strum confirm', 24, false);
-		animation.addByPrefix('confirm-end', '$dir strum hold confirm', 24, false);
+		// animation.addByPrefix('confirm-end', '$dir strum hold confirm', 24, false);
 
 		animation.onFinish.add((name:String) -> {
 			if (doesAnimExist('$name-loop'))
 				playAnim('$name-loop');
-			if (!setField.isPlayer && name.endsWith('-end'))
+			/* if (!setField.isPlayer && name.endsWith('-end'))
 				playAnim('static'); // simple fix for now possibly?
 			else if (doesAnimExist('$name-end'))
-				playAnim('$name-end');
+				playAnim('$name-end'); */
 		});
 
 		scale.scale(ArrowField.arrowScale);

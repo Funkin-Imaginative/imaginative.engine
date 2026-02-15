@@ -411,7 +411,7 @@ class PlayState extends BeatState {
 						char
 			]);
 			field.conductor = songAudio;
-			field.parse(base);
+			field.chartData = base;
 			arrowFieldMapping.set(base.tag, field);
 			loadedFields.push(base.tag);
 			field.scrollSpeed = base.speed;
@@ -661,6 +661,9 @@ class PlayState extends BeatState {
 				if (!event.prevented)
 					endSong(event);
 			}
+
+			for (field in hud.fields)
+				field.generateNotes();
 
 			startCountdown(countdownAssets);
 		});

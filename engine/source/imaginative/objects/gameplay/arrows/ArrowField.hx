@@ -269,6 +269,11 @@ class ArrowField extends BeatGroup {
 	inline function get_laneCount():Int
 		return strums.length;
 
+	/**
+	 * The chart data of the field.
+	 */
+	public var chartData:Null<ChartField>;
+
 	@:access(imaginative.objects.gameplay.arrows.ArrowModifier.update_scale)
 	override public function new(?singers:Array<Character>, startCount:Int = 4) {
 		strums = new StrumGroup(this);
@@ -616,11 +621,12 @@ class ArrowField extends BeatGroup {
 	}
 
 	/**
-	 * Parses 'ChartField' information.
-	 * @param data The 'ChartField' data.
+	 * Generates the notes from the chartData on the field.
+	 * @param time Any notes before the allotted time will not be generated.
 	 */
-	public function parse(data:ChartField):Void {
-		for (base in data.notes) {
+	public function generateNotes(?time:Float):Void {
+		for (base in chartData.notes) {
+			if (base.time < time ?? Math.NEGATIVE_INFINITY) continue;
 			var note:Note = new Note(this, base.id, base.time, base.length);
 			var lol:Array<String> = base.characters ??= [];
 			note.assignedActors = PlayState.instance == null ? [] : [

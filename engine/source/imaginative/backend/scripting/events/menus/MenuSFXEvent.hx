@@ -20,9 +20,9 @@ class MenuSFXEvent extends ScriptEvent {
 	 * @param sound The sound.
 	 * @param forcePlay Forces the sound to play if it gets prevented.
 	 * @param onComplete FlxG.sound.play's onComplete function.
-	 * @return `FlxSound` ~ The menu sound.
+	 * @return FlxSound ~ The menu sound.
 	 */
-	inline public function playMenuSFX(sound:MenuSFX, forcePlay:Bool = false, ?onComplete:Void->Void):Null<FlxSound> {
+	public function playMenuSFX(sound:MenuSFX, forcePlay:Bool = false, ?onComplete:Void->Void):Null<FlxSound> {
 		if (sfxVolume > 0 && (playSFX || forcePlay))
 			return FunkinUtil.playMenuSFX(sound, sfxVolume, sfxSubFolder, onComplete);
 		return null;
