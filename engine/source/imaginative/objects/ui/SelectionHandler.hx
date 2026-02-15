@@ -431,7 +431,7 @@ class SelectionHandler<SelectEvent:MenuSFXEvent> extends BeatTypedGroup<Selectio
 	function changeSelection(amount:Int = 0, pureSelect:Bool = false):Void {
 		_recursionTracker++;
 		if (_recursionTracker > length) {
-			_log('$traceTag Recursion detected, setting selection to -1 to prevent stack overflow!', ErrorMessage);
+			_log('$traceTag Recursion detected, setting selection to -1 to prevent stack overflow! (length:$length)', ErrorMessage);
 			_recursionTracker = 0; changeSelection(-1, true);
 			return;
 		}

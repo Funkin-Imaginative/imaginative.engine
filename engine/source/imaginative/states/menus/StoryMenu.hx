@@ -56,6 +56,9 @@ class StoryMenu extends BeatState {
 		mainCamera.zoomEnabled = true;
 		add(camPoint);
 
+		final loadedDiffs:Array<String> = [];
+		final loadedObjects:Array<Array<ObjectTyping>> = [];
+		final levelNoExistList:Array<String> = [];
 		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, item -> {
 			final level:LevelHolder = item.extra.get('level');
 			return eventCall('onLevelSelect', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
@@ -68,8 +71,7 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('content/levels', 'json', false)
 			#end
 		];
-		final loadedDiffs:Array<String> = [];
-		final loadedObjects:Array<Array<ObjectTyping>> = [];
+		trace(levelList);
 		levels.overlapsCheck = (item:SelectionItem<LevelSelectionEvent>) ->
 			return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && FlxG.mouse.overlaps(item);
 		levels.initialize(
@@ -77,7 +79,7 @@ class StoryMenu extends BeatState {
 			(index:Int, group:SelectionItem<LevelSelectionEvent>) -> {
 				final name:ModPath = group.itemId;
 				if (!Paths.level(name).isFile) {
-					_log('[StoryMenu] Level $name doesn\'t exist.');
+					levelNoExistList.push(name);
 					return false;
 				}
 
@@ -129,8 +131,8 @@ class StoryMenu extends BeatState {
 						sprite.alpha = 0.0001;
 			}
 		);
-		// var levelShake:FlxTween;
-		// var diffShake:FlxTween;
+		if (!levelNoExistList.empty())
+			_log('[StoryMenu] Level(s) ${levelNoExistList.cleanDisplayList()} doesn\'t exist.');
 		@:privateAccess levels.selectCurrent = () -> {
 			if (levels.currentValue == -1) {
 				_log('${levels.traceTag} Nothing selected.', DebugMessage);

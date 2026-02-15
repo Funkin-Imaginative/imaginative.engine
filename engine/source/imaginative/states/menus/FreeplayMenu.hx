@@ -5,16 +5,6 @@ package imaginative.states.menus;
  */
 class FreeplayMenu extends BeatState {
 	// Menu related vars.
-	var canSelect:Bool = true;
-	static var prevSelected:Int = 0;
-	static var curSelected:Int = 0;
-	var visualSelected:Int = curSelected;
-	inline function selectionCooldown(duration:Float = 0.1):FlxTimer {
-		canSelect = false;
-		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
-	}
-	var emptyList(default, null):Bool = false;
-
 	var diffMap:Map<String, DifficultyHolder> = new Map<String, DifficultyHolder>();
 
 	static var prevDiffList:Array<String> = [];
@@ -36,7 +26,7 @@ class FreeplayMenu extends BeatState {
 	// Objects in the state.
 	var bg:MenuSprite;
 
-	var songs:FlxTypedGroup<SongHolder>;
+	var songs:SelectionHandler<SongSelectionEvent>;
 	var diffs:FlxTypedGroup<DifficultyHolder>;
 
 	// song selection text
@@ -59,9 +49,9 @@ class FreeplayMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return                                 prevSelected));
-		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return                                  curSelected));
-		FlxG.game.debugger.watch.add('Visual Selection',      FUNCTION(() -> return                               visualSelected));
+		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return                    songs?.previousValue ?? 0));
+		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return                     songs?.currentValue ?? 0));
+		FlxG.game.debugger.watch.add('Visual Selection',      FUNCTION(() -> return                      songs?.currentView ?? 0));
 		FlxG.game.debugger.watch.add('Current Song Info',     FUNCTION(() -> return    '$currentSongAudio ~ $currentSongVariant'));
 		#end
 		if (!conductor.playing)
@@ -81,8 +71,12 @@ class FreeplayMenu extends BeatState {
 		bg.screenCenter();
 		add(bg);
 
-		var loadedDiffs:Array<String> = [];
-		songs = new FlxTypedGroup<SongHolder>();
+		final loadedDiffs:Array<String> = [];
+		final songNoExistList:Array<String> = [];
+		songs = new SelectionHandler<SongSelectionEvent>(scriptName, item -> {
+			final song:SongHolder = item.extra.get('song');
+			eventCall('onSongSelect', new SongSelectionEvent(song, diffMap[curDiffString], song.data.name, curDiffString, song.data.variants[curDiff]));
+		}, eventCall);
 		var songList:Array<Array<ModPath>> = [
 			#if MOD_SUPPORT
 			FunkinUtil.getSongFolderNames(LEAD),
@@ -92,21 +86,129 @@ class FreeplayMenu extends BeatState {
 			#end
 		];
 		trace(songList);
-		for (list in songList) {
-			for (i => name in list) {
-				var song:SongHolder = new SongHolder(name, true);
-				songs.add(song);
+		songs.overlapsCheck = (item:SelectionItem<SongSelectionEvent>) ->
+			return FlxG.mouse.overlaps(item.extra.get('song').text);
+		songs.initialize(
+			[for (list in songList) for (item in list) item], true,
+			(index:Int, group:SelectionItem<SongSelectionEvent>) -> {
+				final name:ModPath = group.itemId;
+				if (!Paths.json('${name.type}:content/songs/${name.path}/meta').isFile) {
+					// _log('[FreeplayMenu] Song ${name.path} doesn\'t exist.');
+					songNoExistList.push(name);
+					return false;
+				}
 
+				final song:SongHolder = new SongHolder(name, true);
+				group.extra.set('song', song);
 				for (diff in song.data.difficulties)
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
+
+				group._canSelect = (value:Bool) ->
+					group.visible = value;
+
+				group.add(song);
+				return true;
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<SongSelectionEvent>) -> {
+				final song:SongHolder = group.extra.get('song');
+				songNameText.text = 'Song: ${song.data.name}';
+
+				prevDiffList = curDiffList;
+				curDiffList = song.data.difficulties;
+				var newIndex:Int = song.data.startingDiff;
+				if (prevDiffList[curDiff] == prevDiffList[curDiff])
+					for (i => diff in curDiffList)
+						if (diff == prevDiffList[curDiff]) {
+							newIndex = i;
+							break;
+						}
+				changeDifficulty(newIndex, true);
 			}
+		);
+		if (!songNoExistList.empty())
+			_log('[FreeplayMenu] Songs(s) ${songNoExistList.cleanDisplayList()} doesn\'t exist.');
+		var _i:Int = 1;
+		for (group in songs) {
+			final song:SongHolder = group.extra.get('song');
+			group.isLocked = song.isLocked;
+			if (song.isHidden) { group.canSelect = false; _i++; }
+			group.setPosition(10 * _i - 10 - (FlxG.width / 2), 150 * _i);
+			_i++;
 		}
-		for (i => song in songs.members)
-			song.setPosition(10 * (i + 1) - 10 - (FlxG.width / 2), 150 * (i + 1));
-		if (songs.members.empty()) {
-			emptyList = true;
-			log('There are no items in the listing.', WarningMessage);
+		@:privateAccess songs.selectCurrent = () -> {
+			final curItem = songs.members[songs.currentValue];
+			final song:SongHolder = curItem.extra.get('song');
+
+			var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != song.data.folder || currentSongVariant != song.data.variants[curDiff])));
+			if (!event.prevented) {
+				if (event.playPreview) {
+					menuTimePosition = conductor.time;
+					if (winningIcon != null) {
+						winningIcon.playAnim('normal');
+						winningIcon.preventScaleBop = true;
+					}
+					(winningIcon = song.icon).playAnim('winning');
+					winningIcon.preventScaleBop = false;
+
+					mainCamera.zoomEnabled = true;
+					event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
+					musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
+					artistText.text = 'By: ${conductor.data.artist}';
+					songBpmText.text = '${conductor.data.bpm} BPM';
+					songSigText.text = conductor.data.signature.join(' / ');
+					updateMusicInfoBoxWidth();
+					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
+					FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
+					eventCall('onSongPreview', event);
+				} else {
+					if (songs.currentValue == -1) {
+						_log('${songs.traceTag} Nothing selected.', DebugMessage);
+						return; // unselected
+					}
+					songs.setCooldown();
+
+					_log('${songs.traceTag} Selecting item "${curItem.itemId}". (index:${songs.currentValue})', DebugMessage);
+					final event:SongSelectionEvent = songs.eventCreator(curItem);
+					if (event.prevented) return;
+
+					song.scripts.event('onSongSelect', event);
+					if (event.prevented) return;
+					var songLocked:Bool = song.isLocked;
+					var diffLocked:Bool = event.diffHolder.isLocked;
+
+					if (songLocked || diffLocked) {
+						/* if (songShake == null) {
+							var time:Float = {
+								var sound = event.playMenuSFX(CancelSFX, true);
+								if (sound == null) 3;
+								else sound.time / 1000;
+							}
+							var ogX:Float = song.text.x;
+							song.icon.playAnim('losing');
+							songShake = FlxTween.shake(song.text, 0.02, time, X, {
+								onComplete: (_:FlxTween) -> {
+									song.text.x = ogX;
+									songShake = null;
+									song.icon.playAnim('normal');
+								}
+							});
+							levels.setCooldown(time);
+						} */
+					} else {
+						var time:Float = {
+							var sound = event.playMenuSFX(ConfirmSFX, true);
+							if (sound == null) 3;
+							else sound.time / 1000;
+						}
+						new FlxTimer().start(time, (_:FlxTimer) -> {
+							currentSongAudio = currentSongVariant = ':MENU:';
+							PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
+							BeatState.switchState(() -> new PlayState());
+						});
+					}
+				}
+			}
 		}
 		add(songs);
 
@@ -169,16 +271,14 @@ class FreeplayMenu extends BeatState {
 		songPlayingGroup.scrollFactor.set();
 		add(songPlayingGroup);
 
-		// regular menu shiz
-		changeSelection();
-		changeDifficulty();
+		@:privateAccess songs.initSelection();
 
 		camPoint.setPosition(
-			10 * (curSelected + 1) + 50,
-			Position.getObjMidpoint(songs.members[curSelected].text).y
+			10 * (songs.currentValue + 1) + 50,
+			Position.getObjMidpoint(songs.members[songs.currentValue].extra.get('song').text).y
 		);
 		mainCamera.snapToTarget();
-		bgColor = bg.blankBg.color = songs.members[visualSelected].data.color;
+		bgColor = bg.blankBg.color = songs.members[songs.currentValue].extra.get('song').data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
 	function updateMusicInfoBoxWidth():Void { // is being stupid
@@ -200,38 +300,11 @@ class FreeplayMenu extends BeatState {
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		if (canSelect) {
-			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
-				changeSelection(-1);
-				visualSelected = curSelected;
-			}
-			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
-				changeSelection(1);
-				visualSelected = curSelected;
-			}
-
-			if (FlxG.mouse.wheel != 0) {
-				changeSelection(-1 * FlxG.mouse.wheel);
-				visualSelected = curSelected;
-			}
-			if (PlatformUtil.mouseJustMoved())
-				for (i => item in songs.members)
-					if (FlxG.mouse.overlaps(item.text))
-						changeSelection(i, true);
-
+		if (songs.allowSelect) {
 			if (Controls.global.uiLeft)
 				changeDifficulty(-1);
 			if (Controls.global.uiRight)
 				changeDifficulty(1);
-
-			if (FlxG.keys.justPressed.HOME) {
-				changeSelection(0, true);
-				visualSelected = curSelected;
-			}
-			if (FlxG.keys.justPressed.END) {
-				changeSelection(songs.length - 1, true);
-				visualSelected = curSelected;
-			}
 
 			if (Controls.global.back) {
 				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
@@ -256,75 +329,23 @@ class FreeplayMenu extends BeatState {
 					}
 				}
 			}
-			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(songs.members[curSelected].text))) {
-				if (visualSelected != curSelected) {
-					visualSelected = curSelected;
-					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else {
-					var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != songs.members[curSelected].data.folder || currentSongVariant != songs.members[curSelected].data.variants[curDiff])));
-					if (!event.prevented) {
-						if (event.playPreview) {
-							var song:SongHolder = songs.members[curSelected];
-							menuTimePosition = conductor.time;
-							if (winningIcon != null) {
-								winningIcon.playAnim('normal');
-								winningIcon.preventScaleBop = true;
-							}
-							(winningIcon = song.icon).playAnim('winning');
-							winningIcon.preventScaleBop = false;
-
-							mainCamera.zoomEnabled = true;
-							event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
-							musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
-							artistText.text = 'By: ${conductor.data.artist}';
-							songBpmText.text = '${conductor.data.bpm} BPM';
-							songSigText.text = conductor.data.signature.join(' / ');
-							updateMusicInfoBoxWidth();
-							FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
-							FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
-							eventCall('onSongPreview', event);
-						} else selectCurrent();
-					}
-				}
-			}
 		}
 
 		camPoint.setPosition(
-			10 * (visualSelected + 1) - 50,
-			Position.getObjMidpoint(songs.members[visualSelected].text).y
+			10 * (songs.currentView + 1) - 50,
+			Position.getObjMidpoint(songs.members[Std.int(songs.currentView)].extra.get('song').text).y
 		);
-		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[visualSelected].data.color, 0.1), false);
+		bgColor = bg.changeColor(FunkinUtil.colorLerp(bg.blankBg.color, songs.members[Std.int(songs.currentView)].extra.get('song').data.color, 0.1), false);
 
 		for (i => song in songs.members)
-			song.alpha = FunkinUtil.lerp(song.alpha, curSelected == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(curSelected - i)), 0.34);
+			song.alpha = FunkinUtil.lerp(song.alpha, songs.currentValue == i ? 1 : Math.max(0.3, 1 - 0.3 * Math.abs(songs.currentValue - i)), 0.34);
 
 		if (FlxG.mouse.pressed)
-			for (item in songs.members)
-				if (FlxG.mouse.overlaps(item.icon))
-					item.icon.scale.set(item.icon.spriteOffsets.scale.x * item.icon.bopScaleMult.x, item.icon.spriteOffsets.scale.y * item.icon.bopScaleMult.x);
-	}
-
-	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
-		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, songs.length - 1)));
-		if (event.prevented) return;
-		prevSelected = event.previousValue;
-		curSelected = event.currentValue;
-		event.playMenuSFX(ScrollSFX);
-
-		var song:SongHolder = songs.members[curSelected];
-		songNameText.text = 'Song: ${song.data.name}';
-
-		prevDiffList = curDiffList;
-		curDiffList = song.data.difficulties;
-		var newIndex:Int = song.data.startingDiff;
-		if (prevDiffList[curDiff] == prevDiffList[curDiff])
-			for (i => diff in curDiffList)
-				if (diff == prevDiffList[curDiff]) {
-					newIndex = i;
-					break;
-				}
-		changeDifficulty(newIndex, true);
+			for (item in songs.members) {
+				final song:SongHolder = item.extra.get('song');
+				if (FlxG.mouse.overlaps(song.icon))
+					song.icon.scale.set(song.icon.spriteOffsets.scale.x * song.icon.bopScaleMult.x, song.icon.spriteOffsets.scale.y * song.icon.bopScaleMult.x);
+			}
 	}
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
@@ -335,52 +356,9 @@ class FreeplayMenu extends BeatState {
 		curDiff = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[curSelected].data.variants[curDiff])}';
+		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[songs.currentValue].extra.get('song').data.variants[curDiff])}';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
 		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
 		sideArrowsText.visible = !curDiffList.empty();
-	}
-
-	var songShake:FlxTween;
-	function selectCurrent():Void {
-		canSelect = false;
-		var event:SongSelectionEvent = eventCall('onSongSelect', new SongSelectionEvent(songs.members[curSelected], diffMap[curDiffString], songs.members[curSelected].data.name, curDiffString, songs.members[curSelected].data.variants[curDiff]));
-		if (event.prevented) return;
-
-		var song:SongHolder = event.holder;
-		song.scripts.event('onSongSelect', event);
-		if (event.prevented) return;
-		var songLocked:Bool = song.isLocked;
-		var diffLocked:Bool = event.diffHolder.isLocked;
-
-		if (songLocked || diffLocked) {
-			if (songShake == null) {
-				var time:Float = {
-					var sound = event.playMenuSFX(CancelSFX, true);
-					if (sound == null) 3;
-					else sound.time / 1000;
-				}
-				var ogX:Float = song.text.x;
-				song.icon.playAnim('losing');
-				songShake = FlxTween.shake(song.text, 0.02, time, X, {
-					onComplete: (_:FlxTween) -> {
-						song.text.x = ogX;
-						songShake = null;
-						song.icon.playAnim('normal');
-					}
-				});
-				selectionCooldown(time);
-			}
-		} else {
-			var time:Float = {
-				var sound = event.playMenuSFX(ConfirmSFX, true);
-				if (sound == null) 3;
-				else sound.time / 1000;
-			}
-			new FlxTimer().start(time, (_:FlxTimer) -> {
-				PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
-				BeatState.switchState(() -> new PlayState());
-			});
-		}
 	}
 }
