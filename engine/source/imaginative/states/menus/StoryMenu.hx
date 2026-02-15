@@ -20,6 +20,7 @@ class StoryMenu extends BeatState {
 
 	static var prevDiff:Int = 0;
 	static var curDiff:Int = 0;
+	var emptyDiffList(default, null):Bool = false;
 
 	// Objects in the state.
 	var scoreText:FlxText;
@@ -33,7 +34,7 @@ class StoryMenu extends BeatState {
 	var trackList:FlxText;
 
 	var levels:SelectionHandler<LevelSelectionEvent>;
-	var diffs:SelectionHandler<MenuSFXEvent>;
+	var diffs:FlxTypedGroup<DifficultyHolder>;
 	var leftArrow:BaseSprite;
 	var rightArrow:BaseSprite;
 
@@ -193,36 +194,27 @@ class StoryMenu extends BeatState {
 		}
 		add(levels);
 
-		diffs = new SelectionHandler<MenuSFXEvent>(HorizontalLayout, item -> return new MenuSFXEvent(false));
-		diffs.initialize(
-			loadedDiffs,
-			(index:Int, group:SelectionItem<MenuSFXEvent>) -> {
-				final name:String = group.itemId;
-				if (diffMap.exists(name))
-					return false;
-
-				final diff:DifficultyHolder = new DifficultyHolder(name, true);
-				group.extra.set('diff', diff);
-				diff.scale.scale(0.85);
-				diff.refreshAnim();
-
-				group.alpha = 0.0001;
-				group.add(diff);
-				diffMap.set(name, diff);
-				group.screenCenter();
-				group.x += FlxG.width / 2.95;
-				group.y += FlxG.height / 3.5;
-				return true;
-			},
-			(index:Int, event:SelectionChangeEvent, group:SelectionItem<MenuSFXEvent>) -> group.alpha = 1,
-			(index:Int, event:SelectionChangeEvent, group:SelectionItem<MenuSFXEvent>) -> group.alpha = 0.0001
-
-		);
+		diffs = new FlxTypedGroup<DifficultyHolder>();
+		for (name in loadedDiffs) {
+			if (diffMap.exists(name)) continue;
+			var diff:DifficultyHolder = new DifficultyHolder(name, true);
+			diff.scale.scale(0.85);
+			diff.refreshAnim();
+			diff.screenCenter();
+			diff.x += FlxG.width / 2.95;
+			diff.y += FlxG.height / 3.5;
+			diff.alpha = 0.0001;
+			diffMap.set(name, diffs.add(diff));
+		}
+		if (diffs.members.empty()) {
+			emptyDiffList = true;
+			log('There are no difficulties in the listing.', WarningMessage);
+		}
 		add(diffs);
 
 		// Menu elements.
 		final arrowDistance:Float = 200 * 0.85;
-		final arrowPos:Position = Position.getObjMidpoint(diffs.members[0].extra.get('diff').sprite);
+		final arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
@@ -380,12 +372,15 @@ class StoryMenu extends BeatState {
 		arrow.centerOrigin();
 	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
+		if (emptyDiffList) return;
 		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		@:privateAccess diffs.changeSelection(newIndex, true);
+		for (diff in diffMap)
+			diff.alpha = 0.0001;
+		diffHolder.alpha = 1;
 	}
 }
