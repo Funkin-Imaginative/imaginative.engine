@@ -5,15 +5,6 @@ package imaginative.states.menus;
  */
 class StoryMenu extends BeatState {
 	// Menu related vars.
-	var canSelect:Bool = true;
-	static var prevSelected:Int = 0;
-	static var curSelected:Int = 0;
-	inline function selectionCooldown(duration:Float = 0.1):FlxTimer {
-		canSelect = false;
-		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
-	}
-	var emptyList(default, null):Bool = false;
-
 	var diffMap:Map<String, DifficultyHolder> = new Map<String, DifficultyHolder>();
 
 	var diffHolder(get, never):DifficultyHolder;
@@ -29,7 +20,6 @@ class StoryMenu extends BeatState {
 
 	static var prevDiff:Int = 0;
 	static var curDiff:Int = 0;
-	var emptyDiffList(default, null):Bool = false;
 
 	// Objects in the state.
 	var scoreText:FlxText;
@@ -42,8 +32,8 @@ class StoryMenu extends BeatState {
 	var trackText:String = 'vV Tracks Vv';
 	var trackList:FlxText;
 
-	var levels:FlxTypedGroup<LevelHolder>;
-	var diffs:FlxTypedGroup<DifficultyHolder>;
+	var levels:SelectionHandler<LevelSelectionEvent>;
+	var diffs:SelectionHandler<MenuSFXEvent>;
 	var leftArrow:BaseSprite;
 	var rightArrow:BaseSprite;
 
@@ -53,8 +43,8 @@ class StoryMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return    prevSelected));
-		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return     curSelected));
+		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return    levels?.previousValue ?? 0));
+		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return     levels?.currentValue ?? 0));
 		#end
 		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
@@ -65,10 +55,11 @@ class StoryMenu extends BeatState {
 		mainCamera.zoomEnabled = true;
 		add(camPoint);
 
-		var loadedDiffs:Array<String> = [];
-		var loadedObjects:Array<Array<ObjectTyping>> = [];
-		levels = new FlxTypedGroup<LevelHolder>();
-		var levelList:Array<Array<ModPath>> = [
+		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, item -> {
+			final level:LevelHolder = item.extra.get('level');
+			return eventCall('onLevelSelect', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
+		}, eventCall);
+		final levelList:Array<Array<ModPath>> = [
 			#if MOD_SUPPORT
 			Paths.readFolderOrderTxt('lead:content/levels', 'json', false),
 			Paths.readFolderOrderTxt('mod:content/levels', 'json', false)
@@ -76,12 +67,22 @@ class StoryMenu extends BeatState {
 			Paths.readFolderOrderTxt('content/levels', 'json', false)
 			#end
 		];
-		trace(levelList);
-		for (list in levelList) {
-			for (i => name in list) {
-				var level:LevelHolder = new LevelHolder(name, true);
-				levels.add(level);
+		final loadedDiffs:Array<String> = [];
+		final loadedObjects:Array<Array<ObjectTyping>> = [];
+		levels.overlapsCheck = (item:SelectionItem<LevelSelectionEvent>) ->
+			return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && FlxG.mouse.overlaps(item);
+		levels.initialize(
+			[for (list in levelList) for (item in list) item], true,
+			(index:Int, group:SelectionItem<LevelSelectionEvent>) -> {
+				final name:ModPath = group.itemId;
+				if (!Paths.level(name).isFile) {
+					_log('[StoryMenu] Level $name doesn\'t exist.');
+					return false;
+				}
 
+				// TODO: Rethink the holder classes.
+				final level:LevelHolder = new LevelHolder(name, true);
+				group.extra.set('level', level);
 				for (diff in level.data.difficulties)
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
@@ -89,39 +90,139 @@ class StoryMenu extends BeatState {
 				for (data in level.data.objects)
 					temp.push(data);
 				loadedObjects.push(temp);
+
+				group.add(level);
+				group.screenCenter(X);
+				group.y = 150 * (index + 1);
+				return true;
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<LevelSelectionEvent>) -> {
+				final level:LevelHolder = group.extra.get('level');
+				final songList:SongDisplayListEvent = eventCall('songNameDisplay', level.scripts.event('songNameDisplay', new SongDisplayListEvent(level.data.songs)));
+				trackList.text = '$trackText\n\n${songList.songs.join('\n')}';
+				titleText.text = level.data.title;
+				for (sprite in level.weekObjects)
+					sprite.alpha = 1;
+
+				prevDiffList = curDiffList;
+				curDiffList = level.data.difficulties;
+				var newIndex:Int = level.data.startingDiff;
+				if (prevDiffList[curDiff] == prevDiffList[curDiff])
+					for (i => diff in curDiffList)
+						if (diff == prevDiffList[curDiff]) {
+							newIndex = i;
+							break;
+						}
+				changeDifficulty(newIndex, true);
+			},
+			(index:Int, event:LevelSelectionEvent, group:SelectionItem<LevelSelectionEvent>) -> {
+				/* switch (group.itemId) {
+					case pattern:
+					default:
+
+				} */
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<LevelSelectionEvent>) -> {
+				final level:LevelHolder = group.extra.get('level');
+				for (sprite in level.weekObjects)
+						sprite.alpha = 0.0001;
 			}
-		}
-		for (i => level in levels.members) {
-			level.screenCenter(X);
-			level.y = 150 * (i + 1);
-		}
-		if (levels.members.empty()) {
-			emptyList = true;
-			log('There are no items in the listing.', WarningMessage);
+		);
+		// var levelShake:FlxTween;
+		// var diffShake:FlxTween;
+		@:privateAccess levels.selectCurrent = () -> {
+			if (levels.currentValue == -1) {
+				_log('${levels.traceTag} Nothing selected.', DebugMessage);
+				return; // unselected
+			}
+			levels.setCooldown();
+
+			final curItem = levels.members[levels.currentValue];
+			_log('${levels.traceTag} Selecting item "${curItem.itemId}". (index:${levels.currentValue})', DebugMessage);
+			final event:LevelSelectionEvent = levels.eventCreator(curItem);
+			if (event.prevented) return;
+
+			final level:LevelHolder = curItem.extra.get('level');
+			level.scripts.event('onLevelSelect', event);
+			if (event.prevented) return;
+			var levelLocked:Bool = level.isLocked;
+			var diffLocked:Bool = diffHolder.isLocked;
+
+			if (levelLocked || diffLocked) {
+				/* if (levelShake == null || diffShake == null) {
+					var time:Float = {
+						var sound = event.playMenuSFX(CancelSFX, true);
+						if (sound == null) 3;
+						else sound.time / 1000;
+					}
+					if (levelLocked) {
+						var ogX:Float = level.x;
+						levelShake = FlxTween.shake(level, 0.02, time, X, {
+							onComplete: (_:FlxTween) -> {
+								level.x = ogX;
+								levelShake = null;
+							}
+						});
+					}
+					if (diffLocked) {
+						var ogY:Float = diffHolder.y;
+						diffShake = FlxTween.shake(diffHolder, 0.1, time, Y, {
+							onComplete: (_:FlxTween) -> {
+								diffHolder.y = ogY;
+								diffShake = null;
+							}
+						});
+					}
+					levels.setCooldown(time);
+				} */
+			} else {
+				for (sprite in level.weekObjects)
+					if (sprite.extra.get('willHey'))
+						sprite.playAnim('hey', NoDancing);
+
+				var time:Float = {
+					var sound = event.playMenuSFX(ConfirmSFX, true);
+					if (sound == null) 3;
+					else sound.time / 1000;
+				}
+				new FlxTimer().start(time, (_:FlxTimer) -> {
+					PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
+					BeatState.switchState(() -> new PlayState());
+				});
+			}
 		}
 		add(levels);
 
-		diffs = new FlxTypedGroup<DifficultyHolder>();
-		for (name in loadedDiffs) {
-			if (diffMap.exists(name)) continue;
-			var diff:DifficultyHolder = new DifficultyHolder(name, true);
-			diff.scale.scale(0.85);
-			diff.refreshAnim();
-			diff.screenCenter();
-			diff.x += FlxG.width / 2.95;
-			diff.y += FlxG.height / 3.5;
-			diff.alpha = 0.0001;
-			diffMap.set(name, diffs.add(diff));
-		}
-		if (diffs.members.empty()) {
-			emptyDiffList = true;
-			log('There are no difficulties in the listing.', WarningMessage);
-		}
+		diffs = new SelectionHandler<MenuSFXEvent>(HorizontalLayout, item -> return new MenuSFXEvent(false));
+		diffs.initialize(
+			loadedDiffs,
+			(index:Int, group:SelectionItem<MenuSFXEvent>) -> {
+				final name:String = group.itemId;
+				if (diffMap.exists(name))
+					return false;
+
+				final diff:DifficultyHolder = new DifficultyHolder(name, true);
+				group.extra.set('diff', diff);
+				diff.scale.scale(0.85);
+				diff.refreshAnim();
+
+				group.alpha = 0.0001;
+				group.add(diff);
+				diffMap.set(name, diff);
+				group.screenCenter();
+				group.x += FlxG.width / 2.95;
+				group.y += FlxG.height / 3.5;
+				return true;
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<MenuSFXEvent>) -> group.alpha = 1,
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<MenuSFXEvent>) -> group.alpha = 0.0001
+
+		);
 		add(diffs);
 
 		// Menu elements.
-		var arrowDistance:Float = 200 * 0.85;
-		var arrowPos:Position = Position.getObjMidpoint(diffs.members[0].sprite);
+		final arrowDistance:Float = 200 * 0.85;
+		final arrowPos:Position = Position.getObjMidpoint(diffs.members[0].extra.get('diff').sprite);
 		leftArrow = new BaseSprite(arrowPos.x, arrowPos.y, 'ui/arrows');
 		rightArrow = new BaseSprite(leftArrow.x, leftArrow.y, 'ui/arrows');
 
@@ -161,7 +262,7 @@ class StoryMenu extends BeatState {
 		add(weekTopBg);
 
 		weekBg = new BaseSprite(0, weekTopBg.height).makeSolid(mainCamera.width, 400);
-		weekBg.color = levels.members[curSelected].data.color;
+		weekBg.color = levels.members[levels.currentValue].extra.get('level').data.color;
 		add(weekBg);
 
 		var cantFindList:Array<String> = [];
@@ -188,23 +289,24 @@ class StoryMenu extends BeatState {
 
 				sprite.alpha = 0.0001;
 				sprite.scrollFactor.set();
-				levels.members[i].weekObjects.push(sprite);
+				levels.members[i].extra.get('level').weekObjects.push(sprite);
 				weekObjects.add(sprite);
 			}
 		if (!cantFindList.empty())
 			log('Object(s) ${cantFindList.cleanDisplayList()} doesn\'t exist.', WarningMessage);
 
-		for (level in levels)
-			for (i => sprite in level.weekObjects) {
+		for (item in levels) {
+			var objects:Array<BeatSprite> = item.extra.get('level').weekObjects;
+			for (i => sprite in objects) {
 				sprite.setPosition(mainCamera.width / 2, weekBg.height / 2 + weekBg.y);
 				sprite.x += 400 * i;
-				sprite.x -= (400 * ((level.weekObjects.length - 1) / 2));
-
+				sprite.x -= (400 * ((objects.length - 1) / 2));
 				var offsets:Position = sprite.extra.get('offsets');
 				sprite.setPosition(sprite.x + offsets.x, sprite.y + offsets.y);
 				sprite.x -= sprite.width / 2;
 				sprite.y -= sprite.height / 2;
 			}
+		}
 
 		add(weekObjects);
 
@@ -226,41 +328,21 @@ class StoryMenu extends BeatState {
 		for (l in [leftArrow, rightArrow, weekTopBg, weekBg, scoreText, titleText, trackList])
 			l.scrollFactor.set();
 
-		changeSelection();
-		changeDifficulty();
+		@:privateAccess levels.initSelection();
 
-		var mid:Position = Position.getObjMidpoint(levels.members[curSelected].sprite);
+		var mid:Position = Position.getObjMidpoint(levels.members[levels.currentValue].extra.get('level').sprite);
 		camPoint.setPosition(mid.x, mid.y - (mainCamera.height / 3.4));
 		mainCamera.snapToTarget();
-	}
-
-	inline function hoverIsCorrect(item:LevelHolder):Bool {
-		return !(FlxG.mouse.overlaps(weekTopBg) || FlxG.mouse.overlaps(weekBg)) && FlxG.mouse.overlaps(item);
 	}
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		if (canSelect) {
-			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP)
-				changeSelection(-1);
-			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN)
-				changeSelection(1);
-
-			if (FlxG.mouse.wheel != 0)
-				changeSelection(-1 * FlxG.mouse.wheel);
-			var stopSelect:Bool = false;
+		if (levels.allowSelect) {
 			if (FlxG.mouse.justPressed) {
 				if (FlxG.mouse.overlaps(leftArrow))
 					changeDifficulty(-1);
 				if (FlxG.mouse.overlaps(rightArrow))
 					changeDifficulty(1);
-				for (i => item in levels.members)
-					if (curSelected == i)
-						continue;
-					else if (hoverIsCorrect(item)) {
-						changeSelection(i, stopSelect = true);
-						break;
-					}
 			} else if (FlxG.mouse.pressed) {
 				if (FlxG.mouse.overlaps(leftArrow))
 					playArrowAnim(true);
@@ -277,11 +359,6 @@ class StoryMenu extends BeatState {
 			else if (Controls.global.uiRightPress)
 				playArrowAnim();
 
-			if (FlxG.keys.justPressed.HOME)
-				changeSelection(0, true);
-			if (FlxG.keys.justPressed.END)
-				changeSelection(levels.length - 1, true);
-
 			if (Controls.global.back) {
 				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
 				if (!event.prevented) {
@@ -289,43 +366,11 @@ class StoryMenu extends BeatState {
 					BeatState.switchState(() -> new MainMenu());
 				}
 			}
-			if (Controls.global.accept || (FlxG.mouse.justPressed && hoverIsCorrect(levels.members[curSelected]) && !stopSelect))
-				selectCurrent();
 		}
 
-		var item:BaseSprite = levels.members[curSelected].sprite;
-		camPoint.y = Position.getObjMidpoint(item).y - (mainCamera.height / 3.4);
-		weekBg.color = FunkinUtil.colorLerp(weekBg.color, levels.members[curSelected].data.color, 0.1);
-	}
-
-	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
-		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, levels.length - 1), pureSelect ? 0 : move));
-		if (event.prevented) return;
-		prevSelected = event.previousValue;
-		curSelected = event.currentValue;
-		event.playMenuSFX(ScrollSFX);
-
-		var level:LevelHolder = levels.members[curSelected];
-		trackList.text = '$trackText\n\n${level.scripts.event('songNameDisplay', new SongDisplayListEvent(level.data.songs)).songs.join('\n')}';
-		titleText.text = level.data.title;
-
-		for (level in levels)
-			for (sprite in level.weekObjects)
-				sprite.alpha = 0.0001;
-		for (sprite in level.weekObjects)
-			sprite.alpha = 1;
-
-		prevDiffList = curDiffList;
-		curDiffList = level.data.difficulties;
-		var newIndex:Int = level.data.startingDiff;
-		if (prevDiffList[curDiff] == prevDiffList[curDiff])
-			for (i => diff in curDiffList)
-				if (diff == prevDiffList[curDiff]) {
-					newIndex = i;
-					break;
-				}
-		changeDifficulty(newIndex, true);
+		final level:LevelHolder = levels.members[levels.currentValue].extra.get('level');
+		camPoint.y = Position.getObjMidpoint(level.sprite).y - (mainCamera.height / 3.4);
+		weekBg.color = FunkinUtil.colorLerp(weekBg.color, level.data.color, 0.1);
 	}
 
 	function playArrowAnim(isLeft:Bool = false):Void {
@@ -335,63 +380,12 @@ class StoryMenu extends BeatState {
 		arrow.centerOrigin();
 	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
-		if (emptyDiffList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1), pureSelect ? 0 : move));
+		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		for (diff in diffMap)
-			diff.alpha = 0.0001;
-		diffHolder.alpha = 1;
-	}
-
-	var levelShake:FlxTween;
-	var diffShake:FlxTween;
-	function selectCurrent():Void {
-		canSelect = false;
-		var event:LevelSelectionEvent = eventCall('onLevelSelect', new LevelSelectionEvent(levels.members[curSelected], diffHolder, levels.members[curSelected].data.name, curDiffString, levels.members[curSelected].data.variants[curDiff]));
-		if (event.prevented) return;
-
-		var level:LevelHolder = event.holder;
-		level.scripts.event('onLevelSelect', event);
-		if (event.prevented) return;
-		var levelLocked:Bool = level.isLocked;
-		var diffLocked:Bool = diffHolder.isLocked;
-
-		if (levelLocked || diffLocked) {
-			if (levelShake == null || diffShake == null) {
-				var time:Float = event.playMenuSFX(CancelSFX, true).time / 1000;
-				if (levelLocked) {
-					var ogX:Float = level.x;
-					levelShake = FlxTween.shake(level, 0.02, time, X, {
-						onComplete: (_:FlxTween) -> {
-							level.x = ogX;
-							levelShake = null;
-						}
-					});
-				}
-				if (diffLocked) {
-					var ogY:Float = diffHolder.y;
-					diffShake = FlxTween.shake(diffHolder, 0.1, time, Y, {
-						onComplete: (_:FlxTween) -> {
-							diffHolder.y = ogY;
-							diffShake = null;
-						}
-					});
-				}
-				selectionCooldown(time);
-			}
-		} else {
-			for (sprite in levels.members[curSelected].weekObjects)
-				if (sprite.extra.get('willHey'))
-					sprite.playAnim('hey', NoDancing);
-
-			new FlxTimer().start(event.playMenuSFX(ConfirmSFX, true).time / 1000, (_:FlxTimer) -> {
-				PlayState.renderLevel(level.data, event.difficultyKey, event.variantKey);
-				BeatState.switchState(() -> new PlayState());
-			});
-		}
+		@:privateAccess diffs.changeSelection(newIndex, true);
 	}
 }

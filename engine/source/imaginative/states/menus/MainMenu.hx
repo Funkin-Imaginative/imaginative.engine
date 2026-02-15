@@ -6,17 +6,6 @@ import flixel.effects.FlxFlicker;
  * This is the main menu... what else were you expecting this to say?
  */
 class MainMenu extends BeatState {
-	// Menu related vars.
-	var canSelect:Bool = true;
-	static var prevSelected:Int = 0;
-	static var curSelected:Int = 0;
-	var visualSelected:Int = curSelected;
-	inline function selectionCooldown(duration:Float = 0.1):FlxTimer {
-		canSelect = false;
-		return new FlxTimer().start(duration, (_:FlxTimer) -> canSelect = true);
-	}
-	var emptyList(default, null):Bool = false;
-
 	// Things to select.
 	var itemLineUp:Array<String> = [
 		for (item in Paths.readFolderOrderTxt('images/menus/main', 'xml', false, false))
@@ -25,7 +14,7 @@ class MainMenu extends BeatState {
 
 	// Objects in the state.
 	var bg:MenuSprite;
-	var menuItems:FlxTypedGroup<BaseSprite>;
+	var menuItems:SelectionHandler<ChoiceEvent>;
 
 	var mainTextsGroup:FlxTypedSpriteGroup<FlxText>;
 	var buildTxt:FlxText;
@@ -44,9 +33,9 @@ class MainMenu extends BeatState {
 	override public function create():Void {
 		super.create();
 		#if FLX_DEBUG
-		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return      prevSelected));
-		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return       curSelected));
-		FlxG.game.debugger.watch.add('Visual Selection',      FUNCTION(() -> return    visualSelected));
+		FlxG.game.debugger.watch.add('Previous Selection',    FUNCTION(() -> return    menuItems?.previousValue ?? 0));
+		FlxG.game.debugger.watch.add('Current Selection',     FUNCTION(() -> return     menuItems?.currentValue ?? 0));
+		FlxG.game.debugger.watch.add('Visual Selection',      FUNCTION(() -> return      menuItems?.currentView ?? 0));
 		#end
 		if (!conductor.playing)
 			conductor.loadMusic('freakyMenu', (_:FlxSound) -> conductor.play(0.8));
@@ -69,39 +58,127 @@ class MainMenu extends BeatState {
 		if (itemLineUp == null || itemLineUp.empty())
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
-		menuItems = new FlxTypedGroup<BaseSprite>(); // menu items
-		for (i => name in itemLineUp) {
-			if (!Paths.spriteSheetExists('menus/main/$name')) continue; // funny null check
+		menuItems = new SelectionHandler<ChoiceEvent>(scriptName, false, item -> return eventCall('onCurrentSelect', new ChoiceEvent(item.itemId)), eventCall);
+		menuItems.initialize(
+			itemLineUp,
+			(index:Int, group:SelectionItem<ChoiceEvent>) -> {
+				final id = group.itemId;
+				if (!Paths.spriteSheetExists('menus/main/$id')) {
+					_log('[MainMenu] Item $id doesn\'t have a spritesheet.');
+					return false; // funny null check
+				}
 
-			var item:BaseSprite = new BaseSprite(0, 60 + (i * 160), 'menus/main/$name');
-			item.animation.addByPrefix('idle', '$name idle', 24);
-			item.animation.addByPrefix('selected', '$name selected', 24);
-			item.playAnim('idle');
-			item.centerOffsets();
-			item.centerOrigin();
-			item.screenCenter(X);
-			menuItems.add(item);
+				final item:BaseSprite = new BaseSprite('menus/main/$id');
+				item.animation.addByPrefix('idle', '$id idle', 24);
+				item.animation.addByPrefix('selected', '$id selected', 24);
+				item.playAnim('idle');
+				item.centerOffsets();
+				item.centerOrigin();
+				group.extra.set('item', item);
+
+				group._isLocked = (value:Bool) -> {
+					item.color = FlxColor.WHITE;
+					if (value) item.color -= 0xFF646464;
+				}
+				group._canSelect = (value:Bool) ->
+					item.alpha = value ? 1 : 0.5;
+				switch (id) {
+					case 'donate' | 'kickstarter' | 'merch':
+						group.canSelect = false;
+					case 'credits':
+						group.isLocked = true;
+				}
+
+				group.add(item);
+				group.screenCenter(X);
+				group.y = 60 + (index * 160);
+				return true;
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<ChoiceEvent>) -> {
+				final item:BaseSprite = group.extra.get('item');
+				item.playAnim('selected');
+				item.centerOffsets();
+				item.centerOrigin();
+			},
+			(index:Int, event:ChoiceEvent, group:SelectionItem<ChoiceEvent>) -> {
+				// using "group.itemId" instead of "event.choice" to make sure each item does what it's supposed to on select.
+				switch (group.itemId) {
+					case 'storymode':
+						BeatState.switchState(() -> new StoryMenu());
+					case 'freeplay':
+						BeatState.switchState(() -> new FreeplayMenu());
+					case 'donate':
+						PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
+					case 'kickstarter':
+						PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
+					case 'merch':
+						PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
+					case 'options':
+						menuItems.setCooldown(0.4); // extend cooldown
+						conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
+					case 'credits':
+						BeatState.switchState(() -> new CreditsMenu());
+				}
+			},
+			(index:Int, event:SelectionChangeEvent, group:SelectionItem<ChoiceEvent>) -> {
+				final item:BaseSprite = group.extra.get('item');
+				item.playAnim('idle');
+				item.centerOffsets();
+				item.centerOrigin();
+			}
+		);
+		menuItems.lockedEffect = (item:SelectionItem<ChoiceEvent>, ?event:ChoiceEvent) -> {
+			item.extra.get('shakeTween')?.cancel();
+			final time:Float = {
+				final sound = event?.playMenuSFX(CancelSFX, true);
+				if (sound == null) menuItems.defaultCooldown;
+				else sound.time / 1000;
+			}
+			final sprite = item.extra.get('item');
+			final ogX:Float = sprite.x;
+			// TODO: Figure out why the shake tween isn't working.
+			item.extra.set('shakeTween', FlxTween.shake(sprite, 1, time, X, {
+				onStart: tween -> menuItems.setCooldown(time),
+				onComplete: tween -> sprite.x = ogX
+			}));
 		}
-		if (menuItems.members.empty()) {
-			emptyList = true;
-			log('There are no items in the listing.', WarningMessage);
+		@:privateAccess menuItems.selectCurrent = () -> {
+			if (menuItems.currentValue == -1) {
+				_log('${menuItems.traceTag} Nothing selected.', DebugMessage);
+				return; // unselected
+			}
+			menuItems.setCooldown();
+
+			final curItem = menuItems.members[menuItems.currentValue];
+			_log('${menuItems.traceTag} Selecting item "${curItem.itemId}". (index:${menuItems.currentValue})', DebugMessage);
+			final event:ChoiceEvent = menuItems.eventCreator(curItem);
+			if (event.prevented) return;
+
+			if (curItem.isLocked)
+				menuItems.lockedEffect(curItem, event);
+			else {
+				event.playMenuSFX(ConfirmSFX);
+				FlxFlicker.flicker(curItem, 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
+					curItem.selectFunc(event);
+					bgColor = bg.changeColor();
+				}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
+			}
 		}
-		changeSelection();
 		add(menuItems);
 
 		// wierd camera posing vars
 		var highMid:Position = Position.getObjMidpoint(menuItems.members[0]);
 		var lowMid:Position = Position.getObjMidpoint(menuItems.members.last());
 
-		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1));
+		bg.y = FlxMath.lerp(0, FlxG.height - bg.height, FlxMath.remapToRange(menuItems.currentView, 0, menuItems.length - 1, 0, 1));
 		camPoint.setPosition(
 			FlxMath.lerp(highMid.x, lowMid.x, FlxMath.remapToRange(menuItems.length / 2, 1, menuItems.length, 0, 1)),
-			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1))
+			FlxMath.lerp(highestY = highMid.y, lowestY = lowMid.y, FlxMath.remapToRange(menuItems.currentView, 0, menuItems.length - 1, 0, 1))
 		);
 		mainCamera.snapToTarget();
 
 		// version text setup
-		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>();
+		mainTextsGroup = new FlxTypedSpriteGroup<FlxText>(5);
 		var stability:String = #if debug 'Debug' #elseif !release 'Stable' #elseif (debug && release) 'Debugging Release' #else 'Release' #end;
 		buildTxt = new FlxText(' ~ $stability Build ~ ');
 		buildTxt.setFormat(Paths.font('vcr').format(), 16, CENTER, OUTLINE, FlxColor.BLACK);
@@ -166,95 +243,8 @@ class MainMenu extends BeatState {
 
 		super.update(elapsed);
 
-		if (canSelect) {
-			if (Controls.global.uiUp || FlxG.keys.justPressed.PAGEUP) {
-				changeSelection(-1);
-				visualSelected = curSelected;
-			}
-			if (Controls.global.uiDown || FlxG.keys.justPressed.PAGEDOWN) {
-				changeSelection(1);
-				visualSelected = curSelected;
-			}
-
-			if (FlxG.mouse.wheel != 0) {
-				changeSelection(-1 * FlxG.mouse.wheel);
-				visualSelected = curSelected;
-			}
-			if (PlatformUtil.mouseJustMoved())
-				for (i => item in menuItems.members)
-					if (FlxG.mouse.overlaps(item))
-						changeSelection(i, true);
-
-			if (FlxG.keys.justPressed.HOME) {
-				changeSelection(0, true);
-				visualSelected = curSelected;
-			}
-			if (FlxG.keys.justPressed.END) {
-				changeSelection(menuItems.length - 1, true);
-				visualSelected = curSelected;
-			}
-
-			if (Controls.global.back) {
-				FunkinUtil.playMenuSFX(CancelSFX, 0.7);
-				BeatState.switchState(() -> new TitleScreen());
-			}
-			if (Controls.global.accept || (FlxG.mouse.justPressed && FlxG.mouse.overlaps(menuItems.members[curSelected]))) {
-				if (visualSelected != curSelected) {
-					visualSelected = curSelected;
-					FunkinUtil.playMenuSFX(ScrollSFX, 0.7);
-				} else selectCurrent();
-			}
-		}
-
-		var range:Float = FlxMath.remapToRange(visualSelected, 0, menuItems.length - 1, 0, 1);
+		var range:Float = FlxMath.remapToRange(menuItems.currentView, 0, menuItems.length - 1, 0, 1);
 		camPoint.y = FlxMath.lerp(highestY, lowestY, range);
 		bg.y = FunkinUtil.lerp(bg.y, FlxMath.lerp(0, FlxG.height - bg.height, range), 0.16);
-	}
-
-	function changeSelection(move:Int = 0, pureSelect:Bool = false):Void {
-		if (emptyList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(curSelected, FlxMath.wrap(pureSelect ? move : (curSelected + move), 0, menuItems.length - 1), pureSelect ? 0 : move));
-		if (event.prevented) return;
-		prevSelected = event.previousValue;
-		curSelected = event.currentValue;
-		event.playMenuSFX(ScrollSFX);
-
-		for (i => item in menuItems.members) {
-			var newAnim:String = i == curSelected ? 'selected' : 'idle';
-			if (item.getAnimName() != newAnim) {
-				item.playAnim(newAnim);
-				item.centerOffsets();
-				item.centerOrigin();
-			}
-		}
-	}
-
-	function selectCurrent():Void {
-		selectionCooldown(1.1);
-
-		var event:ChoiceEvent = eventCall('onCurrentSelect', new ChoiceEvent(itemLineUp[curSelected]));
-		if (!event.prevented)
-			event.playMenuSFX(ConfirmSFX);
-		FlxFlicker.flicker(menuItems.members[curSelected], 1.1, 0.6, true, false, (flicker:FlxFlicker) -> {
-			if (!event.prevented)
-			switch (event.choice) {
-				case 'storymode':
-					BeatState.switchState(() -> new StoryMenu());
-				case 'freeplay':
-					BeatState.switchState(() -> new FreeplayMenu());
-				case 'donate':
-					PlatformUtil.openURL('https://ninja-muffin24.itch.io/funkin/purchase');
-				case 'kickstarter':
-					PlatformUtil.openURL('https://www.kickstarter.com/projects/funkin/friday-night-funkin-the-full-ass-game');
-				case 'merch':
-					PlatformUtil.openURL('https://needlejuicerecords.com/pages/friday-night-funkin');
-				case 'options':
-					selectionCooldown(0.4); // extend cooldown
-					conductor.fadeOut(0.4, (_:FlxTween) -> BeatState.switchState(() -> new OptionsMenu()));
-				case 'credits':
-					BeatState.switchState(() -> new CreditsMenu());
-			}
-			bgColor = bg.changeColor();
-		}, (flicker:FlxFlicker) -> bgColor = bg.changeColor(flicker.object.visible ? FlxColor.YELLOW : FlxColor.MAGENTA));
 	}
 }
