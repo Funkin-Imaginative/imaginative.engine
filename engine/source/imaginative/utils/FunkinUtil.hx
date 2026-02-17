@@ -22,6 +22,28 @@ enum abstract MenuSFX(String) from String to String {
  * Utilities for this funkin engine.
  */
 class FunkinUtil {
+	@:unreflective static var classList:Array<Class<Dynamic>> = [
+		for (cls in CompileTime.getAllClasses())
+			Type.resolveClass(cls.getClassName(true))
+	];
+	/**
+	 * Returns a list of classes of your choosing.
+	 * @param rootPath The package path to get the list from.
+	 * @param excludes Sets of packages to exclude when returning the list.
+	 * @return Array<Class<Dynamic>>
+	 */
+	public static function getClasses(?rootPath:String, ?excludes:Array<String>):Array<Class<Dynamic>> {
+		return classList.filter(classInst -> {
+			var className:String = classInst.getClassName(true);
+			if (className.endsWith('_Impl_') || !className.startsWith(rootPath ?? className))
+				return false;
+			for (exclude in excludes ?? [])
+				if (className.startsWith(exclude.endsWith('*') ? exclude.substring(0, exclude.length - 1) : exclude))
+					return false;
+			return true;
+		});
+	}
+
 	/**
 	 * Adds missing folders to your mod.
 	 * If you realize certain folders don't show up, please tell me.
@@ -194,21 +216,32 @@ class FunkinUtil {
 	}
 
 	/**
+	 * Converts a map of variables to a debug string using 'FlxStringUtil.getDebugString()'.
+	 * @param variables The map to turn into the label value pairs.
+	 * @return String ~ The debug string.
+	 */
+	inline public static function toDebugString(variables:Map<String, Dynamic>):String {
+		return FlxStringUtil.getDebugString([
+			for (key => value in variables)
+				LabelValuePair.weak(key, value)
+		]);
+	}
+
+	/**
 	 * The number of milliseconds since the application was initialized.
 	 * @return Float ~ The time in milliseconds.
 	 */
-	@:noUsing inline public static function getTimerPrecise():Float {
+	inline public static function getTimerPrecise():Float {
 		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return js.Browser.window.performance.now();
 		#elseif (lime_cffi && !macro)
-		@:privateAccess
-		return cast lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
+		return cast @:privateAccess lime._internal.backend.native.NativeCFFI.lime_system_get_timer();
 		#elseif cpp
-		return untyped __global__.__time_stamp() * 1000.0;
+		return untyped __global__.__time_stamp() * 1000;
 		#elseif sys
-		return Sys.time() * 1000.0;
+		return Sys.time() * 1000;
 		#else
 		return 0;
 		#end

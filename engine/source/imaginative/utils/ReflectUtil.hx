@@ -112,11 +112,11 @@ class ReflectUtil {
 	 */
 	inline public static function _fields(object:Dynamic #if TRACE_REFLECT_UTIL_USAGE, ?infos:PosInfos #end):Array<String> {
 		#if TRACE_REFLECT_UTIL_USAGE
-		var fields = Reflect.fields(object);
+		var fields = object._class() ? Type.getInstanceFields(Type.getClass(object) ?? object) : Reflect.fields(object);
 		if (!infos.className.endsWith('ReflectUtil')) log('[ReflectUtil._fields] ${fields.formatArray()}', DebugMessage, infos);
 		return fields;
 		#else
-		return Reflect.fields(object);
+		return object._class() ? Type.getInstanceFields(Type.getClass(object) ?? object) : Reflect.fields(object);
 		#end
 	}
 

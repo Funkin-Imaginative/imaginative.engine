@@ -385,11 +385,7 @@ class SpriteUtil {
 	 * @return String ~ The class name.
 	 */
 	inline public static function getClassName(instance:Dynamic, provideFullPath:Bool = false):String {
-		if (provideFullPath)
-			return Type.getClassName(Type.getClass(instance));
-		else {
-			var path:Array<String> = Type.getClassName(Type.getClass(instance)).split('.');
-			return path.last();
-		}
+		final fullPath:String = Type.getClassName(Type.getClass(instance) ?? instance) ?? 'NO NAME';
+		return provideFullPath ? fullPath : fullPath.split('.').last();
 	}
 }

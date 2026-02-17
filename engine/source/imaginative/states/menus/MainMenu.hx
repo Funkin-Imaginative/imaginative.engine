@@ -47,7 +47,7 @@ class MainMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		var event:MenuBackgroundEvent = eventCall('uponMenuBackgroundCreation', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bgColor = bg.blankBg.color;
 		bg.scrollFactor.set();
@@ -58,7 +58,7 @@ class MainMenu extends BeatState {
 		if (itemLineUp == null || itemLineUp.empty())
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
-		menuItems = new SelectionHandler<ChoiceEvent>(scriptName, false, item -> return eventCall('onCurrentSelect', new ChoiceEvent(item.itemId)), eventCall);
+		menuItems = new SelectionHandler<ChoiceEvent>(scriptName, false, item -> return eventCall('uponSelection', new ChoiceEvent(item.itemId)), eventCall);
 		menuItems.initialize(
 			itemLineUp,
 			(index:Int, group:SelectionItem<ChoiceEvent>) -> {
@@ -240,8 +240,15 @@ class MainMenu extends BeatState {
 	override public function update(elapsed:Float):Void {
 		if (conductor.volume < 0.8)
 			conductor.volume += 0.5 * elapsed;
-
 		super.update(elapsed);
+
+		if (menuItems.allowSelect && Controls.global.back) {
+			var event:MenuSFXEvent = eventCall('uponExitingMenu', new MenuSFXEvent());
+			if (!event.prevented) {
+				event.playMenuSFX(CancelSFX);
+				BeatState.switchState(() -> new TitleScreen());
+			}
+		}
 
 		var range:Float = FlxMath.remapToRange(menuItems.currentView, 0, menuItems.length - 1, 0, 1);
 		camPoint.y = FlxMath.lerp(highestY, lowestY, range);

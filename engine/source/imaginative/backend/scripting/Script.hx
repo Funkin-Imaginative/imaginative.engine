@@ -1,30 +1,25 @@
 package imaginative.backend.scripting;
 
-import imaginative.backend.scripting.types.HaxeScript;
-import imaginative.backend.scripting.types.LuaScript;
-// stops formatter from removing the import
-#if SCRIPT_SUPPORT
-import imaginative.backend.scripting.types.InvalidScript;
-#end
+import imaginative.backend.scripting.types.*;
 
 /**
- * Help's clarify a script language instance.
+ * Helps clarify a script language instance.
  */
 enum abstract ScriptType(String) from String to String {
 	/**
-	 * States that this script instance is a unregistered language script.
+	 * States that this script runs on an unregistered coding language.
 	 */
 	var TypeUnregistered = 'Unregistered';
 	/**
-	 * States that this script instance is a haxe language script.
+	 * States that this script runs on the haxe coding language.
 	 */
 	var TypeHaxe = 'Haxe';
 	/**
-	 * States that this script instance is a lua language script.
+	 * States that this script runs on the lua coding language.
 	 */
 	var TypeLua = 'Lua';
 	/**
-	 * States that this script instance is an invalid language script.
+	 * States that this script runs on an invalid coding language.
 	 */
 	var TypeInvalid = 'Invalid';
 
@@ -37,12 +32,21 @@ enum abstract ScriptType(String) from String to String {
 		return this == TypeUnregistered || this == TypeInvalid;
 }
 
-// TODO: Rework how this is coded.
 /**
  * All your scripting needs are right here!
- * @author Class started by @Zyflx. Expanded on by @rodney528.
+ * Class started by @Zyflx, expanded on by @rodney528.
+ * @author @Zyflx & @rodney528
  */
 class Script extends FlxBasic implements IScript {
+	/**
+	 * The default imports classes will use.
+	 */
+	public static final defaultImports:Map<String, Dynamic> = new Map<String, Dynamic>();
+	/**
+	 * All possible script extension types.
+	 */
+	public static var exts(default, null):Array<String> = ['hx', 'lua'];
+
 	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		exts = [
@@ -50,202 +54,273 @@ class Script extends FlxBasic implements IScript {
 				for (ext in exts)
 					ext
 		];
+		inline function importClass(cls:Class<Dynamic>, ?alias:String):Void
+			defaultImports.set(alias ?? cls.getClassName(), cls);
+		// TODO: Implement blacklisting.
+		var flixelExclude = [
+			'flixel.animation.*',
+			'flixel.effects.*',
+			'flixel.graphics.*',
+			'flixel.input.*',
+			'flixel.path.*',
+			'flixel.system.*',
+			'flixel.tile.*',
+			'flixel.addons.api.*',
+			'flixel.addons.editors.*',
+			'flixel.addons.plugin.*',
+			'flixel.addons.system.*',
+			'flixel.addons.tile.*'
+		];
+		var imagExclude = [
+			'imaginative.backend.converters.*',
+			'imaginative.backend.display.*',
+			'imaginative.backend.system.ALSoftSetup',
+			'imaginative.backend.system.CrashHandler',
+			'imaginative.backend.system.EngineInfoText',
+			'imaginative.backend.system.Native',
+			'imaginative.backend.system.Preloader',
+			'imaginative.objects.arrows.group.*',
+			'imaginative.objects.arrows.ArrowModifier',
+			// 'imaginative.objects.holders.*',
+			'imaginative.states.EngineProcess'
+		];
+		for (list in [FunkinUtil.getClasses('imaginative', imagExclude), FunkinUtil.getClasses('flixel', flixelExclude)])
+			for (classInst in list)
+				importClass(classInst);
+		// still gonna import using classes for other types
+		var classArray:Array<Class<Dynamic>> = [Date, DateTools, Lambda, Math, Std, StringTools, Type];
+		for (i in classArray)
+			importClass(i);
+		#if CAN_HAXE_SCRIPT HaxeScript.init(); #end
+	}
+
+	// Util Functions.
+	/**
+	 * Loads code from string.
+	 * @param code The script code.
+	 * @param language The script language to use.
+	 * @param onCreate Runs when the script is created.
+	 * @param onLoad Runs when the script is loaded.
+	 * @return Script ~ The script instance.
+	 */
+	public static function loadCodeFromString(code:String, language:ScriptType, onCreate:Script->Void, onLoad:Script->Void):Script {
+		switch (language) {
+			#if CAN_HAXE_SCRIPT
+			case TypeHaxe:
+				return HaxeScript.loadCodeFromString(code, onCreate, onLoad);
+			#end
+			#if CAN_LUA_SCRIPT
+			case TypeLua:
+				return LuaScript.loadCodeFromString(code, onCreate, onLoad);
+			#end
+			default:
+				return new InvalidScript('');
+		}
 	}
 
 	/**
-	 * Every script instance created.
-	 */
-	public static var scripts:Array<Script> = [];
-	public static var staticVars:Map<String, Dynamic> = new Map<String, Dynamic>();
-
-	/**
-	 * All possible script extension types.
-	 */
-	public static var exts(default, null):Array<String> = ['hx', 'lua'];
-
-	/**
-	 * This variable holds the name of the script.
-	 */
-	public var name(get, never):String;
-	inline function get_name():String
-		return FilePath.withoutDirectory(pathing?.path) ?? 'none';
-	/**
-	 * Contains the mod path information.
-	 */
-	public var pathing(default, null):ModPath;
-	/**
-	 * This variable holds the name of the file extension.
-	 */
-	public var extension(get, never):String;
-	inline function get_extension():String
-		return pathing?.extension ?? 'none';
-
-	/**
-	 * Creates a script instance(s).
+	 * Creates a script instance.
 	 * @param file The mod path.
-	 * @param getAllInstances If it should get all possible scripts in loaded mods with `file` name.
-	 * @return `Array<Script>`
+	 * @param type The script type, just in case you wanna be specific about what scripts to find.
+	 * @return Script ~ The script you wished to create.
 	 */
-	public static function create(file:ModPath, getAllInstances:Bool = true):Array<Script> {
+	public static function create(file:ModPath, type:ScriptType = TypeInvalid):Script
+		return _create(Paths.script(file).format(), type);
+	/**
+	 * Creates script instances.
+	 * @param file The mod path.
+	 * @param type The script type, just in case you wanna be specific about what scripts to find.
+	 * @param preventModDuplicates If true prevent's duplicates between mods.
+	 * @return Array<Script> ~ The scripts you wished to create.
+	 */
+	public static function createMulti(file:ModPath, type:ScriptType = TypeInvalid, preventModDuplicates:Bool = true):Array<Script> {
 		#if SCRIPT_SUPPORT
-		#if MOD_SUPPORT
-		var scriptPath:ModPath->Array<String> = (file:ModPath) -> {
-			if (getAllInstances) {
-				var result:Array<String> = [];
-				for (ext in exts)
-					for (instance in Modding.getAllInstancesOfFile('${file.path}.$ext', file.type, true))
-						result.push(instance);
-				return result;
-			} else return [Paths.script(file).format()];
-		}
-		var paths:Array<String> = scriptPath(file);
-		#else
-		var paths:Array<String> = [Paths.script(file).format()];
-		#end
-
-		var scripts:Array<Script> = [];
-		for (path in paths) {
-			var extension:String = FilePath.extension(path).toLowerCase();
-			if (exts.contains(extension)) {
-				if (HaxeScript.exts.contains(extension))
-					scripts.push(new HaxeScript('root:$path'));
-				if (LuaScript.exts.contains(extension))
-					scripts.push(new LuaScript('root:$path'));
-			} else scripts.push(new InvalidScript('root:$path'));
-		}
+		var paths:Array<String> = [
+			#if MOD_SUPPORT
+			for (ext in exts)
+				for (instance in Modding.getAllInstancesOfFile('${file.path}.$ext', file.type, preventModDuplicates))
+					instance
+			#else
+			Paths.script(file, type).format()
+			#end
+		];
+		var scripts:Array<Script> = [for (path in paths) _create(path, type)];
+		scripts.filter((script:Script) -> {
+			if (script == null)
+				return false;
+			if (script.type.dummy) {
+				script.destroy();
+				return false;
+			}
+			return true;
+		});
 		return scripts;
 		#else
 		return [];
 		#end
 	}
+	static function _create(path:String, type:ScriptType = TypeInvalid):Script {
+		#if SCRIPT_SUPPORT
+		var extension:String = FilePath.extension(path).toLowerCase();
+		if (exts.contains(extension)) {
+			if ((type == TypeInvalid || type == TypeHaxe) && HaxeScript.exts.contains(extension))
+				return new HaxeScript('root:$path');
+			if ((type == TypeInvalid || type == TypeLua) && LuaScript.exts.contains(extension))
+				return new LuaScript('root:$path');
+		}
+		return new InvalidScript('root:$path');
+		#else
+		return new InvalidScript('');
+		#end
+	}
 
-	var canRun:Bool = false;
+	// The important stuff.
+	/**
+	 * This is the static variables map, these variables can be accessed at all times.
+	 */
+	public static var constantVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
+
+	/**
+	 * The priority index of the script.
+	 * Used for stuff like script calls.
+	 */
+	public var priorityIndex:Int = 1000;
+
 	/**
 	 * States the type of script this is.
 	 */
 	public var type(get, never):ScriptType;
 	inline function get_type():ScriptType {
 		return switch (this.getClassName()) {
-			case 'Script':        	TypeUnregistered;
-			case 'HaxeScript':    	TypeHaxe;
-			case 'LuaScript':     	TypeLua;
-			case 'InvalidScript': 	TypeInvalid;
-			default:              	TypeUnregistered;
+			case 'Script':          TypeUnregistered;
+			case 'HaxeScript':      TypeHaxe;
+			case 'LuaScript':       TypeLua;
+			case 'InvalidScript':   TypeInvalid;
+			default:                TypeUnregistered;
 		}
 	}
-
-	function renderNecessities():Void {}
-
-	function new(file:ModPath, ?code:String):Void {
-		if (code == null)
-			pathing = file;
-		super();
-		renderScript(pathing);
-		renderNecessities();
-		if (code == null) {
-			scripts.push(this);
-			GlobalScript.call('scriptCreated', [this, type]);
-		}
-	}
-
-	var code:String = '';
-	function renderScript(file:ModPath, ?code:String):Void {
-		try {
-			var content:String = Assets.text(file);
-			this.code = content.isNullOrEmpty() ? code : content;
-		} catch(error:haxe.Exception) {
-			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
-			this.code = '';
-		}
-	}
-	function loadCodeString(code:String):Void {}
 
 	/**
-	 * Load's code from string.
-	 * @param code The script code.
-	 * @param vars Variables to input into the script instance.
-	 * @param funcToRun Function to run inside the script instance.
-	 * @param funcArgs Arguments to run for said function.
-	 * @return `Script` ~ The script instance from string.
+	 * Contains the mod path information.
 	 */
-	/* public static function loadCodeFromString(code:String, ?vars:Map<String, Dynamic>, ?funcToRun:String, ?funcArgs:Array<Dynamic>):Script
-		return this; */
+	public final filePath:ModPath;
+	/**
+	 * Holds the name of the script file.
+	 */
+	public var name(get, never):String;
+	inline function get_name():String
+		return FilePath.withoutExtension(FilePath.withoutDirectory(filePath?.path)) ?? 'none';
+	/**
+	 * Holds the name of the file extension.
+	 */
+	public var extension(get, never):String;
+	inline function get_extension():String
+		return filePath?.extension ?? 'none';
+
+	/**
+	 * The parent object that the script is tied to.
+	 */
+	public var parent(get, set):Dynamic;
+	function get_parent():Dynamic return null;
+	function set_parent(value:Dynamic):Dynamic return null;
+	/**
+	 * This sets the public variables map.
+	 * @param map The public variables map.
+	 */
+	public function setGlobalVariables(map:Map<String, Dynamic>):Void {}
+
+	// was being weird when loadNecessities would run in extended classes
+	var startVariables:Map<String, Dynamic> = new Map<String, Dynamic>();
+	function new(file:ModPath, ?code:String):Void {
+		active = false;
+		if (code == null)
+			filePath = file;
+		super();
+		renderScript(filePath, code);
+		loadNecessities();
+		for (map in (type == TypeHaxe ? [startVariables] : [defaultImports, startVariables])) // work plz
+			for (key => value in map)
+				set(key, value);
+		GlobalScript.call('onScriptCreated', [this, type]);
+	}
+
+	var scriptCode:String = '';
+	function renderScript(file:ModPath, ?code:String):Void {
+		#if SCRIPT_SUPPORT
+		try {
+			var content:String = file.isFile ? Assets.text(file) : '';
+			scriptCode = content.isNullOrEmpty() ? code : content;
+		} catch(error:haxe.Exception) {
+			log('Error while trying to get script contents: ${error.message}', ErrorMessage);
+			scriptCode = '';
+		}
+		#end
+	}
+	function loadNecessities():Void {
+		// Custom Functions //
+		startVariables.set('addInfrontOf', SpriteUtil.addInfrontOf);
+		startVariables.set('addBehind', SpriteUtil.addBehind);
+		startVariables.set('trace', Reflect.makeVarArgs((value:Array<Dynamic>) -> log(value, FromUnknown)));
+		startVariables.set('log', (value:Dynamic, level:LogLevel = LogMessage) -> log(value, level, FromUnknown));
+		startVariables.set('disableScript', () -> active = false);
+		startVariables.set('__script__', this);
+	}
+
+	var canRun:Bool = false;
+	function launchCode(code:String):Void
+		active = true;
 
 	/**
 	 * States if the script has loaded.
 	 */
 	public var loaded(default, null):Bool = false;
 	/**
-	 * Load's the script, pretty self-explanatory.
+	 * Loads the script, pretty self-explanatory.
 	 */
 	public function load():Void
-		if (!loaded)
-			loadCodeString(code);
-	/**
-	 * Reload's the script, pretty self-explanatory.
-	 * Only if it's possible for that script type.
-	 */
-	public function reload():Void {}
+		if (!loaded && !destroyed && exists)
+			launchCode(scriptCode);
 
+	// Basic functions.
 	/**
-	 * The parent object that the script is tied to.
+	 * Sets a variable in the script.
+	 * @param name The name of the variable.
+	 * @param value The value to apply.
 	 */
-	public var parent(get, set):Dynamic;
-	function get_parent():Dynamic
-		return null;
-	function set_parent(value:Dynamic):Dynamic
-		return value = null;
-
+	public function set(name:String, value:Dynamic):Void {}
 	/**
-	 * Sets the public map for getting global variables.
-	 * @param map The map itself.
+	 * Gets a variable from the script.
+	 * @param name The name of the variable.
+	 * @param def If it doesn't exist or is null, return this.
+	 * @return Dynamic ~ The value.
 	 */
-	public function setPublicMap(map:Map<String, Dynamic>):Void {}
-
-	/**
-	 * Sets a variable to the script.
-	 * @param variable The variable to apply.
-	 * @param value The value the variable will hold.
-	 */
-	public function set(variable:String, value:Dynamic):Void {}
-	/**
-	 * Get's a variable from the script.
-	 * @param variable The variable to receive.
-	 * @param def If it's null then return this.
-	 * @return `Dynamic` ~ The value the variable will hold.
-	 */
-	public function get(variable:String, ?def:Dynamic):Dynamic
+	public function get<V>(name:String, ?def:V):V
 		return def;
 	/**
-	 * Call's a function in the script instance.
-	 * @param func Name of the function to call.
-	 * @param args Arguments of said function.
-	 * @return `Dynamic` ~ Whatever is in the functions return statement.
+	 * Calls a function in the script.
+	 * @param func The name of the function.
+	 * @param args Arguments of the said function.
+	 * @param def If it returns null, then return this.
+	 * @return Dynamic ~ Whatever the function returns.
 	 */
-	public function call(func:String, ?args:Array<Dynamic>):Dynamic
-		return null;
-	/**
-	 * Call's a function in the script instance and triggers an event.
-	 * @param func Name of the function to call.
-	 * @param event The event class.
-	 * @return `ScriptEvent`
-	 */
-	public function event<SC:ScriptEvent>(func:String, event:SC):SC
-		return event;
-
-	/**
-	 * End's the script.
-	 * @param funcName Custom function call name.
-	 */
-	inline public function end(funcName:String = 'end'):Void {
-		call(funcName);
-		destroy();
-	}
+	public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R
+		return def;
 
 	override public function destroy():Void {
-		GlobalScript.call('scriptDestroyed', [this, type]);
-		if (scripts.contains(this))
-			scripts.remove(this);
+		call('onEnd');
+		GlobalScript.call('onScriptDestroyed', [this, type]);
 		super.destroy();
+	}
+
+	override function toString():String {
+		return FunkinUtil.toDebugString([
+			'filePath' => filePath.format(),
+			'type' => type,
+			'priorityIndex' => priorityIndex,
+			'loaded' => loaded,
+			'active' => active,
+			'exists' => exists,
+			'parent' => parent.getClassName()
+		]);
 	}
 }

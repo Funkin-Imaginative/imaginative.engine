@@ -17,7 +17,7 @@ class ImaginativeHUD extends HUDTemplate {
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (getDefaultCamera().height / 2) + (getDefaultCamera().height / 2.7) * (downscroll ? 1 : -1);
-		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
+		return call(true, 'onFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {
