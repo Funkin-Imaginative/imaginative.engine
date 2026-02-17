@@ -90,7 +90,7 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 	 * @return ScriptEvent
 	 */
 	public function event<SC:ScriptEvent>(func:String, event:SC):SC {
-		if (destroyed) return event;
+		if (!exists) return event;
 		forEach((script:Script) -> {
 			event.returnCall = script.call(func, [event]);
 			if (event.prevented && !event.continueLoop) return;
@@ -106,7 +106,7 @@ class ScriptGroup extends FlxTypedGroup<Script> implements IScript {
 		for (script in members) {
 			if (script == null) continue;
 			// siphons out dead scripts
-			if (script.type.dummy || script.destroyed) {
+			if (script.type.dummy || !script.exists) {
 				remove(script, true);
 				continue;
 			}

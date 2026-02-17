@@ -278,7 +278,7 @@ class Script extends FlxBasic implements IScript {
 	 * Loads the script, pretty self-explanatory.
 	 */
 	public function load():Void
-		if (!loaded && !destroyed && exists)
+		if (!loaded && exists)
 			launchCode(scriptCode);
 
 	// Basic functions.

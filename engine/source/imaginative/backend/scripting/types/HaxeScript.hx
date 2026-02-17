@@ -78,13 +78,11 @@ final class HaxeScript extends Script {
 		return internalScript.getInterp(RuleScriptInterp);
 
 	override function get_parent():Dynamic
-		return destroyed ? null : internalScript.superInstance;
-	override function set_parent(value:Dynamic):Dynamic {
-		if (destroyed) return null;
+		return internalScript.superInstance;
+	override function set_parent(value:Dynamic):Dynamic
 		return internalScript.superInstance = value;
-	}
 	override function setGlobalVariables(variables:Map<String, Dynamic>):Void
-		if (!destroyed) internalScript.context.publicVariables = variables;
+		internalScript.context.publicVariables = variables;
 
 	@:allow(imaginative.backend.scripting.Script._create)
 	override function new(file:ModPath, ?code:String) {
@@ -126,7 +124,6 @@ final class HaxeScript extends Script {
 
 	@:access(imaginative.backend.Console.formatLogInfo)
 	override function launchCode(code:String):Void {
-		if (destroyed) return;
 		try {
 			if (!code.isNullOrEmpty()) {
 				internalScript.tryExecute(code, (error:haxe.Exception) -> {
@@ -144,15 +141,15 @@ final class HaxeScript extends Script {
 	}
 
 	override public function set(name:String, value:Dynamic):Void
-		if (!destroyed && exists) internalScript.access.setVariable(name, value);
+		if (exists) internalScript.access.setVariable(name, value);
 	override public function get<V>(name:String, ?def:V):V {
-		if (!destroyed && exists && internalScript.access.variableExists(name))
+		if (exists && internalScript.access.variableExists(name))
 			return internalScript.access.getVariable(name) ?? def;
 		return def;
 	}
 
 	override public function call<R>(func:String, ?args:Array<Dynamic>, ?def:R):R {
-		if (!active || destroyed || !exists)
+		if (!(active || exists))
 			return def;
 		try {
 			return internalScript.access.callFunction(func, args ?? []) ?? def;

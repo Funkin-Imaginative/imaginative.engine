@@ -38,39 +38,7 @@ class Macro {
 			 * Extra data the object can hold.
 			 */
 			public final extra:Map<String, Dynamic> = new Map<String, Dynamic>();
-			/**
-			 * When true the object has been destroyed, this cannot be reversed.
-			 */
-			public var destroyed(default, null):Bool = false;
 		}
-
-		var destroyFunc = classFields.filter(field -> return field.name == 'destroy')[0];
-		switch (destroyFunc.kind) {
-			case FFun(f):
-				var initExpr:Expr = f.expr;
-				f.expr = macro {
-					$initExpr;
-					destroyed = true;
-				}
-				destroyFunc.kind = FFun(f);
-			default:
-		}
-		var toStringFunc = classFields.filter(field -> return field.name == 'toString')[0];
-		switch (toStringFunc.kind) {
-			case FFun(f):
-				f.expr = macro {
-					return FlxStringUtil.getDebugString([
-						LabelValuePair.weak('active', active),
-						LabelValuePair.weak('visible', visible),
-						LabelValuePair.weak('alive', alive),
-						LabelValuePair.weak('exists', exists),
-						LabelValuePair.weak('destroyed', destroyed)
-					]);
-				}
-				toStringFunc.kind = FFun(f);
-			default:
-		}
-
 		return classFields.concat(tempClass.fields);
 	}
 	/**
