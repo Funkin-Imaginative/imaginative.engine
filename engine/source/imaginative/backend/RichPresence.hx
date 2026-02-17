@@ -32,7 +32,8 @@ class RichPresence {
 	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		sys.thread.Thread.create(() -> {
-			while (initialized) {
+			while (true) {
+				if (!initialized) continue;
 				#if DISCORD_DISABLE_IO_THREAD
 				Discord.UpdateConnection();
 				#end
