@@ -96,7 +96,6 @@ class StoryMenu extends BeatState {
 
 				group.add(level);
 				group.screenCenter(X);
-				group.y = 150 * (index + 1);
 				return true;
 			},
 			(index:Int, event:SelectionChangeEvent, group:SelectionItem<LevelSelectionEvent>) -> {
@@ -133,6 +132,14 @@ class StoryMenu extends BeatState {
 		);
 		if (!levelNoExistList.empty())
 			_log('[StoryMenu] Level(s) ${levelNoExistList.cleanDisplayList()} doesn\'t exist.');
+		var _i:Int = 1;
+		for (group in levels) {
+			final level:LevelHolder = group.extra.get('level');
+			group.isLocked = level.isLocked;
+			if (level.isHidden) { group.canSelect = false; _i++; }
+			group.y = 150 * _i;
+			_i++;
+		}
 		@:privateAccess levels.selectCurrent = () -> {
 			if (levels.currentValue == -1) {
 				_log('${levels.traceTag} Nothing selected.', DebugMessage);
