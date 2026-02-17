@@ -152,7 +152,8 @@ final class HaxeScript extends Script {
 		if (!(active || exists))
 			return def;
 		try {
-			return internalScript.access.callFunction(func, args ?? []) ?? def;
+			if (internalScript.access.variableExists(func))
+				return internalScript.access.callFunction(func, args ?? []) ?? def;
 		} catch(error:haxe.Exception)
 			log('Error while trying to call function "$func". (error:$error)', ErrorMessage);
 		return def;
