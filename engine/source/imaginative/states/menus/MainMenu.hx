@@ -58,13 +58,14 @@ class MainMenu extends BeatState {
 		if (itemLineUp == null || itemLineUp.empty())
 			itemLineUp = ['storymode', 'freeplay', 'options', 'credits'];
 
+		final itemNoSheetList:Array<String> = [];
 		menuItems = new SelectionHandler<ChoiceEvent>(scriptName, false, item -> return eventCall('uponSelection', new ChoiceEvent(item.itemId)), eventCall);
 		menuItems.initialize(
 			itemLineUp,
 			(index:Int, group:SelectionItem<ChoiceEvent>) -> {
 				final id = group.itemId;
 				if (!Paths.spriteSheetExists('menus/main/$id')) {
-					_log('[MainMenu] Item $id doesn\'t have a spritesheet.');
+					itemNoSheetList.push(id);
 					return false; // funny null check
 				}
 
@@ -127,6 +128,8 @@ class MainMenu extends BeatState {
 				item.centerOrigin();
 			}
 		);
+		if (!itemNoSheetList.empty())
+			_log('[MainMenu] Item(s) ${itemNoSheetList.cleanDisplayList()} doesn\'t have a spritesheet.');
 		menuItems.lockedEffect = (item:SelectionItem<ChoiceEvent>, ?event:ChoiceEvent) -> {
 			item.extra.get('shakeTween')?.cancel();
 			final time:Float = {
