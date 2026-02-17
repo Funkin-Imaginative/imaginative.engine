@@ -93,7 +93,6 @@ class FreeplayMenu extends BeatState {
 			(index:Int, group:SelectionItem<SongSelectionEvent>) -> {
 				final name:ModPath = group.itemId;
 				if (!Paths.json('${name.type}:content/songs/${name.path}/meta').isFile) {
-					// _log('[FreeplayMenu] Song ${name.path} doesn\'t exist.');
 					songNoExistList.push(name);
 					return false;
 				}

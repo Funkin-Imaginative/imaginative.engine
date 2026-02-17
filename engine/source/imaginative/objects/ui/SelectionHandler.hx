@@ -90,11 +90,6 @@ enum abstract LayoutType(String) from String to String {
 }
 
 class SelectionItem<SelectEvent:MenuSFXEvent> extends BeatSpriteGroup {
-	/**
-	 * Map for storing extra variables.
-	 */
-	public final extra:Map<String, Dynamic> = new Map<String, Dynamic>();
-
 	// internals
 	/**
 	 * The parent selection handler this item in contained within.
