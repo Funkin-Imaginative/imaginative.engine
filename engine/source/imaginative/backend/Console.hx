@@ -16,7 +16,7 @@ enum abstract LogLevel(String) from String to String {
 /**
  * An internal enum used for stating where a trace came from.
  */
-enum LogFrom {
+private enum LogFrom {
 	FromSource;
 	FromHaxe;
 	FromLua;
@@ -49,12 +49,26 @@ class Console {
 		}
 	}
 
-	static function formatValueInfo(value:Dynamic):String {
-		return switch (Type.getClass(value)) {
-			case String: cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
-			case Array: '[${[for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol)].formatArray()}]';
-			default: Std.string(value);
+	// TODO: Move to a different class.
+	static function formatValueInfo(value:Dynamic, addArrayBrackets:Bool = false, addStringQuotes:Bool = false):String {
+		if (value is String) {
+			var output = cast(value, String).replace('\t', '    ').replace('	', '    '); // keep consistant length
+			if (addStringQuotes) output = '"$output"';
+			return output;
 		}
+		if (value is Array) {
+			var output = [for (lol in cast(value, Array<Dynamic>)) formatValueInfo(lol, true, true)].formatArray();
+			if (addArrayBrackets) output = '[$output]';
+			return output;
+		}
+		if (value is haxe.Constraints.IMap) {
+			var output = [for (key => value in cast(value, Map<Dynamic, Dynamic>)) formatValueInfo(key, true, true) + ' => ' + formatValueInfo(value, true, true)].formatArray();
+			if (addArrayBrackets) output = '[$output]';
+			return output;
+		}
+		if (value is Class)
+			return '[${value.getClassName(true)}]';
+		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		var log:String = switch (level) {
@@ -89,7 +103,7 @@ class Console {
 			default: 'Unknown';
 		}
 
-		var message:String = formatValueInfo(value);
+		var message:String = formatValueInfo(value, from == FromSource || from == FromUnknown);
 		if (extra != null && !extra.empty())
 			message += formatValueInfo(extra);
 		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';

@@ -61,7 +61,7 @@ class StoryMenu extends BeatState {
 		final levelNoExistList:Array<String> = [];
 		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, item -> {
 			final level:LevelHolder = item.extra.get('level');
-			return eventCall('onLevelSelect', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
+			return eventCall('uponLevelSelection', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
 		}, eventCall);
 		final levelList:Array<Array<ModPath>> = [
 			#if MOD_SUPPORT
@@ -354,7 +354,7 @@ class StoryMenu extends BeatState {
 				playArrowAnim();
 
 			if (Controls.global.back) {
-				var event:MenuSFXEvent = eventCall('onLeave', new MenuSFXEvent());
+				var event:MenuSFXEvent = eventCall('uponExitingMenu', new MenuSFXEvent());
 				if (!event.prevented) {
 					event.playMenuSFX(CancelSFX);
 					BeatState.switchState(() -> new MainMenu());
@@ -375,7 +375,7 @@ class StoryMenu extends BeatState {
 	}
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
+		var event:SelectionChangeEvent = eventCall('uponSwitchingDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;

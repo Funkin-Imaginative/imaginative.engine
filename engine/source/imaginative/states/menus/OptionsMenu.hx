@@ -55,7 +55,7 @@ class OptionsMenu extends BeatState {
 				visualSelected = curSelected;
 			}
 			if (PlatformUtil.mouseJustMoved())
-				for (i => item in menuItems.members)
+				for (i => item in menuItems)
 					if (FlxG.mouse.overlaps(item))
 						changeSelection(i, true);
 

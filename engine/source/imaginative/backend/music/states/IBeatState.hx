@@ -33,7 +33,7 @@ interface IBeatState {
 	var scriptsAllowed:Bool;
 	var scriptName:String;
 
-	function scriptCall(func:String, ?args:Array<Dynamic>, ?def:Dynamic):Dynamic;
+	function scriptCall<R>(func:String, ?args:Array<Dynamic>, ?def:R):R;
 	function eventCall<SC:ScriptEvent>(func:String, event:SC):SC;
 
 	function stepHit(curStep:Int):Void;

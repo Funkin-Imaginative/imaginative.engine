@@ -8,7 +8,7 @@ class PsychHUD extends HUDTemplate {
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (downscroll ? (getDefaultCamera().height - 150) : 50) + (ArrowField.arrowSize / 2);
-		return call(true, 'onGetFieldY', [downscroll, yLevel], yLevel);
+		return call(true, 'onFieldY', [downscroll, yLevel], yLevel);
 	}
 
 	override function initHealthBar():Bar {

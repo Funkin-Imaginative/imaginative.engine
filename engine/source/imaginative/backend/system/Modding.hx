@@ -1,6 +1,6 @@
-#if MOD_SUPPORT
 package imaginative.backend.system;
 
+#if MOD_SUPPORT
 // TODO: Rethink how lower end mods will run.
 /**
  * This class contains information about the engine's loaded mods.
@@ -62,7 +62,7 @@ class Modding {
 	 * Gets all potential file instances from a path you specify.
 	 * @param file Path of file to get potential instances from.
 	 * @param pathType Specify path instances.
-	 * @param preventModDups Prevent's duplicates between mods.
+	 * @param preventModDuplicates If true prevent's duplicates between mods.
 	 * ```md
 	 * Example:
 	 * 	"`../MOD A/content/songs/why.hx`" and "`../MOD B/content/songs/why.hx`" would be a mod duplicate.
@@ -70,9 +70,10 @@ class Modding {
 	 * ```
 	 * @return Array<String> ~ Found file instances.
 	 */
-	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY, preventModDups:Bool = false):Array<String> {
+	public static function getAllInstancesOfFile(file:String, pathType:ModType = ANY, preventModDuplicates:Bool = false):Array<String> {
 		var duplicateCheck:Array<String> = [];
 		var potentialPaths:Array<String> = [];
+		var finalResults:Array<String> = [];
 
 		if (ModType.pathCheck(MAIN, pathType)) {
 			var asset:ModPath = 'root:./solo/${Main.mainMod}/$file';

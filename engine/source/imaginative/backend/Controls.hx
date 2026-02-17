@@ -282,9 +282,9 @@ class Controls extends FlxBasic {
 	}
 
 	override public function toString():String {
-		return FlxStringUtil.getDebugString([
-			LabelValuePair.weak('Key Binds', bindMap),
-			LabelValuePair.weak('active', active)
+		return FunkinUtil.toDebugString([
+			'Key Binds' => bindMap,
+			'active' => active
 		]);
 	}
 }

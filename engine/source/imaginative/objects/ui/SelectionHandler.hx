@@ -444,7 +444,7 @@ class SelectionHandler<SelectEvent:MenuSFXEvent> extends BeatTypedGroup<Selectio
 			return FlxMath.wrap(curAmount + amount, 0, length - 1);
 		final unselected:Bool = amount == -1 && pureSelect;
 
-		final event:SelectionChangeEvent = eventCall('onChangeSelection', new SelectionChangeEvent(currentValue, pureSelect ? (unselected ? -1 : wrap(amount)) : wrap(amount, currentValue)));
+		final event:SelectionChangeEvent = eventCall('uponSelectionChange', new SelectionChangeEvent(currentValue, pureSelect ? (unselected ? -1 : wrap(amount)) : wrap(amount, currentValue)));
 		if (_stopSound) { // stops it from playing on handler creation
 			event.playSFX = false;
 			_stopSound = false;

@@ -204,7 +204,7 @@ class Conductor extends FlxBasic implements IBeat {
 	/**
 	 * Used to sync up other audio instances to said conductor (mainly used for vocals in songs).
 	 */
-	public var extra(default, null):Array<FlxSound> = [];
+	public var additionalTracks(default, null):Array<FlxSound> = [];
 
 	/**
 	 * States if the conductor should update the time itself.
@@ -458,9 +458,9 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	inline public function reset():Void {
 		stop();
-		for (sound in extra)
+		for (sound in additionalTracks)
 			destroySound(sound);
-		extra = extra.clearArray();
+		additionalTracks = additionalTracks.clearArray();
 
 		prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
@@ -569,7 +569,7 @@ class Conductor extends FlxBasic implements IBeat {
 		music.persist = true;
 
 		#if FLX_PITCH music.pitch = pitch; #end
-		extra.push(music);
+		additionalTracks.push(music);
 		if (afterLoad != null)
 			afterLoad(music);
 		return music;
@@ -596,7 +596,7 @@ class Conductor extends FlxBasic implements IBeat {
 		vocals.persist = true;
 
 		#if FLX_PITCH vocals.pitch = pitch; #end
-		extra.push(vocals);
+		additionalTracks.push(vocals);
 		if (afterLoad != null)
 			afterLoad(vocals);
 		return vocals;

@@ -193,7 +193,7 @@ jobs:
           restore-keys: linux-debug-cache
 
       - name: Installing Dependencies
-        run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc
+        run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install libvlc-dev libvlccore-dev vlc-bin vlc libxrandr-dev
 
       - name: Install Libraries
         run: haxe -cp commands -D analyzer-optimize --run Main setup --always

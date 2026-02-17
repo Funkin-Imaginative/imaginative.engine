@@ -47,7 +47,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 			bruh.push(file);
 
 		for (sprite in bruh)
-			for (script in Script.create('${sprite.type}:content/objects/${sprite.path}'))
+			for (script in Script.createMulti('${sprite.type}:content/objects/${sprite.path}'))
 				scripts.add(script);
 
 		scripts.load();
@@ -101,7 +101,7 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 		super.beatHit(curBeat);
 		if (!preventScaleBop && !(skipNegativeBeats && curBeat < 0) && curBeat % (bopRate < 1 ? 1 : bopRate) == 0)
 			scale.set(spriteOffsets.scale.x * bopScaleMult.x, spriteOffsets.scale.y * bopScaleMult.y);
-		scripts.call('beatHit', [curBeat]);
+		scripts.call('onBeatHit', [curBeat]);
 	}
 
 	/**
@@ -118,15 +118,15 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 
 				// remove previous icon scripts
 				scripts.call('onIconChange');
-				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.pathing.path.contains('global'));
+				var oldScripts:Array<Script> = scripts.members.copy().filter((script:Script) -> return !script.filePath.path.contains('global'));
 				for (script in oldScripts)
 					if (scripts.members.contains(script)) {
 						scripts.remove(script);
-						script.end();
+						script.destroy();
 					}
 
 				// add new icon scripts
-				for (script in Script.create('${tag.type}:content/objects/${tag.path}'))
+				for (script in Script.createMulti('${tag.type}:content/objects/${tag.path}'))
 					scripts.add(script);
 
 				// change texture and data

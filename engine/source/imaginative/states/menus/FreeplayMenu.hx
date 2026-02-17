@@ -64,7 +64,7 @@ class FreeplayMenu extends BeatState {
 		add(camPoint);
 
 		// Menu elements.
-		var event:MenuBackgroundEvent = eventCall('onMenuBackgroundCreate', new MenuBackgroundEvent());
+		var event:MenuBackgroundEvent = eventCall('uponMenuBackgroundCreation', new MenuBackgroundEvent());
 		bg = new MenuSprite(event.color, event.funkinColor, event.imagePathType);
 		bg.scrollFactor.set();
 		bg.updateSizeUnstretched(FlxG.width, FlxG.height, false);
@@ -75,7 +75,7 @@ class FreeplayMenu extends BeatState {
 		final songNoExistList:Array<String> = [];
 		songs = new SelectionHandler<SongSelectionEvent>(scriptName, item -> {
 			final song:SongHolder = item.extra.get('song');
-			eventCall('onSongSelect', new SongSelectionEvent(song, diffMap[curDiffString], song.data.name, curDiffString, song.data.variants[curDiff]));
+			eventCall('uponSongSelection', new SongSelectionEvent(song, diffMap[curDiffString], song.data.name, curDiffString, song.data.variants[curDiff]));
 		}, eventCall);
 		var songList:Array<Array<ModPath>> = [
 			#if MOD_SUPPORT
@@ -140,7 +140,7 @@ class FreeplayMenu extends BeatState {
 			final curItem = songs.members[songs.currentValue];
 			final song:SongHolder = curItem.extra.get('song');
 
-			var event:PreviewSongEvent = eventCall('onPlaySongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != song.data.folder || currentSongVariant != song.data.variants[curDiff])));
+			var event:PreviewSongEvent = eventCall('uponSongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != song.data.folder || currentSongVariant != song.data.variants[curDiff])));
 			if (!event.prevented) {
 				if (event.playPreview) {
 					menuTimePosition = conductor.time;
@@ -160,7 +160,7 @@ class FreeplayMenu extends BeatState {
 					updateMusicInfoBoxWidth();
 					FlxTween.cancelTweensOf(songPlayingGroup, ['x']);
 					FlxTween.tween(songPlayingGroup, {x: FlxG.width - songPlayingGroup.width - 10}, stepTime * 2.5 / 1000, {ease: FlxEase.circOut});
-					eventCall('onSongPreview', event);
+					eventCall('onStartSongPreview', event);
 				} else {
 					if (songs.currentValue == -1) {
 						_log('${songs.traceTag} Nothing selected.', DebugMessage);
@@ -307,7 +307,7 @@ class FreeplayMenu extends BeatState {
 				changeDifficulty(1);
 
 			if (Controls.global.back) {
-				var event:ExitFreeplayEvent = eventCall('onLeave', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
+				var event:ExitFreeplayEvent = eventCall('uponExitingMenu', new ExitFreeplayEvent(currentSongAudio != ':MENU:'));
 				if (!event.prevented) {
 					if (event.stopSongAudio) {
 						if (winningIcon != null) {
@@ -350,7 +350,7 @@ class FreeplayMenu extends BeatState {
 
 	function changeDifficulty(move:Int = 0, pureSelect:Bool = false):Void {
 		if (emptyDiffList) return;
-		var event:SelectionChangeEvent = eventCall('onChangeDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
+		var event:SelectionChangeEvent = eventCall('uponSwitchingDifficulty', new SelectionChangeEvent(curDiff, FlxMath.wrap(pureSelect ? move : (curDiff + move), 0, curDiffList.length - 1)));
 		if (event.prevented) return;
 		prevDiff = event.previousValue;
 		curDiff = event.currentValue;
