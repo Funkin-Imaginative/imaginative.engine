@@ -70,7 +70,7 @@ class SongHolder extends BeatSpriteGroup {
 	 */
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool {
-		var theCall:Dynamic = scripts.call('onSongLock');
+		var theCall:Dynamic = scripts.call('onSongLockedCheck');
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
@@ -79,7 +79,7 @@ class SongHolder extends BeatSpriteGroup {
 	 */
 	public var isHidden(get, never):Bool;
 	inline function get_isHidden():Bool {
-		var theCall:Dynamic = scripts.call('onSongHidden');
+		var theCall:Dynamic = scripts.call('onSongHiddenCheck');
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}

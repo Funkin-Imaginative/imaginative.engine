@@ -103,16 +103,16 @@ class LevelHolder extends BeatSpriteGroup {
 	 */
 	public var isLocked(get, never):Bool;
 	inline function get_isLocked():Bool {
-		var theCall:Dynamic = scripts.call('onLevelLocked');
+		var theCall:Dynamic = scripts.call('onLevelLockedCheck');
 		var result:Bool = theCall is Bool ? theCall : false;
-		return false;//result;
+		return result;
 	}
 	/**
 	 * Is the holder be hidden?
 	 */
 	public var isHidden(get, never):Bool;
 	inline function get_isHidden():Bool {
-		var theCall:Dynamic = scripts.call('onLevelHidden');
+		var theCall:Dynamic = scripts.call('onLevelHiddenCheck');
 		var result:Bool = theCall is Bool ? theCall : false;
 		return result;
 	}
