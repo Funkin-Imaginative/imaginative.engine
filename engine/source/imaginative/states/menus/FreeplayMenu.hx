@@ -73,7 +73,7 @@ class FreeplayMenu extends BeatState {
 
 		final loadedDiffs:Array<String> = [];
 		final songNoExistList:Array<String> = [];
-		songs = new SelectionHandler<SongSelectionEvent>(scriptName, item -> {
+		songs = new SelectionHandler<SongSelectionEvent>(scriptName, false, item -> {
 			final song:SongHolder = item.extra.get('song');
 			eventCall('uponSongSelection', new SongSelectionEvent(song, diffMap[curDiffString], song.data.name, curDiffString, song.data.variants[curDiff]));
 		}, eventCall);

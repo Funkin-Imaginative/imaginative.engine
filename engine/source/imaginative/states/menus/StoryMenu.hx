@@ -59,7 +59,7 @@ class StoryMenu extends BeatState {
 		final loadedDiffs:Array<String> = [];
 		final loadedObjects:Array<Array<ObjectTyping>> = [];
 		final levelNoExistList:Array<String> = [];
-		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, item -> {
+		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, false, item -> {
 			final level:LevelHolder = item.extra.get('level');
 			return eventCall('uponLevelSelection', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
 		}, eventCall);
