@@ -313,7 +313,7 @@ class PlayState extends BeatState {
 	override function initCamera():Void {}
 
 	override public function create():Void {
-		Assets.clearCache(true, false, true, true);
+		Assets.clearAll(false, true, true);
 		// precache them here for now
 		for (i in [1, 2, 3]) // lazy
 			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
