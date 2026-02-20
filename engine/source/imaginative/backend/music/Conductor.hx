@@ -618,7 +618,7 @@ class Conductor extends FlxBasic implements IBeat {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
-				chart = ParseUtil.chart(song, difficulty, variant);
+				chart = Assets.chart(song, difficulty, variant);
 				var vocalSuffixes:Array<String> = [];
 				for (base in chart.characters) {
 					var charVocals:String = null;

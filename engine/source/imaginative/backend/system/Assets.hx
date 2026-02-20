@@ -8,6 +8,7 @@ import openfl.media.Sound;
 import openfl.utils.AssetCache as OpenFLAssetCache;
 import openfl.utils.Assets as OpenFLAssets;
 import imaginative.backend.display.BetterBitmapData;
+import imaginative.states.editors.ChartEditor;
 #if ANIMATE_SUPPORT
 import animate.FlxAnimateFrames;
 #end
@@ -289,6 +290,63 @@ final class AudioCache extends CacheTemplate<Sound> {
 	}
 }
 
+typedef ChartDataList = {
+	var diffs:Map<String, ChartData>;
+	var variants:Map<String, ChartDataList>;
+}
+final class ChartCache extends CacheTemplate<ChartDataList> {
+	override public function add(path:String, useFallback:Bool, persistenceLevel:PersistenceType = IsVulnerable):ChartDataList {
+		if (!Paths.folderExists('root:$path/charts'))
+			return useFallback ? getFallback() : null;
+
+		if (cacheList.exists(path)) {
+			persistenceList.set(path, persistenceLevel);
+			return cacheList.get(path);
+		}
+
+		final list:ChartDataList = {
+			diffs: new Map<String, ChartData>(),
+			variants: new Map<String, ChartDataList>()
+		}
+		for (file in Paths.readFolder('root:$path/charts', false)) {
+			final song = path.split('/').last();
+			final diff = FilePath.withoutExtension(file.path);
+			switch (file.extension) {
+				case 'json':
+					list.diffs.set(diff, ParseUtil.chart(song, diff));
+				case '':
+					final subList:ChartDataList = {
+						diffs: new Map<String, ChartData>(),
+						variants: new Map<String, ChartDataList>()
+					}
+					list.variants.set(diff, subList);
+					for (file in Paths.readFolder('root:$path/charts/$diff', false)) {
+						final variant = FilePath.withoutExtension(file.path);
+						subList.diffs.set(variant, ParseUtil.chart(song, variant, diff));
+					}
+			}
+		}
+
+		cacheList.set(path, list);
+		persistenceList.set(path, persistenceLevel);
+		return list;
+	}
+	override public function remove(path:String, ignorePersistant:Bool = false):Void {
+		switch (persistenceList.get(path)) {
+			case IsIndestructible:
+				return;
+			case IsPersistent:
+				if (ignorePersistant) return;
+			case IsVulnerable:
+		} persistenceList.remove(path);
+		cacheList.remove(path);
+	}
+
+	override public function clear(ignorePersistant:Bool = false, fullDestroy:Bool = false, includeRawFlixel:Bool = false):Void
+		for (path in cacheList.keys())
+			remove(path, ignorePersistant);
+}
+
 /**
  * This class handles all assets that will be loaded in-game.
  */
@@ -306,6 +364,14 @@ class Assets {
 	 * Contains all loaded sounds.
 	 */
 	public static final sounds:AudioCache = new AudioCache('./flixel/sounds/beep.ogg');
+	/**
+	 * Contains all loaded frame collections.
+	 */
+	// public static final frameCollections:FramesCache = new FramesCache();
+	/**
+	 * Contains all loaded charts.
+	 */
+	public static final charts:ChartCache = new ChartCache();
 
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
@@ -338,6 +404,8 @@ class Assets {
 		graphics.clear(ignorePersistant, isMajor, true);
 		songs.clear(ignorePersistant, isMajor);
 		sounds.clear(ignorePersistant, isMajor, true);
+		// frameCollections.clear(ignorePersistant);
+		charts.clear(ignorePersistant);
 		if (runGarbageCollector) {
 			cpp.vm.Gc.run(isMajor);
 			cpp.vm.Gc.compact();
@@ -454,6 +522,24 @@ class Assets {
 	inline public static function getAnimateAtlas(file:ModPath):FlxAnimateFrames
 		return FlxAnimateFrames.fromAnimate(Paths.image(Paths.json('${file.type}:${file.path}/Animation')));
 	#end
+
+	/**
+	 * Gets a song chart.
+	 * @param song The song folder name.
+	 * @param difficulty The difficulty key.
+	 * @param variant The variant key.
+	 * @return ChartData ~ The chart data.
+	 */
+	public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
+		final list:ChartDataList = charts.get(Paths.file('content/songs/$song').format(), false);
+		if (list == null) return null;
+		if (variant == 'normal') {
+			final list:ChartDataList = list.variants.get(variant);
+			if (list == null) return null;
+			return list.diffs.get(difficulty);
+		}
+		return list.diffs.get(difficulty);
+	}
 
 	/**
 	 * Gets the content of a file containing text.

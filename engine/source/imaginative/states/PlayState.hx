@@ -854,10 +854,10 @@ class PlayState extends BeatState {
 		var diff:String = difficulty;
 		var varia:String = variant;
 		try {
-			chartData = ParseUtil.chart(loadedChart, diff, varia);
+			chartData = Assets.chart(loadedChart, diff, varia);
 		} catch(error:haxe.Exception)
 			try {
-				chartData = ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
+				chartData = Assets.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
 			} catch(error:haxe.Exception)
 				chartData = {
 					speed: 2.6,
