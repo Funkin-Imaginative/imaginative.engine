@@ -1,9 +1,9 @@
 package imaginative.backend.system;
 
+import haxe.MainLoop;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import moonchart.backend.Util as MoonUtil;
-import openfl.display.BitmapData;
 import openfl.media.Sound;
 import openfl.utils.AssetCache as OpenFLAssetCache;
 import openfl.utils.Assets as OpenFLAssets;
@@ -12,144 +12,218 @@ import imaginative.backend.display.BetterBitmapData;
 import animate.FlxAnimateFrames;
 #end
 
-@:bitmap('assets/images/logo/logo.png')
-private class HaxeLogo extends BitmapData {}
+enum abstract PersistenceType(String) {
+	/**
+	 * States that the asset cannot be removed, even if persistant assets are told to be cleared.
+	 */
+	var IsIndestructible = 'indestructible';
+	/**
+	 * States that the asset cannot be removed, unless told to be.
+	 */
+	var IsPersistent = 'persistent';
+	/**
+	 * A normal asset.
+	 */
+	var IsVulnerable = 'vulnerable';
+}
 
 abstract class CacheTemplate<Asset> {
 	/**
 	 * List of cached assets.
 	 */
 	public final cacheList:Map<String, Asset> = new Map<String, Asset>();
+	/**
+	 * The list of every assets level of persistence.
+	 */
+	final persistenceList:Map<String, PersistenceType> = new Map<String, PersistenceType>();
+	/**
+	 * The asset to fallback on when the desired one doesn't exist.
+	 */
+	final fallbackAsset:String;
 
-	public function new() {}
+	public function new(?fallbackAsset:String) {
+		this.fallbackAsset = fallbackAsset;
+		if (fallbackAsset != null)
+			add(fallbackAsset, false, IsIndestructible);
+	}
 
 	/**
 	 * What should be added to the cache list.
 	 * @param path The path for the asset.
-	 * @param useWhenNull Wether to use the "whenNull" function if the item doesn't exist.
+	 * @param useFallback Wether to use the fallback asset if the desired one doesn't exist.
+	 * @param persistenceLevel The level of persistence the asset should have. Can change an assets persistence level if it already was added.
 	 * @return Asset
 	 */
-	public function add(path:String, useWhenNull:Bool):Asset
+	public function add(path:String, useFallback:Bool, persistenceLevel:PersistenceType = IsVulnerable):Asset
 		throw 'This function must be extended!';
 	/**
 	 * What should be removed from the cache list.
-	 * @param path The path for the assset.
+	 * @param path The path for the asset.
 	 * @param ignorePersistant If true, the asset won't be ignored, even if it's marked as persistant.
 	 */
 	public function remove(path:String, ignorePersistant:Bool = false):Void
 		throw 'This function must be extended!';
 
 	/**
-	 * What should be grabbed from the cache list.
+	 * What asset should be removed and re-added (reloaded).
+	 * Can be useful for when a file is changed without having to reopen the game.
+	 * Is unable to effect indestructible assets due to how the system works.
 	 * @param path The path for the asset.
-	 * @param useWhenNull Wether to use the "whenNull" function if the item doesn't exist.
 	 * @return Asset
 	 */
-	public function get(path:String, useWhenNull:Bool):Asset {
+	inline public function reload(path:String):Asset {
+		final persistence:PersistenceType = persistenceList.get(path);
+		remove(path, true); return add(path, false, persistence);
+	}
+
+	/**
+	 * What should be grabbed from the cache list.
+	 * @param path The path for the asset.
+	 * @param useFallback Wether to use the fallback asset if the desired one doesn't exist.
+	 * @return Asset
+	 */
+	public function get(path:String, useFallback:Bool):Asset {
+		if (path == null) return useFallback ? getFallback() : null;
 		if (cacheList.exists(path))
 			return cacheList.get(path);
 		else {
-			var asset:Asset = add(path, useWhenNull);
+			var asset:Asset = add(path, useFallback);
 			if (asset != null) return asset;
-			return useWhenNull ? whenNull() : null;
+			return useFallback ? getFallback() : null;
 		}
 	}
 	/**
-	 * What should be used when the asset that's asked for is null.
+	 * The asset to fallback on when the desired one doesn't exist.
 	 * @return Asset
 	 */
-	public function whenNull():Asset
-		throw 'This function must be extended!';
+	inline public function getFallback():Asset
+		return get(fallbackAsset, false);
 
 	/**
 	 * Clears all cached data with some exceptions.
 	 * @param ignorePersistant If true, the asset won't be ignored, even if it's marked as persistant.
+	 * @param fullDestroy If true, **all** assets stored will be cleared.
+	 * @param includeRawFlixel If true, this all also effect raw flixel's assets.
 	 */
-	public function clear(ignorePersistant:Bool = false):Void
+	public function clear(ignorePersistant:Bool = false, fullDestroy:Bool = false, includeRawFlixel:Bool = false):Void
 		throw 'This function must be extended!';
 }
 
-@SuppressWarnings('checkstyle:CodeSimilarity')
-final class GraphicsCache extends CacheTemplate<FlxGraphic> {
-	override public function add(path:String, useWhenNull:Bool):FlxGraphic {
-		var daPath:String = Paths.removeBeginningSlash(path);
+final class GraphicCache extends CacheTemplate<FlxGraphic> {
+	override public function add(path:String, useFallback:Bool, persistenceLevel:PersistenceType = IsVulnerable):FlxGraphic {
 		if (!Paths.fileExists('root:$path'))
-			useWhenNull ? whenNull() : null;
+			return useFallback ? getFallback() : null;
 
-		if (cacheList.exists(path))
+		if (cacheList.exists(path)) {
+			persistenceList.set(path, persistenceLevel);
 			return cacheList.get(path);
+		}
 
-		final graphic:FlxGraphic = FlxG.bitmap.add(BetterBitmapData.fromFile(daPath));
+		final graphic:FlxGraphic = FlxG.bitmap.add(BetterBitmapData.fromFile(Paths.removeBeginningSlash(path)));
 		graphic.persist = true;
 		graphic.destroyOnNoUse = false;
 		graphic.incrementUseCount();
 		cacheList.set(path, graphic);
+		persistenceList.set(path, persistenceLevel);
 
-		if (Settings.setup.gpuCaching) { // following @swordcube's lead
-			final t = new openfl.geom.ColorTransform(); t.alphaMultiplier = 0.001;
-			FlxG.camera.drawPixels(graphic.imageFrame.frame, graphic.bitmap, new flixel.math.FlxMatrix(), t);
-		}
+		if (Settings.setup.gpuCaching) // pushes it immediately to gpu
+			MainLoop.runInMainThread(() -> graphic.bitmap.getTexture(FlxG.stage.context3D));
 		return graphic;
 	}
 	override public function remove(path:String, ignorePersistant:Bool = false):Void {
-		// if (!ignorePersistant && !Paths.shouldDumpGraphic(graphic))
-		// 	continue;
+		switch (persistenceList.get(path)) {
+			case IsIndestructible:
+				return;
+			case IsPersistent:
+				if (ignorePersistant) return;
+			case IsVulnerable:
+		} persistenceList.remove(path);
 
 		var graphic:FlxGraphic = FlxG.bitmap.get(Paths.removeBeginningSlash(path));
 		if (graphic != null) {
-			cacheList.remove(path);
 			graphic.persist = false;
 			graphic.destroyOnNoUse = true;
 			graphic.decrementUseCount();
 		}
+		cacheList.remove(path);
 	}
 
-	override public function whenNull():FlxGraphic
-		return get('./flixel/images/logo/logo.png', false);
+	override public function clear(ignorePersistant:Bool = false, fullDestroy:Bool = false, includeRawFlixel:Bool = false):Void {
+		@:privateAccess if (fullDestroy) {
+			// clear engine assets
+			for (path in cacheList.keys()) {
+				switch (persistenceList.get(path)) {
+					// ensures full clear
+					case IsIndestructible: continue;
+					default: persistenceList.remove(path);
+				}
 
-	override public function clear(ignorePersistant:Bool = false):Void {
-		for (path in cacheList.keys()) {
-			// if (!ignorePersistant && !Paths.shouldDumpGraphic(graphic))
-			// 	continue;
-
-			var daPath:String = Paths.removeBeginningSlash(path);
-			var graphic:FlxGraphic = FlxG.bitmap.get(daPath);
-			@:privateAccess if (graphic != null && !graphic.persist && graphic.destroyOnNoUse) {
-				if (!graphic.isDestroyed) graphic.destroy();
-				FlxG.bitmap.removeKey(daPath);
-				OpenFLAssets.cache.removeBitmapData(daPath);
-				cacheList.remove(path);
+				var daPath:String = Paths.removeBeginningSlash(path);
+				var graphic:FlxGraphic = cacheList.get(daPath);
+				if (graphic != null && !graphic.persist && graphic.destroyOnNoUse) {
+					cacheList.remove(path);
+					if (FlxG.bitmap._cache.exists(daPath)) FlxG.bitmap.removeKey(daPath);
+					if (!graphic.isDestroyed) graphic.destroy();
+				}
 			}
-		}
+
+			if (includeRawFlixel) // clear flixel assets
+			for (daPath in FlxG.bitmap._cache.keys()) {
+				var path:String = Paths.addBeginningSlash(daPath);
+				if (persistenceList.exists(path))
+					switch (persistenceList.get(path)) {
+						// ensures full clear
+						case IsIndestructible: continue;
+						default: persistenceList.remove(path);
+					}
+
+				var graphic:FlxGraphic = FlxG.bitmap.get(daPath);
+				if (graphic != null && !graphic.persist && graphic.destroyOnNoUse) {
+					FlxG.bitmap.removeKey(daPath);
+					if (cacheList.exists(path)) cacheList.remove(path);
+					if (!graphic.isDestroyed) graphic.destroy();
+				}
+			}
+		} else
+			for (path in cacheList.keys())
+				remove(path, ignorePersistant);
 	}
 }
-@SuppressWarnings('checkstyle:CodeSimilarity')
-final class AudiosCache extends CacheTemplate<Sound> {
-	override public function add(path:String, useWhenNull:Bool):Sound {
-		var daPath:String = Paths.removeBeginningSlash(path);
+final class AudioCache extends CacheTemplate<Sound> {
+	override public function add(path:String, useFallback:Bool, persistenceLevel:PersistenceType = IsVulnerable):Sound {
 		if (!Paths.fileExists('root:$path'))
-			useWhenNull ? whenNull() : null;
+			return useFallback ? getFallback() : null;
 
-		if (cacheList.exists(path))
+		if (cacheList.exists(path)) {
+			persistenceList.set(path, persistenceLevel);
 			return cacheList.get(path);
+		}
 
+		var daPath:String = Paths.removeBeginningSlash(path);
 		if (OpenFLAssets.exists(daPath, SOUND)) {
 			final sound:Sound = OpenFLAssets.getSound(daPath, false);
 			OpenFLAssets.cache.setSound(daPath, sound);
 			cacheList.set(path, sound);
+			persistenceList.set(path, persistenceLevel);
 			return sound;
 		}
 
 		final sound:Sound = Sound.fromFile(FileSystem.absolutePath(daPath));
 		OpenFLAssets.cache.setSound(daPath, sound);
 		cacheList.set(path, sound);
+		persistenceList.set(path, persistenceLevel);
 		return sound;
 	}
 	override public function remove(path:String, ignorePersistant:Bool = false):Void {
 		final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
 		if (cache != null) {
-			// if (!includePersistant && !Paths.shouldDumpAsset(path))
-			// 	continue;
+			switch (persistenceList.get(path)) {
+				case IsIndestructible:
+					return;
+				case IsPersistent:
+					if (ignorePersistant) return;
+				case IsVulnerable:
+			} persistenceList.remove(path);
 
 			final sound:Sound = cache.sound.get(Paths.removeBeginningSlash(path));
 			if (FlxG.sound.music == null || @:privateAccess FlxG.sound.music._sound != sound)
@@ -159,39 +233,79 @@ final class AudiosCache extends CacheTemplate<Sound> {
 		}
 	}
 
-	override public function whenNull():Sound
-		return get('./flixel/sounds/beep.ogg', false);
+	override public function clear(ignorePersistant:Bool = false, fullDestroy:Bool = false, includeRawFlixel:Bool = false):Void {
+		@:privateAccess if (fullDestroy) {
+			final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
+			if (cache == null) return;
 
-	override public function clear(ignorePersistant:Bool = false):Void {
-		final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
-		if (cache != null) {
+			// clear engine assets
 			for (path in cacheList.keys()) {
-				// if (!ignorePersistant && !Paths.shouldDumpAsset(path))
-				// 	continue;
+				switch (persistenceList.get(path)) {
+					// ensures full clear
+					case IsIndestructible: continue;
+					default: persistenceList.remove(path);
+				}
 
-				final sound:Sound = cache.sound.get(Paths.removeBeginningSlash(path));
-				if (FlxG.sound.music == null || @:privateAccess FlxG.sound.music._sound != sound)
+				var daPath:String = Paths.removeBeginningSlash(path);
+				final sound:Sound = cacheList.get(path);
+				if (FlxG.sound.music == null || FlxG.sound.music._sound != sound)
 					sound.close();
-				cache.removeSound(Paths.removeBeginningSlash(path));
+				for (conductor in Conductor.list)
+					for (_sound in conductor.soundGroup.sounds) {
+						if (_sound._sound != sound) {
+							sound.close();
+							break;
+						}
+					}
 				cacheList.remove(path);
+				if (cache.hasSound(daPath)) cache.removeSound(daPath);
 			}
-		}
+
+			if (includeRawFlixel) // clear flixel assets
+			for (daPath in cache.sound.keys()) {
+				var path:String = Paths.addBeginningSlash(daPath);
+				switch (persistenceList.get(path)) {
+					// ensures full clear
+					case IsIndestructible: continue;
+					default: persistenceList.remove(path);
+				}
+
+				final sound:Sound = cache.sound.get(daPath);
+				if (FlxG.sound.music == null || FlxG.sound.music._sound != sound)
+					sound.close();
+				for (conductor in Conductor.list)
+					for (_sound in conductor.soundGroup.sounds) {
+						if (_sound._sound != sound) {
+							sound.close();
+							break;
+						}
+					}
+				if (cacheList.exists(path)) cacheList.remove(path);
+				cache.removeSound(daPath);
+			}
+		} else
+			for (path in cacheList.keys())
+				remove(path, ignorePersistant);
 	}
 }
 
 /**
- * This is mostly taken from Psych since idk what to actually do.
+ * This class handles all assets that will be loaded in-game.
  */
-@:access(openfl.display.BitmapData)
 class Assets {
+	// TODO: Cache's to add - frames, charts, json objects
 	/**
 	 * Contains all loaded graphics.
 	 */
-	public static final graphics:GraphicsCache = new GraphicsCache();
+	public static final graphics:GraphicCache = new GraphicCache('./flixel/images/logo/logo.png');
 	/**
-	 * Contains all loaded audio.
+	 * Contains all loaded music.
 	 */
-	public static final audios:AudiosCache = new AudiosCache();
+	public static final songs:AudioCache = new AudioCache('./flixel/sounds/beep.ogg');
+	/**
+	 * Contains all loaded sounds.
+	 */
+	public static final sounds:AudioCache = new AudioCache('./flixel/sounds/beep.ogg');
 
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
@@ -215,14 +329,15 @@ class Assets {
 	}
 
 	/**
-	 * When called it clears all.
+	 * When called it clears **everything**.
 	 * @param ignorePersistant If true, the asset won't be ignored, even if it's marked as persistant.
-	 * @param runGarbageCollector if true, this will run the garbage collector.
+	 * @param runGarbageCollector If true, this will run the garbage collector.
 	 * @param isMajor If true, it cleans out bigger chunks of data.
 	 */
 	inline public static function clearAll(ignorePersistant:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
-		graphics.clear(ignorePersistant);
-		audios.clear(ignorePersistant);
+		graphics.clear(ignorePersistant, isMajor, true);
+		songs.clear(ignorePersistant, isMajor);
+		sounds.clear(ignorePersistant, isMajor, true);
 		if (runGarbageCollector) {
 			cpp.vm.Gc.run(isMajor);
 			cpp.vm.Gc.compact();
@@ -242,10 +357,12 @@ class Assets {
 	 * Gets the data of an audio file.
 	 * @param file The mod path.
 	 * @param beepWhenNull If true the flixel beep sound will be retrieved when the wanted sound doesn't exist.
+	 * @param isMusic It true, then the audio will be cached as music.
 	 * @return Sound ~ The sound data.
 	 */
-	inline public static function audio(file:ModPath, beepWhenNull:Bool = true):Sound
-		return audios.get(Paths.audio(file).format(), beepWhenNull);
+	inline public static function audio(file:ModPath, beepWhenNull:Bool = true, isMusic:Bool = false):Sound {
+		return (isMusic ? songs : sounds).get(Paths.audio(file).format(), beepWhenNull);
+	}
 	/**
 	 * Gets the data of a songs instrumental file.
 	 * From `../content/songs/[song]/audio/`.
@@ -254,7 +371,7 @@ class Assets {
 	 * @return Sound ~ The sound data.
 	 */
 	inline public static function inst(song:String, variant:String = 'normal'):Sound
-		return audio(Paths.inst(song, variant));
+		return audio(Paths.inst(song, variant), true, true);
 	/**
 	 * Gets the data of a songs vocal track.
 	 * From `../content/songs/[song]/audio/`.
@@ -264,7 +381,7 @@ class Assets {
 	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):Sound
-		return audio(Paths.vocal(song, suffix, variant), false);
+		return audio(Paths.vocal(song, suffix, variant), false, true);
 	/**
 	 * Gets the data of a song.
 	 * From `../music/`.
@@ -272,7 +389,7 @@ class Assets {
 	 * @return ModPath ~ The sound data.
 	 */
 	inline public static function music(file:ModPath):Sound
-		return audio(Paths.music(file));
+		return audio(Paths.music(file), true, true);
 	/**
 	 * Gets the data of a sound.
 	 * From `../sounds/`.
