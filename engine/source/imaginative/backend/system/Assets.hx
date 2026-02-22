@@ -523,7 +523,7 @@ class Assets {
 	 * @param variant The variant key.
 	 * @return Sound ~ The sound data.
 	 */
-	inline public static function inst(song:String, variant:String = 'normal'):Sound
+	inline public static function inst(song:String, ?variant:String):Sound
 		return audio(Paths.inst(song, variant), true, true);
 	/**
 	 * Gets the data of a songs vocal track.
@@ -533,7 +533,7 @@ class Assets {
 	 * @param variant The variant key.
 	 * @return ModPath ~ The sound data.
 	 */
-	inline public static function vocal(song:String, suffix:String, variant:String = 'normal'):Sound
+	inline public static function vocal(song:String, suffix:String, ?variant:String):Sound
 		return audio(Paths.vocal(song, suffix, variant), false, true);
 	/**
 	 * Gets the data of a song.

@@ -131,7 +131,7 @@ class ParseUtil {
 	 * @param variant The variant key.
 	 * @return ChartData ~ The parsed chart json.
 	 */
-	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
+	inline public static function chart(song:String, difficulty:String, ?variant:String):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
 		if (!jsonPath.isFile) {
 			_log('[ParseUtil.chart] Chart file "${jsonPath.format()}" doesn\'t exist.', WarningMessage);
