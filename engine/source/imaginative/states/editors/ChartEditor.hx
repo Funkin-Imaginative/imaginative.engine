@@ -136,7 +136,7 @@ typedef ChartData = {
 	/**
 	 * Chart specific events.
 	 */
-	var ?events:Array<ChartEvent>;
+	@:default([]) var ?events:Array<ChartEvent>;
 }
 
 class ChartEditor extends BeatState {

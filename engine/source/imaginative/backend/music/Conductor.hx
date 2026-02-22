@@ -618,7 +618,8 @@ class Conductor extends FlxBasic implements IBeat {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
-				chart = Assets.chart(song, difficulty, variant);
+				if ((chart = Assets.chart(song, difficulty, variant)) == null)
+					throw 'NO CHART [$song:$difficulty:$variant]';
 				var vocalSuffixes:Array<String> = [];
 				for (base in chart.characters) {
 					var charVocals:String = null;
@@ -648,7 +649,7 @@ class Conductor extends FlxBasic implements IBeat {
 				if (tracks.empty())
 					addVocalTrack(song, '', variant);
 			} catch(error:haxe.Exception) {
-				log('Chart parse for song "$song"${variant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed.', ErrorMessage);
+				log('Chart parse for song "$song"${variant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed. (error:$error)', ErrorMessage);
 
 				var tracks:Array<FlxSound> = [];
 				// loads main suffixes

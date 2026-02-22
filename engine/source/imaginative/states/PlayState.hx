@@ -99,11 +99,15 @@ class PlayState extends BeatState {
 	 * @return Array<ModPath> ~ The mod paths of the items.
 	 */
 	inline public function getCountdownAssetList(?root:ModPath, parts:Array<String>, ?suffix:String):Array<ModPath> {
-		if (root == null)
-			root = 'gameplay/countdown/';
+		root ??= 'gameplay/countdown';
 		return [
-			for (part in parts)
-				part == null ? null : '${root.type}:${FilePath.addTrailingSlash(root.path)}$part${suffix.isNullOrEmpty() ? '' : '-$suffix'}'
+			for (part in parts) {
+				var asset:ModPath = part == null ? null : '${root.type}:${FilePath.addTrailingSlash(root.path)}$part${suffix.isNullOrEmpty() ? '' : '-$suffix'}';
+				// attempts to cache the asset, I don't feel like adding a bool to specify this shit
+				if (Paths.image(asset).isFile) Assets.image(asset);
+				if (Paths.sound(asset).isFile) Assets.sound(asset);
+				asset;
+			}
 		];
 	}
 
@@ -313,10 +317,11 @@ class PlayState extends BeatState {
 	override function initCamera():Void {}
 
 	override public function create():Void {
-		Assets.clearAll(false, true, true);
+		Assets.clearAll(false, true);
 		// precache them here for now
-		for (i in [1, 2, 3]) // lazy
-			FlxG.sound.load(Assets.sound('gameplay/missnote$i'));
+		for (ext in Paths.soundExts)
+			for (file in Paths.readFolder('sounds/gameplay', ext, false))
+				Assets.sound('${file.type}:gameplay/${file.path}');
 
 		add(songScripts = new ScriptGroup(instance = this));
 
@@ -326,7 +331,7 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new BeatCamera('Hud Camera').beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		hud = switch (chartData.hud ??= 'funkin') {
+		hud = switch (chartData.hud) {
 			case 'funkin':
 				switch (Settings.setup.HUDSelection) {
 					case VSlice: new VSliceHUD();
@@ -704,19 +709,21 @@ class PlayState extends BeatState {
 		countdownStarted = true;
 		if (countdownLength >= 1) {
 			countdownTimer.start(beatTime / 1000, (timer:FlxTimer) -> {
-				var assetIndex:Int = timer.loopsLeft - 1;
+				if (!songStarted)
+					startSong(countdownLength);
+
+				final assetIndex:Int = timer.loopsLeft - 1;
 				_log('[PlayState] Countdown step $assetIndex.', DebugMessage);
 
-				var soundAsset:ModPath = assets.sounds[assetIndex];
+				final soundAsset:ModPath = assets.sounds[assetIndex];
 				if (Paths.sound(soundAsset).isFile) {
-					_log('[PlayState] Played countdown sound "$soundAsset".', DebugMessage);
 					FlxG.sound.play(Assets.sound(soundAsset));
+					_log('[PlayState] Played countdown sound "$soundAsset".', DebugMessage);
 				}
 
-				var imageAsset:ModPath = assets.images[assetIndex];
+				final imageAsset:ModPath = assets.images[assetIndex];
 				if (Paths.image(imageAsset).isFile) {
-					_log('[PlayState] Spawned countdown image "$imageAsset".', DebugMessage);
-					var sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
+					final sprite:FlxSprite = new FlxSprite().loadTexture(imageAsset);
 					sprite.cameras = [camHUD];
 					sprite.screenCenter();
 					add(sprite);
@@ -726,10 +733,8 @@ class PlayState extends BeatState {
 						onComplete: (_:FlxTween) ->
 							sprite.destroy()
 					});
+					_log('[PlayState] Spawned countdown image "$imageAsset".', DebugMessage);
 				}
-
-				if (!songStarted)
-					startSong(countdownLength);
 			}, countdownLength + 1);
 		}
 	}
@@ -816,14 +821,14 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	inline public static function renderLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
+	public static function renderLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
 		levelData = level;
 		songList = [for (song in levelData.songs) song.folder];
 		storyIndex = 0;
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
 	}
 
 	/**
@@ -834,12 +839,12 @@ class PlayState extends BeatState {
 	 * @param playAsEnemy Should the player be the enemy instead?
 	 * @param p2AsEnemy Should the enemy be another player?
 	 */
-	inline public static function renderSong(song:String = 'Test', difficulty:String, variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
+	public static function renderSong(song:String = 'Test', difficulty:String, variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
 		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
-		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}');
 	}
 
 	/**
@@ -848,18 +853,23 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	inline public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
+	public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
 		// chart parsing
 		var loadedChart:String = song;
 		var diff:String = difficulty;
 		var varia:String = variant;
 		try {
-			chartData = Assets.chart(loadedChart, diff, varia);
+			if ((chartData = Assets.chart(loadedChart, diff, varia)) == null)
+				throw 'NO CHART [$loadedChart:$diff:$varia]';
 		} catch(error:haxe.Exception)
 			try {
-				chartData = Assets.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
-			} catch(error:haxe.Exception)
+				_log('[PlayState] Failed initial parse, defaulting to "Test". (error:$error)', WarningMessage);
+				if ((chartData = Assets.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal')) == null)
+					throw 'NO CHART [$loadedChart:$diff:$varia]';
+			} catch(error:haxe.Exception) {
+				_log('[PlayState] Failed fallback parse, resorting to manually setup. (error:$error)', WarningMessage);
 				chartData = {
+					events: [],
 					speed: 2.6,
 					stage: 'void',
 					fields: [
@@ -892,9 +902,12 @@ class PlayState extends BeatState {
 					},
 					hud: 'funkin'
 				}
-		chartData.events ??= [];
-		var eventsPath = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
-		if (Paths.fileExists(eventsPath)) chartData.events.concat(ParseUtil.json(eventsPath));
+			}
+		var eventsPath:String = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
+		if (Paths.fileExists(eventsPath)) {
+			_log('[PlayState] Separate events found. (path:$eventsPath)');
+			chartData.events.concat(ParseUtil.json(eventsPath));
+		} else _log('[PlayState] No separate events found. (path:$eventsPath)');
 		_log('[PlayState] Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
 		PlayState.curVariant = varia;

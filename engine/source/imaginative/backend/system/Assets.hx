@@ -68,13 +68,13 @@ abstract class CacheTemplate<Asset> {
 	/**
 	 * What asset should be removed and re-added (reloaded).
 	 * Can be useful for when a file is changed without having to reopen the game.
-	 * Is unable to effect indestructible assets due to how the system works.
 	 * @param path The path for the asset.
 	 * @return Asset
 	 */
 	inline public function reload(path:String):Asset {
 		final persistence:PersistenceType = persistenceList.get(path);
-		remove(path, true); return add(path, false, persistence);
+		add(path, false, IsVulnerable); // forces level to "IsVulnerable"
+		remove(path); return add(path, false, persistence); // readds the asset with it's original persistence level
 	}
 
 	/**
@@ -185,9 +185,32 @@ final class GraphicCache extends CacheTemplate<FlxGraphic> {
 					if (!graphic.isDestroyed) graphic.destroy();
 				}
 			}
-		} else
+		} else {
+			// clear engine assets
 			for (path in cacheList.keys())
 				remove(path, ignorePersistant);
+
+			if (includeRawFlixel) // clear flixel assets
+			for (daPath in FlxG.bitmap._cache.keys()) {
+				var path:String = Paths.addBeginningSlash(daPath);
+				if (persistenceList.exists(path)) {
+					switch (persistenceList.get(path)) {
+						case IsIndestructible:
+							return;
+						case IsPersistent:
+							if (ignorePersistant) return;
+						case IsVulnerable:
+					} persistenceList.remove(path);
+				}
+				var graphic:FlxGraphic = FlxG.bitmap.get(daPath);
+				if (graphic != null) {
+					graphic.checkUseCount();
+					if (graphic.isDestroyed)
+						if (cacheList.exists(path))
+							cacheList.remove(path);
+				}
+			}
+		}
 	}
 }
 final class AudioCache extends CacheTemplate<Sound> {
@@ -217,7 +240,7 @@ final class AudioCache extends CacheTemplate<Sound> {
 	}
 	override public function remove(path:String, ignorePersistant:Bool = false):Void {
 		final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
-		if (cache != null) {
+		@:privateAccess if (cache != null) {
 			switch (persistenceList.get(path)) {
 				case IsIndestructible:
 					return;
@@ -227,8 +250,15 @@ final class AudioCache extends CacheTemplate<Sound> {
 			} persistenceList.remove(path);
 
 			final sound:Sound = cache.sound.get(Paths.removeBeginningSlash(path));
-			if (FlxG.sound.music == null || @:privateAccess FlxG.sound.music._sound != sound)
+			if (FlxG.sound.music == null || FlxG.sound.music._sound != sound)
 				sound.close();
+			for (conductor in Conductor.list)
+				for (_sound in conductor.soundGroup.sounds) {
+					if (_sound._sound != sound) {
+						sound.close();
+						break;
+					}
+				}
 			cache.removeSound(Paths.removeBeginningSlash(path));
 			cacheList.remove(path);
 		}
@@ -284,14 +314,53 @@ final class AudioCache extends CacheTemplate<Sound> {
 				if (cacheList.exists(path)) cacheList.remove(path);
 				cache.removeSound(daPath);
 			}
-		} else
+		} else {
+			// clear engine assets
 			for (path in cacheList.keys())
 				remove(path, ignorePersistant);
+
+			if (includeRawFlixel) {
+				final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
+				if (cache == null) return;
+				// clear flixel assets
+				for (daPath in cache.sound.keys()) {
+					var path:String = Paths.addBeginningSlash(daPath);
+					if (persistenceList.exists(path)) {
+						switch (persistenceList.get(path)) {
+							case IsIndestructible:
+								return;
+							case IsPersistent:
+								if (ignorePersistant) return;
+							case IsVulnerable:
+						} persistenceList.remove(path);
+					}
+
+					final sound:Sound = cache.sound.get(daPath);
+					if (FlxG.sound.music == null || FlxG.sound.music._sound != sound)
+						sound.close();
+					for (conductor in Conductor.list)
+						for (_sound in conductor.soundGroup.sounds) {
+							if (_sound._sound != sound) {
+								sound.close();
+								break;
+							}
+						}
+					if (cacheList.exists(path)) cacheList.remove(path);
+					cache.removeSound(daPath);
+				}
+			}
+		}
 	}
 }
 
 typedef ChartDataList = {
+	/**
+	 * All of the songs chart difficulties.
+	 */
 	var diffs:Map<String, ChartData>;
+	/**
+	 * All of the songs different variants.
+	 */
 	var variants:Map<String, ChartDataList>;
 }
 final class ChartCache extends CacheTemplate<ChartDataList> {
@@ -308,12 +377,13 @@ final class ChartCache extends CacheTemplate<ChartDataList> {
 			diffs: new Map<String, ChartData>(),
 			variants: new Map<String, ChartDataList>()
 		}
+		final song:String = path.split('/').last();
 		for (file in Paths.readFolder('root:$path/charts', false)) {
-			final song = path.split('/').last();
-			final diff = FilePath.withoutExtension(file.path);
+			final diff:String = FilePath.withoutExtension(file.path);
 			switch (file.extension) {
 				case 'json':
-					list.diffs.set(diff, ParseUtil.chart(song, diff));
+					final chart:Null<ChartData> = ParseUtil.chart(song, diff);
+					if (chart != null) list.diffs.set(diff, chart);
 				case '':
 					final subList:ChartDataList = {
 						diffs: new Map<String, ChartData>(),
@@ -321,8 +391,9 @@ final class ChartCache extends CacheTemplate<ChartDataList> {
 					}
 					list.variants.set(diff, subList);
 					for (file in Paths.readFolder('root:$path/charts/$diff', false)) {
-						final variant = FilePath.withoutExtension(file.path);
-						subList.diffs.set(variant, ParseUtil.chart(song, variant, diff));
+						final variant:String = FilePath.withoutExtension(file.path);
+						final chart:Null<ChartData> = ParseUtil.chart(song, variant, diff);
+						if (chart != null) subList.diffs.set(variant, chart);
 					}
 			}
 		}
@@ -392,6 +463,20 @@ class Assets {
 		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
 
 		clearAll(false, true);
+
+		final songs:Array<ModPath> = FunkinUtil.getSongFolderNames();
+		_log('[Assets] Pre-caching song chart information for ${[for (song in songs) song.path].cleanDisplayList()}.', DebugMessage);
+
+		final successes:Array<String> = [];
+		final fails:Array<String> = [];
+		for (folder in songs) {
+			final name:String = folder.path;
+			if (charts.get(Paths.file('content/songs/$name').format(), false) != null)
+				successes.push(name);
+			else fails.push(name);
+		}
+		if (!successes.empty()) _log('[Assets] Chart information for ${successes.cleanDisplayList()} was cached successfully!', DebugMessage);
+		if (!fails.empty()) _log('[Assets] Chart information for ${fails.cleanDisplayList()} has failed to cache.', ErrorMessage);
 	}
 
 	/**
@@ -530,14 +615,24 @@ class Assets {
 	 * @param variant The variant key.
 	 * @return ChartData ~ The chart data.
 	 */
-	public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
+	public static function chart(song:String, difficulty:String, variant:String = 'normal'):ChartData {
 		final list:ChartDataList = charts.get(Paths.file('content/songs/$song').format(), false);
-		if (list == null) return null;
-		if (variant == 'normal') {
+		if (list._fields().empty()) {
+			_log('[Assets] No list instance found. (song:$song)', DebugMessage);
+			return null;
+		}
+		if (variant != 'normal') {
 			final list:ChartDataList = list.variants.get(variant);
-			if (list == null) return null;
+			if (list._fields().empty()) {
+				_log('[Assets] No list instance found. (song:$song, variant:$variant)', DebugMessage);
+				return null;
+			}
+			if (!list.diffs.exists(difficulty))
+				_log('[Assets] No chart found. (song:$song, difficulty:$difficulty, variant:$variant)', DebugMessage);
 			return list.diffs.get(difficulty);
 		}
+		if (!list.diffs.exists(difficulty))
+			_log('[Assets] No chart found. (song:$song, difficulty:$difficulty)', DebugMessage);
 		return list.diffs.get(difficulty);
 	}
 
