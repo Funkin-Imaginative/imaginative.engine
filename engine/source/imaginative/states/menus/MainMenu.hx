@@ -223,16 +223,17 @@ class MainMenu extends BeatState {
 		theText.push(['Has Discord Connectivity', #if DISCORD_RICH_PRESENCE 'true' #else 'false' #end]);
 		theText.push(['Can Play Videos', #if ALLOW_VIDEOS 'true' #else 'false' #end]);
 
-		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0]].join(':\n'));
+		definedTagsTxt = new FlxText(0, compilerTxt.height + 5, [for (text in theText) text[0] + ': ${text[1]}'].join('\n'));
 		definedTagsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
 		definedTagsTxt.fieldWidth = definedTagsTxt.width;
 		definedTextsGroup.add(definedTagsTxt);
 
-		tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'));
-		tagResultsTxt.setFormat(Paths.font('vcr').format(), 16, LEFT, OUTLINE, FlxColor.BLACK);
-		definedTextsGroup.add(definedTagsTxt);
+		// tagResultsTxt = new FlxText(definedTagsTxt.width + 10, compilerTxt.height + 5, [for (text in theText) text[1]].join('\n'));
+		// tagResultsTxt.setFormat(Paths.font('vcr').format(), 16, RIGHT, OUTLINE, FlxColor.BLACK);
+		// tagResultsTxt.x = FlxG.width - tagResultsTxt.width - 5;
+		// definedTextsGroup.add(definedTagsTxt);
 
-		compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
+		// compilerTxt.fieldWidth = definedTagsTxt.width + 10 + (tagResultsTxt.fieldWidth = tagResultsTxt.width);
 
 		definedTextsGroup.scrollFactor.set();
 		definedTextsGroup.x = mainCamera.width - definedTextsGroup.width - 5;
