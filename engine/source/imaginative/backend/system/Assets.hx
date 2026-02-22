@@ -615,13 +615,13 @@ class Assets {
 	 * @param variant The variant key.
 	 * @return ChartData ~ The chart data.
 	 */
-	public static function chart(song:String, difficulty:String, variant:String = 'normal'):ChartData {
+	public static function chart(song:String, difficulty:String, ?variant:String):ChartData {
 		final list:ChartDataList = charts.get(Paths.file('content/songs/$song').format(), false);
 		if (list._fields().empty()) {
 			_log('[Assets] No list instance found. (song:$song)', DebugMessage);
 			return null;
 		}
-		if (variant != 'normal') {
+		if (!variant.isNullOrEmpty()) {
 			final list:ChartDataList = list.variants.get(variant);
 			if (list._fields().empty()) {
 				_log('[Assets] No list instance found. (song:$song, variant:$variant)', DebugMessage);

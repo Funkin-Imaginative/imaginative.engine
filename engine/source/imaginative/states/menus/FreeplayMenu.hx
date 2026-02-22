@@ -232,7 +232,7 @@ class FreeplayMenu extends BeatState {
 		infoTextGroup.add(infoTextBox);
 
 		songNameText = new FlxText(10, 10, boxWidth - 20, 'Song: crAzy');
-		variantText = new FlxText(10, songNameText.y + songNameText.height + 17, boxWidth - 20, 'Variant: Normal');
+		variantText = new FlxText(10, songNameText.y + songNameText.height + 17, boxWidth - 20, 'Variant: [NONE]');
 		difficultyText = new FlxText(10, variantText.y + variantText.height + 20, boxWidth - 20, 'Normal');
 		sideArrowsText = new FlxText(10, difficultyText.y, difficultyText.width, '<                       >');
 		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {

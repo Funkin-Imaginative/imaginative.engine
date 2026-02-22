@@ -828,7 +828,7 @@ class PlayState extends BeatState {
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == null ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant.isNullOrEmpty() ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -844,7 +844,7 @@ class PlayState extends BeatState {
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
 		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
-		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == null ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant.isNullOrEmpty() ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**

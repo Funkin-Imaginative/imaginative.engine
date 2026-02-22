@@ -532,7 +532,7 @@ class Paths {
 	 * @return ModPath ~ The path data.
 	 */
 	inline public static function chart(song:String, difficulty:String, ?variant:String):ModPath
-		return json('content/songs/$song/charts/${variant == null ? '' : '$variant/'}$difficulty');
+		return json('content/songs/$song/charts/${variant.isNullOrEmpty() ? '' : '$variant/'}$difficulty');
 	/**
 	 * Gets the path of a character json from "../content/objects/characters/".
 	 * @param file The mod path.
@@ -585,7 +585,7 @@ class Paths {
 	 * @return ModPath ~ The path data.
 	 */
 	inline public static function inst(song:String, ?variant:String):ModPath
-		return audio('content/songs/$song/audio/${variant == null ? '' : '$variant/'}Inst');
+		return audio('content/songs/$song/audio/${variant.isNullOrEmpty() ? '' : '$variant/'}Inst');
 	/**
 	 * Gets the path of a songs vocal track from "../content/songs/{song}/audio/".
 	 * @param song The song folder name.
@@ -593,8 +593,8 @@ class Paths {
 	 * @param variant The variation key.
 	 * @return ModPath ~ The path data.
 	 */
-	inline public static function vocal(song:String, suffix:String, ?variant:String):ModPath
-		return audio('content/songs/$song/audio/${variant == null ? '' : '$variant/'}Voices${suffix.isNullOrEmpty() ? '' : '-$suffix'}');
+	inline public static function vocal(song:String, ?suffix:String, ?variant:String):ModPath
+		return audio('content/songs/$song/audio/${variant.isNullOrEmpty() ? '' : '$variant/'}Voices${suffix.isNullOrEmpty() ? '' : '-$suffix'}');
 	/**
 	 * Gets the path of a song from "../music/".
 	 * @param file The mod path.

@@ -545,7 +545,7 @@ class Conductor extends FlxBasic implements IBeat {
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
 		audio.persist = true;
 
-		data = getMetadata('content/songs/$song/audio${variant == null ? '' : '-$variant'}');
+		data = getMetadata('content/songs/$song/audio${variant.isNullOrEmpty() ? '' : '-$variant'}');
 		applyBPMChanges();
 
 		#if FLX_PITCH pitch = pitch; #end
@@ -589,7 +589,7 @@ class Conductor extends FlxBasic implements IBeat {
 	public function addVocalTrack(song:String, suffix:String, ?variant:String, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.vocal(song, suffix, variant);
 		if (!file.isFile) {
-			log('Failed to find ${suffix.isNullOrEmpty() ? 'base ' : ''}vocal track for song "$song"${variant == null ? '' : ', variant "$variant"'}${suffix.isNullOrEmpty() ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
+			log('Failed to find ${suffix.isNullOrEmpty() ? 'base ' : ''}vocal track for song "$song"${variant.isNullOrEmpty() ? '' : ' of variant "$variant"'}${suffix.isNullOrEmpty() ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
 			return null;
 		}
 		var vocals:FlxSound = FlxG.sound.list.add(new FlxSound());
@@ -649,7 +649,7 @@ class Conductor extends FlxBasic implements IBeat {
 				if (tracks.empty())
 					addVocalTrack(song, '', variant);
 			} catch(error:haxe.Exception) {
-				log('Chart parse for song "$song"${variant == null ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed.', ErrorMessage);
+				log('Chart parse for song "$song"${variant.isNullOrEmpty() ? '' : ' of variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed. (error:$error)', ErrorMessage);
 
 				var tracks:Array<FlxSound> = [];
 				// loads main suffixes
