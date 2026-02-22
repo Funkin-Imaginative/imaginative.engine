@@ -65,6 +65,8 @@ enum abstract SongTimeType(String) from String to String {
  */
 @:access(flixel.system.frontEnds.SoundFrontEnd.loadHelper)
 class Conductor extends FlxBasic implements IBeat {
+	static var list:Array<Conductor> = [];
+
 	@:allow(imaginative.states.EngineProcess)
 	static function init():Void {
 		menu = new Conductor('Menu', true);
@@ -351,6 +353,7 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	public function new(id:String = 'Unknown', canLoop:Bool = false) {
 		super();
+		list.push(this);
 
 		this.id = id;
 		this.canLoop = canLoop;
@@ -615,7 +618,8 @@ class Conductor extends FlxBasic implements IBeat {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
-				chart = ParseUtil.chart(song, difficulty, variant);
+				if ((chart = Assets.chart(song, difficulty, variant)) == null)
+					throw 'NO CHART [$song:$difficulty:$variant]';
 				var vocalSuffixes:Array<String> = [];
 				for (base in chart.characters) {
 					var charVocals:String = null;
@@ -930,6 +934,7 @@ class Conductor extends FlxBasic implements IBeat {
 	 * Unless it's a ***main*** one then don't destroy it please! 🥺🙏
 	 */
 	override public function destroy():Void {
+		list.remove(this);
 		FlxG.plugins.remove(this);
 		reset();
 		FlxG.signals.focusGained.remove(onFocus);

@@ -48,10 +48,16 @@ class ParseUtil {
 	/**
 	 * Parses a json file.
 	 * @param file The mod path.
-	 * @return Dynamic ~ The parsed json.
+	 * @param printWarning If true, if the json doesn't exist, a warning will be printed.
+	 * @return Null<Dynamic> ~ The parsed json.
 	 */
-	inline public static function json(file:ModPath):Dynamic {
+	inline public static function json(file:ModPath, printWarning:Bool = false):Null<Dynamic> {
 		var jsonPath:ModPath = Paths.json(file);
+		if (!jsonPath.isFile) {
+			if (printWarning)
+				_log('[ParseUtil.json] Json "${jsonPath.format()}" doesn\'t exist.', WarningMessage);
+			return null;
+		}
 		return Assets.json(removeJsonComments(Assets.text(jsonPath)), jsonPath);
 	}
 
@@ -61,7 +67,7 @@ class ParseUtil {
 	 * @return DifficultyData ~ The parsed difficulty json.
 	 */
 	inline public static function difficulty(key:String):DifficultyData {
-		var jsonPath:ModPath = Paths.difficulty(key);
+		var jsonPath:ModPath = Paths.difficulty(key); if (!jsonPath.isFile) return null;
 		var contents:DifficultyData = new JsonParser<DifficultyData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		contents.display = contents.display ?? key;
 		return contents;
@@ -73,7 +79,7 @@ class ParseUtil {
 	 * @return LevelData ~ The parsed level json.
 	 */
 	public static function level(name:ModPath):LevelData {
-		var jsonPath:ModPath = Paths.level(name);
+		var jsonPath:ModPath = Paths.level(name); if (!jsonPath.isFile) return null;
 		var contents:LevelData = new JsonParser<LevelData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		for (i => data in contents.objects) {
 			data.flip ??= ((i + 1) > Math.floor(contents.objects.length / 2));
@@ -109,7 +115,7 @@ class ParseUtil {
 	 * @return SpriteData ~ The parsed object json.
 	 */
 	public static function object(file:ModPath, type:SpriteType):SpriteData {
-		var jsonPath:ModPath = Paths.object(file);
+		var jsonPath:ModPath = Paths.object(file); if (!jsonPath.isFile) return null;
 		var typeData:SpriteData = new JsonParser<SpriteData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		if (type != IsCharacterSprite) typeData._set('character', null);
 		if (!type.isBeatType) typeData._set('beat', null);
@@ -127,6 +133,10 @@ class ParseUtil {
 	 */
 	inline public static function chart(song:String, difficulty:String, ?variant:String):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
+		if (!jsonPath.isFile) {
+			_log('[ParseUtil.chart] Chart file "${jsonPath.format()}" doesn\'t exist.', WarningMessage);
+			return null;
+		}
 		return new JsonParser<ChartData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 	}
 
@@ -136,7 +146,7 @@ class ParseUtil {
 	 * @return SpriteTextSetup ~ The parsed font json.
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
-		var jsonPath:ModPath = Paths.spriteFont(font);
+		var jsonPath:ModPath = Paths.spriteFont(font); if (!jsonPath.isFile) return null;
 		return new JsonParser<SpriteTextSetup>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 	}
 
@@ -146,7 +156,7 @@ class ParseUtil {
 	 * @return SongData ~ The parsed meta json.
 	 */
 	public static function song(name:ModPath):SongData {
-		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta');
+		var jsonPath:ModPath = Paths.json('content/songs/${name.path}/meta'); if (!jsonPath.isFile) return null;
 		var contents:SongData = new JsonParser<SongData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 		return {
 			name: json('content/songs/${name.path}/audio').name,

@@ -2,7 +2,6 @@ package imaginative.backend.system;
 
 import lime.tools.AssetType as LimeAssetType;
 import openfl.utils.AssetType as OpenFLAssetType;
-import openfl.utils.Assets as OpenFLAssets;
 
 /**
  * Used to help 'ModPath' abstract.
@@ -688,7 +687,7 @@ class Paths {
 	 */
 	inline public static function fileExists(file:ModPath):Bool {
 		var finalPath:String = file.type == ROOT ? file.path : file.format();
-		return FileSystem.exists(finalPath) || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath));
+		return FileSystem.exists(finalPath) /* || OpenFLAssets.exists(removeBeginningSlash(finalPath), AssetTypeHelper.getFromExt(finalPath)) */;
 	}
 	/**
 	 * Checks if a folder exists.
