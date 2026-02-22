@@ -9,7 +9,7 @@ typedef DifficultyData = {
 	/**
 	 * The variant key.
 	 */
-	@:default('normal') var variant:String;
+	@:default(null) var variant:String;
 	/**
 	 *  The score multiplier.
 	 */

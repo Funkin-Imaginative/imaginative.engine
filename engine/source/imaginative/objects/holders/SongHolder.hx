@@ -24,7 +24,7 @@ typedef SongData = {
 	/**
 	 * The variations listing.
 	 */
-	var ?variants:Array<String>;
+	var ?variants:Array<Null<String>>;
 	/**
 	 * The song color.
 	 */

@@ -816,14 +816,14 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	inline public static function renderLevel(level:LevelData, difficulty:String, variant:String = 'normal'):Void {
+	inline public static function renderLevel(level:LevelData, difficulty:String, ?variant:String):Void {
 		levelData = level;
 		songList = [for (song in levelData.songs) song.folder];
 		storyIndex = 0;
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == null ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -834,12 +834,12 @@ class PlayState extends BeatState {
 	 * @param playAsEnemy Should the player be the enemy instead?
 	 * @param p2AsEnemy Should the enemy be another player?
 	 */
-	inline public static function renderSong(song:String = 'Test', difficulty:String, variant:String = 'normal', playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
+	inline public static function renderSong(song:String = 'Test', difficulty:String, ?variant:String, playAsEnemy:Bool = false, p2AsEnemy:Bool = false):Void {
 		storyMode = false;
 		ArrowField.enemyPlay = playAsEnemy;
 		ArrowField.enableP2 = p2AsEnemy;
 		renderChart(setSong = song, curDifficulty = difficulty, curVariant = variant);
-		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == 'normal' ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering song "$song" under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant == null ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
@@ -848,16 +848,16 @@ class PlayState extends BeatState {
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 */
-	inline public static function renderChart(song:String = 'Test', difficulty:String = 'normal', variant:String = 'normal'):Void {
+	inline public static function renderChart(song:String, difficulty:String, ?variant:String):Void {
 		// chart parsing
 		var loadedChart:String = song;
 		var diff:String = difficulty;
-		var varia:String = variant;
+		var varia:Null<String> = variant;
 		try {
 			chartData = ParseUtil.chart(loadedChart, diff, varia);
 		} catch(error:haxe.Exception)
 			try {
-				chartData = ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = 'normal');
+				chartData = ParseUtil.chart(loadedChart = 'Test', diff = 'normal', varia = null);
 			} catch(error:haxe.Exception)
 				chartData = {
 					speed: 2.6,

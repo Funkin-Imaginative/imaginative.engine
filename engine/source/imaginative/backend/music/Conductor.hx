@@ -533,7 +533,7 @@ class Conductor extends FlxBasic implements IBeat {
 	 * @param variant The variation of the song to play.
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 */
-	public function loadSong(song:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Void {
+	public function loadSong(song:String, ?variant:String, ?afterLoad:FlxSound->Void):Void {
 		reset();
 		if (audio == null)
 			audio = FlxG.sound.list.add(new FlxSound());
@@ -542,7 +542,7 @@ class Conductor extends FlxBasic implements IBeat {
 		FlxG.sound.loadHelper(audio, 1, soundGroup);
 		audio.persist = true;
 
-		data = getMetadata('content/songs/$song/audio${variant == 'normal' ? '' : '-$variant'}');
+		data = getMetadata('content/songs/$song/audio${variant == null ? '' : '-$variant'}');
 		applyBPMChanges();
 
 		#if FLX_PITCH pitch = pitch; #end
@@ -583,10 +583,10 @@ class Conductor extends FlxBasic implements IBeat {
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return FlxSound ~ Added vocal track.
 	 */
-	public function addVocalTrack(song:String, suffix:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):FlxSound {
+	public function addVocalTrack(song:String, suffix:String, ?variant:String, ?afterLoad:FlxSound->Void):FlxSound {
 		var file:ModPath = Paths.vocal(song, suffix, variant);
 		if (!file.isFile) {
-			log('Failed to find ${suffix.isNullOrEmpty() ? 'base ' : ''}vocal track for song "$song"${variant == 'normal' ? '' : ', variant "$variant"'}${suffix.isNullOrEmpty() ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
+			log('Failed to find ${suffix.isNullOrEmpty() ? 'base ' : ''}vocal track for song "$song"${variant == null ? '' : ', variant "$variant"'}${suffix.isNullOrEmpty() ? '' : ' with a suffix of "$suffix"'}.', WarningMessage);
 			return null;
 		}
 		var vocals:FlxSound = FlxG.sound.list.add(new FlxSound());
@@ -611,7 +611,7 @@ class Conductor extends FlxBasic implements IBeat {
 	 * @param afterLoad Function that runs after the audio has loaded.
 	 * @return Null<ChartData>
 	 */
-	public function loadFullSong(song:String, difficulty:String, variant:String = 'normal', ?afterLoad:FlxSound->Void):Null<imaginative.states.editors.ChartEditor.ChartData> {
+	public function loadFullSong(song:String, difficulty:String, ?variant:String, ?afterLoad:FlxSound->Void):Null<imaginative.states.editors.ChartEditor.ChartData> {
 		var chart:imaginative.states.editors.ChartEditor.ChartData = null;
 		loadSong(song, variant, (_:FlxSound) -> {
 			try {
@@ -645,7 +645,7 @@ class Conductor extends FlxBasic implements IBeat {
 				if (tracks.empty())
 					addVocalTrack(song, '', variant);
 			} catch(error:haxe.Exception) {
-				log('Chart parse for song "$song"${variant.trim() == 'normal' ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed.', ErrorMessage);
+				log('Chart parse for song "$song"${variant == null ? '' : ', variant "${FunkinUtil.getDifficultyDisplay(variant)}"'} failed.', ErrorMessage);
 
 				var tracks:Array<FlxSound> = [];
 				// loads main suffixes

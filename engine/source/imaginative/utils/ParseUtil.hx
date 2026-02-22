@@ -125,7 +125,7 @@ class ParseUtil {
 	 * @param variant The variant key.
 	 * @return ChartData ~ The parsed chart json.
 	 */
-	inline public static function chart(song:String, difficulty:String = 'normal', variant:String = 'normal'):ChartData {
+	inline public static function chart(song:String, difficulty:String, ?variant:String):ChartData {
 		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
 		return new JsonParser<ChartData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
 	}

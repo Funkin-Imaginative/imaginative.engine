@@ -56,7 +56,7 @@ typedef LevelData = {
 	/**
 	 * Variation listing.
 	 */
-	var ?variants:Array<String>;
+	var ?variants:Array<Null<String>>;
 	/**
 	 * List of week object data's.
 	 * This is mostly used for the story menu.

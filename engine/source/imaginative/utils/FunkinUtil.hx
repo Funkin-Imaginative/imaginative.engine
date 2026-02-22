@@ -144,15 +144,19 @@ class FunkinUtil {
 	 * @param diff The difficulty json name.
 	 * @return String ~ The difficulties display name.
 	 */
-	@:noUsing inline public static function getDifficultyDisplay(diff:String):String
-		return ParseUtil.difficulty(diff).display ?? diff;
+	@:noUsing inline public static function getDifficultyDisplay(diff:String):String {
+		try {
+			return ParseUtil.difficulty(diff).display ?? diff;
+		} catch(error:haxe.Exception)
+			return diff;
+	}
 	/**
 	 * Returns the default variant of a difficulty
 	 * @param diff The difficulty json name.
 	 * @return String ~ The difficulties default variant.
 	 */
-	@:noUsing inline public static function getDifficultyVariant(diff:String):String
-		return ParseUtil.difficulty(diff).variant ?? 'normal';
+	@:noUsing inline public static function getDifficultyVariant(diff:String):Null<String>
+		return ParseUtil.difficulty(diff).variant;
 
 	/**
 	 * Is basically an array's split function but each array slot is trimmed.
