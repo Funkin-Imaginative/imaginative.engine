@@ -132,7 +132,7 @@ typedef ChartData = {
 	/**
 	 * The song hud.
 	 */
-	@:default('funkin') var ?hud:String;
+	@:default('default') var ?hud:String;
 	/**
 	 * Chart specific events.
 	 */

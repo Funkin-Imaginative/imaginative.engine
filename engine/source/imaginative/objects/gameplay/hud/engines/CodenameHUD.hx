@@ -1,10 +1,10 @@
-package imaginative.objects.gameplay.hud;
+package imaginative.objects.gameplay.hud.engines;
 
 import imaginative.objects.ui.Bar;
 
-class CodenameHUD extends HUDTemplate {
+class CodenameHUD extends GameplayHUD {
 	override function get_type():HUDType
-		return Codename;
+		return IsCodenameHUD;
 
 	/**
 	 * The text that shows you the amount of misses.

@@ -1,10 +1,10 @@
-package imaginative.objects.gameplay.hud;
+package imaginative.objects.gameplay.hud.engines;
 
 import imaginative.objects.ui.Bar;
 
-class PsychHUD extends HUDTemplate {
+class PsychHUD extends GameplayHUD {
 	override function get_type():HUDType
-		return Psych;
+		return IsPsychHUD;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (downscroll ? (getDefaultCamera().height - 150) : 50) + (ArrowField.arrowSize / 2);

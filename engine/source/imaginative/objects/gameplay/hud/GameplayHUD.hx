@@ -1,14 +1,15 @@
 package imaginative.objects.gameplay.hud;
 
+import imaginative.objects.gameplay.hud.engines.CodenameHUD;
 import imaginative.objects.ui.Bar;
 
-class HUDTemplate extends BeatGroup {
+class GameplayHUD extends BeatGroup {
 	/**
 	 * The HUD type.
 	 */
 	public var type(get, never):HUDType;
 	function get_type():HUDType
-		return Template;
+		return IsBaseHUD;
 
 	// for an easier time layering
 	/**
@@ -134,7 +135,7 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	function loadScript():Void
-		if (type != Template || type != Custom)
+		if (type != IsBaseHUD || type != IsCustomHUD)
 			/* if (Paths.folderExists('lead:content/huds/$type'))
 				for (ext in Script.exts)
 					for (file in Paths.readFolder(folder, ext))
@@ -181,13 +182,9 @@ class HUDTemplate extends BeatGroup {
 	}
 
 	override public function new() {
-		if (HUDType.instance == null)
-			HUDType.instance = this;
-		else {
-			_log('A HUD already exists, killing new one.');
-			destroy();
-		}
+		HUDType.instance = this;
 		super();
+		if (HUDType.instance != this) return;
 
 		add(scripts = new ScriptGroup(this));
 		loadScript();

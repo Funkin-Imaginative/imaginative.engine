@@ -1,11 +1,11 @@
-package imaginative.objects.gameplay.hud;
+package imaginative.objects.gameplay.hud.engines;
 
 import imaginative.objects.ui.Bar;
 
 // TODO: Optimize this shit.
-class KadeHUD extends HUDTemplate {
+class KadeHUD extends GameplayHUD {
 	override function get_type():HUDType
-		return Kade;
+		return IsKadeHUD;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (downscroll ? FlxG.height - 165 : 50) + (ArrowField.arrowSize / 2);

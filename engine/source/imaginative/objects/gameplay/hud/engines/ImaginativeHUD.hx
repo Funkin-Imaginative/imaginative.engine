@@ -1,10 +1,10 @@
-package imaginative.objects.gameplay.hud;
+package imaginative.objects.gameplay.hud.engines;
 
 import imaginative.objects.ui.Bar;
 
-class ImaginativeHUD extends HUDTemplate {
+class ImaginativeHUD extends GameplayHUD {
 	override function get_type():HUDType
-		return Imaginative;
+		return IsImaginativeHUD;
 
 	/**
 	 * The text that shows you the amount of misses or plus combo breaks.

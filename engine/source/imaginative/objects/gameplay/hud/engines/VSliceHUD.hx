@@ -1,10 +1,10 @@
-package imaginative.objects.gameplay.hud;
+package imaginative.objects.gameplay.hud.engines;
 
 import imaginative.objects.ui.Bar;
 
-class VSliceHUD extends HUDTemplate {
+class VSliceHUD extends GameplayHUD {
 	override function get_type():HUDType
-		return VSlice;
+		return IsVSliceHUD;
 
 	override public function getFieldYLevel(downscroll:Bool = false, field:ArrowField):Float {
 		var yLevel:Float = (downscroll ? getDefaultCamera().height - ArrowField.arrowSize - 24 : 24) + (ArrowField.arrowSize / 2);

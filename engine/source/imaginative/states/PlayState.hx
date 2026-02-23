@@ -1,8 +1,9 @@
 package imaginative.states;
 
-import imaginative.objects.gameplay.hud.*;
+import imaginative.objects.gameplay.hud.GameplayHUD;
+import imaginative.objects.gameplay.hud.HUDType;
 import imaginative.objects.ui.cameras.PlayCamera;
-import imaginative.states.editors.ChartEditor.ChartData;
+import imaginative.states.editors.ChartEditor;
 import imaginative.states.menus.*;
 
 typedef CountdownAssets = {
@@ -201,7 +202,7 @@ class PlayState extends BeatState {
 	/**
 	 * The HUD itself.
 	 */
-	public var hud:HUDTemplate;
+	public var hud:GameplayHUD;
 
 	/**
 	 * The main camera, all characters and stage elements will be shown here.
@@ -331,19 +332,7 @@ class PlayState extends BeatState {
 		FlxG.cameras.add(camHUD = new BeatCamera('Hud Camera').beatSetup(songAudio), false);
 		camHUD.bgColor = FlxColor.TRANSPARENT;
 
-		hud = switch (chartData.hud) {
-			case 'funkin':
-				switch (Settings.setup.HUDSelection) {
-					case VSlice: new VSliceHUD();
-					case Kade: new KadeHUD();
-					case Psych: new PsychHUD();
-					case Codename: new CodenameHUD();
-					case Imaginative: new ImaginativeHUD();
-					default: new ImaginativeHUD(); // lol // new ScriptedHUD(chartData.hud);
-				}
-			default:
-				new ScriptedHUD(chartData.hud);
-		}
+		hud = HUDType.getHUD(chartData.hud);
 		hud.healthBar.setCallbacks(
 			() ->
 				if (canPlayerDie) {
@@ -900,7 +889,7 @@ class PlayState extends BeatState {
 						enemy: loadedChart = diff = varia = 'null',
 						player: 'field'
 					},
-					hud: 'funkin'
+					hud: 'default'
 				}
 			}
 		var eventsPath:String = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
