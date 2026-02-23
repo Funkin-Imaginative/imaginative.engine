@@ -3,7 +3,7 @@ package imaginative.backend.scripting.states;
 /**
  * Used for custom states.
  */
-class ScriptedState extends BeatState {
+class ModdedState extends BeatState {
 	override public function get_conductor():Conductor
 		return conductor;
 	override public function set_conductor(value:Conductor):Conductor

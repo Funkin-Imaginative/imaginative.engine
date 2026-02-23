@@ -52,7 +52,7 @@ class EngineInfoText extends Sprite {
 				['Framerate', [Std.string(framesPerSecond), Settings.setup.fpsType == Unlimited ? '' : Std.string(Main.getFPS())].join(' / ')].join(': '),
 				['Memory', [Memory.getProcessPhysicalMemoryUsage().formatBytes(), Memory.getProcessPeakPhysicalMemoryUsage().formatBytes()].join(' / ')].join(': '),
 				['CPU', ['${FlxMath.roundDecimal(CPU.getProcessCPUUsage(), 2)}%', '${FlxMath.roundDecimal(CPU.getProcessPeakCPUUsage(), 2)}%'].join(' / ')].join(': '),
-				'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ScriptedState')}${FlxG.state.getClassName() == 'ScriptedState' ? '(${imaginative.backend.scripting.states.ScriptedState.prevName})' : ''}'
+				'State: ${FlxG.state.getClassName(FlxG.state.getClassName() != 'ModdedState')}${FlxG.state.getClassName() == 'ModdedState' ? '(${imaginative.backend.scripting.states.ModdedState.prevName})' : ''}'
 			].join('\n');
 
 			text.textColor = framesPerSecond < (Settings.setup.fpsType == Unlimited ? FlxWindow.instance.monitorRefreshRate : Main.getFPS()) * 0.5 ? FlxColor.RED : FlxColor.WHITE;
