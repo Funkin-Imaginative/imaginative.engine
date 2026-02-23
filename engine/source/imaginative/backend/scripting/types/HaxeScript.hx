@@ -4,8 +4,7 @@ package imaginative.backend.scripting.types;
 import rulescript.RuleScript;
 import rulescript.interps.RuleScriptInterp;
 import rulescript.parsers.HxParser;
-
-// import rulescript.types.ScriptedTypeUtil;
+import rulescript.types.ScriptedTypeUtil;
 #end
 
 /**
@@ -16,6 +15,16 @@ final class HaxeScript extends Script {
 	 * All possible haxe extension types.
 	 */
 	public static final exts:Array<String> = ['haxe', 'hx', 'hscript', 'hsc', 'hxs', 'hxc'];
+
+	inline static function getModulePath(name:String):String {
+		// taken from rulescript test folder since what I was doing just didn't want to work
+		var path:Array<String> = name.split('.');
+		var pack:Array<String> = [];
+		while (path[0].charAt(0) == path[0].charAt(0).toLowerCase()) pack.push(path.shift());
+		var moduleName:String = null;
+		if (path.length > 1) moduleName = path.shift();
+		return pack.length >= 1 ? pack.join('.') + '.' + (moduleName ?? path[0]) : path[0];
+	}
 
 	#if CAN_HAXE_SCRIPT
 	@:allow(imaginative.backend.scripting.Script)
@@ -40,17 +49,19 @@ final class HaxeScript extends Script {
 			rootImport.set(classInst.getClassName().substring(1), classInst.getClassName(true));
 
 		// fucks over so much for no reason
-		/* ScriptedTypeUtil.resolveModule = (name:String) -> {
-			_log('[HaxeScript] Resolving script for module: $name');
-			var script:HaxeScript = cast Script.create('lead:content/modules/${name.replace('.', '/')}', TypeHaxe);
-			if (script.type.dummy) {
-				_log('[HaxeScript] Failed to resolve module: $name');
-				script.destroy();
+		ScriptedTypeUtil.resolveModule = (name:String) -> {
+			final moduleName:String = getModulePath(name);
+			// _log('[HaxeScript] Resolving script for module: $moduleName');
+			final scriptPath:ModPath = Paths.script('lead:content/modules/${moduleName.replace('.', '/')}', TypeHaxe);
+			if (!scriptPath.isFile) {
+				// _log('[HaxeScript] Failed to resolve module: $moduleName');
 				return null;
 			}
-			if (!script.filePath.isFile) script.destroy();
-			return script.filePath.isFile ? script._parser.parseModule(Assets.text(script.filePath)) : null;
-		} */
+			final parser = new HxParser();
+			parser.mode = MODULE;
+			parser.allowAll();
+			return parser.parseModule(Assets.text(scriptPath));
+		}
 		RuleScript.defaultImports.set('', rootImport);
 	}
 
