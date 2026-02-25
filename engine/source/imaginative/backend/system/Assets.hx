@@ -133,10 +133,8 @@ final class GraphicCache extends CacheTemplate<FlxGraphic> {
 	}
 	override public function remove(path:String, ignorePersistant:Bool = false):Void {
 		switch (persistenceList.get(path)) {
-			case IsIndestructible:
-				return;
-			case IsPersistent:
-				if (ignorePersistant) return;
+			case IsIndestructible: return;
+			case IsPersistent: if (ignorePersistant) return;
 			case IsVulnerable:
 		} persistenceList.remove(path);
 
@@ -195,10 +193,8 @@ final class GraphicCache extends CacheTemplate<FlxGraphic> {
 				var path:String = Paths.addBeginningSlash(daPath);
 				if (persistenceList.exists(path)) {
 					switch (persistenceList.get(path)) {
-						case IsIndestructible:
-							return;
-						case IsPersistent:
-							if (ignorePersistant) return;
+						case IsIndestructible: return;
+						case IsPersistent: if (ignorePersistant) return;
 						case IsVulnerable:
 					} persistenceList.remove(path);
 				}
@@ -242,10 +238,8 @@ final class AudioCache extends CacheTemplate<Sound> {
 		final cache:OpenFLAssetCache = (OpenFLAssets.cache is OpenFLAssetCache) ? cast OpenFLAssets.cache : null;
 		@:privateAccess if (cache != null) {
 			switch (persistenceList.get(path)) {
-				case IsIndestructible:
-					return;
-				case IsPersistent:
-					if (ignorePersistant) return;
+				case IsIndestructible: return;
+				case IsPersistent: if (ignorePersistant) return;
 				case IsVulnerable:
 			} persistenceList.remove(path);
 
@@ -327,10 +321,8 @@ final class AudioCache extends CacheTemplate<Sound> {
 					var path:String = Paths.addBeginningSlash(daPath);
 					if (persistenceList.exists(path)) {
 						switch (persistenceList.get(path)) {
-							case IsIndestructible:
-								return;
-							case IsPersistent:
-								if (ignorePersistant) return;
+							case IsIndestructible: return;
+							case IsPersistent: if (ignorePersistant) return;
 							case IsVulnerable:
 						} persistenceList.remove(path);
 					}
@@ -404,10 +396,8 @@ final class ChartCache extends CacheTemplate<ChartDataList> {
 	}
 	override public function remove(path:String, ignorePersistant:Bool = false):Void {
 		switch (persistenceList.get(path)) {
-			case IsIndestructible:
-				return;
-			case IsPersistent:
-				if (ignorePersistant) return;
+			case IsIndestructible: return;
+			case IsPersistent: if (ignorePersistant) return;
 			case IsVulnerable:
 		} persistenceList.remove(path);
 		cacheList.remove(path);
