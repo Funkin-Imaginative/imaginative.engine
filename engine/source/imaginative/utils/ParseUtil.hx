@@ -58,7 +58,7 @@ class ParseUtil {
 				_log('[ParseUtil.json] Json "${jsonPath.format()}" doesn\'t exist.', WarningMessage);
 			return null;
 		}
-		return Assets.json(removeJsonComments(Assets.text(jsonPath)), jsonPath);
+		return Assets.json(Assets.text(jsonPath), jsonPath);
 	}
 
 	/**

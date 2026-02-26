@@ -10,7 +10,7 @@ class GlobalScript {
 	 */
 	public static var scripts:ScriptGroup;
 
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	static function loadScript():Void {
 		if (scripts != null)
 			scripts.destroy();
@@ -22,7 +22,7 @@ class GlobalScript {
 		scripts.load();
 	}
 
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	inline static function init():Void {
 		FlxG.signals.focusLost.add(() -> call('onFocusLost'));
 		FlxG.signals.focusGained.add(() -> call('onGameFocus'));

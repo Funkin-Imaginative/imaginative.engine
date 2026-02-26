@@ -176,7 +176,7 @@ class BeatState extends FlxState implements IBeatState {
 	/**
 	 * It's just 'FlxG.resetState', but with stuff to accommodate for 'BeatState' instances.
 	 */
-	inline public static function resetState():Void {
+	public static function resetState():Void {
 		if (FlxG.state is BeatState) {
 			var state:BeatState = cast FlxG.state;
 			state.onReset();

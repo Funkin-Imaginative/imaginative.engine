@@ -228,9 +228,7 @@ class FlxWindow implements IFlxDestroyable {
 	@:allow(imaginative.backend.system.Main.new)
 	inline static function init():Void {
 		FlxWindow.instance = new FlxWindow(Application.current.window, Application.current.meta.get('title'));
-		#if windows
-		imaginative.backend.native.Native.fixScaling();
-		#end
+		#if windows imaginative.backend.native.Native.fixScaling(); #end
 	}
 
 	/**

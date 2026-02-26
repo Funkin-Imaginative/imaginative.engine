@@ -208,7 +208,7 @@ class PlayerSettings {
  */
 class Settings {
 	@:access(imaginative.backend.system.SaveData)
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	inline static function init():Void {
 		SaveData.initSave(SETTINGS);
 		var isEmpty:Null<Bool> = SaveData.getSave(SETTINGS).isEmpty();
@@ -225,6 +225,13 @@ class Settings {
 		FlxG.autoPause = setup.autoPause;
 		setup.antialiasing = setup.antialiasing;
 		Main.setFPS(Main.getFPS());
+
+		#if FLX_DEBUG
+		var QuickSave = {} // for quick access to all saves in the debug console
+			for (name => save in @:privateAccess SaveData.saveInstances)
+				QuickSave._set(name, save);
+			FlxG.game.debugger.console.registerObject('QuickSave', QuickSave);
+		#end
 	}
 
 	/**

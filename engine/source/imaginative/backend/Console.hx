@@ -27,7 +27,7 @@ class Console {
 	static var ogTrace(default, null):(Dynamic, ?PosInfos) -> Void;
 
 	static var initialized(default, null):Bool = false;
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.backend.system.Main)
 	inline static function init():Void {
 		if (!initialized) {
 			initialized = true;
@@ -35,7 +35,7 @@ class Console {
 			Log.trace = (value:Dynamic, ?infos:PosInfos) -> log(value, infos);
 			@:privateAccess FlxG.log._standardTraceFunction = (value:Dynamic, ?infos:PosInfos) -> {}
 
-			var styles:Array<LogStyle> = [LogStyle.NORMAL, LogStyle.WARNING, LogStyle.ERROR, LogStyle.NOTICE, LogStyle.CONSOLE];
+			final styles:Array<LogStyle> = [LogStyle.NORMAL, LogStyle.WARNING, LogStyle.ERROR, LogStyle.NOTICE, LogStyle.CONSOLE];
 			for (style in styles) {
 				style.onLog.add((data:Any, ?pos:PosInfos) -> log(data, switch (style.prefix) {
 					case '[WARNING]': WarningMessage;
@@ -43,7 +43,7 @@ class Console {
 					default: SystemMessage;
 				}, pos));
 			}
-			styles = styles.clearArray();
+			styles.resize(0);
 
 			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
 		}
@@ -71,7 +71,7 @@ class Console {
 		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
-		var log:String = switch (level) {
+		final log:String = switch (level) {
 			case ErrorMessage:      'Error';
 			case WarningMessage:  'Warning';
 			case SystemMessage:    'System';
@@ -79,24 +79,16 @@ class Console {
 			case LogMessage:      'Message';
 		}
 
-		var description:Null<String> = switch (level) {
-			case ErrorMessage:
-				'It seems an error has occurred!';
-			case WarningMessage:
-				'Uh oh, something happened!';
-			case SystemMessage:
-				null;
-			case DebugMessage:
-				null;
-			case LogMessage:
-				null;
+		final description:Null<String> = switch (level) {
+			case ErrorMessage: 'It seems an error has occurred!';
+			case WarningMessage: 'Uh oh, something happened!';
+			default: null;
 		}
 
 		var info:String = file ?? 'Unknown';
-		if (line != null)
-			info += ':$line';
+		if (line != null) info += ':$line';
 
-		var who:String = switch (from) {
+		final who:String = switch (from) {
 			case FromSource: 'Source';
 			case FromHaxe: 'Haxe Script';
 			case FromLua: 'Lua Script';
@@ -106,7 +98,7 @@ class Console {
 		var message:String = formatValueInfo(value, from == FromSource || from == FromUnknown);
 		if (extra != null && !extra.empty())
 			message += formatValueInfo(extra);
-		var traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		final traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);
 		#end

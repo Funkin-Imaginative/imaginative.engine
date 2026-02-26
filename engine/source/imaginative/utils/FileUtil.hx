@@ -19,7 +19,7 @@ class FileUtil {
 
 	static var fileRef:FileDialog;
 
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	inline static function init():Void {
 		fileRef = new FileDialog();
 	}

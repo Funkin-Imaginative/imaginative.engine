@@ -21,11 +21,15 @@ class Modding {
 	/**
 	 * Current up front mod.
 	 */
-	public static var curSolo(default, null):String = '';
+	public static var curSolo(default, null):String = null;
+	/**
+	 * Current lower end mod to use.
+	 */
+	public static var curMod:String = null;
 	/**
 	 * Current lower end mod.
 	 */
-	public static var curMod(default, null):String = '';
+	public static var modList(default, null):Array<String> = [];
 	/**
 	 * List of active global lower end mods.
 	 */

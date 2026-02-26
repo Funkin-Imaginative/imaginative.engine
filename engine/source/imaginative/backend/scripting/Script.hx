@@ -82,7 +82,7 @@ class Script extends FlxBasic implements IScript {
 			'imaginative.objects.arrows.group.*',
 			'imaginative.objects.arrows.ArrowModifier',
 			// 'imaginative.objects.holders.*',
-			'imaginative.states.EngineProcess'
+			'imaginative.states.EngineStart'
 		];
 		for (list in [FunkinUtil.getClasses('imaginative', imagExclude), FunkinUtil.getClasses('flixel', flixelExclude)])
 			for (classInst in list)

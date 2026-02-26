@@ -40,9 +40,8 @@ class Main extends openfl.display.Sprite {
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
 	#if windows
-	static function __init__():Void {
+	static function __init__():Void
 		imaginative.backend.native.Native.registerDPIAware();
-	}
 	#end
 
 	public function new():Void {
@@ -55,6 +54,7 @@ class Main extends openfl.display.Sprite {
 
 		super();
 
+		Console.init();
 		FlxWindow.init();
 		SaveData.init();
 		Script.init();
@@ -68,7 +68,7 @@ class Main extends openfl.display.Sprite {
 		#end
 
 		hxhardware.CPU.init();
-		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineProcess, true));
+		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.EngineStart, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.addChildBelowMouse(new EngineInfoText(), 1); // Why won't this go behind the mouse?????
 		#if (!windows)

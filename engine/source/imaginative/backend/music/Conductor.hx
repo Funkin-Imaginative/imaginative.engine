@@ -67,7 +67,7 @@ enum abstract SongTimeType(String) from String to String {
 class Conductor extends FlxBasic implements IBeat {
 	static var list:Array<Conductor> = [];
 
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	static function init():Void {
 		menu = new Conductor('Menu', true);
 		song = new Conductor('Song');

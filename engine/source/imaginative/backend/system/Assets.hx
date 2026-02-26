@@ -3,15 +3,11 @@ package imaginative.backend.system;
 import haxe.MainLoop;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import moonchart.backend.Util as MoonUtil;
 import openfl.media.Sound;
 import openfl.utils.AssetCache as OpenFLAssetCache;
 import openfl.utils.Assets as OpenFLAssets;
 import imaginative.backend.display.BetterBitmapData;
 import imaginative.states.editors.ChartEditor;
-#if ANIMATE_SUPPORT
-import animate.FlxAnimateFrames;
-#end
 
 enum abstract PersistenceType(String) {
 	/**
@@ -434,26 +430,9 @@ class Assets {
 	 */
 	public static final charts:ChartCache = new ChartCache();
 
-	@:allow(imaginative.states.EngineProcess)
+	/* @:allow(imaginative.states.EngineStart)
 	static function init():Void {
-		#if ANIMATE_SUPPORT
-		@:privateAccess {
-			FlxAnimateFrames.getTextFromPath = (path:String) -> return text('root:$path').replace(String.fromCharCode(0xFEFF), '');
-			FlxAnimateFrames.existsFile = (path:String, type:openfl.utils.AssetType) -> return Paths.fileExists('root:$path');
-			FlxAnimateFrames.listWithFilter = (path:String, filter:String->Bool) -> return [for (file in Paths.readFolder('root:$path')) file.format()].filter(filter);
-			FlxAnimateFrames.getGraphic = (path:String) -> return image('root:$path');
-		}
-		#end
-
-		MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
-		MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
-		// MoonUtil.saveBytes;
-		// MoonUtil.saveText;
-		// MoonUtil.getBytes;
-		MoonUtil.getText = (path:String) -> Assets.text('root:$path');
-
-		clearAll(false, true);
-
+		// for now im commenting this out so the engine doesn't take forever launch on start
 		final songs:Array<ModPath> = FunkinUtil.getSongFolderNames();
 		_log('[Assets] Pre-caching song chart information for ${[for (song in songs) song.path].cleanDisplayList()}.', DebugMessage);
 
@@ -467,7 +446,7 @@ class Assets {
 		}
 		if (!successes.empty()) _log('[Assets] Chart information for ${successes.cleanDisplayList()} was cached successfully!', DebugMessage);
 		if (!fails.empty()) _log('[Assets] Chart information for ${fails.cleanDisplayList()} has failed to cache.', ErrorMessage);
-	}
+	} */
 
 	/**
 	 * When called it clears **everything**.
@@ -475,7 +454,7 @@ class Assets {
 	 * @param runGarbageCollector If true, this will run the garbage collector.
 	 * @param isMajor If true, it cleans out bigger chunks of data.
 	 */
-	inline public static function clearAll(ignorePersistant:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
+	public static function clearAll(ignorePersistant:Bool = false, runGarbageCollector:Bool = false, isMajor:Bool = false):Void {
 		graphics.clear(ignorePersistant, isMajor, true);
 		songs.clear(ignorePersistant, isMajor);
 		sounds.clear(ignorePersistant, isMajor, true);
@@ -632,10 +611,10 @@ class Assets {
 	 * @return String ~ The file contents.
 	 */
 	inline public static function text(file:ModPath):String {
-		var finalPath:String = file.format();
+		final finalPath:String = file.format();
 		try {
-			var sysContent:Null<String> = file.isFile ? sys.io.File.getContent(finalPath) : null;
-			var limeContent:Null<String> = file.isFile ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
+			final sysContent:Null<String> = file.isFile ? sys.io.File.getContent(finalPath) : null;
+			final limeContent:Null<String> = file.isFile ? OpenFLAssets.getText(Paths.removeBeginningSlash(finalPath)) : null;
 			return sysContent ?? limeContent ?? '';
 		} catch(error:haxe.Exception) {
 			return file.isFile ? sys.io.File.getContent(finalPath) : '';
@@ -650,7 +629,7 @@ class Assets {
 	inline public static function json(data:String, ?file:ModPath):Dynamic {
 		var content:Dynamic = {}
 		try {
-			content = haxe.Json.parse(data);
+			content = haxe.Json.parse(ParseUtil.removeJsonComments(data));
 		} catch(error:haxe.Exception)
 			if (file != null)
 				log('${file.format()}: ${error.message}', ErrorMessage);

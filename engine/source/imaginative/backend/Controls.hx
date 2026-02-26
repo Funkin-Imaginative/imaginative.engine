@@ -214,12 +214,17 @@ class PlayerControls extends Controls {
  */
 class Controls extends FlxBasic {
 	@:access(imaginative.backend.system.SaveData)
-	@:allow(imaginative.states.EngineProcess)
+	@:allow(imaginative.states.EngineStart)
 	inline static function init():Void {
 		SaveData.initSave(CONTROLS);
-		global = new GlobalControls(SaveData.controls.global);
-		p1 = new PlayerControls(SaveData.controls.player1);
-		p2 = new PlayerControls(SaveData.controls.player2);
+		if (global == null) global = new GlobalControls(SaveData.controls.global);
+		else global.rebind(SaveData.controls.global);
+
+		if (p1 == null) p1 = new PlayerControls(SaveData.controls.player1);
+		else p1.rebind(SaveData.controls.player1);
+
+		if (p2 == null) p2 = new PlayerControls(SaveData.controls.player2);
+		else p2.rebind(SaveData.controls.player2);
 	}
 
 	/**
@@ -243,7 +248,7 @@ class Controls extends FlxBasic {
 	/**
 	 * The binds that are contained within this controls instance.
 	 */
-	public final bindMap:Map<String, Array<FlxKey>>;
+	public var bindMap(default, null):Map<String, Array<FlxKey>>;
 	/**
 	 * Pressed input.
 	 * @param key The key name.
@@ -272,8 +277,15 @@ class Controls extends FlxBasic {
 	public function new(?initBinds:Map<String, Array<FlxKey>>) {
 		super();
 		active = true;
-		bindMap = initBinds ?? [];
+		rebind(initBinds ?? []);
 	}
+
+	/**
+	 * Rebinds the controls for this instance.
+	 * @param newBinds The binds map.
+	 */
+	inline public function rebind(newBinds:Map<String, Array<FlxKey>>):Void
+		bindMap = newBinds;
 
 	override public function destroy():Void {
 		active = false;
