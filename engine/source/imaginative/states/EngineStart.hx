@@ -6,7 +6,7 @@ import imaginative.backend.system.Modding;
 import moonchart.Moonchart;
 import moonchart.backend.Util as MoonUtil;
 #if ANIMATE_SUPPORT
-import animate.FlxAnimateFrames;
+import animate.FlxAnimateAssets;
 #end
 
 /**
@@ -16,11 +16,8 @@ class EngineStart extends BeatState {
 	/**
 	 * A simple reload.
 	 */
-	inline public static function reload():Void {
-		#if MOD_SUPPORT
-		fullReload(Modding.curSolo, Modding.modList, Modding.globalMods);
-		#end
-	}
+	inline public static function reload():Void
+		fullReload(#if MOD_SUPPORT Modding.curSolo, Modding.modList, Modding.globalMods #end);
 	/**
 	 * A full reload with the desired mods.
 	 */
@@ -43,19 +40,10 @@ class EngineStart extends BeatState {
 			Conductor.init();
 			FileUtil.init();
 
-			Moonchart.SPACE_SENSITIVE_DIFFS = Moonchart.CASE_SENSITIVE_DIFFS = true;
-			Moonchart.DEFAULT_ARTIST = Moonchart.DEFAULT_CHARTER = 'Unassigned';
-			Moonchart.DEFAULT_TITLE = Moonchart.DEFAULT_ALBUM = 'Unknown';
 			Moonchart.DEFAULT_DIFF = 'normal';
-
-			#if ANIMATE_SUPPORT
-			@:privateAccess {
-				FlxAnimateFrames.getTextFromPath = (path:String) -> return text('root:$path').replace(String.fromCharCode(0xFEFF), '');
-				FlxAnimateFrames.existsFile = (path:String, type:openfl.utils.AssetType) -> return Paths.fileExists('root:$path');
-				FlxAnimateFrames.listWithFilter = (path:String, filter:String->Bool) -> return [for (file in Paths.readFolder('root:$path')) file.format()].filter(filter);
-				FlxAnimateFrames.getGraphic = (path:String) -> return image('root:$path');
-			}
-			#end
+			Moonchart.DEFAULT_ARTIST = Moonchart.DEFAULT_CHARTER = 'Unassigned';
+			Moonchart.SPACE_SENSITIVE_DIFFS = Moonchart.CASE_SENSITIVE_DIFFS = true;
+			Moonchart.init();
 
 			MoonUtil.readFolder = (folder:String) -> [for (file in Paths.readFolder('root:$folder')) file.format()];
 			MoonUtil.isFolder = (folder:String) -> Paths.folderExists('root:$folder');
@@ -63,6 +51,22 @@ class EngineStart extends BeatState {
 			// MoonUtil.saveText = (path:String, text:String);
 			// MoonUtil.getBytes = (path:String);
 			MoonUtil.getText = (path:String) -> Assets.text('root:$path');
+
+			#if ANIMATE_SUPPORT
+			FlxAnimateFrames.exists = (path:String, type:openfl.utils.AssetType) -> return Paths.fileExists('root:$path');
+			FlxAnimateFrames.getText = MoonUtil.getText;
+			// FlxAnimateFrames.getBytes = MoonUtil.getBytes;
+			FlxAnimateFrames.getBitmapData = (path:String) -> Assets.image('root:$path').bitmap;
+			function newLister(path:String, ?type:openfl.utils.AssetType, ?library:String, includeSubDirectories:Bool = false):Array<String> {
+				var list:Array<String> = Paths.readFolder('root:$path');
+				if (includeSubDirectories)
+					for (item in list)
+						if (Paths.folderExists('root:$item'))
+							list.concat(newLister(item, true));
+				return list;
+			}
+			FlxAnimateFrames.list = newLister;
+			#end
 
 			FlxG.fixedTimestep = false;
 			FlxSprite.defaultAntialiasing = true; // this ain't a pixel game... yeah ik week 6 exists!
@@ -80,27 +84,36 @@ class EngineStart extends BeatState {
 
 			FlxG.signals.preUpdate.add(() -> {
 				if (Settings.setup.debugMode) {
-					if (Controls.global.botplay) {
-						ArrowField.botplay = !ArrowField.botplay;
-						_log('Botplay has been ${ArrowField.botplay ? 'enabled' : 'disabled'}.');
-					}
+					if (Controls.global.botplay)
+						try {
+							ArrowField.botplay = !ArrowField.botplay;
+							_log('[EngineStart] Botplay has been ${ArrowField.botplay ? 'enabled' : 'disabled'}.');
+						} catch(error:haxe.Exception)
+							_log('[EngineStart] Somehow Failed to trigger Botplay??');
 
-					if (Controls.global.resetState) {
-						_log('Reseting state...');
-						BeatState.resetState();
-						_log('Reset state successfully!');
-					}
+					if (Controls.global.resetState)
+						try {
+							_log('[EngineStart] Reseting state...');
+							BeatState.resetState();
+							_log('[EngineStart] Reset state successfully!');
+						} catch(error:haxe.Exception)
+							_log('[EngineStart] Reset state failed.');
 
-					if (Controls.global.shortcutState) {
-						_log('Heading to the MainMenu...');
-						BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
-						_log('Successfully entered the MainMenu!');
-					}
+					if (Controls.global.shortcutState)
+						try { // TODO: Use createInstance for non scripted states.
+							_log('[EngineStart] Heading to the MainMenu...');
+							BeatState.switchState(() -> new imaginative.states.menus.MainMenu());
+							_log('[EngineStart] Successfully entered the MainMenu!');
+						} catch(error:haxe.Exception)
+							_log('[EngineStart] Failed to enter the MainMenu.');
 
-					if (Controls.global.reloadGame) {
-						_log('Reloading the game...');
-						reload();
-					}
+					if (Controls.global.reloadGame)
+						try {
+							_log('[EngineStart] Reloading the game...');
+							reload();
+							_log('[EngineStart] Reload successfully!');
+						} catch(error:haxe.Exception)
+							_log('[EngineStart] Reload failed.');
 				}
 			});
 
