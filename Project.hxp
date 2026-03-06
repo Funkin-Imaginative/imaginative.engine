@@ -31,7 +31,7 @@ class EngineAsset {
  *
  * Note: Based from base games hxp file.
  */
-@:nullSafety class Project extends HXProject {
+class Project extends HXProject {
 	// Basic variables.
 	/**
 	 * The current engine version.
@@ -345,7 +345,7 @@ class EngineAsset {
 		// truly push assets
 		for (setAsset in EngineAsset.mapping) {
 			var asset = new Asset(setAsset.path ?? '', setAsset.rename ?? '', null, /* isDebug() ? false : */ setAsset.embed);
-			@:nullSafety(Off) asset.library = setAsset.library ?? 'default';
+			asset.library = setAsset.library ?? 'default';
 			assets.push(asset);
 		}
 	}
@@ -537,7 +537,7 @@ class EngineAsset {
 	 */
 	inline public function addAsset(path:String, ?rename:String, force:Bool = false, ?library:String, embed:Bool = false):Void
 		if (!EngineAsset.mapping.exists(rename ?? path) || force)
-			EngineAsset.mapping.set(rename ?? path, new EngineAsset(Path.normalize(path), @:nullSafety(Off) Path.normalize(rename), library, embed));
+			EngineAsset.mapping.set(rename ?? path, new EngineAsset(Path.normalize(path), Path.normalize(rename), library, embed));
 
 	/**
 	 * Add an entire path of assets to the game build.
