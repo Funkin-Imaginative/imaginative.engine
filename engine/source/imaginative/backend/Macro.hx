@@ -11,10 +11,10 @@ class Macro {
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	public static function init():Void {
 		// MAYBE: Re-add offset variable to FlxAnimation?????
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxBasic())', 'flixel.FlxBasic');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxObject())', 'flixel.FlxObject');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxSprite())', 'flixel.FlxSprite');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.buildFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxBasic())', 'flixel.FlxBasic');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxObject())', 'flixel.FlxObject');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSprite())', 'flixel.FlxSprite');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideDebugString())', 'flixel.util.FlxStringUtil');
 		#if SCRIPT_SUPPORT
 		Compiler.include('imaginative', true, ['*Macro']);
@@ -31,7 +31,7 @@ class Macro {
 	 * Implements extra variables into 'FlxBasic'.
 	 * @return Array<Field>
 	 */
-	public static macro function buildFlxBasic():Array<Field> {
+	public static macro function addOnToFlxBasic():Array<Field> {
 		var classFields = Context.getBuildFields();
 		var tempClass = macro class TempClass {
 			/**
@@ -45,7 +45,7 @@ class Macro {
 	 * Implements forceIsOnScreen from Codename Engine and makes screenCenter compatible with other cameras.
 	 * @return Array<Field>
 	 */
-	public static macro function buildFlxObject():Array<Field> {
+	public static macro function addOnToFlxObject():Array<Field> {
 		var classFields = Context.getBuildFields();
 		var tempClass = macro class TempClass {
 			/**
@@ -96,7 +96,7 @@ class Macro {
 	 * Implements forceIsOnScreen from Codename Engine.
 	 * @return Array<Field>
 	 */
-	public static macro function buildFlxSprite():Array<Field> {
+	public static macro function addOnToFlxSprite():Array<Field> {
 		var classFields = Context.getBuildFields();
 
 		// I hate that I hate to do this twice.
@@ -120,7 +120,7 @@ class Macro {
 	 * Implements keyValueIterator because it doesn't have one for some reason???
 	 * @return Array<Field>
 	 */
-	public static macro function buildFlxSpriteGroup():Array<Field> {
+	public static macro function addOnToFlxSpriteGroup():Array<Field> {
 		var classFields = Context.getBuildFields();
 		var tempClass = macro class TempClass {
 			/**
