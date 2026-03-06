@@ -269,7 +269,7 @@ class Project extends HXProject {
 		/* Path Settings */
 
 		/* Libraries */
-		addHaxelib('hxhardware');
+		addHaxelib('hxhardware', 'git');
 		addHaxelib('hxp'); // is need apparently???
 		// required for flixel, don't put below flixel, causes wierd issues
 		addHaxelib('openfl');
@@ -284,14 +284,13 @@ class Project extends HXProject {
 
 		// json parsing
 		addHaxelib('json2object', 'git');
-		addHaxelib('checkstyle'); // pretty export
 
 		// debugging
 		if (isDesktop() && isDebug())
-			addHaxelib('hxcpp-debug-server');
+			addHaxelib('hxcpp-debug-server', 'git');
 
 		// chart converter
-		addHaxelib('moonchart', 'git');
+		addHaxelib('moonchart');
 
 		if (canHaxeScript.exists()) addHaxelib('rulescript', 'git');
 		if (canLuaScript.exists()) addHaxelib('linc_luajit', 'git');

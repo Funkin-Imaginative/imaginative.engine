@@ -15,6 +15,7 @@ class Macro {
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxObject())', 'flixel.FlxObject');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSprite())', 'flixel.FlxSprite');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
+		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToMoonchartFormatList())', 'moonchart.backend.Format');
 		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideDebugString())', 'flixel.util.FlxStringUtil');
 		#if SCRIPT_SUPPORT
 		Compiler.include('imaginative', true, ['*Macro']);
@@ -130,6 +131,54 @@ class Macro {
 				return members.keyValueIterator();
 			}
 		}
+		return classFields.concat(tempClass.fields);
+	}
+
+	/**
+	 * Apparently the ID field in Format is *required* so I have to do this for the time being until my chart format is done.
+	 * Until then the format class for the engine will stay within the engine and not on the actually library.
+	 * @return Array<Field>
+	 */
+	public static macro function addOnToMoonchartFormatList():Array<Field> {
+		var classFields = Context.getBuildFields();
+		var tempClass = macro class TempClass {
+			var FNF_IMAGINATIVE;
+
+			/**
+			 * Returns the hardcoded list of format data by default Moonchart.
+			 * To add extra formats for custom implementations use ``moonchart.backend.FormatDetector.registerFormat``.
+			 */
+			public static function getList():Array<FormatData> {
+				return [
+					FNFLegacy.__getFormat(),
+					FNFPsych.__getFormat(),
+					FNFTroll.__getFormat(),
+					FNFFpsPlus.__getFormat(),
+					FNFKade.__getFormat(),
+					FNFMaru.__getFormat(),
+					FNFCodename.__getFormat(),
+					FNFImaginative.__getFormat(),
+					FNFLudumDare.__getFormat(),
+					FNFVSlice.__getFormat(),
+					GuitarHero.__getFormat(),
+					OsuMania.__getFormat(),
+					Quaver.__getFormat(),
+					StepMania.__getFormat(),
+					StepManiaShark.__getFormat(),
+					Midi.__getFormat()
+				];
+			}
+		}
+
+		var newGetListFunc = tempClass.fields.filter(field -> return field.name == 'getList')[0];
+		tempClass.fields.remove(newGetListFunc);
+		var getListFunc = classFields.filter(field -> return field.name == 'getList')[0];
+		getListFunc.name = newGetListFunc.name;
+		getListFunc.doc = newGetListFunc.doc;
+		getListFunc.access = newGetListFunc.access;
+		getListFunc.kind = newGetListFunc.kind;
+		getListFunc.meta = newGetListFunc.meta;
+
 		return classFields.concat(tempClass.fields);
 	}
 

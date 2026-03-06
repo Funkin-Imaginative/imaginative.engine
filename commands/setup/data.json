@@ -24,14 +24,14 @@
 		{
 			"name": "rulescript",
 			"version": "git",
-			"branch": "imaginative",
-			"url": "https://github.com/Funkin-Imaginative/RuleScript"
+			"branch": "dev",
+			"url": "https://github.com/Kriptel/RuleScript"
 		},
 
 		{
 			"name": "hxcpp",
 			"version": "git",
-			"branch": "363d3d0a8d3ac450f5ba1b4c3357353656b71e82",
+			"branch": "5932340d095a7eea8635fe4d1355f1c0efd0b3c2",
 			"url": "https://github.com/FunkinCrew/hxcpp"
 		},
 		{
@@ -41,18 +41,18 @@
 			"url": "https://github.com/FunkinCrew/hxcpp-debugger"
 		},
 
-		{ "name": "hxdiscord_rpc" },
+		{ "name": "hxdiscord_rpc", "dependencies": [] },
 		{ "name": "hxp" },
 
 		{
 			"name": "hxvlc",
-			"version": "git",
-			"url": "https://github.com/MAJigsaw77/hxvlc",
+			"version": "2.2.5",
 			"dependencies": []
 		},
 		{
 			"name": "json2object",
 			"version": "git",
+			"branch": "59e0467c953d1f26e3cbf2a070f140e2d2e8457d",
 			"url": "https://github.com/FunkinCrew/json2object"
 		},
 		{
@@ -60,13 +60,8 @@
 			"version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"
 		},
-		{
-			"name": "moonchart",
-			"version": "git",
-			"branch": "imaginative",
-			"url": "https://github.com/Funkin-Imaginative/moonchart"
-		},
 
+		{ "name": "moonchart" },
 		{ "name": "thx.semver" },
 		{ "name": "compiletime" }
 	],
