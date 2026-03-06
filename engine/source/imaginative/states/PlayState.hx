@@ -687,6 +687,9 @@ class PlayState extends BeatState {
 		songScripts.call('updatePost', [elapsed]);
 	}
 
+	/**
+	 * @param saidAssets assets to use for the countdown
+	 */
 	function startCountdown(saidAssets:CountdownAssets):Void {
 		var assets:CountdownAssets = {
 			images: saidAssets.images.copy(),
@@ -728,6 +731,9 @@ class PlayState extends BeatState {
 		}
 	}
 
+	/**
+	 * @param startDelay the amount many beats to delay song start by
+	 */
 	function startSong(startDelay:Int = 0):Void {
 		songStarted = true;
 		songAudio.playFromTime(-beatTime * Math.abs(startDelay));
