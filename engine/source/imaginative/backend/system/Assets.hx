@@ -157,7 +157,7 @@ final class GraphicCache extends CacheTemplate<FlxGraphic> {
 				var graphic:FlxGraphic = cacheList.get(daPath);
 				if (graphic != null && !graphic.persist && graphic.destroyOnNoUse) {
 					cacheList.remove(path);
-					if (FlxG.bitmap._cache.exists(daPath)) FlxG.bitmap.removeKey(daPath);
+					if (FlxG.bitmap.checkCache(daPath)) FlxG.bitmap.removeKey(daPath);
 					if (!graphic.isDestroyed) graphic.destroy();
 				}
 			}
