@@ -2,7 +2,6 @@ package moonchart.formats.fnf;
 
 import haxe.io.Path;
 import flixel.util.FlxColor;
-import flixel.util.typeLimit.OneOfFour;
 import moonchart.backend.FormatData;
 import moonchart.backend.Optimizer;
 import moonchart.backend.Timing;
@@ -13,246 +12,114 @@ import moonchart.formats.fnf.legacy.FNFLegacy;
 
 // Chart
 typedef FNFImaginativeNote = {
-	/**
-	 * The note direction id.
-	 */
 	var id:Int;
-	// NOTE: As of rn this is actually in milliseconds!!!!!
-	/**
-	 * The length of a sustain in steps.
-	 */
-	@:default(0) var length:Float;
-	// NOTE: As of rn this is actually in milliseconds!!!!!
-	/**
-	 * The note position in steps.
-	 */
+	var length:Float;
 	var time:Float;
-	/**
-	 * Characters this note will mess with instead of the fields main ones.
-	 */
 	var ?characters:Array<String>;
-	/**
-	 * The note type.
-	 */
-	var type:String;
+	var ?type:String;
 }
 
 typedef FNFImaginativeArrowField = {
-	/**
-	 * The arrow field tag name.
-	 */
 	var tag:String;
-	/**
-	 * Characters to be assigned as singers for this field.
-	 */
 	var characters:Array<String>;
-	/**
-	 * Array of notes to load.
-	 */
 	var notes:Array<FNFImaginativeNote>;
-	/**
-	 * The independent field scroll speed.
-	 */
 	var ?speed:Float;
-	/**
-	 * The starting strum count of the field.
-	 */
-	@:default('4') var ?startCount:Int;
+	var ?startCount:Int;
 }
 
 typedef FNFImaginativeCharacter = {
-	/**
-	 * The character tag name.
-	 */
 	var tag:String;
-	/**
-	 * The character to load.
-	 */
-	@:default('boyfriend') var name:String;
-	/**
-	 * The location the character will be placed.
-	 */
+	var name:String;
 	var position:String;
-	/**
-	 * The character's vocal suffix override.
-	 */
 	var ?vocals:String;
 }
 
 typedef FNFImaginativeFieldSettings = {
-	/**
-	 * The starting camera target
-	 */
 	var ?cameraTarget:String;
-	/**
-	 * The arrow field order.
-	 */
 	var order:Array<String>;
-	/**
-	 * The enemy field.
-	 */
 	var enemy:String;
-	/**
-	 * The player field.
-	 */
 	var player:String;
 }
 
 typedef FNFImaginativeEvent = {
-	// NOTE: As of rn this is actually in milliseconds!!!!!
-	/**
-	 * The event position in steps.
-	 */
 	var time:Float;
-	/**
-	 * Each event to trigger.
-	 */
 	var data:Array<FNFImaginativeSubEvent>;
 }
 typedef FNFImaginativeSubEvent = {
-	/**
-	 * The event name.
-	 */
 	var name:String;
-	/**
-	 * The event parameters.
-	 */
-	var params:Array<Dynamic>;
+	var params:JsonMap<Dynamic>;
 }
 
 typedef FNFImaginativeChart = {
-	/**
-	 * The song scroll speed.
-	 */
-	@:default(2.6) var speed:Float;
-	/**
-	 * The stage this song will take place.
-	 */
-	@:default('void') var stage:String;
-	/**
-	 * Array of arrow fields to load.
-	 */
+	var ?speed:Float;
+	var ?stage:String;
 	var fields:Array<FNFImaginativeArrowField>;
-	/**
-	 * Array of characters to load.
-	 */
-	var characters:Array<FNFImaginativeCharacter>;
-	/**
-	 * Field settings.
-	 */
+	var ?characters:Array<FNFImaginativeCharacter>;
 	var fieldSettings:FNFImaginativeFieldSettings;
-	/**
-	 * Chart specific events.
-	 */
+	var ?hud:String;
 	var ?events:Array<FNFImaginativeEvent>;
 }
 
 // Meta
 typedef FNFImaginativeCheckpoint = { // used for bpm changes
-	/**
-	 * The position of the song in milliseconds.
-	 */
 	var time:Float;
-	/**
-	 * The "beats per minute" at that point.
-	 */
 	var bpm:Float;
-	/**
-	 * The time signature at that point.
-	 */
 	var signature:Array<Int>;
 }
 
 typedef FNFImaginativeAllowedModes = {
-	/**
-	 * If true, this song allows you to play as the enemy.
-	 */
-	@:default(false) var playAsEnemy:Bool;
-	/**
-	 * If true, this song allows you to go against another player.
-	 */
-	@:default(false) var p2AsEnemy:Bool;
+	var playAsEnemy:Bool;
+	var p2AsEnemy:Bool;
 }
 
 typedef FNFImaginativeAudioMeta = {
-	/**
-	 * The composer of the song.
-	 */
-	@:default('Unassigned') var artist:String;
-	/**
-	 * The display name of the song.
-	 */
+	var artist:String;
 	var name:String;
-	/**
-	 * The bpm at the start of the song.
-	 */
-	@:default(100) var bpm:Float;
-	/**
-	 * The time signature at the start of the song.
-	 */
-	@:default([4, 4]) var signature:Array<Int>;
-	/**
-	 * The audio offset.
-	 */
-	@:default(0) var ?offset:Float;
-	/**
-	 * Contains all known bpm changes.
-	 */
+	var bpm:Float;
+	var signature:Array<Int>;
+	var ?offset:Float;
 	var checkpoints:Array<FNFImaginativeCheckpoint>;
 }
 
 typedef FNFImaginativeSongMeta = {
-	/**
-	 * The song display name.
-	 */
 	var name:String;
-	/**
-	 * The song folder name.
-	 */
 	var folder:String;
-	/**
-	 * The song icon.
-	 */
 	var icon:String;
-	/**
-	 * The starting difficulty.
-	 */
 	var startingDiff:Int;
-	/**
-	 * The difficulties listing.
-	 */
 	var difficulties:Array<String>;
-	/**
-	 * The variations listing.
-	 */
 	var variants:Array<String>;
-	/**
-	 * The song color.
-	 */
 	var ?color:FlxColor;
-	/**
-	 * Allowed modes for the song.
-	 */
 	var allowedModes:FNFImaginativeAllowedModes;
 }
 
-@SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract FNFImaginativeNoteType(String) from String to String {
 	var IMAG_ALT_ANIM = 'Alt Animation';
 	var IMAG_NO_ANIM = 'No Animation';
 }
 
-@SuppressWarnings('checkstyle:FieldDocComment')
 class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginativeAudioMeta> {
 	public static function __getFormat():FormatData {
+		@:privateAccess FNFGlobal.get_camFocus(); // jic
+
+		FNFGlobal.camFocus.set('Focus Camera To Custom Position', (e) -> return BF);
+		FNFGlobal.camFocus.set('Focus Camera To Character', e -> {
+			final map:JsonMap<Dynamic> = e.data;
+			if (!map.keys().contains('target')) return BF;
+			return switch (map.get('target')) {
+				case 'enemy': DAD;
+				case 'spectator': GF;
+				default: BF;
+			};
+		});
+
 		return {
 			ID: FNF_IMAGINATIVE,
 			name: 'FNF (Imaginative)',
-			description: 'A unique format for adding characters, strumlines and vocal instances.',
+			description: 'The chart format for Imaginative Engine.',
 			extension: 'json',
 			hasMetaFile: TRUE,
 			metaFileExtension: 'json',
-			specialValues: ['"speed":', '?"stage":', '_"fields":', '_"characters":', '_"fieldSettings":'],
+			specialValues: ['"speed":', '?"stage":', '_"fields":', '_"characters":', '_"fieldSettings":', '?"hud":', '?"events":'],
 			formatFile: FNFMaru.formatFile,
 			handler: FNFImaginative
 		}
@@ -329,84 +196,102 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 		for (field in fields) field.notes.sort((a, b) -> return Util.sortValues(a.time, b.time));
 
 		var events:Array<FNFImaginativeEvent> = Util.makeArray(0);
-		var basicEvents = /* Timing.sortEvents */(chart.data.events);
+		var basicEvents:Array<BasicEvent> = Timing.sortEvents(chart.data.events);
 		// trace(haxe.Json.stringify(basicEvents, '\t'));
 		for (i => event in basicEvents) {
-			// helper for making events for imaginative
-			inline function makeEvent(name:String, params:Array<Dynamic>):Void {
-				if (i - 1 > -1 && event.time == events[i - 1].time) {
-					// doing psychs event stacking method
+			// helper for event making
+			inline function makeEvent(name:String, params:Map<String, Dynamic>):Void {
+				// doing psychs event stacking method
+				if (i - 1 > -1 && event.time == events[i - 1].time)
 					events[i - 1].data.push({name: name, params: params});
-				} else {
+				else
 					events.push({
 						time: event.time,
 						data: [
 							{name: name, params: params}
 						]
 					});
-				}
 			}
+			var useMoonchartCamFocusResolver:Bool = true;
 
 			// vslice conversion process
 			if (basicMeta.inputFormats.contains(FNF_VSLICE)) {
 				switch (event.name) {
 					case 'FocusCamera':
-						var target:Int = event.data?.char ?? 0;
-						var x:Float = event.data?.x ?? 0;
-						var y:Float = event.data?.y ?? 0;
-						var duration:Float = event.data?.duration ?? 4;
-						var ease:String = event.data?.ease ?? '[none]';
-						if (ease == 'INSTANT') ease = '[instant]';
-						if (ease == 'CLASSIC') ease = '[none]';
+						useMoonchartCamFocusResolver = false;
+						final target:Int = event.data?.char ?? 0;
+						final xy:Array<Float> = [event.data?.x ?? 0, event.data?.y ?? 0];
+						final duration:Float = event.data?.duration ?? 4;
+						final ease:Array<String> = [
+							{
+								var type:String = event.data?.ease ?? '[none]'
+								if (type == 'INSTANT') type = '[instant]';
+								if (type == 'CLASSIC') type = '[none]';
+								type;
+							},
+							event.data?.easeDir ?? 'In'
+						];
 
 						if (target == -1)
-							makeEvent('Focus Camera To Custom Position', [x, y, duration, ease, /* _UNKNOWN_, false, */ 'disable']);
+							makeEvent('Focus Camera To Custom Position', [
+								'position' => xy,
+								'duration' => duration, 'ease' => ease,
+								'displacement-act' => 'disable'
+							]);
 						else
 							makeEvent('Focus Camera To Character', [
-								'character',
-								switch (target) {
+								'target' => switch (target) {
 									case 0: 'player';
 									case 1: 'enemy';
 									case 2: 'spectator';
 									default: _UNKNOWN_;
 								},
-								x, y, duration, ease,
+								'offset' => xy,
+								'duration' => duration, 'ease' => ease,
 								// _UNKNOWN_, false, // idr wtf these where 😭
-								'disable' // how camera displacement should act when tweening if its enabled
+								'displacement-act' => 'disable' // how camera displacement should act when tweening if its enabled
 							]);
 
 					case 'PlayAnimation':
-						var target:String = event.data?.target ?? 'player';
-						target = switch (target) {
-							case 'boyfriend' | 'bf': 'player';
-							case 'dad' | 'opponent': 'enemy';
-							case 'girlfriend' | 'gf': 'spectator';
-							default: target;
+						final target:String = {
+							var penis:String = event.data?.target ?? 'player';
+							penis = switch (penis) {
+								case 'boyfriend' | 'bf': 'player';
+								case 'dad' | 'opponent': 'enemy';
+								case 'girlfriend' | 'gf': 'spectator';
+								default: penis;
+							}
+							penis;
 						}
 						makeEvent('Play Sprite Animation', [
-							target == 'enemy' || target == 'player' || target == 'spectator' ? 'character' : 'sprite',
-							target,
-							event.data?.anim ?? _UNKNOWN_,
-							'Unclear', // animation context
-							event.data?.force ?? false,
-							false, // reversed
-							0 // starting frame
+							'target-type' => target == 'enemy' || target == 'player' || target == 'spectator' ? 'character' : 'sprite',
+							'target' => target,
+							'animation' => event.data?.anim ?? _UNKNOWN_,
+							'context' => 'Unclear', // animation context
+							'force' => event.data?.force ?? true,
+							'reversed' => false, // reversed
+							'frame' => 0 // starting frame
 						]);
 
 					case 'ScrollSpeed':
-						var target:String = switch (event.data?.strumline) {
+						final target:String = switch (event.data?.strumline) {
 							case 'opponent': 'enemy';
 							case 'player': 'player';
 							default: '[global]';
 						}
-						var ease:String = event.data?.ease ?? 'linear';
-						if (ease == 'INSTANT') ease = '[instant]';
+						final ease:Array<String> = [
+							{
+								var type:String = event.data?.ease ?? 'linear';
+								if (type == 'INSTANT') type = '[instant]';
+								type;
+							},
+							event.data?.easeDir ?? 'In'
+						];
 						makeEvent('Manage Scroll Speed', [
-							target,
-							event.data?.scroll ?? 1,
-							event.data?.duration ?? 4,
-							ease,
-							event.data?.absolute ?? false,
+							'target' => target,
+							'speed' => event.data?.scroll ?? 1,
+							'duration' => event.data?.duration ?? 4, 'ease' => ease,
+							'absolute' => event.data?.absolute ?? false
 						]);
 
 					case 'SetCameraBop':
@@ -417,27 +302,33 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 
 					case 'SetHealthIcon':
 						var target:Int = event.data?.char ?? 0;
-						var iconId:String = event.data?.id ?? 'boyfriend';
+						final iconId:String = event.data?.id ?? 'boyfriend';
 						// MAYBE: Write this?
 
 					// case 'SetStage':
 						// TODO: Write this.
 
 					case 'ZoomCamera':
-						var ease:String = event.data?.ease ?? 'linear';
-						if (ease == 'INSTANT') ease = '[instant]';
-						// sets the default zoom and lerps handle the rest
-						// if (ease == 'CLASSIC') ease = '[none]';
+						final ease:Array<String> = [
+							{
+								var type:String = event.data?.ease ?? 'linear';
+								if (type == 'INSTANT') type = '[instant]';
+								// sets the default zoom and lerps handle the rest
+								// if (ease == 'CLASSIC') ease = '[none]';
+								type;
+							},
+							event.data?.easeDir ?? 'In'
+						];
 						makeEvent('Manage Camera Zoom', [
-							event.data?.zoom ?? 1,
-							event.data?.duration ?? 4,
-							ease,
-							(event.data?.mode ?? 'stage') == 'stage'
+							'zoom' => event.data?.zoom ?? 1,
+							'duration' => event.data?.duration ?? 4, 'ease' => ease,
+							'mode' => (event.data?.mode ?? 'stage') == 'stage'
 						]);
 					default:
 						// UNKNOWN
 				}
 			}
+
 			// psych conversion process
 			if (basicMeta.inputFormats.contains(FNF_LEGACY_PSYCH)) {
 				switch (event.name) {
@@ -450,17 +341,35 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 				}
 				// TODO: Write this.
 			}
+
+			// codename conversion process
 			if (basicMeta.inputFormats.contains(FNF_CODENAME)) {
-				// codename conversion process
-				// TODO: Write this.
+				switch (event.name) {
+					case FNFCodename.CODENAME_CAM_MOVEMENT:
+						// useMoonchartCamFocusResolver = false;
+					default:
+						// UNKNOWN
+				}
 			}
-			// jic
-			if (basicMeta.inputFormats.contains(FNF_IMAGINATIVE)) {
-				// TODO: Write this.
-			}
+
+			if (basicMeta.inputFormats.contains(FNF_IMAGINATIVE))
+				useMoonchartCamFocusResolver = false;
+
+			if (useMoonchartCamFocusResolver && FNFGlobal.isCamFocus(event))
+				makeEvent('Focus Camera To Character', [
+					'target' => switch (FNFGlobal.resolveCamFocus(event)) {
+						case BF: 'player';
+						case DAD: 'enemy';
+						case GF: 'spectator';
+					},
+					'offset' => [0, 0],
+					'duration' => 4, 'ease' => '[none]',
+					// _UNKNOWN_, false, // idr wtf these where 😭
+					'displacement-act' => 'disable'
+				]);
 		}
 		events.sort((a, b) -> return Util.sortValues(a.time, b.time));
-		// trace(haxe.Json.stringify(events, '\t'));
+		trace(haxe.Json.stringify(events, '\t'));
 
 		data = {
 			speed: basicMeta.scrollSpeeds.get(diffId) ?? Util.mapFirst(basicMeta.scrollSpeeds) ?? 2.6,
