@@ -20,11 +20,6 @@ final class NoteMissedEvent extends PlayAnimEvent {
 	public var id:Int;
 
 	/**
-	 * If true it prevents the press animation from playing on the target strum.
-	 */
-	public var stopStrumPress:Bool;
-
-	/**
 	 * The first assigned actor attached to the note.
 	 */
 	public var character(get, set):Character;
@@ -41,12 +36,11 @@ final class NoteMissedEvent extends PlayAnimEvent {
 	inline function set_characters(value:Array<Character>):Array<Character>
 		return note.assignedActors = value;
 
-	override public function new(note:Note, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
+	override public function new(note:Note, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
 		super('', force, HasMissed, suffix);
 		this.note = note;
 		this.id = id ??= note.id;
 		this.field = field ??= note.setField;
-		this.stopStrumPress = stopStrumPress;
 		strum = note.setStrum;
 	}
 }

@@ -340,7 +340,7 @@ class ArrowField extends BeatGroup {
 					} else if (backNote.time < frontNote.time)
 						frontNote = backNote;
 				}
-				_onNoteHit(frontNote, i);
+				_onNoteHit(frontNote);
 			} else {
 				// void hits (random key presses / ghost tapping)
 				var event:VoidMissEvent = new VoidMissEvent(settings.ghostTapping, i, this);
@@ -359,7 +359,7 @@ class ArrowField extends BeatGroup {
 		if (beingHeld) {
 			for (sustain in Note.filterTail(sustains.members, i))
 				if ((sustain.time + sustain.setHead.time) <= conductor.time)
-					_onSustainHit(sustain, i);
+					_onSustainHit(sustain);
 		}
 
 		if (!event.stopStrumPress && wasReleased && strum.getAnimName() != 'static')
@@ -372,7 +372,7 @@ class ArrowField extends BeatGroup {
 			_input();
 
 		// auto hit and note miss
-		notes.forEachExists((note:Note) -> {
+		notes.forEachAlive((note:Note) -> {
 			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / Math.abs(note.__scrollSpeed)))
 				if (!note.wasHit && !note.wasMissed)
 					_onNoteMissed(note);
@@ -381,7 +381,7 @@ class ArrowField extends BeatGroup {
 					_onNoteHit(note);
 		});
 		// auto hit and sustain miss
-		sustains.forEachExists((sustain:Sustain) -> {
+		sustains.forEachAlive((sustain:Sustain) -> {
 			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / Math.abs(sustain.__scrollSpeed)))
 				if (!sustain.wasHit && !sustain.wasMissed)
 					_onSustainMissed(sustain);
@@ -389,19 +389,27 @@ class ArrowField extends BeatGroup {
 				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 		});
-		// checks when a note and its tail can be killed
-		notes.forEachExists((note:Note) -> {
-			var canKill:Array<Bool> = [(note.wasHit || note.wasMissed) && note.tooLate];
-			for (sustain in note.tail)
-				canKill.push((sustain.wasHit || sustain.wasMissed) && sustain.tooLate);
-			if (!canKill.contains(false)) {
-				_log('[ArrowField] Lineage Killed: $note', DebugMessage);
-				note.kill();
-			} else note.followStrum();
-			canKill = canKill.clearArray();
-		});
 
 		super.update(elapsed);
+
+		// checks when a note and its tail can be killed
+		notes.forEachAlive((note:Note) -> {
+			var wasKilled:Bool = false;
+			if (note.tail.length != 0) {
+				final tailEnd:Sustain = note.tail[note.tail.length - 1];
+				if ((tailEnd.wasHit || tailEnd.wasMissed) && tailEnd.tooLate) {
+					note.kill();
+					wasKilled = true;
+				}
+			} else {
+				if ((note.wasHit || note.wasMissed) && note.tooLate) {
+					note.kill();
+					wasKilled = true;
+				}
+			}
+			if (!wasKilled) note.followStrum();
+			else _log('[ArrowField] Lineage Killed: $note', DebugMessage);
+		});
 	}
 
 	/**
@@ -413,12 +421,10 @@ class ArrowField extends BeatGroup {
 			else HUDType.instance.updateStatsText();
 
 	// TODO: Figure out how to do this better.
-	function _onNoteHit(note:Note, ?i:Int):Void {
+	function _onNoteHit(note:Note):Void {
 		if (note.wasHit) return;
-		i ??= note.id;
-		note.wasHit = true;
-		note.visible = false;
-		var event:NoteHitEvent = new NoteHitEvent(note, i, this);
+		note.wasHit = true; note.visible = false;
+		var event:NoteHitEvent = new NoteHitEvent(note, note.id, this);
 		onNoteHit.dispatch(event);
 		if (!event.prevented) {
 			if (event.field.isPlayer) {
@@ -432,12 +438,10 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	function _onSustainHit(sustain:Sustain, ?i:Int):Void {
-		if (sustain.wasHit) return;
-		i ??= sustain.id;
-		sustain.wasHit = true;
-		sustain.visible = false;
-		var event:SustainHitEvent = new SustainHitEvent(sustain, i, this);
+	function _onSustainHit(sustain:Sustain):Void {
+		if (sustain.wasHit && !sustain.setHead.wasHit) return;
+		sustain.wasHit = true; sustain.visible = false;
+		var event:SustainHitEvent = new SustainHitEvent(sustain, sustain.id, this);
 		onSustainHit.dispatch(event);
 		if (!event.prevented) {
 			if (event.field.isPlayer)
@@ -447,12 +451,11 @@ class ArrowField extends BeatGroup {
 			event.field.updateStatsText();
 		}
 	}
-	function _onNoteMissed(note:Note, ?i:Int):Void {
+	function _onNoteMissed(note:Note):Void {
 		if (note.wasMissed) return;
-		i ??= note.id;
 		note.wasMissed = true;
 		note.mods.alpha *= 0.86;
-		var event:NoteMissedEvent = new NoteMissedEvent(note, i, this, isPlayer);
+		var event:NoteMissedEvent = new NoteMissedEvent(note, note.id, this);
 		onNoteMissed.dispatch(event);
 		if (!event.prevented) {
 			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
@@ -466,17 +469,14 @@ class ArrowField extends BeatGroup {
 				event.field.stats.combo = 0;
 				event.field.stats.misses++;
 			}
-			if (!event.stopStrumPress)
-				event.note.setStrum.playAnim('press', !event.field.isPlayer);
 			event.field.updateStatsText();
 		}
 	}
-	function _onSustainMissed(sustain:Sustain, ?i:Int):Void {
+	function _onSustainMissed(sustain:Sustain):Void {
 		if (sustain.wasMissed) return;
-		i ??= sustain.id;
 		sustain.wasMissed = true;
 		sustain.mods.alpha *= 0.86;
-		var event:SustainMissedEvent = new SustainMissedEvent(sustain, i, this, isPlayer);
+		var event:SustainMissedEvent = new SustainMissedEvent(sustain, sustain.id, this);
 		onSustainMissed.dispatch(event);
 		if (!event.prevented) {
 			FlxG.sound.play(Assets.sound('gameplay/missnote${FlxG.random.int(1, 3)}'), 0.7);
@@ -490,8 +490,6 @@ class ArrowField extends BeatGroup {
 				event.field.stats.combo = 0;
 				event.field.stats.misses++;
 			}
-			if (!event.stopStrumPress)
-				event.sustain.setStrum.playAnim('press', !event.field.isPlayer);
 			event.field.updateStatsText();
 		}
 	}

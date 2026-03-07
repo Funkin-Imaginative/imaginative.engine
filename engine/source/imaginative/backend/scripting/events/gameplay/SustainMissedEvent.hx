@@ -24,11 +24,6 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	public var id:Int;
 
 	/**
-	 * If true it prevents the press animation from playing on the target strum.
-	 */
-	public var stopStrumPress:Bool;
-
-	/**
 	 * The first assigned actor attached to the sustain.
 	 */
 	public var character(get, set):Character;
@@ -45,12 +40,11 @@ final class SustainMissedEvent extends PlayAnimEvent {
 	inline function set_characters(value:Array<Character>):Array<Character>
 		return sustain.assignedActors = value;
 
-	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, stopStrumPress:Bool, force:Bool = true, ?suffix:String) {
+	override public function new(sustain:Sustain, ?id:Int, ?field:ArrowField, force:Bool = true, ?suffix:String) {
 		super('', force, HasMissed, suffix);
 		this.sustain = sustain;
 		this.id = id ??= sustain.id;
 		this.field = field ??= sustain.setField;
-		this.stopStrumPress = stopStrumPress;
 		strum = sustain.setStrum;
 		note = sustain.setHead;
 	}

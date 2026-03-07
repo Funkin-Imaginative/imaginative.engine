@@ -75,7 +75,11 @@ class Note extends FlxSprite {
 	/**
 	 * The sustain pieces this note has.
 	 */
-	public var tail(default, null):Array<Sustain> = [];
+	public final tail(get, never):Array<Sustain> = [];
+	inline function get_tail():Array<Sustain> {
+		tail.sort(sortTail);
+		return tail;
+	}
 	/**
 	 * The tail length in time.
 	 */
@@ -189,7 +193,7 @@ class Note extends FlxSprite {
 				var sustain:Sustain = new Sustain(this, (field.conductor.stepTime * susNote), susNote == (roundedLength - 1));
 				tail.push(sustain);
 			}
-			tail.sort(sortTail);
+			tail.sort(sortTail); // jic
 		}
 
 		setField = field;
@@ -376,6 +380,7 @@ class Note extends FlxSprite {
 	override public function destroy():Void {
 		for (sustain in tail)
 			sustain.destroy();
+		tail.resize(0);
 		super.destroy();
 	}
 
