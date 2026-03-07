@@ -75,7 +75,7 @@ class Note extends FlxSprite {
 	/**
 	 * The sustain pieces this note has.
 	 */
-	public final tail(get, never):Array<Sustain> = [];
+	public var tail(get, null):Array<Sustain> = [];
 	inline function get_tail():Array<Sustain> {
 		tail.sort(sortTail);
 		return tail;
