@@ -221,10 +221,10 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 						useMoonchartCamFocusResolver = false;
 						final target:Int = event.data?.char ?? 0;
 						final xy:Array<Float> = [event.data?.x ?? 0, event.data?.y ?? 0];
-						final duration:Float = event.data?.duration ?? 4;
+						final duration:Array<Dynamic> = ['steps', event.data?.duration ?? 4];
 						final ease:Array<String> = [
 							{
-								var type:String = event.data?.ease ?? '[none]'
+								var type:String = event.data?.ease ?? '[none]';
 								if (type == 'INSTANT') type = '[instant]';
 								if (type == 'CLASSIC') type = '[none]';
 								type;
@@ -290,7 +290,7 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 						makeEvent('Manage Scroll Speed', [
 							'target' => target,
 							'speed' => event.data?.scroll ?? 1,
-							'duration' => event.data?.duration ?? 4, 'ease' => ease,
+							'duration' => ['steps', event.data?.duration ?? 4], 'ease' => ease,
 							'absolute' => event.data?.absolute ?? false
 						]);
 
@@ -321,7 +321,7 @@ class FNFImaginative extends BasicJsonFormat<FNFImaginativeChart, FNFImaginative
 						];
 						makeEvent('Manage Camera Zoom', [
 							'zoom' => event.data?.zoom ?? 1,
-							'duration' => event.data?.duration ?? 4, 'ease' => ease,
+							'duration' => ['steps', event.data?.duration ?? 4], 'ease' => ease,
 							'mode' => (event.data?.mode ?? 'stage') == 'stage'
 						]);
 					default:
