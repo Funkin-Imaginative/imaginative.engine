@@ -164,7 +164,13 @@ class Console {
 			message += formatValueInfo(extra);
 		final traceMessage:String = ConsoleColors.format('\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n<reset>$message');
 		#if TRACY_DEBUGGER
-		TracyProfiler.message(traceMessage, FlxColor.WHITE);
+		final tracyMessage:String = {
+			var _:String = traceMessage;
+			for (name => color in ConsoleColors.mapList)
+				_ = _.replace(color, '');
+			_;
+		}
+		TracyProfiler.message(tracyMessage, FlxColor.WHITE);
 		#end
 		return traceMessage;
 	}
