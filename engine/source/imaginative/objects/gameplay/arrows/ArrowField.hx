@@ -230,8 +230,10 @@ class ArrowField extends BeatGroup {
 	 * ```
 	 * @return Float ~ Target scroll speed.
 	 */
-	inline public function getScrollSpeed():Float
-		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : scrollSpeed;
+	inline public function getScrollSpeed():Float {
+		if (settings.personalScrollSpeed == 0) return scrollSpeed;
+		return settings.personalScrollSpeed;
+	}
 	/**
 	 * The scroll speed of the field.
 	 * This overrides the base chart speed.

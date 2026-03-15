@@ -84,9 +84,9 @@ class Sustain extends FlxSprite {
 	/**
 	 * The scroll speed of this sustain.
 	 */
-	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float
-		return setHead.__scrollSpeed;
+	public var scrollSpeed(get, never):Float;
+	inline function get_scrollSpeed():Float
+		return setHead.scrollSpeed;
 
 	/**
 	 * Any characters in this array will overwrite the sustains parent field array.

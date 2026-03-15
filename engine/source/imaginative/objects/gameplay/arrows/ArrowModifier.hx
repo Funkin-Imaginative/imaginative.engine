@@ -210,7 +210,7 @@ class ArrowModifier {
 					followScale[0] * scale.x,
 					followScale[1] * scale.y
 				);
-				Sustain.applyBaseScaleY(sustain, Math.abs(sustain.__scrollSpeed));
+				Sustain.applyBaseScaleY(sustain, Math.abs(sustain.scrollSpeed));
 			}
 		}
 	}

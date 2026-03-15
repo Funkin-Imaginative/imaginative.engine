@@ -24,9 +24,10 @@ class Strum extends FlxSprite {
 	/**
 	 * The scroll speed of this strum.
 	 */
-	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float {
-		return setField.settings.enablePersonalScrollSpeed ? setField.settings.personalScrollSpeed : (mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed);
+	public var scrollSpeed(get, never):Float;
+	inline function get_scrollSpeed():Float {
+		if (setField.settings.personalScrollSpeed != 0) return setField.settings.personalScrollSpeed;
+		return mods.handler.speedIsMult ? setField.getScrollSpeed() * mods.speed : mods.speed;
 	}
 
 	/**

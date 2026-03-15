@@ -13,7 +13,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	 * @return Float ~ The calculated distance.
 	 */
 	public function getRenderDistanceSteps(note:Note):Float {
-		return renderDistanceSteps ?? FlxG.height / 0.45 / Math.min(note.__scrollSpeed, 1);
+		return renderDistanceSteps ?? FlxG.height / 0.45 / Math.min(note.scrollSpeed, 1);
 	}
 
 	/**

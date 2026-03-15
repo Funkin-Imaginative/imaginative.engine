@@ -105,10 +105,11 @@ class Note extends FlxSprite {
 	/**
 	 * The scroll speed of this note.
 	 */
-	public var __scrollSpeed(get, never):Float;
-	inline function get___scrollSpeed():Float {
+	public var scrollSpeed(get, never):Float;
+	inline function get_scrollSpeed():Float {
 		var settings:PlayerSettings = setField == null ? Settings.setupP1 : setField.settings;
-		return settings.enablePersonalScrollSpeed ? settings.personalScrollSpeed : (mods.handler.speedIsMult ? setStrum.__scrollSpeed * mods.speed : mods.speed);
+		if (settings.personalScrollSpeed != 0) return settings.personalScrollSpeed;
+		return mods.handler.speedIsMult ? setStrum.scrollSpeed * mods.speed : mods.speed;
 	}
 
 	/**
@@ -285,12 +286,12 @@ class Note extends FlxSprite {
 
 		var distance:{position:Float, time:Float} = {position: 0, time: 0}
 		var resultAngle:Float = setField.scrollAngle + setStrum.scrollAngle + scrollAngle; // "setField.strums.angle" at some point maybe?
-		if (__scrollSpeed < 0) resultAngle += 180;
+		if (scrollSpeed < 0) resultAngle += 180;
 		var angleDir:Float = resultAngle * (Math.PI / 180);
 
 		if (isBeingRendered) {
 			var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			// TODO: Figure out how to do this better, especially for sustains.
@@ -316,7 +317,7 @@ class Note extends FlxSprite {
 			angleDir = resultAngle * angleDir; */
 
 			var pos:Position = new Position(strum.x + mods.offset.x + sustain.mods.offset.x, strum.y + mods.offset.y + sustain.mods.offset.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.__scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;
