@@ -152,12 +152,9 @@ class PlayerSettings {
 
 	/**
 	 * Your personal scroll speed value that you enjoy the most!
+	 * 0 defaults to the chart.
 	 */
-	public var personalScrollSpeed:Float = 2.45;
-	/**
-	 * If true the "personalScrollSpeed" setting will override the your current 'ArrowField' speed!
-	 */
-	public var enablePersonalScrollSpeed:Bool = false;
+	public var personalScrollSpeed:Float = 0;
 
 	// TODO: Rethink "stepJitter" and how this would be handled. Also "sustainJitter" makes more sense.
 	/**
