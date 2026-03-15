@@ -5,18 +5,21 @@ import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
+using StringTools;
 using haxe.macro.ExprTools;
 
 class Macro {
 	@SuppressWarnings('checkstyle:FieldDocComment')
 	public static function init():Void {
+		var classPath:String = Std.string(Macro).replace('Class<', '').replace('>', '');
 		// MAYBE: Re-add offset variable to FlxAnimation?????
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxBasic())', 'flixel.FlxBasic');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxObject())', 'flixel.FlxObject');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSprite())', 'flixel.FlxSprite');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.addOnToMoonchartFormatList())', 'moonchart.backend.Format');
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideDebugString())', 'flixel.util.FlxStringUtil');
+		Compiler.addMetadata('@:build($classPath.addOnToFlxBasic())', 'flixel.FlxBasic');
+		Compiler.addMetadata('@:build($classPath.addOnToFlxObject())', 'flixel.FlxObject');
+		Compiler.addMetadata('@:build($classPath.addOnToFlxSprite())', 'flixel.FlxSprite');
+		// Compiler.addMetadata('@:build($classPath.addOnToFlxGroup())', 'flixel.group.FlxTypedGroup');
+		Compiler.addMetadata('@:build($classPath.addOnToFlxSpriteGroup())', 'flixel.group.FlxTypedSpriteGroup');
+		Compiler.addMetadata('@:build($classPath.addOnToMoonchartFormatList())', 'moonchart.backend.Format');
+		Compiler.addMetadata('@:build($classPath.overrideDebugString())', 'flixel.util.FlxStringUtil');
 		#if SCRIPT_SUPPORT
 		Compiler.include('imaginative', true, ['*Macro']);
 		Compiler.include('haxe', true, ['haxe.atomic.*', 'haxe.macro.*']);
@@ -24,7 +27,7 @@ class Macro {
 		#end
 		Compiler.include('moonchart', true, ['moonchart.backend.*']); // force include, no matter what
 		#if (FLX_DEBUG && CAN_HAXE_SCRIPT)
-		Compiler.addMetadata('@:build(imaginative.backend.Macro.overrideConsoleUtil())', 'flixel.system.debug.console.ConsoleUtil');
+		Compiler.addMetadata('@:build($classPath.overrideConsoleUtil())', 'flixel.system.debug.console.ConsoleUtil');
 		#end
 	}
 
@@ -39,6 +42,11 @@ class Macro {
 			 * Extra data the object can hold.
 			 */
 			public final extra:Map<String, Dynamic> = new Map<String, Dynamic>();
+
+			/**
+			 * The layering order of the object.
+			 */
+			// public var zIndex:Float = 0;
 		}
 		return classFields.concat(tempClass.fields);
 	}
@@ -115,6 +123,39 @@ class Macro {
 		}
 
 		return classFields;
+	}
+
+	/**
+	 * Overrides the way FlxGroup sorts its members to use zIndex.
+	 * @return Array<Field>
+	 */
+	public static macro function addOnToFlxGroup():Array<Field> {
+		var classFields = Context.getBuildFields();
+		var tempClass = macro class TempClass {
+			/**
+			 * The property to sort the objects by.
+			 * @param a The first object to compare.
+			 * @param b The second object to compare.
+			 * @return Int
+			 */
+			public dynamic function sortBy(a:T, b:T):Int {
+				return flixel.util.FlxSort.byValues(-1, a.zIndex, b.zIndex);
+			}
+		}
+
+		var drawFunc = classFields.filter(field -> return field.name == 'draw')[0];
+		switch (drawFunc.kind) {
+			case FFun(f):
+				var initExpr:Expr = f.expr;
+				f.expr = macro {
+					members.sort(this.sortBy);
+					$initExpr;
+				}
+				drawFunc.kind = FFun(f);
+			default:
+		}
+
+		return classFields.concat(tempClass.fields);
 	}
 
 	/**
