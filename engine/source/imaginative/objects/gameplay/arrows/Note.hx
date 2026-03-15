@@ -143,32 +143,41 @@ class Note extends FlxSprite {
 
 	// Important
 	/**
-	 * If true the note can be hit.
+	 * How much earlier the note can be hit before it's considered a miss.
+	 */
+	public var earlyWindow:Float = 1;
+	/**
+	 * How much later the note can be hit without it being considered untouched.
+	 */
+	public var lateWindow:Float = 1;
+
+	/**
+	 * If true, the note can be hit.
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		if (setField == null) return false;
-		return time >= setField.conductor.time - setField.settings.maxWindow && time <= setField.conductor.time + setField.settings.maxWindow;
+		return time > setField.conductor.time - (setField.settings.maxWindow * earlyWindow) && time < setField.conductor.time + (setField.settings.maxWindow * lateWindow);
 	}
 	/**
-	 * If true it's too late to hit the note.
+	 * If true, it's too late to hit the note.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return time < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
+		return time < setField.conductor.time - setField.settings.maxWindow && !wasHit;
 	}
 	/**
-	 * If true this note has been hit.
+	 * If true, this note has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true this note has been missed.
+	 * If true, this note has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true then this note is being rendered and can be seen in song.
+	 * If true, then this note is being rendered and can be seen in song.
 	 */
 	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {

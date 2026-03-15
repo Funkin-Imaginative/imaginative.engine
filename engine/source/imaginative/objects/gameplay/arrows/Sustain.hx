@@ -105,32 +105,32 @@ class Sustain extends FlxSprite {
 		return setHead.renderActors();
 
 	/**
-	 * If true the sustain can be hit.
+	 * If true, the sustain can be hit.
 	 */
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		if (setField == null) return false;
-		return (time + setHead.time) >= setField.conductor.time - setField.settings.maxWindow && (time + setHead.time) <= setField.conductor.time + setField.settings.maxWindow;
+		return (time + setHead.time) > setField.conductor.time - (setField.settings.maxWindow * setHead.earlyWindow) && (time + setHead.time) < setField.conductor.time + (setField.settings.maxWindow * setHead.lateWindow);
 	}
 	/**
-	 * If true it's too late to hit the sustain.
+	 * If true, it's too late to hit the sustain.
 	 */
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return (time + setHead.time) < setField.conductor.time - (300 / Math.abs(__scrollSpeed)) && !wasHit;
+		return (time + setHead.time) < setField.conductor.time - setField.settings.maxWindow && !wasHit;
 	}
 	/**
-	 * If true this sustain has been hit.
+	 * If true, this sustain has been hit.
 	 */
 	public var wasHit:Bool = false;
 	/**
-	 * If true this sustain has been missed.
+	 * If true, this sustain has been missed.
 	 */
 	public var wasMissed:Bool = false;
 
 	/**
-	 * If true then this sustain is being rendered and can be seen in song.
+	 * If true, then this sustain is being rendered and can be seen in song.
 	 */
 	public var isBeingRendered(get, default):Bool = false;
 	inline function get_isBeingRendered():Bool {

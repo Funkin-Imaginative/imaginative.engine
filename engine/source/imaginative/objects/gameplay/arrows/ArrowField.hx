@@ -158,27 +158,27 @@ class ArrowField extends BeatGroup {
 	/**
 	 * Dispatches when user input happens at all.
 	 */
-	public var userInput(default, null):FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
+	public final userInput:FlxTypedSignal<FieldInputEvent->Void> = new FlxTypedSignal<FieldInputEvent->Void>();
 	/**
 	 * Dispatches when a note is hit.
 	 */
-	public var onNoteHit(default, null):FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
+	public final onNoteHit:FlxTypedSignal<NoteHitEvent->Void> = new FlxTypedSignal<NoteHitEvent->Void>();
 	/**
 	 * Dispatches when a sustain is hit.
 	 */
-	public var onSustainHit(default, null):FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
+	public final onSustainHit:FlxTypedSignal<SustainHitEvent->Void> = new FlxTypedSignal<SustainHitEvent->Void>();
 	/**
 	 * Dispatches when a note is missed.
 	 */
-	public var onNoteMissed(default, null):FlxTypedSignal<NoteMissedEvent->Void> = new FlxTypedSignal<NoteMissedEvent->Void>();
+	public final onNoteMissed:FlxTypedSignal<NoteMissedEvent->Void> = new FlxTypedSignal<NoteMissedEvent->Void>();
 	/**
 	 * Dispatches when a sustain is missed.
 	 */
-	public var onSustainMissed(default, null):FlxTypedSignal<SustainMissedEvent->Void> = new FlxTypedSignal<SustainMissedEvent->Void>();
+	public final onSustainMissed:FlxTypedSignal<SustainMissedEvent->Void> = new FlxTypedSignal<SustainMissedEvent->Void>();
 	/**
 	 * Dispatches when you tap without hitting a note.
 	 */
-	public var onVoidMiss(default, null):FlxTypedSignal<VoidMissEvent->Void> = new FlxTypedSignal<VoidMissEvent->Void>();
+	public final onVoidMiss:FlxTypedSignal<VoidMissEvent->Void> = new FlxTypedSignal<VoidMissEvent->Void>();
 
 	/**
 	 * Any characters in this array will react to notes for this field.
@@ -199,20 +199,16 @@ class ArrowField extends BeatGroup {
 	/**
 	 * The strums of the field.
 	 */
-	public var strums(default, null):StrumGroup;
+	public final strums:StrumGroup;
 	/**
 	 * The notes of the field.
 	 */
-	public var notes(default, null):NoteGroup;
+	public final notes:NoteGroup;
 	/**
 	 * The sustains of the field.
 	 */
-	public var sustains(default, null):SustainGroup;
+	public final sustains:SustainGroup;
 
-	/**
-	 * How far out until a note is killed.
-	 */
-	public var noteKillRange:Float = 350;
 	/**
 	 * The distance between the each lane.
 	 */
@@ -368,7 +364,7 @@ class ArrowField extends BeatGroup {
 		// sustain hits
 		if (beingHeld) {
 			for (sustain in Note.filterTail(sustains.members, i))
-				if ((sustain.time + sustain.setHead.time) <= conductor.time)
+				if ((sustain.time + sustain.setHead.time) < conductor.time)
 					_onSustainHit(sustain);
 		}
 
@@ -383,20 +379,18 @@ class ArrowField extends BeatGroup {
 
 		// auto hit and note miss
 		notes.forEachAlive((note:Note) -> {
-			if (note.tooLate && (conductor.time - note.time) > Math.max(conductor.stepTime, noteKillRange / Math.abs(note.__scrollSpeed)))
-				if (!note.wasHit && !note.wasMissed)
-					_onNoteMissed(note);
+			if (note.tooLate && !note.wasHit && !note.wasMissed)
+				_onNoteMissed(note);
 			if (!isPlayer)
-				if (note.time <= conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
+				if (note.time < conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
 		});
 		// auto hit and sustain miss
 		sustains.forEachAlive((sustain:Sustain) -> {
-			if (sustain.tooLate && (conductor.time - (sustain.time + sustain.setHead.time)) > Math.max(conductor.stepTime, noteKillRange / Math.abs(sustain.__scrollSpeed)))
-				if (!sustain.wasHit && !sustain.wasMissed)
-					_onSustainMissed(sustain);
+			if (sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+				_onSustainMissed(sustain);
 			if (!isPlayer)
-				if ((sustain.time + sustain.setHead.time) <= conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+				if ((sustain.time + sustain.setHead.time) < conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 		});
 
