@@ -51,7 +51,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
-          name: Windows
+          name: Imaginative Windows Build
           path: export/debug/windows/bin
           overwrite: true
           include-hidden-files: true
@@ -129,7 +129,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
-          name: Mac
+          name: Imaginative Mac Build
           path: export/debug/macos/bin
           overwrite: true
           include-hidden-files: true
@@ -210,7 +210,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
-          name: Linux
+          name: Imaginative Linux Build
           path: export/debug/linux/bin
           overwrite: true
           include-hidden-files: true
