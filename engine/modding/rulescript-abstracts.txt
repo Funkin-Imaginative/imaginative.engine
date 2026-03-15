@@ -25,6 +25,7 @@ imaginative.backend.system.Paths.ModType
 imaginative.backend.system.Paths.ModPath
 imaginative.backend.system.Settings.FpsType
 
+imaginative.backend.Console.ConsoleColors
 imaginative.backend.Console.LogLevel
 
 imaginative.objects.gameplay.arrows.ArrowModifier.ArrowModFollowType

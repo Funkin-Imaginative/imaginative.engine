@@ -4,6 +4,64 @@ import haxe.Log;
 import haxe.PosInfos;
 import flixel.system.debug.log.LogStyle;
 
+// stole from my friend @NebulaStellaNova lol
+@SuppressWarnings('checkstyle:FieldDocComment')
+enum abstract ConsoleColors(String) from String to String {
+	var RESET =         '\033[0m';
+	var BLACK =         '\x1b[30m';
+	var DARKRED =       '\x1b[31m';
+	var DARKGREEN =     '\x1b[32m';
+	var DARKYELLOW =    '\x1b[33m';
+	var ORANGE =        '\x1b[33m';
+	var DARKBLUE =      '\x1b[34m';
+	var PURPLE =        '\x1b[35m';
+	var DARKMAGENTA =   '\x1b[35m';
+	var DARKCYAN =      '\x1b[36m';
+	var LIGHTGRAY =     '\x1b[37m';
+	var GRAY =          '\x1b[90m';
+	var RED =           '\x1b[91m';
+	var GREEN =         '\x1b[92m';
+	var YELLOW =        '\x1b[93m';
+	var BLUE =          '\x1b[94m';
+	var MAGENTA =       '\x1b[95m';
+	var CYAN =          '\x1b[96m';
+	var WHITE =         '\x1b[97m';
+
+	public static final mapList:Map<String, ConsoleColors> = [
+		'reset' => RESET,
+		'black' => BLACK,
+		'darkred' => DARKRED,
+		'darkgreen' => DARKGREEN,
+		'darkyellow' => DARKYELLOW,
+		'orange' => ORANGE,
+		'darkblue' => DARKBLUE,
+		'purple' => PURPLE,
+		'darkmagenta' => DARKMAGENTA,
+		'darkcyan' => DARKCYAN,
+		'lightgray' => LIGHTGRAY,
+		'gray' => GRAY,
+		'red' => RED,
+		'green' => GREEN,
+		'yellow' => YELLOW,
+		'blue' => BLUE,
+		'magenta' => MAGENTA,
+		'cyan' => CYAN,
+		'white' => WHITE
+	];
+
+	public static function format(input:String):String {
+		for (name => color in mapList) {
+			input = input.replace('#$name', color);
+			input = input.replace('#${name.toUpperCase()}', color);
+			input = input.replace('$' + name, color);
+			input = input.replace('$' + name.toUpperCase(), color);
+			input = input.replace('<$name>', color);
+			input = input.replace('<${name.toUpperCase()}>', color);
+		}
+		return input;
+	}
+}
+
 @SuppressWarnings('checkstyle:FieldDocComment')
 enum abstract LogLevel(String) from String to String {
 	var ErrorMessage = 'error';
@@ -24,6 +82,12 @@ private enum LogFrom {
 }
 
 class Console {
+	static var errorColor:ConsoleColors = RED;
+	static var warningColor:ConsoleColors = YELLOW;
+	static var systemColor:ConsoleColors = BLUE;
+	static var debugColor:ConsoleColors = GREEN;
+	static var logColor:ConsoleColors = LIGHTGRAY;
+
 	static var ogTrace(default, null):(Dynamic, ?PosInfos) -> Void;
 
 	static var initialized(default, null):Bool = false;
@@ -45,7 +109,7 @@ class Console {
 			}
 			styles.resize(0);
 
-			_log('					Initialized Custom Trace System\n		Thank you for using Imaginative Engine, hope you like it!\n^w^');
+			_log('					<purple>Initialized Custom Trace System<reset>\n		Thank you for using <yellow>Imaginative Engine<reset>, hope you like it!\n^w^');
 		}
 	}
 
@@ -72,11 +136,11 @@ class Console {
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
 		final log:String = switch (level) {
-			case ErrorMessage:      'Error';
-			case WarningMessage:  'Warning';
-			case SystemMessage:    'System';
-			case DebugMessage:      'Debug';
-			case LogMessage:      'Message';
+			case ErrorMessage:        '${errorColor}Error';
+			case WarningMessage:    '${warningColor}Warning';
+			case SystemMessage:      '${systemColor}System';
+			case DebugMessage:        '${debugColor}Debug';
+			case LogMessage:            '${logColor}Message';
 		}
 
 		final description:Null<String> = switch (level) {
@@ -98,7 +162,7 @@ class Console {
 		var message:String = formatValueInfo(value, from == FromSource || from == FromUnknown);
 		if (extra != null && !extra.empty())
 			message += formatValueInfo(extra);
-		final traceMessage:String = '\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n$message';
+		final traceMessage:String = ConsoleColors.format('\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n<reset>$message');
 		#if TRACY_DEBUGGER
 		TracyProfiler.message(traceMessage, FlxColor.WHITE);
 		#end
