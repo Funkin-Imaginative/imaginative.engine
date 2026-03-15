@@ -135,12 +135,19 @@ class Console {
 		return Std.string(value);
 	}
 	static function formatLogInfo(value:Dynamic, level:LogLevel, ?file:String, ?line:Int, ?extra:Array<Dynamic>, from:LogFrom = FromSource):String {
+		final color:ConsoleColors = switch (level) {
+			case ErrorMessage:        errorColor;
+			case WarningMessage:    warningColor;
+			case SystemMessage:      systemColor;
+			case DebugMessage:        debugColor;
+			case LogMessage:            logColor;
+		}
 		final log:String = switch (level) {
-			case ErrorMessage:        '${errorColor}Error';
-			case WarningMessage:    '${warningColor}Warning';
-			case SystemMessage:      '${systemColor}System';
-			case DebugMessage:        '${debugColor}Debug';
-			case LogMessage:            '${logColor}Message';
+			case ErrorMessage:        'Error';
+			case WarningMessage:    'Warning';
+			case SystemMessage:      'System';
+			case DebugMessage:        'Debug';
+			case LogMessage:        'Message';
 		}
 
 		final description:Null<String> = switch (level) {
@@ -153,16 +160,16 @@ class Console {
 		if (line != null) info += ':$line';
 
 		final who:String = switch (from) {
-			case FromSource: 'Source';
-			case FromHaxe: 'Haxe Script';
-			case FromLua: 'Lua Script';
-			default: 'Unknown';
+			case FromSource: '<gray>Source';
+			case FromHaxe: '<orange>Haxe Script';
+			case FromLua: '<blue>Lua Script';
+			default: '<red>Unknown';
 		}
 
 		var message:String = formatValueInfo(value, from == FromSource || from == FromUnknown);
 		if (extra != null && !extra.empty())
 			message += formatValueInfo(extra);
-		final traceMessage:String = ConsoleColors.format('\n$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who]\n<reset>$message');
+		final traceMessage:String = ConsoleColors.format('\n$color$log${description == null ? '' : ': $description'} ~${info.isNullOrEmpty() ? '' : ' "$info"'} [$who$color]\n<reset>$message');
 		#if TRACY_DEBUGGER
 		final tracyMessage:String = {
 			var _:String = traceMessage;
