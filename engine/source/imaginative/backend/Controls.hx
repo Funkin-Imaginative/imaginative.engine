@@ -207,6 +207,25 @@ class PlayerControls extends Controls {
 	 */
 	inline public function notesReleased(?count:Int):Array<Bool>
 		return [for (id in 0...count) noteReleased(id, count ?? laneCount)];
+
+	/**
+	 * Gets the note lane from a key event.
+	 * @param key The keyCode to input.
+	 * @param count The lane amount.
+	 * @return Int
+	 */
+	public function noteFromEvent(key:FlxKey, ?count:Int):Int {
+		if (key != NONE) {
+			for (i in 0...(count ?? laneCount)) {
+				var notes:Array<FlxKey> = bindCheck('note_${count ?? laneCount}:$i');
+				for (note in notes) {
+					if (key == note)
+						return i;
+				}
+			}
+		}
+		return -1;
+	}
 }
 
 /**

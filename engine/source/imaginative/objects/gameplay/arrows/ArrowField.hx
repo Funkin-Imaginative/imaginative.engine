@@ -1,5 +1,6 @@
 package imaginative.objects.gameplay.arrows;
 
+import openfl.events.KeyboardEvent;
 import imaginative.backend.scripting.events.gameplay.*;
 import imaginative.objects.gameplay.arrows.group.NoteGroup;
 import imaginative.objects.gameplay.arrows.group.StrumGroup;
@@ -304,11 +305,21 @@ class ArrowField extends BeatGroup {
 		add(strums);
 		add(notes);
 		insert(members.indexOf(false ? strums : notes), sustains); // behindStrums
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, _on_press);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _on_release);
 	}
 
-	inline function _input():Void {
-		for (i => strum in strums)
-			input(i, strum, controls.notePressed(i), controls.noteHeld(i), controls.noteReleased(i));
+	@SuppressWarnings('checkstyle:CodeSimilarity')
+	function _on_press(event:KeyboardEvent):Void {
+		if (!isPlayer) return;
+		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
+		input(inputId, strums.members[inputId], controls.notePressed(inputId), false, controls.noteReleased(inputId));
+	}
+	function _on_release(event:KeyboardEvent):Void {
+		if (!isPlayer) return;
+		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
+		input(inputId, strums.members[inputId], controls.notePressed(inputId), false, controls.noteReleased(inputId));
 	}
 
 	// TODO: Rework this.
@@ -367,9 +378,9 @@ class ArrowField extends BeatGroup {
 	}
 
 	override public function update(elapsed:Float):Void {
-		// Hopefully the on update method is temporary until I can find a better way. As on input was giving some issues.
 		if (isPlayer)
-			_input();
+			for (i => strum in strums)
+				input(i, strum, false, controls.noteHeld(i), false);
 
 		// auto hit and note miss
 		notes.forEachAlive((note:Note) -> {
@@ -636,6 +647,8 @@ class ArrowField extends BeatGroup {
 	}
 
 	override public function destroy():Void {
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, _on_press);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, _on_release);
 		if (enemy == this) enemy = null;
 		if (player == this) player = null;
 		onNoteHit.destroy();
