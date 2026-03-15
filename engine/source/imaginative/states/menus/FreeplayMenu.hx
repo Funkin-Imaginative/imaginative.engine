@@ -238,6 +238,7 @@ class FreeplayMenu extends BeatState {
 		for (text in [songNameText, variantText, difficultyText, sideArrowsText]) {
 			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 2;
+			text.antialiasing = false;
 			infoTextGroup.add(text);
 		}
 		sideArrowsText.alignment = difficultyText.alignment = CENTER;
@@ -254,13 +255,14 @@ class FreeplayMenu extends BeatState {
 		infoTextBox.alpha = 0.45;
 		songPlayingGroup.add(infoTextBox);
 
-		musicNameText = new FlxText(10, 10, boxWidth - 20, '... ~ ##:##');
-		artistText = new FlxText(10, musicNameText.y + musicNameText.height + 17, 0, 'By: Your Mom');
+		musicNameText = new FlxText(10, 10, '... ~ ##:##');
+		artistText = new FlxText(10, musicNameText.y + musicNameText.height + 17, 'By: Your Mom');
 		songBpmText = new FlxText(10, 10, boxWidth - 20, '### BPM');
 		songSigText = new FlxText(10, songBpmText.y + songBpmText.height + 17, boxWidth - 20, '# / #');
 		for (text in [musicNameText, artistText, songBpmText, songSigText]) {
 			text.setFormat(Paths.font('vcr').format(), 25, LEFT, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 2;
+			text.antialiasing = false;
 			songPlayingGroup.add(text);
 		}
 		songBpmText.alignment = songSigText.alignment = RIGHT;
@@ -280,15 +282,15 @@ class FreeplayMenu extends BeatState {
 		bgColor = bg.blankBg.color = songs.members[songs.currentValue].extra.get('song').data.color;
 		bg.lineArt.color = bg.blankBg.color - 0xFF646464;
 	}
-	function updateMusicInfoBoxWidth():Void { // is being stupid
-		// var minWidth:Int = 500;
-		// var bg:FlxSprite = songPlayingGroup.members[0];
-		// var newWidth:Float = FlxMath.bound(bg.scale.x, minWidth, artistText.width + 100);
-		// for (text in [musicNameText, songBpmText, songSigText])
-		// 	text.fieldWidth = newWidth - 20;
-		// bg.scale.x = newWidth;
-		// bg.updateHitbox();
-		// songPlayingGroup.x = FlxG.width - songPlayingGroup.width + 10;
+	function updateMusicInfoBoxWidth():Void {
+		var minWidth:Int = 300;
+		var bg:FlxSprite = songPlayingGroup.members[0];
+		var newWidth:Float = Math.max(Math.max(musicNameText.width, artistText.width) + 200, minWidth);
+		for (text in [songBpmText, songSigText])
+			text.fieldWidth = newWidth - 20;
+		bg.scale.x = newWidth;
+		bg.updateHitbox();
+		songPlayingGroup.x = FlxG.width - songPlayingGroup.width + 10;
 	}
 
 	override public function onReset():Void {
@@ -355,7 +357,7 @@ class FreeplayMenu extends BeatState {
 		curDiff = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[songs.currentValue].extra.get('song').data.variants[curDiff])}';
+		variantText.text = 'Variant: [${FunkinUtil.getDifficultyDisplay(songs.members[songs.currentValue].extra.get('song').data.variants[curDiff])}]';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
 		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
 		sideArrowsText.visible = !curDiffList.empty();
