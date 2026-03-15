@@ -313,12 +313,12 @@ class ArrowField extends BeatGroup {
 	function _on_press(event:KeyboardEvent):Void {
 		if (!isPlayer) return;
 		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
-		input(inputId, strums.members[inputId], controls.notePressed(inputId), false, false);
+		input(inputId, strums.members[inputId], FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED), false, false);
 	}
 	function _on_release(event:KeyboardEvent):Void {
 		if (!isPlayer) return;
 		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
-		input(inputId, strums.members[inputId], false, false, controls.noteReleased(inputId));
+		input(inputId, strums.members[inputId], false, false, FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED));
 	}
 
 	// TODO: Rework this.
