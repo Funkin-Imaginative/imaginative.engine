@@ -307,13 +307,14 @@ class ArrowField extends BeatGroup {
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, _on_release);
 	}
 
+	@:allow(imaginative.states.menus.PauseMenu) static var enableInput:Bool = true;
 	function _on_press(event:KeyboardEvent):Void {
-		if (!isPlayer) return;
+		if (!enableInput) return; if (!isPlayer) return;
 		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
 		input(inputId, strums.members[inputId], FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED), false, false);
 	}
 	function _on_release(event:KeyboardEvent):Void {
-		if (!isPlayer) return;
+		if (!enableInput) return; if (!isPlayer) return;
 		final inputId:Int = controls.noteFromEvent(event.keyCode, laneCount); if (inputId < 0 || inputId >= laneCount) return;
 		input(inputId, strums.members[inputId], false, false, FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED));
 	}

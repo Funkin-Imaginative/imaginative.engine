@@ -20,6 +20,7 @@ class PauseMenu extends BeatSubState {
 		FlxG.cameras.add(camera = mainCamera = new BeatCamera('Pause Camera'), false).bgColor = 0xb3000000;
 
 	override public function create():Void {
+		ArrowField.enableInput = false;
 		add(script = Script.create(scriptPath));
 		super.create();
 		conductor.loadMusic('breakfast', (_:FlxSound) -> {
@@ -37,6 +38,7 @@ class PauseMenu extends BeatSubState {
 	}
 
 	override public function destroy():Void {
+		ArrowField.enableInput = true;
 		conductor.stop();
 		super.destroy();
 	}
