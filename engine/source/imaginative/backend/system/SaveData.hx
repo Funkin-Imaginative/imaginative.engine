@@ -37,7 +37,7 @@ enum abstract SaveType(String) from String to String {
 class SaveDataClass {
 	public function new() {}
 	inline public function toString():String // so it doesn't return the class name
-		return '${this.getClassName()}: [' + [for (field in this._fields()) '$field => ${this._get(field)}'].join(', ') + ']';
+		return '${this.getClassName()}: [' + [for (field in this._fields()) if (field != 'toString') '$field => ${this._get(field)}'].join(', ') + ']';
 }
 #if debug
 final private class DebugSaveData extends SaveDataClass {
@@ -220,7 +220,7 @@ class SaveData {
 					_log('[SaveData] Error loading "$savePath/$saveName". (error:$type)', ErrorMessage);
 				case BOUND(name, path):
 					if (save.isEmpty()) _log('[SaveData] Save "$path/$name" was empty, new save initiated!', DebugMessage);
-					else _log('[SaveData] Save "$path/$name" has data, save initiated! (savedata:${save.isEmpty() ? 'empty' : save.data})', DebugMessage);
+					else _log('[SaveData] Save "$path/$name" has data, save initiated! (savedata:${save.isEmpty() ? 'empty' : save.data.content})', DebugMessage);
 			}
 			if (save.isBound) {
 				saveInstances.set(saveName, save);
