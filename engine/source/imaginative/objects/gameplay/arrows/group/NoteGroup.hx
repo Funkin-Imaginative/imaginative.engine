@@ -13,7 +13,8 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	 * @return Float ~ The calculated distance.
 	 */
 	public function getRenderDistanceSteps(note:Note):Float {
-		return renderDistanceSteps ?? FlxG.height / 0.45 / Math.min(note.scrollSpeed, 1);
+		if (renderDistanceSteps != null) return renderDistanceSteps * note.getDefaultCamera().zoom * 1000;
+		return note.getDefaultCamera().height / note.getDefaultCamera().zoom / 0.45 / Math.min(note.scrollSpeed, 1);
 	}
 
 	/**
@@ -30,9 +31,6 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	override public function new(strums:StrumGroup) {
 		parentStrumGroup = strums;
 		super();
-
-		memberAdded.add((_:Note) -> members.sort(Note.sortNotes));
-		memberRemoved.add((_:Note) -> members.sort(Note.sortNotes));
 	}
 
 	/**
@@ -40,25 +38,21 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	 * @param func A function that modifies one note at a time.
 	 */
 	public function forEachRendered(func:Note->Void):Void {
-		var renderedNotes:Array<Note> = [];
+		members.sort(Note.sortNotes);
+		var shouldRender:Bool = true;
 		forEachExists((note:Note) -> {
 			note.isBeingRendered = false;
 			if (!setField.activateNoteRendering) return;
 
-			var shouldRender:Bool = true;
-			if (note.time < note.setField.conductor.time - note.setField.settings.maxWindow) shouldRender = false;
-			if (note.time > note.setField.conductor.time + getRenderDistanceSteps(note)) shouldRender = false;
+			shouldRender = true;
+			if ((note.time + note.length) < setField.conductor.time - setField.settings.maxWindow) shouldRender = false;
+			if (note.time > setField.conductor.time + getRenderDistanceSteps(note)) shouldRender = false;
 
 			if (shouldRender) {
 				note.isBeingRendered = true;
-				renderedNotes.push(note);
+				func(note);
 			}
 		});
-		renderedNotes.sort(Note.sortNotes);
-		for (note in renderedNotes)
-			if (note.isBeingRendered)
-				func(note);
-		renderedNotes = renderedNotes.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -72,8 +66,7 @@ class NoteGroup extends FlxTypedGroup<Note> {
 	@:access(flixel.FlxCamera)
 	override public function draw():Void {
 		final oldDefaultCameras = FlxCamera._defaultCameras;
-		if (_cameras != null)
-			FlxCamera._defaultCameras = _cameras;
+		if (_cameras != null) FlxCamera._defaultCameras = _cameras;
 		forEachRendered(
 			(note:Note) ->
 				if (note.visible)

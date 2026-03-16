@@ -288,8 +288,7 @@ class ArrowField extends BeatGroup {
 			(point:FlxPoint) -> {
 				strums.scale.copyFrom(point);
 				strums.scale.scale(arrowScale);
-				for (note in notes)
-					note.mods.update_scale();
+				for (note in notes) note.mods.update_scale();
 			}
 		);
 
@@ -380,7 +379,7 @@ class ArrowField extends BeatGroup {
 				input(i, strum, false, controls.noteHeld(i), false);
 
 		// auto hit and note miss
-		notes.forEachAlive((note:Note) -> {
+		notes.forEachExists((note:Note) -> {
 			if (note.tooLate && !note.wasHit && !note.wasMissed)
 				_onNoteMissed(note);
 			if (!isPlayer)
@@ -388,7 +387,7 @@ class ArrowField extends BeatGroup {
 					_onNoteHit(note);
 		});
 		// auto hit and sustain miss
-		sustains.forEachAlive((sustain:Sustain) -> {
+		sustains.forEachExists((sustain:Sustain) -> {
 			if (sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 				_onSustainMissed(sustain);
 			if (!isPlayer)
@@ -399,7 +398,7 @@ class ArrowField extends BeatGroup {
 		super.update(elapsed);
 
 		// checks when a note and its tail can be killed
-		notes.forEachAlive((note:Note) -> {
+		notes.forEachExists((note:Note) -> {
 			var wasKilled:Bool = false;
 			if (note.tail.length != 0) {
 				final tailEnd:Sustain = note.tail[note.tail.length - 1];

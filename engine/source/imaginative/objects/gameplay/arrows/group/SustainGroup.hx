@@ -15,9 +15,6 @@ class SustainGroup extends FlxTypedGroup<Sustain> {
 	override public function new(notes:NoteGroup) {
 		parentNoteGroup = notes;
 		super();
-
-		memberAdded.add((_:Sustain) -> members.sort(Note.sortTail));
-		memberRemoved.add((_:Sustain) -> members.sort(Note.sortTail));
 	}
 
 	/**
@@ -25,25 +22,15 @@ class SustainGroup extends FlxTypedGroup<Sustain> {
 	 * @param func A function that modifies one sustain at a time.
 	 */
 	public function forEachRendered(func:Sustain->Void):Void {
-		var renderedSustains:Array<Sustain> = [];
+		members.sort(Note.sortTail);
 		forEachExists((sustain:Sustain) -> {
 			sustain.isBeingRendered = false;
 			if (!setField.activateNoteRendering) return;
-
-			var shouldRender:Bool = true;
-			if ((sustain.setHead.time + sustain.time) < sustain.setField.conductor.time - sustain.setField.settings.maxWindow) shouldRender = false;
-			if ((sustain.setHead.time + sustain.time) > sustain.setField.conductor.time + parentNoteGroup.getRenderDistanceSteps(sustain.setHead)) shouldRender = false;
-
-			if (shouldRender) {
+			if (sustain.setHead.isBeingRendered) {
 				sustain.isBeingRendered = true;
-				renderedSustains.push(sustain);
+				func(sustain);
 			}
 		});
-		renderedSustains.sort(Note.sortTail);
-		for (sustain in renderedSustains)
-			if (sustain.isBeingRendered)
-				func(sustain);
-		renderedSustains = renderedSustains.clearArray();
 	}
 
 	override public function update(elapsed:Float):Void {
@@ -57,8 +44,7 @@ class SustainGroup extends FlxTypedGroup<Sustain> {
 	@:access(flixel.FlxCamera)
 	override public function draw():Void {
 		final oldDefaultCameras = FlxCamera._defaultCameras;
-		if (_cameras != null)
-			FlxCamera._defaultCameras = _cameras;
+		if (_cameras != null) FlxCamera._defaultCameras = _cameras;
 		forEachRendered(
 			(sustain:Sustain) ->
 				if (sustain.visible)
