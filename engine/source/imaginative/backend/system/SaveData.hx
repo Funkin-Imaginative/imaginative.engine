@@ -39,6 +39,7 @@ class SaveDataClass {
 	inline public function toString():String // so it doesn't return the class name
 		return '${this.getClassName()}: [' + [for (field in this._fields()) '$field => ${this._get(field)}'].join(', ') + ']';
 }
+#if debug
 final private class DebugSaveData extends SaveDataClass {
 	/**
 	 * Whether to merge from the save data of non-debug builds.
@@ -58,6 +59,7 @@ final private class DebugSaveData extends SaveDataClass {
 	 */
 	public var flixelMute:Bool = false;
 }
+#end
 final private class SettingsSaveData extends SaveDataClass {
 	/**
 	 * The main user settings.
