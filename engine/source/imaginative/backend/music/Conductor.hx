@@ -326,10 +326,9 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	public var time(default, null):Float = 0;
 	/**
-	 * Previous time.
-	 * An internal variable used for resyncing the conductor time.
+	 * Basically just "time" but note positioning.
 	 */
-	var prevTime(default, null):Float;
+	public var frameTime(default, null):Float = 0;
 	// TODO: Figure out audio offsets better.
 	/**
 	 * The audio offset.
@@ -372,7 +371,7 @@ class Conductor extends FlxBasic implements IBeat {
 	inline function onCompleteFunc():Void {
 		var event:ScriptEvent = new ScriptEvent();
 		if (canLoop) {
-			prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
+			frameTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
 			applyBPMChanges();
 			onLoop.dispatch(event);
 		} else {
@@ -406,7 +405,7 @@ class Conductor extends FlxBasic implements IBeat {
 		audioEnded = false;
 		if (!autoSetTime)
 			for (sound in soundGroup.sounds)
-				sound.play(time);
+				sound.play(true, time);
 		playing = true;
 		resyncVocals();
 	}
@@ -465,7 +464,7 @@ class Conductor extends FlxBasic implements IBeat {
 			destroySound(sound);
 		additionalTracks = additionalTracks.clearArray();
 
-		prevTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
+		frameTime = time = curStepFloat = curStep = curBeat = curMeasure = 0;
 		bpmChanges = [];
 		changeBPM();
 		startBpm = prevBpm = bpm;
@@ -713,11 +712,11 @@ class Conductor extends FlxBasic implements IBeat {
 		if ((force || !playing) && !autoSetTime) return;
 		_printResyncMessage = false;
 		for (sound in soundGroup.sounds) {
+			if (sound == audio) continue;
 			// idea from psych
 			if (audio.time < sound.length) {
-				if (force || Math.abs(time - sound.time) > 25) {
-					sound.pause();
-					sound.time = time;
+				if (force || Math.abs(audio.time - sound.time) > 5) {
+					sound.time = audio.time;
 					sound.play();
 					_printResyncMessage = true;
 				}
@@ -728,29 +727,31 @@ class Conductor extends FlxBasic implements IBeat {
 			_log(force ? 'Manually resynced Conductor "$id".' : 'Conductor "$id" resynced all tracks to it\'s time.', SystemMessage);
 	}
 
+	var _elapsed:Float = 0;
+	var prevTime:Float = 0;
 	override public function update(elapsed:Float):Void {
-		if (!playing)
-			return;
-
-		if (audio == null) {
-			prevTime = audio == null ? 0 : (audio.playing ? audio.time : time);
-			return;
-		} else { // jic
-			if (audio.onComplete != onCompleteFunc)
-				audio.onComplete = onCompleteFunc;
-		}
+		if (!playing) return;
+		if (audio == null) return;
+		else if (audio.onComplete != onCompleteFunc) // jic
+			audio.onComplete = onCompleteFunc;
 
 		if (!audio.playing && !autoSetTime)
 			audio.play();
 		if (audio.playing && autoSetTime)
 			audio.pause();
 
-		if (audio.playing && !audioEnded) {
-			if (prevTime != (prevTime = audio.time))
-				time = prevTime; // update conductor
-			else time += elapsed * 1000;
+		if (audio.playing) {
+			// copied persnake's FlxRhythmConductor code, lol
+			final prevTime:Float = time;
+			time = audio.time;
+			frameTime = frameTime + elapsed * 1000;
+			_elapsed = time - prevTime;
 			resyncVocals();
-		} else time += elapsed * 1000;
+		} else {
+			_elapsed = elapsed * 1000;
+			time += _elapsed;
+			frameTime += _elapsed;
+		}
 
 		if (bpm > 0 || beatsPerMeasure > 0 || stepsPerBeat > 0) {
 			var lastChange:BPMChange = {
@@ -796,6 +797,9 @@ class Conductor extends FlxBasic implements IBeat {
 						measureHit(i + 1);
 			}
 		}
+
+		if (time != prevTime)
+			frameTime = prevTime = time;
 	}
 
 	/**
