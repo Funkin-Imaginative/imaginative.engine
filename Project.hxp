@@ -487,12 +487,14 @@ class Project extends HXProject {
 	 */
 	inline public function addHaxelib(name:String, ?version:LibraryVersion):Void {
 		var addLib:Bool = !FileSystem.exists('./.haxelib');
-		if (name == "lime" || name == "openfl") version = sys.io.File.getContent('./.haxelib/$name/.current');
+		final folderName:String = name.replace('.', ',');
 		if (!addLib)
-			if (name != null && version != null)
-				addLib = FileSystem.exists('./.haxelib/$name/$version');
-			else if (name != null && version == null)
-				addLib = FileSystem.exists('./.haxelib/$name');
+			if (version != null) addLib = FileSystem.exists('./.haxelib/$folderName/$version');
+			else {
+				addLib = FileSystem.exists('./.haxelib/$folderName');
+				if (addLib && FileSystem.exists('./.haxelib/$folderName/.current'))
+					version = sys.io.File.getContent('./.haxelib/$folderName/.current');
+			}
 		if (addLib) {
 			info('Added library "$name"${version == null ? '' : ' version "$version"'}.');
 			haxelibs.push(new Haxelib(name, version));
