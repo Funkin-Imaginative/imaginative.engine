@@ -152,7 +152,7 @@ class FreeplayMenu extends BeatState {
 
 					mainCamera.zoomEnabled = true;
 					event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
-					musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime()}';
+					musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime(true)}';
 					artistText.text = 'By: ${conductor.data.artist}';
 					songBpmText.text = '${conductor.data.bpm} BPM';
 					songSigText.text = conductor.data.signature.join(' / ');
@@ -357,7 +357,7 @@ class FreeplayMenu extends BeatState {
 		curDiff = event.currentValue;
 		event.playMenuSFX(ScrollSFX);
 
-		variantText.text = 'Variant: [${FunkinUtil.getDifficultyDisplay(songs.members[songs.currentValue].extra.get('song').data.variants[curDiff])}]';
+		variantText.text = 'Variant: ${FunkinUtil.getDifficultyDisplay(songs.members[songs.currentValue].extra.get('song').data.variants[curDiff] ?? '[none]').toUpperCase()}';
 		difficultyText.text = FunkinUtil.getDifficultyDisplay(curDiffString);
 		sideArrowsText.text = '${curDiff == 0 ? '|' : '<'}                       ${curDiff == curDiffList.length - 1 ? '|' : '>'}';
 		sideArrowsText.visible = !curDiffList.empty();

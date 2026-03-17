@@ -145,10 +145,9 @@ class FunkinUtil {
 	 * @return String ~ The difficulties display name.
 	 */
 	@:noUsing inline public static function getDifficultyDisplay(diff:String):String {
-		try {
+		if (Paths.difficulty(diff).isFile)
 			return ParseUtil.difficulty(diff).display ?? diff;
-		} catch(error:haxe.Exception)
-			return diff;
+		return diff;
 	}
 	/**
 	 * Returns the default variant of a difficulty

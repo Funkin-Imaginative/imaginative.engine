@@ -1,5 +1,14 @@
 package imaginative.objects.holders;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawObjectTyping = {
+	var ?path:String;
+	var ?object:SpriteData;
+	var ?flip:Bool;
+	var ?offsets:Array<Float>;
+	var ?size:Float;
+	var ?willHey:Bool;
+}
 typedef ObjectTyping = {
 	/**
 	 * Is the object json mod path.
@@ -12,43 +21,47 @@ typedef ObjectTyping = {
 	/**
 	 * Should the object be flipped?
 	 */
-	var ?flip:Bool;
+	var flip:Bool;
 	/**
 	 * Position offsets.
 	 */
-	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?offsets:Position;
+	var offsets:Position;
 	/**
 	 * Size multiplier.
 	 */
-	@:default(1) var ?size:Float;
+	var size:Float;
 	/**
 	 * Will is play a cheer animation when entering the week?
 	 */
-	var ?willHey:Bool;
+	var willHey:Bool;
 }
 
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawLevelData = {
+	var title:String;
+	var songs:Array<String>;
+	var ?startingDiff:Int;
+	var difficulties:Array<String>;
+	var objects:Array<RawObjectTyping>;
+	var ?color:String;
+}
 typedef LevelData = {
 	/**
 	 * The display name.
 	 */
-	@:jignored var ?name:String;
+	var name:String;
 	/**
 	 * The title.
 	 */
-	@:default('[Please Add a Title]') var title:String;
+	var title:String;
 	/**
 	 * List of each songs data.
 	 */
-	@:jcustomparse(imaginative.backend.Tools._parseSongData)
-	@:jcustomwrite(imaginative.backend.Tools._writeSongData)
 	var songs:Array<SongData>;
 	/**
 	 * Starting difficulty index.
 	 */
-	var ?startingDiff:Int;
+	var startingDiff:Int;
 	/**
 	 * Difficulty listing.
 	 */
@@ -65,9 +78,7 @@ typedef LevelData = {
 	/**
 	 * Associated color.
 	 */
-	@:jcustomparse(imaginative.backend.Tools._parseColor)
-	@:jcustomwrite(imaginative.backend.Tools._writeColor)
-	@:default(0xFFF9CF51) var ?color:FlxColor;
+	var color:FlxColor;
 }
 
 /**

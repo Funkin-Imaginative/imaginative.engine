@@ -5,15 +5,11 @@ typedef DifficultyData = {
 	/**
 	 * The difficulty display name.
 	 */
-	@:default(null) var display:String;
+	var ?display:String;
 	/**
 	 * The variant key.
 	 */
-	@:default(null) var variant:String;
-	/**
-	 *  The score multiplier.
-	 */
-	@:default(1) var scoreMult:Float;
+	var ?variant:String;
 }
 
 /**

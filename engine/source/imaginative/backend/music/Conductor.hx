@@ -29,7 +29,7 @@ typedef AudioData = {
 	/**
 	 * The composer of the song.
 	 */
-	@:default('Unassigned') var artist:String;
+	var ?artist:String;
 	/**
 	 * The display name of the song.
 	 */
@@ -37,15 +37,15 @@ typedef AudioData = {
 	/**
 	 * The bpm at the start of the song.
 	 */
-	@:default(100) var bpm:Float;
+	var bpm:Float;
 	/**
 	 * The time signature at the start of the song.
 	 */
-	@:default([4, 4]) var signature:Array<Int>;
+	var signature:Array<Int>;
 	/**
 	 * The audio offset.
 	 */
-	@:default(0) var ?offset:Float;
+	var ?offset:Float;
 	/**
 	 * Contains all known bpm changes.
 	 */
@@ -676,22 +676,14 @@ class Conductor extends FlxBasic implements IBeat {
 	 */
 	public function getMetadata(file:String):AudioData {
 		try {
-			var jsonPath:ModPath = Paths.json(file);
-			var content:AudioData = new json2object.JsonParser<AudioData>().fromJson(ParseUtil.removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
-			if (content == null) {
-				log('$file: Metadata parse failed.', ErrorMessage);
-				return {
-					artist: 'Unassigned',
-					name: 'None',
-					bpm: 100,
-					signature: [4, 4],
-					checkpoints: [],
-					offset: 0
-				}
-			}
-			return content;
+			var contents:AudioData = ParseUtil.json(file, true);
+			if (contents == null) throw '"contents" was null';
+			contents.artist ??= 'Unassigned';
+			contents.offset ??= 0;
+			contents.checkpoints ??= [];
+			return contents;
 		} catch(error:haxe.Exception) {
-			log('$file: ${error.message}', ErrorMessage);
+			log('Metadata parse failed. (file: $file, error: $error)', ErrorMessage);
 			return {
 				artist: 'Unassigned',
 				name: 'None',
