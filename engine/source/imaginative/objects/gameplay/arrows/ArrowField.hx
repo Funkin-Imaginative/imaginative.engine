@@ -366,7 +366,7 @@ class ArrowField extends BeatGroup {
 		// sustain hits
 		if (beingHeld) {
 			for (sustain in Note.filterTail(sustains.members, i))
-				if ((sustain.time + sustain.setHead.time) < conductor.time)
+				if ((sustain.time + sustain.setHead.time) < conductor.frameTime)
 					_onSustainHit(sustain);
 		}
 
@@ -384,7 +384,7 @@ class ArrowField extends BeatGroup {
 			if (note.tooLate && !note.wasHit && !note.wasMissed)
 				_onNoteMissed(note);
 			if (!isPlayer)
-				if (note.time < conductor.time && !note.tooLate && !note.wasHit && !note.wasMissed)
+				if (note.time < conductor.frameTime && !note.tooLate && !note.wasHit && !note.wasMissed)
 					_onNoteHit(note);
 		});
 		// auto hit and sustain miss
@@ -392,7 +392,7 @@ class ArrowField extends BeatGroup {
 			if (sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 				_onSustainMissed(sustain);
 			if (!isPlayer)
-				if ((sustain.time + sustain.setHead.time) < conductor.time && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
+				if ((sustain.time + sustain.setHead.time) < conductor.frameTime && !sustain.tooLate && !sustain.wasHit && !sustain.wasMissed)
 					_onSustainHit(sustain);
 		});
 

@@ -110,7 +110,7 @@ class Sustain extends FlxSprite {
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		if (setField == null) return false;
-		return (time + setHead.time) > setField.conductor.time - (setField.settings.maxWindow * setHead.earlyWindow) && (time + setHead.time) < setField.conductor.time + (setField.settings.maxWindow * setHead.lateWindow);
+		return (time + setHead.time) > setField.conductor.frameTime - (setField.settings.maxWindow * setHead.earlyWindow) && (time + setHead.time) < setField.conductor.frameTime + (setField.settings.maxWindow * setHead.lateWindow);
 	}
 	/**
 	 * If true, it's too late to hit the sustain.
@@ -118,7 +118,7 @@ class Sustain extends FlxSprite {
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return (time + setHead.time) < setField.conductor.time - setField.settings.maxWindow && !wasHit;
+		return (time + setHead.time) < setField.conductor.frameTime - setField.settings.maxWindow && !wasHit;
 	}
 	/**
 	 * If true, this sustain has been hit.

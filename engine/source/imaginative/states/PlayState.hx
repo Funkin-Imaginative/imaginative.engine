@@ -445,7 +445,7 @@ class PlayState extends BeatState {
 						rating.acceleration.y = rating.velocity.y = rating.velocity.x = 0;
 						rating.setPosition(500, 300);
 
-						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.time - event.note.time), event.field.settings)}');
+						rating.loadImage('gameplay/combo/${Judging.calculateRating(Math.abs(event.field.conductor.frameTime - event.note.time), event.field.settings)}');
 						FlxTween.cancelTweensOf(rating, ['alpha']);
 						rating.alpha = 0.0001;
 						FlxTween.tween(rating, {alpha: 1}, (event.field.conductor.stepTime / 1000) * 1.2, {

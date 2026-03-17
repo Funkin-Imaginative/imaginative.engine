@@ -158,7 +158,7 @@ class Note extends FlxSprite {
 	public var canHit(get, never):Bool;
 	inline function get_canHit():Bool {
 		if (setField == null) return false;
-		return time > setField.conductor.time - (setField.settings.maxWindow * earlyWindow) && time < setField.conductor.time + (setField.settings.maxWindow * lateWindow);
+		return time > setField.conductor.frameTime - (setField.settings.maxWindow * earlyWindow) && time < setField.conductor.frameTime + (setField.settings.maxWindow * lateWindow);
 	}
 	/**
 	 * If true, it's too late to hit the note.
@@ -166,7 +166,7 @@ class Note extends FlxSprite {
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return time < setField.conductor.time - setField.settings.maxWindow && !wasHit;
+		return time < setField.conductor.frameTime - setField.settings.maxWindow && !wasHit;
 	}
 	/**
 	 * If true, this note has been hit.
@@ -291,7 +291,7 @@ class Note extends FlxSprite {
 
 		if (isBeingRendered) {
 			var pos:Position = new Position(strum.x + mods.offset.x, strum.y + mods.offset.x);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - time) * Math.abs(scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.frameTime - time) * Math.abs(scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			// TODO: Figure out how to do this better, especially for sustains.
@@ -317,7 +317,7 @@ class Note extends FlxSprite {
 			angleDir = resultAngle * angleDir; */
 
 			var pos:Position = new Position(strum.x + mods.offset.x + sustain.mods.offset.x, strum.y + mods.offset.y + sustain.mods.offset.y);
-			distance.position = 0.45 * (distance.time = setField.conductor.time - (time + sustain.time)) * Math.abs(sustain.scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
+			distance.position = 0.45 * (distance.time = setField.conductor.frameTime - (time + sustain.time)) * Math.abs(sustain.scrollSpeed) * Math.abs(setField.scale.x / setField.scale.y);
 
 			pos.x += Math.cos(angleDir) * distance.position;
 			pos.x -= sustain.width / 2;

@@ -45,8 +45,8 @@ class NoteGroup extends FlxTypedGroup<Note> {
 			if (!setField.activateNoteRendering) return;
 
 			shouldRender = true;
-			if ((note.time + note.length) < setField.conductor.time - setField.settings.maxWindow) shouldRender = false;
-			if (note.time > setField.conductor.time + getRenderDistanceSteps(note)) shouldRender = false;
+			if ((note.time + note.length) < setField.conductor.frameTime - setField.settings.maxWindow) shouldRender = false;
+			if (note.time > setField.conductor.frameTime + getRenderDistanceSteps(note)) shouldRender = false;
 
 			if (shouldRender) {
 				note.isBeingRendered = true;
