@@ -101,7 +101,7 @@ class FunkinUtil {
 			if (sortOrderByLevel)
 				for (name in Paths.readFolderOrderTxt('$pathType:content/levels', 'json', false))
 					for (song in ParseUtil.level(name).songs)
-						levels.push('${name.type}:${song.folder}');
+						levels.push('${name.type}:${song.id}');
 		} catch(error:haxe.Exception)
 			log('Missing level json.', WarningMessage);
 		for (file in levels)
@@ -195,6 +195,40 @@ class FunkinUtil {
 			lerp(a.blueFloat, b.blueFloat, ratio, fpsSensitive),
 			lerp(a.alphaFloat, b.alphaFloat, ratio, fpsSensitive)
 		);
+	}
+
+	/**
+	 * Checks what gamemodes are missing and adds them as false.
+	 * @param gamemodes The gamemodes map to check.
+	 * @return Map<String, Bool>
+	 */
+	@:noUsing inline public static function gamemodesCheck(gamemodes:Map<String, Bool>):Map<String, Bool> {
+		for (mode in ['botplay', 'be-enemy', '2player'])
+			if (!gamemodes.exists(mode))
+				gamemodes.set(mode, false);
+		return gamemodes;
+	}
+
+	/**
+	 * Converts an objects fields to a map.
+	 * @param object The object to convert.
+	 * @return Map<String, Dynamic>
+	 */
+	@:noUsing inline public static function objectToMap<T>(object:Dynamic<T>):Map<String, T> {
+		var map:Map<String, T> = new Map<String, T>();
+		for (field in object._fields()) map.set(field, object._get(field));
+		return map;
+	}
+	/**
+	 * Converts a map to an object.
+	 * @param map The map to convert.
+	 * @return Dynamic
+	 */
+	@:noUsing inline public static function mapToObject<T>(map:Map<String, T>):Dynamic<T> {
+		var object:Dynamic = {}
+		for (property => value in map)
+			object._set(property, value);
+		return object;
 	}
 
 	/**

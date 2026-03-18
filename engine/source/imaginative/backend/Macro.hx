@@ -39,7 +39,7 @@ class Macro {
 		var classFields = Context.getBuildFields();
 		var tempClass = macro class TempClass {
 			/**
-			 * Extra data the object can hold.
+			 * Extra data that can be stored.
 			 */
 			public final extra:Map<String, Dynamic> = new Map<String, Dynamic>();
 

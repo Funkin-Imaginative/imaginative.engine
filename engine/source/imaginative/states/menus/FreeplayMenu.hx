@@ -139,7 +139,7 @@ class FreeplayMenu extends BeatState {
 			final curItem = songs.members[songs.currentValue];
 			final song:SongHolder = curItem.extra.get('song');
 
-			var event:PreviewSongEvent = eventCall('uponSongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != song.data.folder || currentSongVariant != song.data.variants[curDiff])));
+			var event:PreviewSongEvent = eventCall('uponSongPreview', new PreviewSongEvent(!FlxG.keys.pressed.SHIFT && (currentSongAudio != song.data.id || currentSongVariant != song.data.variants[curDiff])));
 			if (!event.prevented) {
 				if (event.playPreview) {
 					menuTimePosition = conductor.time;
@@ -151,7 +151,7 @@ class FreeplayMenu extends BeatState {
 					winningIcon.preventScaleBop = false;
 
 					mainCamera.zoomEnabled = true;
-					event.chartData = conductor.loadFullSong(currentSongAudio = song.data.folder, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
+					event.chartData = conductor.loadFullSong(currentSongAudio = song.data.id, curDiffString, currentSongVariant = song.data.variants[curDiff], (_:FlxSound) -> conductor.play());
 					musicNameText.text = '${conductor.data.name} ~ ${(conductor.audio.length / 1000).formatTime(true)}';
 					artistText.text = 'By: ${conductor.data.artist}';
 					songBpmText.text = '${conductor.data.bpm} BPM';
@@ -202,7 +202,7 @@ class FreeplayMenu extends BeatState {
 						}
 						new FlxTimer().start(time, (_:FlxTimer) -> {
 							currentSongAudio = currentSongVariant = ':MENU:';
-							PlayState.renderSong(song.data.folder, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
+							PlayState.renderSong(song.data.id, event.difficultyKey, event.variantKey/* , playAsEnemy, p2AsEnemy */);
 							BeatState.switchState(() -> new PlayState());
 						});
 					}

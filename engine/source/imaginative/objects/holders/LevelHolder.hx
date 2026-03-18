@@ -1,39 +1,103 @@
 package imaginative.objects.holders;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
-typedef RawObjectTyping = {
-	var ?path:String;
-	var ?object:SpriteData;
+typedef RawBasicSpriteTyping = {
+	var ?sprite:DynamicSpriteData;
 	var ?flip:Bool;
-	var ?offsets:Array<Float>;
+	var ?offset:Array<Float>;
 	var ?size:Float;
-	var ?willHey:Bool;
+	var ?cheer:Bool;
+	var ?extra:Dynamic<Dynamic>;
 }
-typedef ObjectTyping = {
+@:structInit @:publicFields class BasicSpriteTyping {
 	/**
-	 * Is the object json mod path.
+	 * The object json mod path, if there is one.
 	 */
-	var path:String;
+	var path:Null<ModPath>;
 	/**
-	 * Is the sprite data.
+	 * The sprite data.
 	 */
-	var ?object:SpriteData;
+	var data:SpriteData;
+
 	/**
-	 * Should the object be flipped?
+	 * Wether the sprite is flipped or not.
 	 */
-	var flip:Bool;
+	var flipped:Bool;
 	/**
-	 * Position offsets.
+	 * A position offset.
 	 */
-	var offsets:Position;
+	var offset:Position;
 	/**
-	 * Size multiplier.
+	 * A size multiplier.
 	 */
-	var size:Float;
+	var sizeMult:Float;
+
 	/**
-	 * Will is play a cheer animation when entering the week?
+	 * States whether the object will play a cheering animation on level select.
 	 */
-	var willHey:Bool;
+	var cheerOnSelect:Bool;
+
+	/**
+	 * Extra data that the object can store.
+ 	 */
+	var extra:Map<String, Dynamic>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @param index The index of the object in the list, used for null checks. Defaults to false if not assigned.
+	 * @param amount The length of the list, used for null checks. Defaults to false if not assigned.
+	 * @return BasicSpriteTyping
+	 */
+	static function fromRaw(raw:RawBasicSpriteTyping, ?index:Int, ?amount:Int):BasicSpriteTyping {
+		var _path:Null<ModPath> = null;
+		var _data:SpriteData = null;
+		if (raw.sprite != null) {
+			if (raw.sprite.isDirectory())
+				_data = ParseUtil.object(Paths.object(_path = raw.sprite.getPath()), IsBeatSprite);
+			else _data = raw.sprite.getData();
+		}
+		return {
+			path: _path,
+			data: _data,
+			flipped: raw.flip ?? (index == null || amount == null) ? false : (index + 1) > Math.floor(amount / 2),
+			offset: Position.fromArray(raw.offset ?? [0, 0]),
+			sizeMult: raw.size ?? 1,
+			cheerOnSelect: raw.cheer ?? (index == null || amount == null) ? false : index == Math.floor(amount / 2),
+			extra: FunkinUtil.objectToMap(raw.extra)
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @param clearFlip Whether to clear the flip.
+	 * @param clearCheer Whether to clear the cheer.
+	 * @return RawBasicSpriteTyping
+	 */
+	static function toRaw(data:BasicSpriteTyping, clearFlip:Bool = true, clearCheer:Bool = true):RawBasicSpriteTyping {
+		var raw:Dynamic = {
+			sprite: new DynamicSpriteData(data.path, data.data),
+			offset: data.offset.toArray(),
+			size: data.sizeMult,
+			extra: FunkinUtil.mapToObject(data.extra)
+		}
+		// prevents it from stringify-ing as containing null
+		if (!clearFlip) raw._set('flip', data.flipped);
+		if (!clearCheer) raw._set('cheer', data.cheerOnSelect);
+		return raw;
+	}
+
+	inline private function toString():String {
+		return FunkinUtil.toDebugString([
+			'File Path' => path.isFile ? '$path (raw:${path.format()})' : 'No Path',
+			'Sprite Data' => data == null ? 'No Data' : data,
+			'Flip X' => flipped,
+			'Position Offset' => offset,
+			'Size multiplier' => sizeMult,
+			'Plays Cheer' => cheerOnSelect,
+			'Extra Data' => extra
+		]);
+	}
 }
 
 @SuppressWarnings('checkstyle:FieldDocComment')
@@ -42,43 +106,127 @@ typedef RawLevelData = {
 	var songs:Array<String>;
 	var ?startingDiff:Int;
 	var difficulties:Array<String>;
-	var objects:Array<RawObjectTyping>;
+	var ?sprites:Array<RawBasicSpriteTyping>;
 	var ?color:String;
+	var ?extra:Dynamic<Dynamic>;
 }
-typedef LevelData = {
+@:structInit @:publicFields class LevelData {
 	/**
-	 * The display name.
+	 * The level id.
 	 */
-	var name:String;
+	var id:String;
+
 	/**
-	 * The title.
+	 * The week title.
 	 */
 	var title:String;
 	/**
-	 * List of each songs data.
+	 * The song id's.
 	 */
 	var songs:Array<SongData>;
+
 	/**
-	 * Starting difficulty index.
+	 * The starting difficulty.
 	 */
 	var startingDiff:Int;
 	/**
-	 * Difficulty listing.
+	 * The difficulty id's.
 	 */
 	var difficulties:Array<String>;
 	/**
-	 * Variation listing.
+	 * The variation id's.
 	 */
-	var ?variants:Array<Null<String>>;
+	var variants:Array<Null<String>>;
+
 	/**
-	 * List of week object data's.
-	 * This is mostly used for the story menu.
+	 * The character sprites in the story menu.
 	 */
-	var objects:Array<ObjectTyping>;
+	var sprites:Array<BasicSpriteTyping>;
+
 	/**
-	 * Associated color.
+	 * The week background color.
 	 */
-	var color:FlxColor;
+	var color:Null<FlxColor>;
+
+	/**
+	 * Extra data that can be stored.
+ 	 */
+	var extra:Map<String, Dynamic>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param levelId The level id; since the raw data doesn't include it.
+	 * @param raw The object data.
+	 * @return LevelData
+	 */
+	static function fromRaw(levelId:String, raw:RawLevelData):LevelData {
+		final levelColor:FlxColor = raw.color == null ? 0xFFF9CF51 : FlxColor.fromString(raw.color);
+		final levelDiffs:Array<Array<String>> = [
+			for (value in raw.difficulties) {
+				final split:Array<String> = value.toLowerCase().split(':');
+				final diff:String = split[split.length > 1 ? 1 : 0];
+				[diff, split.length > 1 ? split[0] : FunkinUtil.getDifficultyVariant(diff)];
+			}
+		];
+		return {
+			id: levelId,
+			title: raw.title ?? '[Please Add a Title]',
+			songs: [
+				for (name in raw.songs) {
+					var data = ParseUtil.song(name);
+					data.color ??= levelColor;
+					data;
+				}
+			],
+			startingDiff: raw.startingDiff ?? (Math.floor(raw.difficulties.length / 2) - 1),
+			difficulties: [for (value in levelDiffs) value[0]],
+			variants: [for (value in levelDiffs) value[1]],
+			sprites: [for (i => data in raw.sprites ?? []) BasicSpriteTyping.fromRaw(data, i, raw.sprites.length)],
+			color: levelColor,
+			extra: FunkinUtil.objectToMap(raw.extra)
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @param clearStartDiff Whether to clear the starting difficulty.
+	 * @param clearSpriteClearables Whether to clear the sprite clearable values.
+	 * @return RawLevelData
+	 */
+	static function toRaw(data:LevelData, clearStartDiff:Bool = true, clearSpriteClearables:Bool = true):RawLevelData {
+		final levelDiffs:Array<String> = [
+			for (i in 0...data.difficulties.length) {
+				final diff:String = data.difficulties[i];
+				final variant:Null<String> = data.variants[i];
+				variant == null ? diff : '$variant:$diff';
+			}
+		];
+		var raw:Dynamic = {
+			title: data.title,
+			songs: [for (song in data.songs) song.id],
+			difficulties: levelDiffs,
+			sprites: [for (data in data.sprites) BasicSpriteTyping.toRaw(data, clearSpriteClearables, clearSpriteClearables)],
+			color: data.color == null ? null : data.color.toWebString(),
+			extra: FunkinUtil.mapToObject(data.extra)
+		}
+		if (!clearStartDiff) // prevents it from stringify-ing as containing null
+			raw._set('startingDiff', data.startingDiff);
+		return raw;
+	}
+
+	inline private function toString():String {
+		return FunkinUtil.toDebugString([
+			'Level ID' => id,
+			'Week Title' => title,
+			'Songs List' => songs,
+			'Starting Difficulty Index' => startingDiff,
+			'Difficulties List' => difficulties,
+			'Variations List' => variants,
+			'Character Sprites' => sprites,
+			'Background Color' => color == null ? 'No Color' : color.toWebString(),
+			'Extra Data' => extra
+		]);
+	}
 }
 
 /**

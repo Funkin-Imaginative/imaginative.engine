@@ -327,20 +327,20 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		scripts.load();
 	}
 
-	override public function new(x:Float = 0, y:Float = 0, ?sprite:OneOfTwo<String, SpriteData>, ?script:ModPath, applyStartValues:Bool = false) {
+	override public function new(x:Float = 0, y:Float = 0, ?sprite:DynamicSpriteData, ?script:ModPath, applyStartValues:Bool = false) {
 		#if TRACY_DEBUGGER
 		if (this.getClassName() == 'BaseSprite')
 			TracyProfiler.zoneScoped('new BaseSprite($x, $y, $sprite, $script, $applyStartValues)');
 		#end
-
 		super(x, y);
-		if (sprite is String) {
-			var file:ModPath = ModPath.fromString(sprite);
+
+		if (sprite.isDirectory()) {
+			final file:ModPath = sprite.getPath();
 			if (Paths.object(file).isFile) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
-		} else renderData(sprite, applyStartValues);
+		} else renderData(sprite.getData(), applyStartValues);
 
 		if (scripts == null)
 			loadScript(script);

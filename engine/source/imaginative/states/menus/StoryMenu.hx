@@ -57,11 +57,11 @@ class StoryMenu extends BeatState {
 		add(camPoint);
 
 		final loadedDiffs:Array<String> = [];
-		final loadedObjects:Array<Array<ObjectTyping>> = [];
+		final loadedObjects:Array<Array<BasicSpriteTyping>> = [];
 		final levelNoExistList:Array<String> = [];
 		levels = new SelectionHandler<LevelSelectionEvent>(scriptName, false, item -> {
 			final level:LevelHolder = item.extra.get('level');
-			return eventCall('uponLevelSelection', new LevelSelectionEvent(level, diffHolder, level.data.name, curDiffString, level.data.variants[curDiff]));
+			return eventCall('uponLevelSelection', new LevelSelectionEvent(level, diffHolder, level.data.id, curDiffString, level.data.variants[curDiff]));
 		}, eventCall);
 		final levelList:Array<Array<ModPath>> = [
 			#if MOD_SUPPORT
@@ -89,8 +89,8 @@ class StoryMenu extends BeatState {
 				for (diff in level.data.difficulties)
 					if (!loadedDiffs.contains(diff))
 						loadedDiffs.push(diff);
-				var temp:Array<ObjectTyping> = [];
-				for (data in level.data.objects)
+				var temp:Array<BasicSpriteTyping> = [];
+				for (data in level.data.sprites)
 					temp.push(data);
 				loadedObjects.push(temp);
 
@@ -187,7 +187,7 @@ class StoryMenu extends BeatState {
 				} */
 			} else {
 				for (sprite in level.weekObjects)
-					if (sprite.extra.get('willHey'))
+					if (sprite.extra.get('cheerOnSelect'))
 						sprite.playAnim('hey', NoDancing);
 
 				var time:Float = {
@@ -266,27 +266,28 @@ class StoryMenu extends BeatState {
 		weekBg.color = levels.members[levels.currentValue].extra.get('level').data.color;
 		add(weekBg);
 
+		var cantFindCount:Int = 0;
 		var cantFindList:Array<String> = [];
 		weekObjects = new BeatGroup();
 		for (i => loop in loadedObjects)
 			for (data in loop) {
-				var modPath:ModPath = data.path;
-				var objectData:SpriteData = data.object;
+				final objectPath:Null<ModPath> = data.path;
+				final objectData:SpriteData = data.data;
 
-				if (!data.path.isNullOrEmpty())
-					if (!Paths.object(modPath).isFile && !cantFindList.contains(modPath.path))
-						cantFindList.push(modPath.path);
+				if (objectPath != null && !objectPath.path.isNullOrEmpty())
+					if (!Paths.object(objectPath).isFile && !cantFindList.contains(objectPath))
+						cantFindList.push(objectPath);
+				else if ((objectPath == null || objectPath.path.isNullOrEmpty()) && objectData == null)
+					cantFindCount++;
 
-				var sprite:BeatSprite = new BeatSprite(objectData == null ? modPath.toString() : objectData);
-				if (data.flip) sprite.flipX = !sprite.flipX;
-				sprite.extra.set('offsets', data.offsets);
-				sprite.scale.scale(data.size);
-				sprite.updateHitbox();
+				var sprite:BeatSprite = new BeatSprite(objectData == null ? objectPath : objectData);
+				if (data.flipped) sprite.flipX = !sprite.flipX;
 				sprite.setUnstretchedGraphicSize(Std.int(weekBg.width - 50), Std.int(weekBg.height - 50), false);
+				sprite.scale.scale(data.sizeMult);
 				sprite.updateHitbox();
 
-				sprite.extra.set('willHey', data.willHey);
-				sprite.extra.set('offsets', data.offsets);
+				sprite.extra.set('cheerOnSelect', data.cheerOnSelect);
+				sprite.extra.set('offsets', data.offset);
 
 				sprite.alpha = 0.0001;
 				sprite.scrollFactor.set();
@@ -294,7 +295,7 @@ class StoryMenu extends BeatState {
 				weekObjects.add(sprite);
 			}
 		if (!cantFindList.empty())
-			log('Object(s) ${cantFindList.cleanDisplayList()} doesn\'t exist.', WarningMessage);
+			log('Object(s) ${cantFindList.cleanDisplayList()}${cantFindCount == 0 ? '' : ', and $cantFindCount others'} do not exist.', WarningMessage);
 
 		for (item in levels) {
 			var objects:Array<BeatSprite> = item.extra.get('level').weekObjects;

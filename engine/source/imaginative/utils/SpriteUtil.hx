@@ -89,6 +89,68 @@ typedef AnimationTyping = {
 	@:default(24) var ?fps:Int;
 }
 
+/**
+ * A helper abstract that can return either a mod path or object data for sprites.
+ * Note: This abstract only exists because multi-typing in source is a bitch.
+ */
+abstract DynamicSpriteData(Dynamic) {
+	/**
+	 * Note: If both are provided then the path will be used.
+	 * @param path The potential mod path.
+	 * @param data The potential object data.
+	 * @return DynamicSpriteData
+	 */
+	public function new(?path:ModPath, ?data:SpriteData)
+		this = path == null ? data : path;
+
+	/**
+	 * Checks wether or not the held data is a directory.
+	 * @return Bool
+		return this is String
+	 */
+	inline public function isDirectory():Bool
+		return this is String;
+
+	/**
+	 * Can return object data if that's whats being held.
+	 * @return SpriteData
+	 */
+	public function getData():SpriteData {
+		if (!isDirectory())
+			return this;
+		return null;
+	}
+	/**
+	 * Can return a mod path if that's whats being held.
+	 * @return ModPath
+	 */
+	public function getPath():ModPath {
+		if (isDirectory())
+			return this;
+		return null;
+	}
+
+	/**
+	 * You'd think ModPath already having from String functionally would make this redundant, but *noo*! Source can be stubborn asf man.
+	 * @param path The path to use.
+	 * @return DynamicSpriteData
+	 */
+	@:from inline public static function fromString(path:String):DynamicSpriteData
+		return fromModPath(path);
+	/**
+	 * @param path The mod path to use.
+	 * @return DynamicSpriteData
+	 */
+	@:from inline public static function fromModPath(path:ModPath):DynamicSpriteData
+		return new DynamicSpriteData(path);
+	/**
+	 * @param data The object data to use.
+	 * @return DynamicSpriteData
+	 */
+	@:from inline public static function fromSpriteData(data:SpriteData):DynamicSpriteData
+		return new DynamicSpriteData(data);
+}
+
 typedef SpriteData = {
 	/**
 	 * The character data.

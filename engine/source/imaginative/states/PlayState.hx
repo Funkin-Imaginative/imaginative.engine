@@ -818,17 +818,17 @@ class PlayState extends BeatState {
 	 */
 	public static function renderLevel(level:LevelData, difficulty:String, ?variant:String):Void {
 		levelData = level;
-		songList = [for (song in levelData.songs) song.folder];
+		songList = [for (song in levelData.songs) song.id];
 		storyIndex = 0;
 		storyMode = true;
 		ArrowField.enemyPlay = ArrowField.enableP2 = false;
 		renderChart(songList[0], difficulty, variant);
-		_log('[PlayState] Rendering level "${level.name}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant.isNullOrEmpty() ? '.' : ' in variant "$variant".'}', SystemMessage);
+		_log('[PlayState] Rendering level "${level.id}", rendering songs ${[for (song in levelData.songs) song.name].cleanDisplayList()} under difficulty "${FunkinUtil.getDifficultyDisplay(difficulty)}"${variant.isNullOrEmpty() ? '.' : ' in variant "$variant".'}', SystemMessage);
 	}
 
 	/**
 	 * Loads a song the next time you enter PlayState.
-	 * @param song The song **folder** name.
+	 * @param song The song **id**.
 	 * @param difficulty The difficulty name.
 	 * @param variant The song variant.
 	 * @param playAsEnemy Should the player be the enemy instead?

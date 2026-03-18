@@ -59,5 +59,5 @@ class Tools {
 	 * @return String ~ The written output.
 	 */
 	public static function _writeSongData(data:Array<SongData>):String
-		return '[${[for (song in data) song.folder].formatArray()}]';
+		return '[${[for (song in data) song.id].formatArray()}]';
 }

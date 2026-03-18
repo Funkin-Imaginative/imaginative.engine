@@ -6,41 +6,117 @@ typedef RawSongData = {
 	var ?startingDiff:Int;
 	var difficulties:Array<String>;
 	var ?color:String;
-	var allowedModes:GamemodesTyping;
+	var ?gamemodes:Dynamic<Bool>;
+	var ?extra:Dynamic<Dynamic>;
 }
-typedef SongData = {
+@:structInit @:publicFields class SongData {
 	/**
-	 * The song display name.
+	 * The song id.
 	 */
-	var ?name:String;
+	var id:String;
 	/**
-	 * The song folder name.
+	 * The song name.
 	 */
-	var ?folder:String;
+	var name:String;
+
 	/**
 	 * The song icon.
 	 */
 	var icon:String;
+
 	/**
 	 * The starting difficulty.
 	 */
-	var ?startingDiff:Int;
+	var startingDiff:Int;
 	/**
-	 * The difficulties listing.
+	 * The difficulty id's.
 	 */
 	var difficulties:Array<String>;
 	/**
-	 * The variations listing.
+	 * The variation id's.
 	 */
-	var ?variants:Array<Null<String>>;
+	var variants:Array<Null<String>>;
+
 	/**
 	 * The song color.
 	 */
-	var ?color:FlxColor;
+	var color:Null<FlxColor>;
+
 	/**
-	 * Allowed modes for the song.
+	 * Gamemodes allowed in the song.
 	 */
-	var allowedModes:GamemodesTyping;
+	var gamemodes:Map<String, Bool>;
+
+	/**
+	 * Extra data that can be stored.
+ 	 */
+	var extra:Map<String, Dynamic>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param songId The song id; since the raw data doesn't include it.
+	 * @param raw The object data.
+	 * @return SongData
+	 */
+	static function fromRaw(songId:String, raw:RawSongData):SongData {
+		final songDiffs:Array<Array<String>> = [
+			for (value in raw.difficulties) {
+				final split:Array<String> = value.toLowerCase().split(':');
+				final diff:String = split[split.length > 1 ? 1 : 0];
+				[diff, split.length > 1 ? split[0] : FunkinUtil.getDifficultyVariant(diff)];
+			}
+		];
+		return {
+			id: songId,
+			name: ParseUtil.json('content/songs/$songId/audio', true)?.name ?? songId,
+			icon: raw.icon,
+			startingDiff: raw.startingDiff ?? (Math.floor(raw.difficulties.length / 2) - 1),
+			difficulties: [for (value in songDiffs) value[0]],
+			variants: [for (value in songDiffs) value[1]],
+			color: raw.color == null ? null : FlxColor.fromString(raw.color),
+			gamemodes: FunkinUtil.gamemodesCheck(FunkinUtil.objectToMap(raw.gamemodes)),
+			extra: FunkinUtil.objectToMap(raw.extra)
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @param clearStartDiff Whether to clear the starting difficulty.
+	 * @return RawSongData
+	 */
+	static function toRaw(data:SongData, clearStartDiff:Bool = true):RawSongData {
+		final songDiffs:Array<String> = [
+			for (i in 0...data.difficulties.length) {
+				final diff:String = data.difficulties[i];
+				final variant:Null<String> = data.variants[i];
+				variant == null ? diff : '$variant:$diff';
+			}
+		];
+		var raw:Dynamic = {
+			icon: data.icon,
+			difficulties: songDiffs,
+			color: data.color == null ? null : data.color.toWebString(),
+			gamemodes: FunkinUtil.mapToObject(data.gamemodes),
+			extra: FunkinUtil.mapToObject(data.extra),
+		}
+		if (!clearStartDiff) // prevents it from stringify-ing as containing null
+			raw._set('startingDiff', data.startingDiff);
+		return raw;
+	}
+
+	inline private function toString():String {
+		return FunkinUtil.toDebugString([
+			'Song ID' => id,
+			'Song Name' => name,
+			'Character Icon' => icon,
+			'Starting Difficulty Index' => startingDiff,
+			'Difficulties List' => difficulties,
+			'Variations List' => variants,
+			'Song Color' => color == null ? 'No Color' : color.toWebString(),
+			'Active Gamemodes' => gamemodes,
+			'Extra Data' => extra
+		]);
+	}
 }
 
 class SongHolder extends BeatSpriteGroup {

@@ -3,18 +3,6 @@ package imaginative.utils;
 import json2object.JsonParser;
 import imaginative.states.editors.ChartEditor.ChartData;
 
-// TODO: Rework this.
-typedef GamemodesTyping = {
-	/**
-	 * If true this song allows you to play as the enemy.
-	 */
-	@:default(false) var playAsEnemy:Bool;
-	/**
-	 * If true this song allows you to go against another player.
-	 */
-	@:default(false) var p2AsEnemy:Bool;
-}
-
 /**
  * This util is for all your parsing needs.
  */
@@ -69,7 +57,7 @@ class ParseUtil {
 	 * @return DifficultyData ~ The parsed difficulty json.
 	 */
 	inline public static function difficulty(id:String):DifficultyData {
-		final contents:DifficultyData = ParseUtil.json(Paths.difficulty(id), true);
+		final contents:DifficultyData = json(Paths.difficulty(id), true);
 		contents.display = contents.display ?? id;
 		return contents;
 	}
@@ -80,40 +68,7 @@ class ParseUtil {
 	 * @return LevelData ~ The parsed level json.
 	 */
 	public static function level(name:ModPath):LevelData {
-		final contents:RawLevelData = ParseUtil.json(Paths.level(name), true);
-		final levelObjects:Array<ObjectTyping> = [
-			for (i => data in contents.objects) {
-				path: data.path,
-				object: data.path == null ? null : data.object ?? ParseUtil.object(Paths.object(data.path), data.path.contains('character') ? IsCharacterSprite : IsBeatSprite),
-				flip: data.flip ?? ((i + 1) > Math.floor(contents.objects.length / 2)),
-				offsets: Position.fromArray(data.offsets ?? [0, 0]),
-				size: data.size ?? 1,
-				willHey: data.willHey ?? (i == Math.floor(contents.objects.length / 2))
-			}
-		];
-		final levelColor:FlxColor = contents.color == null ? 0xFFF9CF51 : FlxColor.fromString(contents.color);
-		final levelDiffs:Array<Array<String>> = [
-			for (value in contents.difficulties) {
-				var split:Array<String> = value.split(':');
-				[split[0].toLowerCase(), split.length > 1 ? split[1].toLowerCase() : FunkinUtil.getDifficultyVariant(split[0].toLowerCase())];
-			}
-		];
-		return {
-			name: name.path,
-			title: contents.title ?? '[Please Add a Title]',
-			songs: [
-				for (name in contents.songs) {
-					var data = ParseUtil.song(name);
-					data.color ??= levelColor;
-					data;
-				}
-			],
-			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
-			difficulties: [for (value in levelDiffs) value[0]],
-			variants: [for (value in levelDiffs) value[1]],
-			objects: levelObjects,
-			color: levelColor
-		}
+		return LevelData.fromRaw(name.path, json(Paths.level(name.path), true));
 	}
 
 	/**
@@ -164,22 +119,6 @@ class ParseUtil {
 	 * @return SongData ~ The parsed meta json.
 	 */
 	public static function song(name:ModPath):SongData {
-		final contents:RawSongData = ParseUtil.json(Paths.json('content/songs/${name.path}/meta'), true);
-		final songDiffs:Array<Array<String>> = [
-			for (value in contents.difficulties) {
-				var split:Array<String> = value.split(':');
-				[split[0].toLowerCase(), split.length > 1 ? split[1].toLowerCase() : FunkinUtil.getDifficultyVariant(split[0].toLowerCase())];
-			}
-		];
-		return {
-			name: json('content/songs/${name.path}/audio').name,
-			folder: name.path,
-			icon: contents.icon,
-			startingDiff: contents.startingDiff ?? (Math.floor(contents.difficulties.length / 2) - 1),
-			difficulties: [for (value in songDiffs) value[0]],
-			variants: [for (value in songDiffs) value[1]],
-			color: contents.color == null ? null : FlxColor.fromString(contents.color),
-			allowedModes: contents.allowedModes
-		}
+		return SongData.fromRaw(name.path, json('content/songs/${name.path}/meta', true));
 	}
 }
