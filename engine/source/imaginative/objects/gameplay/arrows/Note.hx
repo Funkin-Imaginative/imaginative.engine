@@ -166,7 +166,7 @@ class Note extends FlxSprite {
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return time < setField.conductor.frameTime - setField.settings.maxWindow && !wasHit;
+		return time < setField.conductor.frameTime - (setField.settings.maxWindow * earlyWindow) && !wasHit;
 	}
 	/**
 	 * If true, this note has been hit.

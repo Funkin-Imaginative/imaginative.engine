@@ -118,7 +118,7 @@ class Sustain extends FlxSprite {
 	public var tooLate(get, never):Bool;
 	inline function get_tooLate():Bool {
 		if (setField == null) return false;
-		return (time + setHead.time) < setField.conductor.frameTime - setField.settings.maxWindow && !wasHit;
+		return (time + setHead.time) < setField.conductor.frameTime - (setField.settings.maxWindow * setHead.earlyWindow) && !wasHit;
 	}
 	/**
 	 * If true, this sustain has been hit.
