@@ -6,11 +6,11 @@ typedef BeatData = {
 	/**
 	 * The amount of beats it takes to trigger the dance.
 	 */
-	@:default(0) var interval:Int;
+	var interval:Int;
 	/**
 	 * If true the dance will still happen, even if the beat numbers are in the negatives.
 	 */
-	@:default(false) var skipnegative:Bool;
+	var skipnegative:Bool;
 }
 
 /**

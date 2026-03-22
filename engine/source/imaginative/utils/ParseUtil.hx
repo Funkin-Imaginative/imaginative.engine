@@ -77,14 +77,8 @@ class ParseUtil {
 	 * @param type The sprite type.
 	 * @return SpriteData ~ The parsed object json.
 	 */
-	public static function object(file:ModPath, type:SpriteType):SpriteData {
-		var jsonPath:ModPath = Paths.object(file); if (!jsonPath.isFile) return null;
-		var typeData:SpriteData = new JsonParser<SpriteData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
-		if (type != IsCharacterSprite) typeData._set('character', null);
-		if (!type.isBeatType) typeData._set('beat', null);
-		// trace('PRE WRITE (file:${file.format()}) ', haxe.Json.stringify(typeData, '\t'));
-		// trace('POST WRITE (file:${file.format()}) ', new json2object.JsonWriter<SpriteData>(true).write(typeData, '\t'));
-		return typeData;
+	public static function object(file:ModPath, type:SpriteType = IsBaseSprite):SpriteData {
+		return SpriteData.fromRaw(json(Paths.object(file), true), type);
 	}
 
 	/**

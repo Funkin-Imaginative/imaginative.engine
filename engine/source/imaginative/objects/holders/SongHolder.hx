@@ -50,7 +50,7 @@ typedef RawSongData = {
 	/**
 	 * Extra data that can be stored.
  	 */
-	var extra:Map<String, Dynamic>;
+	var extra:Null<Map<String, Dynamic>>;
 
 	/**
 	 * Converts the raw object data.
@@ -75,7 +75,7 @@ typedef RawSongData = {
 			variants: [for (value in songDiffs) value[1]],
 			color: raw.color == null ? null : FlxColor.fromString(raw.color),
 			gamemodes: FunkinUtil.gamemodesCheck(FunkinUtil.objectToMap(raw.gamemodes)),
-			extra: FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -96,11 +96,11 @@ typedef RawSongData = {
 			icon: data.icon,
 			difficulties: songDiffs,
 			color: data.color == null ? null : data.color.toWebString(),
-			gamemodes: FunkinUtil.mapToObject(data.gamemodes),
-			extra: FunkinUtil.mapToObject(data.extra),
+			gamemodes: FunkinUtil.mapToObject(data.gamemodes)
 		}
-		if (!clearStartDiff) // prevents it from stringify-ing as containing null
-			raw._set('startingDiff', data.startingDiff);
+		// prevents it from stringify-ing as containing null
+		if (!clearStartDiff) raw._set('startingDiff', data.startingDiff);
+		if (data.extra != null) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}
 

@@ -1,92 +1,208 @@
 package imaginative.utils;
 
-typedef ObjectSetupData = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawSpriteSetupData = {
+	var ?position:Array<Float>;
+	var ?flip:Array<Bool>;
+	var ?scale:Array<Float>;
+}
+typedef SpriteSetupData = {
 	/**
 	 * Position value.
 	 */
-	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?position:Position;
+	var position:Position;
 	/**
 	 * Flip value.
 	 */
-	@:default(new imaginative.backend.objects.TypeXY<Bool>(false, false))
-	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
-	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
-	var ?flip:TypeXY<Bool>;
+	var flip:TypeXY<Bool>;
 	/**
 	 * Scale value.
 	 */
-	@:default(new imaginative.backend.objects.Position(1, 1))
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?scale:Position;
+	var scale:Position;
 }
 
-typedef AssetTyping = {
-	/**
-	 * Root image path.
-	 */
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawAssetTyping = {
 	var image:String;
+	var ?type:String;
+	var ?slots:Array<Int>;
+}
+@:structInit @:publicFields class AssetTyping {
 	/**
-	 * Texture type.
+	 * The image mod path.
 	 */
-	@:default(imaginative.backend.interfaces.ITexture.TextureType.IsUnknown) var type:TextureType;
+	var image:ModPath;
 	/**
-	 * Height and width dimensions.
-	 * Only if texture type is a graphic.
+	 * The texture type.
+	 * Note: This property is only used internally.
 	 */
-	@:jcustomparse(imaginative.backend.objects.TypeXY._parseIntOp)
-	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeIntOp)
-	var ?dimensions:TypeXY<Int>;
+	var type:TextureType;
+	/**
+	 * The amount for width and height slots (ex: for icons do [2, 1]).
+	 * Note: Only if texture type is "IsGraphic".
+	 */
+	var slots:TypeXY<Int>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @return AssetTyping
+	 */
+	static function fromRaw(raw:RawAssetTyping):AssetTyping {
+		final modPath:ModPath = raw.image;
+		final fullPath:ModPath = Paths.image(modPath);
+		final slotData:TypeXY<Int> = TypeXY.fromArray(raw.slots ?? [0, 0]);
+		if (raw.slots != null && (slotData.x < 1 || slotData.y < 1)) {
+			final path:String = fullPath.isFile ? '$modPath (raw:${fullPath.format()})' : 'No Path';
+			_log('[AssetTyping.fromRaw] Asset "$path" has a slot less then 1, ignoring entered slot information.', WarningMessage);
+		}
+		var type:TextureType = raw.type != null ? raw.type : TextureType.getTypeFromExt(Paths.multExt(fullPath, Paths.spritesheetExts));
+		return {
+			image: modPath,
+			type: type,
+			slots: slotData.x < 1 || slotData.y < 1 ? null : slotData
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @return RawAssetTyping
+	 */
+	static function toRaw(data:AssetTyping):RawAssetTyping {
+		var raw:Dynamic = {image: data.image}
+		if (data.slots != null) // prevents it from stringify-ing as containing null
+			raw._set('slots', data.slots.toArray());
+		return raw;
+	}
+
+	inline private function toString():String {
+		final fullPath:ModPath = Paths.image(image);
+		return FunkinUtil.toDebugString([
+			'Image Path' => fullPath.isFile ? '$image (raw path:${fullPath.format()})' : 'No Path (entered path:$image)',
+			'Texture Type' => type,
+			'Width and Height Slots' => slots == null ? 'No Slots' : slots
+		]);
+	}
 }
 
-typedef AnimationTyping = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawAnimationTyping = {
+	var ?asset:RawAssetTyping;
+	var name:String;
+	var ?tag:String;
+	var ?indices:Array<Int>;
+	var ?offset:Array<Float>;
+	var ?swapKey:String;
+	var ?flipKey:String;
+	var ?flip:Array<Bool>;
+	var ?loop:Bool;
+	var ?fps:Int;
+}
+@:structInit @:publicFields class AnimationTyping {
 	/**
-	 * Name of the animation.
+	 * The asset typing for the animation respectively.
+	 */
+	var asset:AssetTyping;
+
+	/**
+	 * The name of the animation.
 	 */
 	var name:String;
 	/**
-	 * Animation key on data method.
+	 * The animation key within the data method.
+	 * Note: Goes unused if the asset type is "IsGraphic".
 	 */
 	var tag:String;
+
 	/**
 	 * The specified frames to use in the animation.
-	 * For graphic's this is the specified as the frames array in the add function.
 	 */
-	var ?indices:Array<Int>;
+	var indices:Array<Int>;
+
 	/**
-	 * The offset for the set animation.
+	 * The position offset for the animation.
 	 */
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?offset:Position;
+	var offset:Position;
+
 	/**
-	 * Swapped name for that set animation.
-	 * Ex: singLEFT to singRIGHT
+	 * The swapped name for the animation.
+	 * Note: Is used to help with animation swapping when the flipped in the x axis (ex: "singLEFT" to "singRIGHT").
 	 */
-	var ?swapKey:String;
+	var swapKey:String;
 	/**
-	 * Flipped name for that set animation.
+	 * The flipped name for the animation.
 	 * Useful for characters that may off design when flipped!
 	 * Basically it's good for asymmetrical characters.
 	 */
-	var ?flipKey:String;
+	var flipKey:String;
+
 	/**
-	 * The flip offset for the set animation.
+	 * The flipped states for the animation.
 	 */
-	@:jcustomparse(imaginative.backend.objects.TypeXY._parseBoolOp)
-	@:jcustomwrite(imaginative.backend.objects.TypeXY._writeBoolOp)
-	var ?flip:TypeXY<Bool>;
+	var flip:TypeXY<Bool>;
+
 	/**
-	 * If true the animation loops.
+	 * States whether the animation loops.
 	 */
-	@:default(false) var ?loop:Bool;
+	var loop:Bool;
 	/**
 	 * The framerate of the animation.
 	 */
-	@:default(24) var ?fps:Int;
+	var fps:Int;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @return AnimationTyping
+	 */
+	static function fromRaw(raw:RawAnimationTyping):AnimationTyping {
+		return {
+			asset: raw.asset == null ? null : AssetTyping.fromRaw(raw.asset),
+			name: raw.name,
+			tag: raw.tag,
+			indices: raw.indices,
+			offset: Position.fromArray(raw.offset ?? [0, 0]),
+			swapKey: raw.swapKey,
+			flipKey: raw.flipKey,
+			flip: TypeXY.fromArray(raw.flip ?? [false, false]),
+			loop: raw.loop ?? false,
+			fps: raw.fps ?? 24
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @return RawAnimationTyping
+	 */
+	static function toRaw(data:AnimationTyping):RawAnimationTyping {
+		var raw:Dynamic = {name: data.name}
+		// prevents it from stringify-ing as containing null
+		if (data.asset != null) raw._set('asset', AssetTyping.toRaw(data.asset));
+		if (data.tag != null) raw._set('tag', data.tag);
+		if (data.indices != null) if (data.indices.length != 0) raw._set('indices', data.indices);
+		if (data.offset != null || !(data.offset.x == 0 && data.offset.y == 0)) raw._set('offset', data.offset.toArray());
+		if (data.swapKey != null) raw._set('swapKey', data.swapKey);
+		if (data.flipKey != null) raw._set('flipKey', data.flipKey);
+		if (data.flip != null || !(!data.flip.x && !data.flip.y)) raw._set('flip', data.flip.toArray());
+		if (data.loop) raw._set('loop', data.loop);
+		if (data.fps != 24) raw._set('fps', data.fps);
+		return raw;
+	}
+
+	inline private function toString():String {
+		return FunkinUtil.toDebugString([
+			'Animation Specific Asset Typing' => asset,
+			'Animation Name' => name,
+			'Animation Tag' => tag,
+			'Animation Indices' => indices,
+			'Animation Offset' => offset,
+			'Animation Swap Key' => swapKey,
+			'Animation Flip Key' => flipKey,
+			'Animation Flip States' => flip,
+			'Animation Loops' => loop,
+			'Animation Framerate' => fps
+		]);
+	}
 }
 
 /**
@@ -95,38 +211,68 @@ typedef AnimationTyping = {
  */
 abstract DynamicSpriteData(Dynamic) {
 	/**
-	 * Note: If both are provided then the path will be used.
+	 * Note: If all are provided then the path or raw will be used.
 	 * @param path The potential mod path.
 	 * @param data The potential object data.
+	 * @param raw The potential raw object data.
 	 * @return DynamicSpriteData
 	 */
-	public function new(?path:ModPath, ?data:SpriteData)
-		this = path == null ? data : path;
+	public function new(?path:ModPath, ?data:SpriteData, ?raw:RawSpriteData)
+		this = path == null ? (raw == null ? data : raw) : path;
 
+	/**
+	 * Checks wether or not the held data is null/empty.
+	 * @return Bool
+	 */
+	inline public function isNull():Bool
+		return this == null;
 	/**
 	 * Checks wether or not the held data is a directory.
 	 * @return Bool
-		return this is String
 	 */
 	inline public function isDirectory():Bool
 		return this is String;
+	/**
+	 * Checks wether or not the held data is raw.
+	 * @return Bool
+	 */
+	inline public function isRaw():Bool {
+		if (isNull() || isDirectory()) return false;
+		return !this is SpriteData;
+	}
 
 	/**
-	 * Can return object data if that's whats being held.
-	 * @return SpriteData
+	 * Can return a mod path if that's whats being held.
+	 * @return Null<ModPath>
 	 */
-	public function getData():SpriteData {
-		if (!isDirectory())
+	public function getPath():Null<ModPath> {
+		if (isDirectory())
 			return this;
 		return null;
 	}
 	/**
-	 * Can return a mod path if that's whats being held.
-	 * @return ModPath
+	 * Can return object data if that's whats being held.
+	 * @param force Forces the data to be returned, only works if the data potentially is raw.
+	 * @param type The sprite type. Only used when "force" is true.
+	 * @return SpriteData
 	 */
-	public function getPath():ModPath {
-		if (isDirectory())
-			return this;
+	public function getData(force:Bool = false, type:SpriteType = IsBaseSprite):SpriteData {
+		if (isDirectory()) return null;
+		if (!isRaw()) return this;
+		else if (isRaw() && force)
+			return SpriteData.fromRaw(this, type);
+		return null;
+	}
+	/**
+	 * Can return raw object data if that's whats being held.
+	 * @param force Forces the data to be returned, only works if the data potentially isn't raw.
+	 * @return RawSpriteData
+	 */
+	public function getRawData(force:Bool = false):RawSpriteData {
+		if (isDirectory()) return null;
+		if (isRaw()) return this;
+		else if (!isRaw() && force)
+			return SpriteData.toRaw(this);
 		return null;
 	}
 
@@ -149,29 +295,42 @@ abstract DynamicSpriteData(Dynamic) {
 	 */
 	@:from inline public static function fromSpriteData(data:SpriteData):DynamicSpriteData
 		return new DynamicSpriteData(data);
+	/**
+	 * @param raw The raw object data to use.
+	 * @return DynamicSpriteData
+	 */
+	@:from inline public static function fromRawSpriteData(raw:RawSpriteData):DynamicSpriteData
+		return new DynamicSpriteData(raw);
 }
 
-typedef SpriteData = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawSpriteData = {
+	var ?character:RawCharacterData;
+	var ?beat:BeatData;
+	var ?offsets:RawSpriteSetupData;
+	var asset:RawAssetTyping;
+	var animations:Array<RawAnimationTyping>;
+	var ?starting:RawSpriteSetupData;
+	var ?swapTriggers:Bool;
+	var ?flipTrigger:Bool;
+	var ?antialiasing:Bool;
+	var ?extra:Dynamic<Dynamic>;
+}
+@:structInit @:publicFields class SpriteData {
 	/**
 	 * The character data.
 	 */
-	@:default({
-		camera: new imaginative.backend.objects.Position(),
-		color: flixel.util.FlxColor.GRAY,
-		icon: null,
-		singlength: 4,
-		vocals: null
-	})
-	var ?character:CharacterData;
+	var character:CharacterData;
 	/**
 	 * The beat data.
 	 */
-	@:default({interval: 0, skipnegative: false})
-	var ?beat:BeatData;
+	var beat:BeatData;
+
 	/**
 	 * The offset data.
 	 */
-	var ?offsets:ObjectSetupData;
+	var offsets:SpriteSetupData;
+
 	/**
 	 * The asset typing.
 	 */
@@ -180,27 +339,98 @@ typedef SpriteData = {
 	 * The animations for a given sprite.
 	 */
 	var animations:Array<AnimationTyping>;
+
 	/**
 	 * Start values.
 	 */
-	var ?starting:ObjectSetupData;
+	var starting:SpriteSetupData;
+
 	/**
 	 * If true the swap anim var can go off.
 	 * For characters and icons it always on.
 	 */
-	@:default(false) var ?swapAnimTriggers:Bool;
+	var swapAnimTriggers:Bool;
 	/**
 	 * States which flipX state the sprite must be in to trigger the flip anim var.
 	 */
-	@:default(true) var ?flipAnimTrigger:Bool;
+	var flipAnimTrigger:Bool;
+
 	/**
 	 * Should antialiasing be enabled?
 	 */
-	@:default(true) var ?antialiasing:Bool;
+	var antialiasing:Bool;
+
 	/**
-	 * Extra data for the sprite.
+	 * Extra data that can be stored.
 	 */
-	var ?extra:Map<String, Dynamic>;
+	var extra:Map<String, Dynamic>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @param type The sprite type.
+	 * @return SpriteData
+	 */
+	static function fromRaw(raw:RawSpriteData, type:SpriteType = IsBaseSprite):SpriteData {
+		final charData:CharacterData = if (type == IsCharacterSprite) {
+			camera: Position.fromArray(raw?.character?.camera ?? [0, 0]),
+			color: raw?.character?.color == null ? FlxColor.GRAY : FlxColor.fromString(raw.character.color),
+			icon: raw?.character?.icon,
+			singlength: raw?.character?.singlength ?? 4,
+			vocals: raw?.character?.vocals
+		} else null;
+		final beatData:BeatData = if (type.isBeatType) {
+			interval: raw?.beat?.interval ?? 0,
+			skipnegative: raw?.beat?.skipnegative ?? false
+		} else null;
+
+		return {
+			character: charData,
+			beat: beatData,
+			offsets: {
+				position: Position.fromArray(raw?.offsets?.position ?? [0, 0]),
+				flip: TypeXY.fromArray(raw?.offsets?.flip ?? [false, false]),
+				scale: Position.fromArray(raw?.offsets?.scale ?? [1, 1])
+			},
+			asset: AssetTyping.fromRaw(raw.asset),
+			animations: [for (anim in raw.animations) AnimationTyping.fromRaw(anim)],
+			starting: raw.starting == null ? null : {
+				position: Position.fromArray(raw.starting.position),
+				flip: TypeXY.fromArray(raw.starting.flip),
+				scale: Position.fromArray(raw.starting.scale)
+			},
+			swapAnimTriggers: raw.swapTriggers ?? false,
+			flipAnimTrigger: raw.flipTrigger ?? true,
+			antialiasing: raw.antialiasing ?? true,
+			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @param clearFlip Whether to clear the flip.
+	 * @param clearCheer Whether to clear the cheer.
+	 * @return RawBasicSpriteTyping
+	 */
+	static function toRaw(data:SpriteData):RawSpriteData {
+		var raw:Dynamic = {}
+		return cast raw;
+	}
+
+	inline private function toString():String {
+		return FunkinUtil.toDebugString([
+			'Character Specific Data' => character,
+			'Beat Specific Data' => beat,
+			'Offsets' => offsets,
+			'Asset Typing' => asset,
+			'Animations' => animations,
+			'Starting Values' => starting,
+			'Swap Anim Triggers' => swapAnimTriggers,
+			'Flip Anim Trigger State' => flipAnimTrigger,
+			'Antialiasing' => antialiasing,
+			'Extra Data' => extra
+		]);
+	}
 }
 
 enum abstract SpriteType(String) from String to String {

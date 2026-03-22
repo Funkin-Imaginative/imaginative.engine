@@ -3,20 +3,23 @@ package imaginative.objects;
 import imaginative.backend.gameplay.CameraDebugCrosshair;
 import imaginative.backend.scripting.events.PointEvent;
 
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawCharacterData = {
+	var ?camera:Array<Float>;
+	var ?color:String;
+	var ?icon:String;
+	var ?singlength:Float;
+	var ?vocals:String;
+}
 typedef CharacterData = {
 	/**
 	 * The camera offset position.
 	 */
-	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?camera:Position;
+	var camera:Position;
 	/**
 	 * The characters health bar color.
 	 */
-	@:jcustomparse(imaginative.backend.Tools._parseColor)
-	@:jcustomwrite(imaginative.backend.Tools._writeColor)
-	@:default(flixel.util.FlxColor.GRAY) var ?color:FlxColor;
+	var color:FlxColor;
 	/**
 	 * The characters icon.
 	 */
@@ -25,7 +28,7 @@ typedef CharacterData = {
 	 * The amount of time in seconds the animation can be forced to last.
 	 * If set to 0 the animation that is played plays out normally.
 	 */
-	@:default(4) var singlength:Float;
+	var singlength:Float;
 	/**
 	 * The character's vocal suffix.
 	 * Leave blank to use their file name.

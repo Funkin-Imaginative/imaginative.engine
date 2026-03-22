@@ -177,11 +177,11 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	public var type(get, never):SpriteType;
 	function get_type():SpriteType {
 		return switch (this.getClassName()) {
-			case 'Character':  	IsCharacterSprite;
-			case 'HealthIcon': 	IsHealthIcon;
-			case 'BeatSprite': 	IsBeatSprite;
-			case 'BaseSprite': 	IsBaseSprite;
-			default:          	IsUnidentified;
+			case 'Character':   IsCharacterSprite;
+			case 'HealthIcon':  IsHealthIcon;
+			case 'BeatSprite':  IsBeatSprite;
+			case 'BaseSprite':  IsBaseSprite;
+			default:            IsUnidentified;
 		}
 	}
 	/**
@@ -190,17 +190,23 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	 * @param applyStartValues Whether or not to apply the start values.
 	 */
 	public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
-		var modPath:ModPath = null;
+		var modPath:Null<ModPath> = null;
 		try {
 			modPath = inputData.asset.image;
 			try {
-				if (inputData.asset.type == IsGraphic)
-					loadImage(modPath, true, inputData.asset.dimensions.x, inputData.asset.dimensions.y);
+				if (inputData.asset.type == IsGraphic) {
+					if (inputData.asset.slots == null)
+						loadImage(modPath);
+					else {
+						final graphic = Assets.image(modPath); // gets the image so we can use the slots appropriately
+						loadImage(modPath, true, Math.floor(graphic.width / inputData.asset.slots.x), Math.floor(graphic.height / inputData.asset.slots.y));
+					}
+				}
 				#if ANIMATE_SUPPORT
 				else if (inputData.asset.type == IsAnimateAtlas)
 					loadAtlas(modPath);
 				#end
-				else loadTexture(modPath);
+				else loadSheet(modPath);
 			} catch(error:haxe.Exception)
 				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
 
@@ -288,7 +294,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	/**
 	 * Global offsets
 	 */
-	public var spriteOffsets:ObjectSetupData = {
+	public var spriteOffsets:SpriteSetupData = {
 		position: new Position(),
 		flip: new TypeXY<Bool>(false, false),
 		scale: new Position(1, 1)
@@ -340,7 +346,7 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 				loadScript(script != null ? file : '${file.type}:${script.path}');
 				renderData(ParseUtil.object(file, type), applyStartValues);
 			} else loadTexture(file);
-		} else renderData(sprite.getData(), applyStartValues);
+		} else renderData(sprite.getData(true, type), applyStartValues);
 
 		if (scripts == null)
 			loadScript(script);

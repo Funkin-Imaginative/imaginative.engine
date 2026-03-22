@@ -40,7 +40,7 @@ typedef RawBasicSpriteTyping = {
 	/**
 	 * Extra data that the object can store.
  	 */
-	var extra:Map<String, Dynamic>;
+	var extra:Null<Map<String, Dynamic>>;
 
 	/**
 	 * Converts the raw object data.
@@ -53,9 +53,10 @@ typedef RawBasicSpriteTyping = {
 		var _path:Null<ModPath> = null;
 		var _data:SpriteData = null;
 		if (raw.sprite != null) {
-			if (raw.sprite.isDirectory())
-				_data = ParseUtil.object(Paths.object(_path = raw.sprite.getPath()), IsBeatSprite);
-			else _data = raw.sprite.getData();
+			if (Paths.object(raw.sprite.getPath()).isFile)
+				if (raw.sprite.isDirectory())
+					_data = ParseUtil.object(_path = raw.sprite.getPath(), IsBeatSprite);
+				else _data = raw.sprite.getData(true, IsBeatSprite);
 		}
 		return {
 			path: _path,
@@ -64,7 +65,7 @@ typedef RawBasicSpriteTyping = {
 			offset: Position.fromArray(raw.offset ?? [0, 0]),
 			sizeMult: raw.size ?? 1,
 			cheerOnSelect: raw.cheer ?? (index == null || amount == null) ? false : index == Math.floor(amount / 2),
-			extra: FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -76,14 +77,14 @@ typedef RawBasicSpriteTyping = {
 	 */
 	static function toRaw(data:BasicSpriteTyping, clearFlip:Bool = true, clearCheer:Bool = true):RawBasicSpriteTyping {
 		var raw:Dynamic = {
-			sprite: new DynamicSpriteData(data.path, data.data),
+			sprite: new DynamicSpriteData(data.path, SpriteData.toRaw(data.data)),
 			offset: data.offset.toArray(),
-			size: data.sizeMult,
-			extra: FunkinUtil.mapToObject(data.extra)
+			size: data.sizeMult
 		}
 		// prevents it from stringify-ing as containing null
 		if (!clearFlip) raw._set('flip', data.flipped);
 		if (!clearCheer) raw._set('cheer', data.cheerOnSelect);
+		if (data.extra != null) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}
 
@@ -151,7 +152,7 @@ typedef RawLevelData = {
 	/**
 	 * Extra data that can be stored.
  	 */
-	var extra:Map<String, Dynamic>;
+	var extra:Null<Map<String, Dynamic>>;
 
 	/**
 	 * Converts the raw object data.
@@ -183,7 +184,7 @@ typedef RawLevelData = {
 			variants: [for (value in levelDiffs) value[1]],
 			sprites: [for (i => data in raw.sprites ?? []) BasicSpriteTyping.fromRaw(data, i, raw.sprites.length)],
 			color: levelColor,
-			extra: FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -206,11 +207,11 @@ typedef RawLevelData = {
 			songs: [for (song in data.songs) song.id],
 			difficulties: levelDiffs,
 			sprites: [for (data in data.sprites) BasicSpriteTyping.toRaw(data, clearSpriteClearables, clearSpriteClearables)],
-			color: data.color == null ? null : data.color.toWebString(),
-			extra: FunkinUtil.mapToObject(data.extra)
+			color: data.color == null ? null : data.color.toWebString()
 		}
-		if (!clearStartDiff) // prevents it from stringify-ing as containing null
-			raw._set('startingDiff', data.startingDiff);
+		// prevents it from stringify-ing as containing null
+		if (!clearStartDiff) raw._set('startingDiff', data.startingDiff);
+		if (data.extra != null) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}
 
