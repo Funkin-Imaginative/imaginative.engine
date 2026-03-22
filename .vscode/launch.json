@@ -1,8 +1,20 @@
 {
 	"configurations": [
 		{
-			"name": "Main",
+			"name": "Test Build",
+			"preLaunchTask": "Compile Test",
+			"request": "launch",
+			"type": "lime"
+		},
+		{
+			"name": "Debug Build",
 			"preLaunchTask": "Compile Debug",
+			"request": "launch",
+			"type": "lime"
+		},
+		{
+			"name": "Tracy Debug Build",
+			"preLaunchTask": "Compile Debug with Tracy",
 			"request": "launch",
 			"type": "lime"
 		}
