@@ -442,10 +442,11 @@ class Paths {
 	 * @return ModPath ~ The path data.
 	 */
 	public static function multExt(file:ModPath, exts:Array<String>):ModPath {
+		final ogExt:String = file.extension;
 		var result:ModPath = '';
 		for (ext in exts)
-			if (fileExists(result = file.pushExt(ext)))
-				break;
+			if (fileExists(result = file.pushExt(ext))) break;
+			else result = file.pushExt(ogExt); // jic
 		return result;
 	}
 	/**
