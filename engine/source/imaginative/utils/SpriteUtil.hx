@@ -1,10 +1,24 @@
 package imaginative.utils;
 
 @SuppressWarnings('checkstyle:FieldDocComment')
+abstract ArrayPoint<T>(Dynamic) from Array<T> from T {
+	@:to inline public function toArray():Array<T>
+		return resolve();
+
+	public function resolve(?defaultValue:T, forceDefaultUse:Bool = false):Array<T> {
+		if (this == null) return [defaultValue, defaultValue];
+		final array:Array<T> = this is Array ? this : [this];
+		while (array.length < 2)
+			array.push((forceDefaultUse ? defaultValue : null) ?? (array.length > 0 ? array[0] : defaultValue));
+		return array;
+	}
+}
+
+@SuppressWarnings('checkstyle:FieldDocComment')
 typedef RawSpriteSetupData = {
 	var ?position:Array<Float>;
-	var ?flip:Array<Bool>;
-	var ?scale:Array<Float>;
+	var ?flip:ArrayPoint<Bool>;
+	var ?scale:ArrayPoint<Float>;
 }
 typedef SpriteSetupData = {
 	/**
@@ -24,7 +38,7 @@ typedef SpriteSetupData = {
 @SuppressWarnings('checkstyle:FieldDocComment')
 typedef RawAssetTyping = {
 	var image:String;
-	var ?type:String;
+	var ?type:String; // jic
 	var ?slots:Array<Int>;
 }
 @:structInit @:publicFields class AssetTyping {
@@ -389,20 +403,26 @@ typedef RawSpriteData = {
 			beat: beatData,
 			offsets: {
 				position: Position.fromArray(raw?.offsets?.position ?? [0, 0]),
-				flip: TypeXY.fromArray(raw?.offsets?.flip ?? [false, false]),
-				scale: Position.fromArray(raw?.offsets?.scale ?? [1, 1])
+				flip: {
+					final flipData:ArrayPoint<Bool> = raw?.offsets?.flip;
+					TypeXY.fromArray(flipData.resolve(false, true));
+				},
+				scale: {
+					final scaleData:ArrayPoint<Float> = raw?.offsets?.scale;
+					Position.fromArray(scaleData.resolve(1));
+				}
 			},
 			asset: AssetTyping.fromRaw(raw.asset),
 			animations: [for (anim in raw.animations) AnimationTyping.fromRaw(anim)],
 			starting: raw.starting == null ? null : {
 				position: Position.fromArray(raw.starting.position),
-				flip: TypeXY.fromArray(raw.starting.flip),
-				scale: Position.fromArray(raw.starting.scale)
+				flip: TypeXY.fromArray(raw.starting.flip.resolve(false, true)),
+				scale: Position.fromArray(raw.starting.scale.resolve(1))
 			},
 			swapAnimTriggers: raw.swapTriggers ?? false,
 			flipAnimTrigger: raw.flipTrigger ?? true,
 			antialiasing: raw.antialiasing ?? true,
-			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? [] : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**

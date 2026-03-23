@@ -40,7 +40,7 @@ typedef RawBasicSpriteTyping = {
 	/**
 	 * Extra data that the object can store.
  	 */
-	var extra:Null<Map<String, Dynamic>>;
+	var extra:Map<String, Dynamic>;
 
 	/**
 	 * Converts the raw object data.
@@ -65,7 +65,7 @@ typedef RawBasicSpriteTyping = {
 			offset: Position.fromArray(raw.offset ?? [0, 0]),
 			sizeMult: raw.size ?? 1,
 			cheerOnSelect: raw.cheer ?? (index == null || amount == null) ? false : index == Math.floor(amount / 2),
-			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? [] : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -84,7 +84,7 @@ typedef RawBasicSpriteTyping = {
 		// prevents it from stringify-ing as containing null
 		if (!clearFlip) raw._set('flip', data.flipped);
 		if (!clearCheer) raw._set('cheer', data.cheerOnSelect);
-		if (data.extra != null) raw._set('extra', FunkinUtil.mapToObject(data.extra));
+		if (data.extra != null) if (!data.extra.empty()) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}
 
@@ -152,7 +152,7 @@ typedef RawLevelData = {
 	/**
 	 * Extra data that can be stored.
  	 */
-	var extra:Null<Map<String, Dynamic>>;
+	var extra:Map<String, Dynamic>;
 
 	/**
 	 * Converts the raw object data.
@@ -184,7 +184,7 @@ typedef RawLevelData = {
 			variants: [for (value in levelDiffs) value[1]],
 			sprites: [for (i => data in raw.sprites ?? []) BasicSpriteTyping.fromRaw(data, i, raw.sprites.length)],
 			color: levelColor,
-			extra: raw.extra == null ? null : FunkinUtil.objectToMap(raw.extra)
+			extra: raw.extra == null ? [] : FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -211,7 +211,7 @@ typedef RawLevelData = {
 		}
 		// prevents it from stringify-ing as containing null
 		if (!clearStartDiff) raw._set('startingDiff', data.startingDiff);
-		if (data.extra != null) raw._set('extra', FunkinUtil.mapToObject(data.extra));
+		if (data.extra != null) if (!data.extra.empty()) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}
 
