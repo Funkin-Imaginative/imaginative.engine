@@ -282,9 +282,6 @@ class Project extends HXProject {
 		if (usesAnimateAtlas.exists())
 			addHaxelib('flixel-animate');
 
-		// json parsing
-		addHaxelib('json2object', 'git');
-
 		// debugging
 		if (isDesktop() && isDebug())
 			addHaxelib('hxcpp-debug-server', 'git');

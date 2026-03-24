@@ -12,7 +12,7 @@ interface ITexture<T:FlxSprite> {
 	/**
 	 * All textures the sprite is using.
 	 */
-	var textures(default, null):Array<TextureData>;
+	final textures:Array<TextureData>;
 	@:unreflective private function resetTextures(newTexture:ModPath, textureType:TextureType):Void;
 
 	/**

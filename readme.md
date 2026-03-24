@@ -15,8 +15,6 @@ Be wary of any issues you may encounter.
 
 [SuperPowers04](https://github.com/superpowers04): [`linc_luajit`](https://github.com/superpowers04/linc_luajit), for all my lua needs.
 
-[Guillaume Desquesnes](https://github.com/elnabo): [`json2object`](https://github.com/elnabo/json2object), a great json parser! Oh and I'm using [FunkinCrew](https://github.com/FunkinCrew/json2object)'s fork btw.
-
 [MaybeMaru](https://github.com/MaybeMaru): [`moonchart`](https://github.com/MaybeMaru/moonchart), how the engine converts charts from other engines!
 
 [Mihai Alexandru](https://github.com/MAJigsaw77): [`hxvlc`](https://lib.haxe.org/p/hxvlc) for playing videos, and [`hxdiscord_rpc`](https://lib.haxe.org/p/hxdiscord_rpc) for discord rich presence.

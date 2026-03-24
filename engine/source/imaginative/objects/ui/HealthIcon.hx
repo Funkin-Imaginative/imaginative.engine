@@ -25,14 +25,11 @@ final class HealthIcon extends BeatSprite implements ITexture<HealthIcon> {
 	public var tagName:String;
 
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
-		var modPath:ModPath = null;
+		var assetPath:ModPath = inputData.asset.image;
 		try {
-			modPath = inputData.asset.image;
+			//
 		} catch(error:haxe.Exception)
-			try {
-				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
-			} catch(error:haxe.Exception)
-				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			_log('[HealthIcon.renderData] Something went wrong. All try statements were bypassed! Tip: "${Paths.image(assetPath).format()}"', ErrorMessage);
 		super.renderData(inputData, applyStartValues);
 	}
 

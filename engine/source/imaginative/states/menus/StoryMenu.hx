@@ -286,6 +286,10 @@ class StoryMenu extends BeatState {
 				sprite.scale.scale(data.sizeMult);
 				sprite.updateHitbox();
 
+				if (objectData != null)
+					for (key => value in objectData.extra)
+						sprite.extra.set(key, value);
+
 				sprite.extra.set('cheerOnSelect', data.cheerOnSelect);
 				sprite.extra.set('offsets', data.offset);
 

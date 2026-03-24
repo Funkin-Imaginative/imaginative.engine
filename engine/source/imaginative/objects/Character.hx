@@ -114,9 +114,8 @@ final class Character extends BeatSprite implements ITexture<Character> {
 	public var healthColor(default, null):FlxColor = FlxColor.GRAY;
 
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
-		var modPath:ModPath = null;
+		final assetPath:ModPath = inputData.asset.image;
 		try {
-			modPath = inputData.asset.image;
 			if (inputData.character != null) {
 				cameraOffset.copyFrom(inputData.character.camera);
 				healthColor = inputData.character.color;
@@ -125,10 +124,7 @@ final class Character extends BeatSprite implements ITexture<Character> {
 				vocalSuffix = inputData.character.vocals ?? theirName;
 			}
 		} catch(error:haxe.Exception)
-			try {
-				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
-			} catch(error:haxe.Exception)
-				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			_log('[Character.renderData] Something went wrong. All try statements were bypassed! Tip: "${Paths.image(assetPath).format()}"', ErrorMessage);
 		super.renderData(inputData, false);
 	}
 

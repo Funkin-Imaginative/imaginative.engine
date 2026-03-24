@@ -9,7 +9,7 @@ typedef ChartNote = {
 	/**
 	 * The length of a sustain in steps.
 	 */
-	@:default(0) var length:Float;
+	var length:Float;
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
 	 * The note position in steps.
@@ -18,11 +18,11 @@ typedef ChartNote = {
 	/**
 	 * Characters this note will mess with instead of the fields main ones.
 	 */
-	var ?characters:Array<String>;
+	var characters:Array<String>;
 	/**
 	 * The note type.
 	 */
-	@:default('') var ?type:String;
+	var ?type:String;
 }
 
 typedef ChartField = {
@@ -33,7 +33,7 @@ typedef ChartField = {
 	/**
 	 * Characters to be assigned as singers for this field.
 	 */
-	var ?characters:Array<String>;
+	var characters:Array<String>;
 	/**
 	 * Array of notes to load.
 	 */
@@ -45,7 +45,7 @@ typedef ChartField = {
 	/**
 	 * The starting strum count of the field.
 	 */
-	@:default(4) var ?startCount:Int;
+	var ?startCount:Int;
 }
 
 typedef ChartCharacter = {
@@ -56,7 +56,7 @@ typedef ChartCharacter = {
 	/**
 	 * The character to load.
 	 */
-	@:default('boyfriend') var name:String;
+	var name:String;
 	/**
 	 * The location the character will be placed.
 	 */
@@ -86,7 +86,18 @@ typedef FieldSettings = {
 	var ?player:String;
 }
 
-typedef ChartEvent = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawChartEvent = {
+	var time:Float;
+	var data:Array<RawChartSubEvent>;
+}
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawChartSubEvent = {
+	var name:String;
+	var params:Dynamic<Dynamic>;
+}
+
+@:structInit @:publicFields class ChartEvent {
 	// NOTE: As of rn this is actually in milliseconds!!!!!
 	/**
 	 * The event position in steps.
@@ -96,6 +107,39 @@ typedef ChartEvent = {
 	 * Each event to trigger.
 	 */
 	var data:Array<ChartSubEvent>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @return ChartEvent
+	 */
+	static function fromRaw(raw:RawChartEvent):ChartEvent {
+		return {
+			time: raw.time,
+			data: [
+				for (data in raw.data) {
+					name: data.name,
+					params: FunkinUtil.objectToMap(data.params)
+				}
+			]
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @return RawChartEvent
+	 */
+	static function toRaw(data:ChartEvent):RawChartEvent {
+		return {
+			time: data.time,
+			data: [
+				for (data in data.data) {
+					name: data.name,
+					params: FunkinUtil.mapToObject(data.params)
+				}
+			]
+		}
+	}
 }
 typedef ChartSubEvent = {
 	/**
@@ -108,15 +152,25 @@ typedef ChartSubEvent = {
 	var params:Map<String, Dynamic>;
 }
 
-typedef ChartData = {
+@SuppressWarnings('checkstyle:FieldDocComment')
+typedef RawChartData = {
+	var ?speed:Float;
+	var ?stage:String;
+	var fields:Array<ChartField>;
+	var ?characters:Array<ChartCharacter>;
+	var fieldSettings:FieldSettings;
+	var ?hud:String;
+	var ?events:Array<RawChartEvent>;
+}
+@:structInit @:publicFields class ChartData {
 	/**
 	 * The song scroll speed.
 	 */
-	@:default(2.6) var ?speed:Float;
+	var speed:Float;
 	/**
 	 * The stage this song will take place.
 	 */
-	@:default('void') var ?stage:String;
+	var stage:String;
 	/**
 	 * Array of arrow fields to load.
 	 */
@@ -124,7 +178,7 @@ typedef ChartData = {
 	/**
 	 * Array of characters to load.
 	 */
-	var ?characters:Array<ChartCharacter>;
+	var characters:Array<ChartCharacter>;
 	/**
 	 * Field settings.
 	 */
@@ -132,11 +186,52 @@ typedef ChartData = {
 	/**
 	 * The song hud.
 	 */
-	@:default('default') var ?hud:String;
+	var hud:String;
 	/**
 	 * Chart specific events.
 	 */
-	@:default([]) var ?events:Array<ChartEvent>;
+	var events:Array<ChartEvent>;
+
+	/**
+	 * Converts the raw object data.
+	 * @param raw The object data.
+	 * @return ChartData
+	 */
+	static function fromRaw(raw:RawChartData):ChartData {
+		return {
+			speed: raw.speed ?? 2.6,
+			stage: raw.stage ?? 'void',
+			fields: [
+				for (field in raw.fields) {
+					tag: field.tag,
+					characters: field.characters,
+					notes: field.notes,
+					speed: field.speed,
+					startCount: field.startCount ?? 4
+				}
+			],
+			characters: raw.characters ?? [],
+			fieldSettings: raw.fieldSettings,
+			hud: raw.hud ?? 'default',
+			events: [for (event in raw.events ?? []) ChartEvent.fromRaw(event)]
+		}
+	}
+	/**
+	 * Converts the object data.
+	 * @param data The object data.
+	 * @return RawChartData
+	 */
+	static function toRaw(data:ChartData):RawChartData {
+		return {
+			speed: data.speed,
+			stage: data.stage,
+			fields: data.fields,
+			characters: data.characters,
+			fieldSettings: data.fieldSettings,
+			hud: data.hud,
+			events: [for (event in data.events) ChartEvent.toRaw(event)]
+		}
+	}
 }
 
 class ChartEditor extends BeatState {

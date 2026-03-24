@@ -63,7 +63,7 @@ typedef RawSongData = {
 			for (value in raw.difficulties) {
 				final split:Array<String> = value.toLowerCase().split(':');
 				final diff:String = split[split.length > 1 ? 1 : 0];
-				[diff, split.length > 1 ? split[0] : FunkinUtil.getDifficultyVariant(diff)];
+				[diff, split.length > 1 ? split[0] : null];
 			}
 		];
 		return {
@@ -75,7 +75,7 @@ typedef RawSongData = {
 			variants: [for (value in songDiffs) value[1]],
 			color: raw.color == null ? null : FlxColor.fromString(raw.color),
 			gamemodes: FunkinUtil.gamemodesCheck(FunkinUtil.objectToMap(raw.gamemodes)),
-			extra: raw.extra == null ? [] : FunkinUtil.objectToMap(raw.extra)
+			extra: FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
@@ -95,11 +95,11 @@ typedef RawSongData = {
 		var raw:Dynamic = {
 			icon: data.icon,
 			difficulties: songDiffs,
-			color: data.color == null ? null : data.color.toWebString(),
 			gamemodes: FunkinUtil.mapToObject(data.gamemodes)
 		}
 		// prevents it from stringify-ing as containing null
 		if (!clearStartDiff) raw._set('startingDiff', data.startingDiff);
+		if (data.color != null) raw._set('color', data.color.toWebString());
 		if (data.extra != null) if (!data.extra.empty()) raw._set('extra', FunkinUtil.mapToObject(data.extra));
 		return raw;
 	}

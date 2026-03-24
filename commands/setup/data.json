@@ -50,12 +50,6 @@
 			"dependencies": []
 		},
 		{
-			"name": "json2object",
-			"version": "git",
-			"branch": "59e0467c953d1f26e3cbf2a070f140e2d2e8457d",
-			"url": "https://github.com/FunkinCrew/json2object"
-		},
-		{
 			"name": "linc_luajit",
 			"version": "git",
 			"url": "https://github.com/superpowers04/linc_luajit"

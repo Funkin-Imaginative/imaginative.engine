@@ -1,7 +1,6 @@
 package imaginative.utils;
 
-import json2object.JsonParser;
-import imaginative.states.editors.ChartEditor.ChartData;
+import imaginative.states.editors.ChartEditor;
 
 /**
  * This util is for all your parsing needs.
@@ -89,12 +88,12 @@ class ParseUtil {
 	 * @return ChartData ~ The parsed chart json.
 	 */
 	inline public static function chart(song:String, difficulty:String, ?variant:String):ChartData {
-		var jsonPath:ModPath = Paths.chart(song, difficulty, variant);
-		if (!jsonPath.isFile) {
-			_log('[ParseUtil.chart] Chart file "${jsonPath.format()}" doesn\'t exist.', WarningMessage);
+		var chartPath:ModPath = Paths.chart(song, difficulty, variant);
+		if (!chartPath.isFile) {
+			_log('[ParseUtil.chart] Chart file "${chartPath.format()}" doesn\'t exist.', WarningMessage);
 			return null;
 		}
-		return new JsonParser<ChartData>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
+		return ChartData.fromRaw(json(chartPath, true));
 	}
 
 	/**
@@ -103,8 +102,9 @@ class ParseUtil {
 	 * @return SpriteTextSetup ~ The parsed font json.
 	 */
 	inline public static function spriteFont(font:ModPath):SpriteTextSetup {
-		var jsonPath:ModPath = Paths.spriteFont(font); if (!jsonPath.isFile) return null;
-		return new JsonParser<SpriteTextSetup>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format());
+		/* var jsonPath:ModPath = Paths.spriteFont(font); if (!jsonPath.isFile) return null;
+		return new JsonParser<SpriteTextSetup>().fromJson(removeJsonComments(Assets.text(jsonPath)), jsonPath.format()); */
+		return {name: 'null lol', fps: 24, characters: [], spaceWidth: 50}
 	}
 
 	/**

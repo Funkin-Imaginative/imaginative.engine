@@ -82,9 +82,9 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	/**
 	 * All textures the sprite is using.
 	 */
-	public var textures(default, null):Array<TextureData> = [];
+	public final textures:Array<TextureData> = [];
 	@:unreflective inline function resetTextures(newTexture:ModPath, textureType:TextureType):Void {
-		textures = [];
+		textures.resize(0);
 		textures.push(new TextureData(FilePath.withoutExtension(newTexture), textureType));
 	}
 
@@ -190,40 +190,51 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 	 * @param applyStartValues Whether or not to apply the start values.
 	 */
 	public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
-		var modPath:Null<ModPath> = null;
+		final assetPath:ModPath = inputData.asset.image;
 		try {
-			modPath = inputData.asset.image;
 			try {
 				if (inputData.asset.type == IsGraphic) {
 					if (inputData.asset.slots == null)
-						loadImage(modPath);
+						loadImage(assetPath);
 					else {
-						final graphic = Assets.image(modPath); // gets the image so we can use the slots appropriately
-						loadImage(modPath, true, Math.floor(graphic.width / inputData.asset.slots.x), Math.floor(graphic.height / inputData.asset.slots.y));
+						final graphic = Assets.image(assetPath); // gets the image so we can use the slots appropriately
+						loadImage(assetPath, true, Math.floor(graphic.width / inputData.asset.slots.x), Math.floor(graphic.height / inputData.asset.slots.y));
 					}
 				}
 				#if ANIMATE_SUPPORT
 				else if (inputData.asset.type == IsAnimateAtlas)
-					loadAtlas(modPath);
+					loadAtlas(assetPath);
 				#end
-				else loadSheet(modPath);
+				else loadSheet(assetPath);
 			} catch(error:haxe.Exception)
-				log('Couldn\'t load image "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
+				_log('[BaseSprite.renderData] Couldn\'t load image "${Paths.image(assetPath).format()}", determined type "${inputData.asset.type}".', ErrorMessage);
+			if (!textures.empty())
+			// TODO: finish implementing multi sheet support
+			/* for (i => anim in inputData.animations) {
+				if (anim.asset == null) continue;
+				if (anim.asset.type == IsGraphic) {
+					_log('[BaseSprite.renderData] "IsGraphic" cannot be used as a sub-image.', WarningMessage);
+					continue;
+				}
+				final subPath:ModPath = anim.asset.image;
+				try {
+					#if ANIMATE_SUPPORT if (anim.asset.type == IsAnimateAtlas) loadAtlas(subPath); else #end loadSheet(subPath);
+				} catch(error:haxe.Exception)
+					_log('[BaseSprite.renderData] Couldn\'t load sub-image "${subPath.format()}", determined type "${anim.asset.type}".', ErrorMessage);
+			} */
 
-			if (inputData.offsets != null) {
-				spriteOffsets.position.copyFrom(inputData.offsets.position);
-				spriteOffsets.flip.copyFrom(inputData.offsets.flip);
-				spriteOffsets.scale.copyFrom(inputData.offsets.scale);
+			// Offset Setup
+			spriteOffsets.position.copyFrom(inputData.offsets.position);
+			spriteOffsets.flip.copyFrom(inputData.offsets.flip);
+			spriteOffsets.scale.copyFrom(inputData.offsets.scale);
 
-				offset.set(spriteOffsets.position.x, spriteOffsets.position.y);
-				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
-				updateHitbox();
-			}
+			offset.set(spriteOffsets.position.x, spriteOffsets.position.y);
+			scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
 
 			try {
 				for (i => anim in inputData.animations) {
 					try {
-						var flipping:TypeXY<Bool> = new TypeXY<Bool>(false, false);
+						final flipping:TypeXY<Bool> = new TypeXY<Bool>(false, false);
 						if (anim.flip != null) flipping.copyFrom(anim.flip);
 						if (spriteOffsets.flip.x) flipping.x = !flipping.x;
 						if (spriteOffsets.flip.y) flipping.y = !flipping.y;
@@ -231,18 +242,17 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 							case IsGraphic:
 								animation.add(anim.name, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							case IsSparrow | IsPacker | IsAseprite:
-								if ((anim.indices ?? []).empty()) animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								if (anim.indices.empty()) animation.addByPrefix(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 								else animation.addByIndices(anim.name, anim.tag, anim.indices, '', anim.fps, anim.loop, flipping.x, flipping.y);
 							#if ANIMATE_SUPPORT
 							case IsAnimateAtlas:
-								if ((anim.indices ?? []).empty()) this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
+								if (anim.indices.empty()) this.anim.addBySymbol(anim.name, anim.tag, anim.fps, anim.loop, flipping.x, flipping.y);
 								else this.anim.addBySymbolIndices(anim.name, anim.tag, anim.indices, anim.fps, anim.loop, flipping.x, flipping.y);
 							#end
 							default:
-								log('The asset type was unknown! Tip: "${modPath.format()}"', WarningMessage);
+								_log('[BaseSprite.renderData] The asset type was unknown! Tip: "${Paths.image(assetPath).format()}"', WarningMessage);
 						}
-						var animOffset:Position = new Position();
-						if (anim.offset != null) animOffset.copyFrom(anim.offset);
+						final animOffset:Position = new Position().copyFrom(anim.offset);
 						anims.set(anim.name, {
 							offset: animOffset,
 							swapName: anim.swapKey ?? '',
@@ -254,33 +264,27 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 							finishAnim();
 						}
 					} catch(error:haxe.Exception)
-						log('Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${modPath.format()}", type "${inputData.asset.type}".', ErrorMessage);
+						_log('[BaseSprite.renderData] Couldn\'t load animation "${anim.name}", maybe the tag "${anim.tag}" is invalid? The asset is "${Paths.image(assetPath).format()}", type "${inputData.asset.type}".', ErrorMessage);
 				}
 			} catch(error:haxe.Exception)
-				log('Couldn\'t add the animations.', WarningMessage);
+				_log('[BaseSprite.renderData] Couldn\'t add the animations.', WarningMessage);
 
 			if (applyStartValues && inputData.starting != null) {
 				setPosition(inputData.starting.position.x, inputData.starting.position.y);
 				flipX = inputData.starting.flip.x;
 				flipY = inputData.starting.flip.y;
-				scale.set(spriteOffsets.scale.x, spriteOffsets.scale.y);
 				scale.scale(inputData.starting.scale.x, inputData.starting.scale.y);
-				updateHitbox();
 			}
+			updateHitbox();
 
 			swapAnimTriggers = inputData.swapAnimTriggers;
 			flipAnimTrigger = inputData.flipAnimTrigger;
 			antialiasing = inputData.antialiasing;
 
-			if (inputData.extra != null) {
-				for (key => value in inputData.extra)
-					extra.set(key, value);
-			}
+			for (key => value in inputData.extra)
+				extra.set(key, value);
 		} catch(error:haxe.Exception)
-			try {
-				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
-			} catch(error:haxe.Exception)
-				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			_log('[BaseSprite.renderData] Something went wrong. All try statements were bypassed! Tip: "${Paths.image(assetPath).format()}"', ErrorMessage);
 	}
 
 	/**
@@ -340,7 +344,8 @@ class BaseSprite extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSprite 
 		#end
 		super(x, y);
 
-		if (sprite.isDirectory()) {
+		if (sprite.isNull()) {} // prevents renderData
+		else if (sprite.isDirectory()) {
 			final file:ModPath = sprite.getPath();
 			if (Paths.object(file).isFile) {
 				loadScript(script != null ? file : '${file.type}:${script.path}');

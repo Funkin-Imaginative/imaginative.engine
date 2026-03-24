@@ -69,18 +69,14 @@ class BeatSprite extends BaseSprite implements ITexture<BeatSprite> implements I
 	public var preventIdle:Bool = false;
 
 	override public function renderData(inputData:SpriteData, applyStartValues:Bool = false):Void {
-		var modPath:ModPath = null;
+		final assetPath:ModPath = inputData.asset.image;
 		try {
-			modPath = inputData.asset.image;
 			if (inputData.beat != null) {
 				beatInterval = inputData.beat.interval;
 				skipNegativeBeats = inputData.beat.skipnegative;
 			}
 		} catch(error:haxe.Exception)
-			try {
-				log('Something went wrong. All try statements were bypassed! Tip: "${modPath.format()}"', ErrorMessage);
-			} catch(error:haxe.Exception)
-				log('Something went wrong. All try statements were bypassed! Tip: "null"', ErrorMessage);
+			_log('[BeatSprite.renderData] Something went wrong. All try statements were bypassed! Tip: "${Paths.image(assetPath).format()}"', ErrorMessage);
 		super.renderData(inputData, applyStartValues);
 	}
 

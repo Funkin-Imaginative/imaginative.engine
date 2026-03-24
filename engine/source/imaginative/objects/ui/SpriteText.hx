@@ -36,14 +36,11 @@ typedef SpriteTextCharacterSetup = {
 	/**
 	 * The offset for the set character.
 	 */
-	@:default(new imaginative.backend.objects.Position())
-	@:jcustomparse(imaginative.backend.objects.Position._parseOp)
-	@:jcustomwrite(imaginative.backend.objects.Position._writeOp)
-	var ?offset:Position;
+	var ?offset:Position; // 0, 0
 	/**
 	 * The character type.
 	 */
-	@:default(NormalText) var type:SpriteTextCharacterType;
+	var type:SpriteTextCharacterType; // NormalText
 }
 
 typedef SpriteTextSetup = {
@@ -55,7 +52,7 @@ typedef SpriteTextSetup = {
 	/**
 	 * The framerate of the animation.
 	 */
-	@:default(24) var fps:Int;
+	var fps:Int; // 24
 	/**
 	 * The character setup information
 	 */
@@ -64,7 +61,7 @@ typedef SpriteTextSetup = {
 	 * The width for spaces.
 	 * Is ignored if space is assigned in the characters array.
 	 */
-	@:default(50) var spaceWidth:Float;
+	var spaceWidth:Float; // 50
 }
 
 // TODO: Get this functioning.
@@ -223,7 +220,7 @@ class SpriteTextLine extends FlxTypedSpriteGroup<SpriteTextCharacter> {
 /**
  * 'SpriteTextCharacter's are the individual characters of a 'SpriteText'.
  */
-class SpriteTextCharacter extends FlxSkewedSprite {
+class SpriteTextCharacter extends #if ANIMATE_SUPPORT animate.FlxAnimate #else FlxSkewedSprite #end {
 	/**
 	 * The characters parent.
 	 */

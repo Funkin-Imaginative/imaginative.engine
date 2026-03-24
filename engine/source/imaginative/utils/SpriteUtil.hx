@@ -80,12 +80,14 @@ typedef RawAssetTyping = {
 	/**
 	 * Converts the object data.
 	 * @param data The object data.
+	 * @param clearTextureType Whether or not to clear the texture type.
 	 * @return RawAssetTyping
 	 */
-	static function toRaw(data:AssetTyping):RawAssetTyping {
+	static function toRaw(data:AssetTyping, clearTextureType:Bool = true):RawAssetTyping {
 		var raw:Dynamic = {image: data.image}
-		if (data.slots != null) // prevents it from stringify-ing as containing null
-			raw._set('slots', data.slots.toArray());
+		// prevents it from stringify-ing as containing null
+		if (!clearTextureType) raw._set('type', data.type);
+		if (data.slots != null) raw._set('slots', data.slots.toArray());
 		return raw;
 	}
 
@@ -174,7 +176,7 @@ typedef RawAnimationTyping = {
 			asset: raw.asset == null ? null : AssetTyping.fromRaw(raw.asset),
 			name: raw.name,
 			tag: raw.tag,
-			indices: raw.indices,
+			indices: raw.indices ?? [],
 			offset: Position.fromArray(raw.offset ?? [0, 0]),
 			swapKey: raw.swapKey,
 			flipKey: raw.flipKey,
@@ -192,12 +194,12 @@ typedef RawAnimationTyping = {
 		var raw:Dynamic = {name: data.name}
 		// prevents it from stringify-ing as containing null
 		if (data.asset != null) raw._set('asset', AssetTyping.toRaw(data.asset));
-		if (data.tag != null) raw._set('tag', data.tag);
-		if (data.indices != null) if (data.indices.length != 0) raw._set('indices', data.indices);
-		if (data.offset != null || !(data.offset.x == 0 && data.offset.y == 0)) raw._set('offset', data.offset.toArray());
-		if (data.swapKey != null) raw._set('swapKey', data.swapKey);
-		if (data.flipKey != null) raw._set('flipKey', data.flipKey);
-		if (data.flip != null || !(!data.flip.x && !data.flip.y)) raw._set('flip', data.flip.toArray());
+		if (!data.tag.isNullOrEmpty()) raw._set('tag', data.tag);
+		if (!data.indices.empty()) raw._set('indices', data.indices);
+		if (data.offset != null) if (!(data.offset.x == 0 && data.offset.y == 0)) raw._set('offset', data.offset.toArray());
+		if (!data.swapKey.isNullOrEmpty()) raw._set('swapKey', data.swapKey);
+		if (!data.flipKey.isNullOrEmpty()) raw._set('flipKey', data.flipKey);
+		if (data.flip != null) if (!(!data.flip.x && !data.flip.y)) raw._set('flip', data.flip.toArray());
 		if (data.loop) raw._set('loop', data.loop);
 		if (data.fps != 24) raw._set('fps', data.fps);
 		return raw;
@@ -422,25 +424,77 @@ typedef RawSpriteData = {
 			swapAnimTriggers: raw.swapTriggers ?? false,
 			flipAnimTrigger: raw.flipTrigger ?? true,
 			antialiasing: raw.antialiasing ?? true,
-			extra: raw.extra == null ? [] : FunkinUtil.objectToMap(raw.extra)
+			extra: FunkinUtil.objectToMap(raw.extra)
 		}
 	}
 	/**
 	 * Converts the object data.
 	 * @param data The object data.
-	 * @param clearFlip Whether to clear the flip.
-	 * @param clearCheer Whether to clear the cheer.
+	 * @param clearStarting Whether or not to clear the starting values.
 	 * @return RawBasicSpriteTyping
 	 */
-	static function toRaw(data:SpriteData):RawSpriteData {
-		var raw:Dynamic = {}
-		return cast raw;
+	static function toRaw(data:SpriteData, clearStarting:Bool = true):RawSpriteData {
+		var raw:Dynamic = {
+			asset: AssetTyping.toRaw(data.asset),
+			animations: [for (anim in data.animations) AnimationTyping.toRaw(anim)],
+		}
+		// prevents it from stringify-ing as containing null
+		if (data.character != null) {
+			var rawCharData:Dynamic = {}
+			if (!(data.character.camera.x == 0 && data.character.camera.y == 0)) rawCharData._set('camera', data.character.camera.toArray());
+			if (data.character.color != FlxColor.GRAY) rawCharData._set('color', data.character.color.toWebString());
+			if (data.character.icon != null) rawCharData._set('icon', data.character.icon);
+			if (data.character.singlength != 4) if (data.character.singlength != 4) rawCharData._set('singlength', data.character.singlength);
+			if (!data.character.vocals.isNullOrEmpty()) rawCharData._set('vocals', data.character.vocals);
+			if (!rawCharData._fields().empty()) raw._set('character', rawCharData);
+		}
+		if (data.beat != null) {
+			var rawBeatData:Dynamic = {}
+			if (data.beat.interval != 0) rawBeatData._set('interval', data.beat.interval);
+			if (data.beat.skipnegative) rawBeatData._set('skipnegative', data.beat.skipnegative);
+			if (!rawBeatData._fields().empty()) raw._set('beat', rawBeatData);
+		}
+		@SuppressWarnings('checkstyle:CodeSimilarity')
+		if (data.offsets != null) {
+			var rawOffsets:Dynamic = {}
+
+			if (!(data.offsets.position.x == 0 && data.offsets.position.y == 0)) rawOffsets._set('position', data.offsets.position.toArray());
+			else if (data.offsets.position.x == data.offsets.position.y) rawOffsets._set('position', data.offsets.position.x);
+
+			if (!(!data.offsets.flip.x && !data.offsets.flip.y)) rawOffsets._set('flip', data.offsets.flip.toArray());
+			else if (data.offsets.flip.x == data.offsets.flip.y) rawOffsets._set('flip', data.offsets.flip.x);
+
+			if (!(data.offsets.scale.x == 1 && data.offsets.scale.y == 1)) rawOffsets._set('scale', data.offsets.scale.toArray());
+			else if (data.offsets.scale.x == data.offsets.scale.y) rawOffsets._set('scale', data.offsets.scale.x);
+
+			if (!rawOffsets._fields().empty()) raw._set('offsets', rawOffsets);
+		}
+		if (!clearStarting)
+		if (data.starting != null) {
+			var rawStarting:Dynamic = {}
+
+			if (!(data.starting.position.x == 0 && data.starting.position.y == 0)) rawStarting._set('position', data.starting.position.toArray());
+			else if (data.starting.position.x == data.starting.position.y) rawStarting._set('position', data.starting.position.x);
+
+			if (!(!data.starting.flip.x && !data.starting.flip.y)) rawStarting._set('flip', data.starting.flip.toArray());
+			else if (data.starting.flip.x == data.starting.flip.y) rawStarting._set('flip', data.starting.flip.x);
+
+			if (!(data.starting.scale.x == 1 && data.starting.scale.y == 1)) rawStarting._set('scale', data.starting.scale.toArray());
+			else if (data.starting.scale.x == data.starting.scale.y) rawStarting._set('scale', data.starting.scale.x);
+
+			if (!rawStarting._fields().empty()) raw._set('starting', rawStarting);
+		}
+		if (data.swapAnimTriggers) raw._set('swapTriggers', data.swapAnimTriggers);
+		if (!data.flipAnimTrigger) raw._set('flipTrigger', data.flipAnimTrigger);
+		if (!data.antialiasing) raw._set('antialiasing', data.antialiasing);
+		if (data.extra != null) if (!data.extra.empty()) raw._set('extra', FunkinUtil.mapToObject(data.extra));
+		return raw;
 	}
 
 	inline private function toString():String {
 		return FunkinUtil.toDebugString([
 			'Character Specific Data' => character,
-			'Beat Specific Data' => beat,
+			'Bopper Specific Data' => beat,
 			'Offsets' => offsets,
 			'Asset Typing' => asset,
 			'Animations' => animations,

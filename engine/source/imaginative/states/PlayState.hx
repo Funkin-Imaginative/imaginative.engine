@@ -898,10 +898,11 @@ class PlayState extends BeatState {
 					hud: 'default'
 				}
 			}
-		var eventsPath:String = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
-		if (Paths.fileExists(eventsPath)) {
+		final eventsPath:String = 'content/songs/$loadedChart/events${varia == 'normal' ? '' : '$varia/'}';
+		if (Paths.json(eventsPath).isFile) {
 			_log('[PlayState] Separate events found. (path:$eventsPath)');
-			chartData.events.concat(ParseUtil.json(eventsPath));
+			final rawEvents:Array<RawChartEvent> = ParseUtil.json(eventsPath);
+			chartData.events.concat([for (data in rawEvents) ChartEvent.fromRaw(data)]);
 		} else _log('[PlayState] No separate events found. (path:$eventsPath)');
 		_log('[PlayState] Song "$loadedChart" loaded on "${FunkinUtil.getDifficultyDisplay(diff)}", variant "$varia".', DebugMessage);
 		PlayState.curDifficulty = diff;
