@@ -126,11 +126,6 @@ class Note extends FlxSprite {
 	}
 
 	/**
-	 * If true this note will have less priority in the input system and in most cases be detected last.
-	 */
-	public var lowPriority:Bool = false;
-
-	/**
 	 * Any characters in this array will overwrite the notes parent field array.
 	 * `May make it contain string instead.`
 	 */
@@ -363,11 +358,8 @@ class Note extends FlxSprite {
 	 * @param b Note b.
 	 * @return Int
 	 */
-	inline public static function sortNotes(a:Note, b:Note):Int {
-		if (a.lowPriority && !b.lowPriority) return 1;
-		else if (!a.lowPriority && b.lowPriority) return -1;
+	inline public static function sortNotes(a:Note, b:Note):Int
 		return FlxSort.byValues(FlxSort.ASCENDING, a.time, b.time);
-	}
 	/**
 	 * Helper function for sorting an array of sustains.
 	 * @param a Note a.
