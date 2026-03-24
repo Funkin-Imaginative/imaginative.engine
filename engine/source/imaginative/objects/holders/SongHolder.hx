@@ -182,7 +182,7 @@ class SongHolder extends BeatSpriteGroup {
 		scripts.load();
 
 		if (loadSprites) {
-			text = new FlxText(name.path);
+			text = new FlxText(data.name);
 			text.setFormat(Paths.font('PhantomMuff/full letters').format(), 60, OUTLINE, FlxColor.BLACK);
 			text.borderSize = 3.5;
 			add(text);
