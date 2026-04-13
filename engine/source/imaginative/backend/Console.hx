@@ -27,36 +27,15 @@ enum abstract ConsoleColors(String) from String to String {
 	var CYAN =          '\x1b[96m';
 	var WHITE =         '\x1b[97m';
 
-	public static final mapList:Map<String, ConsoleColors> = [
-		'reset' => RESET,
-		'black' => BLACK,
-		'darkred' => DARKRED,
-		'darkgreen' => DARKGREEN,
-		'darkyellow' => DARKYELLOW,
-		'orange' => ORANGE,
-		'darkblue' => DARKBLUE,
-		'purple' => PURPLE,
-		'darkmagenta' => DARKMAGENTA,
-		'darkcyan' => DARKCYAN,
-		'lightgray' => LIGHTGRAY,
-		'gray' => GRAY,
-		'red' => RED,
-		'green' => GREEN,
-		'yellow' => YELLOW,
-		'blue' => BLUE,
-		'magenta' => MAGENTA,
-		'cyan' => CYAN,
-		'white' => WHITE
-	];
+	public static final colorList:Map<String, ConsoleColors> = flixel.system.macros.FlxMacroUtil.buildMap('imaginative.backend.ConsoleColors');
 
 	public static function format(input:String):String {
-		for (name => color in mapList) {
-			input = input.replace('#$name', color);
-			input = input.replace('#${name.toUpperCase()}', color);
-			input = input.replace('$' + name, color);
-			input = input.replace('$' + name.toUpperCase(), color);
-			input = input.replace('<$name>', color);
-			input = input.replace('<${name.toUpperCase()}>', color);
+		for (name => color in colorList) {
+			for (name in [name, name.toLowerCase()]) {
+				input = input.replace('#$name', color);
+				input = input.replace('$' + name, color);
+				input = input.replace('<$name>', color);
+			}
 		}
 		return input;
 	}
@@ -173,7 +152,7 @@ class Console {
 		#if TRACY_DEBUGGER
 		final tracyMessage:String = {
 			var _:String = traceMessage;
-			for (name => color in ConsoleColors.mapList)
+			for (name => color in ConsoleColors.colorList)
 				_ = _.replace(color, '');
 			_;
 		}
