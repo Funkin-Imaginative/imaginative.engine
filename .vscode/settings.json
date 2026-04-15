@@ -33,10 +33,6 @@
 
 	"haxe.enableExtendedIndentation": true,
 	"haxe.importsSortOrder": "stdlib -> libs -> project",
-	"haxe.inlayHints": {
-		"conditionals": true,
-		"parameterTypes": true
-	},
 
 	"haxecheckstyle.sourceFolders": ["engine/source/imaginative", "engine/source/flixel"],
 
