@@ -1,0 +1,11 @@
+{
+	"offsets": {"scale": 4.7},
+	"asset": {"image": "ui/icons/senpai", "slots": [1, 1]},
+	"animations": [
+		{
+			"name": "normal",
+			"indices": [0]
+		}
+	],
+	"antialiasing": false
+}

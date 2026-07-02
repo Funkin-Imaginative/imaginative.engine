@@ -1,0 +1,40 @@
+{
+	"cSpell.words": [
+		"blammed"
+	],
+
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "always",
+		"source.sortImports": "always"
+	},
+	"editor.insertSpaces": false,
+
+	"files.associations": {
+		"*.{haxe,hscript,hsc,hxs,hxc}": "haxe"
+	},
+	"files.autoGuessEncoding": true,
+	"files.enableTrash": true, // YOU'LL THANK ME LATER!!!
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
+
+	"haxe.enableExtendedIndentation": true,
+	"haxe.importsSortOrder": "stdlib -> libs -> project",
+	"haxe.inlayHints": {
+		"conditionals": true,
+		"parameterTypes": true
+	},
+
+	"prettier.htmlWhitespaceSensitivity": "strict",
+	"prettier.singleQuote": true,
+	"prettier.tabWidth": 4,
+	"prettier.trailingComma": "none",
+	"prettier.useTabs": true,
+
+	"xml.format.emptyElements": "collapse",
+	"xml.format.enforceQuoteStyle": "preferred",
+	"xml.format.joinCDATALines": true,
+	"xml.format.joinCommentLines": true,
+	"xml.format.joinContentLines": true,
+	"xml.format.splitAttributesIndentSize": 4,
+	"xml.preferences.quoteStyle": "single"
+}

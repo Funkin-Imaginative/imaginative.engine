@@ -1,0 +1,9 @@
+{
+	"asset": {"image": "ui/icons/dad", "slots": [1, 1]},
+	"animations": [
+		{
+			"name": "normal",
+			"indices": [0]
+		}
+	]
+}

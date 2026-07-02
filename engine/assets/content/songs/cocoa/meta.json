@@ -1,0 +1,7 @@
+{
+	"icon": "dearests",
+	"color": "#A0D1FF",
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard"],
+	"gamemodes": {"botplay": true, "be-enemy": true, "2player": true}
+}

@@ -1,0 +1,7 @@
+{
+	"icon": "mom",
+	"color": "#FC96D7",
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard", "erect:erect", "erect:nightmare"],
+	"gamemodes": {"botplay": true, "be-enemy": true, "2player": true}
+}

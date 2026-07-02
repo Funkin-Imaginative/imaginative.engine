@@ -1,0 +1,12 @@
+{
+	"title": "Due Debts",
+	"songs": ["darnell", "lit-up", "2hot", "blazin"],
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard"],
+	"sprites": [
+		{"sprite": "main:characters/darnell"},
+		{"sprite": "main:characters/pico"},
+		{"sprite": "main:characters/nene"}
+	],
+	"color": "#413CAE"
+}

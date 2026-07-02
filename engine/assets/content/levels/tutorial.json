@@ -1,0 +1,11 @@
+{
+	"title": "Teaching Time",
+	"songs": ["tutorial"],
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard"],
+	"sprites": [
+		{"sprite": "main:characters/gf"},
+		{"sprite": "main:characters/boyfriend"}
+	],
+	"color": "#F9CF51"
+}

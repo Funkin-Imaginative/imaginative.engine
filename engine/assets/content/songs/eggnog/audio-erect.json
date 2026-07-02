@@ -1,0 +1,14 @@
+{
+	"artist": "Saruky",
+	"name": "Eggnog Erect",
+	"bpm": 140,
+	"signature": [4, 4],
+	"offset": 0,
+	"checkpoints": [
+		{
+			"time": 122000,
+			"bpm": 80,
+			"signature": [4, 4]
+		}
+	]
+}

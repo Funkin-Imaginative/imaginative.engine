@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with Funkin Packer v0.1.3 https://neeeoo.github.io/funkin-packer/
+-->
+<TextureAtlas imagePath="arrows.png" width="125" height="190">
+	<SubTexture name="leftIdle0000" x="10" y="10" width="48" height="85" frameX="-0" frameY="-0" frameWidth="48" frameHeight="85"/>
+	<SubTexture name="rightIdle0000" x="68" y="10" width="47" height="85" frameX="-0" frameY="-0" frameWidth="47" frameHeight="85"/>
+	<SubTexture name="leftConfirm0000" x="10" y="105" width="42" height="75" frameX="-0" frameY="-0" frameWidth="42" frameHeight="75"/>
+	<SubTexture name="rightConfirm0000" x="62" y="105" width="41" height="74" frameX="-0" frameY="-0" frameWidth="41" frameHeight="74"/>
+</TextureAtlas>

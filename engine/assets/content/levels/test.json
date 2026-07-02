@@ -1,0 +1,10 @@
+{
+	"title": "Testing Things Out",
+	"songs": ["test"],
+	"difficulties": ["normal"],
+	"sprites": [
+		{"sprite": "main:characters/boyfriend"},
+		{"sprite": "main:characters/boyfriend"}
+	],
+	"color": "#FFFFFF"
+}

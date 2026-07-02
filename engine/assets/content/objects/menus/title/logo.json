@@ -1,0 +1,10 @@
+{
+	"beat": {"interval": 4},
+	"asset": {"image": "menus/title/logoBumpin"},
+	"animations": [
+		{
+			"name": "idle",
+			"tag": "logo bumpin"
+		}
+	]
+}

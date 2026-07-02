@@ -1,0 +1,12 @@
+{
+	"title": "Pico",
+	"songs": ["pico", "philly-nice", "blammed"],
+	"startingDiff": 1,
+	"difficulties": ["easy", "normal", "hard"],
+	"sprites": [
+		{"sprite": "main:characters/pico"},
+		{"sprite": "main:characters/boyfriend"},
+		{"sprite": "main:characters/gf"}
+	],
+	"color": "#F9CF51"
+}
