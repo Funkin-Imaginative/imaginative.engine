@@ -1,13 +1,23 @@
-package;
-
 import compile.Compile;
 import setup.Setup;
+
+using StringTools;
 
 typedef Command = {
 	var names:Array<String>;
 	var func:Array<String>->Void;
 	var ?description:String;
 	var ?elaboration:String;
+}
+
+enum abstract PlatformTarget(String) from String to String {
+	var WINDOWS = 'windows';
+	var MAC = 'mac';
+	var LINUX = 'linux';
+	var ANDROID = 'android';
+	var IOS = 'ios';
+	var UNKNOWN = 'unknown';
+	var CPP = 'cpp';
 }
 
 class Main {
@@ -44,5 +54,21 @@ class Main {
 
 	public static function help(args:Array<String>):Void {
 		Sys.println('does nothing for now');
+	}
+
+	inline public static function getTarget(useFile:Bool = false):PlatformTarget {
+		if (useFile && sys.FileSystem.exists('./commands/compile/platform.txt')) {
+			var platform:String = sys.io.File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
+			return switch (platform) {
+				case 'macos': MAC;
+				default: platform;
+			}
+		}
+		return switch (Sys.systemName().toLowerCase()) {
+			case 'windows': WINDOWS;
+			case 'mac': MAC;
+			case 'linux': LINUX;
+			default: UNKNOWN;
+		}
 	}
 }

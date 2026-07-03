@@ -1,4 +1,4 @@
-# engine/
+# ./engine
 This is where you'll find and store all the contents of the engine.
 
 Also anything you put here will be stored in the root of the engine (next to the exe file).

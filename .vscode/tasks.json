@@ -13,7 +13,7 @@
 		},
 		{
 			"command": "haxe -cp commands -D analyzer-optimize --run Main setup --always",
-			"label": "Install Libraries (Quick Version, Local Only)",
+			"label": "Install Libraries (Quick Version)",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
@@ -38,7 +38,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp commands -D analyzer-optimize --run Main compile test -debug -Dtracy",
+			"command": "haxe -cp commands -D analyzer-optimize --run Main compile test -debug -Dtracy_debugger",
 			"label": "Run Debug with Tracy",
 			"problemMatcher": [
 				"$haxe-absolute",
@@ -82,7 +82,7 @@
 			"type": "shell"
 		},
 		{
-			"command": "haxe -cp commands -D analyzer-optimize --run Main compile build -debug -Dtracy",
+			"command": "haxe -cp commands -D analyzer-optimize --run Main compile build -debug -Dtracy_debugger",
 			"label": "Compile Debug with Tracy",
 			"problemMatcher": [
 				"$haxe-absolute",

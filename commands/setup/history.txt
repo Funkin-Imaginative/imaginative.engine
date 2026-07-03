@@ -1,15 +1,17 @@
-haxelib git hxhardware https://github.com/Vortex2Oblivion/hxhardware main
+haxelib install hxdiscord_rpc --skip-dependencies
+haxelib install moonchart
+haxelib install hxp
+haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 5932340d095a7eea8635fe4d1355f1c0efd0b3c2
 haxelib install hxWindowColorMode
+haxelib install compiletime
+haxelib git hxhardware https://github.com/Vortex2Oblivion/hxhardware main
+haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c
+haxelib dev hxcpp-debug-server ".haxelib/hxcpp-debug-server/git/hxcpp-debug-server"
 haxelib install flixel-addons --skip-dependencies
 haxelib install flixel --skip-dependencies
 haxelib install lime
 haxelib install openfl
-haxelib install flixel-animate --skip-dependencies
+haxelib install thx.semver
 haxelib git rulescript https://github.com/Kriptel/RuleScript dev
-haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 5932340d095a7eea8635fe4d1355f1c0efd0b3c2
-haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c
-haxelib install hxdiscord_rpc --skip-dependencies
-haxelib install hxp
-haxelib git json2object https://github.com/FunkinCrew/json2object 59e0467c953d1f26e3cbf2a070f140e2d2e8457d
-haxelib install moonchart
-haxelib install compiletime
+haxelib install hxvlc 2.2.5 --skip-dependencies
+haxelib install flixel-animate --skip-dependencies

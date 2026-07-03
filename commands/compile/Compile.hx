@@ -2,12 +2,13 @@ package compile;
 
 import sys.FileSystem;
 import sys.io.File;
+import Main.PlatformTarget;
 
 using StringTools;
 
 class Compile {
 	static var args:Array<String>;
-	public static function run(ranArgs:Array<String>):Void {
+	inline public static function run(ranArgs:Array<String>):Void {
 		args = ranArgs;
 
 		Sys.println(Main.dashes);
@@ -17,13 +18,13 @@ class Compile {
 			return;
 		}
 
-		if (getCompileTarget() == 'unknown') {
+		if (Main.getTarget(true) == UNKNOWN) {
 			Sys.println('Your target is unknown!');
 			platformCheck(true);
 			return;
-		} else Sys.println('Compiling for platform target "${getCompileTarget()}".');
+		} else Sys.println('Compiling for platform target "${Main.getTarget(true)}".');
 
-		if (getCompileTarget() == 'cpp') {
+		if (Main.getTarget(true) == CPP) {
 			Sys.sleep(2);
 			Sys.println('Wait... cpp? Nah dude, put a **real** target!');
 			Sys.sleep(1);
@@ -40,7 +41,7 @@ class Compile {
 			return;
 		}
 
-		var finalArgs:Array<String> = [typeCheck(args.shift()), getCompileTarget()];
+		var finalArgs:Array<String> = [typeCheck(args.shift()), Main.getTarget(true)];
 		for (arg in args)
 			finalArgs.push(arg);
 		Sys.println('lime ${finalArgs.join(' ')}');
@@ -49,8 +50,8 @@ class Compile {
 
 	static function platformCheck(doneAgain:Bool = false, wasCpp:Bool = false):Void {
 		if (FileSystem.exists('./commands/compile/platform.txt')) {
-			var content:String = File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
-			if (content == 'cpp') {
+			var content:PlatformTarget = File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
+			if (content == CPP) {
 				if (wasCpp) {
 					Sys.println('HUH???');
 					Sys.sleep(0.5);
@@ -89,8 +90,8 @@ class Compile {
 				Sys.println('Please type your device platform. Do "auto" to detect your device platform!');
 			else
 				Sys.println('No "platform.txt" exists. Please type your device platform. Do "auto" to detect your device platform!');
-			var content:String = Sys.stdin().readLine().toLowerCase();
-			if (content == 'cpp') {
+			var content:PlatformTarget = Sys.stdin().readLine().toLowerCase().trim();
+			if (content == CPP) {
 				if (doneAgain) {
 					Sys.sleep(1);
 					Sys.println('...');
@@ -109,11 +110,11 @@ class Compile {
 					return;
 				}
 			}
-			File.saveContent('./commands/compile/platform.txt', content == 'auto' ? getCompileTarget() : content);
+			File.saveContent('./commands/compile/platform.txt', content == 'auto' ? Main.getTarget(true) : content);
 		}
 	}
 
-	static function typeCheck(commandType:Null<String>):String {
+	inline static function typeCheck(commandType:Null<String>):String {
 		if (commandType == null) {
 			if (commandType != null)
 				args.insert(0, commandType);
@@ -132,25 +133,5 @@ class Compile {
 							}
 		}
 		return commandType.trim();
-	}
-
-	static function getCompileTarget():String {
-		if (FileSystem.exists('./commands/compile/platform.txt')) {
-			var platform:String = File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
-			return switch (platform) {
-				case 'macos': 'mac';
-				default: platform;
-			}
-		}
-		return switch (Sys.systemName()) {
-			case 'Windows':
-				'windows';
-			case 'Mac':
-				'mac';
-			case 'Linux':
-				'linux';
-			default:
-				'unknown';
-		}
 	}
 }

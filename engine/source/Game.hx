@@ -1,0 +1,57 @@
+import haxe.macro.Compiler;
+import thx.semver.Version;
+
+class Game extends openfl.display.Sprite {
+	/**
+	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
+	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but we're not normal! 😎
+	 */
+	inline public static final mainMod:String = Compiler.getDefine('GeneralAssetFolder');
+
+	/**
+	 * The current version of the engine.
+	 */
+	public static var engineVersion(default, null):Version;
+	/**
+	 * The latest version of the engine.
+	 */
+	public static var latestVersion(default, null):Version;
+	#if Updateable
+	/**
+	 * If true, a new update was released for the engine!
+	 */
+	public static var updateAvailable(default, null):Bool = false;
+	#end
+
+	// TODO: Figure out how to do this without creating these variables.
+	/**
+	 * The initial window width.
+	 */
+	public static final initialWidth:Int = Std.parseInt(Compiler.getDefine('InitialWidth'));
+	/**
+	 * The initial window height.
+	 */
+	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
+
+	public function new() {
+		// TODO: Implement crash handler
+		#if Tracy_Debugger
+		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (_:openfl.events.Event) -> TracyProfiler.frameMark());
+		TracyProfiler.messageAppInfo('Imaginative Engine');
+		TracyProfiler.setThreadName('main');
+		#end
+
+		super();
+
+		// TODO: Add class inits
+
+		engineVersion = lime.app.Application.current.window.application.meta.get('version');
+		latestVersion = engineVersion;
+
+		hxhardware.CPU.init();
+		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.LaunchScreen, true));
+		FlxG.game.focusLostFramerate = 30;
+		FlxG.mouse.useSystemCursor = true;
+		#if !windows FlxG.stage.window.setIcon(lime.graphics.Image.fromFile('icon.png')); #end
+	}
+}

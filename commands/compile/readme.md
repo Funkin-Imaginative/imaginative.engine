@@ -1,4 +1,4 @@
-# commands/compile/
+# ./commands/compile
 This is how you'll complie the engine, cause vscode tasks are a **bitch** when it comes to active configuration and args.
 
 Actions don't use this since you **have** to specify, so yeah.

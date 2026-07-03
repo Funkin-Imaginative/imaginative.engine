@@ -1,6 +1,0 @@
-{
-	"icon": "boyfriend-pixel",
-	"color": "#FFFFFF",
-	"difficulties": ["normal"],
-	"gamemodes": {"botplay": true, "be-enemy": true, "2player": true}
-}

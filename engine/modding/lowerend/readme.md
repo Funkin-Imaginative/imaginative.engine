@@ -1,4 +1,4 @@
-# engine/modding/lowerend/
+# ./engine/modding/lowerend
 Where you store all the smaller mods.
 
 These mods can't do certain things like override states through scripting (#TODO add full list).

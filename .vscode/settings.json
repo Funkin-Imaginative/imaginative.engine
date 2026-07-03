@@ -1,19 +1,10 @@
 {
 	"cSpell.words": [
-		"FLXGRAPHIC",
+		"fixrepo",
 		"HAXEPATH",
-		"hxdiscord",
 		"hxhardware",
-		"hxwindowmode",
-		"Infront",
-		"interps",
-		"LOCKON",
-		"luajit",
-		"neko",
-		"PAGEUP",
-		"preprocesor",
-		"SDCB",
-		"tweens"
+		"Kawai",
+		"vswhere"
 	],
 
 	"editor.codeActionsOnSave": {
@@ -23,7 +14,7 @@
 	"editor.insertSpaces": false,
 
 	"files.associations": {
-		"*.hxp": "haxe",
+		"*.{hxp,haxe,hscript,hsc,hxs,hxc}": "haxe",
 		"*.json": "jsonc"
 	},
 	"files.autoGuessEncoding": true,
@@ -32,15 +23,5 @@
 	"files.trimTrailingWhitespace": true,
 
 	"haxe.enableExtendedIndentation": true,
-	"haxe.importsSortOrder": "stdlib -> libs -> project",
-
-	"haxecheckstyle.sourceFolders": ["engine/source/imaginative", "engine/source/flixel"],
-
-	"xml.format.emptyElements": "collapse",
-	"xml.format.enforceQuoteStyle": "preferred",
-	"xml.format.joinCDATALines": true,
-	"xml.format.joinCommentLines": true,
-	"xml.format.joinContentLines": true,
-	"xml.format.splitAttributesIndentSize": 4,
-	"xml.preferences.quoteStyle": "single"
+	"haxe.importsSortOrder": "stdlib -> libs -> project"
 }

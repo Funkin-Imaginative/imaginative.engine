@@ -1,92 +1,53 @@
 {
-	"dependencies": [
-		{
-			"name": "hxhardware",
-			"version": "git",
-			"branch": "main",
-			"url": "https://github.com/Vortex2Oblivion/hxhardware"
-		},
+	"hxhardware": {
+		"version": "git",
+		"branch": "main",
+		"url": "https://github.com/Vortex2Oblivion/hxhardware"
+	},
 
-		{ "name": "hxWindowColorMode" },
+	"hxWindowColorMode": {
+		"checks": { "target": "windows" }
+	},
 
-		{
-			"name": "flixel-addons",
-			"dependencies": [
-				{
-					"name": "flixel",
-					"dependencies": [{ "name": "lime" }, { "name": "openfl" }]
-				}
-			]
-		},
-
-		{ "name": "flixel-animate", "dependencies": [] },
-
-		{
-			"name": "rulescript",
-			"version": "git",
-			"branch": "dev",
-			"url": "https://github.com/Kriptel/RuleScript"
-		},
-
-		{
-			"name": "hxcpp",
-			"version": "git",
-			"branch": "5932340d095a7eea8635fe4d1355f1c0efd0b3c2",
-			"url": "https://github.com/FunkinCrew/hxcpp"
-		},
-		{
-			"name": "hxcpp-debug-server",
-			"version": "git",
-			"branch": "7459934666a473a4cc4d066ba4a93ef92f1ce94c",
-			"url": "https://github.com/FunkinCrew/hxcpp-debugger"
-		},
-
-		{ "name": "hxdiscord_rpc", "dependencies": [] },
-		{ "name": "hxp" },
-
-		{
-			"name": "hxvlc",
-			"version": "2.2.5",
-			"dependencies": []
-		},
-		{
-			"name": "linc_luajit",
-			"version": "git",
-			"url": "https://github.com/superpowers04/linc_luajit"
-		},
-
-		{ "name": "moonchart" },
-		{ "name": "thx.semver" },
-		{ "name": "compiletime" }
-	],
-	"questions": [
-		{
-			"name": "flixel-animate",
-			"description": "include animate atlas support"
-		},
-		{
-			"name": "rulescript",
-			"description": "include haxe scripting support"
-		},
-		{
-			"name": "linc_luajit",
-			"description": "include lua scripting support"
-		},
-		{
-			"name": "hxdiscord_rpc",
-			"description": "include functionality with discord RPC"
-		},
-		{
-			"name": "hxvlc",
-			"description": "allow videos to be played"
-		},
-		{
-			"name": "thx.semver",
-			"description": "allow engine to have version checking capabilities"
-		},
-		{
-			"name": "hxWindowColorMode",
-			"description": "allow engine to set the window border color (WINDOWS ONLY)"
+	"flixel-addons": {
+		"dependencies": {
+			"flixel": { "dependencies": { "lime": {}, "openfl": {} } }
 		}
-	]
+	},
+
+	"flixel-animate": {
+		"dependencies": {},
+		"checks": { "optional": true }
+	},
+
+	"rulescript": {
+		"version": "git",
+		"branch": "dev",
+		"url": "https://github.com/Kriptel/RuleScript"
+	},
+
+	"hxcpp": {
+		"version": "git",
+		"branch": "5932340d095a7eea8635fe4d1355f1c0efd0b3c2",
+		"url": "https://github.com/FunkinCrew/hxcpp"
+	},
+	"hxcpp-debug-server": {
+		"version": "git",
+		"branch": "7459934666a473a4cc4d066ba4a93ef92f1ce94c",
+		"url": "https://github.com/FunkinCrew/hxcpp-debugger",
+		"dev": true,
+		"checks": { "debug": true }
+	},
+
+	"hxdiscord_rpc": { "dependencies": {} },
+	"hxp": {},
+
+	"hxvlc": {
+		"version": "2.2.5",
+		"dependencies": {}
+	},
+
+	"moonchart": {},
+	"thx.semver": {},
+	"compiletime": {}
 }

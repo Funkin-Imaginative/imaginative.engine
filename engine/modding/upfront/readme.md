@@ -1,4 +1,4 @@
-# engine/modding/upfront/
+# ./engine/modding/upfront
 Where you store all the big mods.
 
 These mods can do certain things like override states through scripting (#TODO add full list).

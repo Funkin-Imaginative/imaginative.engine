@@ -1,114 +1,122 @@
 package setup;
 
 import haxe.Json;
+import haxe.iterators.DynamicAccessIterator;
+import haxe.iterators.DynamicAccessKeyValueIterator;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
+import Main.PlatformTarget;
 
 using StringTools;
 
-typedef SetupJson = {
-	var dependencies:Array<Library>;
-	var ?questions:Array<Question>;
-}
-
+typedef SetupJson = ReflectMap<String, Library>;
 typedef Library = {
-	var ?global:Bool;
-	var name:String;
 	var ?version:String;
 	var ?branch:String;
 	var ?url:String;
-	var ?dependencies:Array<Library>;
+	var ?dependencies:SetupJson;
+	var ?dev:Bool;
+	var ?checks:LibCheck;
 }
-
-typedef Question = {
-	var name:String;
-	var ?description:String;
+typedef LibCheck = {
+	var ?target:PlatformTarget;
+	var ?optional:Bool;
+	var ?debug:Bool;
 }
 
 class Setup {
 	static var data:SetupJson;
-	static var optionalCheck:Map<String, Bool> = new Map<String, Bool>();
-	static var questDesc:Map<String, String> = new Map<String, String>();
+	static var optionalLibs:Array<String> = [];
+	static var libsToInstall:Map<String, Bool> = new Map<String, Bool>();
 
-	public static function run(ranArgs:Array<String>):Void {
+	inline public static function run(ranArgs:Array<String>):Void {
 		// arguments
 		var args:Array<String> = ranArgs;
-		optionalCheck.set('global', args.contains('--global'));
-		questDesc.set('global', 'install the libraries globally');
 
 		// json parse
-		Sys.println('Getting libraries from "commands/setup/data.json"');
+		Sys.println('Getting libraries from "./commands/setup/data.json"');
 		if (FileSystem.exists('./commands/setup/data.json')) {
 			data = Json.parse(File.getContent('./commands/setup/data.json'));
+			function recursion(data:SetupJson) {
+				for (name => lib in data) {
+					lib.dev ??= false;
+					lib.checks ??= {
+						target: Main.getTarget(true),
+						optional: false,
+						debug: false
+					}
+					lib.checks.target ??= Main.getTarget(true);
+					lib.checks.optional ??= false;
+					lib.checks.debug ??= false;
+
+					if (lib.dependencies.length != 0)
+						recursion(lib.dependencies);
+				}
+			}
+			recursion(data);
 		} else {
 			var exampleJson:SetupJson = {
-				dependencies: [
-					{name: 'thx.semver'},
-					{
-						global: false,
-						name: 'rulescript',
-						version: 'git',
-						url: 'https://github.com/Kriptel/RuleScript',
-						branch: 'dev'
-					}
-				],
-				questions: [
-					{
-						name: 'hscript-improved',
-						description: 'include haxe scripting support'
-					}
-				]
+				'hxcpp-debug-server': {
+					version: 'git',
+					branch: '7459934666a473a4cc4d066ba4a93ef92f1ce94c',
+					url: 'https://github.com/FunkinCrew/hxcpp-debugger',
+					dev: true,
+					checks: { debug: true }
+				},
+				hxWindowColorMode: {
+					checks: { target: WINDOWS }
+				},
+				hxvlc: {
+					version: '2.2.5',
+					dependencies: {}
+				}
 			}
 			// was hating github not properly coloring the rest of this file.
 			Sys.println('The libraries json doesn\'t exist!\nPlease make one in the setup folder.\nHere\'s an example of one.\n${Json.stringify(exampleJson, '\t')}');
 			return;
 		}
 
-		for (lib in data.dependencies) {
-			var questions:Map<String, Question> = new Map<String, Question>();
+		function recursion(data:SetupJson) {
+			for (name => lib in data) {
+				libsToInstall.set(name, false);
+				if (lib.checks.target == Main.getTarget(true)) {
+					if (lib.checks.optional) optionalLibs.push(name);
+					else libsToInstall.set(name, true);
 
-			for (question in data.questions)
-				questions.set(question.name, question);
-
-			if (questions.exists(lib.name)) {
-				var question:Question = questions.get(lib.name);
-				optionalCheck.set(lib.name, false);
-				questDesc.set(
-					lib.name,
-					question.description ??= 'install ${lib.name}'
-				);
+					if (lib.dependencies.length != 0)
+						recursion(lib.dependencies);
+				}
 			}
 		}
+		recursion(data);
 
 		Sys.println(Main.dashes);
 
 		if (args.contains('--always')) { // When "--always" is used, it installs all the libs.
 			Sys.println('Skipping questions.');
-			for (tag => value in optionalCheck)
-				if (tag != 'global')
-					optionalCheck.set(tag, true);
+			for (name in optionalLibs)
+				libsToInstall.set(name, true);
 		} else {
 			Sys.println('Please answer carefully.');
-			for (tag => value in optionalCheck)
-				if (!optionalCheck.get(tag)) {
-					Sys.println('Do you wish to ${questDesc.exists(tag) ? questDesc.get(tag) : 'install $tag'}? [y/n]');
+			for (name in optionalLibs)
+				if (!libsToInstall.get(name)) {
+					Sys.println('Do you wish to install $name? [y/n]');
 					if (Sys.stdin().readLine().toLowerCase().trim() == 'y')
-						optionalCheck.set(tag, true);
+						libsToInstall.set(name, true);
 				}
 		}
 
 		if (!FileSystem.exists('./.haxelib'))
-			if (!optionalCheck.get('global'))
-				FileSystem.createDirectory('./.haxelib');
-
+			FileSystem.createDirectory('./.haxelib');
 		Sys.println(Main.dashes);
 
 		Sys.command('haxelib install haxelib --global');
 		Sys.command('haxelib fixrepo');
 		Sys.println(Main.dashes);
-		dependenciesCheck(data.dependencies);
+		dependenciesCheck(data);
 		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
+		Sys.println('Finished installing libraries.\n\nYou can check the history of installed libraries in "./commands/setup/history.txt".');
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
@@ -122,6 +130,7 @@ class Setup {
 			var requiredHaxeVer:Array<Int> = [4, 3, 7];
 			for (i in 0...requiredHaxeVer.length) {
 				if (curHaxeVer[i] < requiredHaxeVer[i]) {
+					Sys.println(Main.dashes);
 					Sys.println('Your current Haxe version is outdated.');
 					Sys.println('You\'re using $haxeVer, while the required version is 4.3.7.');
 					Sys.println('The engine may or may not compile with your current version of Haxe.');
@@ -132,7 +141,7 @@ class Setup {
 		}
 
 		// This part here was taken from Codename Engine's commandline stuff.
-		if (getBuildTarget().toLowerCase() == 'windows' && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
+		if (Main.getTarget() == WINDOWS && new Process('"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -property catalog_productDisplayVersion').exitCode(true) == 1) {
 			Sys.println(Main.dashes);
 			Sys.println('Installing Microsoft Visual Studio Community (Dependency)');
 
@@ -148,44 +157,83 @@ class Setup {
 	}
 
 	static var libHistory:Array<String> = [];
-	static function dependenciesCheck(dependencies:Array<Library>, doneAgain:Bool = false):Void {
-		for (lib in dependencies) {
-			if (optionalCheck.exists(lib.name) && !optionalCheck.get(lib.name))
-				continue;
-			else if (!optionalCheck.exists(lib.name)) {}
+	static function dependenciesCheck(dependencies:SetupJson, doneAgain:Bool = false):Void {
+		inline function commandCheck(command:Array<String>):String {
+			var filtered = command.filter((string:String) -> return string.trim().length != 0);
+			command.resize(0);
+			var result = filtered.join(' ');
+			filtered.resize(0);
+			return result;
+		}
 
-			var isGlobal:Bool = optionalCheck.get('global') || (lib.global ??= false);
+		for (name => lib in dependencies) {
+			if (!libsToInstall.get(name)) continue;
+
 			if (lib.version == 'git') {
 				var repo:Array<String> = lib.url.split('/');
-				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
-				var command = 'haxelib git ${lib.name} ${lib.url ?? ''} ${lib.branch ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
-				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.println('Installing "$name" from git repo "${repo[repo.length - 2]}/${repo[repo.length - 1]}".');
+				repo.resize(0);
+
+				var command = commandCheck(['haxelib', 'git', name, lib.url ?? '', lib.branch ?? '', lib.dependencies == null ? '' : '--skip-dependencies']);
 				Sys.command('$command --always');
 				libHistory.push(command);
+
+				if (lib.dev) {
+					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('./.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
+					Sys.command(command);
+					libHistory.push(command);
+				}
 			} else {
-				Sys.println('${isGlobal ? 'Globally' : 'Locally'} installing "${lib.name}".');
-				var command = 'haxelib install ${lib.name} ${lib.version ?? ''} ${lib.dependencies == null ? '' : '--skip-dependencies'} ${isGlobal ? '--global ' : ''}';
-				command = command.split(' ').filter((string:String) -> return string.trim().length != 0).join(' ');
+				Sys.println('Installing "$name".');
+				var command = commandCheck(['haxelib', 'install', name, lib.version ?? '', lib.dependencies == null ? '' : '--skip-dependencies']);
 				Sys.command('$command --always');
 				libHistory.push(command); // TODO: Figure out how to get lib version when none specified.
+
+				if (lib.dev) {
+					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('./.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
+					Sys.command(command);
+					libHistory.push(command);
+				}
 			}
-			if (lib.dependencies != null)
-				dependenciesCheck(lib.dependencies, true);
-			if (!doneAgain)
-				Sys.println(Main.dashes);
+			if (lib.dependencies.length != 0) dependenciesCheck(lib.dependencies, true);
+			if (!doneAgain) Sys.println(Main.dashes);
 		}
 	}
+}
 
-	static function getBuildTarget():String {
-		return switch (Sys.systemName()) {
-			case 'Windows':
-				'windows';
-			case 'Mac':
-				'macos';
-			case 'Linux':
-				'linux';
-			default:
-				Sys.systemName().toLowerCase().trim();
-		}
+abstract ReflectMap<K, V>(Dynamic<V>) from Dynamic<V> to Dynamic<V> {
+	public var length(get, never):Int;
+	inline function get_length():Int {
+		var lol = keys();
+		var l = lol.length;
+		lol.resize(0);
+		return l;
+	}
+
+	inline public function new()
+		this = {}
+
+	@:arrayAccess inline public function get(key:K):Null<V>
+		return Reflect.field(this, Std.string(key));
+	@:arrayAccess inline public function set(key:K, value:V):V {
+		Reflect.setField(this, Std.string(key), value);
+		return value;
+	}
+
+	inline public function exists(key:K):Bool
+		return Reflect.hasField(this, Std.string(key));
+	inline public function remove(key:K):Bool
+		return Reflect.deleteField(this, Std.string(key));
+
+	inline public function keys():Array<String>
+		return Reflect.fields(this);
+	inline public function copy():ReflectMap<K, V>
+		return Reflect.copy(this);
+
+	inline public function iterator():DynamicAccessIterator<V> {
+		return new DynamicAccessIterator<V>(this);
+	}
+	inline public function keyValueIterator():DynamicAccessKeyValueIterator<V> {
+		return new DynamicAccessKeyValueIterator<V>(this);
 	}
 }
