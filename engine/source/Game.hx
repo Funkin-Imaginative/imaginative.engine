@@ -3,8 +3,8 @@ import thx.semver.Version;
 
 class Game extends openfl.display.Sprite {
 	/**
-	 * The main mod that the engine will rely on. Think of it as a fallback! This is usually stated as "funkin", aka base game.
-	 * When modding support is disabled it becomes "assets", like any normal fnf engine... but we're not normal! 😎
+	 * The mod that the engine will rely on. This is usually stated as "funkin", aka base game.
+	 * When modding support is disabled it becomes the assets folder, like any normal fnf engine... but I'm not normal! 😎 #neurodivergent
 	 */
 	inline public static final fallbackMod:String = Compiler.getDefine('GeneralAssetFolder');
 
