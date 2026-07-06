@@ -9,4 +9,7 @@ import sys.FileSystem;
 
 /* Flixel */
 import flixel.FlxG;
+
+/* Engine */
+using imaginative.backend.utils.StringUtil;
 #end

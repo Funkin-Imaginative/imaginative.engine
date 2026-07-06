@@ -160,7 +160,7 @@ class Project extends HXProject {
 			setenv('HAXEPATH', './.haxelib');
 
 		addIcon('./icon.png');
-		addAsset('./icon.png');
+		if (!isWindows()) addAsset('./icon.png');
 
 		/* DEFINES */
 		if (isRelease() && !isDebug())
@@ -216,8 +216,8 @@ class Project extends HXProject {
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		this.app.path = './export/$buildFolder';
-		if (useTracy.exists()) this.app.path += '-tracy';
+		app.path = './export/$buildFolder';
+		if (useTracy.exists()) app.path += '-tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolder : 'assets');
 		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
@@ -229,8 +229,8 @@ class Project extends HXProject {
 		addAssetPath('./engine/assets', finalPath, ['*'], excludeList);
 		addAssetPath('./engine/resources', ['*'], excludeList, true);
 		if (modSupport.exists()) {
-			addAssetPath('./engine/modding/upfront', './solo', ['*'], excludeList);
-			addAssetPath('./engine/modding/lowerend', './mods', ['*'], excludeList);
+			addAssetPath('./engine/modding/upfront', './mods', ['*'], excludeList);
+			addAssetPath('./engine/modding/lowerend', './modules', ['*'], excludeList);
 		}
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 
@@ -238,8 +238,8 @@ class Project extends HXProject {
 		addHaxelib('hxhardware', 'git');
 		addHaxelib('hxp'); // is need apparently???
 		// required for flixel, don't put below flixel, causes wierd issues
-		addHaxelib('lime');
-		addHaxelib('openfl');
+		addHaxelib('lime', '8.3.2'); // prevents lime version warning
+		addHaxelib('openfl', '9.5.2');
 
 		// the game engine
 		addHaxelib('flixel');
