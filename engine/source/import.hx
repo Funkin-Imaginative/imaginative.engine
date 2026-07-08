@@ -5,11 +5,17 @@ import cpp.vm.tracy.TracyProfiler;
 
 /* Haxe */
 import haxe.io.Path as FilePath;
-import sys.FileSystem;
+
+using Lambda;
 
 /* Flixel */
 import flixel.FlxG;
 
 /* Engine */
+import imaginative.backend.systems.Assets;
+import imaginative.backend.systems.Modding;
+import imaginative.backend.systems.Paths;
+
+using imaginative.backend.utils.ArrayUtil;
 using imaginative.backend.utils.StringUtil;
 #end
