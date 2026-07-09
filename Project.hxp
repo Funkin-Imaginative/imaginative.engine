@@ -48,9 +48,9 @@ class Project extends HXProject {
 	 */
 	static final executableName:String = 'Imaginative';
 	/**
-	 * The name of the main solo mod the assets folder should become when mod support is enabled.
+	 * The name of the fallback mod the assets folder should become when mod support is enabled.
 	 */
-	static final mainModFolder:String = 'funkin';
+	static final fallbackMod:String = 'funkin';
 	/**
 	 * The directory path to the source code.
 	 */
@@ -219,15 +219,15 @@ class Project extends HXProject {
 		app.path = './export/$buildFolder';
 		if (useTracy.exists()) app.path += '-tracy';
 
-		setDefine('GeneralAssetFolder', modSupport.exists() ? mainModFolder : 'assets');
-		var finalPath:String = './${modSupport.exists() ? 'solo/' : ''}${getDefine('GeneralAssetFolder')}';
+		setDefine('GeneralAssetFolder', modSupport.exists() ? fallbackMod : 'assets');
+		var finalPath:String = './${modSupport.exists() ? 'mods/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		sources.push(sourceCodeDirectory);
 
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
 		addAssetPath('./engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'resources', 'source']));
 		addAssetPath('./engine/assets', finalPath, ['*'], excludeList);
-		addAssetPath('./engine/resources', ['*'], excludeList, true);
+		addAssetPath('./engine/resources', './assets', ['*'], excludeList);
 		if (modSupport.exists()) {
 			addAssetPath('./engine/modding/upfront', './mods', ['*'], excludeList);
 			addAssetPath('./engine/modding/lowerend', './modules', ['*'], excludeList);

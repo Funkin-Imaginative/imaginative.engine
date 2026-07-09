@@ -18,21 +18,64 @@ class StringUtil {
 		return daList;
 	}
 
+
+	/**
+	 * A port of Godot's "get_slice" function.
+	 * @param string The string.
+	 * @param delimiter The splitter key.
+	 * @param slice THe slice index.
+	 * @return String
+	 */
+	public static function getSlice(string:String, delimiter:String, slice:Int):String {
+		if (delimiter.isBlank(false) || slice < 0) return '';
+
+		var start = 0;
+		var count = 0;
+		while (true) {
+			var index = string.indexOf(delimiter, start);
+			if (index == -1) return (count == slice) ? string.substring(start) : '';
+			if (count == slice) return string.substring(start, index);
+			start = index + delimiter.length;
+			count++;
+		}
+	}
+	/**
+	 * A port of Godot's "get_slice_count" function.
+	 * @param string The string.
+	 * @param delimiter The splitter key.
+	 * @return Int
+	 */
+	public static function getSliceCount(string:String, delimiter:String):Int {
+		if (delimiter.isBlank(false) || string.isBlank(false)) return 0;
+
+		var start = 0;
+		var count = 1;
+		while (true) {
+			var index = string.indexOf(delimiter, start);
+			if (index == -1) break; count++;
+			start = index + delimiter.length;
+		}
+		return count;
+	}
+
 	/**
 	 * Checks if a string is blank.
 	 * @param string The string.
+	 * @param trim If true, it trims the string before checking.
 	 * @return Bool
 	 */
-	inline public static function isBlank(string:String):Bool
-		return string.trim() == '' || string == null;
+	inline public static function isBlank(string:String, trim:Bool = true):Bool {
+		return (trim ? string.trim() : string).length == 0 || string == null;
+	}
 	/**
 	 * Checks if a string is blank, if so, choose what to replace it with.
 	 * @param string The string.
-	 * @param newString The new string.
+	 * @param newString The new string, can be null.
+	 * @param trim If true, it trims the string before checking.
 	 * @return Null<String>
 	 */
-	inline public static function ifBlankReplace(string:String, ?newString:String):Null<String>
-		return string.isBlank() ? newString : string;
+	inline public static function ifBlankReplace(string:String, ?newString:String, trim:Bool = true):Null<String>
+		return string.isBlank(trim) ? newString : string;
 
 	// From StringTools
 	/**
@@ -101,8 +144,8 @@ class StringUtil {
 	inline public static function replace(string:String, sub:String, by:String):String
 		return StringTools.replace(string, sub, by);
 
-	inline static function iterator(string:String):StringIterator
+	inline public static function iterator(string:String):StringIterator
 		return new StringIterator(string);
-	inline static function keyValueIterator(string:String):StringKeyValueIterator
+	inline public static function keyValueIterator(string:String):StringKeyValueIterator
 		return new StringKeyValueIterator(string);
 }

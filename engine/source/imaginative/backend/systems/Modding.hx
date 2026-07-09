@@ -3,16 +3,16 @@ package imaginative.backend.systems;
 class Modding {
 	#if Modding
 	/**
-	 * The current master mod.
+	 * The **current master** mod.
 	 */
 	public static var masterMod(default, null):Null<String> = null;
 	/**
-	 * The current module mod.
+	 * The **current module** mod.
 	 */
 	public static var moduleMod:Null<String> = null;
 
 	/**
-	 * The active module mods.
+	 * **Active module** mods.
 	 */
 	public static var moduleList:Array<String> = [];
 
@@ -22,5 +22,23 @@ class Modding {
 	public static var masterIsFallback(get, never):Bool;
 	inline static function get_masterIsFallback():Bool
 		return masterMod == Game.fallbackMod;
+
+	/**
+	 * Prepends lower end mod folder name.
+	 * @param modPath The mod path to the item your looking for.
+	 * @return String
+	 */
+	public static function getModsRoot(modPath:String):String {
+		var mods:Array<String> = moduleList.copy();
+		if (!curMod.isNullOrEmpty())
+			mods.push(curMod);
+
+		for (mod in mods) {
+			var asset:ModPath = new ModPath('modules/$mod/$modPath', ROOT);
+			if (asset.isFile) return asset.path;
+		}
+		mods.resize(0);
+		return modPath;
+	}
 	#end
 }
