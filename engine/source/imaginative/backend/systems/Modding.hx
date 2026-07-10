@@ -26,15 +26,14 @@ class Modding {
 	/**
 	 * Prepends lower end mod folder name.
 	 * @param modPath The mod path to the item your looking for.
-	 * @return String
+	 * @return The finalized path.
 	 */
 	public static function getModsRoot(modPath:String):String {
 		var mods:Array<String> = moduleList.copy();
-		if (!curMod.isNullOrEmpty())
-			mods.push(curMod);
+		if (!curMod.isBlank()) mods.push(curMod);
 
 		for (mod in mods) {
-			var asset:ModPath = new ModPath('modules/$mod/$modPath', ROOT);
+			var asset:ModPath = new ModPath('./modules/$mod/$modPath', ROOT);
 			if (asset.isFile) return asset.path;
 		}
 		mods.resize(0);

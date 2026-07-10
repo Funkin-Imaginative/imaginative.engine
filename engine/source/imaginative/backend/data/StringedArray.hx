@@ -1,63 +1,76 @@
 package imaginative.backend.data;
 
+/**
+ * For less array usage, and hopefully is more optimized.
+ */
 abstract StringedArray(String) from String to String {
-	inline static final DELIMITER:String = '---[STRINGED_ARRAY_DELIMITER]---';
-
+	@:inheritDoc(Array.length)
 	public var length(get, never):Int;
 	inline function get_length():Int
-		return this.getSliceCount(DELIMITER);
+		return Std.int(Math.max(0, this.getSliceCount(delimiter) - 1));
 
-	inline public function new(?string:String, ?delimiter:String, ?array:Array<Any>) {
-		if (array == null)
-			this = string.replace(delimiter, DELIMITER);
-		else this = fromArray(array);
+	public var delimiter(get, set):String;
+	inline function get_delimiter():String
+		return this.charAt(0);
+	inline function set_delimiter(value:String):String {
+		this = this.replace(delimiter, value);
+		return value;
+	}
+
+	inline public function new(?string:String, ?delimiter:String)
+		this = delimiter.ifBlankReplace('') + string;
+
+	@:arrayAccess inline public function get(slot:Int):String
+		return this.getSlice(delimiter, slot + 1);
+	@:arrayAccess inline public function set(slot:Int, value:Any):Any {
+		var lol:String = '';
+		for (i => a in abstract)
+			lol += delimiter + (i == slot ? Std.string(value ?? '') : a);
+		this = lol;
+		return value;
+	}
+
+	@:inheritDoc(Array.contains)
+	public function contains(value:String):Bool {
+		for (a in abstract)
+			if (a == value)
+				return true;
+		return false;
 	}
 
 	inline public function iterator():StringedArrayIterator {
-		return new StringedArrayIterator(this);
+		return new StringedArrayIterator(abstract);
 	}
 	inline public function keyValueIterator():StringedArrayKeyValueIterator {
-		return new StringedArrayKeyValueIterator(this);
+		return new StringedArrayKeyValueIterator(abstract);
 	}
 
 	@:from inline public static function fromArray(value:Array<Any>):StringedArray {
-		var result = value.join(DELIMITER);
+		for (i in 0...value.length) value[i] ??= '';
+		var result = value.join('@');
 		value.resize(0); // ON PURPOSE
-		return result;
+		return '@' + result;
 	}
 	@:to inline public function toArray():Array<String>
-		return this.split(DELIMITER);
+		return [for (i in abstract) i];
 
-	inline public function toInt():Array<Int>
+	@:to inline public function toInt():Array<Int>
 		return [for (i in abstract) Std.parseInt(i)];
-	inline public function toFloat():Array<Float>
+	@:to inline public function toFloat():Array<Float>
 		return [for (i in abstract) Std.parseFloat(i)];
 }
 
-@:access(imaginative.backend.data.StringedArray)
 final class StringedArrayIterator {
-	var string:String;
 	var offset:Int = 0;
-
-	public inline function new(string:String)
-		this.string = string;
-
-	public inline function hasNext()
-		return offset < string.getSliceCount(StringedArray.DELIMITER);
-	public inline function next()
-		return string.getSlice(StringedArray.DELIMITER, offset++);
+	var string:StringedArray;
+	inline public function new(string:StringedArray) this.string = string;
+	inline public function hasNext() return offset < string.length;
+	inline public function next() return string[offset++];
 }
-
-@:access(imaginative.backend.data.StringedArray)
 final class StringedArrayKeyValueIterator {
-	var string:String;
 	var offset:Int = 0;
-
-	public inline function new(string:String)
-		this.string = string;
-
-	public inline function hasNext()
-		return offset < string.getSliceCount(StringedArray.DELIMITER);
-	public inline function next()
-		return {key: offset, value: string.getSlice(StringedArray.DELIMITER, offset++)};
+	var string:StringedArray;
+	inline public function new(string:StringedArray) this.string = string;
+	inline public function hasNext() return offset < string.length;
+	inline public function next() return {key: offset, value: string[offset++]}
 }

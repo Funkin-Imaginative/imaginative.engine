@@ -46,10 +46,8 @@ enum abstract ModType(String) {
 	var NORM = 'norm';
 
 	/**
-	 * Returns the current mod folder root path of said type.
-	 *
-	 * ***Excludes grouped types.***
-	 * @return String
+	 * Returns the current mod folder root path of said type. ***Excludes grouped types.***
+	 * @return The root path.
 	 */
 	inline public function returnRootPath():String {
 		#if Modding
@@ -69,12 +67,11 @@ enum abstract ModType(String) {
 	 * Checks if the incoming type is the wanted type.
 	 * @param wanted The wanted type.
 	 * @param incoming The incoming type.
-	 * @return Bool
+	 * @return If true, the incoming is the wanted type.
 	 */
 	inline public static function pathCheck(wanted:ModType, ?incoming:ModType):Bool {
 		return switch (wanted) {
-			#if Modding
-			// remember Modding.masterIsFallback
+			#if Modding // remember Modding.masterIsFallback
 			case FALLBACK: incoming == null || incoming == FALLBACK || incoming == TOP || incoming == NORM || incoming == ALL;
 			case MASTER: incoming == MASTER || incoming == TOP || incoming == MODS || incoming == ALL;
 			case MODULE: incoming == MODULE || incoming == MODS || incoming == NORM || incoming == ALL;
@@ -83,11 +80,6 @@ enum abstract ModType(String) {
 		}
 	}
 
-	/**
-	 * Converts a string to a ModType.
-	 * @param from The string to get the type from.
-	 * @return ModType
-	 */
 	@:from inline public static function fromString(value:String):ModType {
 		return switch (value.toLowerCase().trim()) {
 			// Base Paths
@@ -103,10 +95,6 @@ enum abstract ModType(String) {
 			default: ALL;
 		}
 	}
-	/**
-	 * Converts a ModType to a string.
-	 * @return String
-	 */
 	@:to inline public function toString():String
 		return this.toLowerCase().trim();
 }
@@ -140,23 +128,23 @@ abstract ModPath(String) {
 	 */
 	public var exists(get, never):Bool;
 	inline function get_exists():Bool
-		return isDirectory || isFile;
+		return Paths.pathExists(abstract);
 
-	/**
-	 * If true, this is a folder.
-	 */
-	public var isDirectory(get, never):Bool;
-	inline function get_isDirectory():Bool
-		return Paths.folderExists(abstract);
 	/**
 	 * If true, this is a file.
 	 */
 	public var isFile(get, never):Bool;
 	inline function get_isFile():Bool
 		return Paths.fileExists(abstract);
+	/**
+	 * If true, this is a folder.
+	 */
+	public var isDirectory(get, never):Bool;
+	inline function get_isDirectory():Bool
+		return Paths.folderExists(abstract);
 
 	/**
-	 * The module id. **Can be blank.**
+	 * The module id. **Can be null.**
 	 */
 	public var moduleId(get, set):Null<String>;
 	inline function get_moduleId():Null<String>
@@ -181,14 +169,14 @@ abstract ModPath(String) {
 	 */
 	public var path(get, set):String;
 	inline function get_path():String
-		return FilePath.removeTrailingSlashes(self.path);
+		return FilePath.removeTrailingSlashes(Paths.stripRootPrefix(self.path));
 	inline function set_path(value:String):String {
 		this = new ModPath(value, type, moduleId);
 		return value;
 	}
 
 	/**
-	 * The file extension of the mod path.
+	 * The file extension of the mod path. **Can be null.**
 	 */
 	public var extension(get, set):Null<String>;
 	inline function get_extension():Null<String>
@@ -215,21 +203,26 @@ abstract ModPath(String) {
 	}
 
 	/**
-	 * Pushes an extension onto the ModPath instance.
-	 * @param ext The wanted extension.
-	 * @return ModPath
+	 * Sets the file extension of the mod path.
+	 *
+	 * Literally *just for **chaining***.
+	 * @param ext The new extension.
+	 * @return The abstract itself.
 	 */
-	inline public function pushExt(ext:String):ModPath {
+	inline public function pushExt(?ext:String):ModPath {
 		extension = ext;
 		return abstract;
 	}
 
 	/**
 	 * Formats the info in the abstract into the final path.
-	 * @return String
+	 * @param stripRootPrefix If true, strips the "./" prefix from the path.
+	 * @return The finalized path.
 	 */
-	inline public function format():String
-		return Paths.applyRoot(path, type, moduleId);
+	inline public function format(stripRootPrefix:Bool = false):String {
+		var finalPath = Paths.applyRoot(path, type, moduleId);
+		return stripRootPrefix ? Paths.stripRootPrefix(finalPath) : finalPath;
+	}
 
 	@:op(A += B) inline public function appendPath(addition:ModPath):ModPath {
 		var ext:String = addition.extension.ifBlankReplace(abstract.extension);
@@ -283,16 +276,67 @@ abstract ModPath(String) {
 	}
 }
 
+final class FileModPath {
+	var _path:FilePath;
+
+	/**
+	 * The full path.
+	 */
+	public var path(get, never):String;
+	inline function get_path():String {
+		return (directory.isBlank() ? '' : directory + (_path.backslash ? '\\' : '/')) + file + (extension.isBlank() ? '' : '.' + extension);
+	}
+
+	/**
+	 * The directory. **Can be null.**
+	 */
+	public var directory(get, set):Null<String>;
+	inline function get_directory():Null<String> return _path.dir;
+	inline function set_directory(?value:String):Null<String> return _path.dir = value;
+	/**
+	 * The file name.
+	 */
+	public var file(get, set):String;
+	inline function get_file():String return _path.file;
+	inline function set_file(value:String):String return _path.file = value;
+	/**
+	 * The extension of the file. **Can be null.**
+	 */
+	public var extension(get, set):Null<String>;
+	inline function get_extension():Null<String> return _path.ext;
+	inline function set_extension(?value:String):Null<String> return _path.ext = value;
+
+	/**
+	 * The mod type.
+	 */
+	public var modType:ModType;
+	/**
+	 * The module id. **Can be null.**
+	 */
+	public var moduleId:Null<String>;
+
+	public function new(fullPath:String, modType:ModType = ROOT, ?moduleId:String) {
+		this.modType = modType;
+		this.moduleId = moduleId;
+		_path = new FilePath(fullPath);
+	}
+
+	inline public static function fromModPath(path:ModPath):FileModPath
+		return new FileModPath(path.path, path.type, path.moduleId);
+
+	inline public function format(stripRootPrefix:Bool = false):ModPath return toString().format(stripRootPrefix);
+	inline public function toString():ModPath return new ModPath(path, modType, moduleId);
+}
 /**
  * A helper class for getting directories.
  */
 class Paths {
 	/**
-	 * Prepends the root folder path.
+	 * Finalizes a mod path.
 	 * @param path The mod path.
 	 * @param type The path type.
 	 * @param moduleId Optional module id.
-	 * @return String
+	 * @return The finalized path.
 	 */
 	public static function applyRoot(path:String, type:ModType = ALL, ?moduleId:String):String {
 		var result:String = '';
@@ -300,21 +344,26 @@ class Paths {
 
 		#if Modding
 		if (result.isBlank() && ModType.pathCheck(MODULE, type))
-			if (itemExists(check = new Modpath(moduleId.isBlank() ? Modding.getModsRoot(path) : 'modules/$moduleId/$path', ROOT)))
+			if (pathExists(check = new Modpath(moduleId.isBlank() ? Modding.getModsRoot(path) : './modules/$moduleId/$path', ROOT)))
 				result = check.path;
+		// trace('MODULE: $result');
 		if (result.isBlank() && ModType.pathCheck(MASTER, type))
-			if (itemExists(check = new ModPath('mods/${Modding.masterMod}/$path', ROOT)))
+			if (pathExists(check = new ModPath('./mods/${Modding.masterMod}/$path', ROOT)))
 				result = check.path;
+		// trace('MASTER: $result');
 		if (result.isBlank() && ModType.pathCheck(FALLBACK, type))
-			if (itemExists(check = new ModPath('mods/${Game.fallbackMod}/$path', ROOT)))
+			if (pathExists(check = new ModPath('./mods/${Game.fallbackMod}/$path', ROOT)))
 				result = check.path;
+		// trace('FALLBACK: $result');
 		#end
-		if (result.isBlank())
-			if (itemExists(check = new ModPath('assets/$path', ROOT)))
+		if (result.isBlank() && type == ROOT)
+			if (pathExists(check = new ModPath('./$path', ROOT)))
 				result = check.path;
+		// trace('ROOT: $result');
 		if (result.isBlank())
-			if (itemExists(check = new ModPath(path, ROOT)))
+			if (pathExists(check = new ModPath('./assets/$path', ROOT)))
 				result = check.path;
+		// trace('RESULT: $result');
 
 		return result.ifBlankReplace(path);
 	}
@@ -325,48 +374,224 @@ class Paths {
 	 *
 	 * This function is mostly for script usage.
 	 * @param type The path type.
-	 * @return String
+	 * @return The root path.
 	 */
 	inline public static function getRootPath(type:ModType):String
 		return type.returnRootPath();
 
+	/**
+	 * Strips the "./" prefix from the path.
+	 *
+	 * Using this makes FileSystem not be stupid when refering to local engine root.
+	 * @param path The final path.
+	 * @return Same path, prefix stripped.
+	 */
+	public static function stripRootPrefix(path:String):String
+		return path.startsWith('./') ? stripRootPrefix(path.substr(2)) : path;
+
+	/**
+	 * @param path The mod path.
+	 * @param exts The extensions to filter through.
+	 * @return The flitered path.
+	 */
 	public static function file(path:ModPath, exts:StringedArray = ''):ModPath {
-		var result:ModPath = '';
+		if (exts.length == 0) return path;
 		var ogExt:String = path.extension;
-		if (exts.length == 0) exts = ogExt;
+		var result:ModPath = '';
 		for (ext in exts)
 			if (fileExists(result = path.pushExt(ext))) break;
 			else result = path.pushExt(ogExt); // jic
 		return result;
 	}
 
+	/**
+	 * Gets the path of a font file from "`../fonts`".
+	 *
+	 * **Can automatically append the extention.**
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
 	inline public static function font(path:ModPath):ModPath {
-		var check:ModPath = file(new ModPath('fonts') + path, ['tff', 'otf']);
-		if (!check.isFile) check = new ModPath('fonts') + path;
+		var check:ModPath = file('fonts' + path, ',tff,otf');
+		if (!check.isFile) check = 'fonts' + path;
 		return check;
 	}
 
 	/**
-	 * Checks if a file exists.
+	 * Applies the "txt" extention.
 	 * @param path The mod path.
-	 * @return Bool
+	 * @return The desired file type.
 	 */
-	inline public static function fileExists(path:ModPath):Bool {
-		var finalPath:String = path.type == ROOT ? path.path : path.format();
-		return FileSystem.exists(finalPath);
-	}
+	inline public static function txt(path:ModPath):ModPath
+		return path.pushExt('txt');
 	/**
-	 * Checks if a folder exists.
+	 * Applies the "xml" extention.
 	 * @param path The mod path.
-	 * @return Bool
+	 * @return The desired file type.
+	 */
+	inline public static function xml(path:ModPath):ModPath
+		return path.pushExt('xml');
+	/**
+	 * Applies the "json" extention.
+	 * @param path The mod path.
+	 * @return The desired file type.
+	 */
+	inline public static function json(path:ModPath):ModPath
+		return path.pushExt('json');
+
+	/**
+	 * Gets the path of a level json from "`../data/levels`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function level(path:ModPath):ModPath
+		return json('data/levels' + path);
+	/**
+	 * Gets the path of a chart file from "`../data/songs/`".
+	 * @param song The song id.
+	 * @param difficulty The difficulty key.
+	 * @param variant The variation key. **Can be null.**
+	 * @return The desired path.
+	 */
+	inline public static function song(song:ModPath, difficulty:String, ?variant:String):ModPath
+		return json('data/songs' + song + '${variant.isBlank() ? '' : 'variations/$variant/'}charts/$difficulty');
+
+	/**
+	 * Gets the path of a sprite json from "`../data/sprites`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function sprite(path:ModPath):ModPath
+		return json('data/sprites' + path);
+	/**
+	 * Gets the path of a character json from "`../data/characters`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function character(path:ModPath):ModPath
+		return sprite('characters' + path);
+	/**
+	 * Gets the path of an icon json from "`../data/icons`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function icon(path:ModPath):ModPath
+		return sprite('icons' + path);
+
+	/**
+	 * Applies the "png" extention.
+	 * @param path The mod path.
+	 * @return The desired file type.
+	 */
+	inline public static function image(path:ModPath):ModPath
+		return 'images' + path.pushExt('png');
+
+	/**
+	 * Gets the path of an audio file.
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function audio(path:ModPath):ModPath
+		return file(path, ',wav,ogg,mp3');
+
+	/**
+	 * Gets the path of an instrumental file from "`../data/songs/`".
+	 * @param song The song id.
+	 * @param variant The variation key. **Can be null.**
+	 * @return The desired path.
+	 */
+	inline public static function inst(song:ModPath, ?variant:String):ModPath
+		return audio('data/songs' + song + '${variant.isBlank() ? '' : 'variations/$variant/'}audio/Inst');
+	/**
+	 * Gets the path of a vocal file from "`../data/songs/`".
+	 * @param song The song id.
+	 * @param suffix The vocal suffix(es). **Can be null.**
+	 * @param variant The variation key. **Can be null.**
+	 * @return The desired path.
+	 */
+	inline public static function vocal(song:ModPath, ?suffix:String, ?variant:String):ModPath {
+		var suffixes:StringedArray = '-' + suffix.ifBlankReplace('');
+		var result:String = suffixes.length == 0 ? '' : suffixes;
+		return audio('data/songs' + song + '${variant.isBlank() ? '' : 'variations/$variant/'}audio/Voices$result');
+	}
+
+	/**
+	 * Gets the path of an audio file from "`../music`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function music(path:ModPath):ModPath
+		return audio('music' + path);
+	/**
+	 * Gets the path of an audio file from "`../sounds`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function sound(path:ModPath):ModPath
+		return audio('sounds' + path);
+
+	/**
+	 * Gets the path of a video file.
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function video(path:ModPath):ModPath
+		return file(path, ',mp4,mov,webm');
+	/**
+	 * Gets the path of a video file from "`../data/songs`" or "`../videos`".
+	 * @param path The mod path.
+	 * @return The desired path.
+	 */
+	inline public static function cutscene(path:ModPath):ModPath {
+		var check:ModPath = video('data/songs' + 'current-song-id-and-shit' + path);
+		if (!check.isFile) check = video('videos' + path);
+		return check;
+	}
+
+	/**
+	 * Reads a folder and returns it's paths.
+	 * @param path The folder mod path.
+	 * @param setExts Specified extensions, *optional*.
+	 * @param recursive If true, it can scan subfolders. *Ignores "setExts".*
+	 * @return The path data.
+	 */
+	public static function readFolder(path:ModPath, setExts:StringedArray = '', recursive:Bool = false):Array<FileModPath> {
+		var files:Array<FileModPath> = [];
+		if (path.isDirectory)
+			for (item in FileSystem.readDirectory(path.format())) {
+				var data:FileModPath = new FileModPath(FilePath.addTrailingSlash(path.path) + item, path.type, path.moduleId);
+				if (setExts.length == 0 || setExts.contains(data.extension)) files.push(data);
+				if (recursive && data.toString().isDirectory) files.merge(readFolder(data.toString(), setExts, true), true);
+			}
+		files.arraySort((a, b) -> {
+			var a = a.path.toLowerCase();
+			var b = b.path.toLowerCase();
+			if (a < b) return -1;
+			if (a > b) return 1;
+			return 0;
+		});
+		return files;
+	}
+
+	/**
+	 * Checks if the path exists.
+	 * @param path The mod path.
+	 * @return If true, the path exists.
+	 */
+	inline public static function pathExists(path:ModPath):Bool
+		return FileSystem.exists(path.type == ROOT ? './${path.path}' : path.format());
+	/**
+	 * Checks if the file exists.
+	 * @param path The mod path.
+	 * @return If true, the file exists.
+	 */
+	inline public static function fileExists(path:ModPath):Bool
+		return !folderExists(path) && pathExists(path);
+	/**
+	 * Checks if the folder exists.
+	 * @param path The mod path.
+	 * @return If true, the folder exists.
 	 */
 	inline public static function folderExists(path:ModPath):Bool
-		return FileSystem.isDirectory(FilePath.removeTrailingSlashes(path.type == ROOT ? path.path : path.format()));
-	/**
-	 * Checks if an item exists (file or folder).
-	 * @param path The mod path.
-	 * @return Bool
-	 */
-	inline public static function itemExists(path:ModPath):Bool
-		return folderExists(path) || fileExists(path);
+		return FileSystem.isDirectory(path.type == ROOT ? './${path.path}' : path.format());
 }
