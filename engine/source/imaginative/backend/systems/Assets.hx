@@ -1,5 +1,243 @@
 package imaginative.backend.systems;
 
+import sys.io.File;
+import flixel.graphics.FlxGraphic;
+// import flixel.graphics.frames.FlxAtlasFrames;
+import openfl.display.BitmapData;
+import openfl.media.Sound;
+
+enum abstract PersistenceType(String) {
+	/**
+	 * States that the asset cannot be removed, even if persistant assets are told to be cleared.
+	 */
+	var IsIndestructible = 'indestructible';
+	/**
+	 * States that the asset cannot be removed, unless told to be.
+	 */
+	var IsPersistent = 'persistent';
+	/**
+	 * A normal asset.
+	 */
+	var IsVulnerable = 'vulnerable';
+}
+enum abstract CacheType(Null<Bool>) {
+	/**
+	 * States that the asset should be ignored when asked to cache.
+	 */
+	var IgnoreCache = false;
+	/**
+	 * States that the asset should be **re**cached.
+	 */
+	var OverrideCache = null;
+	/**
+	 * States that the asset should be cached.
+	 */
+	var CacheAsset = true;
+}
+
+// TODO: Account for lime and openfl shit.
 class Assets {
-	//
+	static var content:Map<String, Dynamic> = new Map<String, Dynamic>();
+	static var persistenceList:Map<String, PersistenceType> = new Map<String, PersistenceType>();
+
+	inline public static function addContent(path:String, data:Dynamic, cacheType:CacheType, persistenceType:PersistenceType):Void {
+		var wasCached:Bool = false;
+		switch (cacheType) {
+			case IgnoreCache:
+				// do nothing lol
+			case OverrideCache:
+				content.set(path, data);
+				wasCached = true;
+			case CacheAsset:
+				if (!content.exists(path))
+					content.set(path, data);
+				wasCached = true;
+		}
+		if (wasCached)
+			persistenceList.set(path, persistenceType);
+	}
+	inline public static function getContent(path:String):Dynamic return content.get(path);
+	inline public static function contentExists(path:String):Bool return content.exists(path);
+	inline public static function removeContent(path:String, ignorePersistent:Bool = false):Void {
+		if (persistenceList.exists(path)) {
+			var persistenceType:PersistenceType = persistenceList.get(path);
+			switch (persistenceType) {
+				case IsIndestructible:
+					// do nothing lol
+				case IsPersistent:
+					if (ignorePersistent) {
+						content.remove(path);
+						persistenceList.remove(path);
+					}
+				case IsVulnerable:
+					content.remove(path);
+					persistenceList.remove(path);
+			}
+		}
+	}
+
+	@:unreflective inline static function init():Void {
+		FlxG.bitmap.add(FlxG.assets.getBitmapData('flixel/images/logo/default.png'), 'FlixelLogo').persist = true;
+		FlxG.assets.getSound('flixel/sounds/beep.ogg', true);
+	}
+
+	/**
+	 * Parses a text file and returns its contents.
+	 *
+	 * **Doesn't** apply the extension for you.
+	 * @param path The mod path.
+	 * @param cacheType The cache type.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return Raw text.
+	 */
+	inline public static function text(path:ModPath, cacheType:CacheType = IgnoreCache, displayWarning:Bool = false):String {
+		var finalPath:String = path.format();
+		if (cacheType == CacheAsset && contentExists(finalPath)) return getContent(path);
+		var asset:String = '';
+		try {
+			asset = path.isFile ? File.getContent(finalPath) : '';
+			if (!asset.isBlank()) addContent(finalPath, asset, cacheType, IsVulnerable);
+			else if (displayWarning) trace('Couldn\'t find "${finalPath.ifBlankReplace(path)}".');
+		} catch(error:haxe.Exception)
+			if (displayWarning) trace('An error occurred when parsing the file. (path: "${finalPath.ifBlankReplace(path)}", error: "${error.message}")');
+		return asset.ifBlankReplace('');
+	}
+
+	/**
+	 * Parses a json file from a path and returns its contents.
+	 * @param path The mod path.
+	 * @param cacheType The cache type.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return A dynamic structure. **Can be null,** especially if it doesn't exist.
+	 */
+	inline public static function json(path:ModPath, cacheType:CacheType = IgnoreCache, displayWarning:Bool = false):Null<Dynamic> {
+		var _path:ModPath = Paths.json(path);
+		var finalPath:String = _path.format();
+		if (cacheType == CacheAsset && contentExists(finalPath)) return getContent(path);
+		var data:Dynamic = rawJson(text(_path), _path, displayWarning);
+		if (data != null) addContent(finalPath, data, cacheType, IsVulnerable);
+		return data;
+	}
+	/**
+	 * Parses a json file from a raw string and returns its contents.
+	 * @param contents The raw string.
+	 * @param path Optional mod path, mainly for the error message.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return A dynamic structure. **Can be null.**
+	 */
+	inline public static function rawJson(contents:String, ?path:ModPath, displayWarning:Bool = false):Null<Dynamic> {
+		var data:Dynamic = null;
+		try {
+			data = haxe.Json.parse(contents);
+		} catch(error:haxe.Exception) if (displayWarning) {
+			var errorPath:String = StringUtil.isBlank(path) ? '' : path.format().ifBlankReplace(path); // wouldn't work with using
+			trace('An error occurred when parsing the json. (${errorPath.isBlank() ? '' : 'path: "$errorPath", '}error: "${error.message}")');
+		}
+		return data;
+	}
+
+	/**
+	 * Gets the data of an image file from "`../images`".
+	 * @param path The mod path.
+	 * @param cacheType The cache type.
+	 * @param persistenceType The persistence type.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The image data.
+	 */
+	public static function image(path:ModPath, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):FlxGraphic {
+		var _path:ModPath = Paths.image(path);
+		var finalPath:String = _path.format();
+		var _finalPath:String = Paths.stripRootPrefix(finalPath);
+
+		if (!_path.isFile) {
+			if (displayWarning)
+				trace('Image asset couldn\'t be found, falling back to the flixel logo. (path: "${finalPath.ifBlankReplace(_path)}")');
+			return FlxG.bitmap.get('FlixelLogo');
+		}
+		if (contentExists(finalPath))
+			return getContent(finalPath);
+
+		var bitmap:BitmapData = FlxG.assets.exists(_finalPath, IMAGE) ? FlxG.assets.getBitmapData(_finalPath) : BitmapData.fromFile(_finalPath);
+		var asset:FlxGraphic = FlxG.bitmap.add(bitmap, finalPath);
+		addContent(finalPath, asset, cacheType, persistenceType);
+		asset.incrementUseCount();
+		return asset;
+	}
+
+	static function _audio(path:ModPath, beepWhenNull:Bool, cacheType:CacheType, persistenceType:PersistenceType, displayWarning:Bool):Sound {
+		var finalPath:String = path.format();
+		var _finalPath:String = Paths.stripRootPrefix(finalPath);
+
+		if (!path.isFile) {
+			if (beepWhenNull) {
+				if (displayWarning)
+					trace('Audio asset couldn\'t be found, falling back to the flixel beep sound. (path: "${finalPath.ifBlankReplace(path)}")');
+				return FlxG.assets.getSound('flixel/sounds/beep.ogg', true);
+			}
+			if (displayWarning)
+				trace('Audio asset couldn\'t be found. (path: "${finalPath.ifBlankReplace(path)}")');
+		}
+		if (contentExists(finalPath))
+			return getContent(finalPath);
+
+		var asset:Sound = FlxG.assets.exists(_finalPath, SOUND) ? FlxG.assets.getSound(_finalPath) : Sound.fromFile(_finalPath);
+		addContent(finalPath, asset, cacheType, persistenceType);
+		return asset;
+	}
+	/**
+	 * Gets the data of an audio file.
+	 * @param path The mod path.
+	 * @param beepWhenNull If true, returns the flixel beep noise if the chosen sound doesn't exist.
+	 * @param cacheType The cache type.
+	 * @param persistenceType The persistence level.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The audio data.
+	 */
+	inline public static function audio(path:ModPath, beepWhenNull:Bool = true, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
+		return _audio(Paths.audio(path), beepWhenNull, cacheType, persistenceType, displayWarning);
+
+	/**
+	 * Gets the data of an instrumental file from "`../data/songs/`".
+	 * @param song The song id.
+	 * @param variant The variation key. **Can be null.**
+	 * @param reloadCache If true, it reloads the cache.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The instrumental audio data.
+	 */
+	inline public static function inst(song:ModPath, ?variant:String, reloadCache:Bool = false, displayWarning:Bool = false):Sound
+		return _audio(Paths.inst(song, variant), false, reloadCache ? OverrideCache : CacheAsset, IsVulnerable, displayWarning);
+	/**
+	 * Gets the data of a vocal file from "`../data/songs/`".
+	 * @param song The song id.
+	 * @param suffix The vocal suffix(es). **Can be null.**
+	 * @param variant The variation key. **Can be null.**
+	 * @param reloadCache If true, it reloads the cache.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The vocal audio data.
+	 */
+	inline public static function vocal(song:ModPath, ?suffix:String, ?variant:String, reloadCache:Bool = false, displayWarning:Bool = false):Sound
+		return _audio(Paths.vocal(song, suffix, variant), false, reloadCache ? OverrideCache : CacheAsset, IsVulnerable, displayWarning);
+
+	/**
+	 * Gets the data of an audio file from "`../music`".
+	 * @param path The mod path.
+	 * @param beepWhenNull If true, returns the flixel beep noise if the chosen sound doesn't exist.
+	 * @param cacheType The cache type.
+	 * @param persistenceType The persistence level.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The music audio data.
+	 */
+	inline public static function music(path:ModPath, beepWhenNull:Bool = true, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
+		return _audio(Paths.music(path), beepWhenNull, cacheType, persistenceType, displayWarning);
+	/**
+	 * Gets the data of an audio file from "`../sounds`".
+	 * @param path The mod path.
+	 * @param beepWhenNull If true, returns the flixel beep noise if the chosen sound doesn't exist.
+	 * @param cacheType The cache type.
+	 * @param persistenceType The persistence level.
+	 * @param displayWarning If true, a warning message will appear.
+	 * @return The sound audio data.
+	 */
+	inline public static function sound(path:ModPath, beepWhenNull:Bool = true, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
+		return _audio(Paths.sound(path), beepWhenNull, cacheType, persistenceType, displayWarning);
 }

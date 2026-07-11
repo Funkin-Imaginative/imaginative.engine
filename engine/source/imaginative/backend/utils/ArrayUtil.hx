@@ -5,7 +5,7 @@ class ArrayUtil {
 	 * Returns a clean displayed list for quickly tracing a list.
 	 * @param array The array.
 	 * @param clear If true, it resizes the array to 0.
-	 * @return The cleaned list.
+	 * @return The display list.
 	 */
 	inline public static function cleanDisplayList(array:Array<String>, clear:Bool = false):String {
 		var result = '${[for (i => item in array) (i == (array.length - 2) && !array.empty()) ? '"$item" and' : '"$item"'].join(', ').replace('and,', 'and')}';

@@ -161,6 +161,7 @@ class Project extends HXProject {
 
 		addIcon('./icon.png');
 		if (!isWindows()) addAsset('./icon.png');
+		addAsset('./icon.png', './assets/images/watermarks/static-logo.png');
 
 		/* DEFINES */
 		if (isRelease() && !isDebug())
