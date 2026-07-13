@@ -2,9 +2,15 @@ package imaginative.backend.systems;
 
 import sys.io.File;
 import flixel.graphics.FlxGraphic;
-// import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxAtlasFrames;
+import moonchart.backend.Util as MoonchartUtil;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
+import imaginative.backend.data.TextureType;
+#if Animate_Atlas
+import animate.FlxAnimateAssets;
+import animate.FlxAnimateFrames;
+#end
 
 enum abstract PersistenceType(String) {
 	/**
@@ -79,6 +85,24 @@ class Assets {
 	@:unreflective inline static function init():Void {
 		FlxG.bitmap.add(FlxG.assets.getBitmapData('flixel/images/logo/default.png'), 'FlixelLogo').persist = true;
 		FlxG.assets.getSound('flixel/sounds/beep.ogg', true);
+
+		inline function _readFolder(path:String, recursive:Bool):Array<String> {
+			var data = Paths.readFolder('root:$path', recursive);
+			var result:Array<String> = [for (lol in data) lol.format()];
+			data.resize(0);
+			return result;
+		}
+
+		MoonchartUtil.readFolder = (path:String) -> _readFolder(path, false);
+		MoonchartUtil.isFolder = (path:String) -> Paths.folderExists('root:$path');
+		MoonchartUtil.getText = (path:String) -> text('root:$path', true);
+
+		#if Animate_Atlas
+		FlxAnimateAssets.exists = (path:String, type:flixel.system.frontEnds.AssetFrontEnd.FlxAssetType) -> Paths.fileExists('root:$path');
+		FlxAnimateAssets.getText = MoonchartUtil.getText;
+		FlxAnimateAssets.getBitmapData = (path:String) -> image('root:$path', true).bitmap;
+		FlxAnimateAssets.list = (path:String, ?type:flixel.system.frontEnds.AssetFrontEnd.FlxAssetType, ?library:String, includeSubDirectories:Bool = false) -> _readFolder(path, includeSubDirectories);
+		#end
 	}
 
 	/**
@@ -154,7 +178,7 @@ class Assets {
 				trace('Image asset couldn\'t be found, falling back to the flixel logo. (path: "${finalPath.ifBlankReplace(_path)}")');
 			return FlxG.bitmap.get('FlixelLogo');
 		}
-		if (contentExists(finalPath))
+		if (cacheType == CacheAsset && contentExists(finalPath))
 			return getContent(finalPath);
 
 		var bitmap:BitmapData = FlxG.assets.exists(_finalPath, IMAGE) ? FlxG.assets.getBitmapData(_finalPath) : BitmapData.fromFile(_finalPath);
@@ -177,7 +201,7 @@ class Assets {
 			if (displayWarning)
 				trace('Audio asset couldn\'t be found. (path: "${finalPath.ifBlankReplace(path)}")');
 		}
-		if (contentExists(finalPath))
+		if (cacheType == CacheAsset && contentExists(finalPath))
 			return getContent(finalPath);
 
 		var asset:Sound = FlxG.assets.exists(_finalPath, SOUND) ? FlxG.assets.getSound(_finalPath) : Sound.fromFile(_finalPath);
@@ -240,4 +264,68 @@ class Assets {
 	 */
 	inline public static function sound(path:ModPath, beepWhenNull:Bool = true, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
 		return _audio(Paths.sound(path), beepWhenNull, cacheType, persistenceType, displayWarning);
+
+	// im so funny uwu
+	#if Animate_Atlas
+	/**
+	 * Gets the data of spritesheet from "`../images`".
+	 * @param path The mod path.
+	 * @param type The wanted texture type.
+	 * @param settings The animate atlas settings.
+	 * @return The spritesheet data.
+	 */
+	#else
+	/**
+	 * Gets the data of spritesheet from "`../images`".
+	 * @param path The mod path.
+	 * @param type The wanted texture type.
+	 * @return The spritesheet data.
+	 */
+	#end
+	public static function frames(path:ModPath, type:TextureType = IsUnknown #if Animate_Atlas, ?settings:FlxAnimateSettings #end):FlxAtlasFrames {
+		if (type == IsUnknown) {
+			if (Paths.xml(Paths.image(path)).isFile) type = IsSparrow;
+			if (Paths.txt(Paths.image(path)).isFile) type = IsPacker;
+			if (Paths.json(Paths.image(path)).isFile) type = IsAseprite;
+			#if Animate_Atlas if (Paths.json(Paths.image(path + 'Animation')).isFile) type = IsAnimateAtlas; #end
+		}
+		return switch (type) {
+			case IsSparrow: getSparrowFrames(path);
+			case IsPacker: getPackerFrames(path);
+			case IsAseprite: getAsepriteFrames(path);
+			#if Animate_Atlas case IsAnimateAtlas: getAnimateAtlas(path, settings); #end
+			default: getSparrowFrames(path);
+		}
+	}
+	/**
+	 * Gets the data of a sparrow sheet from "`../images`".
+	 * @param path The mod path.
+	 * @return The sparrow frame data.
+	 */
+	inline public static function getSparrowFrames(path:ModPath):FlxAtlasFrames
+		return FlxAtlasFrames.fromSparrow(image(path), Paths.xml(Paths.image(path)));
+	/**
+	 * Gets the data of a packer sheet from "`../images`".
+	 * @param path The mod path.
+	 * @return The packer frame data.
+	 */
+	inline public static function getPackerFrames(path:ModPath):FlxAtlasFrames
+		return FlxAtlasFrames.fromSpriteSheetPacker(image(path), Paths.txt(Paths.image(path)));
+	/**
+	 * Gets the data of a aseprite sheet from "`../images`".
+	 * @param path The mod path.
+	 * @return The aseprite frame data.
+	 */
+	inline public static function getAsepriteFrames(path:ModPath):FlxAtlasFrames
+		return FlxAtlasFrames.fromAseprite(image(path), Paths.json(Paths.image(path)));
+	#if Animate_Atlas
+	/**
+	 * Gets the data of a animate atlas from "`../images`".
+	 * @param path The mod path.
+	 * @param settings The animate atlas settings.
+	 * @return The animate atlas frame data.
+	 */
+	inline public static function getAnimateAtlas(path:ModPath, ?settings:FlxAnimateSettings):FlxAnimateFrames
+		return FlxAnimateFrames.fromAnimate(Paths.json(Paths.image(path + 'Animation')), settings);
+	#end
 }

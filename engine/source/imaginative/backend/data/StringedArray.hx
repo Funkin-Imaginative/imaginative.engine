@@ -17,8 +17,11 @@ abstract StringedArray(String) from String to String {
 		return value;
 	}
 
-	inline public function new(?string:String, ?delimiter:String)
-		this = delimiter.ifBlankReplace('') + string;
+	inline public function new(delimiter:String, ...list:String) {
+		var lol = list.toArray();
+		this = lol.join(delimiter);
+		lol.resize(0);
+	}
 
 	@:arrayAccess inline public function get(slot:Int):String
 		return this.getSlice(delimiter, slot + 1);

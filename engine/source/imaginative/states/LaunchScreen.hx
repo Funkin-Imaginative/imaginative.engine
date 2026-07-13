@@ -16,6 +16,7 @@ class LaunchScreen extends imaginative.backend.states.GameState {
 			splash_screen = true;
 		}
 
-		Sys.exit(0);
+		add(new BaseSprite('gameplay/popups/funkin/killer').screenCenter());
+		add(new BaseSprite('ui/arrows').screenCenter());
 	}
 }

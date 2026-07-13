@@ -15,6 +15,7 @@ import flixel.FlxG;
 import imaginative.backend.systems.Assets;
 import imaginative.backend.systems.Modding;
 import imaginative.backend.systems.Paths;
+import imaginative.sprites.BaseSprite;
 
 using imaginative.backend.utils.ArrayUtil;
 using imaginative.backend.utils.StringUtil;

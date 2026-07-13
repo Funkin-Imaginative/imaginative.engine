@@ -2,6 +2,7 @@ package imaginative.backend.systems;
 
 import sys.FileSystem;
 import imaginative.backend.data.StringedArray;
+import imaginative.backend.data.TextureType;
 
 /**
  * A helper class for stating where paths should start from.
@@ -232,6 +233,12 @@ abstract ModPath(String) {
 		return '$type:$path';
 	}
 
+	// FlxAssets fix
+	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset return format();
+	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset return format();
+	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset return format();
+	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset return format();
+
 	static function resolve(path:String):TModPath {
 		if (path.isBlank()) // checks if null as well
 			return {moduleId: null, type: ALL, path: ''}
@@ -390,7 +397,7 @@ class Paths {
 	 * @return The desired path.
 	 */
 	inline public static function font(path:ModPath):ModPath {
-		var check:ModPath = file('fonts' + path, ',tff,otf');
+		var check:ModPath = file('fonts' + path, new StringedArray(',', 'ttf', 'otf'));
 		if (!check.isFile) check = 'fonts' + path;
 		return check;
 	}
@@ -475,6 +482,15 @@ class Paths {
 		return 'images' + path.applyExt('png');
 
 	/**
+	 * Gets the path of an images sheet extention.
+	 * @param path The mod path.
+	 * @param type The wanted texture type.
+	 * @return The desired path.
+	 */
+	inline public static function spritesheet(path:ModPath, type:TextureType = IsUnknown):ModPath
+		return #if Animate_Atlas type == IsAnimateAtlas ? json(image(path + 'Animation')) : #end file(image(path), type == IsUnknown ? TextureType.exts : ',' + TextureType.getExtFromType(type));
+
+	/**
 	 * Gets the path of an audio file.
 	 *
 	 * **Automatically applies the extension.**
@@ -482,7 +498,7 @@ class Paths {
 	 * @return The desired path.
 	 */
 	inline public static function audio(path:ModPath):ModPath
-		return file(path, ',wav,ogg,mp3');
+		return file(path, new StringedArray(',', 'wav', 'ogg', 'mp3'));
 
 	/**
 	 * Gets the path of an instrumental file from "`../data/songs/`".
@@ -536,7 +552,7 @@ class Paths {
 	 * @return The desired path.
 	 */
 	inline public static function video(path:ModPath):ModPath
-		return file(path, ',mp4,mov,webm');
+		return file(path, new StringedArray(',' ,'mp4', 'mov', 'webm'));
 	/**
 	 * Gets the path of a video file from "`../data/songs`" or "`../videos`".
 	 *
@@ -597,4 +613,12 @@ class Paths {
 	 */
 	inline public static function folderExists(path:ModPath):Bool
 		return FileSystem.isDirectory(path.type == ROOT ? './${path.path}' : path.format());
+
+	/**
+	 * Checks if an image as a sheet extention.
+	 * @param path The mod path.
+	 * @return If true,
+	 */
+	inline public static function spritesheetExists(path:ModPath):Bool
+		return image(path).isFile && spritesheet(path).isFile;
 }
