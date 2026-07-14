@@ -10,6 +10,9 @@ using Lambda;
 
 /* Flixel */
 import flixel.FlxG;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxColor;
 
 /* Engine */
 import imaginative.backend.systems.Assets;

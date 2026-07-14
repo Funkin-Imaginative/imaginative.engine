@@ -12,11 +12,11 @@ class Game extends openfl.display.Sprite {
 	 * The current version of the engine.
 	 */
 	public static var engineVersion(default, null):Version;
+	#if Updateable
 	/**
 	 * The latest version of the engine.
 	 */
 	public static var latestVersion(default, null):Version;
-	#if Updateable
 	/**
 	 * If true, a new update was released for the engine!
 	 */
@@ -33,10 +33,10 @@ class Game extends openfl.display.Sprite {
 	 */
 	public static final initialHeight:Int = Std.parseInt(Compiler.getDefine('InitialHeight'));
 
-	public function new() {
+	function new() {
 		// TODO: Implement crash handler
 		#if Tracy_Debugger
-		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (_:openfl.events.Event) -> TracyProfiler.frameMark());
+		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, _ -> TracyProfiler.frameMark());
 		TracyProfiler.messageAppInfo('Imaginative Engine');
 		TracyProfiler.setThreadName('main');
 		#end
@@ -46,12 +46,30 @@ class Game extends openfl.display.Sprite {
 		// TODO: Add class inits
 
 		engineVersion = lime.app.Application.current.window.application.meta.get('version');
+		#if Updateable
 		latestVersion = engineVersion;
+		// TODO: add update check
+		#end
 
 		hxhardware.CPU.init();
 		addChild(new flixel.FlxGame(initialWidth, initialHeight, imaginative.states.LaunchScreen, true));
 		FlxG.game.focusLostFramerate = 30;
 		FlxG.mouse.useSystemCursor = true;
+		FlxG.scaleMode = new flixel.system.scaleModes.RatioScaleMode();
 		#if !windows FlxG.stage.window.setIcon(lime.graphics.Image.fromFile('icon.png')); #end
+	}
+
+	public static function switchState(func:Void->imaginative.backend.states.GameState):Void {
+		FlxG.switchState(func);
+	}
+
+	inline public static function reload():Void {
+		fullReload();
+	}
+	inline public static function fullReload():Void {
+		#if Modding
+		//
+		#end
+		switchState(() -> new imaginative.states.LaunchScreen());
 	}
 }

@@ -234,10 +234,10 @@ abstract ModPath(String) {
 	}
 
 	// FlxAssets fix
-	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset return format();
-	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset return format();
-	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset return format();
-	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset return format();
+	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset return format(true);
+	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset return format(true);
+	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset return format(true);
+	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset return format(true);
 
 	static function resolve(path:String):TModPath {
 		if (path.isBlank()) // checks if null as well
