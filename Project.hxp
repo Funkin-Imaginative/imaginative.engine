@@ -54,7 +54,7 @@ class Project extends HXProject {
 	/**
 	 * The directory path to the source code.
 	 */
-	static final sourceCodeDirectory:String = './engine/source';
+	static final sourceCodeDirectory:String = 'engine/source';
 	/**
 	 * The package name.
 	 */
@@ -130,8 +130,8 @@ class Project extends HXProject {
 
 		CompilerFlag.init(this);
 
-		if (FileSystem.exists('./commands/compile/platform.txt')) {
-			if (sys.io.File.getContent('./commands/compile/platform.txt').trim() == 'cpp') {
+		if (FileSystem.exists('commands/compile/platform.txt')) {
+			if (sys.io.File.getContent('commands/compile/platform.txt').trim() == 'cpp') {
 				Sys.println('...');
 				Sys.sleep(2);
 				Sys.println('Thought you could get away with it huh?');
@@ -156,18 +156,18 @@ class Project extends HXProject {
 			return;
 		}
 
-		if (FileSystem.exists('./.haxelib'))
-			setenv('HAXEPATH', './.haxelib');
+		if (FileSystem.exists('.haxelib'))
+			setenv('HAXEPATH', '.haxelib');
 
-		addIcon('./icon.png');
-		if (!isWindows()) addAsset('./icon.png');
-		addAsset('./icon.png', './assets/images/watermarks/static-logo.png');
+		addIcon('icon.png');
+		if (!isWindows()) addAsset('icon.png');
+		addAsset('icon.png', 'assets/images/watermarks/static-logo.png');
 
 		/* DEFINES */
 		if (isRelease() && !isDebug())
 			checkForUpdates.enable();
 		// modSupport.enable();
-		scriptSupport.enable();
+		// scriptSupport.enable(); // commented out for now
 
 		usesAnimateAtlas.enable();
 
@@ -211,27 +211,27 @@ class Project extends HXProject {
 
 		/* PATH */
 		if (isDesktop())
-			addAsset('./alsoft.ini', './alsoft.${isWindows() ? 'ini' : 'conf'}');
+			addAsset('alsoft.ini', 'alsoft.${isWindows() ? 'ini' : 'conf'}');
 
 		var buildFolder:String = 'build';
 		if (!isRelease() && isDebug()) buildFolder = 'debug';
 		else if (isRelease() && !isDebug()) buildFolder = 'release';
 		else if (isRelease() && isDebug()) buildFolder = 'test';
-		app.path = './export/$buildFolder';
+		app.path = 'export/$buildFolder';
 		if (useTracy.exists()) app.path += '-tracy';
 
 		setDefine('GeneralAssetFolder', modSupport.exists() ? fallbackMod : 'assets');
-		var finalPath:String = './${modSupport.exists() ? 'mods/' : ''}${getDefine('GeneralAssetFolder')}';
+		var finalPath:String = '${modSupport.exists() ? 'mods/' : ''}${getDefine('GeneralAssetFolder')}';
 
 		sources.push(sourceCodeDirectory);
 
 		var excludeList:Array<String> = ['*.md']; // Should readme's be removed?
-		addAssetPath('./engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'resources', 'source']));
-		addAssetPath('./engine/assets', finalPath, ['*'], excludeList);
-		addAssetPath('./engine/resources', './assets', ['*'], excludeList);
+		addAssetPath('engine/', './', ['*'], excludeList.concat(['assets', 'modding', 'resources', 'source']));
+		addAssetPath('engine/assets', finalPath, ['*'], excludeList);
+		addAssetPath('engine/resources', 'assets', ['*'], excludeList);
 		if (modSupport.exists()) {
-			addAssetPath('./engine/modding/upfront', './mods', ['*'], excludeList);
-			addAssetPath('./engine/modding/lowerend', './modules', ['*'], excludeList);
+			addAssetPath('engine/modding/upfront', 'mods', ['*'], excludeList);
+			addAssetPath('engine/modding/lowerend', 'modules', ['*'], excludeList);
 		}
 		info('The ${modSupport.exists() ? 'main mod' : 'asset folder'} is "$finalPath".');
 
@@ -268,7 +268,7 @@ class Project extends HXProject {
 			addHaxelib('compiletime');
 
 		// addHaxeMacro('imaginative.backend.macro.Macro.init()');
-		// if (canHaxeScript.exists()) setDefine('rulescript_abstracts_file_path', './engine/modding/rulescript-abstracts.txt');
+		// if (canHaxeScript.exists()) setDefine('rulescript_abstracts_file_path', 'engine/modding/rulescript-abstracts.txt');
 
 		if (!isDebug()) setHaxedef('FLX_NO_DEBUG');
 		setHaxedef('FLX_NO_HEALTH');
@@ -402,14 +402,14 @@ class Project extends HXProject {
 	 * @param version The version of the library to add. Optional.
 	 */
 	inline public function addHaxelib(name:String, ?version:LibraryVersion):Void {
-		var addLib:Bool = !FileSystem.exists('./.haxelib');
+		var addLib:Bool = !FileSystem.exists('.haxelib');
 		final folderName:String = name.replace('.', ',');
 		if (!addLib)
-			if (version != null) addLib = FileSystem.exists('./.haxelib/$folderName/$version');
+			if (version != null) addLib = FileSystem.exists('.haxelib/$folderName/$version');
 			else {
-				addLib = FileSystem.exists('./.haxelib/$folderName');
-				if (addLib && FileSystem.exists('./.haxelib/$folderName/.current'))
-					version = sys.io.File.getContent('./.haxelib/$folderName/.current');
+				addLib = FileSystem.exists('.haxelib/$folderName');
+				if (addLib && FileSystem.exists('.haxelib/$folderName/.current'))
+					version = sys.io.File.getContent('.haxelib/$folderName/.current');
 			}
 		if (addLib) {
 			info('Added library "$name"${version == null ? '' : ' version "$version"'}.');

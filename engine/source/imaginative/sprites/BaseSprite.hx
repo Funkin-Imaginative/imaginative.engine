@@ -67,7 +67,7 @@ class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSp
 			try {
 				loadGraphic(Assets.image(path), !(width < 1 || height < 1), width, height);
 			} catch(error:haxe.Exception)
-				if (displayWarning) trace('The image failed to load. (path: "${_path.format().ifBlankReplace(_path)}", error: "${error.message}")');
+				if (displayWarning) trace('The image failed to load. (path: "${_path.format()}", error: "${error.message}")');
 		return this;
 	}
 	/**
@@ -88,10 +88,10 @@ class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSp
 				} catch(error:haxe.Exception)
 					try {
 						if (displayWarning)
-							trace('The spritesheet failed to load, using whole image. (path: "${_path.format().ifBlankReplace(_path)}", type: "$_type", error: "${error.message}")');
+							trace('The spritesheet failed to load, using whole image. (path: "${_path.format()}", type: "$_type", error: "${error.message}")');
 						loadImage(path, displayWarning);
 					} catch(error:haxe.Exception)
-						if (displayWarning) trace('The spritesheet failed to load. (path: "${_path.format().ifBlankReplace(_path)}", type: "$_type", error: "${error.message}")');
+						if (displayWarning) trace('The spritesheet failed to load. (path: "${_path.format()}", type: "$_type", error: "${error.message}")');
 			else loadImage(path, displayWarning);
 		return this;
 	}
@@ -111,10 +111,10 @@ class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSp
 			} catch(error:haxe.Exception)
 				try {
 					if (displayWarning)
-						trace('The atlas failed to load, using first spritemap image. (path: "${_atlas_path.format().ifBlankReplace(_atlas_path)}", type: "$IsAnimateAtlas", error: "${error.message}")');
+						trace('The atlas failed to load, using first spritemap image. (path: "${_atlas_path.format()}", type: "$IsAnimateAtlas", error: "${error.message}")');
 					loadImage(_atlas_path + 'Animation/spritemap1');
 				} catch(error:haxe.Exception)
-					if (displayWarning) trace('The atlas failed to load. (path: "${_atlas_path.format().ifBlankReplace(_atlas_path)}", type: "$IsAnimateAtlas", error: "${error.message}")');
+					if (displayWarning) trace('The atlas failed to load. (path: "${_atlas_path.format()}", type: "$IsAnimateAtlas", error: "${error.message}")');
 		}
 		return this;
 	}
@@ -145,10 +145,10 @@ class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSp
 			} catch(error:haxe.Exception) {
 				try {
 					if (displayWarning)
-						trace('The asset failed to load, using whole image. (path: "${_path.format().ifBlankReplace(_path)}", type: "$type", error: "${error.message}")');
+						trace('The asset failed to load, using whole image. (path: "${_path.format()}", type: "$type", error: "${error.message}")');
 					loadImage(path, displayWarning);
 				} catch(error:haxe.Exception)
-					if (displayWarning) trace('The asset failed to load. (path: "${_path.format().ifBlankReplace(_path)}", type: "$type", error: "${error.message}")');
+					if (displayWarning) trace('The asset failed to load. (path: "${_path.format()}", type: "$type", error: "${error.message}")');
 			}
 		}
 		return this;

@@ -121,9 +121,9 @@ class Assets {
 		try {
 			asset = path.isFile ? File.getContent(finalPath) : '';
 			if (!asset.isBlank()) addContent(finalPath, asset, cacheType, IsVulnerable);
-			else if (displayWarning) trace('Couldn\'t find "${finalPath.ifBlankReplace(path)}".');
+			else if (displayWarning) trace('Couldn\'t find "$finalPath".');
 		} catch(error:haxe.Exception)
-			if (displayWarning) trace('An error occurred when parsing the file. (path: "${finalPath.ifBlankReplace(path)}", error: "${error.message}")');
+			if (displayWarning) trace('An error occurred when parsing the file. (path: "$finalPath", error: "${error.message}")');
 		return asset.ifBlankReplace('');
 	}
 
@@ -154,7 +154,7 @@ class Assets {
 		try {
 			data = haxe.Json.parse(contents);
 		} catch(error:haxe.Exception) if (displayWarning) {
-			var errorPath:String = StringUtil.isBlank(path) ? '' : path.format().ifBlankReplace(path); // wouldn't work with using
+			var errorPath:String = StringUtil.isBlank(path) ? '' : path.format(); // wouldn't work with using
 			trace('An error occurred when parsing the json. (${errorPath.isBlank() ? '' : 'path: "$errorPath", '}error: "${error.message}")');
 		}
 		return data;
@@ -171,17 +171,16 @@ class Assets {
 	public static function image(path:ModPath, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):FlxGraphic {
 		var _path:ModPath = Paths.image(path);
 		var finalPath:String = _path.format();
-		var _finalPath:String = Paths.stripRootPrefix(finalPath);
 
 		if (!_path.isFile) {
 			if (displayWarning)
-				trace('Image asset couldn\'t be found, falling back to the flixel logo. (path: "${finalPath.ifBlankReplace(_path)}")');
+				trace('Image asset couldn\'t be found, falling back to the flixel logo. (path: "$finalPath")');
 			return FlxG.bitmap.get('FlixelLogo');
 		}
 		if (cacheType == CacheAsset && contentExists(finalPath))
 			return getContent(finalPath);
 
-		var bitmap:BitmapData = FlxG.assets.exists(_finalPath, IMAGE) ? FlxG.assets.getBitmapData(_finalPath) : BitmapData.fromFile(_finalPath);
+		var bitmap:BitmapData = FlxG.assets.exists(finalPath, IMAGE) ? FlxG.assets.getBitmapData(finalPath) : BitmapData.fromFile(finalPath);
 		var asset:FlxGraphic = FlxG.bitmap.add(bitmap, finalPath);
 		addContent(finalPath, asset, cacheType, persistenceType);
 		asset.incrementUseCount();
@@ -190,21 +189,20 @@ class Assets {
 
 	static function _audio(path:ModPath, beepWhenNull:Bool, cacheType:CacheType, persistenceType:PersistenceType, displayWarning:Bool):Sound {
 		var finalPath:String = path.format();
-		var _finalPath:String = Paths.stripRootPrefix(finalPath);
 
 		if (!path.isFile) {
 			if (beepWhenNull) {
 				if (displayWarning)
-					trace('Audio asset couldn\'t be found, falling back to the flixel beep sound. (path: "${finalPath.ifBlankReplace(path)}")');
+					trace('Audio asset couldn\'t be found, falling back to the flixel beep sound. (path: "$finalPath")');
 				return FlxG.assets.getSound('flixel/sounds/beep.ogg', true);
 			}
 			if (displayWarning)
-				trace('Audio asset couldn\'t be found. (path: "${finalPath.ifBlankReplace(path)}")');
+				trace('Audio asset couldn\'t be found. (path: "$finalPath")');
 		}
 		if (cacheType == CacheAsset && contentExists(finalPath))
 			return getContent(finalPath);
 
-		var asset:Sound = FlxG.assets.exists(_finalPath, SOUND) ? FlxG.assets.getSound(_finalPath) : Sound.fromFile(_finalPath);
+		var asset:Sound = FlxG.assets.exists(finalPath, SOUND) ? FlxG.assets.getSound(finalPath) : Sound.fromFile(finalPath);
 		addContent(finalPath, asset, cacheType, persistenceType);
 		return asset;
 	}
@@ -229,7 +227,7 @@ class Assets {
 	 * @return The instrumental audio data.
 	 */
 	inline public static function inst(song:ModPath, ?variant:String, reloadCache:Bool = false, displayWarning:Bool = false):Sound
-		return _audio(Paths.inst(song, variant), false, reloadCache ? OverrideCache : CacheAsset, IsVulnerable, displayWarning);
+		return _audio(Paths.inst(song, variant), true, reloadCache ? OverrideCache : CacheAsset, IsVulnerable, displayWarning);
 	/**
 	 * Gets the data of a vocal file from "`../data/songs/`".
 	 * @param song The song id.
@@ -245,14 +243,13 @@ class Assets {
 	/**
 	 * Gets the data of an audio file from "`../music`".
 	 * @param path The mod path.
-	 * @param beepWhenNull If true, returns the flixel beep noise if the chosen sound doesn't exist.
 	 * @param cacheType The cache type.
 	 * @param persistenceType The persistence level.
 	 * @param displayWarning If true, a warning message will appear.
 	 * @return The music audio data.
 	 */
-	inline public static function music(path:ModPath, beepWhenNull:Bool = true, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
-		return _audio(Paths.music(path), beepWhenNull, cacheType, persistenceType, displayWarning);
+	inline public static function music(path:ModPath, cacheType:CacheType = CacheAsset, persistenceType:PersistenceType = IsVulnerable, displayWarning:Bool = false):Sound
+		return _audio(Paths.music(path), true, cacheType, persistenceType, displayWarning);
 	/**
 	 * Gets the data of an audio file from "`../sounds`".
 	 * @param path The mod path.

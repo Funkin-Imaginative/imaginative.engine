@@ -1,9 +1,8 @@
 package imaginative.states;
 
-import flixel.text.FlxText;
 import moonchart.Moonchart;
 
-class LaunchScreen extends imaginative.backend.states.GameState {
+class LaunchScreen extends GameState {
 	@:unreflective static var game_boot:Bool = false;
 	static var splash_screen:Bool = false;
 
@@ -14,6 +13,7 @@ class LaunchScreen extends imaginative.backend.states.GameState {
 			Moonchart.DEFAULT_DIFF = 'normal';
 			Moonchart.init();
 
+			Conductor.init();
 			Assets.init();
 
 			FlxG.fixedTimestep = false;
@@ -21,8 +21,8 @@ class LaunchScreen extends imaginative.backend.states.GameState {
 		}
 		super.create();
 		#if Updateable
-		if (blah blah blah) {
-			Game.switchState(() -> new CanUpdateScreen());
+		if (Game.updateAvailable) {
+			openSubState(new UpdateScreen());
 			return;
 		}
 		#end
@@ -30,26 +30,31 @@ class LaunchScreen extends imaginative.backend.states.GameState {
 			splash_screen = true;
 
 			var logo = new BaseSprite('watermarks/static-logo');
-			logo.scale.scale(0.2);
-			logo.alpha = 0;
 			logo.screenCenter();
+			logo.alpha = 0;
 			logo.y -= 30;
 			add(logo);
 
-			var text = new FlxText('Imaginative\nEngine');
-			text.setFormat(Paths.font('vcr.tff').format(), 50, 0xffffc800, CENTER, OUTLINE, FlxColor.WHITE).alpha = 0;
-			text.borderSize = 2;
+			var text = new BaseSprite('watermarks/engine-text');
 			text.screenCenter();
-			text.y += 100;
+			text.alpha = 0;
+			text.y += 200 - 30;
 			add(text);
 
 			FlxTween.tween(logo, {alpha: 1}, 1, {ease: FlxEase.cubeOut});
 			FlxTween.tween(text, {alpha: 1}, 1, {ease: FlxEase.cubeOut});
 
-			FlxG.sound.play(Assets.sound('gameovers/retry', true), 0.5, () -> {
-				// Game.switchState();
-				trace(':3');
+			// TODO: once settings state is coded, do first time game launch stuff
+			FlxG.sound.play(Assets.sound('gameovers/retry', true, true), 0.5, () -> {
+				trace('launching title screen');
+				Game.switchState(() -> new TitleScreen());
 			});
 		} // else
 	}
 }
+
+#if Updateable
+class UpdateScreen extends GameState {
+	//
+}
+#end

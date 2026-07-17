@@ -16,6 +16,7 @@ import flixel.util.FlxColor;
 
 /* Engine */
 import imaginative.backend.systems.Assets;
+import imaginative.backend.systems.Conductor;
 import imaginative.backend.systems.Modding;
 import imaginative.backend.systems.Paths;
 import imaginative.sprites.BaseSprite;

@@ -19,7 +19,7 @@ abstract StringedArray(String) from String to String {
 
 	inline public function new(delimiter:String, ...list:String) {
 		var lol = list.toArray();
-		this = lol.join(delimiter);
+		this = delimiter + lol.join(delimiter);
 		lol.resize(0);
 	}
 

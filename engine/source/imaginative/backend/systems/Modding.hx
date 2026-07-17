@@ -33,7 +33,7 @@ class Modding {
 		if (!curMod.isBlank()) mods.push(curMod);
 
 		for (mod in mods) {
-			var asset:ModPath = new ModPath('./modules/$mod/$modPath', ROOT);
+			var asset:ModPath = new ModPath('modules/$mod/$modPath', ROOT);
 			if (asset.isFile) return asset.path;
 		}
 		mods.resize(0);

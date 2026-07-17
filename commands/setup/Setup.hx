@@ -35,9 +35,9 @@ class Setup {
 		var args:Array<String> = ranArgs;
 
 		// json parse
-		Sys.println('Getting libraries from "./commands/setup/data.json"');
-		if (FileSystem.exists('./commands/setup/data.json')) {
-			data = Json.parse(File.getContent('./commands/setup/data.json'));
+		Sys.println('Getting libraries from "commands/setup/data.json"');
+		if (FileSystem.exists('commands/setup/data.json')) {
+			data = Json.parse(File.getContent('commands/setup/data.json'));
 			function recursion(data:SetupJson) {
 				for (name => lib in data) {
 					lib.dev ??= false;
@@ -107,16 +107,16 @@ class Setup {
 				}
 		}
 
-		if (!FileSystem.exists('./.haxelib'))
-			FileSystem.createDirectory('./.haxelib');
+		if (!FileSystem.exists('.haxelib'))
+			FileSystem.createDirectory('.haxelib');
 		Sys.println(Main.dashes);
 
 		Sys.command('haxelib install haxelib --global');
 		Sys.command('haxelib fixrepo');
 		Sys.println(Main.dashes);
 		dependenciesCheck(data);
-		File.saveContent('./commands/setup/history.txt', libHistory.join('\n'));
-		Sys.println('Finished installing libraries.\n\nYou can check the history of installed libraries in "./commands/setup/history.txt".');
+		File.saveContent('commands/setup/history.txt', libHistory.join('\n'));
+		Sys.println('Finished installing libraries.\n\nYou can check the history of installed libraries in "commands/setup/history.txt".');
 
 		var proc:Process = new Process('haxe --version');
 		proc.exitCode(true);
@@ -179,7 +179,7 @@ class Setup {
 				libHistory.push(command);
 
 				if (lib.dev) {
-					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('./.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
+					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
 					Sys.command(command);
 					libHistory.push(command);
 				}
@@ -190,7 +190,7 @@ class Setup {
 				libHistory.push(command); // TODO: Figure out how to get lib version when none specified.
 
 				if (lib.dev) {
-					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('./.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
+					var command = commandCheck(['haxelib', 'dev', name, '".haxelib/${name.replace('.', ',')}/${File.getContent('.haxelib/${name.replace('.', ',')}/.current').trim().replace('.', ',')}/${name.replace('.', ',')}"']);
 					Sys.command(command);
 					libHistory.push(command);
 				}

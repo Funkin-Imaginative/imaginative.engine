@@ -57,8 +57,8 @@ class Main {
 	}
 
 	inline public static function getTarget(useFile:Bool = false):PlatformTarget {
-		if (useFile && sys.FileSystem.exists('./commands/compile/platform.txt')) {
-			var platform:String = sys.io.File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
+		if (useFile && sys.FileSystem.exists('commands/compile/platform.txt')) {
+			var platform:String = sys.io.File.getContent('commands/compile/platform.txt').toLowerCase().trim();
 			return switch (platform) {
 				case 'macos': MAC;
 				default: platform;

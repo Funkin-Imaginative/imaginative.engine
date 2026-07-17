@@ -31,12 +31,12 @@ class Compile {
 			Sys.println('Do you wish to input your platform type? [y/n]');
 			if (Sys.stdin().readLine().toLowerCase() == 'y') {
 				Sys.println(Main.dashes);
-				if (FileSystem.exists('./commands/compile/platform.txt'))
-					FileSystem.deleteFile('./commands/compile/platform.txt');
+				if (FileSystem.exists('commands/compile/platform.txt'))
+					FileSystem.deleteFile('commands/compile/platform.txt');
 				platformCheck(true, true);
 			} else {
-				if (FileSystem.exists('./commands/compile/platform.txt'))
-					FileSystem.deleteFile('./commands/compile/platform.txt');
+				if (FileSystem.exists('commands/compile/platform.txt'))
+					FileSystem.deleteFile('commands/compile/platform.txt');
 			}
 			return;
 		}
@@ -49,8 +49,8 @@ class Compile {
 	}
 
 	static function platformCheck(doneAgain:Bool = false, wasCpp:Bool = false):Void {
-		if (FileSystem.exists('./commands/compile/platform.txt')) {
-			var content:PlatformTarget = File.getContent('./commands/compile/platform.txt').toLowerCase().trim();
+		if (FileSystem.exists('commands/compile/platform.txt')) {
+			var content:PlatformTarget = File.getContent('commands/compile/platform.txt').toLowerCase().trim();
 			if (content == CPP) {
 				if (wasCpp) {
 					Sys.println('HUH???');
@@ -58,14 +58,14 @@ class Compile {
 					Sys.println('HOW??');
 					Sys.sleep(1);
 					Sys.println('You\'re fast!');
-					if (FileSystem.exists('./commands/compile/platform.txt'))
-						FileSystem.deleteFile('./commands/compile/platform.txt');
+					if (FileSystem.exists('commands/compile/platform.txt'))
+						FileSystem.deleteFile('commands/compile/platform.txt');
 					Sys.sleep(2);
 					Sys.println('This time I\'m booting you from the loop!');
 					for (i in 0...10) {
 						Sys.sleep(1);
-						if (FileSystem.exists('./commands/compile/platform.txt')) {
-							FileSystem.deleteFile('./commands/compile/platform.txt');
+						if (FileSystem.exists('commands/compile/platform.txt')) {
+							FileSystem.deleteFile('commands/compile/platform.txt');
 							Sys.println('\nNuh uh.');
 							break;
 						}
@@ -78,8 +78,8 @@ class Compile {
 					Sys.println('cpp...');
 					Sys.sleep(3);
 					Sys.println('Yeah I\'m deletin\' that shit.');
-					if (FileSystem.exists('./commands/compile/platform.txt'))
-						FileSystem.deleteFile('./commands/compile/platform.txt');
+					if (FileSystem.exists('commands/compile/platform.txt'))
+						FileSystem.deleteFile('commands/compile/platform.txt');
 					Sys.sleep(2);
 					Sys.println(Main.dashes);
 					platformCheck(false, true);
@@ -110,7 +110,7 @@ class Compile {
 					return;
 				}
 			}
-			File.saveContent('./commands/compile/platform.txt', content == 'auto' ? Main.getTarget(true) : content);
+			File.saveContent('commands/compile/platform.txt', content == 'auto' ? Main.getTarget(true) : content);
 		}
 	}
 

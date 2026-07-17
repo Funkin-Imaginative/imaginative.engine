@@ -199,17 +199,15 @@ abstract ModPath(String) {
 
 	/**
 	 * Formats the info in the abstract into the final path.
-	 * @param stripRootPrefix If true, strips the "./" prefix from the path.
 	 * @return The finalized path.
 	 */
-	inline public function format(stripRootPrefix:Bool = false):String {
-		var finalPath = Paths.applyRoot(path, type, moduleId);
-		return stripRootPrefix ? Paths.stripRootPrefix(finalPath) : finalPath;
-	}
+	inline public function format():String
+		return Paths.applyRoot(path, type, moduleId);
 
 	@:op(A += B) inline public function appendPath(addition:ModPath):ModPath {
 		var ext:String = addition.extension.ifBlankReplace(abstract.extension);
-		return this = new ModPath(FilePath.withoutExtension(abstract.path) + '/' + FilePath.withoutExtension(addition.path) + (ext.isBlank() ? '' : '.$ext'), addition.type, addition.moduleId.ifBlankReplace(abstract.moduleId.ifBlankReplace()));
+		var path:Bool = FilePath.withoutExtension(abstract.path).isBlank() || FilePath.withoutExtension(addition.path).isBlank();
+		return this = new ModPath(FilePath.withoutExtension(abstract.path) + (path ? '' : '/') + FilePath.withoutExtension(addition.path) + (ext.isBlank() ? '' : '.$ext'), addition.type, addition.moduleId.ifBlankReplace(abstract.moduleId.ifBlankReplace()));
 	}
 	@:op(A + B) inline public static function mergePath(a:ModPath, b:ModPath):ModPath
 		return a.appendPath(b);
@@ -234,10 +232,10 @@ abstract ModPath(String) {
 	}
 
 	// FlxAssets fix
-	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset return format(true);
-	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset return format(true);
-	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset return format(true);
-	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset return format(true);
+	@:to inline public function toFlxGraphicAsset():flixel.system.FlxAssets.FlxGraphicAsset return format();
+	@:to inline public function toFlxSoundAsset():flixel.system.FlxAssets.FlxSoundAsset return format();
+	@:to inline public function toFlxXmlAsset():flixel.system.FlxAssets.FlxXmlAsset return format();
+	@:to inline public function toFlxAsepriteJsonAsset():flixel.system.FlxAssets.FlxAsepriteJsonAsset return format();
 
 	static function resolve(path:String):TModPath {
 		if (path.isBlank()) // checks if null as well
@@ -317,10 +315,9 @@ final class FileModPath {
 
 	/**
 	 * Formats the info in the class into the final path.
-	 * @param stripRootPrefix If true, strips the "./" prefix from the path.
 	 * @return The finalized path.
 	 */
-	inline public function format(stripRootPrefix:Bool = false):ModPath return toString().format(stripRootPrefix);
+	inline public function format():ModPath return toString().format();
 	inline public function toString():ModPath return new ModPath(path, modType, moduleId);
 }
 /**
@@ -340,39 +337,29 @@ class Paths {
 
 		#if Modding
 		if (result.isBlank() && ModType.pathCheck(MODULE, type))
-			if (pathExists(check = new Modpath(moduleId.isBlank() ? Modding.getModsRoot(path) : './modules/$moduleId/$path', ROOT)))
+			if (pathExists(check = new Modpath(moduleId.isBlank() ? Modding.getModsRoot(path) : 'modules/$moduleId/$path', ROOT)))
 				result = check.path;
 		// trace('MODULE: $result');
 		if (result.isBlank() && ModType.pathCheck(MASTER, type))
-			if (pathExists(check = new ModPath('./mods/${Modding.masterMod}/$path', ROOT)))
+			if (pathExists(check = new ModPath('mods/${Modding.masterMod}/$path', ROOT)))
 				result = check.path;
 		// trace('MASTER: $result');
 		if (result.isBlank() && ModType.pathCheck(FALLBACK, type))
-			if (pathExists(check = new ModPath('./mods/${Game.fallbackMod}/$path', ROOT)))
+			if (pathExists(check = new ModPath('mods/${Game.fallbackMod}/$path', ROOT)))
 				result = check.path;
 		// trace('FALLBACK: $result');
 		#end
 		if (result.isBlank() && type == ROOT)
-			if (pathExists(check = new ModPath('./$path', ROOT)))
+			if (pathExists(check = new ModPath('$path', ROOT)))
 				result = check.path;
 		// trace('ROOT: $result');
 		if (result.isBlank())
-			if (pathExists(check = new ModPath('./assets/$path', ROOT)))
+			if (pathExists(check = new ModPath('assets/$path', ROOT)))
 				result = check.path;
 		// trace('RESULT: $result');
 
-		return result.ifBlankReplace(path);
+		return result.ifBlankReplace(path.ifBlankReplace('./'));
 	}
-
-	/**
-	 * Strips the "./" prefix from the path.
-	 *
-	 * Using this makes FileSystem not be stupid when refering to local engine root.
-	 * @param path The final path.
-	 * @return Same path, prefix stripped.
-	 */
-	inline public static function stripRootPrefix(path:String):String
-		return path.startsWith('./') ? path.substr(2) : path;
 
 	/**
 	 * @param path The mod path.
@@ -597,14 +584,14 @@ class Paths {
 	 * @return If true, the path exists.
 	 */
 	inline public static function pathExists(path:ModPath):Bool
-		return FileSystem.exists(path.type == ROOT ? './${path.path}' : path.format());
+		return FileSystem.exists(path.type == ROOT ? '${path.path.ifBlankReplace('./')}' : path.format());
 	/**
 	 * Checks if the file exists.
 	 * @param path The mod path.
 	 * @return If true, the file exists.
 	 */
 	inline public static function fileExists(path:ModPath):Bool {
-		return FlxG.assets.exists(path.format(true)) || (!folderExists(path) && pathExists(path));
+		return FlxG.assets.exists(path.format()) || (!folderExists(path) && pathExists(path));
 	}
 	/**
 	 * Checks if the folder exists.
@@ -612,7 +599,7 @@ class Paths {
 	 * @return If true, the folder exists.
 	 */
 	inline public static function folderExists(path:ModPath):Bool
-		return FileSystem.isDirectory(path.type == ROOT ? './${path.path}' : path.format());
+		return FileSystem.isDirectory(path.type == ROOT ? '${path.path.ifBlankReplace('./')}' : path.format());
 
 	/**
 	 * Checks if an image as a sheet extention.
