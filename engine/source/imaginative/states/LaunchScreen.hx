@@ -46,7 +46,6 @@ class LaunchScreen extends GameState {
 
 			// TODO: once settings state is coded, do first time game launch stuff
 			FlxG.sound.play(Assets.sound('gameovers/retry', true, true), 0.5, () -> {
-				trace('launching title screen');
 				Game.switchState(() -> new TitleScreen());
 			});
 		} // else

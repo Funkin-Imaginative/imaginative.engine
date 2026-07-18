@@ -44,14 +44,14 @@ typedef AnimationMapEntry = {
 }
 
 class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSprite #end {
+	/**
+	 * The list of mapped animations this sprite has.
+	 */
 	public var animations:Map<String, AnimationMapEntry> = new Map<String, AnimationMapEntry>();
+	/**
+	 * The context of the current animation.
+	 */
 	public var animationContext:AnimationContext = Unclear;
-
-	public function new(x:Float = 0, y:Float = 0, ?sprite:ModPath) {
-		super(x, y);
-		if (sprite != null)
-			loadTexture(sprite, true);
-	}
 
 	/**
 	 * Loads a graphic texture for the sprite to use.
@@ -152,6 +152,92 @@ class BaseSprite extends #if Animate_Atlas animate.FlxAnimate #else flixel.FlxSp
 			}
 		}
 		return this;
+	}
+
+	public function new(x:Float = 0, y:Float = 0, ?sprite:ModPath) {
+		super(x, y);
+		if (sprite != null)
+			loadTexture(sprite, true);
+	}
+
+	/**
+	 * Adds an animation from a spritesheet.
+	 * @param name The name of the animation.
+	 * @param tag The name of the animation internally.
+	 * @param indices Specific frames for the animation to use, *optional*.
+	 * @param offset The offset for the animation.
+	 * @param fps The framerate of the animation.
+	 * @param loop If true, the animation will repeat when finished.
+	 * @param flipX If true, the animation will flipped on the X axis.
+	 * @param flipY If true, the animation will flipped on the Y axis.
+	 */
+	inline public function addAnimation(name:String, tag:String, ?indices:Array<Int>, ?offset:FlxPoint, fps:Float = 24, loop:Bool = false, flipX:Bool = false, flipY:Bool = false):Void {
+		if (indices == null || indices.empty())
+			animation.addByPrefix(name, tag, fps, loop, flipX, flipY);
+		else animation.addByIndices(name, tag, indices, '', fps, loop, flipX, flipY);
+		animations.set(name, {offset: offset ?? new FlxPoint(), extra: new Map<String, Dynamic>()});
+	}
+	/**
+	 * Adds an animation from a sliced image.
+	 * @param name The name of the animation.
+	 * @param frames Specific frames for the animation to use.
+	 * @param offset The offset for the animation.
+	 * @param fps The framerate of the animation.
+	 * @param loop If true, the animation will repeat when finished.
+	 * @param flipX If true, the animation will flipped on the X axis.
+	 * @param flipY If true, the animation will flipped on the Y axis.
+	 */
+	inline public function addSlicedAnimation(name:String, frames:Array<Int>, ?offset:FlxPoint, fps:Float = 24, loop:Bool = false, flipX:Bool = false, flipY:Bool = false):Void {
+		animation.add(name, frames, fps, loop, flipX, flipY);
+		animations.set(name, {offset: offset ?? new FlxPoint(), extra: new Map<String, Dynamic>()});
+	}
+	#if Animate_Atlas
+	/**
+	 * Adds an animation from an animate atlas.
+	 * @param name The name of the animation.
+	 * @param tag The name of the animation internally.
+	 * @param label Wether the animation to add is from a labeled frame.
+	 * @param indices Specific frames for the animation to use, *optional*.
+	 * @param offset The offset for the animation.
+	 * @param fps The framerate of the animation.
+	 * @param loop If true, the animation will repeat when finished.
+	 * @param flipX If true, the animation will flipped on the X axis.
+	 * @param flipY If true, the animation will flipped on the Y axis.
+	 */
+	inline public function addAtlasAnimation(name:String, tag:String, label:Bool = false, ?indices:Array<Int>, ?offset:FlxPoint, fps:Float = 24, loop:Bool = false, flipX:Bool = false, flipY:Bool = false):Void {
+		if (label)
+			if (indices == null || indices.empty())
+				anim.addByFrameLabel(name, tag, fps, loop, flipX, flipY);
+			else anim.addByFrameLabelIndices(name, tag, indices, fps, loop, flipX, flipY);
+		else
+			if (indices == null || indices.empty())
+				anim.addBySymbol(name, tag, fps, loop, flipX, flipY);
+			else anim.addBySymbolIndices(name, tag, indices, fps, loop, flipX, flipY);
+		animations.set(name, {offset: offset ?? new FlxPoint(), extra: new Map<String, Dynamic>()});
+	}
+	#end
+
+	/**
+	 * Plays an animation.
+	 * @param name The animation name.
+	 * @param force If true, it forces the animation to play.
+	 * @param context The animation context.
+	 * @param reverse If true, the animation will play in reverse.
+	 * @param frame The frame for the animation to start at.
+	 */
+	public function playAnimation(name:String, force:Bool = true, context:AnimationContext = Unclear, reverse:Bool = false, frame:Int = 0):Void {
+		var suffixes = name.trimSplit('-');
+		while (!suffixes.empty()) {
+			suffixes.pop();
+			var _name:String = suffixes.join('-');
+			if (animation.exists(_name)) {
+				animation.play(_name, force, reverse, frame);
+				if (animations.exists(_name))
+					offset.copyFrom(animations.get(_name).offset);
+				break;
+			}
+		}
+		suffixes.resize(0);
 	}
 
 	override function initVars():Void {

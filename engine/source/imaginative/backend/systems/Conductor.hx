@@ -111,6 +111,12 @@ class Conductor extends flixel.FlxBasic {
 	public var volume(get, set):Float;
 	inline function get_volume():Float return group.volume;
 	inline function set_volume(value:Float):Float return group.volume = value;
+	/**
+	 * Whether the conductor is muted or not.
+	 */
+	public var muted(get, set):Bool;
+	inline function get_muted():Bool return group.muted;
+	inline function set_muted(value:Bool):Bool return group.muted = value;
 
 	/**
 	 * How fast the song should play.
@@ -119,13 +125,17 @@ class Conductor extends flixel.FlxBasic {
 	inline function set_rate(value:Float):Float {
 		for (sound in group.sounds)
 			sound.pitch = value;
-		return value;
+		return rate = value;
 	}
 
 	/**
 	 * The current song time **(in milliseconds)**.
 	 */
-	public var time(default, null):Float = 0;
+	public var time:Float = 0;
+	/**
+	 * Basically just "time" but for note positioning.
+	 */
+	public var frameTime(default, null):Float = 0;
 
 	public function new(id:String = 'Unknown', canLoop:Bool = false) {
 		super();
@@ -133,6 +143,8 @@ class Conductor extends flixel.FlxBasic {
 		this.id = id;
 		this.canLoop = canLoop;
 		group = new FlxSoundGroup();
+		muted = false;
+		rate = 1;
 
 		FlxG.signals.focusGained.add(onFocus);
 		FlxG.signals.focusLost.add(onFocusLost);
@@ -272,18 +284,18 @@ class Conductor extends flixel.FlxBasic {
 		return meta;
 	}
 
-	@:unreflective var _printResyncMessage:Bool = false;
+	@:unreflective static var _printResyncMessage:Bool = false;
 	/**
 	 * Resyncs all sounds to the conductor time when called.
 	 * @param force If true, it will force a resync.
 	 */
-	inline public function resyncVocals(force:Bool = false):Void {
-		if (force || !playing) return;
+	public function resyncVocals(force:Bool = false):Void {
+		if (!playing) if (!force) return;
 		_printResyncMessage = false;
 		for (sound in group.sounds) {
 			// idea from psych
-			if (time < sound.length) {
-				if (force || Math.abs(time - sound.time) > 5) {
+			if (time > 0 && time < sound.length) {
+				if (force || Math.abs(time - sound.time) > 15) {
 					sound.play(true, time);
 					_printResyncMessage = true;
 				}
@@ -295,6 +307,7 @@ class Conductor extends flixel.FlxBasic {
 	}
 
 	var _elapsed:Float = 0;
+	var prevTime:Float = 0;
 	var processAnyway:Bool = false;
 	override function update(elapsed:Float):Void {
 		super.update(elapsed);
@@ -302,12 +315,17 @@ class Conductor extends flixel.FlxBasic {
 
 		if (playing) {
 			// copied persnake's FlxRhythmConductor code, lol
-			_elapsed = elapsed * 1000;
-			time += _elapsed;
+			final prevTime:Float = time;
+			time += elapsed * 1000;
+			frameTime = frameTime + elapsed * 1000;
+			_elapsed = time - prevTime;
 			resyncVocals();
 		}
 
 		// TODO: BPM shit
+
+		if (time != prevTime)
+			frameTime = prevTime = time;
 	}
 
 	/**
